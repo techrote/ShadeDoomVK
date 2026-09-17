@@ -1,25 +1,39 @@
 # SDVK-002 — Renderer observability, reference scenes and benchmark harness
 
-## Purpose
-Create the objective renderer oracle used by every later material/light/shadow/performance issue.
+## Objective
+Expand the PF hardening oracle into the durable renderer reference/diagnostic/benchmark system used by all later SDVK feature work.
 
-## Autonomous execution prompt
-Complete SDVK-002 after SDVK-001. Read `AGENTS.md`, all founding docs under `docs/shadedoomvk/`, SDVK-001 evidence, and current `master`. Define diagnostic schema, deterministic fixture rules and falsification criteria before implementation. Work on a dedicated branch; PR; repair required CI; merge only after checks pass; verify `master`; close only when criteria hold.
+## Scope / required work
+- Consume PF-001/PF-020 fixtures/diagnostics rather than replacing them.
+- Build a compact deterministic corpus for sprite rotations/mirroring, semantic materials, lights/occlusion, probes/sun, portals/views, decals/canvas/translucency, shadows and resource stress.
+- Standardize machine-readable renderer state: context, semantic layers/samplers, selected/rejected lights, probe mode/index, shadow mode/caster, generations/resource counters, pipeline identity and CPU/GPU timing where available.
+- Add fixed-camera capture and documented exact/tolerant image comparison.
+- Establish repeatable benchmark workloads/percentiles and evidence manifest format.
+- Preserve minimized PF negative fixtures and extend them as SDVK defects appear.
 
-## Required work
-- Build a compact deterministic renderer reference corpus covering sprite rotations/mirroring, lights/occlusion, probes/sun, legacy and PBR materials, portals, decals/canvas/translucency and resource stress.
-- Add machine-readable diagnostics for active renderer/features, material layers, selected/rejected lights, probe, shadow mode, descriptor usage and timings where available.
-- Add fixed-camera capture support or an equivalent repeatable visual-evidence mechanism.
-- Pair image evidence with state assertions; do not rely on subjective screenshots alone.
-- Establish repeatable CPU frame measurement and GPU timing where backend support permits.
-- Preserve minimized negative fixtures for wrong light selection, stale resources and tangent/mirror errors as they are discovered.
-
-## Acceptance criteria
-- Corpus and diagnostics run deterministically enough for CI/regression use.
-- Later issues can measure selected lights/material semantics/resource counters without ad-hoc instrumentation.
-- At least one positive and negative fixture exists for major scene categories in `06-VALIDATION-PERFORMANCE-CONTRACT.md`.
-- CI exercises a tractable deterministic subset.
-- PR merged and verified on `master`.
+## Non-goals
+No material/lighting/shadow feature implementation; no replacement of PF safety checks; no benchmark claims from average FPS alone.
 
 ## Dependencies
 SDVK-001.
+
+## Concurrency guidance
+May proceed in parallel with SDVK-003. Later SDVK-004/006/009/014 depend on this durable oracle.
+
+## Required context
+Read `AGENTS.md`, PF freeze manifest/evidence, `06-VALIDATION-PERFORMANCE-CONTRACT.md`, all relevant RAG, current diagnostics/tests and canonical body.
+
+## Autonomous implementation prompt
+Complete SDVK-002 autonomously. Extend the accepted PF oracle into a maintainable deterministic corpus/diagnostic/benchmark harness; preserve old evidence where still valid; branch→tests/docs→PR→checks→merge→verify `master`→RAG/ledger→close.
+
+## Acceptance criteria
+Later issues can inspect material/light/probe/shadow/resource/view state without ad-hoc instrumentation; deterministic corpus covers declared classes; image comparison policy documented; tractable subset runs in CI; benchmark outputs include repeatable timings/counters; PR merged/verified.
+
+## Verification
+Run corpus twice from clean state; compare state/captures; exercise CI subset; collect CPU/GPU/counter baseline on documented workloads.
+
+## Expected artifacts
+Reference scenes/fixtures, diagnostics schema, capture/comparison tooling, benchmark definitions/results format, developer docs, RAG/ledger updates.
+
+## Blocking / stopping conditions
+Stop if a proposed golden method is inherently unstable across supported hardware/drivers without state-based fallback; do not make CI depend on fragile exact pixels when tolerance/state assertions are required.
