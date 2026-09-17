@@ -1,24 +1,39 @@
 # SDVK-006 — Render-frame time and opt-in visual interpolation substrate
 
-## Purpose
-Provide a high-frame-rate visual clock without changing Doom gameplay simulation.
+## Objective
+Provide a high-frame-rate renderer visual clock and compatibility-safe opt-in visual interpolation without changing Doom gameplay/tic determinism, using PF-010's explicit render-context model.
 
-## Autonomous execution prompt
-Complete SDVK-006 after SDVK-001 and SDVK-002. Read all founding docs, especially simulation/rendering rules, and inspect MAD-VKDoom commits `316b18a4d96b1a120c681d368ac670286234bcc8` and `7d1f2df404711986a3cc742dad1f9e6e0ac69cde`. Adapt concepts with explicit renderer semantics. Dedicated branch → PR → required checks → merge → verify `master`.
+## Scope / required work
+- Inspect current timing/interpolation after PF; adapt MAD render-delta/interpolation concepts only where still useful.
+- Define rendered-frame delta/time semantics for main and non-main render contexts; reset/clamp across load/wipe/pause/camera discontinuities.
+- Expose renderer/script visual-time access with explicit non-gameplay semantics.
+- Add opt-in alpha/scale interpolation where compatible and useful; preserve legacy default behavior where required.
+- Ensure camera textures/probe renders/portal recursion do not corrupt main-view timing/history state.
+- Add deterministic endpoint/discontinuity tests and diagnostics.
 
-## Required work
-- Add reliable rendered-frame delta/time access for renderer/shader/script visual use.
-- Reset/clamp appropriately across loads, wipes, pauses and discontinuities.
-- Add opt-in high-FPS interpolation for visually useful alpha/scale state where compatibility-safe.
-- Keep authoritative game state/tics deterministic and unchanged.
-- Add deterministic tests for discontinuity handling and interpolation endpoints.
-
-## Acceptance criteria
-- Visual delta time is well-defined and diagnosable.
-- Load/wipe/pause barriers cannot produce uncontrolled temporal jumps.
-- Opt-in alpha/scale interpolation is smooth and backward compatible.
-- Gameplay/demos are not made frame-rate dependent by the feature.
-- PR merged and verified on `master`.
+## Non-goals
+No gameplay timestep change; no TAA/motion vectors/temporal history; no generalized animation rewrite.
 
 ## Dependencies
 SDVK-001, SDVK-002.
+
+## Concurrency guidance
+May overlap SDVK-004/005/009 on separate files. Later animated material/temporal work consumes this contract.
+
+## Required context
+Read `AGENTS.md`, PF-010 and PF freeze evidence, execution/portal/HDR RAG, MAD donor commits in provenance register, SDVK-002 oracle and canonical body.
+
+## Autonomous implementation prompt
+Complete SDVK-006 autonomously. Define visual-time semantics first, adapt only relevant donor concepts, preserve tic/gameplay determinism, test discontinuities/non-main views, branch→PR→checks→merge→verify `master`→donor/RAG/ledger→close.
+
+## Acceptance criteria
+Visual delta/time well-defined/diagnosable; load/wipe/pause/cut cannot cause uncontrolled jumps; opt-in alpha/scale interpolation smooth and compatible; non-main renders do not contaminate main visual time; gameplay/demos remain frame-rate independent; PR merged/verified.
+
+## Verification
+Fixed simulation with varying render rates, pause/wipe/load/camera cut, portal/camera/probe render contexts, interpolation endpoints, demo/game-state equivalence.
+
+## Expected artifacts
+Visual-time API/diagnostics, interpolation implementation/tests, timing docs/RAG/provenance/ledger updates.
+
+## Blocking / stopping conditions
+Stop if an interpolation path modifies authoritative simulation state or if a single clock cannot represent a non-main context safely; use explicit context-local/fallback semantics instead.
