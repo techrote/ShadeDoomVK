@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://techrote.github.io/ShadeDoomVK/pf-runtime-evidence.schema.json",
+  "title": "ShadeDoomVK PF runtime evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "fixture_id",
+    "build",
+    "view_context",
+    "material",
+    "resources",
+    "lights",
+    "probe",
+    "shadow"
+  ],
+  "properties": {
+    "schema_version": {"const": 1},
+    "fixture_id": {"type": "string", "minLength": 1},
+    "build": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["commit", "backend"],
+      "properties": {
+        "commit": {"type": "string", "minLength": 7},
+        "backend": {"type": "string", "minLength": 1},
+        "tier": {"type": "string"},
+        "device": {"type": "string"},
+        "driver": {"type": "string"}
+      }
+    },
+    "view_context": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["main", "portal", "mirror", "camera_texture", "probe_face", "other"]
+        },
+        "id": {"type": ["string", "integer"]},
+        "parent_id": {"type": ["string", "integer", "null"]},
+        "portal_group": {"type": ["integer", "null"]},
+        "mirrored": {"type": "boolean"}
+      }
+    },
+    "material": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["semantic_layers"],
+      "properties": {
+        "id": {"type": ["string", "integer", "null"]},
+        "semantic_layers": {
+          "type": "array",
+          "items": {"type": "string"},
+          "uniqueItems": true
+        },
+        "samplers": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "bindless": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": ["slot"],
+            "properties": {
+              "slot": {"type": "integer", "minimum": 0},
+              "generation": {"type": ["integer", "null"], "minimum": 0},
+              "class": {"type": "string"}
+            }
+          }
+        },
+        "levelmesh_generation": {"type": ["integer", "null"], "minimum": 0},
+        "descriptor_current": {"type": ["integer", "null"], "minimum": 0},
+        "descriptor_high_water": {"type": ["integer", "null"], "minimum": 0}
+      }
+    },
+    "lights": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["considered", "selected", "rejected"],
+      "properties": {
+        "considered": {"type": "array", "items": {"type": ["string", "integer"]}},
+        "selected": {"type": "array", "items": {"type": ["string", "integer"]}},
+        "rejected": {"type": "array", "items": {"type": ["string", "integer"]}},
+        "candidate_source": {"type": "string"}
+      }
+    },
+    "probe": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["mode"],
+      "properties": {
+        "mode": {"type": "string"},
+        "index": {"type": ["integer", "null"], "minimum": 0},
+        "fallback": {"type": "boolean"}
+      }
+    },
+    "shadow": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["mode"],
+      "properties": {
+        "mode": {"type": "string"},
+        "candidates": {"type": ["integer", "null"], "minimum": 0},
+        "selected": {"type": ["integer", "null"], "minimum": 0},
+        "lod": {"type": ["string", "integer", "null"]}
+      }
+    },
+    "timing": {
+      "type": "object",
+      "additionalProperties": {"type": ["number", "integer", "null"]}
+    },
+    "image": {
+      "type": ["object", "null"],
+      "additionalProperties": true,
+      "properties": {
+        "path": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-fA-F]{64}$"},
+        "metric": {"type": "string"},
+        "tolerance": {"type": ["number", "null"], "minimum": 0}
+      }
+    }
+  }
+}
