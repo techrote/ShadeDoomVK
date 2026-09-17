@@ -13,6 +13,7 @@
 #include "hw_materialstate.h"
 #include "hw_surfaceuniforms.h"
 #include "hw_rectpacker.h"
+#include "hw_resourcegeneration.h"
 #include "engineerrors.h"
 #include <memory>
 #include <unordered_map>
@@ -137,6 +138,10 @@ public:
 	// Sets the initial sizes of the GPU buffers and empties the mesh
 	virtual void Reset();
 
+	FRendererEpochToken GetResourceEpoch() const { return ResourceEpoch.Snapshot(); }
+	bool ValidateResourceEpoch(FRendererEpochToken token) { return ResourceEpoch.Validate(token); }
+	const FRendererEpochStats& GetResourceEpochStats() const { return ResourceEpoch.GetStats(); }
+
 	virtual void GetVisibleSurfaces(LightmapTile* tile, TArray<int>& outSurfaces) { }
 
 	// Data placed in GPU buffers
@@ -227,6 +232,9 @@ public:
 	
 	void UploadPortals();
 	void CreateCollision();
+
+private:
+	FRendererEpoch ResourceEpoch;
 };
 
 struct LevelMeshTileStats
