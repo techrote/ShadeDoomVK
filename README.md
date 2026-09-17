@@ -1,80 +1,42 @@
-## Welcome to VKDoom!
+# ShadeDoomVK
 
-VKDoom is a source port based on the DOOM engine with a focus on Vulkan and modern computers.
+ShadeDoomVK is a Vulkan-first experimental Doom-engine renderer fork based on VKDoom. Its purpose is to push the classic sprite-and-sector presentation toward materially rich, dynamically lit 2.5D rendering while preserving Doom-family gameplay, content semantics and mod compatibility wherever the renderer can do so honestly.
 
-Please see license files for individual contributor licenses.
+The project is focused on:
 
-### Releases
+- dynamic world and actor lighting;
+- normal-mapped and PBR sprite materials;
+- explicit sprite-local tangent-space handling;
+- height/parallax relief for sprites without requiring full 3D replacement models;
+- light probes, baked/static lighting and dynamic lightmaps;
+- ray-query world occlusion combined with sprite-aware projected/contact shadows;
+- modern Vulkan descriptor/material infrastructure and measurable performance tiers.
 
-We do not have any official release of VKDoom yet. You can however download a binary build of the latest master branch commit at https://github.com/dpjudas/VkDoom/releases/tag/nightly
+Until the baseline/rebranding issue is completed, some executable names, documentation and source identifiers still say `VKDoom`. This is expected and must not be silently mass-renamed without compatibility review.
 
-### Build Guide
+## Founding plan
 
-## Prep
-For Windows, you need the latest version of Visual Studio, Windows SDK, Git, and CMake to build VKDoom.
+The autonomous development programme is defined in:
 
-For Linux, you need the following:
-* libsdl2-dev
-* libopenal-dev
-* libvpx-dev
-* git
-* cmake
+- `AGENTS.md` — execution rules for autonomous implementation agents;
+- `docs/shadedoomvk/00-FOUNDING-BRIEF.md` — goals, non-goals and invariants;
+- `docs/shadedoomvk/01-INITIAL-IMPLEMENTATION-PLAN.md` — first-pass plan preserved for history;
+- `docs/shadedoomvk/02-PLAN-REVIEW.md` — critique of the first-pass plan;
+- `docs/shadedoomvk/03-REVISED-ROADMAP.md` — reviewed dependency-ordered roadmap;
+- `docs/shadedoomvk/04-DONOR-PROVENANCE.md` — VKDoom-fork donor audit and exact commit provenance;
+- `docs/shadedoomvk/05-AUTONOMOUS-ISSUE-GRAPH.md` — issue graph and execution order;
+- `docs/shadedoomvk/06-VALIDATION-PERFORMANCE-CONTRACT.md` — evidence, compatibility and performance rules.
 
-For Mac, the following project is recommended, as it contains all the dependencies and makes building easy: https://github.com/ZDoom/zdoom-macos-deps
+## Baseline
 
-## Clone the repo
-After you have the packages installed, `cd` into your projects directory, and do the following to clone:
+The founding ShadeDoomVK repository starts from VKDoom commit `09634479ab5bf9adf691074fffe85a006a398cd0`.
 
-```sh
-git clone https://github.com/dpjudas/VkDoom
-```
-
-Afterwards, `cd` into it
-
-```sh
-cd VkDoom
-```
-
-Make a build folder, then `cd` into it
-
-```sh
-mkdir build
-cd build
-```
+Do not assume a donor patch is missing merely because it exists in another VKDoom fork. Several apparently separate forks are ancestral to this baseline. Check Git history and `04-DONOR-PROVENANCE.md` before importing code.
 
 ## Building
 
-### Windows
-For Windows, run the following to prepare your build environment and the second command will build:
+The inherited VKDoom build remains authoritative until SDVK-001 updates it. On Windows the conventional baseline is Visual Studio + Windows SDK + CMake; Linux uses SDL2/OpenAL/VPX plus CMake/Ninja or Make. Every implementation issue must keep required CI green and document any deliberate platform support change.
 
-```sh
-cmake -A x64 ..
-cmake --build . --config Release -- -maxcpucount
-```
+## License
 
-(replace x64 with ARM64 if you're building on ARM64)
-
-### Linux - Ninja (Recommended)
-For 'ninja', make sure the ninja package is installed on your distro (ex: Debian: `sudo apt install ninja`) - then run the following to prepare your build environment and the second command will build:
-```sh
-cmake .. -DCMAKE_BUILD_TYPE=Release -G Ninja
-cmake . --build
-```
-
-### Linux - Make
-For 'make', run the following to prepare your build environment and the second command will build:
-
-```sh
-cmake .. -DCMAKE_BUILD_TYPE=Release
-make -j $(nproc)
-```
-
-### Mac OS
-For Mac, if you're using zdoom-macos-deps, simply cd into it and type the following:
-
-```sh
-./build.py --target vkdoom
-```
-
-### Licensed under the GPL v3
-##### https://www.gnu.org/licenses/quick-guide-gplv3.en.html
+GPL-3.0, with inherited third-party licensing and contributor notices retained. Donor code must preserve its provenance and compatible license obligations.
