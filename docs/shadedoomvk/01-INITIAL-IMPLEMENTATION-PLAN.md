@@ -1,7 +1,9 @@
 # Initial implementation plan
 
-Status: superseded by the reviewed roadmap in `03-REVISED-ROADMAP.md`  
-Purpose: preserve the first coherent sequence before critique.
+Status: **historical only; superseded** by `03-REVISED-ROADMAP.md`, `08-PREFOUNDATION-HARDENING-PROGRAMME.md` and `09-PLANNING-RECONCILIATION.md`  
+Purpose: preserve the first coherent sequence before critique. **Do not execute this document as the current plan.**
+
+The donor assumptions below intentionally preserve what was believed during the first pass. Later source audit established, among other corrections, that per-layer material sampling and bindless slot reuse already exist in the inherited VKDoom baseline. Use the canonical reconciliation/donor documents for current truth.
 
 ## First-pass sequence
 
@@ -54,4 +56,4 @@ The first pass identified these non-ancestral concepts as worth evaluating:
 
 The first pass considered the tranche complete when rich sprite materials, pseudo-depth, coherent actor/viewmodel lighting and scalable sprite shadows worked on a reference map without major compatibility/performance regressions.
 
-The review document explains why this was not sufficiently rigorous as written.
+The later review/source-audit documents explain why this was not sufficiently rigorous and why PF-001..PF-020 now precede SDVK-001.
