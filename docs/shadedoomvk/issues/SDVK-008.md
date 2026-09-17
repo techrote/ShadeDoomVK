@@ -1,26 +1,39 @@
 # SDVK-008 — Height/POM sprite relief and advanced PBR response
 
-## Purpose
-Add bounded pseudo-depth to sprites while preserving their 2D identity and correct PBR response.
+## Objective
+Add bounded view-coherent pseudo-depth to sprite materials using SDVK-005 height semantics and SDVK-007 tangent orientation while preserving Doom sprite silhouettes/gameplay geometry and providing explicit quality/fallback behavior.
 
-## Autonomous execution prompt
-Complete SDVK-008 after SDVK-007. Read all founding docs/material/TBN evidence. State POM/relief hypotheses, quality levels, mip strategy and falsification cases before coding. Dedicated branch → PR → required checks → merge → verify `master`.
+## Scope / required work
+- Implement shallow parallax/POM/relief after stating algorithm hypotheses, step strategy, mip/filter assumptions and failure cases.
+- Use canonical height semantics and explicit sprite basis/mirror state.
+- Provide material depth scale/quality controls and no-height fallback.
+- Prevent UV runaway, NaNs and relief outside alpha silhouette; handle grazing angles/distance with stable bounded work.
+- Evaluate optional bounded height-driven self-occlusion only if measured/stable; keep it separable from later world sprite-cast shadows.
+- Measure GPU cost by quality/workload and expose active algorithm/steps diagnostically.
 
-## Required work
-- Implement shallow parallax/parallax-occlusion relief using the SDVK-005 height semantic.
-- Provide explicit depth scale/step controls and non-height fallback.
-- Handle sprite mirroring/rotation through the SDVK-007 basis.
-- Investigate bounded self-occlusion/self-shadow approximation only if it materially improves relief without excessive instability.
-- Prevent edge/silhouette artifacts from pretending the sprite has geometry outside its alpha silhouette.
-- Add distance/angle quality reduction and stable filtered/mipped height sampling.
-
-## Acceptance criteria
-- Relief is demonstrably view/light coherent on deterministic fixtures.
-- Extreme settings expose controlled failure rather than NaNs/UV explosions.
-- Default/recommended settings preserve sprite character.
-- No gameplay collision/silhouette semantics are falsely changed.
-- Performance cost is measured by quality level.
-- PR merged and verified on `master`.
+## Non-goals
+No true displacement/collision/silhouette geometry; no final projected sprite shadow architecture; no material-semantic redesign; no claim of ray-traced sprite geometry.
 
 ## Dependencies
 SDVK-007.
+
+## Concurrency guidance
+SDVK-012 depends on this for depth-card comparison. May overlap SDVK-009/010/011 where files/interfaces are stable.
+
+## Required context
+Read `AGENTS.md`, SDVK-005/007 evidence, material/portal RAG, validation contract, SDVK-002 oracle and canonical body.
+
+## Autonomous implementation prompt
+Complete SDVK-008 autonomously. Define bounded relief contract/quality modes first; implement with accepted height+basis; add extreme/grazing/mirror tests and performance evidence; branch→PR→checks→merge→verify `master`→RAG/ledger→close.
+
+## Acceptance criteria
+Relief view/light coherent on fixtures; mirrored/rotated sprites correct; extreme settings fail boundedly without NaN/UV explosion; alpha silhouette/gameplay geometry unchanged; no-height fallback equivalent; quality cost measured; PR merged/verified.
+
+## Verification
+Front/mirrored/rotated sprites, shallow/extreme depth, grazing angles, distance, alpha edges, missing height, moving camera/light and GPU timing/counters.
+
+## Expected artifacts
+Relief shader/material controls, diagnostics/tests, performance evidence, material/sprite RAG/docs and ledger updates.
+
+## Blocking / stopping conditions
+If POM cannot remain stable for a declared sprite mode/angle, use documented fallback/disable for that case rather than falsifying geometry or allowing unbounded work.
