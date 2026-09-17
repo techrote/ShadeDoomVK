@@ -1,0 +1,161 @@
+# Known traps, incomplete systems and dormant paths
+
+Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
+Status: canonical audit warnings; update as PF work resolves them  
+Primary issues: PF-001, PF-003, PF-006, PF-012..PF-019, PF-020
+
+This is a warning index, not a defect count. Items may be fixed, removed or reclassified only with issue/PR evidence.
+
+## 1. Per-lightmap probe selection is stubbed
+
+`wadsrc/static/shaders/lightmap/frag_copy.glsl` currently selects a `findClosestProbe()` implementation that always returns `0`. The disabled alternative contains unfinished/inconsistent code. Do not enable it by changing `#if 1` and call that a fix.
+
+Owner: PF-012.
+
+## 2. Probe AABB integration is partial
+
+`LightProbeAABBTree` has build/query implementation, but baseline `Update()` and `Upload()` are empty. Establish actual intended CPU/GPU usage before depending on it.
+
+Owner: PF-012.
+
+## 3. Automatic probe Z formula is wrong for non-zero floors
+
+`doom_lightprobes.cpp:autoaddlightprobes` uses `floor + ceiling / 2` instead of the midpoint expression.
+
+Owner: PF-012.
+
+## 4. Tiled-light path is dormant
+
+Z-min/max textures, light-tile buffer, descriptor/pipeline and compute shader infrastructure exist, but the LevelMesh fragment path disables `uLightIndex` and draw-info dispatch is disabled/commented.
+
+Do not claim clustered/tiled lighting is active. PF-019 may remove unnecessary active allocations when dormant; SDVK-009 may later research revival.
+
+## 5. Bindless reuse exists but raw indices remain dangerous
+
+`AllocBindlessSlot`/`FreeBindlessSlot` recycle blocks by size. The issue is not absence of reuse; it is capacity, reserved ranges, stale long-lived consumers and generation validation.
+
+Owners: PF-002/PF-003.
+
+## 6. Fixed descriptor limits/reservations
+
+Baseline uses hard-coded bindless/lightmap reservations. Lightmap pages also associate probe textures. Test maximum page/reservation arithmetic explicitly.
+
+Owner: PF-003.
+
+## 7. Pipeline/shader keys use whole-object `memcmp`
+
+The source tries to control padding with fields/static asserts, but object-layout identity is a fragile architectural dependency.
+
+Owner: PF-006.
+
+## 8. Large vendor/driver policy is embedded in sampler code
+
+Intel device/driver workarounds are mixed directly into sampler creation. Refactor first; policy changes require separate evidence.
+
+Owner: PF-007.
+
+## 9. Sprite normal mapping has no explicit stable sprite-local tangent contract
+
+Generic derivative TBN is active. Mirrored/rotated Doom sprite correctness is not guaranteed by front-facing success.
+
+PF-009 extracts orientation metadata; SDVK-007 owns new explicit tangent behavior.
+
+## 10. Sprite clipping sentinel inconsistency
+
+`HWSprite::PerformSpriteClipAdjustment` initializes `top` to `-NO_VAL` but a fallback comparison checks `top == NO_VAL`.
+
+Owner: PF-014.
+
+## 11. Sky-info equality uses raw memory comparison
+
+`HWSkyInfo::operator==` uses `memcmp` across a C++ struct containing booleans and potentially padding. Use semantic comparison.
+
+Owner: PF-014.
+
+## 12. Sprite precache variant flag bug
+
+One sprite material-marking path computes `scaleflags` then calls `FMaterial::ValidateTexture(tex, true, true)` rather than passing the computed flags.
+
+Owner: PF-013.
+
+## 13. Indexed RedIsAlpha Vulkan material path is explicitly incomplete
+
+`VkMaterial::GetDescriptorEntry` contains a TODO for `CTF_IndexedRedIsAlpha` under palette mode.
+
+Owner: PF-013.
+
+## 14. PBR roughness-zero numerical edge
+
+GGX distribution can reach a singular `0/0` form at exactly zero roughness/specular alignment. Fix numerically without changing normal roughness behavior.
+
+Owner: PF-013.
+
+## 15. Shadow-map 1024-light selection is traversal-order dependent
+
+`hw_entrypoint.cpp` collects active shadowmapped lights in linked-list order until `lightindex < 1024`, with a source TODO to use spatial preference.
+
+Owner: PF-015.
+
+## 16. Static actor-light visibility caching needs world-generation validity
+
+Actor/light position changes participate in cache validity; moving world occluders require an explicit reproducer and likely a LevelMesh/world-visibility epoch.
+
+Owner: PF-015.
+
+## 17. Dynamic-light collection uses costly duplicate maintenance
+
+Actor GPU light-list collection BSP-walks and uses sorted duplicate lookup/insertion. Optimize only after visibility/portal correctness fixtures exist.
+
+Owner: PF-016.
+
+## 18. GPU light buffer notes lack of deduplication
+
+`LightBufferSSO` has a source TODO to deduplicate individual lights. Preserve surface/range semantics if implementing it.
+
+Owner: PF-017.
+
+## 19. Material descriptor variants use linear search
+
+`VkMaterial::GetDescriptorEntry` scans cached variants. Rich translated/global-shader material use can increase this cost.
+
+Owner: PF-017.
+
+## 20. LevelMesh allocator is intentionally simple
+
+First-fit free-range scans and aggressive growth are understandable but can become inefficient under richer dynamic renderer state.
+
+Owner: PF-018 after PF-004 freezes ownership semantics.
+
+## 21. Moving AABB lines rediscover parent paths
+
+Dynamic AABB update calls `FindNodePath` for changed dynamic lines. Caching parent/leaf topology can remove repeated traversal if topology invariants permit it.
+
+Owner: PF-018.
+
+## 22. Texture uploads allocate staging buffers per image
+
+`VkHardwareTexture` creates/maps dedicated staging buffers for image uploads and eventually waits when the deferred-delete total exceeds a threshold. PF-005 owns a persistent staging/job design.
+
+## 23. Model translucency lacks true depth sorting
+
+`hw_models.cpp` explicitly notes that culling is used to mitigate lack of proper depth sorting. This is real technical debt but not a PF blocker unless a PF refactor regresses it. Track for post-PF renderer work if still relevant.
+
+## 24. Experimental whole-scene raytrace view is distinct from normal ray-query shadowing
+
+`gl_raytrace` can replace normal scene processing in `RenderViewpoint`. Do not conflate this viewer experiment with production world ray-query visibility.
+
+## 25. Temporal rendering infrastructure is not a coherent baseline subsystem
+
+HDR/depth/normal buffers exist, but motion vectors/history ownership/per-view invalidation are not established. Do not bolt temporal effects onto one global history buffer.
+
+Owner for preparatory context: PF-010. Actual temporal effects are later work.
+
+## Maintenance rule
+
+When a PF issue resolves an item, replace the warning with:
+
+- resolved issue/PR/merge commit;
+- resulting invariant/contract;
+- remaining limitation if any.
+
+Do not simply delete historical traps; their provenance is useful when reviewing regressions or donor patches.
