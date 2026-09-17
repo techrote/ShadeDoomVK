@@ -29,6 +29,19 @@ cmp pf-oracle-a.json pf-oracle-b.json
 
 The runner uses only the Python standard library.
 
+PF-002 also adds a tiny C++ lifetime primitive fixture. To run the same check locally:
+
+```bash
+mkdir -p build/pf-oracle
+c++ -std=c++17 -Wall -Wextra -Werror \
+  -Isrc/common/rendering/hwrenderer/data \
+  tools/pf_oracle/tests/resource_generation_fixture.cpp \
+  -o build/pf-oracle/resource-generation-fixture
+build/pf-oracle/resource-generation-fixture
+```
+
+The fixture deliberately retains stale slot identities through retire/reuse/reset transitions and asserts that validation rejects them while incrementing the diagnostic counters.
+
 ## Result meanings
 
 `invariant_passed`
