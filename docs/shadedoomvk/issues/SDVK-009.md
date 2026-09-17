@@ -1,25 +1,39 @@
-# SDVK-009 — Dynamic-light gathering and data-layout qualification
+# SDVK-009 — Scalable many-light architecture qualification
 
-## Purpose
-Reduce CPU/light-selection overhead for sprite-heavy scenes without changing which lights are physically eligible.
+## Objective
+Determine, from the PF-optimized baseline and SDVK-002 measurements, whether ShadeDoomVK needs a higher-order scalable many-light architecture, and select/implement only an evidence-backed next step without changing lighting semantics.
 
-## Autonomous execution prompt
-Complete SDVK-009 after SDVK-002 and SDVK-003. Read all founding docs and inspect MAD-VKDoom commits `2c433f2a495ec208c6cc9e248c2c85e3bb14a6f5`, `807043b995264f166e333bca54c4e0b281bd8669`, and `773c53489663040697e744b50bf1b89e06525930`. Treat them as competing hypotheses. Preserve portal/group correctness. Dedicated branch → PR → required checks → merge → verify `master`.
+## Scope / required work
+- Profile PF-016/PF-017 actor/scene light collection, upload and shader cost under increasingly dense lights/materials/scenes.
+- Audit the inherited dormant Z-min/max/light-tile compute/buffer/pipeline scaffold in current source: establish exactly what is usable, obsolete, incomplete or already gated by PF-019.
+- Compare feasible strategies such as repairing the inherited tiled path, modern forward+/clustered culling, improved per-object/section lists, or retaining PF architecture if it meets measured goals.
+- Require selected-light/portal/occlusion semantic equivalence for any architecture intended as an equivalent path; isolate quality-tier culling decisions for SDVK-016.
+- Prototype/implement the smallest winning architecture only when evidence supports it; otherwise commit a no-change decision with thresholds that would reopen research.
+- Instrument CPU/GPU light-culling/upload/shader work and overflow/fallback behavior.
 
-## Required work
-- Profile stock actor/sprite dynamic-light gathering across sparse/dense scenes.
-- Compare BSP walking with section-local/indexed light gathering for small actors.
-- Investigate pointer-heavy linked structures versus compact indexed containers where profiling supports it.
-- Require selected-light equivalence on reference scenes including portals/occlusion.
-- Keep a compatibility/debug switch capable of comparing old/new selection during qualification.
-- Record whether GPU clustered/tiled culling is warranted as a later architecture step; do not add it merely for fashion.
-
-## Acceptance criteria
-- Before/after CPU cost and selected-light sets are captured.
-- Any adopted fast path preserves required portal/group/actor filtering semantics.
-- Dense-light stress has bounded behavior and no stale-light lifetime bugs.
-- Negative donor assumptions are documented rather than copied.
-- PR merged and verified on `master`.
+## Non-goals
+No arbitrary light caps/quality reduction; no shadow-caster architecture; no reimplementation of PF-016 small-actor fast path; no assumption the dormant tiled scaffold is correct merely because it exists.
 
 ## Dependencies
-SDVK-002, SDVK-003.
+SDVK-002, SDVK-003. PF-016/PF-017/PF-019 are inherited via PF-020.
+
+## Concurrency guidance
+May proceed in parallel with SDVK-004/005/006/007/008 as dependencies allow, but SDVK-011/012/014 consume accepted lighting architecture and wait where required.
+
+## Required context
+Read `AGENTS.md`, PF freeze/PF-016/017/019 evidence, lighting/Vulkan/trap RAG, SDVK-002/003 evidence and canonical body.
+
+## Autonomous implementation prompt
+Complete SDVK-009 autonomously as comparative performance/architecture research. Measure current hardened baseline, audit dormant scaffold, prototype only promising candidates, preserve semantic lighting or clearly label future quality policy, commit evidence and implementation/no-change decision, branch→PR→checks→merge→verify `master`→RAG/ledger→close.
+
+## Acceptance criteria
+Current bottlenecks quantified; dormant tiled infrastructure truthfully classified; candidates compared on same workloads; any adopted path preserves declared light/portal/occlusion semantics and has deterministic overflow/fallback; measured improvement justifies complexity, or evidence-backed no-change decision recorded; PR merged/verified.
+
+## Verification
+Sparse→dense light scales, many sprites/models/world surfaces, portals/occlusion, CPU/GPU timings, selected-light comparison, overflow tests and PF/SDVK image/state oracle.
+
+## Expected artifacts
+Many-light research report, prototypes/results, selected architecture implementation or no-change ADR, diagnostics/benchmarks, lighting/Vulkan/trap RAG and ledger updates.
+
+## Blocking / stopping conditions
+Do not adopt an architecture that only wins by silently dropping eligible lights or changing quality. If candidates do not beat the PF baseline enough to justify complexity, record that result and retain the simpler system.
