@@ -72,6 +72,8 @@ The inherited GitHub workflow builds the engine on Windows/macOS/Linux but does 
 
 PF-001 therefore makes hosted CI authoritative for the source/contract baseline and unit-tests the oracle itself. Runtime state/images become authoritative only when produced by an actual executable fixture environment under the equivalence protocol.
 
+GitHub Actions was enabled for the ShadeDoomVK fork before final PF-001 qualification. This branch update intentionally retriggers the workflow so the first real oracle/build-matrix run is part of the merge evidence rather than inferred from local checks.
+
 ## Change rule
 
 A later PF issue that legitimately changes one of these contracts must update, in one reviewed change:
