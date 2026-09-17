@@ -60,7 +60,7 @@ jobs:
         - name: Linux Clang 11
           os: ubuntu-22.04
           extra_options: -DCMAKE_C_COMPILER=clang-11 -DCMAKE_CXX_COMPILER=clang++-11 -DDYN_OPENAL=OFF
-          deps_cmdline: sudo apt update && sudo apt install clang-11 libsdl2-dev libopenal-dev libwebp-dev
+          deps_cmdline: sudo apt update && sudo apt install clang-11 libsdl2-dev libvpx-dev libopenal-dev libwebp-dev
           build_type: Debug
 
         - name: Linux Clang 15
@@ -117,8 +117,7 @@ jobs:
 #         cp -r vktool package
 #       elif [[ "${{ runner.os }}" == 'Linux' ]]; then
 #         cp vkdoom vktool *.pk3 zmusic/lib/libzmusic.so package
-#         strip package/vkdoom
-#         strip package/vktool
+#         strip package/vkdoom package/vktool
 #       fi
 #
 #   - name: Upload Package
