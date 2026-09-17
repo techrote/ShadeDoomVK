@@ -1,0 +1,83 @@
+{
+  "baseline_lineage": "VKDoom@09634479ab5bf9adf691074fffe85a006a398cd0",
+  "probes": [
+    {
+      "category": "resource_lifetime",
+      "classification": "invariant_passed",
+      "id": "bindless-block-reuse",
+      "kind": "invariant",
+      "owner": "PF-003"
+    },
+    {
+      "category": "material",
+      "classification": "known_defect_reproduced",
+      "id": "indexed-red-is-alpha-todo",
+      "kind": "known_defect",
+      "owner": "PF-013"
+    },
+    {
+      "category": "material",
+      "classification": "invariant_passed",
+      "id": "material-layer-sampling",
+      "kind": "invariant",
+      "owner": "PF-008"
+    },
+    {
+      "category": "material",
+      "classification": "invariant_passed",
+      "id": "material-pbr-layers",
+      "kind": "invariant",
+      "owner": "PF-008"
+    },
+    {
+      "category": "portal",
+      "classification": "invariant_passed",
+      "id": "portal-mirror-handedness",
+      "kind": "invariant",
+      "owner": "PF-010"
+    },
+    {
+      "category": "lighting",
+      "classification": "invariant_passed",
+      "id": "portal-relative-actor-lighting",
+      "kind": "invariant",
+      "owner": "PF-016"
+    },
+    {
+      "category": "probe_lightmap",
+      "classification": "known_defect_reproduced",
+      "id": "probe-map-probe-zero-stub",
+      "kind": "known_defect",
+      "owner": "PF-012"
+    },
+    {
+      "category": "view_context",
+      "classification": "invariant_passed",
+      "id": "render-context-entrypoints",
+      "kind": "invariant",
+      "owner": "PF-010"
+    },
+    {
+      "category": "shadow",
+      "classification": "known_defect_reproduced",
+      "id": "shadow-cap-traversal-order",
+      "kind": "known_defect",
+      "owner": "PF-015"
+    },
+    {
+      "category": "sprite",
+      "classification": "known_defect_reproduced",
+      "id": "sprite-clip-top-sentinel",
+      "kind": "known_defect",
+      "owner": "PF-014"
+    }
+  ],
+  "programme": "PF-001",
+  "schema_version": 1,
+  "summary": {
+    "invariant_passed": 6,
+    "known_defect_reproduced": 4,
+    "probe_count": 10,
+    "unexpected": 0
+  }
+}
