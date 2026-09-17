@@ -24,12 +24,12 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 | PF-009 | sprite render-surface/orientation-state extraction | PF-001 |
 | PF-010 | render-view/pass context extraction | PF-007 |
 | PF-011 | lighting math/units/compatibility-bridge contract | PF-001 |
-| PF-012 | probe/lightmap correctness + spatial selection repair | PF-004, PF-010, PF-011 |
+| PF-012 | probe/lightmap correctness + spatial selection repair | PF-003, PF-004, PF-010, PF-011 |
 | PF-013 | texture/material correctness repair pack | PF-003, PF-008 |
 | PF-014 | sprite/portal state correctness repair pack | PF-009, PF-010 |
 | PF-015 | shadow/visibility-cache correctness repair pack | PF-004, PF-010, PF-011 |
 | PF-016 | unified dynamic-light query + exact-equivalence actor fast path | PF-009, PF-011, PF-015 |
-| PF-017 | light/material data dedup + cache lookup performance | PF-003, PF-008, PF-016 |
+| PF-017 | light/material data dedup + cache lookup performance | PF-003, PF-008, PF-013, PF-016 |
 | PF-018 | LevelMesh/AABB allocator/update performance | PF-004, PF-015 |
 | PF-019 | pipeline/resource micro-performance + dormant-path cleanup | PF-005, PF-006, PF-007, PF-017, PF-018 |
 | PF-020 | pre-foundation synthesis and SDVK-001 release gate | PF-001 through PF-019 |
@@ -40,8 +40,9 @@ After PF-001, these root lanes may proceed concurrently when implementation bran
 
 ```text
 resource identity:  PF-002 → PF-003 → PF-005
-                         └──────→ PF-008 → PF-013
-LevelMesh:          PF-002 → PF-004 ─┬→ PF-012
+                         ├──────→ PF-008 → PF-013 ─────┐
+                         └──────────────────────→ PF-012│
+LevelMesh:          PF-002 → PF-004 ─┬→ PF-012         │
                                       ├→ PF-015 → PF-016 → PF-017
                                       └→ PF-018
 pipeline keys:      PF-006 ───────────────────────────────→ PF-019
@@ -54,6 +55,9 @@ lighting contract:  PF-011 ──────────┬→ PF-012
                                       ├→ PF-015
                                       └→ PF-016
 
+PF-003 + PF-004 + PF-010 + PF-011 → PF-012
+PF-003 + PF-008 + PF-013 + PF-016 → PF-017
+PF-004 + PF-015 ──────────────────→ PF-018
 PF-005 + PF-006 + PF-007 + PF-017 + PF-018 → PF-019
 PF-001..PF-019 → PF-020 → SDVK-001
 ```
@@ -64,10 +68,12 @@ Do not intentionally run these implementation combinations concurrently without 
 
 - PF-002 with PF-003 on the same descriptor/identity files;
 - PF-003 with PF-008 when both change material descriptor layout/binding;
+- PF-003 with PF-012 when descriptor reservation/lifetime behavior is still moving;
 - PF-004 with PF-018;
 - PF-007 with PF-010 if capability-query interfaces are still moving;
 - PF-009 with PF-014;
 - PF-011 with PF-016 if shared light structs/functions are being moved;
+- PF-013 with PF-017 because optimization must consume corrected material behavior;
 - PF-015 with PF-016 because optimization must consume the accepted visibility-cache semantics;
 - PF-016 with PF-017 where light-data representation changes cross the query/upload boundary.
 
