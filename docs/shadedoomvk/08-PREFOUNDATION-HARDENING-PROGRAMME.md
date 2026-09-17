@@ -76,7 +76,7 @@ Centralize/document existing dynamic/PBR/sun/classic-light constants and convers
 ### PF-M3 — Correctness repair after shared contracts stabilize
 
 **PF-012 — Probe/lightmap correctness and spatial-selection repair**  
-Repair/qualify the probe-map stub, automatic probe placement, LightProbe AABB lifecycle and incremental/full probe-building edge cases. Preserve explicit fallback where a subpath cannot yet be made trustworthy.
+Repair/qualify the probe-map stub, automatic probe placement, LightProbe AABB lifecycle and incremental/full probe-building edge cases after descriptor reservation/lifetime, LevelMesh, view-context and lighting contracts are stable. Preserve explicit fallback where a subpath cannot yet be made trustworthy.
 
 **PF-013 — Texture/material correctness repair pack**  
 Address indexed RedIsAlpha handling, numerical PBR roughness edge behavior, sprite precache material-variant flags and related minimized fixtures.
@@ -93,7 +93,7 @@ Make capped shadow-light selection deterministic/spatially meaningful, validate 
 Centralize candidate collection/filtering/portal-relative positions/visibility and implement O(1) duplicate marking plus qualified section-local gathering where selected-light equivalence is proven.
 
 **PF-017 — Light/material data deduplication and cache lookup performance**  
-Deduplicate physical dynamic-light uploads where safe, retain per-surface index ranges, and replace linear material-descriptor-variant scans with canonical lookup without changing bindings/results.
+After PF-013 material correctness is accepted, deduplicate physical dynamic-light uploads where safe, retain per-surface index ranges, and replace linear material-descriptor-variant scans with canonical lookup without changing bindings/results.
 
 **PF-018 — LevelMesh/AABB allocator and update-path performance**  
 Improve free-list/bin behavior, growth policy and moving-AABB parent update paths while preserving geometry, trace and upload results.
@@ -112,25 +112,27 @@ Consume PF-001..019 evidence; run the complete pre-foundation corpus; reconcile 
 ```text
 PF-001
  ├─ PF-002 ─ PF-003 ─┬─ PF-005
- │                   └─ PF-008 ─ PF-013
- ├─ PF-004 ────────────────┬─ PF-012
- │                         ├─ PF-015
- │                         └─ PF-018
- ├─ PF-006 ───────────────────────────────┐
- ├─ PF-007 ─┬─ PF-010 ──────┬─ PF-012    │
- │          │                ├─ PF-014    │
- │          │                └─ PF-015    │
- ├─ PF-009 ─┬─ PF-014                    │
- │          └─ PF-016                    │
- └─ PF-011 ─┬─ PF-012                    │
-            ├─ PF-015                    │
-            └─ PF-016 ─ PF-017           │
+ │                   ├─ PF-008 → PF-013 ─────────────┐
+ │                   └────────────────→ PF-012       │
+ ├────────── PF-004 ─────────────┬────→ PF-012       │
+ │                               ├────→ PF-015       │
+ │                               └────→ PF-018       │
+ ├─ PF-006 ──────────────────────────────────────────┼──→ PF-019
+ ├─ PF-007 ─ PF-010 ─────────────┬────→ PF-012       │
+ │                               ├────→ PF-014       │
+ │                               └────→ PF-015       │
+ ├─ PF-009 ──────────────────────┬────→ PF-014       │
+ │                               └────→ PF-016 ──────┤
+ └─ PF-011 ──────────────────────┬────→ PF-012       │
+                                 ├────→ PF-015       │
+                                 └────→ PF-016       │
 
-PF-003 + PF-008 + PF-016 ── PF-017       │
-PF-004 + PF-015 ─────────── PF-018       │
-PF-005 + PF-006 + PF-007 + PF-017 + PF-018 ─ PF-019
-PF-002..PF-019 ─────────────────────────────── PF-020
-PF-020 ────────────────────────────────────── SDVK-001
+PF-003 + PF-004 + PF-010 + PF-011 → PF-012
+PF-003 + PF-008 + PF-013 + PF-016 → PF-017
+PF-004 + PF-015 → PF-018
+PF-005 + PF-006 + PF-007 + PF-017 + PF-018 → PF-019
+PF-001..PF-019 → PF-020
+PF-020 → SDVK-001
 ```
 
 Exact hard dependencies live in issue bodies and `05-AUTONOMOUS-ISSUE-GRAPH.md`.
@@ -148,7 +150,8 @@ After PF-001, the following lanes are intentionally parallel:
 
 Do not run two implementation issues concurrently when both restructure the same owned files unless one explicitly rebases on the other and the issue graph is updated. In particular:
 
-- PF-003 precedes material-descriptor performance work;
+- PF-003 precedes PF-012 descriptor-bound probe validation and PF-008 material semantics;
+- PF-013 precedes PF-017 material cache/descriptor optimization;
 - PF-009 precedes sprite/portal correctness and the actor-light fast path;
 - PF-010 precedes probe rendering and portal-sensitive cache work;
 - PF-015 precedes optimization of visibility/light-query caches;
