@@ -2,17 +2,30 @@
 
 Date: 2026-09-17
 
-The founding plan defines SDVK-001 through SDVK-017. Their exact autonomous GitHub issue bodies are stored under `docs/shadedoomvk/issues/`.
+Status: complete.
 
-## Current blocker
+The founding plan defines SDVK-001 through SDVK-017. Their canonical autonomous bodies remain stored under `docs/shadedoomvk/issues/`, and the corresponding GitHub issues are now live.
 
-At emission time GitHub returned HTTP 410 `Issues has been disabled in this repository` when creating SDVK-001. The connected GitHub tooling does not expose the repository setting required to enable Issues.
+## Stable ID → GitHub issue mapping
 
-Therefore:
+| Stable ID | GitHub issue |
+|---|---:|
+| SDVK-001 | #1 |
+| SDVK-002 | #2 |
+| SDVK-003 | #3 |
+| SDVK-004 | #4 |
+| SDVK-005 | #5 |
+| SDVK-006 | #6 |
+| SDVK-007 | #7 |
+| SDVK-008 | #8 |
+| SDVK-009 | #9 |
+| SDVK-010 | #10 |
+| SDVK-011 | #11 |
+| SDVK-012 | #12 |
+| SDVK-013 | #13 |
+| SDVK-014 | #14 |
+| SDVK-015 | #15 |
+| SDVK-016 | #16 |
+| SDVK-017 | #17 |
 
-- no GitHub issue object was successfully created;
-- no fake issue numbers or URLs are recorded;
-- the complete issue bodies are committed so they can be emitted verbatim once Issues are enabled;
-- the dependency graph remains authoritative via stable `SDVK-*` IDs.
-
-Once repository Issues are enabled, create the 17 issues from `docs/shadedoomvk/issues/SDVK-001.md` through `SDVK-017.md`, preserving titles and bodies. After successful creation, update this file and `05-AUTONOMOUS-ISSUE-GRAPH.md` with GitHub issue-number mappings in a normal reviewed change.
+The one-to-one numbering is convenient but not semantically authoritative: dependency references should continue to use stable `SDVK-*` IDs. The committed issue-body files remain the recoverable planning source if GitHub metadata is ever moved or recreated.
