@@ -1,7 +1,8 @@
 # ShadeDoomVK execution ledger
 
-Status: active canonical planning/execution ledger  
-Started: 2026-09-17
+Status: planning workflow complete; implementation begins at PF-001  
+Started: 2026-09-17  
+Planning closure: 2026-09-17
 
 This ledger records significant programme-level planning changes and later gate transitions. Individual issue/PR evidence remains authoritative for implementation details.
 
@@ -36,25 +37,66 @@ Decision: do not begin SDVK-001 yet.
 
 - Added `08-PREFOUNDATION-HARDENING-PROGRAMME.md`.
 - Added `09-PLANNING-RECONCILIATION.md`.
+- Added renderer RAG/reference corpus under `docs/shadedoomvk/rag/`.
 - Defined PF-001..PF-020 as a hard pre-SDVK tranche.
 - PF-020 becomes the hard release gate for SDVK-001.
 - Stable SDVK-001..017 IDs and issue numbers remain preserved.
-- New PF issue set is required to use the expanded autonomous issue contract: objective; scope; non-goals; dependencies; concurrency; canonical context; implementation prompt; acceptance criteria; verification; expected artifacts; blockers/stopping conditions.
+- New PF issue set uses the expanded autonomous issue contract: objective; scope; non-goals; dependencies; concurrency; canonical context; implementation prompt; acceptance criteria; verification; expected artifacts; blockers/stopping conditions.
+
+### 2026-09-17 — PF/SDVK tracker reconciliation completed
+
+- Created PF-001..PF-020 as GitHub issues #18..#37 and canonical issue-body files.
+- Reconciled every SDVK-001..017 live/canonical issue to the same autonomous contract.
+- Reframed duplicated founding scope:
+  - SDVK-004 is rich-workload descriptor integration/stress after PF hardening;
+  - SDVK-005 adds height semantics rather than re-porting inherited per-layer sampling;
+  - SDVK-009 evaluates higher-order many-light architecture after PF exact-equivalence CPU optimization.
+- Updated README, AGENTS, revised roadmap, issue graph, validation contract and donor provenance.
+
+### 2026-09-17 — independent second review completed
+
+- Added `11-INDEPENDENT-PLAN-REVIEW.md`.
+- Verified requested refactor/bug/performance coverage.
+- Reviewed issue sizing, duplicate scope, hidden assumptions, unsafe concurrency, tests and stopping conditions.
+- Found and repaired two hidden prerequisites:
+  - PF-012 now depends on PF-003 so probe/page descriptor correctness cannot run before descriptor reservation/lifetime hardening;
+  - PF-017 now depends on PF-013 so material-cache optimization consumes corrected material behavior.
+- Rechecked the corrected graph as acyclic.
+
+### 2026-09-17 — final repository consistency pass completed
+
+Verification snapshot before the final consistency-report/ledger commits: `master@9e3d016fff290dfbe3b78490cbc5a1d7f60af2e6`.
+
+- Added `12-FINAL-CONSISTENCY-CHECK.md`.
+- Inspected live issue tracker and confirmed the programme mapping remains SDVK #1..#17 and PF #18..#37.
+- Inspected canonical issue-body and RAG directories.
+- Exact planning-placeholder search returned no result.
+- `TEMP` issue search returned no result.
+- Open pull-request list was empty.
+- Marked `01-INITIAL-IMPLEMENTATION-PLAN.md` historical/non-executable.
+- Amended founding brief with PF gate and deep-audit qualifications.
+- Recorded that `master` is not currently branch-protected; `AGENTS.md` therefore mandates PR/check/merge discipline independently of repository enforcement. This is not a renderer planning blocker.
 
 ## Planning-pass stage checklist
 
 - [x] Reconcile relevant planning conversation history available to this run.
 - [x] Inspect current repository and GitHub issue/PR state before broad mutation.
-- [x] Determine implementation decomposition is warranted but old graph is insufficient without PF tranche.
-- [x] Identify major omissions/incorrect assumptions from deep source audit.
-- [ ] Commit complete RAG/reference corpus.
-- [ ] Reconcile founding docs/AGENTS/README with PF tranche.
-- [ ] Emit complete PF issue set with canonical issue-body files.
-- [ ] Reconcile SDVK-001..017 issue bodies and canonical files.
-- [ ] Review dependencies/concurrency/issue sizing independently.
-- [ ] Correct findings from independent review.
-- [ ] Perform final repository-wide consistency pass.
-- [ ] Record final GitHub issue mapping and master commit state.
+- [x] Determine implementation decomposition is warranted and insert PF tranche before the old graph.
+- [x] Identify and repair major omissions/incorrect assumptions from deep source audit.
+- [x] Commit complete RAG/reference corpus.
+- [x] Reconcile founding docs/AGENTS/README with PF tranche.
+- [x] Emit complete PF issue set with canonical issue-body files.
+- [x] Reconcile SDVK-001..017 issue bodies and canonical files.
+- [x] Review dependencies/concurrency/issue sizing independently.
+- [x] Correct findings from independent review.
+- [x] Perform final repository-wide consistency pass.
+- [x] Record final GitHub issue mapping and implementation gate state.
+
+## Current implementation gate
+
+- **READY:** PF-001 / GitHub #18.
+- **BLOCKED:** SDVK-001 / GitHub #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- No planning-level blocker remains.
 
 ## Future implementation ledger rule
 
