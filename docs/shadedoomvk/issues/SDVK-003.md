@@ -1,26 +1,39 @@
 # SDVK-003 — VKDoom/UZDoom/GZDoom differential and upstream maintenance strategy
 
-## Purpose
-Define how ShadeDoomVK remains maintainable while preserving VKDoom-specific renderer capability.
+## Objective
+Define a repeatable selective upstream-maintenance strategy from the now-hardened ShadeDoomVK renderer without losing VKDoom-specific capabilities or reintroducing PF-resolved defects.
 
-## Autonomous execution prompt
-Complete SDVK-003 after SDVK-001. Read `AGENTS.md`, all founding docs, especially `04-DONOR-PROVENANCE.md`, and current source history. At execution time identify and pin the current suitable UZDoom/GZDoom/VKDoom references rather than relying on stale names or unpinned branches. Work on a dedicated branch; document evidence; PR; repair CI; merge after required checks; verify `master`; close only if policy is actionable.
+## Scope / required work
+- Pin current suitable VKDoom/UZDoom/GZDoom references at execution time.
+- Diff engine compatibility, Vulkan/backend, scripting/resource, platform/build/security and relevant renderer changes against current ShadeDoomVK `master`.
+- Use PF RAG/contracts to classify owned ShadeDoomVK surfaces versus safely syncable upstream surfaces.
+- Identify upstream fixes that supersede or conflict with PF work; never silently overwrite accepted PF invariants.
+- Exercise at least one representative selective import/dry-run to expose conflict topology and verification procedure.
+- Define provenance, cadence, conflict-resolution and regression requirements.
 
-## Required research
-- Diff current ShadeDoomVK baseline against pinned current UZDoom/GZDoom lineage for engine compatibility, Vulkan backend, resource system, scripting, platform/build and security/robustness changes.
-- Identify VKDoom-specific lightmapper/probe/ray-query features that would be lost or materially changed by wholesale rebase.
-- Trial at least one small representative selective upstream import or dry-run merge to expose conflict topology.
-- Define owned ShadeDoomVK renderer surfaces versus periodically syncable upstream surfaces.
-- Define provenance/merge procedure and conflict tests.
-- Do not perform a wholesale rebase unless evidence makes that a separately reviewed necessity.
-
-## Acceptance criteria
-- Exact upstream versions/commits and meaningful deltas are recorded.
-- A repeatable selective-sync policy exists.
-- Renderer-specific ownership boundaries are explicit.
-- At least one representative sync path is practically exercised or a precise blocker is recorded.
-- No accidental loss of inherited VKDoom features.
-- PR merged and verified on `master`.
+## Non-goals
+No assumed wholesale rebase; no feature import merely because upstream is newer; no reopening PF contracts without explicit evidence/issue.
 
 ## Dependencies
 SDVK-001.
+
+## Concurrency guidance
+May run with SDVK-002. SDVK-004 and SDVK-009 wait for accepted upstream ownership/sync policy.
+
+## Required context
+Read `AGENTS.md`, PF freeze manifest/RAG, `04-DONOR-PROVENANCE.md`, current history and canonical body.
+
+## Autonomous implementation prompt
+Complete SDVK-003 autonomously. Pin current upstreams, produce source/evidence differential, exercise selective-sync mechanics, document ownership/conflict tests, branch→PR→checks→merge→verify `master`→provenance/RAG/ledger→close.
+
+## Acceptance criteria
+Exact upstream refs/deltas recorded; owned vs syncable surfaces explicit; representative import path exercised or precise blocker; sync procedure includes PF regression gates; no VKDoom/ ShadeDoomVK renderer capability lost accidentally; PR merged/verified.
+
+## Verification
+Compare commits/files; dry-run or small safe import with test evidence; rerun relevant PF/SDVK oracle; source/provenance audit.
+
+## Expected artifacts
+Pinned differential report, upstream ownership/sync policy, representative import evidence, donor/provenance updates, ledger entry.
+
+## Blocking / stopping conditions
+If upstream lineage or licensing/provenance is ambiguous, or a proposed import overwrites a hardened contract without equivalent evidence, stop that import and record a research/decision issue while continuing independent analysis.
