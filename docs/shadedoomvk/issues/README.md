@@ -2,7 +2,7 @@
 
 These files are the canonical issue bodies for the founding ShadeDoomVK campaign.
 
-GitHub Issues were disabled on `techrote/ShadeDoomVK` when the founding plan was emitted on 2026-09-17, so the connector could not create the actual issue objects. Do **not** discard or rewrite these bodies merely because issue numbers do not yet exist. Once Issues are enabled, create one GitHub issue per file, preserving the stable `SDVK-*` identifier in the title.
+GitHub issues SDVK-001 through SDVK-017 are live as issues #1 through #17 respectively. The committed bodies remain the recoverable planning source and should stay synchronized with any material issue-body correction.
 
 Every issue body references the authoritative repository instructions and is designed to be executable without inaccessible chat context.
 
