@@ -3,8 +3,30 @@ name: Continuous Integration
 on: [push, pull_request]
 
 jobs:
+  pf_oracle:
+    name: PF renderer contract oracle
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Test oracle implementation
+      run: python3 -m unittest discover -s tools/pf_oracle/tests -v
+
+    - name: Verify deterministic PF baseline
+      run: |
+        mkdir -p build/pf-oracle
+        python3 tools/pf_oracle/run.py \
+          --baseline tools/pf_oracle/baseline.json \
+          --output build/pf-oracle/oracle-a.json
+        python3 tools/pf_oracle/run.py \
+          --baseline tools/pf_oracle/baseline.json \
+          --output build/pf-oracle/oracle-b.json
+        cmp build/pf-oracle/oracle-a.json build/pf-oracle/oracle-b.json
+
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
+    needs: pf_oracle
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -95,8 +117,7 @@ jobs:
 #         cp -r vktool package
 #       elif [[ "${{ runner.os }}" == 'Linux' ]]; then
 #         cp vkdoom vktool *.pk3 zmusic/lib/libzmusic.so package
-#         strip package/vkdoom
-#         strip package/vktool
+#         strip package/vkdoom package/vktool
 #       fi
 #
 #   - name: Upload Package
@@ -145,5 +166,5 @@ jobs:
 #       tag: nightly
 #       rm: true
 #       token: ${{ secrets.GITHUB_TOKEN }}
-#       files: build/vkdoom-windows-prerelease.zip build/vkdoom-linux-prerelease.zip
-
+#       files: build/vkdoom-windows-prerelease.zip
+#              build/vkdoom-linux-prerelease.zip
