@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <cstddef>
 #include <vector>
 
 struct FRendererResourceIdentity
@@ -35,7 +36,7 @@ public:
 			return {};
 
 		EnsureSlot(index);
-		auto& slot = Slots[(size_t)index];
+		auto& slot = Slots[(std::size_t)index];
 		if (slot.Generation == 0)
 			slot.Generation = 1;
 		if (slot.Live)
@@ -52,13 +53,13 @@ public:
 
 	bool Retire(int index)
 	{
-		if (index < 0 || (size_t)index >= Slots.size() || !Slots[(size_t)index].Live)
+		if (index < 0 || (std::size_t)index >= Slots.size() || !Slots[(std::size_t)index].Live)
 		{
 			Stats.InvalidRetires++;
 			return false;
 		}
 
-		auto& slot = Slots[(size_t)index];
+		auto& slot = Slots[(std::size_t)index];
 		slot.Live = false;
 		slot.Span = 0;
 		slot.Generation = NextGeneration(slot.Generation);
@@ -75,10 +76,10 @@ public:
 
 	FRendererResourceIdentity Current(int index) const
 	{
-		if (index < 0 || (size_t)index >= Slots.size())
+		if (index < 0 || (std::size_t)index >= Slots.size())
 			return {};
 
-		const auto& slot = Slots[(size_t)index];
+		const auto& slot = Slots[(std::size_t)index];
 		if (!slot.Live || slot.Generation == 0 || slot.Span == 0)
 			return {};
 		return { index, slot.Generation, Epoch, slot.Span };
@@ -120,8 +121,8 @@ private:
 
 	void EnsureSlot(int index)
 	{
-		if (Slots.size() <= (size_t)index)
-			Slots.resize((size_t)index + 1);
+		if (Slots.size() <= (std::size_t)index)
+			Slots.resize((std::size_t)index + 1);
 	}
 
 	uint32_t Epoch = 1;
