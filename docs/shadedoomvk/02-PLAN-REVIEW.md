@@ -1,136 +1,150 @@
 # Implementation plan review
 
-Status: completed critique of `01-INITIAL-IMPLEMENTATION-PLAN.md`  
+Status: founding critique plus deep-source-audit amendment  
 Date: 2026-09-17
 
-## Executive finding
+## Founding review
 
 The first-pass plan had the right feature direction but still treated visual milestones as the main dependency structure. That is risky for a renderer fork: the highest-cost failures are likely to come from resource lifetime, unclear upstream ownership, non-reproducible visual tests, compatibility regressions and hidden CPU light-selection costs.
 
-The revised roadmap therefore moves **observability, upstream strategy, descriptor lifetime and material semantics ahead of the headline sprite effects** and separates research/prototype gates from production-default changes.
+The founding revised roadmap therefore moved **observability, upstream strategy, descriptor lifetime and material semantics ahead of the headline sprite effects** and separated research/prototype gates from production-default changes.
 
-## Review finding 1 — upstream strategy was implicit
+### Finding 1 — upstream strategy was implicit
 
-### Problem
+VKDoom is a strong renderer baseline but UZDoom/GZDoom continue to change engine compatibility, platform/build code and Vulkan internals. SDVK-003 therefore owns a pinned differential/selective-sync strategy instead of assuming a wholesale rebase.
 
-VKDoom is a strong renderer baseline but its repository is no longer the only active branch of the family. UZDoom/GZDoom continue to change engine compatibility, platform/build code and Vulkan internals. Deep ShadeDoomVK changes made before defining an upstream policy could turn every later sync into archaeology.
+### Finding 2 — descriptor work must include lifetime, not just capacity
 
-### Improvement
+A larger bindless pool postpones exhaustion but does not solve stale descriptor indices. MAD-VKDoom's emergency texture-flush experiment is explicit negative evidence because LevelMesh can retain old indices.
 
-Add an early differential/upstream issue. Pin exact candidate versions/commits, classify renderer-specific ShadeDoomVK ownership versus periodically imported engine maintenance, and test representative merges before the fork diverges further.
+### Finding 3 — visual testing needs a machine-readable oracle
 
-Do not require a wholesale rebase as the answer.
+Screenshots can look plausible while using the wrong light, probe, tangent handedness or resource. SDVK-002 therefore owns deterministic fixtures plus inspectable state.
 
-## Review finding 2 — descriptor work must include lifetime, not just capacity
+### Finding 4 — material semantics must precede height effects
 
-### Problem
+Height/POM should consume a semantic material contract rather than become another ad-hoc generic custom texture.
 
-A configurable larger bindless pool postpones exhaustion but does not solve stale descriptor indices. MAD-VKDoom's emergency texture-flush experiment explicitly demonstrates the danger: LevelMesh can retain old indices after the texture slots change.
+### Finding 5 — sprite TBN correctness is a separate gate
 
-### Improvement
+Mirrors/rotation/billboard modes can invalidate a normal-map result that appears correct front-facing. SDVK-007 therefore gates POM.
 
-Treat jalovisko's device-aware budget as the minimum. Add diagnostics, slot reuse/freeing policy and generation/lifetime safety before rich multi-map sprite materials multiply descriptor demand.
+### Finding 6 — dynamic-light optimization needs baseline evidence
 
-## Review finding 3 — visual testing needs a machine-readable oracle
+MAD small-actor/section-list work is a hypothesis. Exact selected-light behavior, including portals, is the correctness gate.
 
-### Problem
+### Finding 7 — probes and viewmodels should be validated before final shadow composition
 
-Screenshots alone are weak regression tests. Lighting changes may look plausible while using the wrong lights, wrong mirrored normal orientation, wrong probe or stale descriptor.
+Correct environment/local lighting remains foundational even when projected shadows look visually impressive.
 
-### Improvement
+### Finding 8 — sprite shadow architecture should remain comparative
 
-Create deterministic reference scenes with inspectable renderer state: selected lights, material channels, descriptor usage, probe index, shadow mode, frame/GPU timing and stable image captures/hashes with tolerant comparison only where necessary.
+Alpha/depth card, blob/proxy and tractable AS participation must be compared rather than preselecting a winner.
 
-## Review finding 4 — material semantics must precede height effects
+### Finding 9 — lightmapper/probe robustness is not late polish
 
-### Problem
+Atlas lifetime, dynamic updates and probe transitions need a dedicated campaign before compatibility freeze.
 
-Bolting height onto the existing generic texture-layer path can lock in incorrect color space/filter/mip assumptions.
+### Finding 10 — performance needs explicit tiers
 
-### Improvement
+Quality tiers must correspond to measured algorithm/resource changes rather than labels.
 
-Define semantic channels and per-layer sampling first. Height/parallax becomes a consumer of that material contract rather than another ad-hoc custom texture.
+### Finding 11 — final tranche needs a synthesis gate
 
-## Review finding 5 — sprite TBN correctness is a separate gate
+A pile of merged renderer features does not prove composition. SDVK-017 is therefore fail-closed.
 
-### Problem
+---
 
-Normal mapping can appear correct on a front-facing unmirrored sprite while being wrong on rotation/mirror frames. POM and specular only amplify that error.
+# Second review — deep VKDoom baseline source audit
 
-### Improvement
+The later audit inspected the actual VKDoom source at founding baseline `09634479ab5bf9adf691074fffe85a006a398cd0`. It materially changes execution order and corrects several assumptions from the founding plan.
 
-Create an explicit sprite-local tangent basis/mirroring contract and validate it across billboard modes, rotations and flipped frames before height/PBR enhancement.
+## Finding 12 — per-layer sampling was already inherited
 
-## Review finding 6 — dynamic-light optimization needs baseline evidence
+The baseline already contains `MaterialLayerSampling`, per-custom-layer sampling state, parsing and Vulkan override samplers. The old roadmap's phrasing that SDVK-005 should generalize the GriddleVK concept was too donor-centric and could cause an agent to reimplement an inherited feature.
 
-### Problem
+**Correction:** PF-008 first exposes/tags the semantics of the existing layer model without output change; SDVK-005 later adds height authoring/semantic policy. Griddle remains provenance/history, not missing functionality.
 
-MAD's small-actor/section-list idea is promising, but its implementation includes unresolved portal-group assumptions and later data-structure rewrites. Copying it blindly could exchange CPU time for incorrect light selection.
+## Finding 13 — bindless reuse also already exists
 
-### Improvement
+`VkDescriptorSetManager` already allocates contiguous bindless blocks and recycles them through allocation-size free buckets.
 
-Use it as a hypothesis. Benchmark stock BSP/light gathering versus section-indexed/compact approaches on deterministic scenes, including portals. Preserve exact light-selection equivalence as a correctness gate.
+**Correction:** the hard problem is raw index lifetime, reserved-range arithmetic, runtime capacity and stale consumers. PF-002/PF-003 own this before SDVK-004 becomes rich-material qualification/stress.
 
-## Review finding 7 — probes and viewmodels should be validated before shadow complexity
+## Finding 14 — probe architecture was over-described
 
-### Problem
+The engine can render environment cubemaps and assign nearest probes to sectors/sides, but the per-lightmap probe-map shader currently compiles a stub returning probe `0`; the disabled tree traversal is unfinished. `LightProbeAABBTree::Update`/`Upload` are also empty at this baseline.
 
-Projected shadows are visually dramatic, but a character with incorrect ambient/specular environment or a weapon lit under a different model will still look incoherent.
+**Correction:** PF-012 repairs or explicitly bounds this plumbing before SDVK-010/014 depend on it.
 
-### Improvement
+## Finding 15 — dormant tiled-light infrastructure must not be mistaken for an active feature
 
-Qualify probe/environment lighting and viewmodel parity before declaring the material stack visually coherent. Shadow work may prototype in parallel after the material/TBN foundation, but final integration depends on the lighting model.
+Z-min/max textures, light-tile buffers, descriptor/pipeline code and compute shader scaffolding exist, but the active LevelMesh fragment path disables tiled-light indexing and the scene dispatch is disabled/commented.
 
-## Review finding 8 — sprite shadow architecture should remain comparative
+**Correction:** PF-019 may remove unnecessary dormant work when provably unused; SDVK-009 may later research whether the scaffold is worth reviving for scalable many-light rendering.
 
-### Problem
+## Finding 16 — HDR/postprocess groundwork is stronger than expected
 
-The first plan prematurely preferred rasterized shadow cards.
+The renderer already has HDR scene/pipeline images, depth, linear depth, normal/fog buffers, SSAO, tonemapping and custom postprocess abstraction.
 
-### Improvement
+**Implication:** bloom, richer volumetrics and screen-space work are plausible later. The missing architectural seam is coherent **per-render-view temporal history**, especially across portals, camera textures and probe captures. PF-010 extracts render-context identity without implementing temporal effects.
 
-Prototype at least alpha-card and depth-card projection and compare against cheap proxy/blob and, where tractable, acceleration-structure sprite approaches. Judge correctness, softness, portal behavior, alpha/mirror handling and cost. Adopt the simplest architecture that meets the quality target.
+## Finding 17 — shared refactors should precede subsystem bugfixes
 
-## Review finding 9 — lightmapper/probe robustness is not a late polish task
+The audit identified dangerous cross-layer identities and large monolithic scene paths. Fixing individual symptoms before ownership/identity contracts stabilize would likely create churn or hide stale-state defects.
 
-### Problem
+**Correction:** insert PF resource/LevelMesh/pipeline/material/sprite/view/lighting-contract refactors first, then repair bugs against those contracts.
 
-Richer materials can expose light leaks, atlas lifetime problems, dynamic-lightmap update behavior and probe transitions that classic diffuse surfaces hide.
+## Finding 18 — confirmed source defects justify a dedicated correctness milestone
 
-### Improvement
+The audit found concrete defects or incomplete paths including:
 
-Run a dedicated qualification/hardening issue before compatibility freeze, with moving geometry, dynamic sectors, decals, sunlight, multiple atlas textures and probe boundaries.
+- per-lightmap probe selection stubbed to probe 0;
+- automatic probe midpoint arithmetic;
+- incomplete Vulkan indexed RedIsAlpha handling;
+- PBR roughness-zero numerical edge;
+- traversal-order shadow selection at the 1024-light cap;
+- sprite ceiling clip sentinel inconsistency;
+- sprite precache computed scale flags not passed to one material validation path;
+- padding-sensitive `HWSkyInfo` memory comparison;
+- visibility-cache invalidation requiring moving-occluder coverage;
+- fixed descriptor/lightmap/probe reservation boundaries requiring validation.
 
-## Review finding 10 — performance needs explicit tiers
+**Correction:** PF-012..PF-015 own these defects after shared contracts settle.
 
-### Problem
+## Finding 19 — many high-value performance changes can be quality-neutral
 
-"Runs fast" is not a release criterion. Ray queries, POM, rich materials and sprite shadows have very different hardware requirements.
+Potential output/state-equivalent wins include:
 
-### Improvement
+- O(1) dynamic-light duplicate marking;
+- exact-equivalence section-local light gathering for qualified actors;
+- deduplicated physical light-data upload with preserved ranges;
+- hashed material descriptor-variant lookup;
+- typed/hash pipeline lookup;
+- improved LevelMesh free bins/growth;
+- cached moving-AABB parent paths;
+- persistent staging upload arena;
+- reduced repeated descriptor/default-layer pressure where semantically identical;
+- compiler/SPIR-V-qualified shader micro-optimizations;
+- avoiding allocations/work belonging solely to disabled dormant paths.
 
-Define feature tiers/fallbacks and budgets. Preserve a broadly compatible Vulkan path while allowing a high-end path. Quality settings must correspond to real algorithm changes and report their active state in diagnostics.
+**Correction:** PF-005 and PF-016..PF-019 own these with a strict no-image-quality/state-equivalence rule.
 
-## Review finding 11 — the final tranche needs a synthesis gate
+## Finding 20 — a pre-foundation synthesis gate is required
 
-### Problem
+Because PF touches many shared renderer contracts, SDVK-001 should not start merely when individual PF issues happen to be closed.
 
-A pile of merged features does not guarantee they compose.
+**Correction:** PF-020 consumes all PF evidence, reconciles RAG against source, reruns the complete hardening corpus and explicitly unlocks SDVK-001 only if the ground is trustworthy.
 
-### Improvement
+## Second-review result
 
-Add a final synthesis/qualification issue that consumes all evidence, resolves defaults/fallbacks and freezes the first renderer contract only when compatibility/performance/resource-lifetime criteria pass.
+The executable programme is now:
 
-## Resulting plan changes
+1. PF-001 establishes the hardening oracle;
+2. PF-002..PF-011 refactor identity/ownership/render contracts while preserving output;
+3. PF-012..PF-015 repair confirmed correctness defects against those contracts;
+4. PF-016..PF-019 take output-equivalent performance opportunities;
+5. PF-020 performs synthesis/qualification;
+6. only then does SDVK-001 begin the original founding feature programme.
 
-The revised roadmap:
-
-- adds a formal upstream/donor differential early;
-- makes renderer diagnostics and descriptor lifetime foundational;
-- separates material semantics from POM implementation;
-- gates advanced shading on sprite-space TBN correctness;
-- treats dynamic-light donor code as a benchmarked hypothesis;
-- qualifies probes/viewmodels before final shadow integration;
-- keeps sprite-shadow architecture comparative until evidence selects it;
-- adds dedicated lightmapper/probe hardening;
-- defines measured quality tiers and a final synthesis gate.
+`08-PREFOUNDATION-HARDENING-PROGRAMME.md`, `05-AUTONOMOUS-ISSUE-GRAPH.md` and the issue bodies are authoritative for exact dependencies.
