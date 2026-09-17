@@ -98,6 +98,11 @@ public:
 	bool ValidateLightProbeEpoch(FRendererEpochToken token) { return LightProbeEpoch.Validate(token); }
 	bool ValidateAsyncUploadEpoch(FRendererEpochToken token) { return AsyncUploadEpoch.Validate(token); }
 
+	const FRendererEpochStats& GetTextureEpochStats() const { return TextureEpoch.GetStats(); }
+	const FRendererEpochStats& GetLightmapEpochStats() const { return LightmapEpoch.GetStats(); }
+	const FRendererEpochStats& GetLightProbeEpochStats() const { return LightProbeEpoch.GetStats(); }
+	const FRendererEpochStats& GetAsyncUploadEpochStats() const { return AsyncUploadEpoch.GetStats(); }
+
 	static const int PrefiltermapSize = 128;
 	static const int IrradiancemapSize = 32;
 
