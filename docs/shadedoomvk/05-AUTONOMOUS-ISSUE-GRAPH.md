@@ -9,25 +9,25 @@ Issue IDs are stable programme identifiers even if GitHub issue numbers differ. 
 
 ## Issues and dependencies
 
-| ID | Title | Hard dependencies |
-|---|---|---|
-| SDVK-001 | Foundation, identity, reproducible build and provenance | none |
-| SDVK-002 | Renderer observability, reference scenes and benchmark harness | SDVK-001 |
-| SDVK-003 | Upstream differential and maintenance strategy | SDVK-001 |
-| SDVK-004 | Bindless descriptor capacity/reuse/stale-reference hardening | SDVK-002, SDVK-003 |
-| SDVK-005 | Semantic material layers and per-layer sampling | SDVK-004 |
-| SDVK-006 | Render-frame time and visual interpolation substrate | SDVK-001, SDVK-002 |
-| SDVK-007 | Sprite tangent basis and normal-map conformance | SDVK-005 |
-| SDVK-008 | Height/POM sprite relief and advanced PBR | SDVK-007 |
-| SDVK-009 | Dynamic-light gathering/data-layout qualification | SDVK-002, SDVK-003 |
-| SDVK-010 | Probe/environment lighting qualification for actors | SDVK-002, SDVK-007 |
-| SDVK-011 | First-person viewmodel lighting/material parity | SDVK-009, SDVK-010 |
-| SDVK-012 | Sprite shadow-caster comparative prototype | SDVK-008, SDVK-009 |
-| SDVK-013 | Hybrid world+sprite shadows and contact grounding | SDVK-012 |
-| SDVK-014 | Lightmapper/dynamic-lightmap/probe robustness | SDVK-002, SDVK-005, SDVK-009, SDVK-010 |
-| SDVK-015 | Doom-family compatibility/regression qualification | SDVK-008, SDVK-011, SDVK-013, SDVK-014 |
-| SDVK-016 | Performance tiers, budgets and adaptive quality | SDVK-015 |
-| SDVK-017 | Integrated synthesis, defaults and first renderer freeze | SDVK-001 through SDVK-016 |
+| ID | GitHub | Title | Hard dependencies |
+|---|---:|---|---|
+| SDVK-001 | #1 | Foundation, identity, reproducible build and provenance | none |
+| SDVK-002 | #2 | Renderer observability, reference scenes and benchmark harness | SDVK-001 |
+| SDVK-003 | #3 | Upstream differential and maintenance strategy | SDVK-001 |
+| SDVK-004 | #4 | Bindless descriptor capacity/reuse/stale-reference hardening | SDVK-002, SDVK-003 |
+| SDVK-005 | #5 | Semantic material layers and per-layer sampling | SDVK-004 |
+| SDVK-006 | #6 | Render-frame time and visual interpolation substrate | SDVK-001, SDVK-002 |
+| SDVK-007 | #7 | Sprite tangent basis and normal-map conformance | SDVK-005 |
+| SDVK-008 | #8 | Height/POM sprite relief and advanced PBR | SDVK-007 |
+| SDVK-009 | #9 | Dynamic-light gathering/data-layout qualification | SDVK-002, SDVK-003 |
+| SDVK-010 | #10 | Probe/environment lighting qualification for actors | SDVK-002, SDVK-007 |
+| SDVK-011 | #11 | First-person viewmodel lighting/material parity | SDVK-009, SDVK-010 |
+| SDVK-012 | #12 | Sprite shadow-caster comparative prototype | SDVK-008, SDVK-009 |
+| SDVK-013 | #13 | Hybrid world+sprite shadows and contact grounding | SDVK-012 |
+| SDVK-014 | #14 | Lightmapper/dynamic-lightmap/probe robustness | SDVK-002, SDVK-005, SDVK-009, SDVK-010 |
+| SDVK-015 | #15 | Doom-family compatibility/regression qualification | SDVK-008, SDVK-011, SDVK-013, SDVK-014 |
+| SDVK-016 | #16 | Performance tiers, budgets and adaptive quality | SDVK-015 |
+| SDVK-017 | #17 | Integrated synthesis, defaults and first renderer freeze | SDVK-001 through SDVK-016 |
 
 ## Dependency-ready concurrency
 
