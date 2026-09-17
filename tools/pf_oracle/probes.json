@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "programme": "PF-001",
+  "baseline_lineage": "VKDoom@09634479ab5bf9adf691074fffe85a006a398cd0",
+  "probes": [
+    {
+      "id": "material-layer-sampling",
+      "category": "material",
+      "kind": "invariant",
+      "owner": "PF-008",
+      "paths": ["src/common/textures/gametexture.h"],
+      "required": [
+        "enum\\s+class\\s+MaterialLayerSampling",
+        "NearestMipLinear",
+        "LinearMipLinear",
+        "CustomShaderTextureSampling"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "material-pbr-layers",
+      "category": "material",
+      "kind": "invariant",
+      "owner": "PF-008",
+      "paths": ["src/common/textures/gametexture.h"],
+      "required": [
+        "RefCountedPtr<FTexture>\\s+Normal",
+        "RefCountedPtr<FTexture>\\s+Metallic",
+        "RefCountedPtr<FTexture>\\s+Roughness",
+        "RefCountedPtr<FTexture>\\s+AmbientOcclusion"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "bindless-block-reuse",
+      "category": "resource_lifetime",
+      "kind": "invariant",
+      "owner": "PF-003",
+      "paths": ["src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp"],
+      "required": [
+        "AllocBindlessSlot",
+        "FreeBindlessSlot"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "portal-relative-actor-lighting",
+      "category": "lighting",
+      "kind": "invariant",
+      "owner": "PF-016",
+      "paths": ["src/rendering/hwrenderer/scene/hw_spritelight.cpp"],
+      "required": [
+        "PosRelative",
+        "ActorTraceStaticLight"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "render-context-entrypoints",
+      "category": "view_context",
+      "kind": "invariant",
+      "owner": "PF-010",
+      "paths": ["src/rendering/hwrenderer/hw_entrypoint.cpp"],
+      "required": [
+        "RenderViewpoint",
+        "RenderTextureView",
+        "RenderLightProbe"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "portal-mirror-handedness",
+      "category": "portal",
+      "kind": "invariant",
+      "owner": "PF-010",
+      "paths": ["src/rendering/hwrenderer/scene/hw_portal.h"],
+      "required": [
+        "isMirrored"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "probe-map-probe-zero-stub",
+      "category": "probe_lightmap",
+      "kind": "known_defect",
+      "owner": "PF-012",
+      "paths": ["wadsrc/static/shaders/lightmap/frag_copy.glsl"],
+      "required": [
+        "#if\\s+1",
+        "findClosestProbe",
+        "return\\s+0\\s*;"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "indexed-red-is-alpha-todo",
+      "category": "material",
+      "kind": "known_defect",
+      "owner": "PF-013",
+      "paths": ["src/common/rendering/vulkan/textures/vk_hwtexture.cpp"],
+      "required": [
+        "may need to implement CTF_IndexedRedIsAlpha"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "sprite-clip-top-sentinel",
+      "category": "sprite",
+      "kind": "known_defect",
+      "owner": "PF-014",
+      "paths": ["src/rendering/hwrenderer/scene/hw_sprites.cpp"],
+      "required": [
+        "float\\s+top\\s*=\\s*-NO_VAL",
+        "top\\s*==\\s*NO_VAL"
+      ],
+      "forbidden": []
+    },
+    {
+      "id": "shadow-cap-traversal-order",
+      "category": "shadow",
+      "kind": "known_defect",
+      "owner": "PF-015",
+      "paths": ["src/rendering/hwrenderer/hw_entrypoint.cpp"],
+      "required": [
+        "closer lights are preferred",
+        "lightindex\\s*<\\s*1024"
+      ],
+      "forbidden": []
+    }
+  ]
+}
