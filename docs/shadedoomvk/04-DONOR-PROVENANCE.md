@@ -1,6 +1,6 @@
 # Donor and upstream provenance register
 
-Status: founding research snapshot  
+Status: reconciled founding + deep-source-audit register  
 Date: 2026-09-17
 
 ## Baseline
@@ -9,32 +9,31 @@ ShadeDoomVK starts from VKDoom commit:
 
 `09634479ab5bf9adf691074fffe85a006a398cd0`
 
-This matters because many forks that appear to contain useful features are actually ancestors of the current baseline. Do not re-import an ancestral patch under a new provenance story.
+Many apparent donor features are already ancestral or independently present in this baseline. Always inspect current source/history before importing a patch.
 
 ## Confirmed useful non-ancestral donor concepts
 
-### jalovisko/VkDoom — configurable bindless budget
+### jalovisko/VkDoom — configurable/device-aware bindless budget
 
-Commit: `033a3c5cb35c82708e4eeb3619373c33ddc40b75`  
-Concept: make maximum bindless texture count configurable, clamp it to Vulkan device descriptor limits and improve exhaustion diagnostics.
+Commit: `033a3c5cb35c82708e4eeb3619373c33ddc40b75`
 
-ShadeDoomVK disposition: **port/adapt early**, then extend from capacity into safe reuse/lifetime/generation handling.
+Concept:
 
-### Waffle-Iron-Studios/GriddleVK — per-material-layer sampling
+- configurable requested bindless texture capacity;
+- clamp requested capacity to relevant Vulkan physical-device limits;
+- improve descriptor-exhaustion diagnostics.
 
-Commit: `97eaa46b69a19966e1a802b15081bcdf56eff718`  
-Concept: custom material layers carry their own sampling override and Vulkan samplers can differ per layer.
-
-ShadeDoomVK disposition: **reimplement/generalize** as semantic material sampling rather than copying the narrow historical enum unchanged.
+Reconciled disposition: **adapt in PF-003**, but do not describe this as adding slot reuse. Current baseline already has allocation-size free buckets. PF-002/PF-003 extend capacity/reservation/reuse with lifetime/generation safety and diagnostics.
 
 ### MrRaveYard/MAD-VKDoom — small-actor light gathering
 
-Commit: `2c433f2a495ec208c6cc9e248c2c85e3bb14a6f5`  
-Concept: for sufficiently small actors, gather dynamic lights from the actor's section light list instead of walking the BSP.
+Commit: `2c433f2a495ec208c6cc9e248c2c85e3bb14a6f5`
 
-Known limitation in donor: portal-group handling contains a TODO/assumption.
+Concept: gather eligible lights for sufficiently small actors from a local section light list instead of always BSP-walking.
 
-ShadeDoomVK disposition: **benchmark hypothesis, not blind cherry-pick**.
+Known donor limitation: portal-group handling contains a TODO/assumption.
+
+Reconciled disposition: **benchmark/reimplement as a PF-016 hypothesis** only after PF-009/PF-015 establish sprite/visibility correctness. Exact selected-light equivalence is required for the qualified fast path.
 
 ### MrRaveYard/MAD-VKDoom — dynamic-light bookkeeping experiments
 
@@ -43,41 +42,58 @@ Commits:
 - `807043b995264f166e333bca54c4e0b281bd8669` — dynamic-light optimization attempt;
 - `773c53489663040697e744b50bf1b89e06525930` — remove linked lists entirely from lights.
 
-ShadeDoomVK disposition: **study data-layout/cost evidence**. Reimplement only after deterministic selected-light equivalence and profiling.
+Disposition: **research/data-layout evidence**, not a blind cherry-pick. PF-016/PF-017 may use the concepts if current-source profiling and correctness fixtures support them.
 
 ### MrRaveYard/MAD-VKDoom — render-frame delta time
 
-Commit: `316b18a4d96b1a120c681d368ac670286234bcc8`  
-Concept: expose rendered-frame delta time and physics timestep to scripting, resetting across loads/wipes to avoid giant visual-time jumps.
+Commit: `316b18a4d96b1a120c681d368ac670286234bcc8`
 
-ShadeDoomVK disposition: **adapt**, with explicit renderer-only semantics.
+Disposition: later **SDVK-006 adaptation**, after PF-010 gives render-context identity. Gameplay/tic semantics remain authoritative.
 
 ### MrRaveYard/MAD-VKDoom — opt-in scale/alpha interpolation
 
 Commit: `7d1f2df404711986a3cc742dad1f9e6e0ac69cde`
 
-ShadeDoomVK disposition: **adapt where useful** for high-FPS visual effects while preserving gameplay state.
+Disposition: later **SDVK-006 adaptation** where compatibility-safe.
 
 ### MrRaveYard/MAD-VKDoom — viewmodel light-level option
 
 Commit: `346f4c0e87139ec8eb0d94d5792d8521b9d17a85`
 
-ShadeDoomVK disposition: **take the problem, not necessarily the exact solution**. Build a general viewmodel lighting mode compatible with probes/local lights/PBR.
+Disposition: **problem evidence for SDVK-011**, not a required binary-toggle design. ShadeDoomVK intends a broader compatibility/world/PBR viewmodel lighting contract.
 
 ### MrRaveYard/MAD-VKDoom — bindless flush mitigation
 
-Commit: `e2de04134c4654d38dd4b5452a0306036a5e0911`  
-Concept: increase the bindless limit, request a texture flush near exhaustion and avoid flushing canvas textures.
+Commit: `e2de04134c4654d38dd4b5452a0306036a5e0911`
 
-Critical donor note: the commit itself states that LevelMesh can retain old texture indices.
+Concept: increase bindless limit and flush textures/slots near exhaustion.
 
-ShadeDoomVK disposition: **negative design evidence**. Do not adopt a flush strategy that can leave stale indices.
+Critical donor note: commit records that LevelMesh can still contain old texture indices.
+
+Disposition: **negative design evidence** for PF-002/PF-003. Do not adopt a flush strategy that leaves stale renderer references.
+
+## Corrected historical donor assumption
+
+### Waffle-Iron-Studios/GriddleVK — per-material-layer sampling
+
+Commit: `97eaa46b69a19966e1a802b15081bcdf56eff718`
+
+Historical concept: custom material texture layers carry independent sampling choices.
+
+Deep-source-audit correction: the audited VKDoom baseline **already contains materially equivalent per-layer sampling support** through `MaterialLayerSampling`, custom-layer sampling arrays, GLDEFS parsing, Vulkan override samplers and `VkMaterial` binding.
+
+Disposition:
+
+- retain Griddle as historical provenance/research context;
+- **do not port or reimplement the feature as missing**;
+- PF-008 semantically tags/exposes inherited existing channels while preserving behavior;
+- SDVK-005 later extends that representation with first-class height semantics/authoring/default policy.
 
 ## Ancestral/already inherited lines
 
-During the founding audit, these apparent donors compared as ancestors of the ShadeDoom baseline and therefore should not be counted as missing features without a specific later divergence:
+The founding fork comparison found these apparent donors behind/ancestral to the ShadeDoom baseline. Their historical commits are not automatically missing work:
 
-- `the-phinet/VkDoom` — includes the 2025 probe-map/AABB-tree, sunlight-specular and light-bleed work that later flowed into the baseline;
+- `the-phinet/VkDoom`;
 - `Talon1024/VkDoom`;
 - `madame-rachelle/VkDoom`;
 - `SanyaWaffles/VkDoom`;
@@ -88,32 +104,38 @@ During the founding audit, these apparent donors compared as ancestors of the Sh
 - `Gutawer/VkDoom`;
 - `heitaoflower/VkDoom`.
 
-The correct action is normally to test/qualify the inherited feature, not port it again.
+Important qualification: a feature being ancestral does not prove it is complete or correct. The deep audit found inherited probe-map/AABB infrastructure that is present but partially/dormantly wired. The correct action is source qualification, not re-porting the old commit.
 
 ## Cacodemon345/VkDoom
 
-A later unique divergence found in the founding audit was `4956821df0c8eaf5b9c64001dbc1f68c043e6b0c`, interpolating non-burn screen wipes. This is optional UI polish and is not on the founding renderer critical path.
+Unique later divergence noted in founding audit:
 
-Earlier Cacodemon345 work such as multi-BLAS map updates, pipeline sorting and shadow-acne trace bias had already flowed into the current ShadeDoom baseline by the time of this fork.
+`4956821df0c8eaf5b9c64001dbc1f68c043e6b0c` — interpolate non-Burn screen wipes.
+
+Disposition: optional UI polish, outside PF/founding renderer critical path.
+
+Earlier Cacodemon345 multi-BLAS, pipeline-sorting and shadow-acne work was already in the baseline ancestry by the relevant fork point; do not create donor issues for it without a proven current delta.
 
 ## UZDoom/GZDoom relationship
 
-UZDoom/GZDoom remain active related code lines and should be evaluated as maintenance/upstream donors, especially for:
+UZDoom/GZDoom remain active related lines and potential maintenance donors for:
 
-- engine compatibility and mod semantics;
+- engine/mod compatibility;
 - platform/toolchain/security fixes;
-- Vulkan backend fixes;
-- scripting and resource-system maintenance.
+- Vulkan/backend fixes;
+- scripting/resource maintenance.
 
-Do not assume their current renderer contains every VKDoom lightmapper/probe feature or that VKDoom contains every later engine fix. SDVK-003 owns the pinned differential and future sync policy.
+Do not assume current UZDoom contains all VKDoom lightmapper/probe experiments or that VKDoom contains all later maintenance fixes. SDVK-003 owns the pinned differential/selective-sync policy after PF-020.
 
-## Provenance update rule
+## Provenance rule
 
-Whenever donor work is introduced, add:
+Whenever donor work is materially introduced, record:
 
-- exact source repository;
-- exact commit/tag;
+- exact repository and commit/tag;
 - file/function scope;
+- ancestry check against current ShadeDoomVK `master`;
 - license/copyright handling;
-- whether the change was cherry-picked, adapted, reimplemented or only inspired by the source;
-- tests proving the transplanted concept still means the same thing in ShadeDoomVK.
+- cherry-pick vs adaptation vs conceptual reimplementation vs rejection;
+- tests proving the transplanted concept preserves intended meaning in ShadeDoomVK.
+
+When a donor concept is already inherited, record **qualification/fix provenance** separately from donor provenance rather than claiming a new import.
