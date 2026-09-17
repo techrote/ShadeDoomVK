@@ -168,3 +168,4 @@ jobs:
 #       rm: true
 #       token: ${{ secrets.GITHUB_TOKEN }}
 #       files: build/vkdoom-windows-prerelease.zip
+#              build/vkdoom-linux-prerelease.zip
