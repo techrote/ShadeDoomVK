@@ -1,24 +1,39 @@
 # SDVK-007 — Explicit sprite-space tangent basis and normal-map conformance
 
-## Purpose
-Make sprite normal/specular/PBR orientation correct across Doom's mirroring, rotations and billboard modes before adding relief mapping.
+## Objective
+Use PF-009's canonical sprite orientation state to make normal/specular/PBR tangent-space response correct across Doom rotations, mirrored frames, billboard modes and portal mirrors before height relief is enabled.
 
-## Autonomous execution prompt
-Complete SDVK-007 after SDVK-005. Read all founding docs and use SDVK-002 reference scenes as the oracle. Inspect current derivative/TBN implementation before replacing anything. State the sprite tangent/bitangent/forward and handedness contract first. Dedicated branch → PR → required checks → merge → verify `master`.
-
-## Required work
-- Define explicit sprite-local tangent frame semantics.
-- Correct mirrored frame handedness; mirroring UVs must not silently invert lighting incorrectly.
-- Cover actor rotations, 8/16-direction frames where applicable, billboard modes, wall/flat sprites, roll/pitch paths that use sprite materials.
+## Scope / required work
+- Define explicit sprite-local right/up/forward and handedness from PF-009 state.
+- Feed/derive a stable tangent basis for sprite materials instead of relying solely on derivative reconstruction where that is insufficient.
+- Correct mirrored-frame and portal-mirror handedness; cover actor rotations, 8/16-direction frames where applicable, face/wall/flat sprites and roll/pitch paths.
 - Keep geometry surfaces/models on their appropriate existing tangent paths.
-- Add diagnostic visualization or state useful for tangent/normal debugging.
+- Add tangent/normal debug visualization/state and positive/negative fixtures.
+- Preserve un-normal-mapped legacy sprite output.
 
-## Acceptance criteria
-- Reference normal-map lobes rotate/mirror correctly under all declared sprite cases.
-- Specular highlight movement agrees with the same basis.
-- Legacy un-normal-mapped sprites are unchanged within declared tolerance.
-- Positive and deliberately mirrored-negative fixtures are automated.
-- PR merged and verified on `master`.
+## Non-goals
+No height/POM; no material-authoring redesign; no shadow-caster implementation; no global world-surface tangent rewrite unless a reproduced shared defect requires a separate issue.
 
 ## Dependencies
-SDVK-005.
+SDVK-005. PF-009/PF-014 are inherited prerequisites via PF-020.
+
+## Concurrency guidance
+SDVK-008 waits for merge. SDVK-010 also waits because actor IBL/specular orientation must use the accepted basis.
+
+## Required context
+Read `AGENTS.md`, PF-009/PF-014 evidence, material/portal RAG, SDVK-005 semantics, SDVK-002 fixtures and canonical body.
+
+## Autonomous implementation prompt
+Complete SDVK-007 autonomously. State tangent/handedness contract first, implement sprite-only explicit basis with compatibility fallback, validate rotations/mirrors/portal contexts and specular/normal response, branch→PR→checks→merge→verify `master`→RAG/ledger→close.
+
+## Acceptance criteria
+Reference normal lobes and specular highlights rotate/mirror correctly across declared sprite cases; portal mirror handedness correct; legacy un-normal-mapped sprites unchanged within tolerance; geometry/model tangent paths unaffected; automated positive/mirrored-negative fixtures pass; PR merged/verified.
+
+## Verification
+Fixed directional normal-map test, mirrored frames, multiple rotations, face/wall/flat modes, roll/pitch where supported, mirror/linked portal, specular motion and legacy comparisons.
+
+## Expected artifacts
+Sprite tangent-basis implementation, diagnostics/fixtures, authoring/orientation docs, material/portal RAG and ledger updates.
+
+## Blocking / stopping conditions
+If a sprite mode lacks enough stable orientation information, preserve derivative/legacy fallback for that mode and document the limitation rather than inventing arbitrary tangent orientation.
