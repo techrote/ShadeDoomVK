@@ -86,9 +86,7 @@
       "owner": "PF-012",
       "paths": ["wadsrc/static/shaders/lightmap/frag_copy.glsl"],
       "required": [
-        "#if\\s+1",
-        "findClosestProbe",
-        "return\\s+0\\s*;"
+        "#if\\s+1\\s+uint\\s+findClosestProbe\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+0\\s*;\\s*\\}"
       ],
       "forbidden": []
     },
