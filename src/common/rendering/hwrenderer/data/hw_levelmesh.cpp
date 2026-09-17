@@ -24,6 +24,8 @@ void LevelMesh::CreateCollision()
 
 void LevelMesh::Reset()
 {
+	ResourceEpoch.Invalidate();
+
 	Mesh.Vertices.Clear();
 	Mesh.UniformIndexes.Clear();
 
