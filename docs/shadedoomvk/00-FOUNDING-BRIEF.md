@@ -1,6 +1,6 @@
 # ShadeDoomVK founding brief
 
-Status: founding contract  
+Status: founding contract with pre-foundation implementation-gate amendment  
 Date: 2026-09-17
 
 ## Purpose
@@ -26,6 +26,8 @@ The inherited baseline already contains substantial modern infrastructure:
 - dynamic/shadow-map/ray-query lighting paths.
 
 The programme therefore concentrates on the missing or weak seams rather than rebuilding those systems from scratch.
+
+Important deep-audit qualification: "already contains" does not mean every inherited subsystem is complete. In particular, per-lightmap probe selection and parts of probe-AABB integration are incomplete at the founding baseline; tiled-light infrastructure is dormant rather than an active clustered-light path. Conversely, per-layer material sampling and bindless slot reuse are already inherited and should be hardened/generalized rather than reimplemented as missing features. The canonical source-truth references live under `docs/shadedoomvk/rag/`.
 
 ## Primary goals
 
@@ -94,6 +96,18 @@ New material/shadow behavior should fail safely to inherited VKDoom rendering wh
 
 VKDoom is the renderer baseline. UZDoom/GZDoom are active related lineages and may be better sources for compatibility, safety, build and engine-maintenance changes. ShadeDoomVK will use an explicit differential/upstream policy rather than uncontrolled periodic mega-merges.
 
+## Pre-foundation implementation gate
+
+Before the founding SDVK feature programme begins, PF-001 through PF-020 perform a long renderer-internal hardening/refactor/correctness/performance tranche. This gate exists because the deep source audit found raw renderer-identity risks, partially wired probe/tiled-light systems, confirmed correctness defects and high-value output-equivalent refactors/optimizations that should be resolved before adding more graphical complexity.
+
+Rules:
+
+- SDVK-001 must not begin until PF-020 is accepted, merged, verified on `master`, and explicitly records `SDVK-001: UNBLOCKED`.
+- PF refactors preserve accepted output/state unless the owning issue explicitly repairs a confirmed defect.
+- PF performance work may not trade image quality or lighting semantics for speed.
+- Stable SDVK-001..017 IDs remain intact; PF work must not silently consume later headline feature scope.
+- `08-PREFOUNDATION-HARDENING-PROGRAMME.md`, `09-PLANNING-RECONCILIATION.md`, `05-AUTONOMOUS-ISSUE-GRAPH.md` and `AGENTS.md` are authoritative for the execution gate.
+
 ## Success condition
 
 The founding programme is successful when the repository can demonstrate, on deterministic reference scenes and real Doom-family content:
@@ -106,3 +120,5 @@ The founding programme is successful when the repository can demonstrate, on det
 - no descriptor/resource-lifetime corruption under rich material loads;
 - compatibility and performance tiers with measured budgets;
 - automated regression evidence sufficient for continued autonomous development.
+
+The PF gate is a prerequisite to this success condition, not a replacement for it.
