@@ -1,7 +1,7 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; lifetime hardening required  
+Status: PF-002 generation/epoch substrate active; subsystem hardening continues  
 Primary issues: PF-002, PF-003, PF-004, PF-005, SDVK-004
 
 ## Core rule
@@ -31,6 +31,23 @@ Important baseline files:
 
 `VkMaterial` caches descriptor variants by clamp mode, palette/translation and global-shader address. Destruction/removal returns bindless allocations to size buckets.
 
+## PF-002 generation substrate
+
+PF-002 adds `hw_resourcegeneration.h` with two deliberately small primitives:
+
+- `FRendererResourceGenerationTable` for recyclable indexed blocks. Durable diagnostic tokens carry `{index, generation, epoch, span}`; retirement/reuse/reset makes older tokens fail validation.
+- `FRendererEpoch` for owner-wide reset domains where individual slot generations are unnecessary.
+
+The primitives expose stale-rejection and lifecycle counters and are not internally synchronized. Current owners mutate them on renderer-owner paths; later async consumers must use their subsystem synchronization.
+
+Current wiring:
+
+- dynamic bindless block allocation/free tracks generations in `VkDescriptorSetManager`;
+- `LevelMesh::Reset()` advances a LevelMesh resource epoch;
+- `VkTextureManager` advances separate texture, lightmap, environment-probe and async-upload epochs at their real reset/destruction boundaries.
+
+See `docs/shadedoomvk/PF-002-LIFETIME-CONTRACT.md` for the exact contract and deliberately unconverted identities.
+
 ## Bindless identity
 
 Baseline constants include a fixed `MaxBindlessTextures`, `FixedBindlessSlots` and `MaxLightmaps`. `AllocBindlessSlot(count)` uses allocation-size free buckets; `FreeBindlessSlot(index)` recycles the starting slot.
@@ -43,7 +60,7 @@ Risks:
 - long-lived LevelMesh/material uniform state retaining indices across resource rebuilds;
 - exhaustion currently fatal.
 
-PF-002 defines the cross-resource generation/lifetime mechanism. PF-003 applies it to bindless descriptors and reservation arithmetic.
+PF-002 now provides the cross-resource generation/lifetime mechanism and bindless allocation/free generation hooks. PF-003 applies those hooks to descriptor capacity, reservation arithmetic and long-lived descriptor consumers.
 
 ## LevelMesh identity
 

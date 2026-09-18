@@ -3,6 +3,7 @@
 
 #include <zvulkan/vulkanobjects.h>
 #include "vulkan/textures/vk_imagetransition.h"
+#include "hwrenderer/data/hw_resourcegeneration.h"
 #include <list>
 #include <thread>
 #include <mutex>
@@ -88,6 +89,20 @@ public:
 	int CreateUploadID(VkHardwareTexture* tex);
 	bool CheckUploadID(int id);
 
+	FRendererEpochToken GetTextureEpoch() const { return TextureEpoch.Snapshot(); }
+	FRendererEpochToken GetLightmapEpoch() const { return LightmapEpoch.Snapshot(); }
+	FRendererEpochToken GetLightProbeEpoch() const { return LightProbeEpoch.Snapshot(); }
+	FRendererEpochToken GetAsyncUploadEpoch() const { return AsyncUploadEpoch.Snapshot(); }
+	bool ValidateTextureEpoch(FRendererEpochToken token) { return TextureEpoch.Validate(token); }
+	bool ValidateLightmapEpoch(FRendererEpochToken token) { return LightmapEpoch.Validate(token); }
+	bool ValidateLightProbeEpoch(FRendererEpochToken token) { return LightProbeEpoch.Validate(token); }
+	bool ValidateAsyncUploadEpoch(FRendererEpochToken token) { return AsyncUploadEpoch.Validate(token); }
+
+	const FRendererEpochStats& GetTextureEpochStats() const { return TextureEpoch.GetStats(); }
+	const FRendererEpochStats& GetLightmapEpochStats() const { return LightmapEpoch.GetStats(); }
+	const FRendererEpochStats& GetLightProbeEpochStats() const { return LightProbeEpoch.GetStats(); }
+	const FRendererEpochStats& GetAsyncUploadEpochStats() const { return AsyncUploadEpoch.GetStats(); }
+
 	static const int PrefiltermapSize = 128;
 	static const int IrradiancemapSize = 32;
 
@@ -127,6 +142,11 @@ private:
 		std::unique_ptr<VulkanImageView> View;
 	};
 	std::vector<SWColormapTexture> Colormaps;
+
+	FRendererEpoch TextureEpoch;
+	FRendererEpoch LightmapEpoch;
+	FRendererEpoch LightProbeEpoch;
+	FRendererEpoch AsyncUploadEpoch;
 
 	int NextUploadID = 1;
 	std::unordered_map<int, VkHardwareTexture*> PendingUploads;

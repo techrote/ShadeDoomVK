@@ -5,6 +5,7 @@
 #include "zvulkan/vulkanbuilders.h"
 #include <list>
 #include "tarray.h"
+#include "hwrenderer/data/hw_resourcegeneration.h"
 
 class VulkanRenderDevice;
 class VkMaterial;
@@ -50,6 +51,10 @@ public:
 
 	int AllocBindlessSlot(int count);
 	void FreeBindlessSlot(int index);
+
+	FRendererResourceIdentity GetBindlessIdentity(int index) const { return Bindless.Generations.Current(index); }
+	bool ValidateBindlessIdentity(const FRendererResourceIdentity& identity) { return Bindless.Generations.Validate(identity); }
+	const FRendererLifetimeStats& GetBindlessLifetimeStats() const { return Bindless.Generations.GetStats(); }
 
 private:
 	void CreateLevelMeshLayout();
@@ -107,6 +112,7 @@ private:
 		int NextIndex = FixedBindlessSlots + MaxLightmaps;
 		std::vector<int> AllocSizes;
 		std::vector<std::vector<int>> FreeSlots;
+		FRendererResourceGenerationTable Generations;
 	} Bindless;
 
 	struct

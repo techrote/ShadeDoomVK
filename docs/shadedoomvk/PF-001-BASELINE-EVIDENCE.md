@@ -7,11 +7,11 @@ Founding VKDoom lineage: `09634479ab5bf9adf691074fffe85a006a398cd0`
 
 ## What this baseline is
 
-PF-001 creates a deterministic **source/contract state capture** suitable for ordinary CI before later issues have runtime renderer diagnostics/reference maps. The canonical capture is:
+PF-001 created a deterministic **source/contract state capture** suitable for ordinary CI before later issues have runtime renderer diagnostics/reference maps. The canonical cumulative capture is:
 
 `tools/pf_oracle/baseline.json`
 
-It contains ten deliberately small probes. Six protect inherited architecture/capability seams; four preserve known pre-fix defect markers until their owning PF issues repair them.
+PF-001 initially established ten deliberately small probes: six inherited architecture/capability seams and four known pre-fix defect markers. The oracle is intentionally cumulative; PF-002 extends the same capture with four renderer-lifetime invariants rather than replacing the PF-001 evidence.
 
 This file does not claim GPU image evidence was produced in hosted CI. The runtime/image evidence shape is defined separately by `tools/pf_oracle/runtime_evidence.schema.json` and `PF-EQUIVALENCE-PROTOCOL.md`.
 
@@ -41,14 +41,16 @@ A known-defect probe being reproduced is **not** a claim that the defect is acce
 
 ## Expected oracle result
 
-The checked-in baseline records:
+The original PF-001 merge recorded 10 probes / 6 passing invariants / 4 reproduced known defects. After PF-002 extends the cumulative oracle, the checked-in baseline records:
 
 ```text
-probe_count                 10
-invariant_passed             6
+probe_count                 14
+invariant_passed            10
 known_defect_reproduced      4
 unexpected                   0
 ```
+
+The four PF-002 additions pin the generation primitive plus bindless, LevelMesh and texture-manager lifetime hooks.
 
 CI must also produce byte-identical canonical JSON on repeated runs from the same source checkout.
 

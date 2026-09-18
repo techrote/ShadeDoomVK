@@ -426,23 +426,25 @@ int VkDescriptorSetManager::AllocBindlessSlot(int count)
 	if (Bindless.FreeSlots.size() <= (size_t)bucket)
 		Bindless.FreeSlots.resize(bucket + 1);
 
+	int index;
 	if (!Bindless.FreeSlots[bucket].empty())
 	{
-		int index = Bindless.FreeSlots[bucket].back();
+		index = Bindless.FreeSlots[bucket].back();
 		Bindless.FreeSlots[bucket].pop_back();
-		return index;
 	}
 	else
 	{
 		if (Bindless.NextIndex + count > MaxBindlessTextures)
 			I_FatalError("Out of bindless texture slots!");
-		int index = Bindless.NextIndex;
+		index = Bindless.NextIndex;
 		if (Bindless.AllocSizes.size() < index + count)
 			Bindless.AllocSizes.resize(index + count, 0);
 		Bindless.AllocSizes[index] = count;
 		Bindless.NextIndex += count;
-		return index;
 	}
+
+	Bindless.Generations.Activate(index, (uint32_t)count);
+	return index;
 }
 
 void VkDescriptorSetManager::FreeBindlessSlot(int index)
@@ -450,6 +452,7 @@ void VkDescriptorSetManager::FreeBindlessSlot(int index)
 	if (index <= 0)
 		return;
 
+	Bindless.Generations.Retire(index);
 	int bucket = Bindless.AllocSizes[index] - 1;
 	Bindless.FreeSlots[bucket].push_back(index);
 }

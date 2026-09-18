@@ -1,6 +1,13 @@
 name: Continuous Integration
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   pf_oracle:
@@ -23,6 +30,14 @@ jobs:
           --baseline tools/pf_oracle/baseline.json \
           --output build/pf-oracle/oracle-b.json
         cmp build/pf-oracle/oracle-a.json build/pf-oracle/oracle-b.json
+
+    - name: Test renderer resource generation primitive
+      run: |
+        c++ -std=c++17 -Wall -Wextra -Werror \
+          -Isrc/common/rendering/hwrenderer/data \
+          tools/pf_oracle/tests/resource_generation_fixture.cpp \
+          -o build/pf-oracle/resource-generation-fixture
+        build/pf-oracle/resource-generation-fixture
 
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}

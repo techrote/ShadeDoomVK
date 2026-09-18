@@ -92,9 +92,17 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - [x] Perform final repository-wide consistency pass.
 - [x] Record final GitHub issue mapping and implementation gate state.
 
+### 2026-09-17 — PF-001 accepted and merged
+
+- PF-001 / #18 completed through PR #38.
+- Required CI passed: deterministic PF renderer oracle plus the inherited Windows, macOS and Linux build matrix.
+- Repaired the inherited Linux Clang 11 CI dependency gap by adding `libvpx-dev`.
+- Merge commit: `069d25a156c6341de448abf98a99b7ebf059f948`.
+- PF-002, PF-006, PF-007, PF-009 and PF-011 became dependency-ready.
+
 ## Current implementation gate
 
-- **READY:** PF-001 / GitHub #18.
+- **COMPLETED:** PF-001 / GitHub #18.\n- **READY:** PF-002 / #19, PF-006 / #23, PF-007 / #24, PF-009 / #26, PF-011 / #28.
 - **BLOCKED:** SDVK-001 / GitHub #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 

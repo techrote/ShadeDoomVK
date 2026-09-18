@@ -51,6 +51,11 @@ VkTextureManager::~VkTextureManager()
 
 void VkTextureManager::Deinit()
 {
+	TextureEpoch.Invalidate();
+	LightmapEpoch.Invalidate();
+	LightProbeEpoch.Invalidate();
+	AsyncUploadEpoch.Invalidate();
+
 	while (!Textures.empty())
 		RemoveTexture(Textures.back());
 	while (!PPTextures.empty())
@@ -75,6 +80,7 @@ void VkTextureManager::AddTexture(VkHardwareTexture* texture)
 
 void VkTextureManager::RemoveTexture(VkHardwareTexture* texture)
 {
+	TextureEpoch.Invalidate();
 	texture->Reset();
 	texture->fb = nullptr;
 	Textures.erase(texture->it);
@@ -97,6 +103,7 @@ void VkTextureManager::AddPPTexture(VkPPTexture* texture)
 
 void VkTextureManager::RemovePPTexture(VkPPTexture* texture)
 {
+	TextureEpoch.Invalidate();
 	texture->Reset();
 	texture->fb = nullptr;
 	PPTextures.erase(texture->it);
@@ -416,6 +423,8 @@ void VkTextureManager::CreatePrefiltermap()
 
 void VkTextureManager::ResetLightProbes()
 {
+	LightProbeEpoch.Invalidate();
+
 	// Special thanks to Khronos for making it so simple to clear an image...
 
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
@@ -876,6 +885,8 @@ void VkTextureManager::SetLightmapCount(int size, int count)
 
 void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t>& srcPixels)
 {
+	LightmapEpoch.Invalidate();
+
 	for (auto& tex : Lightmaps)
 	{
 		tex.Light.Reset(fb);
@@ -1055,6 +1066,8 @@ void VkTextureManager::StartWorkerThread()
 
 void VkTextureManager::StopWorkerThread()
 {
+	AsyncUploadEpoch.Invalidate();
+
 	std::unique_lock lock(Worker.Mutex);
 	Worker.StopFlag = true;
 	lock.unlock();
