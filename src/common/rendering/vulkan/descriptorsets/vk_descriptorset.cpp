@@ -385,20 +385,7 @@ void VkDescriptorSetManager::CreateFixedPool()
 
 void VkDescriptorSetManager::CreateBindlessSet()
 {
-	const auto& coreLimits = fb->GetDevice()->PhysicalDevice.Properties.Properties.limits;
-	const auto& indexingLimits = fb->GetDevice()->PhysicalDevice.Properties.DescriptorIndexing;
-
-	VkBindlessDeviceLimits limits;
-	limits.MaxPerStageDescriptorSamplers = coreLimits.maxPerStageDescriptorSamplers;
-	limits.MaxPerStageDescriptorSampledImages = coreLimits.maxPerStageDescriptorSampledImages;
-	limits.MaxDescriptorSetSamplers = coreLimits.maxDescriptorSetSamplers;
-	limits.MaxDescriptorSetSampledImages = coreLimits.maxDescriptorSetSampledImages;
-	limits.MaxPerStageDescriptorUpdateAfterBindSamplers = indexingLimits.maxPerStageDescriptorUpdateAfterBindSamplers;
-	limits.MaxPerStageDescriptorUpdateAfterBindSampledImages = indexingLimits.maxPerStageDescriptorUpdateAfterBindSampledImages;
-	limits.MaxDescriptorSetUpdateAfterBindSamplers = indexingLimits.maxDescriptorSetUpdateAfterBindSamplers;
-	limits.MaxDescriptorSetUpdateAfterBindSampledImages = indexingLimits.maxDescriptorSetUpdateAfterBindSampledImages;
-	limits.MaxPerStageUpdateAfterBindResources = indexingLimits.maxPerStageUpdateAfterBindResources;
-	limits.MaxUpdateAfterBindDescriptorsInAllPools = indexingLimits.maxUpdateAfterBindDescriptorsInAllPools;
+	const auto& limits = fb->GetCapabilities().BindlessLimits;
 
 	Bindless.Plan = VkPlanBindlessCapacity((int)vk_max_bindless_textures, limits);
 	if (Bindless.Plan.Error == VkBindlessCapacityError::RequestedBelowMinimum)
