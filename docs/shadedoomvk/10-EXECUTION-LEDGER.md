@@ -172,10 +172,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-013 / #30 became dependency-ready. PF-017 still waits on PF-013 and PF-016.
 - Gameplay/tic, shader/material meaning, palette/translation, sprite, portal, audio, source-ownership and donor/provenance semantics remain unchanged.
 
+### 2026-09-19 — PF-009 accepted and merged
+
+- PF-009 / #26 completed through PR #53.
+- Exact implementation head `8f78d5a10fe502d144b09b51f786b97e6e6bb54e` passed Continuous Integration run 65: deterministic PF renderer oracle, adversarial sprite-surface policy/source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
+- Extracted observational `HWSpriteRenderSurfaceState` plus the pure `ResolveHWSpriteOrientationPolicy()` adapter so later tangent/POM/shadow/light work consumes one sprite presentation meaning instead of re-deriving frame, UV mirror, billboard, view and portal state.
+- Preserved inherited frame selection, geometry, clipping/anamorphosis, UV assignment, material/palette/translation behavior, draw ordering, portal transforms and normal/TBN behavior; no height/POM, sprite-shadow, gameplay, audio or donor/provenance change was introduced.
+- Merge commit: `b58f03decfedca12df039c68a5e36d709120bba1`; `master` was verified at that merge commit and post-merge Continuous Integration run 66 passed on the exact merge head.
+- PF-014 retains PF-010 as its remaining extraction prerequisite; PF-016 retains PF-011 and PF-015. No issue becomes newly dependency-ready solely from PF-009 because those remaining prerequisites are still open.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25.
-- **READY:** PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-013 / #30.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26.
+- **READY:** PF-010 / #27, PF-011 / #28, PF-013 / #30.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
