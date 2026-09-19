@@ -8,8 +8,11 @@ namespace HWProbeSelection
 	static constexpr float Radius = 512.0f;
 	static constexpr uint32_t FallbackTextureIndex = 0;
 	static constexpr uint32_t MaxProbeMapTextureIndex = 0xffffu;
-	static constexpr uint32_t MaxAuthoredProbeIndex = (MaxProbeMapTextureIndex - 1u) / 2u;
-	static constexpr std::size_t MaxCandidateCount = static_cast<std::size_t>(MaxAuthoredProbeIndex) + 1u;
+
+	// Every live environment probe consumes an adjacent irradiance/prefilter
+	// descriptor pair. Within the 16-bit probe-map address space there can be
+	// at most 32768 distinct valid pair starts, regardless of allocator base.
+	static constexpr std::size_t MaxCandidateCount = (static_cast<std::size_t>(MaxProbeMapTextureIndex) + 1u) / 2u;
 
 	struct Candidate
 	{
@@ -24,16 +27,6 @@ namespace HWProbeSelection
 	inline bool IsEncodableTextureIndex(uint32_t textureIndex)
 	{
 		return textureIndex > FallbackTextureIndex && textureIndex <= MaxProbeMapTextureIndex;
-	}
-
-	// The environment-probe descriptor array stores the irradiance map for
-	// authored probe N at 2*N+1 and its paired prefilter map at the next slot.
-	// Probe-map value 0 is reserved for the explicit default/no-probe fallback.
-	inline uint32_t IrradianceTextureIndex(int authoredProbeIndex)
-	{
-		if (authoredProbeIndex < 0 || static_cast<uint32_t>(authoredProbeIndex) > MaxAuthoredProbeIndex)
-			return FallbackTextureIndex;
-		return static_cast<uint32_t>(authoredProbeIndex) * 2u + 1u;
 	}
 
 	inline uint32_t FindClosest(const Candidate* candidates, std::size_t count, float x, float y, float z, float radius = Radius)
