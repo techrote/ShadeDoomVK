@@ -6,6 +6,7 @@
 #include "actor.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawstructs.h"
+#include "hw_rendercontext.h"
 #include "hw_renderstate.h"
 #include "hw_material.h"
 
@@ -116,6 +117,10 @@ struct FPortalSceneState
 
 	VSMatrix tempmatrix;
 
+	// PF-010: observational identity for the scene currently traversing this
+	// draw context. It does not drive portal transforms or rendering policy.
+	HWRenderContext RenderContext;
+
 	void BeginScene()
 	{
 		UniqueSkies.Clear();
@@ -150,8 +155,16 @@ public:
 	{
 		if (Setup(di, state, (di->Viewpoint.IsAllowedOoB() ? di->rClipper : di->mClipper)))
 		{
+			// Setup establishes the inherited portal transform and live mirror
+			// parity. Snapshot that state only after Setup and restore the parent
+			// after the recursive scene has fully shut down.
+			auto parentContext = mState->RenderContext;
+			mState->RenderContext = MakeHWPortalRenderContext(parentContext,
+				HWRenderContextRuntimeSequence().AllocateIdentity(),
+				!!(mState->MirrorFlag & 1), !!(mState->PlaneMirrorFlag & 1));
 			di->DrawScene(DM_PORTAL, state);
 			Shutdown(di, state);
+			mState->RenderContext = parentContext;
 		}
 		else state.ClearScreen();
 	}

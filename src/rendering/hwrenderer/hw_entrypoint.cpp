@@ -112,6 +112,9 @@ void CollectLights(FLevelLocals* Level)
 sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bounds, float fov, float ratio, float fovratio, bool mainview, bool toscreen, int side)
 {
 	auto& RenderState = *screen->RenderState();
+	auto& contextSequence = HWRenderContextRuntimeSequence();
+	const uint64_t contextEpoch = contextSequence.BeginEpoch();
+	const auto contextType = ClassifyHWRenderContext(mainview, toscreen, side);
 
 	R_SetupFrame(mainvp, r_viewwindow, camera, side);
 
@@ -156,6 +159,8 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 			RenderState.EnableDrawBuffers(RenderState.GetPassDrawBufferCount(), true);
 		}
 
+		mainthread_drawctx.portalState.RenderContext = MakeHWRootRenderContext(
+			contextType, contextEpoch, contextSequence.AllocateIdentity(), side, eye_ix);
 		auto di = HWDrawInfo::StartDrawInfo(&mainthread_drawctx, mainvp.ViewLevel, nullptr, mainvp, nullptr);
 		auto& vp = di->Viewpoint;
 
