@@ -4,6 +4,7 @@
 
 #include "m_fixed.h"
 #include "textures.h"
+#include "material_layer_semantics.h"
 
 struct FRemapTable;
 class IHardwareTexture;
@@ -14,6 +15,19 @@ struct MaterialLayerInfo
 	int scaleFlags;
 	int clampflags;
 	MaterialLayerSampling layerFiltering;
+	MaterialLayerSemantic semantic = MaterialLayerSemantic::Custom;
+	int customIndex = -1;
+};
+
+struct MaterialLayerDiagnostic
+{
+	int binding = -1;
+	MaterialLayerSemantic semantic = MaterialLayerSemantic::Custom;
+	int customIndex = -1;
+	FTexture* sourceTexture = nullptr;
+	int scaleFlags = 0;
+	int clampflags = -1;
+	MaterialLayerSampling sampling = MaterialLayerSampling::Default;
 };
 
 //===========================================================================
@@ -59,7 +73,12 @@ public:
 
 	void AddTextureLayer(FTexture *tex, bool allowscale, MaterialLayerSampling filter)
 	{
-		mTextureLayers.Push({ tex, allowscale, -1, filter });
+		AddTextureLayer(tex, allowscale, filter, MaterialLayerSemantic::Custom, -1);
+	}
+
+	void AddTextureLayer(FTexture *tex, bool allowscale, MaterialLayerSampling filter, MaterialLayerSemantic semantic, int customIndex = -1)
+	{
+		mTextureLayers.Push({ tex, allowscale, -1, filter, semantic, customIndex });
 	}
 
 	int NumLayers() const
@@ -77,6 +96,44 @@ public:
 	MaterialLayerSampling GetLayerFilter(int index) const
 	{
 		return mTextureLayers[index].layerFiltering;
+	}
+
+	MaterialLayerSemantic GetLayerSemantic(int index) const
+	{
+		return mTextureLayers[index].semantic;
+	}
+
+	int GetLayerCustomIndex(int index) const
+	{
+		return mTextureLayers[index].customIndex;
+	}
+
+	int FindLayer(MaterialLayerSemantic semantic, int customIndex = -1) const
+	{
+		MaterialLayerSemanticKey key{ semantic, customIndex };
+		for (unsigned int i = 0; i < mTextureLayers.Size(); i++)
+		{
+			auto& layer = mTextureLayers[i];
+			if (key.Matches(layer.semantic, layer.customIndex))
+				return static_cast<int>(i);
+		}
+		return -1;
+	}
+
+	bool GetLayerDiagnostic(int binding, MaterialLayerDiagnostic& result) const
+	{
+		if (binding < 0 || binding >= static_cast<int>(mTextureLayers.Size()))
+			return false;
+
+		auto& layer = mTextureLayers[binding];
+		result.binding = binding;
+		result.semantic = layer.semantic;
+		result.customIndex = layer.customIndex;
+		result.sourceTexture = layer.layerTexture;
+		result.scaleFlags = layer.scaleFlags;
+		result.clampflags = layer.clampflags;
+		result.sampling = layer.layerFiltering;
+		return true;
 	}
 
 	static FMaterial *ValidateTexture(FGameTexture * tex, int scaleflags, bool create = true);
