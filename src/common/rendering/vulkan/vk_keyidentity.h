@@ -89,6 +89,23 @@ namespace VkKeyIdentity
 		}
 	};
 
+	struct RenderStyleState
+	{
+		uint8_t BlendOp = 0;
+		uint8_t SrcAlpha = 0;
+		uint8_t DestAlpha = 0;
+		uint8_t Flags = 0;
+
+		auto Tie() const
+		{
+			return std::tie(BlendOp, SrcAlpha, DestAlpha, Flags);
+		}
+
+		bool operator<(const RenderStyleState& other) const { return Tie() < other.Tie(); }
+		bool operator==(const RenderStyleState& other) const { return Tie() == other.Tie(); }
+		bool operator!=(const RenderStyleState& other) const { return !(*this == other); }
+	};
+
 	struct PipelineState
 	{
 		uint8_t DrawType = 0;
@@ -104,7 +121,7 @@ namespace VkKeyIdentity
 		uint8_t DrawLine = 0;
 		uint8_t IsGeneralized = 0;
 		ShaderState ShaderKey;
-		uint32_t RenderStyle = 0;
+		RenderStyleState RenderStyle;
 
 		auto Tie() const
 		{
