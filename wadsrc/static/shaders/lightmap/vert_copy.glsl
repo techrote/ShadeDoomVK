@@ -3,8 +3,8 @@ layout(push_constant) uniform PushConstants
 {
 	int SrcTexSize;
 	int DestTexSize;
-	int Padding1;
-	int Padding2;
+	int ProbeCount;
+	int Padding;
 };
 
 struct TileCopy
