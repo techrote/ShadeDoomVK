@@ -5,7 +5,7 @@
 #include "zvulkan/vulkanbuilders.h"
 #include <list>
 #include "tarray.h"
-#include "hwrenderer/data/hw_resourcegeneration.h"
+#include "vulkan/descriptorsets/vk_bindless.h"
 
 class VulkanRenderDevice;
 class VkMaterial;
@@ -52,9 +52,14 @@ public:
 	int AllocBindlessSlot(int count);
 	void FreeBindlessSlot(int index);
 
-	FRendererResourceIdentity GetBindlessIdentity(int index) const { return Bindless.Generations.Current(index); }
-	bool ValidateBindlessIdentity(const FRendererResourceIdentity& identity) { return Bindless.Generations.Validate(identity); }
-	const FRendererLifetimeStats& GetBindlessLifetimeStats() const { return Bindless.Generations.GetStats(); }
+	FRendererResourceIdentity GetBindlessIdentity(int index) const { return Bindless.Allocator.CurrentIdentity(index); }
+	bool ValidateBindlessIdentity(const FRendererResourceIdentity& identity) { return Bindless.Allocator.ValidateIdentity(identity); }
+	const FRendererLifetimeStats& GetBindlessLifetimeStats() const { return Bindless.Allocator.GetLifetimeStats(); }
+	const VkBindlessAllocationStats& GetBindlessAllocationStats() const { return Bindless.Allocator.GetStats(); }
+	const VkBindlessCapacityPlan& GetBindlessCapacityPlan() const { return Bindless.Plan; }
+	int GetBindlessCapacity() const { return Bindless.Plan.Effective; }
+	int GetBindlessDynamicStart() const { return VkBindlessLayout::DynamicStart; }
+	int GetMaxLightmapPages() const { return VkBindlessLayout::MaxLightmapPages; }
 
 private:
 	void CreateLevelMeshLayout();
@@ -78,9 +83,6 @@ private:
 	VulkanRenderDevice* fb = nullptr;
 
 	static const int MaxFixedSets = 100;
-	static const int MaxBindlessTextures = 16536;
-	static const int FixedBindlessSlots = 3;
-	static const int MaxLightmaps = 128;
 
 	struct
 	{
@@ -109,10 +111,8 @@ private:
 		std::unique_ptr<VulkanDescriptorSet> Set;
 		std::unique_ptr<VulkanDescriptorSetLayout> Layout;
 		WriteDescriptors Writer;
-		int NextIndex = FixedBindlessSlots + MaxLightmaps;
-		std::vector<int> AllocSizes;
-		std::vector<std::vector<int>> FreeSlots;
-		FRendererResourceGenerationTable Generations;
+		VkBindlessCapacityPlan Plan;
+		VkBindlessSlotAllocator Allocator;
 	} Bindless;
 
 	struct
