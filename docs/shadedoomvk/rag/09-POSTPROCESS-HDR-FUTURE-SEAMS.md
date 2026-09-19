@@ -1,7 +1,7 @@
 # Postprocess, HDR and future graphical seams
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active HDR/postprocess; temporal substrate incomplete  
+Status: active HDR/postprocess; PF-010 view identity extracted; temporal substrate still intentionally incomplete  
 Primary issues: PF-010, PF-011, PF-019, SDVK-006, SDVK-016 and future post-freeze work
 
 ## Existing strengths
@@ -11,6 +11,7 @@ Primary files:
 - `src/common/rendering/hwrenderer/postprocessing/*`
 - `src/common/rendering/vulkan/textures/vk_renderbuffers.*`
 - `src/common/rendering/vulkan/vk_postprocess.*`
+- `src/rendering/hwrenderer/scene/hw_rendercontext.h`
 
 The baseline already provides unusually useful groundwork for future ShadeDoomVK graphical ambitions:
 
@@ -34,22 +35,41 @@ API-neutral `PPRenderState` describes input texture types, filtering/wrapping, o
 
 This separation is worth preserving.
 
-## Missing major substrate: per-view temporal history
+PF-010 does not route postprocess through its new metadata. Existing `RenderViewpoint` `mainview`/`toscreen` branches remain behaviorally authoritative, including the historical save-picture postprocess path. `postprocessEligible` merely describes that inherited distinction for diagnostics/future consumers.
 
-The audited baseline does not expose a coherent general contract for:
+## PF-010 view-identity seam
+
+`HWRenderContext` now makes the scene pass explicit before any future temporal state is added:
+
+- top-level `RenderViewpoint` invocations have a non-zero epoch;
+- stereo eyes and recursive scene portals receive distinct identities within that epoch;
+- recursive portals retain parent identity, recursion depth, root render type, mirror parity, stereo eye and probe face;
+- main view, camera texture, six probe faces and save-picture rendering are separately classified;
+- only direct visible `MainView` roots are marked `historyEligible`;
+- camera, probe, save-picture and recursive portal passes are not history eligible in PF-010.
+
+The pair `(epoch, identity)` is the renderer pass identity seam. Identity alone is deliberately local to an epoch and may be reused after the next top-level viewpoint begins.
+
+This is conservative by design: PF-010 does **not** declare two different portal or camera passes safe to share persistent history even if their matrices happen to compare equal.
+
+See `docs/shadedoomvk/PF-010-RENDER-CONTEXT-CONTRACT.md`.
+
+## Still missing: temporal history implementation
+
+PF-010 closes the view-classification ambiguity but intentionally does not provide:
 
 - motion vectors;
 - previous view/projection matrices per render context;
 - history image ownership;
-- history validity epochs;
-- teleport/camera-cut resets;
+- cross-frame history validity epochs;
+- teleport/camera-cut reset policy;
 - portal/mirror history transforms;
-- camera-texture independent histories;
-- probe-render history exclusion.
+- camera-texture independent history storage;
+- temporal probe processing.
 
-Therefore future TAA, temporal volumetrics, temporal SSR or temporal shadow denoising must **not** be added as a simple post shader that assumes one continuous camera.
+Therefore future TAA, temporal volumetrics, temporal SSR or temporal shadow denoising must **not** be added as a simple post shader that assumes one continuous camera. The future owner must define persistent history lifetime/invalidation on top of PF-010 identity rather than treating PF-010's per-invocation epoch itself as cross-frame history.
 
-PF-010 creates explicit render-view/pass identity but does not implement temporal effects. SDVK-006 creates renderer visual-time semantics. A later post-freeze temporal issue should combine both.
+SDVK-006 creates renderer visual-time semantics. A later post-freeze temporal issue should combine that time contract with PF-010 view identity and an explicit history-lifetime design.
 
 ## Lighting/exposure relationship
 
@@ -75,7 +95,7 @@ Possible in limited form with depth/normal/HDR data, but correct portal/history/
 
 ### TAA / temporal upsampling
 
-Requires motion/history infrastructure not present as a coherent baseline contract.
+Requires motion/history infrastructure not present as a coherent implementation contract. PF-010 supplies view identity only.
 
 ### Temporal denoising
 
@@ -88,7 +108,8 @@ Z-min/max/light-tile render resources currently exist even though the scene tile
 ## Invariants
 
 1. Preserve HDR precision and current postprocess outputs during PF unless an issue owns a correctness fix.
-2. Main-view history must never be implicitly shared with portal, camera-texture or probe renders.
-3. Future temporal features require explicit history invalidation on discontinuities.
-4. Exposure/tonemap/bloom policy should follow a documented HDR light-energy contract, not arbitrary effect-specific compensation.
-5. Postprocess custom-shader extensibility remains a compatibility surface.
+2. Main-view history must never be implicitly shared with portal, camera-texture, probe or save-picture renders.
+3. PF-010 `historyEligible` is a future-use classification, not a temporal implementation or permission to reuse one global history allocation.
+4. Future temporal features require explicit cross-frame history ownership and invalidation on discontinuities.
+5. Exposure/tonemap/bloom policy should follow a documented HDR light-energy contract, not arbitrary effect-specific compensation.
+6. Postprocess custom-shader extensibility remains a compatibility surface.
