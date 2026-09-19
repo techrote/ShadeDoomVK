@@ -20,10 +20,22 @@ Commit: `033a3c5cb35c82708e4eeb3619373c33ddc40b75`
 Concept:
 
 - configurable requested bindless texture capacity;
-- clamp requested capacity to relevant Vulkan physical-device limits;
+- clamp requested capacity to Vulkan physical-device limits;
 - improve descriptor-exhaustion diagnostics.
 
-Reconciled disposition: **adapt in PF-003**, but do not describe this as adding slot reuse. Current baseline already has allocation-size free buckets. PF-002/PF-003 extend capacity/reservation/reuse with lifetime/generation safety and diagnostics.
+PF-003 disposition: **conceptually adapted, not cherry-picked**.
+
+ShadeDoomVK retains the donor's `vk_max_bindless_textures` idea and actionable exhaustion reporting, but replaces the donor's ordinary sampled-image-only capacity formula with a testable model covering the actual update-after-bind/variable-count layout:
+
+- mixed normal/update-after-bind sampler and sampled-image pipeline-layout limits;
+- `maxPerStageUpdateAfterBindResources`;
+- `maxUpdateAfterBindDescriptorsInAllPools`;
+- the two fixed scene combined samplers and other non-bindless scene resources;
+- explicit fixed/lightmap/dynamic address-space reservations.
+
+The inherited exact-size free-bucket reuse remains; PF-003 factors it into `VkBindlessSlotAllocator` and adds PF-002 generation validation rather than reimplementing reuse as a donor feature.
+
+PF-003 also fixes an independent baseline defect: 128 lightmap pages consume 256 descriptors (light + probe per page), while the inherited dynamic start reserved only 128. The new contract reserves all 256 descriptors and bounds-checks lightmap page writes.
 
 ### MrRaveYard/MAD-VKDoom — small-actor light gathering
 
