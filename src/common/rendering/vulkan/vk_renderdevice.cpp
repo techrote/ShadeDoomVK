@@ -179,11 +179,13 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 
 	bool supportsBindless =
 		mDevice->EnabledFeatures.DescriptorIndexing.descriptorBindingPartiallyBound &&
+		mDevice->EnabledFeatures.DescriptorIndexing.descriptorBindingVariableDescriptorCount &&
+		mDevice->EnabledFeatures.DescriptorIndexing.descriptorBindingSampledImageUpdateAfterBind &&
 		mDevice->EnabledFeatures.DescriptorIndexing.runtimeDescriptorArray &&
 		mDevice->EnabledFeatures.DescriptorIndexing.shaderSampledImageArrayNonUniformIndexing;
 	if (!supportsBindless)
 	{
-		I_FatalError("This GPU does not support the minimum requirements of this application");
+		I_FatalError("This GPU does not support the required Vulkan descriptor-indexing features for bindless sampled images");
 	}
 
 	mUseRayQuery = vk_rayquery && mDevice->SupportsExtension(VK_KHR_RAY_QUERY_EXTENSION_NAME) && mDevice->PhysicalDevice.Features.RayQuery.rayQuery;
