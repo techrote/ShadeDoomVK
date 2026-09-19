@@ -137,10 +137,22 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-019 now has its PF-005 prerequisite satisfied but remains blocked on PF-006, PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-005.
 - Residual scope: unrelated lightmap/probe staging and download/readback staging remain outside PF-005 under their existing ownership.
 
+### 2026-09-19 — PF-006 accepted and merged
+
+- PF-006 / #23 completed through PR #45.
+- Required exact-head CI passed: deterministic PF renderer oracle, compiled old/new key-partition and boundary fixture, and the inherited Windows/macOS/Linux build matrix.
+- Replaced whole-object `memcmp`/padding identity for `VkShaderKey`, `VkPipelineKey` and `VkRenderPassKey` with explicitly named semantic state while preserving the old valid-state partition.
+- `FRenderStyle` identity now names its repository-defined `BlendOp`, `SrcAlpha`, `DestAlpha` and `Flags` bytes directly; all four bytes remain identity, but union packing, host byte order and `AsDWORD` representation are no longer part of the pipeline-key contract.
+- `VkShaderKey::AsQWORD` remains the packed shader-specialization ABI. Generalized/specialized maps, pipeline-library decomposition, worker/precache paths and the opaque Vulkan driver cache remain unchanged; PF-006 makes no lookup-performance claim.
+- Adversarial verification covers every meaningful shader/pipeline field, all four render-style bytes at boundary values, old padding/reserved-bit noise, generalized-vs-specialized distinctions and warm ordered-cache reconstruction.
+- Merge commit: `ba9422554952355b7d3a0a87595cb994667d2be8`; `master` was verified at that merge commit.
+- PF-019 now has its PF-006 prerequisite satisfied but remains blocked on PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-006.
+- Shader behavior, material meaning, blend/depth/stencil/cull policy, portal behavior, palette/translation behavior, sprite conventions, gameplay/tic state, audio and donor/source provenance remain unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22.
-- **READY:** PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-011 / #28.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23.
+- **READY:** PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-011 / #28.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
