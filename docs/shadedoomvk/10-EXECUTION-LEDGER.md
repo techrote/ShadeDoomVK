@@ -100,10 +100,20 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `069d25a156c6341de448abf98a99b7ebf059f948`.
 - PF-002, PF-006, PF-007, PF-009 and PF-011 became dependency-ready.
 
+### 2026-09-18 — PF-002 accepted and merged
+
+- PF-002 / #19 completed through PR #39.
+- Required current-head CI passed: deterministic PF oracle, compiled stale-resource identity fixture, Windows/macOS/Linux build matrix.
+- Introduced the renderer generation/epoch substrate and wired bindless, LevelMesh, texture, lightmap, probe and async reset hooks without replacing hot-path integer identities.
+- Merge commit: `77d143ae888cbd8fbdd5f86b0fc3207025cdc2a4`.
+- The post-merge `master` run also passed the full matrix.
+- PF-003 and PF-004 became dependency-ready.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / GitHub #18.\n- **READY:** PF-002 / #19, PF-006 / #23, PF-007 / #24, PF-009 / #26, PF-011 / #28.
-- **BLOCKED:** SDVK-001 / GitHub #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19.
+- **READY:** PF-003 / #20, PF-004 / #21, PF-006 / #23, PF-007 / #24, PF-009 / #26, PF-011 / #28.
+- **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
 ## Future implementation ledger rule
