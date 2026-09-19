@@ -56,6 +56,14 @@ jobs:
           -o build/pf-oracle/levelmesh-contract-fixture
         build/pf-oracle/levelmesh-contract-fixture
 
+    - name: Test probe selection boundaries
+      run: |
+        c++ -std=c++17 -Wall -Wextra -Werror \
+          -Isrc/common/rendering/hwrenderer/data \
+          tools/pf_oracle/tests/probe_selection_fixture.cpp \
+          -o build/pf-oracle/probe-selection-fixture
+        build/pf-oracle/probe-selection-fixture
+
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
     needs: pf_oracle

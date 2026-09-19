@@ -9,6 +9,7 @@
 #include "zvulkan/vulkanbuilders.h"
 #include "filesystem.h"
 #include "cmdlib.h"
+#include "g_levellocals.h"
 
 static int lastSurfaceCount;
 static glcycle_t lightmapRaytraceLast;
@@ -41,6 +42,7 @@ VkLightmapper::VkLightmapper(VulkanRenderDevice* fb) : fb(fb)
 	{
 		CreateUniformBuffer();
 		CreateTileBuffer();
+		CreateProbeSelectionBuffer();
 		CreateDrawIndexedBuffer();
 
 		CreateShaders();
@@ -66,6 +68,8 @@ void VkLightmapper::ReleaseResources()
 {
 	if (copytiles.Buffer)
 		copytiles.Buffer->Unmap();
+	if (probeSelection.Buffer)
+		probeSelection.Buffer->Unmap();
 	if (drawindexed.CommandsBuffer)
 		drawindexed.CommandsBuffer->Unmap();
 	if (drawindexed.ConstantsBuffer)
@@ -281,6 +285,33 @@ void VkLightmapper::UploadUniforms()
 		.Execute(cmdbuffer, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 }
 
+int VkLightmapper::UploadProbeSelection()
+{
+	if (!probeSelection.Entries || !mesh || level.levelMesh != mesh)
+		return 0;
+
+	int count = 0;
+	for (const LightProbe& probe : level.lightProbes)
+	{
+		const int descriptorIndex = fb->GetDescriptorSetManager()->GetLightProbeTextureIndex(probe.index);
+		if (descriptorIndex <= 0)
+			continue;
+
+		const uint32_t textureIndex = static_cast<uint32_t>(descriptorIndex);
+		if (!HWProbeSelection::IsEncodableTextureIndex(textureIndex))
+			continue;
+		if (count >= probeSelection.BufferSize)
+			break;
+
+		HWProbeSelection::Candidate& entry = probeSelection.Entries[count++];
+		entry.X = probe.position.X;
+		entry.Y = probe.position.Y;
+		entry.Z = probe.position.Z;
+		entry.TextureIndex = textureIndex;
+	}
+	return count;
+}
+
 void VkLightmapper::Resolve()
 {
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
@@ -377,7 +408,10 @@ void VkLightmapper::Blur()
 
 void VkLightmapper::CopyResult()
 {
-	// Sort by destination
+	std::vector<VkTextureManager::Lightmap>& destTexture = fb->GetTextureManager()->Lightmaps;
+
+	// Sort by destination. Atlas-page identity is not trusted blindly: a stale
+	// or malformed page must fail closed before it can index Vulkan resources.
 	uint32_t pixels = 0;
 	lastSurfaceCount = 0;
 	for (auto& list : copylists) list.Clear();
@@ -387,10 +421,13 @@ void VkLightmapper::CopyResult()
 		if (selected.Rendered)
 		{
 			unsigned int pageIndex = (unsigned int)selected.Tile->AtlasLocation.ArrayIndex;
-			if (pageIndex >= copylists.Size())
+			if (pageIndex >= destTexture.size() || pageIndex >= (unsigned int)mesh->Lightmap.TextureCount)
 			{
-				copylists.Resize(pageIndex + 1);
+				I_FatalError("Lightmap atlas page %u out of range (mesh pages %d, Vulkan pages %u)",
+					pageIndex, mesh->Lightmap.TextureCount, (unsigned int)destTexture.size());
 			}
+			if (pageIndex >= copylists.Size())
+				copylists.Resize(pageIndex + 1);
 			copylists[pageIndex].Push(&selected);
 
 			pixels += selected.Tile->AtlasLocation.Area();
@@ -402,7 +439,7 @@ void VkLightmapper::CopyResult()
 	if (pixels == 0)
 		return;
 
-	std::vector<VkTextureManager::Lightmap>& destTexture = fb->GetTextureManager()->Lightmaps;
+	const int probeCount = UploadProbeSelection();
 
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
@@ -429,6 +466,9 @@ void VkLightmapper::CopyResult()
 		auto& list = copylists[i];
 		if (list.Size() == 0)
 			continue;
+
+		if (pos + (int)list.Size() > copytiles.BufferSize)
+			I_FatalError("Lightmap copy tile buffer exhausted (%d + %u > %d)", pos, (unsigned int)list.Size(), copytiles.BufferSize);
 
 		int destSize = destTexture[i].Light.Image->width;
 
@@ -499,10 +539,11 @@ void VkLightmapper::CopyResult()
 		viewport.height = (float)destSize;
 		cmdbuffer->setViewport(0, 1, &viewport);
 
-		LightmapCopyPC pc;
+		LightmapCopyPC pc = {};
 		pc.SrcTexSize = bakeImageSize;
 		pc.DestTexSize = destSize;
-		cmdbuffer->pushConstants(copy.pipelineLayout.get(), VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(LightmapCopyPC), &pc);
+		pc.ProbeCount = probeCount;
+		cmdbuffer->pushConstants(copy.pipelineLayout.get(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(LightmapCopyPC), &pc);
 
 		cmdbuffer->draw(4, pos - start, 0, start);
 
@@ -886,12 +927,13 @@ void VkLightmapper::CreateCopyPipeline()
 	copy.descriptorSetLayout = DescriptorSetLayoutBuilder()
 		.AddBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT)
 		.AddBinding(1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT)
+		.AddBinding(2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1, VK_SHADER_STAGE_FRAGMENT_BIT)
 		.DebugName("copy.descriptorSetLayout")
 		.Create(fb->GetDevice());
 
 	copy.pipelineLayout = PipelineLayoutBuilder()
 		.AddSetLayout(copy.descriptorSetLayout.get())
-		.AddPushConstantRange(VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(LightmapCopyPC))
+		.AddPushConstantRange(VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(LightmapCopyPC))
 		.DebugName("copy.pipelineLayout")
 		.Create(fb->GetDevice());
 
@@ -937,7 +979,7 @@ void VkLightmapper::CreateCopyPipeline()
 
 	copy.descriptorPool = DescriptorPoolBuilder()
 		.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1)
-		.AddPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 1)
+		.AddPoolSize(VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 2)
 		.MaxSets(1)
 		.DebugName("copy.descriptorPool")
 		.Create(fb->GetDevice());
@@ -1032,6 +1074,7 @@ void VkLightmapper::CreateBakeImage()
 		.AddCombinedImageSampler(bakeImage.blur.DescriptorSet[1].get(), 0, bakeImage.blur.View.get(), blur.sampler.get(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 		.AddCombinedImageSampler(bakeImage.copy.DescriptorSet.get(), 0, bakeImage.resolve.View.get(), copy.sampler.get(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
 		.AddBuffer(bakeImage.copy.DescriptorSet.get(), 1, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, copytiles.Buffer.get())
+		.AddBuffer(bakeImage.copy.DescriptorSet.get(), 2, VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, probeSelection.Buffer.get())
 		.Execute(fb->GetDevice());
 }
 
@@ -1069,6 +1112,24 @@ void VkLightmapper::CreateTileBuffer()
 		.Create(fb->GetDevice());
 
 	copytiles.Tiles = (CopyTileInfo*)copytiles.Buffer->Map(0, size);
+}
+
+void VkLightmapper::CreateProbeSelectionBuffer()
+{
+	size_t size = sizeof(HWProbeSelection::Candidate) * probeSelection.BufferSize;
+
+	probeSelection.Buffer = BufferBuilder()
+		.Usage(
+			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
+			VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT)
+		.MemoryType(
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+		.Size(size)
+		.DebugName("ProbeSelectionBuffer")
+		.Create(fb->GetDevice());
+
+	probeSelection.Entries = (HWProbeSelection::Candidate*)probeSelection.Buffer->Map(0, size);
 }
 
 void VkLightmapper::CreateDrawIndexedBuffer()

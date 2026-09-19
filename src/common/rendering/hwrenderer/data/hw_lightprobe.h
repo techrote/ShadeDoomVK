@@ -48,6 +48,8 @@ public:
 	LightProbeAABBTree(LevelMesh* mesh);
 	~LightProbeAABBTree();
 
+	// The AABB tree remains an inactive experimental path. Update/Upload do
+	// not make it part of the live lightmap/probe selection pipeline.
 	void Update();
 
 	int FindClosestProbe(FVector3 pos, float extent);
@@ -85,17 +87,17 @@ private:
 		Node(const FVector2& aabb_min, const FVector2& aabb_max, int probeIndex, FVector3& probePos) : aabb(aabb_min, aabb_max), probeIndex(probeIndex), probePos(probePos) {}
 		Node(const FVector2& aabb_min, const FVector2& aabb_max, int left, int right) : aabb(aabb_min, aabb_max), left(left), right(right) {}
 
-		bool IsLeaf() const { return probeIndex == 0; }
+		bool IsLeaf() const { return left == -1 && right == -1; }
 
 		BBox aabb;
 		int left = -1;
 		int right = -1;
-		int probeIndex = 0;
+		int probeIndex = -1;
 		FVector3 probePos;
 	};
 
 	std::vector<Node> Nodes;
-	int Root = 0;
+	int Root = -1;
 
 	struct
 	{

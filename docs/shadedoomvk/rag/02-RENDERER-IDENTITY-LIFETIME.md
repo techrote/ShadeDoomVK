@@ -1,8 +1,8 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active  
-Primary issues: PF-002, PF-003, PF-004, PF-005, SDVK-004
+Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active  
+Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, SDVK-004
 
 ## Core rule
 
@@ -97,9 +97,21 @@ PF-004 makes this boundary explicit without turning hot elements into heap objec
 
 ## Lightmap/probe identity
 
-Lightmap atlas pages and probe maps become bindless texture entries. Environment probes also obtain two adjacent bindless entries (irradiance + prefiltered map) on demand.
+Lightmap atlas pages and probe maps become adjacent bindless texture entries in the reserved lightmap range. Environment probes instead obtain dynamic two-slot bindless blocks (irradiance + prefiltered map) on demand.
 
-Probe index `0` is used as a fallback/sentinel in multiple places. Code that introduces typed handles must not casually reinterpret it as an ordinary fully equivalent probe without examining the relevant shader/path.
+PF-012 makes the three probe-index domains explicit instead of treating them as interchangeable integers:
+
+1. **Authored probe ordinal** — `LightProbe::index`, used by map/sector-side probe ownership.
+2. **Runtime environment descriptor identity** — `VkDescriptorSetManager::GetLightProbeTextureIndex(authoredIndex)` allocates/returns a dynamic two-slot block start for irradiance; the paired prefilter map is `start + 1`. This value is allocator-owned and is not derivable from the authored ordinal.
+3. **Per-lightmap probe-map texel** — `R16_UINT` stores that runtime irradiance descriptor identity directly; value `0` is the explicit default/no-probe fallback.
+
+Because the probe-map format is 16-bit, only allocator-returned irradiance descriptor indices in `1..65535` are representable. A probe whose maps do not yet exist resolves to `0`; a runtime descriptor outside the representable range is excluded rather than truncated. Since each live environment probe consumes an adjacent descriptor pair, at most 32768 candidate pair starts can exist in the 16-bit-addressable region, independent of allocator base or authored numbering.
+
+The active lightmap-copy path reads the live probe set only when its current `VkLightmapper` LevelMesh owner matches the globally active level mesh. It resolves each authored probe through `GetLightProbeTextureIndex()` before uploading candidates. Selected atlas pages are checked against both the LevelMesh page count and current Vulkan lightmap resources before dereference. Probe placement changes mark lightmap tiles dirty and advance the `LightmapProbe` mutation domain so old texel mappings cannot silently survive a changed probe set.
+
+Environment-probe reset remains owned by `VkTextureManager`'s PF-002 environment-probe epoch. `LightProbeIncrementalBuilder` now also resets those resources when the probe count changes or falls to zero. Existing descriptor pairs continue to point at their probe image objects across image clears; probe-set changes invalidate per-lightmap selection so obsolete authored candidates are not retained merely because an old descriptor remains addressable.
+
+The experimental `LightProbeAABBTree` is not part of this live identity path; its `Update()`/`Upload()` remain dormant.
 
 ## Dynamic-light identity
 
@@ -123,6 +135,7 @@ The planner records requests, arena slices, reuses, wrap waits, oversize/invalid
 - sampler/filter changes that invalidate material descriptor variants;
 - lightmap atlas recreation/page-count changes;
 - probe cubemap reset/rebake;
+- probe-set placement/count changes that invalidate per-lightmap texel selection;
 - LevelMesh geometry/surface/light-list reallocation;
 - BLAS/TLAS rebuild/update;
 - canvas/dynamic texture resize/recreate;
@@ -147,6 +160,8 @@ For recyclable resource classes expose, where practical:
 1. Reusing an index may never cause a live old reference to resolve to an unrelated new resource.
 2. A global flush is not safe if LevelMesh/material state keeps old indices.
 3. Descriptor and lightmap/probe index arithmetic must be bounds-checked against actual Vulkan/device/runtime capacity.
-4. Async completion must consume/validate manager lifetime before dereferencing a target and must validate the target generation before upload/bind.
-5. Staging bytes may not be reused until all transfer commands that reference those bytes are retired.
-6. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
+4. Probe-map value `0` is fallback, not authored probe 0; authored probe identity must be resolved through the runtime bindless allocator before its irradiance descriptor is written to the map.
+5. A changed probe set must invalidate per-lightmap texel selection before old mapping is trusted.
+6. Async completion must consume/validate manager lifetime before dereferencing a target and must validate the target generation before upload/bind.
+7. Staging bytes may not be reused until all transfer commands that reference those bytes are retired.
+8. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.

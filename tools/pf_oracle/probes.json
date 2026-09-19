@@ -58,13 +58,13 @@
       "forbidden": []
     },
     {
-      "id": "probe-map-probe-zero-stub",
+      "id": "probe-map-live-selection",
       "category": "probe_lightmap",
-      "kind": "known_defect",
+      "kind": "invariant",
       "owner": "PF-012",
       "paths": ["wadsrc/static/shaders/lightmap/frag_copy.glsl"],
-      "required": ["#if\\s+1\\s+uint\\s+findClosestProbe\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+0\\s*;\\s*\\}"],
-      "forbidden": []
+      "required": ["ProbeSelectionBuffer", "uint\\s+findClosestProbe\\s*\\(", "candidate\\.textureIndex\\s*==\\s*fallbackIndex", "distanceSquared\\s*<=\\s*radiusSquared", "findClosestProbe\\(WorldPos,\\s*512\\.0\\)"],
+      "forbidden": ["#if\\s+1\\s+uint\\s+findClosestProbe\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+0\\s*;\\s*\\}"]
     },
     {
       "id": "indexed-red-is-alpha-todo",
