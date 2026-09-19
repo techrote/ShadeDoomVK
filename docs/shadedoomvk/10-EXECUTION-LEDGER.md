@@ -181,10 +181,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `b58f03decfedca12df039c68a5e36d709120bba1`; `master` was verified at that merge commit and post-merge Continuous Integration run 66 passed on the exact merge head.
 - PF-014 retains PF-010 as its remaining extraction prerequisite; PF-016 retains PF-011 and PF-015. No issue becomes newly dependency-ready solely from PF-009 because those remaining prerequisites are still open.
 
+### 2026-09-19 — PF-010 accepted and merged
+
+- PF-010 / #27 completed through PR #55.
+- Exact implementation head `9116f9f5dff601a9c31bc97c63da39c1116f4739` passed Continuous Integration run 70: deterministic PF renderer oracle, compiled/adversarial render-context fixture and source-routing contract coverage, and the inherited Windows/macOS/Linux build matrix.
+- Extracted observational `HWRenderContext` root/portal identity with a per-top-level epoch, per-eye/per-recursive-pass local identity, parent/depth, probe-face/eye, and inherited line/plane mirror parity; the context does not drive transforms, postprocess policy or temporal behavior.
+- Merge commit: `489e94e7194dacb7dcc2d7ed615ea9a1839a87c2`; `master` was verified at that exact merge commit.
+- PF-014 / #31 became dependency-ready. PF-012 / #29 and PF-015 / #32 now retain PF-011 / #28 as their remaining readiness prerequisite.
+- Gameplay/tic, material/shader, palette/translation, sprite, portal-transform, audio, source-ownership and donor/provenance semantics remain unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26.
-- **READY:** PF-010 / #27, PF-011 / #28, PF-013 / #30.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27.
+- **READY:** PF-011 / #28, PF-013 / #30, PF-014 / #31.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
