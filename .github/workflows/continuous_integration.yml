@@ -197,7 +197,8 @@ jobs:
 #     shell: bash
 #     run: |
 #       cd build
-#       zip -r vkdoom-windows-prerelease.zip vkdoom-windows-prerelease.zip
+#       zip -r vkdoom-windows-prerelease.zip vkdoom-windows-prerelease
+#       zip -r vkdoom-linux-prerelease.zip vkdoom-linux-prerelease
 #
 #   - name: Update nightly release
 #     uses: pyTooling/Actions/releaser@r0
