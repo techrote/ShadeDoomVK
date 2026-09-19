@@ -372,10 +372,7 @@ void VkRenderPassManager::CreateZMinMaxPipeline()
 
 VkRenderPassSetup::VkRenderPassSetup(VulkanRenderDevice* fb, const VkRenderPassKey &key) : fb(fb), PassKey(key)
 {
-	const auto device = fb->GetDevice();
-	
-	UsePipelineLibrary = device->SupportsExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME) // Is this supported?
-		&& device->EnabledFeatures.GraphicsPipelineLibrary.graphicsPipelineLibrary; // Well yes, but actually no.
+	UsePipelineLibrary = fb->GetCapabilities().SupportsGraphicsPipelineLibrary();
 
 	if (!gl_ubershaders)
 		UsePipelineLibrary = false;

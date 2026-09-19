@@ -42,24 +42,7 @@ VkRenderBuffers::~VkRenderBuffers()
 
 VkSampleCountFlagBits VkRenderBuffers::GetBestSampleCount()
 {
-	const auto &limits = fb->GetDevice()->PhysicalDevice.Properties.Properties.limits;
-	VkSampleCountFlags deviceSampleCounts = limits.sampledImageColorSampleCounts & limits.sampledImageDepthSampleCounts & limits.sampledImageStencilSampleCounts;
-
-	int requestedSamples = clamp((int)gl_multisample, 0, 64);
-
-	int samples = 1;
-	VkSampleCountFlags bit = VK_SAMPLE_COUNT_1_BIT;
-	VkSampleCountFlags best = bit;
-	while (samples <= requestedSamples)
-	{
-		if (deviceSampleCounts & bit)
-		{
-			best = bit;
-		}
-		samples <<= 1;
-		bit <<= 1;
-	}
-	return (VkSampleCountFlagBits)best;
+	return fb->GetCapabilities().BestSceneSampleCount((int)gl_multisample);
 }
 
 void VkRenderBuffers::BeginFrame(int width, int height, int sceneWidth, int sceneHeight)

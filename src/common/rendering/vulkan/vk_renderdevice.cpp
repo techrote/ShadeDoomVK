@@ -163,6 +163,53 @@ void VulkanPrintLog(const char* typestr, const std::string& msg)
 	}
 }
 
+VulkanCapabilities VulkanCapabilities::FromDevice(VulkanDevice* device)
+{
+	VulkanCapabilities capabilities;
+	const auto& properties = device->PhysicalDevice.Properties.Properties;
+	const auto& descriptorFeatures = device->EnabledFeatures.DescriptorIndexing;
+	const auto& coreLimits = properties.limits;
+	const auto& indexingLimits = device->PhysicalDevice.Properties.DescriptorIndexing;
+
+	capabilities.VendorID = properties.vendorID;
+	capabilities.DeviceID = properties.deviceID;
+	capabilities.DriverVersion = properties.driverVersion;
+	capabilities.DeviceType = properties.deviceType;
+
+	capabilities.DescriptorIndexing.PartiallyBound = descriptorFeatures.descriptorBindingPartiallyBound;
+	capabilities.DescriptorIndexing.VariableDescriptorCount = descriptorFeatures.descriptorBindingVariableDescriptorCount;
+	capabilities.DescriptorIndexing.SampledImageUpdateAfterBind = descriptorFeatures.descriptorBindingSampledImageUpdateAfterBind;
+	capabilities.DescriptorIndexing.RuntimeDescriptorArray = descriptorFeatures.runtimeDescriptorArray;
+	capabilities.DescriptorIndexing.SampledImageArrayNonUniformIndexing = descriptorFeatures.shaderSampledImageArrayNonUniformIndexing;
+
+	capabilities.BindlessLimits.MaxPerStageDescriptorSamplers = coreLimits.maxPerStageDescriptorSamplers;
+	capabilities.BindlessLimits.MaxPerStageDescriptorSampledImages = coreLimits.maxPerStageDescriptorSampledImages;
+	capabilities.BindlessLimits.MaxDescriptorSetSamplers = coreLimits.maxDescriptorSetSamplers;
+	capabilities.BindlessLimits.MaxDescriptorSetSampledImages = coreLimits.maxDescriptorSetSampledImages;
+	capabilities.BindlessLimits.MaxPerStageDescriptorUpdateAfterBindSamplers = indexingLimits.maxPerStageDescriptorUpdateAfterBindSamplers;
+	capabilities.BindlessLimits.MaxPerStageDescriptorUpdateAfterBindSampledImages = indexingLimits.maxPerStageDescriptorUpdateAfterBindSampledImages;
+	capabilities.BindlessLimits.MaxDescriptorSetUpdateAfterBindSamplers = indexingLimits.maxDescriptorSetUpdateAfterBindSamplers;
+	capabilities.BindlessLimits.MaxDescriptorSetUpdateAfterBindSampledImages = indexingLimits.maxDescriptorSetUpdateAfterBindSampledImages;
+	capabilities.BindlessLimits.MaxPerStageUpdateAfterBindResources = indexingLimits.maxPerStageUpdateAfterBindResources;
+	capabilities.BindlessLimits.MaxUpdateAfterBindDescriptorsInAllPools = indexingLimits.maxUpdateAfterBindDescriptorsInAllPools;
+
+	capabilities.RayQueryExtension = device->SupportsExtension(VK_KHR_RAY_QUERY_EXTENSION_NAME);
+	capabilities.RayQueryFeature = device->PhysicalDevice.Features.RayQuery.rayQuery;
+	capabilities.AccelerationStructureExtension = device->SupportsExtension(VK_KHR_ACCELERATION_STRUCTURE_EXTENSION_NAME);
+	capabilities.AccelerationStructureFeature = device->PhysicalDevice.Features.AccelerationStructure.accelerationStructure;
+	capabilities.GraphicsPipelineLibraryExtension = device->SupportsExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME);
+	capabilities.GraphicsPipelineLibraryFeature = device->EnabledFeatures.GraphicsPipelineLibrary.graphicsPipelineLibrary;
+	capabilities.ShaderClipDistance = device->PhysicalDevice.Features.Features.shaderClipDistance;
+
+	capabilities.SceneSampleCounts = coreLimits.sampledImageColorSampleCounts &
+		coreLimits.sampledImageDepthSampleCounts & coreLimits.sampledImageStencilSampleCounts;
+	capabilities.IntelSamplerQuirk = VkClassifyIntelSamplerQuirk(
+		properties.vendorID, properties.deviceID, properties.driverVersion);
+	capabilities.AmdRayQueryDriverQuirk = VkHasAmdRayQueryDriverQuirk(
+		properties.vendorID, properties.driverVersion);
+	return capabilities;
+}
+
 VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::shared_ptr<VulkanInstance> instance, std::shared_ptr<VulkanSurface> surface) : SystemBaseFrameBuffer(hMonitor, fullscreen)
 {
 	VulkanDeviceBuilder builder;
@@ -176,37 +223,30 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 	builder.SelectDevice(vk_device);
 	SupportedDevices = builder.FindDevices(instance);
 	mDevice = builder.Create(instance);
+	mCapabilities = VulkanCapabilities::FromDevice(mDevice.get());
+	mCapabilities.DepthD24S8 = SupportsRenderTargetFormat(VK_FORMAT_D24_UNORM_S8_UINT);
+	mCapabilities.DepthD32S8 = SupportsRenderTargetFormat(VK_FORMAT_D32_SFLOAT_S8_UINT);
+	mCapabilities.NormalA2R10G10B10 = SupportsNormalGBufferFormat(VK_FORMAT_A2R10G10B10_UNORM_PACK32);
+	mCapabilities.NormalR8G8B8A8 = SupportsNormalGBufferFormat(VK_FORMAT_R8G8B8A8_UNORM);
+	mCapabilities.DepthStencilFormat = VkSelectDepthStencilFormat(mCapabilities.DepthD24S8, mCapabilities.DepthD32S8);
+	mCapabilities.NormalFormat = VkSelectNormalGBufferFormat(mCapabilities.NormalA2R10G10B10, mCapabilities.NormalR8G8B8A8);
 
-	bool supportsBindless =
-		mDevice->EnabledFeatures.DescriptorIndexing.descriptorBindingPartiallyBound &&
-		mDevice->EnabledFeatures.DescriptorIndexing.descriptorBindingVariableDescriptorCount &&
-		mDevice->EnabledFeatures.DescriptorIndexing.descriptorBindingSampledImageUpdateAfterBind &&
-		mDevice->EnabledFeatures.DescriptorIndexing.runtimeDescriptorArray &&
-		mDevice->EnabledFeatures.DescriptorIndexing.shaderSampledImageArrayNonUniformIndexing;
-	if (!supportsBindless)
+	if (!mCapabilities.SupportsRequiredBindlessContract())
 	{
 		I_FatalError("This GPU does not support the required Vulkan descriptor-indexing features for bindless sampled images");
 	}
 
-	mUseRayQuery = vk_rayquery && mDevice->SupportsExtension(VK_KHR_RAY_QUERY_EXTENSION_NAME) && mDevice->PhysicalDevice.Features.RayQuery.rayQuery;
+	mUseRayQuery = vk_rayquery && mCapabilities.SupportsRayQuery();
 
-	if (vk_amd_driver_check)
+	if (vk_amd_driver_check && mCapabilities.AmdRayQueryDriverQuirk)
 	{
-		// While we found a workaround for the SPIR-V compiler crashing on specialization constants with rayquery,
-		// the AMDVLK driver (but not the Mesa one!) now produces a shader that only the FIRST frame runs for 10
-		// seconds. This produces a device lost on Windows (command buffer killed by OS) and the freeze from hell
-		// on Linux.
-		//
-		// Maybe some day AMD will have a driver that works for us. Until that day their hardware gets demoted to
-		// the legacy path without RT cores, sorry.
-		auto& props = mDevice->PhysicalDevice.Properties.Properties;
-		if (props.vendorID == 0x1002 && VK_VERSION_MAJOR(props.driverVersion) < 10)
+		// Inherited AMDVLK workaround: specialization-constant/ray-query shaders can stall the first frame
+		// long enough to lose the device on Windows or freeze Linux. PF-007 only centralizes the driver
+		// classification; the existing user override and legacy-path fallback remain unchanged.
+		if (mUseRayQuery)
 		{
-			if (mUseRayQuery)
-			{
-				Printf("AMD driver detected. Disabling RT cores. You can force RT cores on by setting vk_amd_driver_check to false.\n");
-				mUseRayQuery = false;
-			}
+			Printf("AMD driver detected. Disabling RT cores. You can force RT cores on by setting vk_amd_driver_check to false.\n");
+			mUseRayQuery = false;
 		}
 	}
 
@@ -289,31 +329,13 @@ void VulkanRenderDevice::InitializeState()
 	uniformblockalignment = (unsigned int)mDevice->PhysicalDevice.Properties.Properties.limits.minUniformBufferOffsetAlignment;
 	maxuniformblock = std::min(mDevice->PhysicalDevice.Properties.Properties.limits.maxUniformBufferRange, (uint32_t)1024 * 1024);
 
-	if (SupportsRenderTargetFormat(VK_FORMAT_D24_UNORM_S8_UINT))
-	{
-		DepthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
-	}
-	else if (SupportsRenderTargetFormat(VK_FORMAT_D32_SFLOAT_S8_UINT))
-	{
-		DepthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
-	}
-	else
-	{
+	DepthStencilFormat = mCapabilities.DepthStencilFormat;
+	if (DepthStencilFormat == VK_FORMAT_UNDEFINED)
 		I_FatalError("This device does not support any of the required depth stencil image formats.");
-	}
 
-	if (SupportsNormalGBufferFormat(VK_FORMAT_A2R10G10B10_UNORM_PACK32))
-	{
-		NormalFormat = VK_FORMAT_A2R10G10B10_UNORM_PACK32;
-	}
-	else if (SupportsNormalGBufferFormat(VK_FORMAT_R8G8B8A8_UNORM))
-	{
-		NormalFormat = VK_FORMAT_R8G8B8A8_UNORM;
-	}
-	else
-	{
+	NormalFormat = mCapabilities.NormalFormat;
+	if (NormalFormat == VK_FORMAT_UNDEFINED)
 		I_FatalError("This device does not support any of the required normal buffer image formats.");
-	}
 
 	NullMesh.reset(new LevelMesh());
 	levelMesh = NullMesh.get();
@@ -709,6 +731,35 @@ void VulkanRenderDevice::PrintStartupLog()
 	Printf(PRINT_LOG, "Max. texture size: %d\n", limits.maxImageDimension2D);
 	Printf(PRINT_LOG, "Max. uniform buffer range: %d\n", limits.maxUniformBufferRange);
 	Printf(PRINT_LOG, "Min. uniform buffer offset alignment: %" PRIu64 "\n", limits.minUniformBufferOffsetAlignment);
+	Printf(PRINT_LOG, "Vulkan capabilities: bindless=%s ray-query=%s acceleration-structure=%s pipeline-library=%s shader-clip-distance=%s; ray-query-enabled=%s\n",
+		mCapabilities.SupportsRequiredBindlessContract() ? "yes" : "no",
+		mCapabilities.SupportsRayQuery() ? "yes" : "no",
+		mCapabilities.SupportsAccelerationStructure() ? "yes" : "no",
+		mCapabilities.SupportsGraphicsPipelineLibrary() ? "yes" : "no",
+		mCapabilities.ShaderClipDistance ? "yes" : "no",
+		mUseRayQuery ? "yes" : "no");
+	Printf(PRINT_LOG, "Vulkan quirks: intel-sampler=%s amd-ray-query-driver=%s\n",
+		VkIntelSamplerQuirkName(mCapabilities.IntelSamplerQuirk),
+		mCapabilities.AmdRayQueryDriverQuirk ? "yes" : "no");
+	Printf(PRINT_LOG, "Vulkan scene sample counts: 0x%x\n", (unsigned)mCapabilities.SceneSampleCounts);
+	Printf(PRINT_LOG, "Bindless descriptor limits: stage-samplers=%u stage-images=%u set-samplers=%u set-images=%u uab-stage-samplers=%u uab-stage-images=%u uab-set-samplers=%u uab-set-images=%u uab-stage-resources=%u uab-pool=%u\n",
+		mCapabilities.BindlessLimits.MaxPerStageDescriptorSamplers,
+		mCapabilities.BindlessLimits.MaxPerStageDescriptorSampledImages,
+		mCapabilities.BindlessLimits.MaxDescriptorSetSamplers,
+		mCapabilities.BindlessLimits.MaxDescriptorSetSampledImages,
+		mCapabilities.BindlessLimits.MaxPerStageDescriptorUpdateAfterBindSamplers,
+		mCapabilities.BindlessLimits.MaxPerStageDescriptorUpdateAfterBindSampledImages,
+		mCapabilities.BindlessLimits.MaxDescriptorSetUpdateAfterBindSamplers,
+		mCapabilities.BindlessLimits.MaxDescriptorSetUpdateAfterBindSampledImages,
+		mCapabilities.BindlessLimits.MaxPerStageUpdateAfterBindResources,
+		mCapabilities.BindlessLimits.MaxUpdateAfterBindDescriptorsInAllPools);
+	Printf(PRINT_LOG, "Vulkan render-target formats: d24s8=%s d32s8=%s depth-selected=%d a2r10g10b10=%s rgba8=%s normal-selected=%d\n",
+		mCapabilities.DepthD24S8 ? "yes" : "no",
+		mCapabilities.DepthD32S8 ? "yes" : "no",
+		(int)mCapabilities.DepthStencilFormat,
+		mCapabilities.NormalA2R10G10B10 ? "yes" : "no",
+		mCapabilities.NormalR8G8B8A8 ? "yes" : "no",
+		(int)mCapabilities.NormalFormat);
 }
 
 void VulkanRenderDevice::SetLevelMesh(LevelMesh* mesh)

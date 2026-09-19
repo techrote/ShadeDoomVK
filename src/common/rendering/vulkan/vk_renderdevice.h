@@ -4,6 +4,7 @@
 #include "engineerrors.h"
 #include <zvulkan/vulkandevice.h>
 #include <zvulkan/vulkanobjects.h>
+#include "vk_capabilities.h"
 
 struct FRenderViewpoint;
 class VkSamplerManager;
@@ -34,6 +35,7 @@ public:
 	~VulkanRenderDevice();
 
 	VulkanDevice* GetDevice() { return mDevice.get(); }
+	const VulkanCapabilities& GetCapabilities() const { return mCapabilities; }
 	VkShaderCache* GetShaderCache() { return mShaderCache.get(); }
 	VkCommandBufferManager* GetCommands() { return mCommands.get(); }
 	VkShaderManager *GetShaderManager() { return mShaderManager.get(); }
@@ -125,6 +127,7 @@ private:
 	bool HasSurface = false;
 
 	std::shared_ptr<VulkanDevice> mDevice;
+	VulkanCapabilities mCapabilities;
 	std::unique_ptr<VkShaderCache> mShaderCache;
 	std::unique_ptr<VkCommandBufferManager> mCommands;
 	std::unique_ptr<VkBufferManager> mBufferManager;
