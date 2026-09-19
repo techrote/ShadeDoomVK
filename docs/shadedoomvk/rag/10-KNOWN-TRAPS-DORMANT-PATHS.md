@@ -74,19 +74,25 @@ Owner: PF-014.
 
 ## 12. Sprite precache variant flag bug
 
-One sprite material-marking path computes `scaleflags` then calls `FMaterial::ValidateTexture(tex, true, true)` rather than passing the computed flags.
+Baseline defect: one sprite material-marking path computes `scaleflags` then calls `FMaterial::ValidateTexture(tex, true, true)` rather than passing the computed flags.
+
+PF-013 implementation changes that call to `ValidateTexture(tex, scaleflags, true)` and adds expand/upscale boundary coverage. Acceptance is pending exact-head CI/merge evidence; do not treat the trap as historically resolved until PF-013 is accepted.
 
 Owner: PF-013.
 
 ## 13. Indexed RedIsAlpha Vulkan material path is explicitly incomplete
 
-`VkMaterial::GetDescriptorEntry` contains a TODO for `CTF_IndexedRedIsAlpha` under palette mode.
+Baseline defect: `VkMaterial::GetDescriptorEntry` contains a TODO for `CTF_IndexedRedIsAlpha` under palette mode, while the texture producer emits luminance bytes for this mode rather than palette indices.
+
+PF-013 implementation separates palette-index and RedIsAlpha R8 resident-image/descriptor identity, uploads RedIsAlpha as single-channel data, and prevents palette-index colormap/alpha-binarization logic from consuming it. Ordinary indexed translation remains on the inherited path. Acceptance is pending exact-head CI/merge evidence.
 
 Owner: PF-013.
 
 ## 14. PBR roughness-zero numerical edge
 
-GGX distribution can reach a singular `0/0` form at exactly zero roughness/specular alignment. Fix numerically without changing normal roughness behavior.
+Baseline defect: GGX distribution can reach a singular `0/0` form at exactly zero roughness/specular alignment and loses precision near that boundary.
+
+PF-013 implementation rewrites the denominator into an algebraically equivalent cancellation-resistant form and uses a finite zero-width sampled-BRDF fallback, with epsilon/ordinary roughness fixture coverage. No PBR calibration constants or roughness policy are retuned. Acceptance is pending exact-head CI/merge evidence.
 
 Owner: PF-013.
 
