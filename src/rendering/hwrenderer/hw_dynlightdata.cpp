@@ -28,6 +28,7 @@
 #include "actorinlines.h"
 #include "a_dynlight.h"
 #include "hw_dynlightdata.h"
+#include "hw_lightcompat.h"
 #include"hw_cvars.h"
 #include "v_video.h"
 #include "hwrenderer/scene/hw_drawstructs.h"
@@ -90,7 +91,7 @@ void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool f
 	float cs;
 	if (light->IsAdditive()) 
 	{
-		cs = 0.2f;
+		cs = HWLightCompat::AdditiveGpuColorScale;
 		i = LIGHTARRAY_ADDITIVE;
 	}
 	else 
@@ -104,9 +105,9 @@ void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool f
 	// Multiply intensity from GLDEFS
 	cs *= (float)light->GetLightDefIntensity();
 
-	info.r = light->GetRed() / 255.0f * cs;
-	info.g = light->GetGreen() / 255.0f * cs;
-	info.b = light->GetBlue() / 255.0f * cs;
+	info.r = HWLightCompat::NormalizeColorChannel(light->GetRed()) * cs;
+	info.g = HWLightCompat::NormalizeColorChannel(light->GetGreen()) * cs;
+	info.b = HWLightCompat::NormalizeColorChannel(light->GetBlue()) * cs;
 
 	if (light->IsSubtractive())
 	{
@@ -161,7 +162,7 @@ void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool f
 
 	info.softShadowRadius = (gl_light_shadow_filter == 0 && !gl_light_shadow_nearest_dither)? 0 : light->GetSoftShadowRadius();
 
-	info.linearity = std::clamp(light->GetLinearity(), 0.0f, 1.0f);
+	info.linearity = HWLightCompat::ClampLinearity(light->GetLinearity());
 
 	info.strength = light->GetStrength();
 
@@ -172,9 +173,10 @@ void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVec
 {
 	FDynLightInfo info = {};
 
-	// Cheap way of faking a directional light
-	float dist = 100000.0f;
-	info.radius = 100000000.0f;
+	// Cheap way of faking a directional light. These are compatibility proxy
+	// values rather than photometric units; PF-011 owns their documented meaning.
+	float dist = HWLightCompat::SunProxyDistance;
+	info.radius = HWLightCompat::SunProxyRadius;
 	info.x = x + sundir.X * dist;
 	info.z = y + sundir.Y * dist;
 	info.y = z + sundir.Z * dist;
@@ -182,7 +184,7 @@ void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVec
 	info.g = suncolor.Y;
 	info.b = suncolor.Z;
 	info.flags = LIGHTINFO_ATTENUATED | (doTrace ? (LIGHTINFO_TRACE | LIGHTINFO_SUN) : 0);
-	info.strength = 1500.0f;
+	info.strength = HWLightCompat::SunProxyStrength;
 
 	dld.arrays[LIGHTARRAY_NORMAL].Push(info);
 }
