@@ -190,10 +190,20 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-014 / #31 became dependency-ready. PF-012 / #29 and PF-015 / #32 now retain PF-011 / #28 as their remaining readiness prerequisite.
 - Gameplay/tic, material/shader, palette/translation, sprite, portal-transform, audio, source-ownership and donor/provenance semantics remain unchanged.
 
+### 2026-09-19 — PF-011 accepted and merged
+
+- PF-011 / #28 completed through PR #57.
+- Exact implementation head `6c977abec0a9f957d9bc5e0f24d46bb87990950e` passed Continuous Integration run 76: deterministic PF renderer oracle, adversarial/numerical lighting compatibility fixtures, source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
+- Named the inherited CPU dynamic-light packing/sun proxy and shader-side PBR/sun/ambient compatibility calibration without numerical retuning; inverse-square operation ordering and intentionally distinct CPU aggregate sprite-light behavior remain frozen.
+- Verification covers authoring-strength saturation, normalization/linearity boundaries, GLDEFS and alpha multiplication, additive/subtractive packing, deterministic moving-light attenuation points, spotlight edges, sunlight proxy behavior and direct-PBR/sun/ambient/metallic bridge vectors.
+- Merge commit: `1c16f7e76d8927c315c4fc57b8c9e532ca99c84b`; `master` was verified at that exact merge commit.
+- PF-012 / #29 and PF-015 / #32 became dependency-ready. PF-016 / #33 now retains PF-015 as its remaining prerequisite.
+- No physical-lighting calibration, quality/default policy, light selection, shadow/probe policy, gameplay/tic, material/palette/sprite/portal, audio, source-ownership or donor/provenance semantic change was introduced.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27.
-- **READY:** PF-011 / #28, PF-013 / #30, PF-014 / #31.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28.
+- **READY:** PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
