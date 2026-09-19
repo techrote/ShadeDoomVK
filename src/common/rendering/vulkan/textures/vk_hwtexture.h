@@ -53,7 +53,7 @@ private:
 	void UploadTexture(VkTextureImage* image, int w, int h, int pixelsize, VkFormat format, const void* pixels, bool mipmap);
 	static int GetMipLevels(int w, int h);
 
-	VkTextureImage mImage, mPaletteImage;
+	VkTextureImage mImage, mPaletteImage, mAlphaImage;
 	int mTexelsize = 4;
 
 	VkTextureImage mDepthStencil;
@@ -83,14 +83,16 @@ private:
 		int bindlessIndex;
 		GlobalShaderAddr globalShaderAddr;
 		bool indexed;
+		bool redIsAlpha;
 
-		DescriptorEntry(int cm, intptr_t f, int index, GlobalShaderAddr addr, bool paletteMode)
+		DescriptorEntry(int cm, intptr_t f, int index, GlobalShaderAddr addr, bool paletteMode, bool indexedRedIsAlpha)
 		{
 			clampmode = cm;
 			remap = f;
 			bindlessIndex = index;
 			globalShaderAddr = addr;
 			indexed = paletteMode;
+			redIsAlpha = indexedRedIsAlpha;
 		}
 	};
 
