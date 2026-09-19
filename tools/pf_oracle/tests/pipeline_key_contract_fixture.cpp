@@ -12,6 +12,7 @@ namespace
 {
 	using VkKeyIdentity::PipelineState;
 	using VkKeyIdentity::RenderPassState;
+	using VkKeyIdentity::RenderStyleState;
 	using VkKeyIdentity::ShaderState;
 
 	using LegacyShaderBytes = std::array<uint8_t, 24>;
@@ -139,7 +140,10 @@ namespace
 		Store(bytes, 0, PackPipelineFlags(p));
 		const auto shader = LegacyShader(p.ShaderKey);
 		std::memcpy(bytes.data() + 16, shader.data(), shader.size());
-		Store(bytes, 40, p.RenderStyle);
+		bytes[40] = p.RenderStyle.BlendOp;
+		bytes[41] = p.RenderStyle.SrcAlpha;
+		bytes[42] = p.RenderStyle.DestAlpha;
+		bytes[43] = p.RenderStyle.Flags;
 		return bytes;
 	}
 
@@ -162,7 +166,10 @@ namespace
 		LegacyShaderBytes shader{};
 		std::memcpy(shader.data(), bytes.data() + 16, shader.size());
 		p.ShaderKey = CanonicalShader(shader);
-		p.RenderStyle = Load<uint32_t>(bytes, 40);
+		p.RenderStyle.BlendOp = bytes[40];
+		p.RenderStyle.SrcAlpha = bytes[41];
+		p.RenderStyle.DestAlpha = bytes[42];
+		p.RenderStyle.Flags = bytes[43];
 		return p;
 	}
 
@@ -245,7 +252,10 @@ namespace
 		add([](PipelineState& p) { p.IsGeneralized = 1; });
 		add([](PipelineState& p) { p.ShaderKey.EffectState = 17; });
 		add([](PipelineState& p) { p.ShaderKey.UseRaytrace = 1; p.ShaderKey.UseRaytracePrecise = 1; });
-		add([](PipelineState& p) { p.RenderStyle = 0xffffffffu; });
+		add([](PipelineState& p) { p.RenderStyle.BlendOp = 0xff; });
+		add([](PipelineState& p) { p.RenderStyle.SrcAlpha = 0xff; });
+		add([](PipelineState& p) { p.RenderStyle.DestAlpha = 0xff; });
+		add([](PipelineState& p) { p.RenderStyle.Flags = 0xff; });
 		return out;
 	}
 
@@ -299,6 +309,21 @@ int main()
 	Store(noisy, 36, Load<uint32_t>(noisy, 36) | (uint32_t(1) << 31));
 	assert(clean != noisy);
 	assert(CanonicalPipeline(clean) == CanonicalPipeline(noisy));
+
+	// FRenderStyle is a union of exactly four named uint8_t semantic fields
+	// and AsDWORD. Key identity names those four fields directly so it does not
+	// depend on union packing or host byte order while preserving the old byte
+	// partition, including all flag bits.
+	RenderStyleState styleBase;
+	for (int byte = 0; byte < 4; ++byte)
+	{
+		RenderStyleState changed = styleBase;
+		if (byte == 0) changed.BlendOp = 0xff;
+		if (byte == 1) changed.SrcAlpha = 0xff;
+		if (byte == 2) changed.DestAlpha = 0xff;
+		if (byte == 3) changed.Flags = 0xff;
+		assert(changed != styleBase);
+	}
 
 	// Reconstructed semantic keys must hit warm ordered caches.
 	std::map<ShaderState, int> shaderCache;
