@@ -43,6 +43,7 @@ class ProbeLightmapContractTests(unittest.TestCase):
         cls.lightmapper = source("src/common/rendering/vulkan/vk_lightmapper.cpp")
         cls.lightprobe = source("src/common/rendering/hwrenderer/data/hw_lightprobe.cpp")
         cls.doom_probes = source("src/rendering/hwrenderer/doom_lightprobes.cpp")
+        cls.descriptors = source("src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp")
         cls.frag_copy = source("wadsrc/static/shaders/lightmap/frag_copy.glsl")
         cls.vert_copy = source("wadsrc/static/shaders/lightmap/vert_copy.glsl")
         cls.selector = source("src/common/rendering/hwrenderer/data/hw_probe_selection.h")
@@ -70,15 +71,24 @@ class ProbeLightmapContractTests(unittest.TestCase):
         self.assertIn("pc.ProbeCount = probeCount;", copy)
         self.assertIn("VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT", copy)
 
-    def test_probe_upload_is_owner_checked_and_encoding_bounded(self) -> None:
+    def test_probe_upload_uses_runtime_bindless_identity_and_is_bounded(self) -> None:
         body = function_body(self.lightmapper, "int VkLightmapper::UploadProbeSelection()")
         self.assertIn("level.levelMesh != mesh", body)
-        self.assertIn("HWProbeSelection::IrradianceTextureIndex(probe.index)", body)
+        self.assertIn("GetLightProbeTextureIndex(probe.index)", body)
         self.assertIn("HWProbeSelection::IsEncodableTextureIndex", body)
         self.assertIn("count >= probeSelection.BufferSize", body)
-        self.assertIn("MaxAuthoredProbeIndex", self.selector)
         self.assertIn("MaxCandidateCount", self.selector)
-        self.assertIn("return static_cast<uint32_t>(authoredProbeIndex) * 2u + 1u;", self.selector)
+        self.assertNotIn("IrradianceTextureIndex", self.selector)
+        self.assertNotIn("2u + 1u", self.selector)
+
+    def test_descriptor_manager_allocates_adjacent_runtime_probe_pair(self) -> None:
+        body = function_body(self.descriptors, "int VkDescriptorSetManager::GetLightProbeTextureIndex(int probeIndex)")
+        self.assertIn("int bindIndex = AllocBindlessSlot(2);", body)
+        self.assertIn("LightProbes[probeIndex] = bindIndex;", body)
+        self.assertIn("SetBindlessTexture(bindIndex, textures->Irradiancemaps[probeIndex].View.get()", body)
+        self.assertIn("SetBindlessTexture(bindIndex + 1, textures->Prefiltermaps[probeIndex].View.get()", body)
+        self.assertIn("return 0;", body)
+        self.assertIn("return LightProbes[probeIndex];", body)
 
     def test_probe_map_zero_is_explicit_fallback_and_two_probe_path_is_live(self) -> None:
         self.assertIn("const uint fallbackIndex = 0u;", self.frag_copy)
