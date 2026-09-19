@@ -1,6 +1,6 @@
 # PF-009 sprite render-surface and orientation contract
 
-Status: implementation candidate for PF-009 / #26  
+Status: accepted on `master` via PR #53; implementation merge `b58f03decfedca12df039c68a5e36d709120bba1`  
 Scope: renderer-side extraction only
 
 ## Purpose
@@ -77,4 +77,4 @@ PF-009 introduces no:
 
 `tools/pf_oracle/tests/test_sprite_surface_contract.py` verifies source integration and that the extraction remains observational. `sprite_surface_policy_fixture.cpp` adversarially covers FORCEY/FORCEXY, global XY, actor/particle face-camera preference and vetoes, simultaneous XY+camera-facing policy, wall/flat classification, particle NO_XY/NOFACECAMERA boundaries and model classification.
 
-The inherited Windows, macOS and Linux build matrix remains required before merge. Acceptance also requires the exact merged head to be verified on `master` before #26 is closed.
+Exact implementation head `8f78d5a10fe502d144b09b51f786b97e6e6bb54e` passed Continuous Integration run 65, including the deterministic PF renderer oracle and inherited Windows/macOS/Linux build matrix. PR #53 then merged as `b58f03decfedca12df039c68a5e36d709120bba1`; post-merge Continuous Integration run 66 also passed on that exact `master` commit. The contract is therefore accepted rather than provisional.
