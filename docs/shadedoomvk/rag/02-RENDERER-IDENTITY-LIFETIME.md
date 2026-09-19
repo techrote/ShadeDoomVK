@@ -1,7 +1,7 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-002 generation/epoch substrate active; subsystem hardening continues  
+Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active  
 Primary issues: PF-002, PF-003, PF-004, PF-005, SDVK-004
 
 ## Core rule
@@ -44,7 +44,8 @@ Current wiring:
 
 - dynamic bindless block allocation/free tracks generations in `VkDescriptorSetManager`;
 - `LevelMesh::Reset()` advances a LevelMesh resource epoch;
-- `VkTextureManager` advances separate texture, lightmap, environment-probe and async-upload epochs at their real reset/destruction boundaries.
+- `VkTextureManager` advances separate texture, lightmap, environment-probe and async-upload epochs at their real reset/destruction boundaries;
+- `VkHardwareTexture` advances a per-target upload epoch on reset, consumed by PF-005 async upload tickets.
 
 See `docs/shadedoomvk/PF-002-LIFETIME-CONTRACT.md` for the exact contract and deliberately unconverted identities.
 
@@ -106,11 +107,13 @@ Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or Le
 
 Pointer identity is currently meaningful inside a frame/cache but must not become a persistent serialized identity.
 
-## Async texture lifetime
+## Async texture lifetime and staging
 
-`VkTextureManager` has worker/main queues plus `CreateUploadID`/`CheckUploadID`. Destroying a `VkHardwareTexture` removes matching pending upload identity so a later main-thread completion can be rejected.
+PF-005 replaces direct async upload-ID use at the `VkHardwareTexture` call site with a generation-aware ticket carrying the manager async epoch plus a per-target `FRendererEpoch` snapshot. The main-thread completion consumes/validates the manager ticket before it dereferences the target; a target reset advances the target epoch so work prepared for the previous incarnation is rejected. Destruction cancels **all** outstanding IDs for that owner before removal, closing the inherited one-match cancellation hole. Worker exception propagation and shutdown queue joining/clearing remain unchanged.
 
-This is a useful pattern but remains raw-pointer/ID based and each upload currently allocates staging resources independently. PF-005 generalizes the lifetime/cancellation model and staging memory ownership.
+Ordinary texture create/completion uploads now share a lazily-created 64 MiB CPU-visible transfer-source arena. A Vulkan-independent staging planner assigns non-overlapping slices. Before a wrapped slice reuses byte zero, the Vulkan owner performs an upload-only wait, so in-flight bytes cannot be overwritten. A request larger than the arena uses a one-shot buffer and is waited/retired immediately rather than accumulating unbounded deferred staging memory.
+
+The planner records requests, arena slices, reuses, wrap waits, oversize/invalid requests, bytes requested and high-water bytes; the Vulkan owner records physical persistent/dedicated allocations and dedicated waits. Exact texture formats, source processing, mip generation and material meaning remain unchanged. See `docs/shadedoomvk/PF-005-TEXTURE-UPLOAD-CONTRACT.md`.
 
 ## Lifetime transitions that require explicit treatment
 
@@ -144,5 +147,6 @@ For recyclable resource classes expose, where practical:
 1. Reusing an index may never cause a live old reference to resolve to an unrelated new resource.
 2. A global flush is not safe if LevelMesh/material state keeps old indices.
 3. Descriptor and lightmap/probe index arithmetic must be bounds-checked against actual Vulkan/device/runtime capacity.
-4. Async completion must verify target lifetime before upload/bind.
-5. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
+4. Async completion must consume/validate manager lifetime before dereferencing a target and must validate the target generation before upload/bind.
+5. Staging bytes may not be reused until all transfer commands that reference those bytes are retired.
+6. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
