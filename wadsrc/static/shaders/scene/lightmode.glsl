@@ -31,7 +31,9 @@ vec3 PickGamePaletteColor(vec3 color)
 
 vec4 getLightColor(Material material)
 {
-	if (PALETTEMODE)
+	// Palette-mode alpha textures carry luminance directly in R8; treating that
+	// byte as a palette index would replace the fixed-colour alpha contract.
+	if (PALETTEMODE && !TM_ALPHATEXTURE)
 	{
 		int color = int(material.Base.r * 255.0 + 0.5);
 
