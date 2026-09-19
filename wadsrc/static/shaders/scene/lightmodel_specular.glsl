@@ -20,8 +20,8 @@ vec2 lightAttenuation(DynLightInfo light, vec3 normal, vec3 viewdir, float gloss
 
 	if (attenuation > 0.0) // Skip shadow map test if possible
 	{
-		// light.radius >= 1000000.0 is sunlight(?), skip attenuation
-		if(light.radius < 1000000.0 && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)
+		// The far-away sunlight proxy bypasses local-light shadow attenuation.
+		if(light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)
 		{
 			attenuation *= shadowAttenuation(light.pos.xyz, light.shadowIndex, light.softShadowRadius, light.flags);
 		}
