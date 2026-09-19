@@ -176,7 +176,7 @@ private:
 
 	struct
 	{
-		static constexpr int BufferSize = 0xffff;
+		static constexpr int BufferSize = static_cast<int>(HWProbeSelection::MaxCandidateCount);
 		std::unique_ptr<VulkanBuffer> Buffer;
 		HWProbeSelection::Candidate* Entries = nullptr;
 	} probeSelection;
