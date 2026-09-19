@@ -62,6 +62,11 @@ void FRenderState::SetMaterial(FMaterial *mat, int clampmode, int translation, i
 			mMaterial.globalShaderAddr = {0, 3, 0};
 		}
 	}
+	// Palette-mode TM_ALPHATEXTURE consumes a luminance byte as alpha rather
+	// than a palette index. The sprite and 2D callers establish texture mode
+	// before binding the material, so capture that interpretation in descriptor
+	// identity at the same binding boundary.
+	mMaterial.mRedIsAlpha = mPaletteMode && mTextureMode == TM_ALPHATEXTURE;
 	mMaterial.mChanged = true;
 	mTextureModeFlags = mat->GetLayerFlags();
 	auto scale = mat->GetDetailScale();

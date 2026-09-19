@@ -24,7 +24,10 @@ vec4 getTexel(vec2 st)
 	}
 	else if (TM_ALPHATEXTURE)
 	{
-		float gray = grayscale(texel);
+		// Palette-mode RedIsAlpha is uploaded as a single-channel luminance
+		// texture. R8 sampling returns that byte in .r, whereas true-colour
+		// alpha-texture rendering retains the inherited RGB grayscale rule.
+		float gray = PALETTEMODE ? texel.r : grayscale(texel);
 		texel = vec4(1.0, 1.0, 1.0, gray*texel.a);
 	}
 	else if (TM_CLAMPY)

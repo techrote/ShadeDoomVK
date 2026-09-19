@@ -7,11 +7,15 @@ float DistributionGGX(vec3 N, vec3 H, float roughness)
 	float NdotH = max(dot(N, H), 0.0);
 	float NdotH2 = NdotH*NdotH;
 
-	float nom = a2;
-	float denom = (NdotH2 * (a2 - 1.0) + 1.0);
-	denom = PI * denom * denom;
-
-	return nom / denom;
+	// The inherited 1 + NdotH^2 * (a^2 - 1) form catastrophically
+	// cancels toward zero for very small roughness at NdotH ~= 1 and becomes
+	// 0/0 at roughness=0. This algebraically equivalent form keeps the small
+	// positive term representable. A truly zero-width lobe is a delta that this
+	// finite sampled BRDF cannot represent, so return the finite zero limit here.
+	if (a2 <= 0.0)
+		return 0.0;
+	float denomBase = (1.0 - NdotH2) + NdotH2 * a2;
+	return (a2 / denomBase) / (PI * denomBase);
 }
 
 float GeometrySchlickGGX(float NdotV, float roughness)

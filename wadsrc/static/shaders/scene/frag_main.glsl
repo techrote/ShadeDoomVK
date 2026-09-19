@@ -36,7 +36,9 @@ void main()
 
 		Material material = CreateMaterial();
 
-	if (PALETTEMODE)
+	// TM_ALPHATEXTURE in palette mode is an R8 luminance/alpha path, not a
+	// palette-index path. Preserve continuous alpha instead of binarizing it.
+	if (PALETTEMODE && !TM_ALPHATEXTURE)
 	{
 		material.Base.a = material.Base.r != 0.0 ? 1.0 : 0.0;
 	}

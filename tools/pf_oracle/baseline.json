@@ -31,9 +31,9 @@
     },
     {
       "category": "material",
-      "classification": "known_defect_reproduced",
+      "classification": "invariant_passed",
       "id": "indexed-red-is-alpha-todo",
-      "kind": "known_defect",
+      "kind": "invariant",
       "owner": "PF-013"
     },
     {
@@ -145,8 +145,8 @@
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 17,
-    "known_defect_reproduced": 3,
+    "invariant_passed": 18,
+    "known_defect_reproduced": 2,
     "probe_count": 20,
     "unexpected": 0
   }

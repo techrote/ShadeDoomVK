@@ -13,6 +13,7 @@ struct FMaterialState
 	int mOverrideShader = -1;
 	bool mChanged = false;
 	bool mPaletteMode = false;
+	bool mRedIsAlpha = false;
 	GlobalShaderAddr globalShaderAddr = {0, 3, 0}; // null global shader entry, TODO
 
 	void Reset()
@@ -23,6 +24,7 @@ struct FMaterialState
 		mOverrideShader = -1;
 		mChanged = false;
 		mPaletteMode = false;
+		mRedIsAlpha = false;
 		globalShaderAddr = {0, 3, 0};
 	}
 };

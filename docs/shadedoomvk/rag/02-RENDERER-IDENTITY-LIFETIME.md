@@ -1,8 +1,8 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active  
-Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, SDVK-004
+Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active  
+Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, PF-013, SDVK-004
 
 ## Core rule
 
@@ -29,7 +29,15 @@ Important baseline files:
 - `src/common/rendering/vulkan/textures/vk_hwtexture.h/.cpp`
 - `src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h/.cpp`
 
-`VkMaterial` caches descriptor variants by clamp mode, palette/translation and global-shader address. Destruction/removal returns bindless allocations to size buckets.
+`VkMaterial` caches descriptor variants by clamp mode, palette/translation, global-shader address and, after PF-013, the palette-mode RedIsAlpha interpretation bit. Destruction/removal returns bindless allocations to size buckets.
+
+### PF-013 material interpretation identity
+
+The renderer has two semantically different single-byte texture producers: ordinary indexed textures store a palette index, while `CTF_IndexedRedIsAlpha` stores image luminance for the fixed-colour alpha path. They may share Vulkan `R8_UNORM` storage format but they are not interchangeable identities.
+
+PF-013 therefore gives a `VkHardwareTexture` separate normal/palette-index/RedIsAlpha resident-image variants and records `mRedIsAlpha` in `FMaterialState` when palette mode consumes `TM_ALPHATEXTURE`. `VkMaterial::DescriptorEntry` includes that bit in its variant identity so a bindless slot prepared for palette indices cannot be silently reused for luminance-as-alpha, or vice versa. Ordinary translation identity remains part of the existing descriptor key.
+
+Material destruction still calls `FreeBindlessSlot()` for every descriptor variant and clears the cache. Texture reset still advances the PF-005 upload epoch and now resets all three image interpretations. The PF-003 generation allocator remains the authority for recycled dynamic descriptor slots; PF-013 does not introduce a second lifetime system.
 
 ## PF-002 generation substrate
 
@@ -165,3 +173,4 @@ For recyclable resource classes expose, where practical:
 6. Async completion must consume/validate manager lifetime before dereferencing a target and must validate the target generation before upload/bind.
 7. Staging bytes may not be reused until all transfer commands that reference those bytes are retired.
 8. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
+9. Single-byte texture storage format alone is not material identity: palette-index and RedIsAlpha/luminance variants must remain distinct through resident-image and descriptor caching.

@@ -241,7 +241,7 @@ void hw_PrecacheTexture(uint8_t *texhitlist, TMap<PClassActor*, bool> &actorhitl
 				int scaleflags = CTF_Expand;
 				if (shouldUpscale(tex, UF_Sprite)) scaleflags |= CTF_Upscale;
 
-				FMaterial *mat = FMaterial::ValidateTexture(tex, true, true);
+				FMaterial *mat = FMaterial::ValidateTexture(tex, scaleflags, true);
 				if (mat != nullptr)
 				{
 					SpriteHits::Iterator it(*spritehitlist[i]);
