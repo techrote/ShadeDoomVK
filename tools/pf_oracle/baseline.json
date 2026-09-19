@@ -101,9 +101,9 @@
     },
     {
       "category": "probe_lightmap",
-      "classification": "known_defect_reproduced",
-      "id": "probe-map-probe-zero-stub",
-      "kind": "known_defect",
+      "classification": "invariant_passed",
+      "id": "probe-map-live-selection",
+      "kind": "invariant",
       "owner": "PF-012"
     },
     {
@@ -145,8 +145,8 @@
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 16,
-    "known_defect_reproduced": 4,
+    "invariant_passed": 17,
+    "known_defect_reproduced": 3,
     "probe_count": 20,
     "unexpected": 0
   }
