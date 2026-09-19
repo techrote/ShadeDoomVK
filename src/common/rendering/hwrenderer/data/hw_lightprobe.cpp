@@ -5,6 +5,8 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 {
 	if (probes.size() == 0)
 	{
+		if (cubemapsAllocated != 0)
+			screen->ResetLightProbes();
 		lastIndex = 0;
 		collected = 0;
 		cubemapsAllocated = 0;
@@ -44,7 +46,10 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
 	if (probes.size() == 0)
+	{
+		Step(probes, renderScene);
 		return;
+	}
 
 	if (cubemapsAllocated == probes.size() && iterations >= 5)
 		return;
