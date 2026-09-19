@@ -172,6 +172,20 @@ Required acceptance evidence:
 4. performance/memory numbers showing the proposed change actually helps its target workload;
 5. stress/correctness tests remain passing.
 
+## PF-005 upload-specific evidence
+
+PF-001 does not yet provide a runnable IWAD/GPU image harness on every CI host. PF-005 therefore must not fabricate GPU timings or image hashes. Its minimum executable evidence is:
+
+- the existing deterministic PF source/state oracle remains unchanged for protected texture/material semantics;
+- full inherited Windows/macOS/Linux builds pass;
+- a compiled lifetime/staging fixture proves stale reset/destroy/shutdown completions fail closed, including address and job-ID reuse boundaries;
+- the same fixture exercises zero, alignment, exact-capacity, overflow-sized and stale-arena-slice boundaries;
+- a deterministic burst workload records logical acquisitions, high-water and retirement waits and compares staging **Vulkan object allocation count** against the inherited one-buffer-per-upload model.
+
+The canonical PF-005 workload is 1,024 uploads × 64 KiB through a 4 MiB test arena. The accepted model is 1,024 inherited dedicated staging-buffer allocations versus one persistent backing-buffer allocation on the PF-005 qualified path, with exactly 15 full-arena retirement waits and a 4 MiB high-water mark.
+
+This allocation model is evidence of the owned optimization, not a substitute for later runtime profiling. Runtime GPU/image evidence may strengthen PF-005/SDVK-002 later; it may not contradict the source-visible requirement that texture processing, format, mip generation, filtering and material semantics remain unchanged.
+
 ## Performance measurement
 
 Record as applicable:
