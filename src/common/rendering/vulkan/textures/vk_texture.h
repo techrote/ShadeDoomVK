@@ -3,12 +3,14 @@
 
 #include <zvulkan/vulkanobjects.h>
 #include "vulkan/textures/vk_imagetransition.h"
+#include "vulkan/textures/vk_textureupload.h"
 #include "hwrenderer/data/hw_resourcegeneration.h"
 #include <list>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
 #include <unordered_map>
+#include <cstdint>
 
 class VulkanRenderDevice;
 class VkHardwareTexture;
@@ -86,8 +88,44 @@ public:
 	void RunOnWorkerThread(std::function<void()> task);
 	void RunOnMainThread(std::function<void()> task);
 
+	// Legacy raw upload IDs remain for compatibility with old call sites, but the
+	// asynchronous hardware-texture path uses the generation-aware PF-005 tracker.
 	int CreateUploadID(VkHardwareTexture* tex);
 	bool CheckUploadID(int id);
+
+	int CreateTrackedUpload(VkHardwareTexture* tex)
+	{
+		return AsyncUploads.Queue(reinterpret_cast<uintptr_t>(tex), AsyncUploadEpoch.Snapshot());
+	}
+
+	bool CheckTrackedUpload(int id)
+	{
+		return AsyncUploads.Complete(id, AsyncUploadEpoch);
+	}
+
+	void InvalidateTextureUploads(VkHardwareTexture* tex)
+	{
+		AsyncUploads.InvalidateTarget(reinterpret_cast<uintptr_t>(tex));
+	}
+
+	void RetireTextureUploadTarget(VkHardwareTexture* tex)
+	{
+		AsyncUploads.RetireTarget(reinterpret_cast<uintptr_t>(tex));
+	}
+
+	const VkAsyncTextureUploadStats& GetAsyncTextureUploadStats() const { return AsyncUploads.GetStats(); }
+	const FRendererLifetimeStats& GetAsyncTextureTargetLifetimeStats() const { return AsyncUploads.GetLifetimeStats(); }
+
+	struct PersistentTextureUploadArena
+	{
+		std::unique_ptr<VulkanBuffer> Buffer;
+		VkTextureUploadArenaPlanner Planner;
+		uint64_t BufferAllocations = 0;
+		uint64_t DedicatedFallbacks = 0;
+	};
+
+	PersistentTextureUploadArena& GetUploadArena() { return UploadArena; }
+	const PersistentTextureUploadArena& GetUploadArena() const { return UploadArena; }
 
 	FRendererEpochToken GetTextureEpoch() const { return TextureEpoch.Snapshot(); }
 	FRendererEpochToken GetLightmapEpoch() const { return LightmapEpoch.Snapshot(); }
@@ -147,6 +185,8 @@ private:
 	FRendererEpoch LightmapEpoch;
 	FRendererEpoch LightProbeEpoch;
 	FRendererEpoch AsyncUploadEpoch;
+	VkAsyncTextureUploadTracker AsyncUploads;
+	PersistentTextureUploadArena UploadArena;
 
 	int NextUploadID = 1;
 	std::unordered_map<int, VkHardwareTexture*> PendingUploads;
