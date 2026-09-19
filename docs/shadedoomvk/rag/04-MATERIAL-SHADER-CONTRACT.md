@@ -1,7 +1,7 @@
 # Material and shader contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; semantic refactor planned  
+Status: active; PF-008 semantic identity implemented  
 Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
 
 ## Current material model
@@ -9,6 +9,7 @@ Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
 Primary source:
 
 - `src/common/textures/gametexture.h`
+- `src/common/textures/material_layer_semantics.h`
 - `src/common/textures/hw_material.h/.cpp`
 - `src/r_data/gldefs.cpp`
 - `src/common/rendering/vulkan/textures/vk_hwtexture.cpp`
@@ -28,6 +29,8 @@ Primary source:
 - palette/indexed paths;
 - warped/canvas special paths.
 
+PF-008 adds explicit `MaterialLayerSemantic` metadata to the existing ordered array. The semantic identities are `Albedo`, `Normal`, `LegacySpecular`, `Metallic`, `Roughness`, `AmbientOcclusion`, `Brightmap`, `Detail`, `Glow` and `Custom`. Custom layers also retain their original authoring slot in `customIndex`.
+
 ## Important correction
 
 Per-layer sampling is **already inherited**.
@@ -36,20 +39,38 @@ Per-layer sampling is **already inherited**.
 
 Therefore PF-008/SDVK-005 must not treat per-layer filtering as absent.
 
+## PF-008 semantic identity and binding adapter
+
+The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical shader-binding order consumed by Vulkan.
+
+Representative layouts remain:
+
+- default: albedo, brightmap, detail, glow;
+- legacy specular: albedo, normal, legacy specular, brightmap, detail, glow;
+- PBR: albedo, normal, metallic, roughness, AO, brightmap, detail, glow;
+- custom extension layers append after the fixed sequence exactly as before.
+
+Absent bright/detail/glow textures still use the inherited placeholder texture at their existing binding. Their semantic metadata names the intended channel, not the placeholder resource itself.
+
+Sparse custom authoring slots still compact into the historical binding array. `customIndex` retains the original custom slot so later renderer code does not have to infer authoring identity from compact binding position.
+
+`FMaterial::FindLayer()` is the semantic-to-current-binding adapter. `FMaterial::GetLayerDiagnostic()` exposes binding, semantic, custom slot, source texture, scale/clamp flags and inherited sampling state. See `docs/shadedoomvk/PF-008-MATERIAL-SEMANTICS-CONTRACT.md`.
+
 ## Current positional coupling
 
 Shader logic still relies materially on known layer ordering/defines. PBR layer presence is all-or-nothing for the normal/metallic/roughness/AO group in `FMaterial` construction. Placeholder textures are inserted for absent bright/detail/glow layers so shader texture units remain valid.
 
-This works but makes future height/emissive/custom expansion vulnerable to positional assumptions and descriptor pressure.
+PF-008 contains rather than removes this compatibility coupling: semantic lookup is explicit, while descriptor construction still consumes the inherited array order. Later work may use semantic lookup where safe, but may not silently reorder legacy bindings.
 
 ## PF-008 semantic refactor boundary
 
-PF-008 may introduce explicit semantic metadata for **existing** channels while preserving:
+PF-008 introduces explicit semantic metadata for **existing** channels while preserving:
 
 - existing GLDEFS/material authoring syntax;
 - current layer sampling behavior;
 - current palette/translation behavior;
 - current shader selection;
+- current descriptor ordering and placeholder behavior;
 - current output for valid existing content.
 
 PF-008 does **not** make height/POM a user-visible feature. SDVK-005 owns first-class height semantics/authoring/default policy after the representation is safe.
@@ -85,6 +106,8 @@ PF-013 owns numerical safety at the roughness-zero edge while preserving normal 
 
 `VkMaterial::GetDescriptorEntry` caches bindless ranges keyed by material state such as clamp mode, translation/palette and global shader. Richer materials consume contiguous bindless slots. PF-003/PF-017 harden lifetime and lookup behavior before SDVK height layers increase pressure.
 
+PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Vulkan still iterates the ordered layers and chooses each sampler from `GetLayerFilter(i)`. PF-003 generation/lifetime/reservation rules remain authoritative.
+
 ## Invariants
 
 1. Existing content material meaning/output must not change during PF semantic tagging except for explicit PF-013 bugfix cases.
@@ -92,3 +115,5 @@ PF-013 owns numerical safety at the roughness-zero edge while preserving normal 
 3. Optional/default layers must not create stale bindless references.
 4. Indexed/palette/translation behavior is compatibility-sensitive.
 5. Sprite mirror/rotation correctness is not proven by a front-facing normal-map image.
+6. Custom semantic identity includes the original custom authoring slot; compact binding position alone is not semantic identity.
+7. Height/POM remains outside PF-008.
