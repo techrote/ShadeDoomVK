@@ -137,10 +137,21 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-019 now has its PF-005 prerequisite satisfied but remains blocked on PF-006, PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-005.
 - Residual scope: unrelated lightmap/probe staging and download/readback staging remain outside PF-005 under their existing ownership.
 
+### 2026-09-19 — PF-006 accepted and merged
+
+- PF-006 / #23 completed through PR #45.
+- Required current-head CI passed: deterministic PF renderer oracle, compiled shader/pipeline key equivalence and boundary fixture, source-contract checks, and the inherited Windows/macOS/Linux build matrix.
+- Replaced whole-object `memcmp` equality/order for `VkShaderKey`, `VkPipelineKey` and `VkRenderPassKey` with explicit canonical named renderer state; padding and reserved bits are no longer cache identity.
+- Preserved `VkShaderKey::AsQWORD` as the shader-specialization ABI, the inherited generalized shader-cache partition, specialized/generalized pipeline maps, graphics-pipeline libraries, worker/precache routes and the opaque Vulkan driver pipeline cache.
+- `FRenderStyle` cache identity is now constructed from its repository-defined `BlendOp`, `SrcAlpha`, `DestAlpha` and `Flags` bytes rather than depending on union packing or `AsDWORD` representation. Adversarial tests prove representation-only padding/reserved-bit noise cannot split semantic keys.
+- Merge commit: `ba9422554952355b7d3a0a87595cb994667d2be8`; `master` was verified at that merge commit.
+- PF-019 now has its PF-006 prerequisite satisfied but remains blocked on PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-006.
+- Residual scope: `VkPPRenderPassKey` remains outside the three keys assigned to PF-006 and is intentionally unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22.
-- **READY:** PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-011 / #28.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23.
+- **READY:** PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-011 / #28.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
