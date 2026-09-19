@@ -1,8 +1,8 @@
 # Renderer execution map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active + partial subpaths  
-Primary issues: PF-001, PF-010, SDVK-002, SDVK-006
+Status: active + partial subpaths; PF-009 sprite-surface extraction accepted  
+Primary issues: PF-001, PF-009, PF-010, SDVK-002, SDVK-006
 
 ## Top-level frame flow
 
@@ -65,11 +65,14 @@ Important files:
 
 - `hw_drawinfo.cpp/.h` — view/scene orchestration, visibility/draw lists, profiling;
 - `hw_sprites.cpp` — sprite/model/particle presentation and lighting integration;
+- `hw_sprite_surface.h` — PF-009 semantic sprite-presentation enums and pure billboard-policy resolver;
 - `hw_spritelight.cpp` — actor/particle dynamic-light collection and world visibility traces;
 - `hw_walls.cpp`, `hw_flats.cpp`, `hw_decal.cpp` — geometry/material/light paths;
 - `hw_weapon.cpp` — first-person sprite/model path;
 - `hw_portal.*` — recursive portal/mirror rendering;
 - `hw_models.cpp` — model render adapter.
+
+PF-009 adds the observational `HWSprite::RenderSurface` snapshot immediately before inherited vertex construction. It records selected frame/material identity, final card/UV state, billboard decisions, view/orientation inputs and portal/mirror identity for later renderer consumers; it does not replace frame selection, clipping, transforms, material binding, draw ordering or normal/TBN behavior.
 
 ## Render-state → Vulkan
 
@@ -99,3 +102,4 @@ Current scene resources include HDR color, normal, fog, depth/stencil and linear
 3. Portal recursion can change handedness and world-relative position.
 4. Camera/probe renders may exercise material/light/resource paths even when their results are not directly visible in the main frame.
 5. PF-010 may refactor context representation but must preserve all current rendering entry cases.
+6. PF-009 sprite-surface state is descriptive only; existing geometry/material/output paths remain authoritative until their owning later issues explicitly change them.
