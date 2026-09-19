@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common/rendering/hwrenderer/data/hw_levelmesh.h"
+#include "common/rendering/hwrenderer/data/hw_probe_selection.h"
 #include "zvulkan/vulkanobjects.h"
 
 class VulkanRenderDevice;
@@ -38,8 +39,8 @@ struct LightmapCopyPC
 {
 	int SrcTexSize;
 	int DestTexSize;
-	int Padding1;
-	int Padding2;
+	int ProbeCount;
+	int Padding;
 };
 
 struct LightmapBakeImage
@@ -122,6 +123,7 @@ private:
 	void Resolve();
 	void Blur();
 	void CopyResult();
+	int UploadProbeSelection();
 
 	void UpdateAccelStructDescriptors();
 
@@ -132,6 +134,7 @@ private:
 	void CreateCopyPipeline();
 	void CreateUniformBuffer();
 	void CreateTileBuffer();
+	void CreateProbeSelectionBuffer();
 	void CreateDrawIndexedBuffer();
 	void CreateBakeImage();
 
@@ -170,6 +173,13 @@ private:
 		CopyTileInfo* Tiles = nullptr;
 		int Pos = 0;
 	} copytiles;
+
+	struct
+	{
+		static constexpr int BufferSize = 0xffff;
+		std::unique_ptr<VulkanBuffer> Buffer;
+		HWProbeSelection::Candidate* Entries = nullptr;
+	} probeSelection;
 
 	struct
 	{
