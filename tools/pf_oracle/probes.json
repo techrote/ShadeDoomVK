@@ -69,11 +69,11 @@
     {
       "id": "indexed-red-is-alpha-todo",
       "category": "material",
-      "kind": "known_defect",
+      "kind": "invariant",
       "owner": "PF-013",
-      "paths": ["src/common/rendering/vulkan/textures/vk_hwtexture.cpp"],
-      "required": ["may need to implement CTF_IndexedRedIsAlpha"],
-      "forbidden": []
+      "paths": ["src/common/rendering/vulkan/textures/vk_hwtexture.cpp", "src/common/rendering/vulkan/textures/vk_hwtexture.h"],
+      "required": ["CTF_IndexedRedIsAlpha", "mAlphaImage", "set\\.redIsAlpha\\s*==\\s*indexedRedIsAlpha"],
+      "forbidden": ["may need to implement CTF_IndexedRedIsAlpha"]
     },
     {
       "id": "sprite-clip-top-sentinel",
