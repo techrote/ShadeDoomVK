@@ -20,10 +20,13 @@ Primary issues: PF-002, PF-003, PF-006, PF-007, PF-019, SDVK-003, SDVK-016
 PF-006 replaces whole-object `memcmp`/padding identity for `VkPipelineKey`, `VkRenderPassKey` and `VkShaderKey` with explicit semantic state in `src/common/rendering/vulkan/vk_keyidentity.h`.
 
 - `VkKeyIdentity::ShaderState` names every meaningful shader specialization/layout field.
-- `VkKeyIdentity::PipelineState` names the meaningful graphics-pipeline fields, canonical shader state and render-style word.
+- `VkKeyIdentity::RenderStyleState` names `FRenderStyle`'s `BlendOp`, `SrcAlpha`, `DestAlpha` and `Flags` bytes directly.
+- `VkKeyIdentity::PipelineState` names the meaningful graphics-pipeline fields plus canonical shader and render-style state.
 - `VkKeyIdentity::RenderPassState` names depth/stencil presence, sample count, draw-buffer count and draw-buffer format.
 - The Vulkan key classes build these states through `CanonicalState()` and use them for ordered-map equality/order.
-- Padding, tail padding and reserved/unused bitfields are no longer cache identity.
+- Padding, tail padding and shader/pipeline reserved/unused bitfields are no longer cache identity.
+
+`FRenderStyle`'s existing four-byte identity partition is preserved exactly, including all `Flags` bits, without making `AsDWORD` or union packing part of the pipeline-key contract.
 
 `VkShaderKey::AsQWORD` remains the packed specialization-constant ABI used by the shaders; PF-006 does not reorder or reinterpret its meaningful bits. The generalized shader cache preserves the inherited narrower partition through explicit layout/effect/user-shader/vertex-format serialization rather than raw `Layout.AsDWORD` object representation.
 
