@@ -39,6 +39,84 @@
 
 CVAR(Bool, gl_async_textures, false, 0);
 
+namespace
+{
+	struct TextureUploadStaging
+	{
+		VulkanBuffer* Buffer = nullptr;
+		VkDeviceSize Offset = 0;
+		std::unique_ptr<VulkanBuffer> Dedicated;
+	};
+
+	TextureUploadStaging PrepareTextureUploadStaging(VulkanRenderDevice* fb, const void* pixels, size_t totalSize)
+	{
+		TextureUploadStaging staging;
+		auto textureManager = fb->GetTextureManager();
+		auto& arena = textureManager->GetUploadArena();
+		auto slice = arena.Planner.TryAcquire(totalSize);
+
+		if (!slice.IsSet() && totalSize <= arena.Planner.GetCapacity())
+		{
+			// Every byte in the linear arena may still be referenced by queued
+			// transfer commands. Reuse is therefore only permitted after the
+			// existing upload-only fence boundary has completed.
+			fb->GetCommands()->WaitForCommands(false, true);
+			arena.Planner.ResetAfterWait();
+			slice = arena.Planner.TryAcquire(totalSize);
+		}
+
+		if (slice.IsSet())
+		{
+			if (!arena.Buffer)
+			{
+				arena.Buffer = BufferBuilder()
+					.Size(arena.Planner.GetCapacity())
+					.Usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY)
+					.DebugName("VkTextureManager.PersistentUploadArena")
+					.Create(fb->GetDevice());
+				arena.BufferAllocations++;
+			}
+
+			staging.Buffer = arena.Buffer.get();
+			staging.Offset = (VkDeviceSize)slice.Offset;
+			uint8_t* data = (uint8_t*)staging.Buffer->Map(slice.Offset, totalSize);
+			if (pixels)
+				memcpy(data, pixels, totalSize);
+			else
+				memset(data, 0, totalSize);
+			staging.Buffer->Unmap();
+			return staging;
+		}
+
+		// Oversized uploads preserve the old dedicated-buffer path. They are
+		// intentionally not allowed to grow the persistent arena without bound.
+		arena.DedicatedFallbacks++;
+		staging.Dedicated = BufferBuilder()
+			.Size(totalSize)
+			.Usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY)
+			.DebugName("VkHardwareTexture.mStagingBuffer")
+			.Create(fb->GetDevice());
+		staging.Buffer = staging.Dedicated.get();
+		uint8_t* data = (uint8_t*)staging.Buffer->Map(0, totalSize);
+		if (pixels)
+			memcpy(data, pixels, totalSize);
+		else
+			memset(data, 0, totalSize);
+		staging.Buffer->Unmap();
+		return staging;
+	}
+
+	void RetireDedicatedTextureUpload(VulkanRenderDevice* fb, TextureUploadStaging& staging)
+	{
+		if (!staging.Dedicated)
+			return;
+
+		fb->GetCommands()->TransferDeleteList->Add(std::move(staging.Dedicated));
+		if (fb->GetCommands()->TransferDeleteList->TotalSize > VkTextureUploadArenaPlanner::DefaultCapacity)
+			fb->GetCommands()->WaitForCommands(false, true);
+	}
+}
+
 VkHardwareTexture::VkHardwareTexture(VulkanRenderDevice* fb, int numchannels) : fb(fb)
 {
 	mTexelsize = numchannels;
@@ -48,13 +126,18 @@ VkHardwareTexture::VkHardwareTexture(VulkanRenderDevice* fb, int numchannels) : 
 VkHardwareTexture::~VkHardwareTexture()
 {
 	if (fb)
+	{
+		fb->GetTextureManager()->RetireTextureUploadTarget(this);
 		fb->GetTextureManager()->RemoveTexture(this);
+	}
 }
 
 void VkHardwareTexture::Reset()
 {
 	if (fb)
 	{
+		fb->GetTextureManager()->InvalidateTextureUploads(this);
+
 		if (mappedSWFB)
 		{
 			mImage.Image->Unmap();
@@ -126,8 +209,8 @@ void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int tr
 			CreateTexture(image, texbuffer.mWidth, texbuffer.mHeight, indexed ? 1 : 4, indexed ? VK_FORMAT_R8_UNORM : VK_FORMAT_B8G8R8A8_UNORM, texbuffer.mBuffer, !indexed);
 
 			auto textureManager = fb->GetTextureManager();
-			
-			int uploadID = textureManager->CreateUploadID(this);
+
+			int uploadID = textureManager->CreateTrackedUpload(this);
 			textureManager->RunOnWorkerThread([=]() {
 
 				// Load the texture on the worker thread
@@ -135,8 +218,9 @@ void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int tr
 
 				textureManager->RunOnMainThread([=]() {
 
-					// Upload the texture on the main thread, as long as the hwrenderer didn't destroy this hwtexture already.
-					if (textureManager->CheckUploadID(uploadID))
+					// Upload only if both the queue epoch and this target generation
+					// still match. Reset/recreate/destroy makes the completion stale.
+					if (textureManager->CheckTrackedUpload(uploadID))
 					{
 						UploadTexture(image, imagedata->mWidth, imagedata->mHeight, indexed ? 1 : 4, indexed ? VK_FORMAT_R8_UNORM : VK_FORMAT_B8G8R8A8_UNORM, imagedata->mBuffer, !indexed);
 					}
@@ -181,21 +265,7 @@ void VkHardwareTexture::CreateTexture(VkTextureImage* image, int w, int h, int p
 		throw CVulkanError("Trying to create zero size texture");
 
 	int totalSize = w * h * pixelsize;
-
-	auto stagingBuffer = BufferBuilder()
-		.Size(totalSize)
-		.Usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY)
-		.DebugName("VkHardwareTexture.mStagingBuffer")
-		.Create(fb->GetDevice());
-
-	uint8_t *data = (uint8_t*)stagingBuffer->Map(0, totalSize);
-
-	if (pixels)
-		memcpy(data, pixels, totalSize);
-	else
-		memset(data, 0, totalSize);
-
-	stagingBuffer->Unmap();
+	TextureUploadStaging staging = PrepareTextureUploadStaging(fb, pixels, (size_t)totalSize);
 
 	image->Image = ImageBuilder()
 		.Format(format)
@@ -221,14 +291,12 @@ void VkHardwareTexture::CreateTexture(VkTextureImage* image, int w, int h, int p
 	region.imageExtent.depth = 1;
 	region.imageExtent.width = w;
 	region.imageExtent.height = h;
-	cmdbuffer->copyBufferToImage(stagingBuffer->buffer, image->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	region.bufferOffset = staging.Offset;
+	cmdbuffer->copyBufferToImage(staging.Buffer->buffer, image->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	if (mipmap) image->GenerateMipmaps(cmdbuffer);
 
-	// If we queued more than 64 MB of data already: wait until the uploads finish before continuing
-	fb->GetCommands()->TransferDeleteList->Add(std::move(stagingBuffer));
-	if (fb->GetCommands()->TransferDeleteList->TotalSize > 64 * 1024 * 1024)
-		fb->GetCommands()->WaitForCommands(false, true);
+	RetireDedicatedTextureUpload(fb, staging);
 }
 
 void VkHardwareTexture::UploadTexture(VkTextureImage* image, int w, int h, int pixelsize, VkFormat format, const void* pixels, bool mipmap)
@@ -237,16 +305,7 @@ void VkHardwareTexture::UploadTexture(VkTextureImage* image, int w, int h, int p
 		throw CVulkanError("Trying to create zero size texture");
 
 	int totalSize = w * h * pixelsize;
-
-	auto stagingBuffer = BufferBuilder()
-		.Size(totalSize)
-		.Usage(VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VMA_MEMORY_USAGE_CPU_ONLY)
-		.DebugName("VkHardwareTexture.mStagingBuffer")
-		.Create(fb->GetDevice());
-
-	uint8_t* data = (uint8_t*)stagingBuffer->Map(0, totalSize);
-	memcpy(data, pixels, totalSize);
-	stagingBuffer->Unmap();
+	TextureUploadStaging staging = PrepareTextureUploadStaging(fb, pixels, (size_t)totalSize);
 
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
@@ -260,14 +319,12 @@ void VkHardwareTexture::UploadTexture(VkTextureImage* image, int w, int h, int p
 	region.imageExtent.depth = 1;
 	region.imageExtent.width = w;
 	region.imageExtent.height = h;
-	cmdbuffer->copyBufferToImage(stagingBuffer->buffer, image->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	region.bufferOffset = staging.Offset;
+	cmdbuffer->copyBufferToImage(staging.Buffer->buffer, image->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	if (mipmap) image->GenerateMipmaps(cmdbuffer);
 
-	// If we queued more than 64 MB of data already: wait until the uploads finish before continuing
-	fb->GetCommands()->TransferDeleteList->Add(std::move(stagingBuffer));
-	if (fb->GetCommands()->TransferDeleteList->TotalSize > 64 * 1024 * 1024)
-		fb->GetCommands()->WaitForCommands(false, true);
+	RetireDedicatedTextureUpload(fb, staging);
 }
 
 int VkHardwareTexture::GetMipLevels(int w, int h)
