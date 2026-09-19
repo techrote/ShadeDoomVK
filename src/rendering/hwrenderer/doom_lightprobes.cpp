@@ -58,7 +58,9 @@ CCMD(autoaddlightprobes)
 	for (int i = 0, size = level.sectors.size(); i < size; ++i)
 	{
 		auto& sector = level.sectors[i];
-		const auto origin = FVector3(sector.centerspot.X, sector.centerspot.Y, float(sector.floorplane.ZatPoint(sector.centerspot) + sector.ceilingplane.ZatPoint(sector.centerspot) / 2.f));
+		const float floorZ = float(sector.floorplane.ZatPoint(sector.centerspot));
+		const float ceilingZ = float(sector.ceilingplane.ZatPoint(sector.centerspot));
+		const auto origin = FVector3(sector.centerspot.X, sector.centerspot.Y, (floorZ + ceilingZ) * 0.5f);
 
 		/*if (level.lightProbes.size() > 0)
 		{
