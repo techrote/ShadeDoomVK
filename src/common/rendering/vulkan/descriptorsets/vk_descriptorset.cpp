@@ -39,7 +39,7 @@
 #include "v_2ddrawer.h"
 #include "fcolormap.h"
 #include "c_cvars.h"
-#include "c_dispatch.h"
+#include "printf.h"
 
 CVAR(Int, vk_max_bindless_textures, 16536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
