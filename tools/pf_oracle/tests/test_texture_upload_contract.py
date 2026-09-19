@@ -9,6 +9,8 @@ ordering and quality-policy invariants owned by PF-005.
 from __future__ import annotations
 
 from pathlib import Path
+import subprocess
+import tempfile
 import unittest
 
 
@@ -153,6 +155,26 @@ class TextureUploadContractTests(unittest.TestCase):
         self.assertNotIn("Vulkan", self.staging_h)
         self.assertNotIn("FTexture", self.staging_h)
         self.assertNotIn("game", self.staging_h.lower())
+
+    def test_compiled_staging_boundary_fixture(self) -> None:
+        with tempfile.TemporaryDirectory() as tempdir:
+            executable = Path(tempdir) / "upload-staging-fixture"
+            subprocess.run(
+                [
+                    "c++",
+                    "-std=c++17",
+                    "-Wall",
+                    "-Wextra",
+                    "-Werror",
+                    "-Isrc/common/rendering/hwrenderer/data",
+                    "tools/pf_oracle/tests/upload_staging_fixture.cpp",
+                    "-o",
+                    str(executable),
+                ],
+                cwd=ROOT,
+                check=True,
+            )
+            subprocess.run([str(executable)], cwd=ROOT, check=True)
 
 
 if __name__ == "__main__":
