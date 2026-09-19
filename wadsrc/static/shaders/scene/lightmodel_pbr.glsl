@@ -1,5 +1,4 @@
 const float PI = 3.14159265359;
-const float PBRBrightnessScale = 2.5; // For making non-PBR and PBR lights roughly the same intensity
 
 float DistributionGGX(vec3 N, vec3 H, float roughness)
 {
@@ -63,14 +62,13 @@ vec3 ProcessLight(const DynLightInfo light, vec3 albedo, float metallic, float r
 
 	if (attenuation > 0.0)
 	{
-		// light.radius >= 1000000.0 is sunlight(?), skip attenuation
-		
-		if(light.radius < 1000000.0 && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)
+		// The far-away sunlight proxy bypasses local-light shadow attenuation.
+		if(light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)
 		{
 			attenuation *= shadowAttenuation(light.pos.xyz, light.shadowIndex, light.softShadowRadius, light.flags);
 		}
 		
-		vec3 radiance = light.color.rgb * attenuation * PBRBrightnessScale;
+		vec3 radiance = light.color.rgb * attenuation * LIGHT_COMPAT_PBR_BRIGHTNESS_SCALE;
 		
 		// cook-torrance brdf
 		float NDF = DistributionGGX(N, H, roughness);
@@ -112,7 +110,7 @@ vec3 ProcessMaterialLight(Material material, vec3 ambientLight, float sunlightAt
 
 		sunlightAttenuation *= clamp(dot(N, L), 0.0, 1.0);
 
-		vec3 radiance = SunColor * SunIntensity * PBRBrightnessScale * sunlightAttenuation;
+		vec3 radiance = SunColor * SunIntensity * LIGHT_COMPAT_PBR_BRIGHTNESS_SCALE * sunlightAttenuation;
 		
 		// cook-torrance brdf
 		float NDF = DistributionGGX(N, H, roughness);
@@ -150,18 +148,19 @@ vec3 ProcessMaterialLight(Material material, vec3 ambientLight, float sunlightAt
 	}
 #endif
 
-	// Treat the ambient sector light as if it is a light source next to the wall
+	// Treat the ambient sector light as if it is a light source next to the wall.
+	// The scale and metal-specular term are inherited compatibility calibration.
 	{
 		vec3 VV = V;
 		vec3 LL = N;
 		vec3 HH = normalize(VV + LL);
 
-		vec3 radiance = ambientLight.rgb * 2.25;
+		vec3 radiance = ambientLight.rgb * LIGHT_COMPAT_PBR_AMBIENT_SCALE;
 
 		vec3 F = fresnelSchlick(clamp(dot(HH, VV), 0.0, 1.0), F0);
 		vec3 kS = F;
 		vec3 kD = (vec3(1.0) - kS) * (1.0 - metallic);
-		vec3 specular = metallic * albedo * 0.40;
+		vec3 specular = metallic * albedo * LIGHT_COMPAT_PBR_METAL_SPECULAR_SCALE;
 
 		Lo += (kD * albedo / PI + specular) * radiance;
 	}
