@@ -7,7 +7,7 @@
 #include "hwrenderer/postprocessing/hw_postprocess.h"
 #include "hw_renderstate.h"
 #include "common/rendering/vulkan/shaders/vk_shader.h"
-#include <string.h>
+#include "vulkan/vk_keyidentity.h"
 #include <map>
 #include <thread>
 #include <condition_variable>
@@ -44,22 +44,33 @@ public:
 		uint64_t AsQWORD = 0;
 	};
 
-	int Padding1 = 0;
-	int Padding2 = 0;
-
 	VkShaderKey ShaderKey;
 	FRenderStyle RenderStyle;
 
-	int Padding3 = 0; // for 64 bit alignment
+	VkKeyIdentity::PipelineState CanonicalState() const
+	{
+		VkKeyIdentity::PipelineState state;
+		state.DrawType = static_cast<uint8_t>(DrawType);
+		state.CullMode = static_cast<uint8_t>(CullMode);
+		state.ColorMask = static_cast<uint8_t>(ColorMask);
+		state.DepthWrite = static_cast<uint8_t>(DepthWrite);
+		state.DepthTest = static_cast<uint8_t>(DepthTest);
+		state.DepthClamp = static_cast<uint8_t>(DepthClamp);
+		state.DepthBias = static_cast<uint8_t>(DepthBias);
+		state.DepthFunc = static_cast<uint8_t>(DepthFunc);
+		state.StencilTest = static_cast<uint8_t>(StencilTest);
+		state.StencilPassOp = static_cast<uint8_t>(StencilPassOp);
+		state.DrawLine = static_cast<uint8_t>(DrawLine);
+		state.IsGeneralized = static_cast<uint8_t>(IsGeneralized);
+		state.ShaderKey = ShaderKey.CanonicalState();
+		state.RenderStyle = RenderStyle.AsDWORD;
+		return state;
+	}
 
-	bool operator<(const VkPipelineKey &other) const { return memcmp(this, &other, sizeof(VkPipelineKey)) < 0; }
-	bool operator==(const VkPipelineKey &other) const { return memcmp(this, &other, sizeof(VkPipelineKey)) == 0; }
-	bool operator!=(const VkPipelineKey &other) const { return memcmp(this, &other, sizeof(VkPipelineKey)) != 0; }
+	bool operator<(const VkPipelineKey &other) const { return CanonicalState() < other.CanonicalState(); }
+	bool operator==(const VkPipelineKey &other) const { return CanonicalState() == other.CanonicalState(); }
+	bool operator!=(const VkPipelineKey &other) const { return !(*this == other); }
 };
-
-static_assert(sizeof(FRenderStyle) == 4, "sizeof(FRenderStyle) is not its expected size!");
-static_assert(sizeof(VkShaderKey) == 24, "sizeof(VkShaderKey) is not its expected size!");
-static_assert(sizeof(VkPipelineKey) == 16 + 24 + 8, "sizeof(VkPipelineKey) is not its expected size!"); // If this assert fails, the flags union no longer adds up to 64 bits. Or there are gaps in the class so the memcmp doesn't work.
 
 class VkRenderPassKey
 {
@@ -69,9 +80,19 @@ public:
 	int DrawBuffers = 0;
 	VkFormat DrawBufferFormat = VK_FORMAT_UNDEFINED;
 
-	bool operator<(const VkRenderPassKey &other) const { return memcmp(this, &other, sizeof(VkRenderPassKey)) < 0; }
-	bool operator==(const VkRenderPassKey &other) const { return memcmp(this, &other, sizeof(VkRenderPassKey)) == 0; }
-	bool operator!=(const VkRenderPassKey &other) const { return memcmp(this, &other, sizeof(VkRenderPassKey)) != 0; }
+	VkKeyIdentity::RenderPassState CanonicalState() const
+	{
+		VkKeyIdentity::RenderPassState state;
+		state.DepthStencil = DepthStencil;
+		state.Samples = Samples;
+		state.DrawBuffers = DrawBuffers;
+		state.DrawBufferFormat = static_cast<int32_t>(DrawBufferFormat);
+		return state;
+	}
+
+	bool operator<(const VkRenderPassKey &other) const { return CanonicalState() < other.CanonicalState(); }
+	bool operator==(const VkRenderPassKey &other) const { return CanonicalState() == other.CanonicalState(); }
+	bool operator!=(const VkRenderPassKey &other) const { return !(*this == other); }
 };
 
 struct PipelineData
