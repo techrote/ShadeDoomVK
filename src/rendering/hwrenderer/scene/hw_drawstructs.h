@@ -8,6 +8,7 @@
 #include "renderstyle.h"
 #include "textures.h"
 #include "r_data/colormaps.h"
+#include "hw_sprite_surface.h"
 
 #ifdef _MSC_VER
 #pragma warning(disable:4244)
@@ -376,6 +377,44 @@ public:
 
 class DVisualThinker;
 
+// PF-009 canonical renderer-side snapshot. It mirrors the already-selected
+// HWSprite presentation state so future lighting/shadow/material work consumes
+// one meaning instead of independently re-deriving Doom sprite semantics.
+// It is observational only: no tangent, POM, shadow, clipping or gameplay
+// policy is defined here.
+struct HWSpriteRenderSurfaceState
+{
+	HWSpriteSurfaceSource source;
+	HWSpritePresentation presentation;
+	bool xyBillboard;
+	bool facesCamera;
+	bool frameMirrored;
+	bool uvMirrorX;
+	bool uvMirrorY;
+	bool portalMirrored;
+	int throughPortalMode;
+
+	uint32_t spriteType;
+	int actorSprite;
+	int actorFrame;
+	int sourcePortalGroup;
+	int renderPortalGroup;
+
+	FGameTexture* texture;
+	FTranslationID translation;
+	FRenderStyle renderStyle;
+	float alpha;
+	DRotator renderAngles;
+
+	float x, y, z;
+	float x1, y1, z1;
+	float x2, y2, z2;
+	float offx, offy;
+	float ul, ur, vt, vb;
+
+	double viewX, viewY, viewZ;
+	double viewYaw, viewPitch, viewRoll;
+};
 
 class HWSprite
 {
@@ -417,8 +456,11 @@ public:
 	TArray<lightlist_t> *lightlist;
 	DRotator Angles;
 
+	HWSpriteRenderSurfaceState RenderSurface{};
+
 	void SplitSprite(HWDrawInfo *di, FRenderState& state, sector_t * frontsector, bool translucent);
 	void PerformSpriteClipAdjustment(AActor *thing, const DVector2 &thingpos, float spriteheight);
+	void UpdateRenderSurfaceState(HWDrawInfo *di);
 	bool CalculateVertices(HWDrawInfo *di, FVector3 *v, DVector3 *vp);
 
 public:

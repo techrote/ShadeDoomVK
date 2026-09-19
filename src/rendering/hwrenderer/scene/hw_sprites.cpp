@@ -447,6 +447,80 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 
 //==========================================================================
 //
+// PF-009 canonical sprite render-surface snapshot
+//
+//==========================================================================
+
+void HWSprite::UpdateRenderSurfaceState(HWDrawInfo *di)
+{
+	const auto& vp = di->Viewpoint;
+
+	RenderSurface.spriteType = actor ? uint32_t(actor->renderflags & RF_SPRITETYPEMASK) : uint32_t(-1);
+	RenderSurface.actorSprite = actor ? actor->sprite : -1;
+	RenderSurface.actorFrame = actor ? actor->frame : -1;
+	RenderSurface.sourcePortalGroup = actor && actor->Sector
+		? actor->Sector->PortalGroup
+		: particle && particle->subsector && particle->subsector->sector
+			? particle->subsector->sector->PortalGroup
+			: -1;
+	RenderSurface.portalMirrored = di->drawctx->portalState.isMirrored();
+
+	HWSpriteOrientationPolicyInput policyInput{};
+	policyInput.isActor = actor != nullptr;
+	policyInput.isParticle = particle != nullptr;
+	policyInput.isWall = actor && RenderSurface.spriteType == RF_WALLSPRITE;
+	policyInput.isFlat = actor && RenderSurface.spriteType == RF_FLATSPRITE;
+	policyInput.isModel = modelframe != nullptr;
+	policyInput.globalXYBillboard = gl_billboard_mode == 1;
+	policyInput.particleXYBillboard = gl_billboard_particles;
+	policyInput.particleNoXYBillboard = particle && (particle->flags & SPF_NO_XY_BILLBOARD);
+	policyInput.actorForceYBillboard = actor && (actor->renderflags & RF_FORCEYBILLBOARD);
+	policyInput.actorForceXYBillboard = actor && (actor->renderflags & RF_FORCEXYBILLBOARD);
+	policyInput.globalFacesCamera = gl_billboard_faces_camera;
+	policyInput.forceCameraPreference = hw_force_cambbpref;
+	policyInput.actorFacesCamera = actor && (actor->renderflags2 & RF2_BILLBOARDFACECAMERA);
+	policyInput.actorNoFaceCamera = actor && (actor->renderflags2 & RF2_BILLBOARDNOFACECAMERA);
+	policyInput.particleHasTexture = particle && particle->texture.isValid();
+	policyInput.particleFacesCamera = particle && (particle->flags & SPF_FACECAMERA);
+	policyInput.particleNoFaceCamera = particle && (particle->flags & SPF_NOFACECAMERA);
+
+	const auto policy = ResolveHWSpriteOrientationPolicy(policyInput);
+	RenderSurface.presentation = policy.presentation;
+	RenderSurface.xyBillboard = policy.xyBillboard;
+	RenderSurface.facesCamera = policy.facesCamera;
+
+	RenderSurface.texture = texture;
+	RenderSurface.translation = translation;
+	RenderSurface.renderStyle = RenderStyle;
+	RenderSurface.alpha = trans;
+	RenderSurface.renderAngles = Angles;
+
+	RenderSurface.x = x;
+	RenderSurface.y = y;
+	RenderSurface.z = z;
+	RenderSurface.x1 = x1;
+	RenderSurface.y1 = y1;
+	RenderSurface.z1 = z1;
+	RenderSurface.x2 = x2;
+	RenderSurface.y2 = y2;
+	RenderSurface.z2 = z2;
+	RenderSurface.offx = offx;
+	RenderSurface.offy = offy;
+	RenderSurface.ul = ul;
+	RenderSurface.ur = ur;
+	RenderSurface.vt = vt;
+	RenderSurface.vb = vb;
+
+	RenderSurface.viewX = vp.Pos.X;
+	RenderSurface.viewY = vp.Pos.Y;
+	RenderSurface.viewZ = vp.Pos.Z;
+	RenderSurface.viewYaw = vp.HWAngles.Yaw.Degrees();
+	RenderSurface.viewPitch = vp.HWAngles.Pitch.Degrees();
+	RenderSurface.viewRoll = vp.HWAngles.Roll.Degrees();
+}
+
+//==========================================================================
+//
 // 
 //
 //==========================================================================
@@ -466,6 +540,11 @@ void HandleSpriteOffsets(Matrix3x4 *mat, const FRotator *HW, FVector2 *offset, b
 
 bool HWSprite::CalculateVertices(HWDrawInfo* di, FVector3* v, DVector3* vp)
 {
+	// Sample the inherited CVAR/actor/particle policy at the same point where
+	// it was historically re-derived. The render path below then consumes the
+	// canonical snapshot without changing presentation behavior.
+	UpdateRenderSurfaceState(di);
+
 	float pixelstretch = 1.2;
 	if (actor && actor->Level)
 		pixelstretch = actor->Level->pixelstretch;
@@ -510,27 +589,20 @@ bool HWSprite::CalculateVertices(HWDrawInfo* di, FVector3* v, DVector3* vp)
 		return true;
 	}
 	
-	// [BB] Billboard stuff
-	const bool drawWithXYBillboard = ((particle && gl_billboard_particles && !(particle->flags & SPF_NO_XY_BILLBOARD)) || (!(actor && actor->renderflags & RF_FORCEYBILLBOARD)
-		//&& di->mViewActor != nullptr
-		&& (gl_billboard_mode == 1 || (actor && actor->renderflags & RF_FORCEXYBILLBOARD))));
-
-	const bool drawBillboardFacingCamera = hw_force_cambbpref ? gl_billboard_faces_camera :
-		gl_billboard_faces_camera
-		|| ((actor && (!(actor->renderflags2 & RF2_BILLBOARDNOFACECAMERA) && (actor->renderflags2 & RF2_BILLBOARDFACECAMERA)))
-		|| (particle && particle->texture.isValid() && (!(particle->flags & SPF_NOFACECAMERA) && (particle->flags & SPF_FACECAMERA))));
+	// [BB] Billboard policy is now sampled once into RenderSurface.
+	const bool drawWithXYBillboard = RenderSurface.xyBillboard;
+	const bool drawBillboardFacingCamera = RenderSurface.facesCamera;
 
 	// [Nash] has +ROLLSPRITE
 	const bool drawRollSpriteActor = (actor != nullptr && actor->renderflags & RF_ROLLSPRITE);
 	const bool drawRollParticle = (particle != nullptr && particle->flags & SPF_ROLL);
 	const bool doRoll = (drawRollSpriteActor || drawRollParticle);
 
-	// [fgsfds] check sprite type mask
-	uint32_t spritetype = (uint32_t)-1;
-	if (actor != nullptr) spritetype = actor->renderflags & RF_SPRITETYPEMASK;
+	// [fgsfds] canonical sprite type selected during the surface update.
+	uint32_t spritetype = RenderSurface.spriteType;
 
-	// [Nash] is a flat sprite
-	const bool isWallSprite = (actor != nullptr) && (spritetype == RF_WALLSPRITE);
+	// [Nash] is a wall sprite
+	const bool isWallSprite = RenderSurface.presentation == HWSpritePresentation::Wall;
 	const bool useOffsets = ((actor != nullptr) && !(actor->renderflags & RF_ROLLCENTER)) || (particle && !(particle->flags & SPF_ROLLCENTER));
 
 	FVector2 offset = FVector2( offx, offy );
@@ -867,6 +939,11 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 	if (thing == nullptr)
 		return;
 
+	RenderSurface = {};
+	RenderSurface.source = HWSpriteSurfaceSource::Actor;
+	RenderSurface.throughPortalMode = thruportal;
+	RenderSurface.renderPortalGroup = sector ? sector->PortalGroup : -1;
+
 	// [ZZ] allow CustomSprite-style direct picnum specification
 	bool isPicnumOverride = thing->picnum.isValid();
 
@@ -1114,6 +1191,10 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 		// [SP] SpriteFlip
 		if (thing->renderflags & RF_SPRITEFLIP)
 			thing->renderflags ^= RF_XFLIP;
+
+		RenderSurface.frameMirrored = mirror;
+		RenderSurface.uvMirrorX = mirror ^ !!(thing->renderflags & RF_XFLIP);
+		RenderSurface.uvMirrorY = !!(thing->renderflags & RF_YFLIP);
 
 		if (mirror ^ !!(thing->renderflags & RF_XFLIP))
 		{
@@ -1472,11 +1553,7 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 
 	particle = nullptr;
 	spr = nullptr;
-
-	const bool drawWithXYBillboard = (!(actor->renderflags & RF_FORCEYBILLBOARD)
-		&& (actor->renderflags & RF_SPRITETYPEMASK) == RF_FACESPRITE
-		&& (gl_billboard_mode == 1 || actor->renderflags & RF_FORCEXYBILLBOARD));
-
+	UpdateRenderSurfaceState(di);
 
 	// no light splitting when:
 	// 1. no lightlist
@@ -1511,6 +1588,13 @@ void HWSprite::ProcessParticle(HWDrawInfo *di, FRenderState& state, particle_t *
 
 	if (spr && !spr->ValidTexture())
 		return;
+
+	RenderSurface = {};
+	RenderSurface.source = spr && !(spr->flags & VTF_IsParticle)
+		? HWSpriteSurfaceSource::VisualThinker
+		: HWSpriteSurfaceSource::Particle;
+	RenderSurface.throughPortalMode = 0;
+	RenderSurface.renderPortalGroup = sector ? sector->PortalGroup : -1;
 
 	lightlevel = hw_ClampLight(spr ? spr->GetLightLevel(sector) : sector->GetSpriteLight());
 	foglevel = (uint8_t)clamp<short>(sector->lightlevel, 0, 255);
@@ -1690,6 +1774,7 @@ void HWSprite::ProcessParticle(HWDrawInfo *di, FRenderState& state, particle_t *
 	else
 		lightlist = nullptr;
 
+	UpdateRenderSurfaceState(di);
 	PutSprite(di, state, hw_styleflags != STYLEHW_Solid);
 	rendered_sprites++;
 }
@@ -1749,7 +1834,10 @@ void HWSprite::AdjustVisualThinker(HWDrawInfo* di, DVisualThinker* spr, sector_t
 		std::swap(ul,ur);
 		r.left = -r.width - r.left;	// mirror the sprite's x-offset
 	}
-	if (spr->flags & VTF_FlipY)	std::swap(vt,vb);
+	if (spr->flags & VTF_FlipY) std::swap(vt,vb);
+
+	RenderSurface.uvMirrorX = !!(spr->flags & VTF_FlipX);
+	RenderSurface.uvMirrorY = !!(spr->flags & VTF_FlipY);
 
 	float viewvecX = vp.ViewVector.X;
 	float viewvecY = vp.ViewVector.Y;
