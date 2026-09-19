@@ -39,9 +39,37 @@
     {
       "category": "resource_lifetime",
       "classification": "invariant_passed",
+      "id": "levelmesh-allocation-generation-contract",
+      "kind": "invariant",
+      "owner": "PF-004"
+    },
+    {
+      "category": "levelmesh_mutation",
+      "classification": "invariant_passed",
+      "id": "levelmesh-mutation-domain-epochs",
+      "kind": "invariant",
+      "owner": "PF-004"
+    },
+    {
+      "category": "levelmesh_mutation",
+      "classification": "invariant_passed",
+      "id": "levelmesh-query-dirty-partitions",
+      "kind": "invariant",
+      "owner": "PF-004"
+    },
+    {
+      "category": "resource_lifetime",
+      "classification": "invariant_passed",
       "id": "levelmesh-resource-epoch",
       "kind": "invariant",
       "owner": "PF-002"
+    },
+    {
+      "category": "levelmesh_mutation",
+      "classification": "invariant_passed",
+      "id": "levelmesh-texz-two-sided-update",
+      "kind": "invariant",
+      "owner": "PF-004"
     },
     {
       "category": "material",
@@ -117,9 +145,9 @@
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 12,
+    "invariant_passed": 16,
     "known_defect_reproduced": 4,
-    "probe_count": 16,
+    "probe_count": 20,
     "unexpected": 0
   }
 }

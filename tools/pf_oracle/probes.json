@@ -8,15 +8,8 @@
       "category": "material",
       "kind": "invariant",
       "owner": "PF-008",
-      "paths": [
-        "src/common/textures/gametexture.h"
-      ],
-      "required": [
-        "enum\\s+class\\s+MaterialLayerSampling",
-        "NearestMipLinear",
-        "LinearMipLinear",
-        "CustomShaderTextureSampling"
-      ],
+      "paths": ["src/common/textures/gametexture.h"],
+      "required": ["enum\\s+class\\s+MaterialLayerSampling", "NearestMipLinear", "LinearMipLinear", "CustomShaderTextureSampling"],
       "forbidden": []
     },
     {
@@ -24,15 +17,8 @@
       "category": "material",
       "kind": "invariant",
       "owner": "PF-008",
-      "paths": [
-        "src/common/textures/gametexture.h"
-      ],
-      "required": [
-        "RefCountedPtr<FTexture>\\s+Normal",
-        "RefCountedPtr<FTexture>\\s+Metallic",
-        "RefCountedPtr<FTexture>\\s+Roughness",
-        "RefCountedPtr<FTexture>\\s+AmbientOcclusion"
-      ],
+      "paths": ["src/common/textures/gametexture.h"],
+      "required": ["RefCountedPtr<FTexture>\\s+Normal", "RefCountedPtr<FTexture>\\s+Metallic", "RefCountedPtr<FTexture>\\s+Roughness", "RefCountedPtr<FTexture>\\s+AmbientOcclusion"],
       "forbidden": []
     },
     {
@@ -40,16 +26,8 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-003",
-      "paths": [
-        "src/common/rendering/vulkan/descriptorsets/vk_bindless.h"
-      ],
-      "required": [
-        "class\\s+VkBindlessSlotAllocator",
-        "FreeSlots",
-        "Stats\\.Reuses",
-        "Allocate\\s*\\(",
-        "Free\\s*\\("
-      ],
+      "paths": ["src/common/rendering/vulkan/descriptorsets/vk_bindless.h"],
+      "required": ["class\\s+VkBindlessSlotAllocator", "FreeSlots", "Stats\\.Reuses", "Allocate\\s*\\(", "Free\\s*\\("],
       "forbidden": []
     },
     {
@@ -57,13 +35,8 @@
       "category": "lighting",
       "kind": "invariant",
       "owner": "PF-016",
-      "paths": [
-        "src/rendering/hwrenderer/scene/hw_spritelight.cpp"
-      ],
-      "required": [
-        "PosRelative",
-        "ActorTraceStaticLight"
-      ],
+      "paths": ["src/rendering/hwrenderer/scene/hw_spritelight.cpp"],
+      "required": ["PosRelative", "ActorTraceStaticLight"],
       "forbidden": []
     },
     {
@@ -71,14 +44,8 @@
       "category": "view_context",
       "kind": "invariant",
       "owner": "PF-010",
-      "paths": [
-        "src/rendering/hwrenderer/hw_entrypoint.cpp"
-      ],
-      "required": [
-        "RenderViewpoint",
-        "RenderTextureView",
-        "RenderLightProbe"
-      ],
+      "paths": ["src/rendering/hwrenderer/hw_entrypoint.cpp"],
+      "required": ["RenderViewpoint", "RenderTextureView", "RenderLightProbe"],
       "forbidden": []
     },
     {
@@ -86,12 +53,8 @@
       "category": "portal",
       "kind": "invariant",
       "owner": "PF-010",
-      "paths": [
-        "src/rendering/hwrenderer/scene/hw_portal.h"
-      ],
-      "required": [
-        "isMirrored"
-      ],
+      "paths": ["src/rendering/hwrenderer/scene/hw_portal.h"],
+      "required": ["isMirrored"],
       "forbidden": []
     },
     {
@@ -99,12 +62,8 @@
       "category": "probe_lightmap",
       "kind": "known_defect",
       "owner": "PF-012",
-      "paths": [
-        "wadsrc/static/shaders/lightmap/frag_copy.glsl"
-      ],
-      "required": [
-        "#if\\s+1\\s+uint\\s+findClosestProbe\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+0\\s*;\\s*\\}"
-      ],
+      "paths": ["wadsrc/static/shaders/lightmap/frag_copy.glsl"],
+      "required": ["#if\\s+1\\s+uint\\s+findClosestProbe\\s*\\([^)]*\\)\\s*\\{\\s*return\\s+0\\s*;\\s*\\}"],
       "forbidden": []
     },
     {
@@ -112,12 +71,8 @@
       "category": "material",
       "kind": "known_defect",
       "owner": "PF-013",
-      "paths": [
-        "src/common/rendering/vulkan/textures/vk_hwtexture.cpp"
-      ],
-      "required": [
-        "may need to implement CTF_IndexedRedIsAlpha"
-      ],
+      "paths": ["src/common/rendering/vulkan/textures/vk_hwtexture.cpp"],
+      "required": ["may need to implement CTF_IndexedRedIsAlpha"],
       "forbidden": []
     },
     {
@@ -125,13 +80,8 @@
       "category": "sprite",
       "kind": "known_defect",
       "owner": "PF-014",
-      "paths": [
-        "src/rendering/hwrenderer/scene/hw_sprites.cpp"
-      ],
-      "required": [
-        "float\\s+top\\s*=\\s*-NO_VAL",
-        "top\\s*==\\s*NO_VAL"
-      ],
+      "paths": ["src/rendering/hwrenderer/scene/hw_sprites.cpp"],
+      "required": ["float\\s+top\\s*=\\s*-NO_VAL", "top\\s*==\\s*NO_VAL"],
       "forbidden": []
     },
     {
@@ -139,13 +89,8 @@
       "category": "shadow",
       "kind": "known_defect",
       "owner": "PF-015",
-      "paths": [
-        "src/rendering/hwrenderer/hw_entrypoint.cpp"
-      ],
-      "required": [
-        "closer lights are preferred",
-        "lightindex\\s*<\\s*1024"
-      ],
+      "paths": ["src/rendering/hwrenderer/hw_entrypoint.cpp"],
+      "required": ["closer lights are preferred", "lightindex\\s*<\\s*1024"],
       "forbidden": []
     },
     {
@@ -153,14 +98,8 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-002",
-      "paths": [
-        "src/common/rendering/hwrenderer/data/hw_resourcegeneration.h"
-      ],
-      "required": [
-        "class\\s+FRendererResourceGenerationTable",
-        "class\\s+FRendererEpoch",
-        "StaleRejects"
-      ],
+      "paths": ["src/common/rendering/hwrenderer/data/hw_resourcegeneration.h"],
+      "required": ["class\\s+FRendererResourceGenerationTable", "class\\s+FRendererEpoch", "StaleRejects"],
       "forbidden": []
     },
     {
@@ -168,16 +107,8 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-002",
-      "paths": [
-        "src/common/rendering/vulkan/descriptorsets/vk_bindless.h",
-        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h"
-      ],
-      "required": [
-        "CurrentIdentity",
-        "ValidateIdentity",
-        "GetBindlessIdentity",
-        "GetBindlessLifetimeStats"
-      ],
+      "paths": ["src/common/rendering/vulkan/descriptorsets/vk_bindless.h", "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h"],
+      "required": ["CurrentIdentity", "ValidateIdentity", "GetBindlessIdentity", "GetBindlessLifetimeStats"],
       "forbidden": []
     },
     {
@@ -185,14 +116,8 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-002",
-      "paths": [
-        "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
-        "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp"
-      ],
-      "required": [
-        "GetResourceEpoch",
-        "ResourceEpoch\\.Invalidate"
-      ],
+      "paths": ["src/common/rendering/hwrenderer/data/hw_levelmesh.h", "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp"],
+      "required": ["GetResourceEpoch", "ResourceEpoch\\.Invalidate"],
       "forbidden": []
     },
     {
@@ -200,20 +125,8 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-002",
-      "paths": [
-        "src/common/rendering/vulkan/textures/vk_texture.h",
-        "src/common/rendering/vulkan/textures/vk_texture.cpp"
-      ],
-      "required": [
-        "GetTextureEpoch",
-        "GetLightmapEpoch",
-        "GetLightProbeEpoch",
-        "GetAsyncUploadEpoch",
-        "TextureEpoch\\.Invalidate",
-        "LightmapEpoch\\.Invalidate",
-        "LightProbeEpoch\\.Invalidate",
-        "AsyncUploadEpoch\\.Invalidate"
-      ],
+      "paths": ["src/common/rendering/vulkan/textures/vk_texture.h", "src/common/rendering/vulkan/textures/vk_texture.cpp"],
+      "required": ["GetTextureEpoch", "GetLightmapEpoch", "GetLightProbeEpoch", "GetAsyncUploadEpoch", "TextureEpoch\\.Invalidate", "LightmapEpoch\\.Invalidate", "LightProbeEpoch\\.Invalidate", "AsyncUploadEpoch\\.Invalidate"],
       "forbidden": []
     },
     {
@@ -221,16 +134,8 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-003",
-      "paths": [
-        "src/common/rendering/vulkan/descriptorsets/vk_bindless.h",
-        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp"
-      ],
-      "required": [
-        "MaxLightmapPages\\s*=\\s*128",
-        "LightmapDescriptorsPerPage\\s*=\\s*2",
-        "DynamicStart\\s*=\\s*LightmapStart\\s*\\+\\s*MaxLightmapPages\\s*\\*\\s*LightmapDescriptorsPerPage",
-        "lightmapEnd\\s*>\\s*VkBindlessLayout::DynamicStart"
-      ],
+      "paths": ["src/common/rendering/vulkan/descriptorsets/vk_bindless.h", "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp"],
+      "required": ["MaxLightmapPages\\s*=\\s*128", "LightmapDescriptorsPerPage\\s*=\\s*2", "DynamicStart\\s*=\\s*LightmapStart\\s*\\+\\s*MaxLightmapPages\\s*\\*\\s*LightmapDescriptorsPerPage", "lightmapEnd\\s*>\\s*VkBindlessLayout::DynamicStart"],
       "forbidden": []
     },
     {
@@ -238,19 +143,45 @@
       "category": "resource_lifetime",
       "kind": "invariant",
       "owner": "PF-003",
-      "paths": [
-        "src/common/rendering/vulkan/descriptorsets/vk_bindless.h",
-        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
-        "src/common/rendering/vulkan/vk_renderdevice.cpp"
-      ],
-      "required": [
-        "VkPlanBindlessCapacity",
-        "maxUpdateAfterBindDescriptorsInAllPools",
-        "vk_max_bindless_textures",
-        "descriptorBindingVariableDescriptorCount",
-        "descriptorBindingSampledImageUpdateAfterBind"
-      ],
+      "paths": ["src/common/rendering/vulkan/descriptorsets/vk_bindless.h", "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp", "src/common/rendering/vulkan/vk_renderdevice.cpp"],
+      "required": ["VkPlanBindlessCapacity", "maxUpdateAfterBindDescriptorsInAllPools", "vk_max_bindless_textures", "descriptorBindingVariableDescriptorCount", "descriptorBindingSampledImageUpdateAfterBind"],
       "forbidden": []
+    },
+    {
+      "id": "levelmesh-allocation-generation-contract",
+      "category": "resource_lifetime",
+      "kind": "invariant",
+      "owner": "PF-004",
+      "paths": ["src/common/rendering/hwrenderer/data/hw_levelmesh_contract.h", "src/common/rendering/hwrenderer/data/hw_levelmesh.h"],
+      "required": ["class\\s+MeshBufferAllocator", "CanFree\\s*\\(", "CurrentIdentity\\s*\\(", "ValidateIdentity\\s*\\(", "InvalidFrees", "Invalid LevelMesh geometry free"],
+      "forbidden": []
+    },
+    {
+      "id": "levelmesh-mutation-domain-epochs",
+      "category": "levelmesh_mutation",
+      "kind": "invariant",
+      "owner": "PF-004",
+      "paths": ["src/common/rendering/hwrenderer/data/hw_levelmesh_contract.h", "src/common/rendering/hwrenderer/data/hw_levelmesh.h", "src/rendering/hwrenderer/doom_levelmesh.cpp"],
+      "required": ["enum\\s+class\\s+LevelMeshMutationDomain", "GetMutationEpochs", "MarkMutation", "LevelMeshMutationDomain::LightmapProbe"],
+      "forbidden": []
+    },
+    {
+      "id": "levelmesh-query-dirty-partitions",
+      "category": "levelmesh_mutation",
+      "kind": "invariant",
+      "owner": "PF-004",
+      "paths": ["src/common/rendering/hwrenderer/data/hw_collision.cpp", "src/common/rendering/vulkan/vk_levelmesh.cpp"],
+      "required": ["MeshBufferChunkStart\\s*\\(", "MeshBufferChunkEndExclusive\\s*\\(", "std::min\\(MeshBufferChunkEndExclusive"],
+      "forbidden": ["int\\s+end\\s*=\\s*range\\.End\\s*/\\s*IndexesPerBLAS"]
+    },
+    {
+      "id": "levelmesh-texz-two-sided-update",
+      "category": "levelmesh_mutation",
+      "kind": "invariant",
+      "owner": "PF-004",
+      "paths": ["src/rendering/hwrenderer/doom_levelmesh.cpp"],
+      "required": ["OnSectorChangedTexZ\\s*\\(.*?if\\s*\\(line->sidedef\\[0\\]\\).*?UpdateSide\\(line->sidedef\\[0\\].*?if\\s*\\(line->sidedef\\[1\\]\\).*?UpdateSide\\(line->sidedef\\[1\\]"],
+      "forbidden": ["OnSectorChangedTexZ\\s*\\(.*?else\\s+if\\s*\\(line->sidedef\\[1\\]\\)"]
     }
   ]
 }

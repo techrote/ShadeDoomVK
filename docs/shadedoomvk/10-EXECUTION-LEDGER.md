@@ -109,10 +109,18 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - The post-merge `master` run also passed the full matrix.
 - PF-003 and PF-004 became dependency-ready.
 
+### 2026-09-19 — PF-003 accepted and merged
+
+- PF-003 / #20 completed through PR #40.
+- Required deterministic PF oracle and Windows/macOS/Linux build matrix passed before merge; the post-merge `master` run also passed.
+- Hardened bindless device-capacity/reservation handling, fixed the lightmap/probe descriptor overlap, and retained exact-size generation-aware reuse without unsafe global flushing.
+- Merge commit: `8ee205b6476446bc4552aaa92a47a7450453516c`.
+- PF-008's descriptor prerequisite is satisfied. PF-012 now waits only for PF-004.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19.
-- **READY:** PF-003 / #20, PF-004 / #21, PF-006 / #23, PF-007 / #24, PF-009 / #26, PF-011 / #28.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20.
+- **READY:** PF-004 / #21, PF-006 / #23, PF-007 / #24, PF-009 / #26, PF-011 / #28.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 

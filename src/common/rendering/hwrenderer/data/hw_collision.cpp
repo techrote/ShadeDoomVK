@@ -121,8 +121,8 @@ void CPUAccelStruct::Update()
 
 		for (const MeshBufferRange& range : Mesh->UploadRanges.Index.GetRanges())
 		{
-			int start = range.Start / IndexesPerBLAS;
-			int end = range.End / IndexesPerBLAS;
+			int start = MeshBufferChunkStart(range, IndexesPerBLAS);
+			int end = std::min(MeshBufferChunkEndExclusive(range, IndexesPerBLAS), InstanceCount);
 			for (int i = start; i < end; i++)
 			{
 				needsUpdate[i] = true;
