@@ -11,6 +11,7 @@
 #include "hw_renderstate.h"
 #include "hw_dynlightdata.h"
 #include "hwrenderer/postprocessing/hw_useruniforms.h"
+#include "vulkan/vk_keyidentity.h"
 
 class ShaderIncludeResult;
 class VulkanRenderDevice;
@@ -138,20 +139,55 @@ public:
 		uint32_t AsDWORD = 0;
 	} Layout;
 
-	inline uint64_t GeneralizedShaderKey() const
+	VkKeyIdentity::ShaderState CanonicalState() const
 	{
-		return uint64_t(Layout.AsDWORD) |
-			(uint64_t(EffectState) << 32) |
-			((uint64_t(SpecialEffect) & 0xFF) << (32 + 16)) |
-			((uint64_t(VertexFormat) & 0xFF)  << (32 + 16 + 8));
+		VkKeyIdentity::ShaderState state;
+		state.Simple2D = static_cast<uint8_t>(Simple2D);
+		state.TextureMode = static_cast<uint8_t>(TextureMode);
+		state.ClampY = static_cast<uint8_t>(ClampY);
+		state.Brightmap = static_cast<uint8_t>(Brightmap);
+		state.Detailmap = static_cast<uint8_t>(Detailmap);
+		state.Glowmap = static_cast<uint8_t>(Glowmap);
+		state.UseShadowmap = static_cast<uint8_t>(UseShadowmap);
+		state.UseRaytrace = static_cast<uint8_t>(UseRaytrace);
+		state.ShadowmapFilter = static_cast<uint8_t>(ShadowmapFilter);
+		state.FogBeforeLights = static_cast<uint8_t>(FogBeforeLights);
+		state.FogAfterLights = static_cast<uint8_t>(FogAfterLights);
+		state.FogRadial = static_cast<uint8_t>(FogRadial);
+		state.SWLightRadial = static_cast<uint8_t>(SWLightRadial);
+		state.SWLightBanded = static_cast<uint8_t>(SWLightBanded);
+		state.LightMode = static_cast<uint8_t>(LightMode);
+		state.LightBlendMode = static_cast<uint8_t>(LightBlendMode);
+		state.LightAttenuationMode = static_cast<uint8_t>(LightAttenuationMode);
+		state.PaletteMode = static_cast<uint8_t>(PaletteMode);
+		state.FogBalls = static_cast<uint8_t>(FogBalls);
+		state.NoFragmentShader = static_cast<uint8_t>(NoFragmentShader);
+		state.DepthFadeThreshold = static_cast<uint8_t>(DepthFadeThreshold);
+		state.AlphaTestOnly = static_cast<uint8_t>(AlphaTestOnly);
+		state.LightNoNormals = static_cast<uint8_t>(LightNoNormals);
+		state.UseSpriteCenter = static_cast<uint8_t>(UseSpriteCenter);
+		state.SpecialEffect = SpecialEffect;
+		state.EffectState = EffectState;
+		state.VertexFormat = VertexFormat;
+		state.AlphaTest = static_cast<uint8_t>(Layout.AlphaTest);
+		state.Simple = static_cast<uint8_t>(Layout.Simple);
+		state.Simple3D = static_cast<uint8_t>(Layout.Simple3D);
+		state.GBufferPass = static_cast<uint8_t>(Layout.GBufferPass);
+		state.UseLevelMesh = static_cast<uint8_t>(Layout.UseLevelMesh);
+		state.ShadeVertex = static_cast<uint8_t>(Layout.ShadeVertex);
+		state.UseRaytracePrecise = static_cast<uint8_t>(Layout.UseRaytracePrecise);
+		return state;
 	}
 
-	bool operator<(const VkShaderKey& other) const { return memcmp(this, &other, sizeof(VkShaderKey)) < 0; }
-	bool operator==(const VkShaderKey& other) const { return memcmp(this, &other, sizeof(VkShaderKey)) == 0; }
-	bool operator!=(const VkShaderKey& other) const { return memcmp(this, &other, sizeof(VkShaderKey)) != 0; }
-};
+	inline uint64_t GeneralizedShaderKey() const
+	{
+		return CanonicalState().GeneralizedCacheKey();
+	}
 
-static_assert(sizeof(VkShaderKey) == 24, "sizeof(VkShaderKey) is not its expected size!"); // If this assert fails, the flags union no longer adds up to 64 bits. Or there are gaps in the class so the memcmp doesn't work.
+	bool operator<(const VkShaderKey& other) const { return CanonicalState() < other.CanonicalState(); }
+	bool operator==(const VkShaderKey& other) const { return CanonicalState() == other.CanonicalState(); }
+	bool operator!=(const VkShaderKey& other) const { return !(*this == other); }
+};
 
 class VkShaderProgram
 {
