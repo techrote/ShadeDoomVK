@@ -1,7 +1,7 @@
 # Portal and coordinate-space contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active, compatibility-critical; PF-009 sprite-surface extraction implemented pending acceptance  
+Status: active, compatibility-critical; PF-009 sprite-surface extraction accepted on `master`  
 Primary issues: PF-009, PF-010, PF-014, PF-015, PF-016, SDVK-007, SDVK-012, SDVK-013
 
 ## Why this matters
