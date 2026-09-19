@@ -56,6 +56,14 @@ jobs:
           -o build/pf-oracle/levelmesh-contract-fixture
         build/pf-oracle/levelmesh-contract-fixture
 
+    - name: Test texture upload lifecycle and staging contract
+      run: |
+        c++ -std=c++17 -Wall -Wextra -Werror \
+          -Isrc/common/rendering \
+          tests/pf005_texture_upload_contract_fixture.cpp \
+          -o build/pf-oracle/texture-upload-contract-fixture
+        build/pf-oracle/texture-upload-contract-fixture
+
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
     needs: pf_oracle
