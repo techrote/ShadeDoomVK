@@ -63,7 +63,10 @@ public:
 		state.DrawLine = static_cast<uint8_t>(DrawLine);
 		state.IsGeneralized = static_cast<uint8_t>(IsGeneralized);
 		state.ShaderKey = ShaderKey.CanonicalState();
-		state.RenderStyle = RenderStyle.AsDWORD;
+		state.RenderStyle.BlendOp = RenderStyle.BlendOp;
+		state.RenderStyle.SrcAlpha = RenderStyle.SrcAlpha;
+		state.RenderStyle.DestAlpha = RenderStyle.DestAlpha;
+		state.RenderStyle.Flags = RenderStyle.Flags;
 		return state;
 	}
 
