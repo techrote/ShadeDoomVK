@@ -1,7 +1,7 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-002 generation/epoch substrate active; subsystem hardening continues  
+Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening layered on top  
 Primary issues: PF-002, PF-003, PF-004, PF-005, SDVK-004
 
 ## Core rule
@@ -27,6 +27,7 @@ Important baseline files:
 - `src/common/textures/gametexture.h`
 - `src/common/textures/hw_material.h/.cpp`
 - `src/common/rendering/vulkan/textures/vk_hwtexture.h/.cpp`
+- `src/common/rendering/vulkan/textures/vk_textureupload.h`
 - `src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h/.cpp`
 
 `VkMaterial` caches descriptor variants by clamp mode, palette/translation and global-shader address. Destruction/removal returns bindless allocations to size buckets.
@@ -44,9 +45,10 @@ Current wiring:
 
 - dynamic bindless block allocation/free tracks generations in `VkDescriptorSetManager`;
 - `LevelMesh::Reset()` advances a LevelMesh resource epoch;
-- `VkTextureManager` advances separate texture, lightmap, environment-probe and async-upload epochs at their real reset/destruction boundaries.
+- `VkTextureManager` advances separate texture, lightmap, environment-probe and async-upload epochs at their real reset/destruction boundaries;
+- PF-005 async texture jobs capture both the manager async epoch and a target generation from the same PF-002 substrate.
 
-See `docs/shadedoomvk/PF-002-LIFETIME-CONTRACT.md` for the exact contract and deliberately unconverted identities.
+See `docs/shadedoomvk/PF-002-LIFETIME-CONTRACT.md` for the base contract and deliberately unconverted identities.
 
 ## Bindless identity
 
@@ -106,11 +108,24 @@ Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or Le
 
 Pointer identity is currently meaningful inside a frame/cache but must not become a persistent serialized identity.
 
-## Async texture lifetime
+## Async texture lifetime after PF-005
 
-`VkTextureManager` has worker/main queues plus `CreateUploadID`/`CheckUploadID`. Destroying a `VkHardwareTexture` removes matching pending upload identity so a later main-thread completion can be rejected.
+The hardware-texture async path no longer treats a raw pointer plus integer upload ID as proof that a completion is current.
 
-This is a useful pattern but remains raw-pointer/ID based and each upload currently allocates staging resources independently. PF-005 generalizes the lifetime/cancellation model and staging memory ownership.
+`VkAsyncTextureUploadTracker` records:
+
+```text
+queued job
+  ├─ manager AsyncUploadEpoch token
+  └─ target generation identity
+       └─ pointer value is only the lookup key for the target slot
+```
+
+A main-thread completion is accepted only if both identities still validate. `VkHardwareTexture::Reset()` advances the target generation before image objects are reset. Destruction retires the target. `VkTextureManager` shutdown advances `AsyncUploadEpoch` through the PF-002 hook. Re-registering the same pointer address obtains a new generation, so an old job cannot resolve to the new texture instance.
+
+The tracker consumes a completion whether accepted or rejected, counts stale rejections and handles job-ID wrap without signed overflow or live-ID replacement. Legacy `CreateUploadID`/`CheckUploadID` remains only for untouched compatibility surfaces; the hardware-texture worker/main completion path uses the generation-aware tracker.
+
+Staging ownership is independent of target identity: PF-005 gives ordinary uploads slices of a bounded persistent transfer-source arena. Arena slice epochs are diagnostic ownership markers and are advanced only after the upload completion wait proves prior slices recyclable. See `docs/shadedoomvk/PF-005-TEXTURE-UPLOAD-CONTRACT.md`.
 
 ## Lifetime transitions that require explicit treatment
 
@@ -139,10 +154,14 @@ For recyclable resource classes expose, where practical:
 - global reset/epoch changes;
 - last invalidation reason in debug builds.
 
+PF-005 additionally exposes queued/applied/stale async completions, target invalidation/retirement, job-ID wrap/collision, staging requests/acquisitions/high-water/reuse/waits and manager backing-buffer/fallback allocation counts.
+
 ## Invariants
 
 1. Reusing an index may never cause a live old reference to resolve to an unrelated new resource.
 2. A global flush is not safe if LevelMesh/material state keeps old indices.
 3. Descriptor and lightmap/probe index arithmetic must be bounds-checked against actual Vulkan/device/runtime capacity.
-4. Async completion must verify target lifetime before upload/bind.
-5. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
+4. Async completion must verify both owner and target lifetime before upload/bind.
+5. Reused target addresses or upload IDs may not alias live old work.
+6. Staging storage may not be overwritten while a submitted transfer can still read it.
+7. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
