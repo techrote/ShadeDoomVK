@@ -293,7 +293,11 @@ int VkLightmapper::UploadProbeSelection()
 	int count = 0;
 	for (const LightProbe& probe : level.lightProbes)
 	{
-		const uint32_t textureIndex = HWProbeSelection::IrradianceTextureIndex(probe.index);
+		const int descriptorIndex = fb->GetDescriptorSetManager()->GetLightProbeTextureIndex(probe.index);
+		if (descriptorIndex <= 0)
+			continue;
+
+		const uint32_t textureIndex = static_cast<uint32_t>(descriptorIndex);
 		if (!HWProbeSelection::IsEncodableTextureIndex(textureIndex))
 			continue;
 		if (count >= probeSelection.BufferSize)
