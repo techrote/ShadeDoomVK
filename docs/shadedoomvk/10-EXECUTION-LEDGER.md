@@ -149,10 +149,22 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-019 now has its PF-006 prerequisite satisfied but remains blocked on PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-006.
 - Shader behavior, material meaning, blend/depth/stencil/cull policy, portal behavior, palette/translation behavior, sprite conventions, gameplay/tic state, audio and donor/source provenance remain unchanged.
 
+### 2026-09-19 — PF-007 accepted and merged
+
+- PF-007 / #24 completed through PR #49.
+- Required exact-head CI passed: deterministic PF renderer oracle, compiled capability/driver-quirk adversarial fixture, source-routing contract tests, and the inherited Windows/macOS/Linux build matrix.
+- Added a single descriptive `VulkanCapabilities` snapshot covering required bindless descriptor-indexing feature bits and limits, ray-query/acceleration-structure state, graphics-pipeline-library support, clip-distance state, scene sample counts, depth/normal render-target fallback choices, device identity and named Intel/AMD quirks.
+- Migrated descriptor capacity, sampler quirks, graphics-pipeline-library availability, ray-query capability and scene-MSAA selection to named capability queries while keeping user/configuration policy separate.
+- Preserved the inherited Intel sampler classifier including legacy devices, unknown Intel IDs and the exact `0.405.1286` current-driver boundary; preserved the AMD ray-query guard exactly as vendor `0x1002` with `VK_VERSION_MAJOR(driverVersion) < 10`.
+- Ray query remains optional with the inherited non-ray-query storage-buffer fallback; graphics-pipeline-library use remains independently controlled by `gl_ubershaders`; PF-003 bindless capacity planning and quality defaults are unchanged.
+- Merge commit: `0e19f4aede276f4d9de27497302caed56b3200e5`; `master` was verified at that merge commit.
+- PF-010 / #27 became dependency-ready. PF-019 now has its PF-007 prerequisite satisfied but remains blocked on PF-017 and PF-018.
+- Gameplay/tic, shader/material meaning, palette/translation, sprite, portal, audio, demo-determinism, source-ownership and donor/provenance semantics remain unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23.
-- **READY:** PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-011 / #28.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24.
+- **READY:** PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
