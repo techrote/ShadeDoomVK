@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdint>
 #include <iostream>
+#include <limits>
 #include "vulkan/textures/vk_textureupload.h"
 
 static void TestAsyncTargetGeneration()
@@ -39,6 +40,32 @@ static void TestAsyncTargetGeneration()
 	assert(stats.TargetRetirements == 1);
 }
 
+static void TestAsyncJobIdWrapAndCollision()
+{
+	FRendererEpoch queueEpoch;
+	const uint32_t maxJobId = (uint32_t)std::numeric_limits<int>::max();
+	VkAsyncTextureUploadTracker tracker(maxJobId);
+
+	const int maxId = tracker.Queue(0x2000, queueEpoch.Snapshot());
+	const int wrappedOne = tracker.Queue(0x2001, queueEpoch.Snapshot());
+	assert(maxId == std::numeric_limits<int>::max());
+	assert(wrappedOne == 1);
+
+	// Seeded wrap now encounters live ID 1 and must skip it rather than
+	// replacing the existing job. Both completions must remain independently valid.
+	VkAsyncTextureUploadTracker collisionTracker(maxJobId);
+	const int collisionMax = collisionTracker.Queue(0x3000, queueEpoch.Snapshot());
+	const int one = collisionTracker.Queue(0x3001, queueEpoch.Snapshot());
+	assert(collisionMax == std::numeric_limits<int>::max());
+	assert(one == 1);
+	const int two = collisionTracker.Queue(0x3002, queueEpoch.Snapshot());
+	assert(two == 2);
+	assert(collisionTracker.Complete(one, queueEpoch));
+	assert(collisionTracker.Complete(two, queueEpoch));
+	assert(collisionTracker.Complete(collisionMax, queueEpoch));
+	assert(collisionTracker.GetStats().IdWraps == 1);
+}
+
 static void TestArenaBoundaries()
 {
 	VkTextureUploadArenaPlanner arena(64);
@@ -64,6 +91,15 @@ static void TestArenaBoundaries()
 	assert(stats.Waits == 1);
 	assert(stats.Reuses == 1);
 	assert(stats.OversizedFallbacks == 1);
+}
+
+static void TestArenaInvalidAndOverflowSizedRequests()
+{
+	VkTextureUploadArenaPlanner arena(64);
+	assert(!arena.TryAcquire(0).IsSet());
+	assert(!arena.TryAcquire(std::numeric_limits<size_t>::max()).IsSet());
+	assert(arena.GetOffset() == 0);
+	assert(arena.GetStats().OversizedFallbacks == 2);
 }
 
 static void TestBurstAllocationModel()
@@ -96,7 +132,9 @@ static void TestBurstAllocationModel()
 int main()
 {
 	TestAsyncTargetGeneration();
+	TestAsyncJobIdWrapAndCollision();
 	TestArenaBoundaries();
+	TestArenaInvalidAndOverflowSizedRequests();
 	TestBurstAllocationModel();
 	std::cout << "PF-005 texture upload contract fixture passed\n";
 	return 0;
