@@ -141,12 +141,16 @@ class TextureUploadContractTests(unittest.TestCase):
             self.assertIn("FinishTextureUpload(staging);", body)
         self.assertNotIn("VkHardwareTexture.mStagingBuffer", self.hw_cpp)
 
-    def test_indexed_truecolor_and_canvas_format_policy_is_unchanged(self) -> None:
+    def test_indexed_redalpha_truecolor_and_canvas_format_policy_is_explicit(self) -> None:
         create_image = function_body(
             self.hw_cpp,
             "void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags)",
         )
-        self.assertIn("bool indexed = flags & CTF_Indexed;", create_image)
+        # PF-013 deliberately extends PF-005's indexed format predicate to the
+        # other one-byte producer. Both palette indices and RedIsAlpha use R8;
+        # true-colour and canvas formats remain unchanged.
+        indexed_predicate = "bool indexed = (flags & (CTF_Indexed | CTF_IndexedRedIsAlpha)) != 0;"
+        self.assertEqual(create_image.count(indexed_predicate), 2)
         self.assertIn("indexed ? VK_FORMAT_R8_UNORM : VK_FORMAT_B8G8R8A8_UNORM", create_image)
         self.assertIn("VK_FORMAT_R32G32B32A32_SFLOAT : VK_FORMAT_R8G8B8A8_UNORM", create_image)
         self.assertIn("flags | CTF_ProcessData", create_image)
