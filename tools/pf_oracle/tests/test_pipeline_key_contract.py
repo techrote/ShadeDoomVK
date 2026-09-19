@@ -23,6 +23,7 @@ class PipelineKeyContractTests(unittest.TestCase):
         cls.renderpass_h = source("src/common/rendering/vulkan/pipelines/vk_renderpass.h")
         cls.renderpass_cpp = source("src/common/rendering/vulkan/pipelines/vk_renderpass.cpp")
         cls.key_h = source("src/common/rendering/vulkan/vk_keyidentity.h")
+        cls.renderstyle_h = source("src/common/engine/renderstyle.h")
 
     def test_named_keys_no_longer_use_whole_object_memcmp(self) -> None:
         self.assertNotIn("memcmp(this", self.shader_h)
@@ -68,6 +69,20 @@ class PipelineKeyContractTests(unittest.TestCase):
             self.assertIn(f"state.{field}", self.renderpass_h)
         for field in ["DepthStencil", "Samples", "DrawBuffers", "DrawBufferFormat"]:
             self.assertIn(f"state.{field}", self.renderpass_h)
+
+    def test_render_style_identity_is_named_not_union_representation(self) -> None:
+        # Repository-local FRenderStyle defines exactly four named byte fields
+        # over AsDWORD. Pipeline identity must name those fields rather than
+        # promoting the union representation into the cache contract.
+        for declaration in [
+            "uint8_t BlendOp;", "uint8_t SrcAlpha;", "uint8_t DestAlpha;", "uint8_t Flags;",
+        ]:
+            self.assertIn(declaration, self.renderstyle_h)
+        self.assertIn("uint32_t AsDWORD;", self.renderstyle_h)
+        self.assertIn("struct RenderStyleState", self.key_h)
+        for field in ["BlendOp", "SrcAlpha", "DestAlpha", "Flags"]:
+            self.assertIn(f"state.RenderStyle.{field} = RenderStyle.{field};", self.renderpass_h)
+        self.assertNotIn("state.RenderStyle = RenderStyle.AsDWORD", self.renderpass_h)
 
     def test_pipeline_library_worker_and_driver_cache_routes_are_preserved(self) -> None:
         for token in [
