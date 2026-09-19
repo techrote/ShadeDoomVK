@@ -1,7 +1,7 @@
 # Postprocess, HDR and future graphical seams
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active HDR/postprocess; PF-010 view identity extracted; temporal substrate still intentionally incomplete  
+Status: active HDR/postprocess; PF-010 view identity extracted; PF-011 compatibility light-energy bridge named; temporal substrate still intentionally incomplete  
 Primary issues: PF-010, PF-011, PF-019, SDVK-006, SDVK-016 and future post-freeze work
 
 ## Existing strengths
@@ -73,9 +73,11 @@ SDVK-006 creates renderer visual-time semantics. A later post-freeze temporal is
 
 ## Lighting/exposure relationship
 
-Current PBR code uses compatibility brightness scaling and sector-light approximations. Bloom/exposure quality depends on stable meanings for HDR light energy; PF-011 therefore centralizes the current compatibility bridge before future calibration.
+PF-011 establishes `docs/shadedoomvk/PF-011-LIGHTING-COMPATIBILITY-CONTRACT.md` as the contract for inherited renderer light-energy calibration. The named values include the PBR direct-light/sun bridge `2.5`, PBR sector-ambient approximation `2.25`, metallic ambient-specular approximation `0.40`, and the CPU-side sunlight/additive/list-packing calibration.
 
-Do not tune PBR constants opportunistically merely to make bloom look better.
+These are compatibility scalars, not photometric units and not an exposure target. PF-011 deliberately preserves the existing HDR values and response rather than recalibrating them. Future bloom/exposure work may consume this named bridge as an input, but any physical-unit conversion or revised exposure policy requires separate evidence and migration semantics.
+
+Do not tune PBR or sunlight compatibility constants opportunistically merely to make bloom look better.
 
 ## Future opportunities enabled by current buffers
 
@@ -83,7 +85,7 @@ These are aspirations/research directions, not PF requirements:
 
 ### Bloom / exposure
 
-Technically straightforward with HDR scene/pipeline buffers after light-intensity/exposure policy is explicit.
+Technically straightforward with HDR scene/pipeline buffers after light-intensity/exposure policy is explicit. PF-011 now makes the inherited compatibility calibration inspectable; it does not choose a new exposure calibration.
 
 ### Volumetric fog / shafts
 
@@ -111,5 +113,6 @@ Z-min/max/light-tile render resources currently exist even though the scene tile
 2. Main-view history must never be implicitly shared with portal, camera-texture, probe or save-picture renders.
 3. PF-010 `historyEligible` is a future-use classification, not a temporal implementation or permission to reuse one global history allocation.
 4. Future temporal features require explicit cross-frame history ownership and invalidation on discontinuities.
-5. Exposure/tonemap/bloom policy should follow a documented HDR light-energy contract, not arbitrary effect-specific compensation.
-6. Postprocess custom-shader extensibility remains a compatibility surface.
+5. Exposure/tonemap/bloom policy should follow the PF-011 named compatibility light-energy contract rather than arbitrary effect-specific compensation.
+6. PF-011 compatibility scalars do not declare physical units and remain numerically frozen until separately owned calibration work.
+7. Postprocess custom-shader extensibility remains a compatibility surface.
