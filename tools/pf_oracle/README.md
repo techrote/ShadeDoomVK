@@ -42,6 +42,19 @@ build/pf-oracle/resource-generation-fixture
 
 The fixture deliberately retains stale slot identities through retire/reuse/reset transitions and asserts that validation rejects them while incrementing the diagnostic counters.
 
+PF-003 adds a second C++ fixture for the production bindless allocator/capacity model:
+
+```bash
+c++ -std=c++17 -Wall -Wextra -Werror \
+  -Isrc/common/rendering \
+  -Isrc/common/rendering/vulkan/descriptorsets \
+  tools/pf_oracle/tests/bindless_allocator_fixture.cpp \
+  -o build/pf-oracle/bindless-allocator-fixture
+build/pf-oracle/bindless-allocator-fixture
+```
+
+It covers Vulkan-capacity clamping, the fixed/lightmap/dynamic reservation boundary, exact-size reuse, generation changes, exhaustion and invalid/double frees.
+
 ## Result meanings
 
 `invariant_passed`

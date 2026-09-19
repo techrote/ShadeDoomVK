@@ -38,6 +38,10 @@
 #include "hw_viewpointuniforms.h"
 #include "v_2ddrawer.h"
 #include "fcolormap.h"
+#include "c_cvars.h"
+#include "printf.h"
+
+CVAR(Int, vk_max_bindless_textures, 16536, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 
 VkDescriptorSetManager::VkDescriptorSetManager(VulkanRenderDevice* fb) : fb(fb)
 {
@@ -381,10 +385,55 @@ void VkDescriptorSetManager::CreateFixedPool()
 
 void VkDescriptorSetManager::CreateBindlessSet()
 {
+	const auto& coreLimits = fb->GetDevice()->PhysicalDevice.Properties.Properties.limits;
+	const auto& indexingLimits = fb->GetDevice()->PhysicalDevice.Properties.DescriptorIndexing;
+
+	VkBindlessDeviceLimits limits;
+	limits.MaxPerStageDescriptorSamplers = coreLimits.maxPerStageDescriptorSamplers;
+	limits.MaxPerStageDescriptorSampledImages = coreLimits.maxPerStageDescriptorSampledImages;
+	limits.MaxDescriptorSetSamplers = coreLimits.maxDescriptorSetSamplers;
+	limits.MaxDescriptorSetSampledImages = coreLimits.maxDescriptorSetSampledImages;
+	limits.MaxPerStageDescriptorUpdateAfterBindSamplers = indexingLimits.maxPerStageDescriptorUpdateAfterBindSamplers;
+	limits.MaxPerStageDescriptorUpdateAfterBindSampledImages = indexingLimits.maxPerStageDescriptorUpdateAfterBindSampledImages;
+	limits.MaxDescriptorSetUpdateAfterBindSamplers = indexingLimits.maxDescriptorSetUpdateAfterBindSamplers;
+	limits.MaxDescriptorSetUpdateAfterBindSampledImages = indexingLimits.maxDescriptorSetUpdateAfterBindSampledImages;
+	limits.MaxPerStageUpdateAfterBindResources = indexingLimits.maxPerStageUpdateAfterBindResources;
+	limits.MaxUpdateAfterBindDescriptorsInAllPools = indexingLimits.maxUpdateAfterBindDescriptorsInAllPools;
+
+	Bindless.Plan = VkPlanBindlessCapacity((int)vk_max_bindless_textures, limits);
+	if (Bindless.Plan.Error == VkBindlessCapacityError::RequestedBelowMinimum)
+	{
+		I_FatalError("vk_max_bindless_textures is %d, but the renderer requires at least %d descriptors (%d fixed + %d lightmap/probe + one dynamic slot).",
+			Bindless.Plan.Requested,
+			VkBindlessLayout::MinimumCapacity,
+			VkBindlessLayout::FixedSlots,
+			VkBindlessLayout::MaxLightmapPages * VkBindlessLayout::LightmapDescriptorsPerPage);
+	}
+	if (Bindless.Plan.Error == VkBindlessCapacityError::DeviceBelowMinimum)
+	{
+		I_FatalError("This GPU exposes only %d usable bindless descriptors after scene reservations (%s); ShadeDoomVK requires at least %d.",
+			Bindless.Plan.DeviceLimit,
+			VkBindlessLimitSourceName(Bindless.Plan.DeviceLimitSource),
+			VkBindlessLayout::MinimumCapacity);
+	}
+
+	const int capacity = Bindless.Plan.Effective;
+	Bindless.Allocator.Configure(VkBindlessLayout::DynamicStart, capacity);
+
+	Printf(PRINT_LOG,
+		"Bindless descriptors: requested %d, device limit %d (%s), effective %d; dynamic range starts at %d after %d fixed and %d lightmap/probe descriptors.\n",
+		Bindless.Plan.Requested,
+		Bindless.Plan.DeviceLimit,
+		VkBindlessLimitSourceName(Bindless.Plan.DeviceLimitSource),
+		capacity,
+		VkBindlessLayout::DynamicStart,
+		VkBindlessLayout::FixedSlots,
+		VkBindlessLayout::MaxLightmapPages * VkBindlessLayout::LightmapDescriptorsPerPage);
+
 	Bindless.Pool = DescriptorPoolBuilder()
 		.Flags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT)
-		.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, MaxBindlessTextures)
-		.MaxSets(MaxBindlessTextures)
+		.AddPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, capacity)
+		.MaxSets(1)
 		.DebugName("Bindless.Pool")
 		.Create(fb->GetDevice());
 
@@ -392,24 +441,40 @@ void VkDescriptorSetManager::CreateBindlessSet()
 		.Flags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT)
 		.AddBinding(
 			0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			MaxBindlessTextures,
+			capacity,
 			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
 			VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT_EXT | VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT_EXT | VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT_EXT)
 		.DebugName("Bindless.Layout")
 		.Create(fb->GetDevice());
 
-	Bindless.Set = Bindless.Pool->allocate(Bindless.Layout.get(), MaxBindlessTextures);
+	Bindless.Set = Bindless.Pool->allocate(Bindless.Layout.get(), capacity);
 }
 
 void VkDescriptorSetManager::UpdateBindlessDescriptorSet()
 {
 	auto sampler = fb->GetSamplerManager()->LightmapSampler.get();
-	int index = FixedBindlessSlots;
-	for (auto& lightmap : fb->GetTextureManager()->Lightmaps)
+	const auto& lightmaps = fb->GetTextureManager()->Lightmaps;
+	if (lightmaps.size() > (size_t)VkBindlessLayout::MaxLightmapPages)
+	{
+		I_FatalError("Lightmap atlas requires %zu pages, but the bindless layout reserves %d pages (%d descriptors).",
+			lightmaps.size(),
+			VkBindlessLayout::MaxLightmapPages,
+			VkBindlessLayout::MaxLightmapPages * VkBindlessLayout::LightmapDescriptorsPerPage);
+	}
+
+	const int lightmapEnd = VkBindlessLayout::LightmapStart + (int)lightmaps.size() * VkBindlessLayout::LightmapDescriptorsPerPage;
+	if (lightmapEnd > VkBindlessLayout::DynamicStart || lightmapEnd > Bindless.Plan.Effective)
+	{
+		I_FatalError("Lightmap/probe bindless reservation overflow: end %d, dynamic start %d, capacity %d.",
+			lightmapEnd, VkBindlessLayout::DynamicStart, Bindless.Plan.Effective);
+	}
+
+	int index = VkBindlessLayout::LightmapStart;
+	for (auto& lightmap : lightmaps)
 	{
 		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, lightmap.Light.View.get(), sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index + 1, lightmap.Probe.View.get(), sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		index += 2;
+		index += VkBindlessLayout::LightmapDescriptorsPerPage;
 	}
 
 	Bindless.Writer.Execute(fb->GetDevice());
@@ -421,29 +486,22 @@ int VkDescriptorSetManager::AllocBindlessSlot(int count)
 	if (count <= 0)
 		return 0;
 
-	int bucket = count - 1;
-
-	if (Bindless.FreeSlots.size() <= (size_t)bucket)
-		Bindless.FreeSlots.resize(bucket + 1);
-
-	int index;
-	if (!Bindless.FreeSlots[bucket].empty())
+	const int index = Bindless.Allocator.Allocate(count);
+	if (index < 0)
 	{
-		index = Bindless.FreeSlots[bucket].back();
-		Bindless.FreeSlots[bucket].pop_back();
+		const auto& stats = Bindless.Allocator.GetStats();
+		I_FatalError(
+			"Out of bindless texture slots: request %d, effective capacity %d, dynamic start %d, current %d, high-water %d, free %d. "
+			"Raise vk_max_bindless_textures and restart if the device limit (%d, %s) allows it.",
+			count,
+			Bindless.Plan.Effective,
+			VkBindlessLayout::DynamicStart,
+			stats.CurrentDescriptors,
+			stats.HighWaterDescriptors,
+			Bindless.Allocator.GetFreeDescriptorCount(),
+			Bindless.Plan.DeviceLimit,
+			VkBindlessLimitSourceName(Bindless.Plan.DeviceLimitSource));
 	}
-	else
-	{
-		if (Bindless.NextIndex + count > MaxBindlessTextures)
-			I_FatalError("Out of bindless texture slots!");
-		index = Bindless.NextIndex;
-		if (Bindless.AllocSizes.size() < index + count)
-			Bindless.AllocSizes.resize(index + count, 0);
-		Bindless.AllocSizes[index] = count;
-		Bindless.NextIndex += count;
-	}
-
-	Bindless.Generations.Activate(index, (uint32_t)count);
 	return index;
 }
 
@@ -452,13 +510,15 @@ void VkDescriptorSetManager::FreeBindlessSlot(int index)
 	if (index <= 0)
 		return;
 
-	Bindless.Generations.Retire(index);
-	int bucket = Bindless.AllocSizes[index] - 1;
-	Bindless.FreeSlots[bucket].push_back(index);
+	if (!Bindless.Allocator.Free(index))
+		I_FatalError("Invalid or duplicate bindless slot free at index %d.", index);
 }
 
 void VkDescriptorSetManager::SetBindlessTexture(int index, VulkanImageView* imageview, VulkanSampler* sampler)
 {
+	if (index < 0 || index >= Bindless.Plan.Effective)
+		I_FatalError("Bindless descriptor write index %d is outside effective capacity %d.", index, Bindless.Plan.Effective);
+
 	Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, imageview, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 

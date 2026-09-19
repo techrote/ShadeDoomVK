@@ -50,17 +50,31 @@ See `docs/shadedoomvk/PF-002-LIFETIME-CONTRACT.md` for the exact contract and de
 
 ## Bindless identity
 
-Baseline constants include a fixed `MaxBindlessTextures`, `FixedBindlessSlots` and `MaxLightmaps`. `AllocBindlessSlot(count)` uses allocation-size free buckets; `FreeBindlessSlot(index)` recycles the starting slot.
+PF-003 hardens the bindless address space and allocator. The executable contract lives in `src/common/rendering/vulkan/descriptorsets/vk_bindless.h` and is documented in `docs/shadedoomvk/PF-003-BINDLESS-CONTRACT.md`.
 
-Risks:
+Address space:
 
-- raw integer index reuse;
-- missing generation validation;
-- reserved lightmap/probe ranges sharing the global address space;
-- long-lived LevelMesh/material uniform state retaining indices across resource rebuilds;
-- exhaustion currently fatal.
+```text
+[0, 3)       fixed resources
+[3, 259)     up to 128 lightmap/probe-page pairs
+[259, N)     dynamic material/colormap/environment-probe blocks
+```
 
-PF-002 now provides the cross-resource generation/lifetime mechanism and bindless allocation/free generation hooks. PF-003 applies those hooks to descriptor capacity, reservation arithmetic and long-lived descriptor consumers.
+This corrects the founding baseline's `3 + 128` dynamic start: each lightmap page consumes **two** descriptors, so the old range could overlap dynamic allocations above 64 pages.
+
+Dynamic blocks use exact-size free buckets through `VkBindlessSlotAllocator`. Allocation/free drives PF-002 generations; a stale token cannot validate after retirement/reuse. Invalid or duplicate frees are rejected rather than re-enqueued.
+
+Effective capacity is:
+
+```text
+min(vk_max_bindless_textures, derived Vulkan device limit)
+```
+
+The device limit accounts for combined-sampler + sampled-image limits, update-after-bind aggregate limits and the fixed scene descriptors already present in the pipeline layout. The limiting capability, requested/effective capacity, current/high-water/free descriptor counts and reuse/failure counters are inspectable.
+
+`UpdateBindlessDescriptorSet()` rejects more than 128 lightmap pages and verifies that page writes end before the dynamic range. `SetBindlessTexture()` rejects out-of-capacity writes.
+
+Global emergency descriptor flushing remains prohibited because LevelMesh/material consumers can retain raw indices.
 
 ## LevelMesh identity
 

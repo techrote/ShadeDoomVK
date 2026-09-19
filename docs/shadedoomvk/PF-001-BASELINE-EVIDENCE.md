@@ -11,7 +11,7 @@ PF-001 created a deterministic **source/contract state capture** suitable for or
 
 `tools/pf_oracle/baseline.json`
 
-PF-001 initially established ten deliberately small probes: six inherited architecture/capability seams and four known pre-fix defect markers. The oracle is intentionally cumulative; PF-002 extends the same capture with four renderer-lifetime invariants rather than replacing the PF-001 evidence.
+PF-001 initially established ten deliberately small probes: six inherited architecture/capability seams and four known pre-fix defect markers. The oracle is intentionally cumulative: PF-002 added four renderer-lifetime invariants, and PF-003 adds two bindless capacity/reservation invariants while strengthening the inherited reuse/generation probes.
 
 This file does not claim GPU image evidence was produced in hosted CI. The runtime/image evidence shape is defined separately by `tools/pf_oracle/runtime_evidence.schema.json` and `PF-EQUIVALENCE-PROTOCOL.md`.
 
@@ -41,16 +41,16 @@ A known-defect probe being reproduced is **not** a claim that the defect is acce
 
 ## Expected oracle result
 
-The original PF-001 merge recorded 10 probes / 6 passing invariants / 4 reproduced known defects. After PF-002 extends the cumulative oracle, the checked-in baseline records:
+The original PF-001 merge recorded 10 probes / 6 passing invariants / 4 reproduced known defects. PF-002 raised that to 14 / 10 / 4. After PF-003, the cumulative checked-in baseline records:
 
 ```text
-probe_count                 14
-invariant_passed            10
+probe_count                 16
+invariant_passed            12
 known_defect_reproduced      4
 unexpected                   0
 ```
 
-The four PF-002 additions pin the generation primitive plus bindless, LevelMesh and texture-manager lifetime hooks.
+PF-003 adds explicit device-capacity and fixed/lightmap/dynamic reservation probes while migrating bindless reuse/generation markers onto the production `VkBindlessSlotAllocator`.
 
 CI must also produce byte-identical canonical JSON on repeated runs from the same source checkout.
 

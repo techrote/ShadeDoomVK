@@ -39,6 +39,15 @@ jobs:
           -o build/pf-oracle/resource-generation-fixture
         build/pf-oracle/resource-generation-fixture
 
+    - name: Test bindless capacity and allocator model
+      run: |
+        c++ -std=c++17 -Wall -Wextra -Werror \
+          -Isrc/common/rendering \
+          -Isrc/common/rendering/vulkan/descriptorsets \
+          tools/pf_oracle/tests/bindless_allocator_fixture.cpp \
+          -o build/pf-oracle/bindless-allocator-fixture
+        build/pf-oracle/bindless-allocator-fixture
+
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
     needs: pf_oracle

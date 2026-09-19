@@ -31,9 +31,13 @@ PF-006 must not destroy background/precache behavior while changing keys. PF-019
 
 The Vulkan renderer has distinct descriptor layouts/sets for fixed resources, bindless textures, LevelMesh, render-state buffers, light tiles and Z-min/max resources.
 
-Bindless textures use update-after-bind/partially-bound/variable-count descriptor features. Runtime physical-device limits therefore matter; a hard-coded requested count must never exceed supported descriptor limits.
+Bindless textures use update-after-bind/partially-bound/variable-count descriptor features.
 
-PF-003 owns device-aware capacity/reservation/reuse hardening.
+PF-003 now makes the required feature contract explicit: partially-bound, variable descriptor count, sampled-image update-after-bind, runtime descriptor array and non-uniform sampled-image indexing must all be enabled before bindless set creation.
+
+Capacity is device-aware and configurable through `vk_max_bindless_textures`. It is clamped against the relevant mixed normal/update-after-bind sampler + sampled-image pipeline-layout limits, `maxPerStageUpdateAfterBindResources` and `maxUpdateAfterBindDescriptorsInAllPools`, after reserving the fixed non-bindless scene descriptors.
+
+The bindless address space reserves 3 fixed descriptors plus 256 descriptors for 128 lightmap/probe-page pairs. Dynamic allocations begin at descriptor 259 and use generation-aware exact-size free buckets. See `PF-003-BINDLESS-CONTRACT.md`.
 
 ## Ray query / acceleration structures
 
