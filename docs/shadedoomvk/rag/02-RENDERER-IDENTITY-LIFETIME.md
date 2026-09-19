@@ -92,7 +92,7 @@ Doom semantic object
  → shader-visible material/light/probe/texture indices
 ```
 
-PF-004 must make invalidation/ownership explicit without turning every hot element into a heavyweight heap object.
+PF-004 makes this boundary explicit without turning hot elements into heap objects. `MeshBufferAllocator` assigns PF-002 generation/span identities to each non-empty recyclable range; invalid, wrong-span and duplicate frees fail closed, and stale diagnostic identities fail validation after retirement/reuse/reset. `LevelMeshMutationEpochs` records geometry, surface, light, query, portal and lightmap/probe domain changes while the existing Doom callbacks, `SurfaceUpdateType` and `MeshBufferUploads` remain authoritative. CPU/Vulkan acceleration-structure dirty partitioning now shares one exclusive-end contract. See `docs/shadedoomvk/PF-004-LEVELMESH-CONTRACT.md`.
 
 ## Lightmap/probe identity
 
