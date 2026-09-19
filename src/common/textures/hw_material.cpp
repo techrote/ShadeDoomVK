@@ -62,6 +62,11 @@ void FRenderState::SetMaterial(FMaterial *mat, int clampmode, int translation, i
 			mMaterial.globalShaderAddr = {0, 3, 0};
 		}
 	}
+	// In palette mode TM_ALPHATEXTURE consumes the texture's luminance byte as
+	// alpha rather than a palette index. Carry that interpretation into the
+	// Vulkan descriptor identity; SetTextureMode precedes SetMaterial in the
+	// sprite and 2D paths that can request RedIsAlpha.
+	mMaterial.mRedIsAlpha = mPaletteMode && mTextureMode == TM_ALPHATEXTURE;
 	mMaterial.mChanged = true;
 	mTextureModeFlags = mat->GetLayerFlags();
 	auto scale = mat->GetDetailScale();
