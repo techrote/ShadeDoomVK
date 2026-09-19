@@ -73,8 +73,9 @@ void VkLevelMesh::BeginFrame()
 		accelStructNeedsUpdate = Mesh->UploadRanges.Index.GetRanges().Size() != 0;
 		for (const MeshBufferRange& range : Mesh->UploadRanges.Index.GetRanges())
 		{
-			int start = range.Start / IndexesPerBLAS;
-			int end = (range.End + IndexesPerBLAS - 1) / IndexesPerBLAS;
+			int start = MeshBufferChunkStart(range, IndexesPerBLAS);
+			int end = std::min(MeshBufferChunkEndExclusive(range, IndexesPerBLAS),
+				std::min(InstanceCount, (int)DynamicBLAS.size()));
 			for (int i = start; i < end; i++)
 			{
 				DynamicBLAS[i].NeedsUpdate = true;

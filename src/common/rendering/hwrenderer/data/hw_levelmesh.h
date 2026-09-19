@@ -14,6 +14,7 @@
 #include "hw_surfaceuniforms.h"
 #include "hw_rectpacker.h"
 #include "hw_resourcegeneration.h"
+#include "hw_levelmesh_contract.h"
 #include "engineerrors.h"
 #include <memory>
 #include <unordered_map>
@@ -49,31 +50,6 @@ struct LightListAllocInfo
 {
 	int Start = 0;
 	int Count = 0;
-};
-
-struct MeshBufferRange
-{
-	int Start = 0;
-	int End = 0;
-
-	int Count() const { return End - Start; }
-};
-
-class MeshBufferAllocator
-{
-public:
-	void Reset(int size);
-	void Grow(int amount);
-
-	int GetTotalSize() const { return TotalSize; }
-	int GetUsedSize() const;
-
-	int Alloc(int count);
-	void Free(int position, int count);
-
-private:
-	int TotalSize = 0;
-	TArray<MeshBufferRange> Unused;
 };
 
 class MeshBufferUploads
@@ -141,6 +117,9 @@ public:
 	FRendererEpochToken GetResourceEpoch() const { return ResourceEpoch.Snapshot(); }
 	bool ValidateResourceEpoch(FRendererEpochToken token) { return ResourceEpoch.Validate(token); }
 	const FRendererEpochStats& GetResourceEpochStats() const { return ResourceEpoch.GetStats(); }
+
+	void MarkMutation(LevelMeshMutationDomain domain) { MutationEpochs.Mark(domain); }
+	const LevelMeshMutationEpochSnapshot& GetMutationEpochs() const { return MutationEpochs.Snapshot(); }
 
 	virtual void GetVisibleSurfaces(LightmapTile* tile, TArray<int>& outSurfaces) { }
 
@@ -235,6 +214,7 @@ public:
 
 private:
 	FRendererEpoch ResourceEpoch;
+	LevelMeshMutationEpochs MutationEpochs;
 };
 
 struct LevelMeshTileStats
@@ -279,6 +259,7 @@ inline GeometryAllocInfo LevelMesh::AllocGeometry(int vertexCount, int indexCoun
 	UploadRanges.SurfaceIndex.Add(info.IndexStart / 3, info.IndexCount / 3);
 
 	Mesh.IndexCount = std::max(Mesh.IndexCount, info.IndexStart + info.IndexCount);
+	MarkMutation(LevelMeshMutationDomain::Geometry | LevelMeshMutationDomain::Query);
 
 	return info;
 }
@@ -301,6 +282,7 @@ inline UniformsAllocInfo LevelMesh::AllocUniforms(int count)
 
 	UploadRanges.Uniforms.Add(info.Start, info.Count);
 	UploadRanges.LightUniforms.Add(info.Start, info.Count);
+	MarkMutation(LevelMeshMutationDomain::Surface);
 
 	return info;
 }
@@ -319,6 +301,7 @@ inline LightListAllocInfo LevelMesh::AllocLightList(int count)
 	}
 	info.Count = count;
 	UploadRanges.LightIndex.Add(info.Start, info.Count);
+	if (info.Count > 0) MarkMutation(LevelMeshMutationDomain::Lights);
 	return info;
 }
 
@@ -335,6 +318,7 @@ inline LightAllocInfo LevelMesh::AllocLight()
 			I_FatalError("Could not find space in level mesh light buffer");
 	}
 	UploadRanges.Light.Add(info.Index, 1);
+	MarkMutation(LevelMeshMutationDomain::Lights);
 	return info;
 }
 
@@ -352,6 +336,7 @@ inline SurfaceAllocInfo LevelMesh::AllocSurface(int count)
 	}
 	info.Count = count;
 	UploadRanges.Surface.Add(info.Index, info.Count);
+	MarkMutation(LevelMeshMutationDomain::Surface | LevelMeshMutationDomain::Query);
 	return info;
 }
 
@@ -363,47 +348,65 @@ inline int LevelMesh::AllocTile(const LightmapTile& tile)
 		int index = Lightmap.FreeTiles.Last();
 		Lightmap.FreeTiles.Pop();
 		Lightmap.Tiles[index] = tile;
+		MarkMutation(LevelMeshMutationDomain::LightmapProbe);
 		return index;
 	}
 	int index = Lightmap.Tiles.Size();
 	Lightmap.Tiles.Push(tile);
+	MarkMutation(LevelMeshMutationDomain::LightmapProbe);
 	return index;
 }
 
 inline void LevelMesh::FreeGeometry(int vertexStart, int vertexCount, int indexStart, int indexCount)
 {
-	// Convert triangles to degenerates
+	if (!FreeLists.Vertex.CanFree(vertexStart, vertexCount) || !FreeLists.Index.CanFree(indexStart, indexCount))
+		I_FatalError("Invalid LevelMesh geometry free: vertices %d+%d, indexes %d+%d", vertexStart, vertexCount, indexStart, indexCount);
+
 	for (int i = 0; i < indexCount; i++)
 		Mesh.Indexes[indexStart + i] = 0;
 	UploadRanges.Index.Add(indexStart, indexCount);
 
-	FreeLists.Vertex.Free(vertexStart, vertexCount);
-	FreeLists.Index.Free(indexStart, indexCount);
+	if (!FreeLists.Vertex.Free(vertexStart, vertexCount) || !FreeLists.Index.Free(indexStart, indexCount))
+		I_FatalError("LevelMesh geometry free failed after validation");
+	MarkMutation(LevelMeshMutationDomain::Geometry | LevelMeshMutationDomain::Query);
 }
 
 inline void LevelMesh::FreeUniforms(int start, int count)
 {
-	FreeLists.Uniforms.Free(start, count);
+	if (!FreeLists.Uniforms.Free(start, count))
+		I_FatalError("Invalid LevelMesh uniform free: %d+%d", start, count);
+	if (count > 0) MarkMutation(LevelMeshMutationDomain::Surface);
 }
 
 inline void LevelMesh::FreeLightList(int start, int count)
 {
-	FreeLists.LightIndex.Free(start, count);
+	if (!FreeLists.LightIndex.Free(start, count))
+		I_FatalError("Invalid LevelMesh light-list free: %d+%d", start, count);
+	if (count > 0) MarkMutation(LevelMeshMutationDomain::Lights);
 }
 
 inline void LevelMesh::FreeSurface(unsigned int surfaceIndex, int count)
 {
-	FreeLists.Surface.Free(surfaceIndex, count);
+	if (!FreeLists.Surface.Free((int)surfaceIndex, count))
+		I_FatalError("Invalid LevelMesh surface free: %u+%d", surfaceIndex, count);
+	if (count > 0) MarkMutation(LevelMeshMutationDomain::Surface | LevelMeshMutationDomain::Query);
 }
 
 inline void LevelMesh::FreeTile(int index)
 {
+	if (index < 0 || index >= (int)Lightmap.Tiles.Size() || Lightmap.UsedTiles <= 0)
+		I_FatalError("Invalid LevelMesh lightmap tile free: %d", index);
+	for (int freeIndex : Lightmap.FreeTiles)
+		if (freeIndex == index)
+			I_FatalError("Duplicate LevelMesh lightmap tile free: %d", index);
 	Lightmap.UsedTiles--;
 	Lightmap.FreeTiles.Push(index);
+	MarkMutation(LevelMeshMutationDomain::LightmapProbe);
 }
 
 inline void LevelMesh::UploadPortals()
 {
 	UploadRanges.Portals.Clear();
 	UploadRanges.Portals.Add(0, (int)Portals.Size());
+	MarkMutation(LevelMeshMutationDomain::Portals | LevelMeshMutationDomain::Query);
 }

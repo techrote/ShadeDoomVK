@@ -823,6 +823,7 @@ void DoomLevelMesh::UploadDynLights(FLevelLocals& doomMap)
 	memcpy(dataptr + (size0 + size1), &lightdata.arrays[2][0], size2 * sizeof(FDynLightInfo));
 
 	UploadRanges.DynLight.Add(0, sizeof(int) * 4 + totalsize * sizeof(FDynLightInfo));
+	MarkMutation(LevelMeshMutationDomain::Lights);
 }
 
 TArray<HWWall>& DoomLevelMesh::GetSidePortals(int sideIndex)
@@ -1125,7 +1126,7 @@ void DoomLevelMesh::OnSectorChangedTexZ(sector_t* sector)
 	{
 		if (line->sidedef[0])
 			UpdateSide(line->sidedef[0]->Index(), SurfaceUpdateType::Full);
-		else if (line->sidedef[1])
+		if (line->sidedef[1])
 			UpdateSide(line->sidedef[1]->Index(), SurfaceUpdateType::Full);
 	}
 }
@@ -1204,6 +1205,7 @@ void DoomLevelMesh::UpdateSideLightList(FLevelLocals& doomMap, unsigned int side
 		}
 		surf = DoomSurfaceInfos[surf].NextSurface;
 	}
+	MarkMutation(LevelMeshMutationDomain::Lights | LevelMeshMutationDomain::Surface | LevelMeshMutationDomain::LightmapProbe);
 }
 
 void DoomLevelMesh::UpdateFlatLightList(FLevelLocals& doomMap, unsigned int sectorIndex)
@@ -1233,6 +1235,7 @@ void DoomLevelMesh::UpdateFlatLightList(FLevelLocals& doomMap, unsigned int sect
 		}
 		surf = DoomSurfaceInfos[surf].NextSurface;
 	}
+	MarkMutation(LevelMeshMutationDomain::Lights | LevelMeshMutationDomain::Surface | LevelMeshMutationDomain::LightmapProbe);
 }
 
 void DoomLevelMesh::UpdateSideShadows(FLevelLocals& doomMap, unsigned int sideIndex)
@@ -1247,6 +1250,7 @@ void DoomLevelMesh::UpdateSideShadows(FLevelLocals& doomMap, unsigned int sideIn
 		}
 		surf = DoomSurfaceInfos[surf].NextSurface;
 	}
+	MarkMutation(LevelMeshMutationDomain::LightmapProbe);
 }
 
 void DoomLevelMesh::UpdateFlatShadows(FLevelLocals& doomMap, unsigned int sectorIndex)
@@ -1261,6 +1265,7 @@ void DoomLevelMesh::UpdateFlatShadows(FLevelLocals& doomMap, unsigned int sector
 		}
 		surf = DoomSurfaceInfos[surf].NextSurface;
 	}
+	MarkMutation(LevelMeshMutationDomain::LightmapProbe);
 }
 
 void DoomLevelMesh::UpdateSide(unsigned int sideIndex, SurfaceUpdateType updateType)
@@ -1579,6 +1584,7 @@ void DoomLevelMesh::SetSideLights(FLevelLocals& doomMap, unsigned int sideIndex)
 		}
 		UploadRanges.LightUniforms.Add(uinfo.Start, uinfo.Count);
 	}
+	MarkMutation(LevelMeshMutationDomain::Surface);
 }
 
 void DoomLevelMesh::SetFlatLights(FLevelLocals& doomMap, unsigned int sectorIndex)
@@ -1606,6 +1612,7 @@ void DoomLevelMesh::SetFlatLights(FLevelLocals& doomMap, unsigned int sectorInde
 		}
 		UploadRanges.LightUniforms.Add(uinfo.Start, uinfo.Count);
 	}
+	MarkMutation(LevelMeshMutationDomain::Surface);
 }
 
 void DoomLevelMesh::CreateWallSurface(side_t* side, HWWallDispatcher& disp, MeshBuilder& state, TArray<HWWall>& list, LevelMeshDrawType drawType, unsigned int sideIndex, const LightListAllocInfo& lightlist)
