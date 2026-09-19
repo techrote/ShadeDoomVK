@@ -1,8 +1,8 @@
 # Vulkan pipeline, descriptor and capability map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active with optional/experimental paths  
-Primary issues: PF-002, PF-003, PF-006, PF-007, PF-019, SDVK-003, SDVK-016
+Status: active with optional/experimental paths; PF-003 descriptor and PF-005 upload ownership hardening active  
+Primary issues: PF-002, PF-003, PF-005, PF-006, PF-007, PF-019, SDVK-003, SDVK-016
 
 ## Primary source areas
 
@@ -38,6 +38,27 @@ PF-003 now makes the required feature contract explicit: partially-bound, variab
 Capacity is device-aware and configurable through `vk_max_bindless_textures`. It is clamped against the relevant mixed normal/update-after-bind sampler + sampled-image pipeline-layout limits, `maxPerStageUpdateAfterBindResources` and `maxUpdateAfterBindDescriptorsInAllPools`, after reserving the fixed non-bindless scene descriptors.
 
 The bindless address space reserves 3 fixed descriptors plus 256 descriptors for 128 lightmap/probe-page pairs. Dynamic allocations begin at descriptor 259 and use generation-aware exact-size free buckets. See `PF-003-BINDLESS-CONTRACT.md`.
+
+## Texture upload staging after PF-005
+
+Ordinary `VkHardwareTexture` uploads no longer create one CPU-only `VulkanBuffer` per image. `VkTextureManager` owns a lazily-created 64 MiB persistent transfer-source buffer and `VkTextureUploadArenaPlanner` assigns 16-byte-aligned, non-overlapping slices.
+
+The Vulkan copy contract remains conventional:
+
+```text
+CPU texture bytes
+  → mapped arena slice
+  → vkCmdCopyBufferToImage(bufferOffset = slice.Offset)
+  → existing image layout transition / mip generation
+```
+
+Safety is intentionally conservative. Arena offsets advance monotonically while transfer commands may be in flight. When a request fits the arena but not the remaining tail, the renderer waits at the existing upload-only `WaitForCommands(false, true)` completion boundary; only after that wait returns does the planner reset to offset zero. No submitted transfer can therefore observe overwritten arena bytes.
+
+Uploads larger than 64 MiB use the inherited dedicated transfer-buffer/deferred-delete path instead of growing persistent staging without bound. This preserves a bounded persistent-memory contract.
+
+The arena records logical requests/acquisitions, high-water, waits, resets, reuse and oversized fallbacks. The manager separately records actual persistent backing-buffer allocations and dedicated fallbacks. The deterministic PF-005 burst fixture demonstrates allocation-count reduction without claiming synthetic GPU timing.
+
+PF-005 does not change texture format, dimensions, mip-count/mip-generation policy, sampling/filtering or image-layout semantics. See `PF-005-TEXTURE-UPLOAD-CONTRACT.md`.
 
 ## Ray query / acceleration structures
 
@@ -86,3 +107,5 @@ At minimum use named queries/data rather than scattered vendor tests for:
 3. Pipeline-key refactor must map every old key state to one and only one equivalent new key.
 4. Runtime descriptor capacity must respect physical-device limits.
 5. Optional Vulkan features need explicit non-feature/fallback behavior rather than unexplained failure.
+6. Persistent upload storage may not be reused until all submitted transfer reads from that storage are complete.
+7. Texture-upload optimization may not change content, format, mip or sampling policy.
