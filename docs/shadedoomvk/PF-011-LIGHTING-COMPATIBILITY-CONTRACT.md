@@ -1,6 +1,6 @@
 # PF-011 lighting compatibility contract
 
-Status: implementation contract; acceptance remains gated on exact-head CI, merge verification and ledger reconciliation.  
+Status: accepted implementation contract; PR #57 merged as `1c16f7e76d8927c315c4fc57b8c9e532ca99c84b` after exact-head CI passed.  
 Baseline implementation lineage: `master` at `71d969210ca44b4a5154d1ced2add09fb7774820` before PF-011.
 
 ## Purpose
@@ -93,9 +93,17 @@ The Cook-Torrance BRDF constants and equations remain owned by `lightmodel_pbr.g
 
 ## Numerical tolerance and adversarial coverage
 
-`tools/pf_oracle/tests/lighting_compat_fixture.cpp` freezes representative and boundary vectors for normalization, linearity clamping, inverse-square/linear blending and spotlight edges. The fixture uses an absolute tolerance of `1e-5` for ordinary values and `1e-4` for high-magnitude inherited attenuation samples where float rounding is expected.
+`tools/pf_oracle/tests/lighting_compat_fixture.cpp` freezes representative and boundary vectors for authoring-strength saturation, RGB normalization, linearity clamping, GLDEFS/alpha scaling, additive/subtractive packing, inverse-square/linear moving-light response and spotlight edges. The fixture uses an absolute tolerance of `1e-5` for ordinary values and `1e-4` for high-magnitude inherited attenuation samples where float rounding is expected.
 
-`test_lighting_compat_contract.py` additionally asserts source ownership, operation ordering, named constants, and the intentional CPU/GPU path distinctions. The ordinary PF oracle and complete platform build matrix remain mandatory.
+`test_lighting_compat_contract.py` additionally asserts source ownership, operation ordering, named constants, intentional CPU/GPU path distinctions, sunlight proxy behavior, and numerical direct-PBR/sun/ambient/metallic bridge vectors. The ordinary PF oracle and complete platform build matrix remain mandatory.
+
+## Acceptance evidence
+
+- Implementation head: `6c977abec0a9f957d9bc5e0f24d46bb87990950e`.
+- Exact-head Continuous Integration run 76 passed the deterministic PF renderer oracle and complete Windows/macOS/Linux build matrix before merge.
+- Implementation PR #57 merged as `1c16f7e76d8927c315c4fc57b8c9e532ca99c84b`, and `master` was verified at that exact merge commit.
+- The implementation is a calibration-preserving refactor: literals are named and ownership is made explicit while inherited equations, operation ordering and deliberately distinct CPU/GPU compatibility paths are retained.
+- No donor renderer code, audio, art or external assets were imported.
 
 ## Compatibility invariants
 
