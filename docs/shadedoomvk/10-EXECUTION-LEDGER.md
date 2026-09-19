@@ -115,12 +115,21 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Required deterministic PF oracle and Windows/macOS/Linux build matrix passed before merge; the post-merge `master` run also passed.
 - Hardened bindless device-capacity/reservation handling, fixed the lightmap/probe descriptor overlap, and retained exact-size generation-aware reuse without unsafe global flushing.
 - Merge commit: `8ee205b6476446bc4552aaa92a47a7450453516c`.
-- PF-008's descriptor prerequisite is satisfied. PF-012 now waits only for PF-004.
+- PF-005 and PF-008 became dependency-ready. PF-012 remained blocked on PF-004, PF-010 and PF-011.
+
+### 2026-09-19 — PF-004 accepted and merged
+
+- PF-004 / #21 completed through PR #41.
+- Required current-head CI passed: deterministic PF oracle, compiled LevelMesh allocator/mutation fixture, and the inherited Windows/macOS/Linux build matrix.
+- Froze the LevelMesh mutation/allocation contract, added generation/span diagnostics and fail-closed invalid-range handling, repaired CPU BLAS dirty-partition rounding and two-sided texture-Z invalidation, and made lightmap/atlas mutation dependencies inspectable without replacing the existing update machinery.
+- Merge commit: `ea64022b3bc71572ecb91d04284cfc4058ce357a`; `master` was verified at that merge commit.
+- PF-012 no longer waits on PF-004 but remains blocked on PF-010 and PF-011. PF-015 now waits on PF-010 and PF-011; PF-018 remains downstream of PF-015.
+- Residual note: `OnMidTex3DHeightChanged()` remains intentionally unclaimed pending source-proven ownership; PF-004 does not mask that uncertainty with a broad full refresh.
 
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20.
-- **READY:** PF-004 / #21, PF-006 / #23, PF-007 / #24, PF-009 / #26, PF-011 / #28.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21.
+- **READY:** PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-011 / #28.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
