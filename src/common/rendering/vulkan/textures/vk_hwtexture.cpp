@@ -69,13 +69,23 @@ void VkHardwareTexture::Reset()
 
 		mImage.Reset(fb);
 		mPaletteImage.Reset(fb);
+		mAlphaImage.Reset(fb);
 		mDepthStencil.Reset(fb);
 	}
 }
 
 VkTextureImage *VkHardwareTexture::GetImage(FTexture *tex, int translation, int flags)
 {
-	if (flags & (CTF_Indexed | CTF_IndexedRedIsAlpha))
+	// Palette-index and RedIsAlpha data are both R8 uploads, but they have
+	// different producer semantics (palette index vs luminance-as-alpha). They
+	// therefore must never alias the same cached VkTextureImage.
+	if (flags & CTF_IndexedRedIsAlpha)
+	{
+		if (!mAlphaImage.Image)
+			CreateImage(&mAlphaImage, tex, translation, flags);
+		return &mAlphaImage;
+	}
+	else if (flags & CTF_Indexed)
 	{
 		if (!mPaletteImage.Image)
 			CreateImage(&mPaletteImage, tex, translation, flags);
@@ -199,7 +209,7 @@ void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int tr
 			// Create the texture now as that's easier to deal with elsewhere.
 
 			FTextureBuffer texbuffer = tex->CreateTexBuffer(translation, flags | CTF_CheckOnly);
-			bool indexed = flags & CTF_Indexed;
+			bool indexed = (flags & (CTF_Indexed | CTF_IndexedRedIsAlpha)) != 0;
 			CreateTexture(image, texbuffer.mWidth, texbuffer.mHeight, indexed ? 1 : 4, indexed ? VK_FORMAT_R8_UNORM : VK_FORMAT_B8G8R8A8_UNORM, texbuffer.mBuffer, !indexed);
 
 			auto textureManager = fb->GetTextureManager();
@@ -232,7 +242,7 @@ void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int tr
 		else
 		{
 			FTextureBuffer texbuffer = tex->CreateTexBuffer(translation, flags | CTF_ProcessData);
-			bool indexed = flags & CTF_Indexed;
+			bool indexed = (flags & (CTF_Indexed | CTF_IndexedRedIsAlpha)) != 0;
 			CreateTexture(image, texbuffer.mWidth, texbuffer.mHeight, indexed ? 1 : 4, indexed ? VK_FORMAT_R8_UNORM : VK_FORMAT_B8G8R8A8_UNORM, texbuffer.mBuffer, !indexed);
 		}
 	}
@@ -485,9 +495,10 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	clampmode = base->GetClampMode(clampmode);
 
 	int paletteFlags = 0;
+	const bool indexedRedIsAlpha = state.mPaletteMode && state.mRedIsAlpha;
 	if (state.mPaletteMode)
 	{
-		paletteFlags |= CTF_Indexed; // To do: may need to implement CTF_IndexedRedIsAlpha too for the "style.Flags & STYLEF_RedIsAlpha" case
+		paletteFlags |= indexedRedIsAlpha ? CTF_IndexedRedIsAlpha : CTF_Indexed;
 
 		// We can't do linear filtering for indexed textures
 		if (clampmode < CLAMP_NOFILTER)
@@ -496,7 +507,7 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 
 	for (auto& set : mDescriptorSets)
 	{
-		if (set.clampmode == clampmode && set.remap == translationp && set.globalShaderAddr == globalShaderAddr && set.indexed == state.mPaletteMode) return set;
+		if (set.clampmode == clampmode && set.remap == translationp && set.globalShaderAddr == globalShaderAddr && set.indexed == state.mPaletteMode && set.redIsAlpha == indexedRedIsAlpha) return set;
 	}
 
 	const GlobalShaderDesc& globalshader = *GetGlobalShader(globalShaderAddr);
@@ -569,6 +580,6 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	if (texIndex != bindlessIndex + textureCount)
 		I_FatalError("VkMaterial.GetDescriptorEntry: texIndex != bindlessIndex + textureCount");
 
-	mDescriptorSets.emplace_back(clampmode, translationp, bindlessIndex, globalShaderAddr, state.mPaletteMode);
+	mDescriptorSets.emplace_back(clampmode, translationp, bindlessIndex, globalShaderAddr, state.mPaletteMode, indexedRedIsAlpha);
 	return mDescriptorSets.back();
 }
