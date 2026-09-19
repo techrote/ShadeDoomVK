@@ -17,15 +17,27 @@ Primary issues: PF-002, PF-003, PF-006, PF-007, PF-019, SDVK-003, SDVK-016
 
 ## Render/pipeline keying
 
-`VkPipelineKey`, `VkRenderPassKey` and `VkShaderKey` encode pipeline/shader state. Baseline equality/ordering uses `memcmp` over whole C++ objects and relies on explicit padding plus `static_assert` size checks.
+PF-006 replaces whole-object `memcmp`/padding identity for `VkPipelineKey`, `VkRenderPassKey` and `VkShaderKey` with explicit semantic state in `src/common/rendering/vulkan/vk_keyidentity.h`.
 
-This is fast to implement but fragile as ShadeDoomVK adds states/permutations. PF-006 replaces object-representation identity with explicit canonical fields/equality/hash while preserving the exact baseline state partition.
+- `VkKeyIdentity::ShaderState` names every meaningful shader specialization/layout field.
+- `VkKeyIdentity::PipelineState` names the meaningful graphics-pipeline fields, canonical shader state and render-style word.
+- `VkKeyIdentity::RenderPassState` names depth/stencil presence, sample count, draw-buffer count and draw-buffer format.
+- The Vulkan key classes build these states through `CanonicalState()` and use them for ordered-map equality/order.
+- Padding, tail padding and reserved/unused bitfields are no longer cache identity.
+
+`VkShaderKey::AsQWORD` remains the packed specialization-constant ABI used by the shaders; PF-006 does not reorder or reinterpret its meaningful bits. The generalized shader cache preserves the inherited narrower partition through explicit layout/effect/user-shader/vertex-format serialization rather than raw `Layout.AsDWORD` object representation.
+
+PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. PF-019 may optimize cache/worker overhead only after this semantic identity is frozen. See `PF-006-PIPELINE-KEY-CONTRACT.md`.
 
 ## Pipeline compilation/caching
 
 The renderer supports generalized/specialized pipelines, graphics-pipeline libraries where available, Vulkan pipeline cache and background worker threads for pipeline work.
 
-PF-006 must not destroy background/precache behavior while changing keys. PF-019 may optimize lookup/worker overhead only after key identity is frozen.
+PF-006 preserves the specialized/generalized maps, vertex-input/vertex-shader/fragment-shader/fragment-output library decomposition, priority/precache worker queues and main-thread installation semantics.
+
+The on-disk `pipelinecache.zdpc` contains the Vulkan driver cache blob returned by `VulkanPipelineCache::GetCacheData()` and restored through `PipelineCacheBuilder::InitialData()`. Renderer C++ key objects are not serialized into that file, so PF-006 introduces no renderer-key disk-cache migration.
+
+PF-019 may optimize lookup/worker overhead only after key identity is frozen.
 
 ## Descriptor sets
 
@@ -83,6 +95,6 @@ At minimum use named queries/data rather than scattered vendor tests for:
 
 1. Capability queries are descriptive; quality policy remains separate.
 2. Vendor/driver workaround extraction may not silently remove old workarounds.
-3. Pipeline-key refactor must map every old key state to one and only one equivalent new key.
+3. Pipeline/shader/render-pass key equality/order depends only on explicitly named renderer state; packed shader specialization ABI remains separate from C++ cache identity.
 4. Runtime descriptor capacity must respect physical-device limits.
 5. Optional Vulkan features need explicit non-feature/fallback behavior rather than unexplained failure.
