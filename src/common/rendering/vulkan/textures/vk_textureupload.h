@@ -17,23 +17,40 @@ struct VkAsyncTextureUploadStats
 	uint64_t TargetInvalidations = 0;
 	uint64_t TargetRetirements = 0;
 	uint64_t InvalidTargets = 0;
+	uint64_t IdWraps = 0;
+	uint64_t IdCollisions = 0;
 };
 
 class VkAsyncTextureUploadTracker
 {
 public:
+	explicit VkAsyncTextureUploadTracker(uint32_t initialJobId = 1)
+		: NextJobId(NormalizeJobId(initialJobId))
+	{
+	}
+
 	int Queue(uintptr_t targetKey, FRendererEpochToken queueEpoch)
 	{
-		const int slot = EnsureTarget(targetKey);
-		if (slot < 0 || !queueEpoch.IsSet())
+		if (!queueEpoch.IsSet())
 		{
 			Stats.InvalidTargets++;
 			return 0;
 		}
 
-		int id = NextJobId++;
-		if (NextJobId <= 0)
-			NextJobId = 1;
+		const int slot = EnsureTarget(targetKey);
+		if (slot < 0)
+		{
+			Stats.InvalidTargets++;
+			return 0;
+		}
+
+		const int id = AllocateJobId();
+		if (id == 0)
+		{
+			Stats.InvalidTargets++;
+			return 0;
+		}
+
 		Jobs[id] = { Targets.Current(slot), queueEpoch };
 		Stats.Queued++;
 		return id;
@@ -50,8 +67,9 @@ public:
 
 		const Job job = it->second;
 		Jobs.erase(it);
-		const bool current = queueEpoch.Validate(job.QueueEpoch) && Targets.Validate(job.Target);
-		if (!current)
+		const bool queueCurrent = queueEpoch.Validate(job.QueueEpoch);
+		const bool targetCurrent = Targets.Validate(job.Target);
+		if (!queueCurrent || !targetCurrent)
 		{
 			Stats.StaleRejected++;
 			return false;
@@ -106,6 +124,36 @@ private:
 		FRendererEpochToken QueueEpoch;
 	};
 
+	static uint32_t NormalizeJobId(uint32_t id)
+	{
+		const uint32_t maxJobId = (uint32_t)std::numeric_limits<int>::max();
+		return id == 0 || id > maxJobId ? 1 : id;
+	}
+
+	int AllocateJobId()
+	{
+		const uint32_t maxJobId = (uint32_t)std::numeric_limits<int>::max();
+		for (uint64_t attempts = 0; attempts < maxJobId; attempts++)
+		{
+			const uint32_t candidate = NextJobId;
+			if (NextJobId == maxJobId)
+			{
+				NextJobId = 1;
+				Stats.IdWraps++;
+			}
+			else
+			{
+				NextJobId++;
+			}
+
+			const int id = (int)candidate;
+			if (Jobs.find(id) == Jobs.end())
+				return id;
+			Stats.IdCollisions++;
+		}
+		return 0;
+	}
+
 	int EnsureTarget(uintptr_t targetKey)
 	{
 		if (targetKey == 0)
@@ -133,7 +181,7 @@ private:
 		return slot;
 	}
 
-	int NextJobId = 1;
+	uint32_t NextJobId = 1;
 	int NextTargetSlot = 0;
 	std::unordered_map<uintptr_t, int> TargetSlots;
 	std::vector<int> FreeTargetSlots;
