@@ -198,5 +198,5 @@ jobs:
 #       tag: nightly
 #       rm: true
 #       token: ${{ secrets.GITHUB_TOKEN }}
-#       files: build/package/vkdoom-windows-prerelease.zip
-#              build/package/vkdoom-linux-prerelease.zip
+#       files: build/vkdoom-windows-prerelease.zip
+#              build/vkdoom-linux-prerelease.zip
