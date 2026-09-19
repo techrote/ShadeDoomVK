@@ -4,6 +4,7 @@
 #include <zvulkan/vulkanobjects.h>
 #include "vulkan/textures/vk_imagetransition.h"
 #include "hwrenderer/data/hw_resourcegeneration.h"
+#include "hwrenderer/data/hw_uploadstaging.h"
 #include <list>
 #include <thread>
 #include <mutex>
@@ -86,8 +87,90 @@ public:
 	void RunOnWorkerThread(std::function<void()> task);
 	void RunOnMainThread(std::function<void()> task);
 
-	int CreateUploadID(VkHardwareTexture* tex);
-	bool CheckUploadID(int id);
+	struct FAsyncTextureUploadTicket
+	{
+		int ID = 0;
+		FRendererEpochToken ManagerEpoch;
+		FRendererEpochToken TargetEpoch;
+	};
+
+	struct FAsyncTextureUploadStats
+	{
+		uint64_t JobsQueued = 0;
+		uint64_t JobsCompleted = 0;
+		uint64_t PendingCancellations = 0;
+		uint64_t MissingTicketRejects = 0;
+		uint64_t ManagerEpochRejects = 0;
+		uint64_t TargetEpochRejects = 0;
+	};
+
+	FAsyncTextureUploadTicket CreateUploadTicket(VkHardwareTexture* tex, FRendererEpochToken targetEpoch)
+	{
+		FAsyncTextureUploadTicket ticket;
+		ticket.ID = CreateUploadID(tex);
+		ticket.ManagerEpoch = AsyncUploadEpoch.Snapshot();
+		ticket.TargetEpoch = targetEpoch;
+		AsyncUploadStats.JobsQueued++;
+		return ticket;
+	}
+
+	bool CheckUploadTicket(const FAsyncTextureUploadTicket& ticket)
+	{
+		if (!CheckUploadID(ticket.ID))
+		{
+			AsyncUploadStats.MissingTicketRejects++;
+			return false;
+		}
+		if (!AsyncUploadEpoch.Validate(ticket.ManagerEpoch))
+		{
+			AsyncUploadStats.ManagerEpochRejects++;
+			return false;
+		}
+		return true;
+	}
+
+	void CancelUploads(VkHardwareTexture* texture)
+	{
+		for (auto it = PendingUploads.begin(); it != PendingUploads.end();)
+		{
+			if (it->second == texture)
+			{
+				it = PendingUploads.erase(it);
+				AsyncUploadStats.PendingCancellations++;
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
+
+	void RecordTargetUploadStale() { AsyncUploadStats.TargetEpochRejects++; }
+	void RecordUploadCompleted() { AsyncUploadStats.JobsCompleted++; }
+	const FAsyncTextureUploadStats& GetAsyncUploadStats() const { return AsyncUploadStats; }
+
+	static constexpr std::size_t UploadStagingCapacity = 64u * 1024u * 1024u;
+
+	struct FUploadStagingAllocation
+	{
+		VulkanBuffer* Buffer = nullptr;
+		VkDeviceSize Offset = 0;
+		bool Dedicated = false;
+
+		bool IsSet() const { return Buffer != nullptr; }
+	};
+
+	struct FUploadStagingRuntimeStats
+	{
+		uint64_t PersistentBufferAllocations = 0;
+		uint64_t DedicatedBufferAllocations = 0;
+		uint64_t DedicatedWaits = 0;
+	};
+
+	FUploadStagingAllocation StageTextureUpload(const void* pixels, std::size_t size);
+	void FinishTextureUpload(const FUploadStagingAllocation& allocation);
+	const FRendererUploadStagingStats& GetUploadStagingPlannerStats() const { return UploadStagingPlanner.GetStats(); }
+	const FUploadStagingRuntimeStats& GetUploadStagingRuntimeStats() const { return UploadStagingRuntimeStats; }
 
 	FRendererEpochToken GetTextureEpoch() const { return TextureEpoch.Snapshot(); }
 	FRendererEpochToken GetLightmapEpoch() const { return LightmapEpoch.Snapshot(); }
@@ -122,6 +205,9 @@ private:
 
 	VkPPTexture* GetVkTexture(PPTexture* texture);
 
+	int CreateUploadID(VkHardwareTexture* tex);
+	bool CheckUploadID(int id);
+
 	VulkanRenderDevice* fb = nullptr;
 
 	std::list<VkHardwareTexture*> Textures;
@@ -150,6 +236,11 @@ private:
 
 	int NextUploadID = 1;
 	std::unordered_map<int, VkHardwareTexture*> PendingUploads;
+	FAsyncTextureUploadStats AsyncUploadStats;
+
+	std::unique_ptr<VulkanBuffer> UploadStagingBuffer;
+	FRendererUploadStagingPlanner UploadStagingPlanner{ UploadStagingCapacity };
+	FUploadStagingRuntimeStats UploadStagingRuntimeStats;
 
 	struct
 	{
