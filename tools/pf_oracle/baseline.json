@@ -11,9 +11,23 @@
     {
       "category": "resource_lifetime",
       "classification": "invariant_passed",
+      "id": "bindless-device-capacity",
+      "kind": "invariant",
+      "owner": "PF-003"
+    },
+    {
+      "category": "resource_lifetime",
+      "classification": "invariant_passed",
       "id": "bindless-generation-tracking",
       "kind": "invariant",
       "owner": "PF-002"
+    },
+    {
+      "category": "resource_lifetime",
+      "classification": "invariant_passed",
+      "id": "bindless-reservation-boundary",
+      "kind": "invariant",
+      "owner": "PF-003"
     },
     {
       "category": "material",
@@ -103,9 +117,9 @@
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 10,
+    "invariant_passed": 12,
     "known_defect_reproduced": 4,
-    "probe_count": 14,
+    "probe_count": 16,
     "unexpected": 0
   }
 }
