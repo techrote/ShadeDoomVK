@@ -1,8 +1,8 @@
 # Portal and coordinate-space contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active, compatibility-critical; PF-009 sprite-surface and PF-010 render-context extraction incorporated  
-Primary issues: PF-009, PF-010, PF-014, PF-015, PF-016, SDVK-007, SDVK-012, SDVK-013
+Status: active, compatibility-critical; PF-009 sprite-surface, PF-010 render-context and PF-012 probe-map spatial contracts incorporated  
+Primary issues: PF-009, PF-010, PF-012, PF-014, PF-015, PF-016, SDVK-007, SDVK-012, SDVK-013
 
 ## Why this matters
 
@@ -59,6 +59,8 @@ Doom world conventions and Vulkan/lightmapper structures sometimes reorder Y/Z. 
 
 Do not infer a universal axis convention from one shader or C++ type name. PF-010 leaves these conversions and their transform order unchanged; the context contract supplies identity, not another coordinate system.
 
+PF-012's lightmap-copy probe selector is one deliberately pinned exception where the producer and consumer stay in the same LevelMesh world space. `LightmapTile::InverseTransform.WorldOrigin/WorldU/WorldV` reconstruct the copy shader's `WorldPos`, and live `LightProbe::position` candidates are uploaded in that same XYZ convention. They are therefore **not** passed through the raytrace-only `SwapYZ()` helper. Introducing that swap into the copy selector would compare different coordinate spaces and is a correctness defect.
+
 ## Sprite orientation spaces
 
 For sprite material work distinguish:
@@ -91,6 +93,8 @@ Neither camera textures nor probe captures are eligible for future main-view his
 
 PF-009 snapshots the current view position and hardware view angles alongside sprite state; it does not create cross-frame history or assume the view is the main player camera.
 
+PF-012 does not change probe capture transforms. Its per-lightmap selector runs while copying baked LevelMesh tiles, before ordinary viewpoint/portal recursion is relevant to the stored atlas texel. It chooses from map-owned probe positions in LevelMesh world coordinates and therefore must not key the stored mapping by the current `HWRenderContext` or apply current-view portal mirror transforms.
+
 ## Shadow implications
 
 - world ray-query visibility uses LevelMesh world geometry;
@@ -107,6 +111,7 @@ PF-009 supplies the orientation/mirror/portal inputs only. It does not add or al
 2. Mirror parity is part of tangent/culling/projected-shadow handedness but remains separate from frame/UV mirror state until the owning feature defines their composition.
 3. Camera texture and probe captures are separate render contexts; probe faces remain individually inspectable.
 4. Any persistent cache depending on position/orientation must include enough PF-010 view/portal generation identity to reject incompatible reuse.
-5. PF-009/PF-010 are extraction/refactor issues; they do not redefine Doom portal semantics or transform order.
-6. PF-009 state is observational: frame selection, quad geometry, clipping, UV assignment, material binding, palette/translation behavior and draw ordering remain inherited.
-7. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
+5. PF-012 lightmap probe selection compares tile-reconstructed world positions and probe positions in one LevelMesh XYZ convention; do not apply a view/raytrace axis swap or current portal-view transform to only one side.
+6. PF-009/PF-010 are extraction/refactor issues; they do not redefine Doom portal semantics or transform order.
+7. PF-009 state is observational: frame selection, quad geometry, clipping, UV assignment, material binding, palette/translation behavior and draw ordering remain inherited.
+8. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
