@@ -24,10 +24,13 @@ Primary implementation sources:
 `VkKeyIdentity` contains representation-independent state records:
 
 - `ShaderState` names every meaningful `VkShaderKey` specialization/layout field;
-- `PipelineState` names every meaningful graphics-pipeline field plus canonical shader state and `FRenderStyle::AsDWORD`;
+- `RenderStyleState` names `FRenderStyle`'s four repository-defined byte fields: `BlendOp`, `SrcAlpha`, `DestAlpha` and `Flags`;
+- `PipelineState` names every meaningful graphics-pipeline field plus canonical shader and render-style state;
 - `RenderPassState` names depth/stencil presence, sample count, draw-buffer count and draw-buffer format.
 
-The public Vulkan key classes expose `CanonicalState()` and implement ordered-map equality/ordering through these records. Padding, tail padding and reserved/unused bitfields are not cache identity.
+The public Vulkan key classes expose `CanonicalState()` and implement ordered-map equality/ordering through these records. Padding, tail padding and shader/pipeline reserved/unused bitfields are not cache identity.
+
+`FRenderStyle` is locally defined as a union of the four named `uint8_t` fields above and `uint32_t AsDWORD`; its own equality historically compares `AsDWORD`. PF-006 therefore preserves the complete four-byte render-style partition, including all `Flags` bits, but no longer depends on union packing, integer endianness or `AsDWORD` representation when building pipeline-cache identity.
 
 This deliberately keeps the existing `std::map` cache topology. PF-006 makes no lookup-performance claim; PF-019 owns later pipeline-worker/cache optimization after identity is frozen.
 
@@ -72,12 +75,13 @@ PF-006 therefore does not introduce a renderer-key disk-format migration and doe
 
 - every meaningful shader-key field independently, including multi-bit boundaries;
 - every meaningful pipeline-key field;
+- each of the four `FRenderStyle` bytes independently at the `0xff` boundary, proving the old four-byte partition is preserved while identity is field-based;
 - representative render-pass sample/draw-buffer/format states;
 - built-in/user/effect and LevelMesh/ray-precision generalized distinctions;
 - warm ordered-map lookup after key reconstruction;
 - adversarial old padding and reserved-bit noise which formerly changed `memcmp` identity but must not create a renderer-state split.
 
-`tools/pf_oracle/tests/test_pipeline_key_contract.py` additionally pins the production source routes, preserves shader specialization constants, worker/library/cache paths and compiles/runs the boundary fixture under the PF oracle job.
+`tools/pf_oracle/tests/test_pipeline_key_contract.py` additionally pins the production source routes, checks the repository-local `FRenderStyle` definition against the four-field canonical mapping, preserves shader specialization constants and worker/library/cache paths, and compiles/runs the boundary fixture under the PF oracle job.
 
 The deterministic PF oracle remains the output/state baseline. The full inherited Windows, macOS and Linux matrix remains required before acceptance.
 
