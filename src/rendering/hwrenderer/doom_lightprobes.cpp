@@ -25,6 +25,16 @@ static void DumpLightProbes()
 	}
 }
 
+static void InvalidateLightmapProbeSelection()
+{
+	if (!level.levelMesh)
+		return;
+
+	for (auto& tile : level.levelMesh->Lightmap.Tiles)
+		tile.ReceivedNewLight = true;
+	level.levelMesh->MarkMutation(LevelMeshMutationDomain::LightmapProbe);
+}
+
 static void AddLightProbe(FVector3 position)
 {
 	LightProbe probe;
@@ -48,6 +58,7 @@ CCMD(addlightprobe)
 	const auto pos = FVector3(players[0].mo->Pos().X, players[0].mo->Pos().Y, players[0].viewz);
 	AddLightProbe(pos);
 	level.RecalculateLightProbeTargets();
+	InvalidateLightmapProbeSelection();
 
 	Printf("Spawned probe at %.1f, %.1f, %.1f\n", pos.X, pos.Y, pos.Z);
 }
@@ -76,6 +87,7 @@ CCMD(autoaddlightprobes)
 	}
 
 	level.RecalculateLightProbeTargets();
+	InvalidateLightmapProbeSelection();
 
 	Printf("Spawned %d probes\n", probes);
 }
