@@ -4,30 +4,29 @@
 void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
 	if (probes.size() == 0)
-		return;
-
-	if (lastIndex >= probes.size())
 	{
 		lastIndex = 0;
+		collected = 0;
+		cubemapsAllocated = 0;
+		iterations = 0;
+		return;
 	}
 
 	if (cubemapsAllocated != probes.size())
 	{
-		int newSegments = probes.size();
-		int lastSegments = cubemapsAllocated;
-
 		cubemapsAllocated = probes.size();
-
 		lastIndex = 0;
 		collected = 0;
 		iterations = 0;
-
 		screen->ResetLightProbes();
 		return;
 	}
 
 	if (iterations >= 5)
 		return; // We are done baking
+
+	if (lastIndex >= probes.size())
+		lastIndex = 0;
 
 	renderScene(lastIndex, probes[lastIndex]);
 	lastIndex++;
@@ -36,9 +35,7 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 	if (lastIndex >= probes.size())
 	{
 		if (collected == probes.size())
-		{
 			screen->EndLightProbePass();
-		}
 		collected = 0;
 		iterations++;
 	}
@@ -46,19 +43,30 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 
 void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
-	if (lastIndex >= probes.size())
-	{
-		lastIndex = 0;
+	if (probes.size() == 0)
+		return;
 
-		if (!probes.size())
-		{
-			return;
-		}
-	}
+	if (cubemapsAllocated == probes.size() && iterations >= 5)
+		return;
+
+	if (lastIndex >= probes.size())
+		lastIndex = 0;
 
 	while (lastIndex < probes.size())
 	{
+		const int previousIndex = lastIndex;
+		const int previousAllocated = cubemapsAllocated;
+		const int previousIterations = iterations;
 		Step(probes, renderScene);
+
+		// Step must either advance the pass or change builder state. This guard
+		// makes Full fail closed instead of spinning if a future terminal state
+		// is added to Step without a corresponding Full update.
+		if (lastIndex == previousIndex && cubemapsAllocated == previousAllocated && iterations == previousIterations)
+			return;
+
+		if (iterations >= 5 || lastIndex >= probes.size())
+			return;
 	}
 }
 
@@ -74,37 +82,44 @@ LightProbeAABBTree::~LightProbeAABBTree()
 
 int LightProbeAABBTree::FindClosestProbe(FVector3 pos, float extent)
 {
-	if (Root == -1)
+	if (Root < 0 || Root >= (int)Nodes.size())
 		return 0;
 
-	float probeDistSqr = 0.0;
+	float probeDistSqr = 0.0f;
 	int probeIndex = 0;
-	Node* stack[64];
-	int stackIndex = 0;
-	stack[stackIndex++] = &Nodes[Root];
-	do
+	bool foundProbe = false;
+	std::vector<int> stack;
+	stack.push_back(Root);
+	while (!stack.empty())
 	{
-		Node* a = stack[--stackIndex];
-		if (OverlapAABB(pos.XY(), extent, *a))
+		const int nodeIndex = stack.back();
+		stack.pop_back();
+		if (nodeIndex < 0 || nodeIndex >= (int)Nodes.size())
+			continue;
+
+		const Node& node = Nodes[nodeIndex];
+		if (!OverlapAABB(pos.XY(), extent, node))
+			continue;
+
+		if (node.IsLeaf())
 		{
-			if (a->IsLeaf())
+			FVector3 d = node.probePos - pos;
+			float distSqr = d | d;
+			if (!foundProbe || probeDistSqr > distSqr)
 			{
-				FVector3 probePos = a->probePos;
-				FVector3 d = probePos - pos;
-				float distSqr = d | d;
-				if (probeIndex == 0 || probeDistSqr > distSqr)
-				{
-					probeIndex = a->probeIndex;
-					probeDistSqr = distSqr;
-				}
-			}
-			else
-			{
-				stack[stackIndex++] = &Nodes[a->right];
-				stack[stackIndex++] = &Nodes[a->left];
+				probeIndex = node.probeIndex;
+				probeDistSqr = distSqr;
+				foundProbe = true;
 			}
 		}
-	} while (stackIndex > 0);
+		else
+		{
+			if (node.right >= 0)
+				stack.push_back(node.right);
+			if (node.left >= 0)
+				stack.push_back(node.left);
+		}
+	}
 	return probeIndex;
 }
 
@@ -123,6 +138,9 @@ bool LightProbeAABBTree::OverlapAABB(const FVector2& center, float extent, const
 
 void LightProbeAABBTree::Update()
 {
+	// Deliberately dormant. The live probe-map path does not upload or query
+	// this experimental tree; PF-012 keeps that status explicit rather than
+	// reviving the incomplete GPU traversal accidentally.
 	//Create(Mesh->LightProbes);
 	//Upload();
 }
