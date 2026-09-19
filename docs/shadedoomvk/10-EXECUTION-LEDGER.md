@@ -200,10 +200,20 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-012 / #29 and PF-015 / #32 became dependency-ready. PF-016 / #33 now retains PF-015 as its remaining prerequisite.
 - No physical-lighting calibration, quality/default policy, light selection, shadow/probe policy, gameplay/tic, material/palette/sprite/portal, audio, source-ownership or donor/provenance semantic change was introduced.
 
+### 2026-09-19 — PF-012 accepted and merged
+
+- PF-012 / #29 completed through PR #59.
+- Exact implementation head `a31852b7a7dd6d9cbc0133b07906ca70544e80b8` passed Continuous Integration run 90: deterministic PF renderer oracle, compiled probe-selection adversarial/boundary fixture, source-contract coverage, and the inherited Windows/macOS/Linux build matrix; post-merge `master` run 91 passed at the exact merge head.
+- Replaced the inherited lightmap probe-0 stub with a bounded nearest-probe selector that stores the runtime PF-003 allocator-returned irradiance descriptor identity in the `R16_UINT` probe map, keeps 0 as explicit fallback, and leaves the unfinished GPU AABB traversal dormant.
+- Fixed non-zero-floor probe midpoint placement, builder terminal/empty/count-change behavior, dormant CPU AABB leaf/root/traversal correctness, runtime probe-map invalidation, and atlas/copy-buffer ownership/bounds checks.
+- Merge commit: `8db714d3b5856acb3a4ea09839d4999f20ce5d5d`; `master` was verified at that exact merge commit.
+- PF-013 / #30, PF-014 / #31 and PF-015 / #32 remain dependency-ready; no new PF issue becomes dependency-ready solely from PF-012.
+- Gameplay/tic, material/PBR calibration, palette/translation, sprite, portal-transform, audio, source-ownership and donor/provenance semantics remain unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28.
-- **READY:** PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29.
+- **READY:** PF-013 / #30, PF-014 / #31, PF-015 / #32.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
