@@ -12,6 +12,7 @@
 #include <zvulkan/vulkanobjects.h>
 #include "vk_imagetransition.h"
 #include "hw_material.h"
+#include "hwrenderer/data/hw_resourcegeneration.h"
 #include <list>
 
 struct FMaterialState;
@@ -56,6 +57,7 @@ private:
 	int mTexelsize = 4;
 
 	VkTextureImage mDepthStencil;
+	FRendererEpoch mUploadEpoch;
 
 	uint8_t* mappedSWFB = nullptr;
 };
