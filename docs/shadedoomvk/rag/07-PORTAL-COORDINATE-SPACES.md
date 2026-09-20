@@ -1,7 +1,7 @@
 # Portal and coordinate-space contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active, compatibility-critical; PF-009 sprite-surface, PF-010 render-context, PF-012 probe-map spatial and PF-014 corrective contracts incorporated  
+Status: active, compatibility-critical; PF-009 sprite-surface, PF-010 render-context, PF-012 probe-map spatial, PF-014 corrective and PF-015 visibility-cache contracts incorporated  
 Primary issues: PF-009, PF-010, PF-012, PF-014, PF-015, PF-016, SDVK-007, SDVK-012, SDVK-013
 
 ## Why this matters
@@ -41,7 +41,7 @@ Every scene portal child records:
 
 A nested mirror therefore cannot be mistaken for its parent merely because it views the same map position. Two active mirror dimensions remain separately inspectable even when their XOR yields non-mirrored effective handedness.
 
-Persistent consumers must use `(epoch, identity)` rather than local identity alone. See `docs/shadedoomvk/PF-010-RENDER-CONTEXT-CONTRACT.md`.
+A persistent consumer that actually depends on pass identity must use `(epoch, identity)` rather than local identity alone. See `docs/shadedoomvk/PF-010-RENDER-CONTEXT-CONTRACT.md`.
 
 ## Portal groups and displacement
 
@@ -52,6 +52,8 @@ An actor-light fast path that reads only the actor's current section but loses p
 PF-009 records both sprite source and render portal-group identities plus the inherited `thruportal` route discriminator. The state is descriptive and does not replace current displacement logic.
 
 PF-010 context identity is likewise not a replacement for portal-group displacement. It identifies the view/pass in which a renderer query occurs; the spatial query must still use the correct portal-group coordinate semantics.
+
+PF-015 makes that distinction executable for the actor/static-light visibility cache. The current LevelMesh visibility trace depends on world/query geometry plus the stable portal-group coordinate context; it does **not** depend on the transient PF-010 pass serial. Cache reuse therefore keys the portal group and PF-004 `Query` epoch, while deliberately excluding `HWRenderContext::epoch/identity` because those change every pass and would destroy otherwise valid cross-frame reuse. If a future trace consumes mirror/pass-specific state, that state must be added as an explicit semantic key rather than treating transient identity as a substitute.
 
 ## Important axis conversions
 
@@ -94,7 +96,7 @@ PF-014 does not alter `FPortalSceneState::isMirrored()`, PF-009's `RenderSurface
 
 Models use object-to-world and normal matrices; model renderer culling already combines model mirror state with portal mirror state. PF-009 classifies model-backed actors explicitly so downstream sprite-card consumers cannot accidentally apply sprite-surface policy to a model draw.
 
-PF-010 does not change model matrices or culling; future view-dependent caches can additionally key by explicit render context.
+PF-010 does not change model matrices or culling; future view-dependent caches can additionally key by explicit render context where their inputs require it.
 
 ## Probe/camera renders
 
@@ -112,7 +114,9 @@ PF-012 does not change probe capture transforms. Its per-lightmap selector runs 
 - actor projected/card shadows need portal-relative light/actor positions and mirror-correct silhouette orientation;
 - contact bias must be computed in the receiver/world space actually used for the pass;
 - a portal view must not accidentally reuse visibility results generated for a different coordinate transform unless the cache key proves equivalence;
-- PF-010 supplies a conservative view/pass identity seam but does not itself define visibility-cache equivalence.
+- PF-010 supplies a view/pass identity seam but cache keys must name the actual inputs whose changes invalidate the result.
+
+PF-015 establishes the first such bounded cache rule: actor/static-light world visibility reuses results across PF-010 pass serials only when actor position, PF-004 world-query epoch, stable portal group and light state remain equivalent. A portal-group transition forces a miss; a mere new render-pass serial does not.
 
 PF-009 supplies the orientation/mirror/portal inputs only. It does not add or alter a shadow algorithm.
 
@@ -121,10 +125,11 @@ PF-009 supplies the orientation/mirror/portal inputs only. It does not add or al
 1. A portal-group translation is part of light/object spatial identity for renderer queries.
 2. Mirror parity is part of tangent/culling/projected-shadow handedness but remains separate from frame/UV mirror state until the owning feature defines their composition.
 3. Camera texture and probe captures are separate render contexts; probe faces remain individually inspectable.
-4. Any persistent cache depending on position/orientation must include enough PF-010 view/portal generation identity to reject incompatible reuse.
-5. PF-012 lightmap probe selection compares tile-reconstructed world positions and probe positions in one LevelMesh XYZ convention; do not apply a view/raytrace axis swap or current portal-view transform to only one side.
-6. PF-009/PF-010 are extraction/refactor issues; PF-014 is a bounded corrective issue; none redefine Doom portal semantics or transform order.
-7. PF-009 state is observational: frame selection, quad geometry, UV assignment, material binding, palette/translation behavior and draw ordering remain inherited; PF-014 changes only the reproduced clipping fallback defect.
-8. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
-9. Sky deduplication is semantic field identity, never raw `HWSkyInfo` object representation or padding.
-10. An unresolved sprite ceiling candidate uses `-NO_VAL` consistently from initialization through ordinary-sector fallback.
+4. Any persistent cache must include the semantic PF-010/portal state its computation actually consumes; transient pass identity is not a mandatory key when the cached world-space computation is pass-invariant.
+5. PF-015 actor/static-light visibility includes stable portal-group context and the PF-004 `Query` epoch, and deliberately excludes transient `HWRenderContext` serials from the current world-trace cache.
+6. PF-012 lightmap probe selection compares tile-reconstructed world positions and probe positions in one LevelMesh XYZ convention; do not apply a view/raytrace axis swap or current portal-view transform to only one side.
+7. PF-009/PF-010 are extraction/refactor issues; PF-014/PF-015 are bounded corrective issues; none redefine Doom portal semantics or transform order.
+8. PF-009 state is observational: frame selection, quad geometry, UV assignment, material binding, palette/translation behavior and draw ordering remain inherited; PF-014 changes only the reproduced clipping fallback defect.
+9. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
+10. Sky deduplication is semantic field identity, never raw `HWSkyInfo` object representation or padding.
+11. An unresolved sprite ceiling candidate uses `-NO_VAL` consistently from initialization through ordinary-sector fallback.
