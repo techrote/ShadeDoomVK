@@ -876,7 +876,7 @@ void HWSprite::PerformSpriteClipAdjustment(AActor *thing, const DVector2 &thingp
 		}
 		if (btm == NO_VAL)
 			btm = thing->Sector->floorplane.ZatPoint(thing) - thing->Floorclip;
-		if (top == NO_VAL)
+		if (top == -NO_VAL)
 			top = thing->Sector->ceilingplane.ZatPoint(thingpos);
 
 		// +/-1 to account for the one pixel empty frame around the sprite.
