@@ -49,6 +49,54 @@ int main()
 	allocator.Reset(8);
 	assert(!allocator.ValidateIdentity(beforeResetId));
 
+	// PF-018: equal-size fragmented holes resolve deterministically by address,
+	// while the size index examines only the selected best-fit candidate.
+	MeshBufferAllocator fragmented;
+	fragmented.Reset(32);
+	const int f0 = fragmented.Alloc(4);
+	const int f1 = fragmented.Alloc(8);
+	const int f2 = fragmented.Alloc(4);
+	const int f3 = fragmented.Alloc(8);
+	const int f4 = fragmented.Alloc(8);
+	assert(f0 == 0 && f1 == 4 && f2 == 12 && f3 == 16 && f4 == 24);
+	assert(fragmented.Free(f1, 8));
+	assert(fragmented.Free(f3, 8));
+	const auto searchesBefore = fragmented.GetStats().AllocationSearches;
+	const auto candidatesBefore = fragmented.GetStats().AllocationCandidates;
+	const int bestFit = fragmented.Alloc(6);
+	assert(bestFit == 4);
+	assert(fragmented.GetStats().AllocationSearches == searchesBefore + 1);
+	assert(fragmented.GetStats().AllocationCandidates == candidatesBefore + 1);
+	assert(fragmented.GetLargestFreeRange() == 8);
+	assert(fragmented.GetFreeSize() == 10);
+
+	// Coalescing after a best-fit split must keep both indexes synchronized.
+	assert(fragmented.Free(bestFit, 6));
+	assert(fragmented.Free(f0, 4));
+	assert(fragmented.Free(f2, 4));
+	assert(fragmented.Free(f4, 8));
+	assert(fragmented.GetUsedSize() == 0);
+	assert(fragmented.GetFreeRanges().size() == 1);
+	assert(fragmented.GetLargestFreeRange() == 32);
+
+	// PF-018 bounded growth: small misses grow by 50%, large misses grow only
+	// by the demanded amount, and pre-existing allocation identities do not move.
+	MeshBufferAllocator growth;
+	growth.Reset(16);
+	const int stable = growth.Alloc(16);
+	const auto stableIdentity = growth.CurrentIdentity(stable);
+	growth.Grow(1);
+	assert(growth.GetTotalSize() == 24);
+	assert(growth.ValidateIdentity(stableIdentity));
+	assert(growth.GetStats().GrownElements == 8);
+	assert(growth.Alloc(4) == 16);
+	growth.Grow(40);
+	assert(growth.GetTotalSize() == 64);
+	assert(growth.ValidateIdentity(stableIdentity));
+	assert(growth.GetStats().Grows == 2);
+	assert(growth.GetStats().GrownElements == 48);
+	assert(growth.GetStats().PeakTotalSize == 64);
+
 	// Adversarial BLAS partition boundaries. The pre-PF-004 CPU path used
 	// floor(End / chunk), so {1,2} incorrectly selected zero partitions.
 	assert(MeshBufferChunkStart({ 1, 2 }, 8) == 0);
@@ -82,6 +130,6 @@ int main()
 	assert(reset.Portals == geometry.Portals + 1);
 	assert(reset.LightmapProbe == geometry.LightmapProbe + 1);
 
-	std::cout << "PF-004 LevelMesh allocator/mutation fixture passed\n";
+	std::cout << "PF-004/PF-018 LevelMesh allocator/mutation fixture passed\n";
 	return 0;
 }
