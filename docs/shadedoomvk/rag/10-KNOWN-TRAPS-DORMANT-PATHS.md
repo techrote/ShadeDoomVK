@@ -92,13 +92,13 @@ Owner: PF-013.
 
 ## 15. Shadow-map 1024-light selection is traversal-order dependent
 
-PF-015 implementation replaces the baseline first-1024 linked-list accident only on overflow. Eligible sets at or below 1024 preserve inherited set and row order; overflow is ordered by squared distance to the interpolated central main view plus deterministic spatial/light semantic tie fields. `stat shadowmap` exposes candidates, selected rows and overflow drops. Acceptance remains pending exact-head CI/merge evidence in the PF-015 canonical record.
+Resolved by PF-015 / PR #65, merged as `1a60a3cbb9360e8b1d74a2764c8472ffd65d044d`. Eligible sets at or below 1024 retain the inherited selected set and row order exactly. On overflow, selection is ordered by squared distance to the interpolated central main view plus deterministic spatial/light semantic tie fields instead of first-1024 linked-list traversal. `stat shadowmap` exposes processed, candidate, selected and dropped counts. Exact implementation-head CI run 106 and post-merge `master` run 107 both passed the required PF oracle and Windows/macOS/Linux matrix.
 
 Owner: PF-015.
 
 ## 16. Static actor-light visibility caching needs world-generation validity
 
-PF-015 implementation keys reuse to PF-004 `LevelMeshMutationEpochs::Query`, actor position, stable portal-group context and existing per-light update state. A moving world occluder therefore invalidates stationary actor/light and sun visibility without globally disabling the cache. Transient PF-010 pass serials are intentionally excluded because the current LevelMesh trace does not consume them and they would force systematic misses. Acceptance remains pending exact-head CI/merge evidence.
+Resolved by PF-015 / PR #65, merged as `1a60a3cbb9360e8b1d74a2764c8472ffd65d044d`. Actor/static-light and sun visibility cache reuse now rejects PF-004 `LevelMeshMutationEpochs::Query` changes while retaining actor-position, stable portal-group and per-light invalidation. Moving world occluders therefore invalidate stationary actor/light visibility without globally disabling caching. Transient PF-010 pass serials remain deliberately excluded because the current LevelMesh trace does not consume them. `stat actorlightcache` exposes cache hits, misses and invalidation reasons. Exact implementation-head CI run 106 and post-merge run 107 passed.
 
 Owner: PF-015.
 

@@ -228,11 +228,21 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-015 / #32 remains the highest-priority dependency-ready corrective issue. PF-014 does not newly unblock another PF issue by itself.
 - Gameplay/tic, material/palette/translation meaning, sprite frame/UV selection, portal transforms/recursion, audio, source ownership and donor/provenance semantics remain unchanged.
 
+### 2026-09-20 — PF-015 accepted and merged
+
+- PF-015 / #32 completed through implementation PR #65; this acceptance reconciliation records the final gate transition after post-merge verification.
+- Exact implementation head `e3a4e69a0976ba74b13e299cc3035d866209ea42` passed Continuous Integration run 106 with the deterministic PF renderer oracle, compiled shadow/visibility adversarial boundary fixture, source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
+- Preserved exact inherited shadow selection and row order for eligible sets up to the physical 1024-row capacity; overflow now selects by squared distance to the interpolated central main view with deterministic spatial/light semantic ties and exposes processed/candidate/selected/dropped diagnostics.
+- Actor/static-light and sun visibility cache reuse now consumes the existing PF-004 `LevelMeshMutationEpochs::Query` plus stable portal-group context and inherited actor/light invalidators, so moving world occluders invalidate stationary actor/light visibility without globally disabling caching.
+- Merge commit: `1a60a3cbb9360e8b1d74a2764c8472ffd65d044d`; `master` was verified at that exact merge commit and post-merge Continuous Integration run 107 passed on the exact merge head.
+- PF-016 / #33 and PF-018 / #35 become dependency-ready. PF-017 / #34 remains blocked on PF-016; PF-019 / #36 remains blocked on PF-017 and PF-018; PF-020 / #37 remains blocked on all unfinished PF issues.
+- Gameplay/tic, PF-011 lighting calibration, shadow-map capacity/resolution/filtering, ray-query capability/fallback routing, actor-light gathering policy, portal transforms, sprite/material/palette/translation meaning, audio, source ownership and donor/provenance semantics remain unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31.
-- **READY:** PF-015 / #32.
-- **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32.
+- **READY:** PF-016 / #33, PF-018 / #35. PF-016 is the next highest-priority issue in the recorded final repair path.
+- **BLOCKED:** PF-017 / #34 on PF-016; PF-019 / #36 on PF-017 and PF-018; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
 ## Future implementation ledger rule
