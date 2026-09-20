@@ -23,13 +23,22 @@ struct HWSkyInfo
 	bool sky2;
 	PalEntry fadecolor;
 
-	bool operator==(const HWSkyInfo & inf)
+	bool operator==(const HWSkyInfo & inf) const
 	{
-		return !memcmp(this, &inf, sizeof(*this));
+		return x_offset[0] == inf.x_offset[0] &&
+			x_offset[1] == inf.x_offset[1] &&
+			y_offset == inf.y_offset &&
+			texture[0] == inf.texture[0] &&
+			texture[1] == inf.texture[1] &&
+			skytexno1 == inf.skytexno1 &&
+			mirrored == inf.mirrored &&
+			doublesky == inf.doublesky &&
+			sky2 == inf.sky2 &&
+			fadecolor == inf.fadecolor;
 	}
-	bool operator!=(const HWSkyInfo & inf)
+	bool operator!=(const HWSkyInfo & inf) const
 	{
-		return !!memcmp(this, &inf, sizeof(*this));
+		return !(*this == inf);
 	}
 	void init(HWDrawInfo *di, sector_t* sec, int skypos, int sky1, PalEntry fadecolor);
 };
