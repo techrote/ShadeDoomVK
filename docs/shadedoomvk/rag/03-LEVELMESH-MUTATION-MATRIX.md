@@ -1,8 +1,8 @@
 # LevelMesh mutation and invalidation matrix
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-004 mutation/allocation contract active; PF-012 probe-map invalidation incorporated; PF-018 performance work must preserve it  
-Primary issues: PF-004, PF-012, PF-018, SDVK-014
+Status: PF-004 mutation/allocation contract active; PF-012 probe-map invalidation and PF-015 visibility-cache consumption incorporated; PF-018 performance work must preserve it  
+Primary issues: PF-004, PF-012, PF-015, PF-018, SDVK-014
 
 `LevelMesh`/`DoomLevelMesh` is the persistent renderer-side world representation used by lightmapping, renderer traces, Vulkan buffers and acceleration structures.
 
@@ -47,6 +47,8 @@ PF-004 adds an inspectable diagnostic vocabulary over those existing owners:
 
 PF-004 validated the base table against production callbacks and made the owned domains inspectable through `LevelMeshMutationEpochs`. PF-012 makes the probe-set row executable for runtime debug placement: `addlightprobe` and `autoaddlightprobes` recalculate sector/side targets, mark every existing lightmap tile `ReceivedNewLight`, and advance `LightmapProbe` before the map can be trusted again. The epochs diagnose existing invalidation paths; they do not replace `SurfaceUpdateType`, upload ranges or callback scheduling.
 
+PF-015 consumes the already-authoritative `Query` epoch at actor/static-light and sunlight visibility-cache boundaries. A geometry/query mutation therefore invalidates cached visibility even if actor and light positions remain unchanged. PF-015 does not increment `Query` itself and does not add a second world-dirty mechanism.
+
 ## Existing invalidation vocabulary
 
 `DoomLevelMesh` receives callbacks for floor/ceiling height, textures, decals, sector light and light-list changes. Side/flat blocks carry `SurfaceUpdateType` values `LightLevel`, `Shadows`, `LightList` and `Full`; conflicting partial requests coalesce to `Full`.
@@ -54,6 +56,8 @@ PF-004 validated the base table against production callbacks and made the owned 
 PF-004 keeps that vocabulary. `OnSectorChangedTexZ()` now schedules both sidedefs of a two-sided line rather than suppressing sidedef 1 through `else if`. The inherited `OnMidTex3DHeightChanged()` no-op remains explicitly unclaimed: PF-004 does not substitute a broad refresh without source-proven ownership semantics.
 
 PF-012 does not introduce another surface-update class. Probe-set changes reuse the existing tile rebake trigger because the lightmap copy stage writes both the lighting result and the associated per-texel probe-map result.
+
+PF-015 similarly does not add a mutation producer. It records the current `GetMutationEpochs().Query` in renderer visibility-cache state and rejects reuse when that value changes.
 
 ## Allocation/update behavior
 
@@ -78,6 +82,7 @@ PF-012 adds a second boundary check at the actual lightmap copy consumer: a sele
 5. A changed probe set makes every existing per-lightmap texel probe selection stale; runtime placement paths must schedule regeneration before those mappings are trusted.
 6. Lightmap copy page identity must be valid in both current LevelMesh metadata and current Vulkan resources before use.
 7. Two-sided Doom mutation callbacks must schedule both affected sidedefs; `OnSectorChangedTexZ()` is source-pinned by the PF oracle.
-8. PF-018 performance work must preserve the PF-004/PF-012 mutation contract.
+8. Any renderer visibility cache whose result depends on LevelMesh trace geometry must reject reuse across a `Query` epoch change; PF-015 pins this at actor/static-light and sun-trace caches.
+9. PF-018 performance work must preserve the PF-004/PF-012/PF-015 mutation and visibility-validity contract.
 
-See `docs/shadedoomvk/PF-004-LEVELMESH-CONTRACT.md` for the executable ownership/allocator/AS contract and `rag/06-LIGHTMAP-PROBE-PIPELINE.md` for the PF-012 probe-map mapping/fallback contract.
+See `docs/shadedoomvk/PF-004-LEVELMESH-CONTRACT.md` for the executable ownership/allocator/AS contract, `docs/shadedoomvk/PF-015-SHADOW-VISIBILITY-CONTRACT.md` for the PF-015 cache consumer contract, and `rag/06-LIGHTMAP-PROBE-PIPELINE.md` for the PF-012 probe-map mapping/fallback contract.

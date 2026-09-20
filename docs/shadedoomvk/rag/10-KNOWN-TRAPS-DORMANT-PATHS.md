@@ -8,19 +8,19 @@ This is a warning index, not a defect count. Items may be fixed, removed or recl
 
 ## 1. Per-lightmap probe selection is stubbed
 
-`wadsrc/static/shaders/lightmap/frag_copy.glsl` currently selects a `findClosestProbe()` implementation that always returns `0`. The disabled alternative contains unfinished/inconsistent code. Do not enable it by changing `#if 1` and call that a fix.
+Historical baseline defect owned by PF-012. PF-012 replaced the probe-0 stub with bounded live per-texel nearest-probe selection and explicit fallback semantics. See the PF-012 canonical record for acceptance evidence.
 
 Owner: PF-012.
 
 ## 2. Probe AABB integration is partial
 
-`LightProbeAABBTree` has build/query implementation, but baseline `Update()` and `Upload()` are empty. Establish actual intended CPU/GPU usage before depending on it.
+`LightProbeAABBTree` has build/query implementation, but baseline `Update()` and `Upload()` were empty. PF-012 bounded this path explicitly rather than silently reviving unfinished GPU traversal; live probe selection does not depend on it.
 
 Owner: PF-012.
 
 ## 3. Automatic probe Z formula is wrong for non-zero floors
 
-`doom_lightprobes.cpp:autoaddlightprobes` uses `floor + ceiling / 2` instead of the midpoint expression.
+Resolved by PF-012: automatic probes use the true `(floor + ceiling) * 0.5` midpoint with non-zero-floor coverage.
 
 Owner: PF-012.
 
@@ -44,13 +44,13 @@ Owner: PF-003.
 
 ## 7. Pipeline/shader keys use whole-object `memcmp`
 
-The source tries to control padding with fields/static asserts, but object-layout identity is a fragile architectural dependency.
+Resolved by PF-006: shader/pipeline/render-pass keys use explicit semantic identity; object padding and `FRenderStyle` packed representation no longer define cache identity.
 
 Owner: PF-006.
 
 ## 8. Large vendor/driver policy is embedded in sampler code
 
-Intel device/driver workarounds are mixed directly into sampler creation. Refactor first; policy changes require separate evidence.
+Resolved structurally by PF-007: vendor/driver capability and quirk classification is centralized in the Vulkan capability snapshot while inherited policy boundaries remain unchanged.
 
 Owner: PF-007.
 
@@ -74,43 +74,37 @@ Owner: PF-014.
 
 ## 12. Sprite precache variant flag bug
 
-Baseline defect: one sprite material-marking path computes `scaleflags` then calls `FMaterial::ValidateTexture(tex, true, true)` rather than passing the computed flags.
-
-PF-013 implementation changes that call to `ValidateTexture(tex, scaleflags, true)` and adds expand/upscale boundary coverage. Acceptance is pending exact-head CI/merge evidence; do not treat the trap as historically resolved until PF-013 is accepted.
+Resolved by PF-013: sprite material precache passes the computed scale flags so expand/upscale variants retain normal material lookup identity.
 
 Owner: PF-013.
 
 ## 13. Indexed RedIsAlpha Vulkan material path is explicitly incomplete
 
-Baseline defect: `VkMaterial::GetDescriptorEntry` contains a TODO for `CTF_IndexedRedIsAlpha` under palette mode, while the texture producer emits luminance bytes for this mode rather than palette indices.
-
-PF-013 implementation separates palette-index and RedIsAlpha R8 resident-image/descriptor identity, uploads RedIsAlpha as single-channel data, and prevents palette-index colormap/alpha-binarization logic from consuming it. Ordinary indexed translation remains on the inherited path. Acceptance is pending exact-head CI/merge evidence.
+Resolved by PF-013: Vulkan `CTF_IndexedRedIsAlpha` has separate luminance-as-alpha resident image/descriptor identity and no longer aliases ordinary indexed/palette translation semantics.
 
 Owner: PF-013.
 
 ## 14. PBR roughness-zero numerical edge
 
-Baseline defect: GGX distribution can reach a singular `0/0` form at exactly zero roughness/specular alignment and loses precision near that boundary.
-
-PF-013 implementation rewrites the denominator into an algebraically equivalent cancellation-resistant form and uses a finite zero-width sampled-BRDF fallback, with epsilon/ordinary roughness fixture coverage. No PBR calibration constants or roughness policy are retuned. Acceptance is pending exact-head CI/merge evidence.
+Resolved by PF-013: GGX roughness-zero handling is finite at the sampled zero-width boundary while ordinary roughness calibration is unchanged.
 
 Owner: PF-013.
 
 ## 15. Shadow-map 1024-light selection is traversal-order dependent
 
-`hw_entrypoint.cpp` collects active shadowmapped lights in linked-list order until `lightindex < 1024`, with a source TODO to use spatial preference.
+PF-015 implementation replaces the baseline first-1024 linked-list accident only on overflow. Eligible sets at or below 1024 preserve inherited set and row order; overflow is ordered by squared distance to the interpolated central main view plus deterministic spatial/light semantic tie fields. `stat shadowmap` exposes candidates, selected rows and overflow drops. Acceptance remains pending exact-head CI/merge evidence in the PF-015 canonical record.
 
 Owner: PF-015.
 
 ## 16. Static actor-light visibility caching needs world-generation validity
 
-Actor/light position changes participate in cache validity; moving world occluders require an explicit reproducer and likely a LevelMesh/world-visibility epoch.
+PF-015 implementation keys reuse to PF-004 `LevelMeshMutationEpochs::Query`, actor position, stable portal-group context and existing per-light update state. A moving world occluder therefore invalidates stationary actor/light and sun visibility without globally disabling the cache. Transient PF-010 pass serials are intentionally excluded because the current LevelMesh trace does not consume them and they would force systematic misses. Acceptance remains pending exact-head CI/merge evidence.
 
 Owner: PF-015.
 
 ## 17. Dynamic-light collection uses costly duplicate maintenance
 
-Actor GPU light-list collection BSP-walks and uses sorted duplicate lookup/insertion. Optimize only after visibility/portal correctness fixtures exist.
+Actor GPU light-list collection BSP-walks and uses sorted duplicate lookup/insertion. Optimize only after PF-015 visibility/portal correctness is accepted.
 
 Owner: PF-016.
 
@@ -140,7 +134,7 @@ Owner: PF-018.
 
 ## 22. Texture uploads allocate staging buffers per image
 
-`VkHardwareTexture` creates/maps dedicated staging buffers for image uploads and eventually waits when the deferred-delete total exceeds a threshold. PF-005 owns a persistent staging/job design.
+Historical PF-005 concern. Qualified ordinary texture uploads now use the bounded persistent staging arena; unrelated lightmap/probe/readback staging remains under its owning paths.
 
 ## 23. Model translucency lacks true depth sorting
 

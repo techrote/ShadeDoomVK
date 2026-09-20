@@ -1,160 +1,35 @@
 {
   "baseline_lineage": "VKDoom@09634479ab5bf9adf691074fffe85a006a398cd0",
   "probes": [
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "bindless-block-reuse",
-      "kind": "invariant",
-      "owner": "PF-003"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "bindless-device-capacity",
-      "kind": "invariant",
-      "owner": "PF-003"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "bindless-generation-tracking",
-      "kind": "invariant",
-      "owner": "PF-002"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "bindless-reservation-boundary",
-      "kind": "invariant",
-      "owner": "PF-003"
-    },
-    {
-      "category": "material",
-      "classification": "invariant_passed",
-      "id": "indexed-red-is-alpha-todo",
-      "kind": "invariant",
-      "owner": "PF-013"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "levelmesh-allocation-generation-contract",
-      "kind": "invariant",
-      "owner": "PF-004"
-    },
-    {
-      "category": "levelmesh_mutation",
-      "classification": "invariant_passed",
-      "id": "levelmesh-mutation-domain-epochs",
-      "kind": "invariant",
-      "owner": "PF-004"
-    },
-    {
-      "category": "levelmesh_mutation",
-      "classification": "invariant_passed",
-      "id": "levelmesh-query-dirty-partitions",
-      "kind": "invariant",
-      "owner": "PF-004"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "levelmesh-resource-epoch",
-      "kind": "invariant",
-      "owner": "PF-002"
-    },
-    {
-      "category": "levelmesh_mutation",
-      "classification": "invariant_passed",
-      "id": "levelmesh-texz-two-sided-update",
-      "kind": "invariant",
-      "owner": "PF-004"
-    },
-    {
-      "category": "material",
-      "classification": "invariant_passed",
-      "id": "material-layer-sampling",
-      "kind": "invariant",
-      "owner": "PF-008"
-    },
-    {
-      "category": "material",
-      "classification": "invariant_passed",
-      "id": "material-pbr-layers",
-      "kind": "invariant",
-      "owner": "PF-008"
-    },
-    {
-      "category": "portal",
-      "classification": "invariant_passed",
-      "id": "portal-mirror-handedness",
-      "kind": "invariant",
-      "owner": "PF-010"
-    },
-    {
-      "category": "lighting",
-      "classification": "invariant_passed",
-      "id": "portal-relative-actor-lighting",
-      "kind": "invariant",
-      "owner": "PF-016"
-    },
-    {
-      "category": "probe_lightmap",
-      "classification": "invariant_passed",
-      "id": "probe-map-live-selection",
-      "kind": "invariant",
-      "owner": "PF-012"
-    },
-    {
-      "category": "view_context",
-      "classification": "invariant_passed",
-      "id": "render-context-entrypoints",
-      "kind": "invariant",
-      "owner": "PF-010"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "renderer-generation-primitives",
-      "kind": "invariant",
-      "owner": "PF-002"
-    },
-    {
-      "category": "shadow",
-      "classification": "known_defect_reproduced",
-      "id": "shadow-cap-traversal-order",
-      "kind": "known_defect",
-      "owner": "PF-015"
-    },
-    {
-      "category": "portal",
-      "classification": "invariant_passed",
-      "id": "sky-info-semantic-identity",
-      "kind": "invariant",
-      "owner": "PF-014"
-    },
-    {
-      "category": "sprite",
-      "classification": "invariant_passed",
-      "id": "sprite-clip-top-sentinel",
-      "kind": "invariant",
-      "owner": "PF-014"
-    },
-    {
-      "category": "resource_lifetime",
-      "classification": "invariant_passed",
-      "id": "texture-manager-resource-epochs",
-      "kind": "invariant",
-      "owner": "PF-002"
-    }
+    {"category":"shadow","classification":"invariant_passed","id":"actor-light-world-query-cache-validity","kind":"invariant","owner":"PF-015"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"bindless-block-reuse","kind":"invariant","owner":"PF-003"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"bindless-device-capacity","kind":"invariant","owner":"PF-003"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"bindless-generation-tracking","kind":"invariant","owner":"PF-002"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"bindless-reservation-boundary","kind":"invariant","owner":"PF-003"},
+    {"category":"material","classification":"invariant_passed","id":"indexed-red-is-alpha-todo","kind":"invariant","owner":"PF-013"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"levelmesh-allocation-generation-contract","kind":"invariant","owner":"PF-004"},
+    {"category":"levelmesh_mutation","classification":"invariant_passed","id":"levelmesh-mutation-domain-epochs","kind":"invariant","owner":"PF-004"},
+    {"category":"levelmesh_mutation","classification":"invariant_passed","id":"levelmesh-query-dirty-partitions","kind":"invariant","owner":"PF-004"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"levelmesh-resource-epoch","kind":"invariant","owner":"PF-002"},
+    {"category":"levelmesh_mutation","classification":"invariant_passed","id":"levelmesh-texz-two-sided-update","kind":"invariant","owner":"PF-004"},
+    {"category":"material","classification":"invariant_passed","id":"material-layer-sampling","kind":"invariant","owner":"PF-008"},
+    {"category":"material","classification":"invariant_passed","id":"material-pbr-layers","kind":"invariant","owner":"PF-008"},
+    {"category":"portal","classification":"invariant_passed","id":"portal-mirror-handedness","kind":"invariant","owner":"PF-010"},
+    {"category":"lighting","classification":"invariant_passed","id":"portal-relative-actor-lighting","kind":"invariant","owner":"PF-016"},
+    {"category":"probe_lightmap","classification":"invariant_passed","id":"probe-map-live-selection","kind":"invariant","owner":"PF-012"},
+    {"category":"view_context","classification":"invariant_passed","id":"render-context-entrypoints","kind":"invariant","owner":"PF-010"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"renderer-generation-primitives","kind":"invariant","owner":"PF-002"},
+    {"category":"shadow","classification":"invariant_passed","id":"shadow-cap-spatial-selection","kind":"invariant","owner":"PF-015"},
+    {"category":"portal","classification":"invariant_passed","id":"sky-info-semantic-identity","kind":"invariant","owner":"PF-014"},
+    {"category":"sprite","classification":"invariant_passed","id":"sprite-clip-top-sentinel","kind":"invariant","owner":"PF-014"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"texture-manager-resource-epochs","kind":"invariant","owner":"PF-002"}
   ],
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 20,
-    "known_defect_reproduced": 1,
-    "probe_count": 21,
+    "invariant_passed": 22,
+    "known_defect_reproduced": 0,
+    "probe_count": 22,
     "unexpected": 0
   }
 }

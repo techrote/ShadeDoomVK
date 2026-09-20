@@ -35,11 +35,31 @@
 #include "hw_drawcontext.h"
 #include "hw_dynlightdata.h"
 #include "hw_shadowmap.h"
+#include "hw_visibilitycache.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawstructs.h"
 #include "models.h"
+#include "stats.h"
+#include <atomic>
 #include <cmath>	// needed for std::floor on mac
 #include "hw_cvars.h"
+
+namespace
+{
+std::atomic<uint64_t> TraceCacheHits { 0 };
+std::atomic<uint64_t> TraceCacheMisses { 0 };
+std::atomic<uint64_t> TraceCacheActorInvalidations { 0 };
+std::atomic<uint64_t> TraceCacheWorldInvalidations { 0 };
+std::atomic<uint64_t> TraceCachePortalInvalidations { 0 };
+std::atomic<uint64_t> TraceCacheLightInvalidations { 0 };
+std::atomic<uint64_t> SunTraceCacheHits { 0 };
+std::atomic<uint64_t> SunTraceCacheMisses { 0 };
+
+uint64_t CurrentWorldQueryEpoch()
+{
+	return level.levelMesh ? level.levelMesh->GetMutationEpochs().Query : 0;
+}
+}
 
 template<class T>
 T smoothstep(const T edge0, const T edge1, const T x)
@@ -51,12 +71,24 @@ T smoothstep(const T edge0, const T edge1, const T x)
 class ActorTraceStaticLight
 {
 public:
-	ActorTraceStaticLight(AActor* actor) : Actor(actor)
+	ActorTraceStaticLight(AActor* actor, int portalGroup) : Actor(actor), CachePortalGroup(portalGroup)
 	{
-		if (Actor && (Actor->Pos() != Actor->StaticLightsTraceCache.Pos || (Actor->Sector && (Actor->Sector->Flags & SECF_LM_DYNAMIC) && lm_dynamic)))
+		if (!Actor)
+			return;
+
+		const bool positionChanged = Actor->Pos() != Actor->StaticLightsTraceCache.Pos ||
+			(Actor->Sector && (Actor->Sector->Flags & SECF_LM_DYNAMIC) && lm_dynamic);
+		const uint64_t queryEpoch = CurrentWorldQueryEpoch();
+		BaseValidity = HWCheckVisibilityCacheValidity(positionChanged,
+			Actor->StaticLightsTraceCache.QueryEpoch, queryEpoch,
+			Actor->StaticLightsTraceCache.PortalGroup, CachePortalGroup, false);
+
+		if (!BaseValidity.CanReuse())
 		{
 			Actor->StaticLightsTraceCache.Pos = Actor->Pos();
 			Actor->StaticLightsTraceCache.SunResult = false;
+			Actor->StaticLightsTraceCache.QueryEpoch = queryEpoch;
+			Actor->StaticLightsTraceCache.PortalGroup = CachePortalGroup;
 			ActorMoved = true;
 		}
 	}
@@ -68,27 +100,33 @@ public:
 			return true;
 
 		unsigned index = light->ActorList.SortedFind(Actor, false);
+		auto validity = BaseValidity;
+		validity.LightStateChanged = ignoreCache;
+		const bool hasEntry = index < light->ActorList.Size() && light->ActorList[index] == Actor;
 
-		if (!ignoreCache && !ActorMoved && index < light->ActorList.Size() && light->ActorList[index] == Actor)
+		if (validity.CanReuse() && hasEntry)
 		{
-			bool traceResult = light->ActorResult[index];
-			return traceResult;
+			TraceCacheHits.fetch_add(1, std::memory_order_relaxed);
+			return light->ActorResult[index];
+		}
+
+		TraceCacheMisses.fetch_add(1, std::memory_order_relaxed);
+		if (validity.ActorPositionChanged) TraceCacheActorInvalidations.fetch_add(1, std::memory_order_relaxed);
+		if (validity.WorldQueryChanged) TraceCacheWorldInvalidations.fetch_add(1, std::memory_order_relaxed);
+		if (validity.PortalContextChanged) TraceCachePortalInvalidations.fetch_add(1, std::memory_order_relaxed);
+		if (validity.LightStateChanged) TraceCacheLightInvalidations.fetch_add(1, std::memory_order_relaxed);
+
+		bool traceResult = !level.levelMesh->Trace(FVector3((float)light->Pos.X, (float)light->Pos.Y, (float)light->Pos.Z), FVector3(-L.X, -L.Y, -L.Z), dist);
+		if (!hasEntry)
+		{
+			light->ActorList.Insert(index, Actor);
+			light->ActorResult.Insert(index, traceResult);
 		}
 		else
 		{
-
-			bool traceResult = !level.levelMesh->Trace(FVector3((float)light->Pos.X, (float)light->Pos.Y, (float)light->Pos.Z), FVector3(-L.X, -L.Y, -L.Z), dist);
-			if(index == light->ActorList.Size() || light->ActorList[index] != Actor)
-			{
-				light->ActorList.Insert(index, Actor);
-				light->ActorResult.Insert(index, traceResult);
-			}
-			else
-			{
-				light->ActorResult[index] = traceResult;
-			}
-			return traceResult;
+			light->ActorResult[index] = traceResult;
 		}
+		return traceResult;
 	}
 
 	static bool TraceSunVisibility(float x, float y, float z, sun_trace_cache_t *cache, bool moved)
@@ -96,21 +134,25 @@ public:
 		if (!level.lightmaps || !cache)
 			return false;
 
-		if (!moved)
+		const uint64_t queryEpoch = CurrentWorldQueryEpoch();
+		const bool worldQueryChanged = cache->QueryEpoch != queryEpoch;
+		if (!moved && !worldQueryChanged)
 		{
-			bool traceResult = cache->SunResult;
-			return traceResult;
+			SunTraceCacheHits.fetch_add(1, std::memory_order_relaxed);
+			return cache->SunResult;
 		}
-		else
-		{
-			bool traceResult = level.levelMesh->TraceSky(FVector3(x, y, z), level.SunDirection, 65536.0f);
-			cache->SunResult = traceResult;
-			return traceResult;
-		}
+
+		SunTraceCacheMisses.fetch_add(1, std::memory_order_relaxed);
+		bool traceResult = level.levelMesh->TraceSky(FVector3(x, y, z), level.SunDirection, 65536.0f);
+		cache->SunResult = traceResult;
+		cache->QueryEpoch = queryEpoch;
+		return traceResult;
 	}
 
 	AActor* Actor;
+	int CachePortalGroup = 0;
 	bool ActorMoved = false;
+	HWVisibilityCacheValidity BaseValidity;
 };
 
 //==========================================================================
@@ -142,7 +184,7 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 	
 	out[0] = out[1] = out[2] = 0.f;
 
-	ActorTraceStaticLight staticLight(self);
+	ActorTraceStaticLight staticLight(self, portalgroup);
 
 	if (ActorTraceStaticLight::TraceSunVisibility(x, y, z, traceCache, (self ? staticLight.ActorMoved : traceCache ? traceCache->Pos != DVector3(x, y, z) : false)))
 	{
@@ -282,7 +324,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	float radiusSquared = actorradius * actorradius;
 	dl_validcount++;
 
-	ActorTraceStaticLight staticLight(self);
+	const int actorPortalGroup = self && self->Sector ? self->Sector->PortalGroup : 0;
+	ActorTraceStaticLight staticLight(self, actorPortalGroup);
 
 	int gl_spritelight = get_gl_spritelight();
 
@@ -349,4 +392,19 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *thing, particle_t *particle, sun_
 		if(particle->flags & SPF_FULLBRIGHT) return;
 		GetDynSpriteLightList(nullptr, particle->Pos.X, particle->Pos.Y, particle->Pos.Z, traceCache, modellightdata, isModel);
 	}
+}
+
+ADD_STAT(actorlightcache)
+{
+	FString out;
+	out.Format("hits=%llu misses=%llu actor=%llu world=%llu portal=%llu light=%llu sunhits=%llu sunmisses=%llu",
+		(unsigned long long)TraceCacheHits.load(std::memory_order_relaxed),
+		(unsigned long long)TraceCacheMisses.load(std::memory_order_relaxed),
+		(unsigned long long)TraceCacheActorInvalidations.load(std::memory_order_relaxed),
+		(unsigned long long)TraceCacheWorldInvalidations.load(std::memory_order_relaxed),
+		(unsigned long long)TraceCachePortalInvalidations.load(std::memory_order_relaxed),
+		(unsigned long long)TraceCacheLightInvalidations.load(std::memory_order_relaxed),
+		(unsigned long long)SunTraceCacheHits.load(std::memory_order_relaxed),
+		(unsigned long long)SunTraceCacheMisses.load(std::memory_order_relaxed));
+	return out;
 }
