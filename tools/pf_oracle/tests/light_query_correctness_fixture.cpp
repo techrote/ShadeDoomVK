@@ -4,6 +4,7 @@
 #include <cassert>
 #include <chrono>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -27,15 +28,38 @@ static std::vector<int> collect_sorted(const std::vector<Light*>& candidates)
 {
 	std::vector<Light*> seen;
 	std::vector<int> result;
+	std::less<Light*> less;
 	for (auto* light : candidates)
 	{
-		auto it = std::lower_bound(seen.begin(), seen.end(), light);
+		auto it = std::lower_bound(seen.begin(), seen.end(), light, less);
 		if (it == seen.end() || *it != light)
 		{
 			seen.insert(it, light);
 			result.push_back(light->id);
 		}
 	}
+	return result;
+}
+
+struct Selection
+{
+	int id;
+	int group;
+	int klass;
+
+	bool operator==(const Selection& other) const
+	{
+		return id == other.id && group == other.group && klass == other.klass;
+	}
+};
+
+static std::vector<Selection> selected(const std::vector<Light*>& candidates, int group)
+{
+	HWGenerationSet<Light*> localSeen;
+	localSeen.BeginQuery();
+	std::vector<Selection> result;
+	for (auto* light : candidates)
+		if (localSeen.MarkFirst(light)) result.push_back({light->id, group, light->klass});
 	return result;
 }
 
@@ -73,6 +97,12 @@ int main()
 	assert(!exact({{7, 3}, {8, 3}}));
 	assert(!exact({{7, 3}, {7, 4}}));
 	assert(!exact({}));
+
+	// The live qualification compares selected identity, portal-group context,
+	// class and order. Pin that exact contract independently of pointer ordering.
+	assert((selected(duplicated, actorGroup) == std::vector<Selection>{{2, 3, 1}, {1, 3, 0}, {3, 3, 2}}));
+	assert(selected(duplicated, actorGroup) == selected(duplicated, actorGroup));
+	assert(selected(duplicated, actorGroup) != selected(duplicated, actorGroup + 1));
 
 	// Dense representative work proxy: the new generation marking returns the
 	// same selected identities/order as the old sorted-membership algorithm.
