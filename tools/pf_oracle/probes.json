@@ -94,13 +94,22 @@
       "forbidden": ["memcmp\\s*\\(this\\s*,\\s*&inf\\s*,\\s*sizeof\\(\\*this\\)\\)"]
     },
     {
-      "id": "shadow-cap-traversal-order",
+      "id": "shadow-cap-spatial-selection",
       "category": "shadow",
-      "kind": "known_defect",
+      "kind": "invariant",
       "owner": "PF-015",
-      "paths": ["src/rendering/hwrenderer/hw_entrypoint.cpp"],
-      "required": ["closer lights are preferred", "lightindex\\s*<\\s*1024"],
-      "forbidden": []
+      "paths": ["src/rendering/hwrenderer/hw_entrypoint.cpp", "src/common/rendering/hwrenderer/data/hw_shadowselection.h"],
+      "required": ["HWSelectShadowCandidates", "HWShadowMapLightCapacity\\s*=\\s*1024", "DistanceSquared", "LightsDropped"],
+      "forbidden": ["closer lights are preferred", "lightindex\\s*<\\s*1024"]
+    },
+    {
+      "id": "actor-light-world-query-cache-validity",
+      "category": "shadow",
+      "kind": "invariant",
+      "owner": "PF-015",
+      "paths": ["src/rendering/hwrenderer/scene/hw_spritelight.cpp", "src/common/rendering/hwrenderer/data/hw_dynlightdata.h", "src/common/rendering/hwrenderer/data/hw_visibilitycache.h"],
+      "required": ["GetMutationEpochs\\(\\)\\.Query", "HWCheckVisibilityCacheValidity", "QueryEpoch", "PortalGroup", "TraceCacheHits", "TraceCacheMisses"],
+      "forbidden": ["RenderContext\\.identity", "RenderContext\\.epoch"]
     },
     {
       "id": "renderer-generation-primitives",
