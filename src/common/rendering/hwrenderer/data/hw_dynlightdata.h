@@ -25,6 +25,7 @@
 
 #include "tarray.h"
 #include "vectors.h"
+#include <cstdint>
 
 enum FDynLightInfoFlags
 {
@@ -85,6 +86,8 @@ struct sun_trace_cache_t
 {
 	DVector3 Pos = DVector3(-12345678.0, -12345678.0, -12345678.0);
 	bool SunResult = false;
+	uint64_t QueryEpoch = 0;
+	int PortalGroup = 0;
 };
 
 enum FShadowCastingTypes

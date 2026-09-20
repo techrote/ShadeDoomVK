@@ -57,12 +57,16 @@
 
 cycle_t ShadowMap::UpdateCycles;
 int ShadowMap::LightsProcessed;
+int ShadowMap::LightsCandidates;
 int ShadowMap::LightsShadowmapped;
+int ShadowMap::LightsDropped;
 
 ADD_STAT(shadowmap)
 {
 	FString out;
-	out.Format("upload=%04.2f ms  lights=%d  shadowmapped=%d", ShadowMap::UpdateCycles.TimeMS(), ShadowMap::LightsProcessed, ShadowMap::LightsShadowmapped);
+	out.Format("upload=%04.2f ms  lights=%d  candidates=%d  selected=%d  dropped=%d",
+		ShadowMap::UpdateCycles.TimeMS(), ShadowMap::LightsProcessed,
+		ShadowMap::LightsCandidates, ShadowMap::LightsShadowmapped, ShadowMap::LightsDropped);
 	return out;
 }
 
@@ -79,7 +83,9 @@ void ShadowMap::PerformUpdate()
 	UpdateCycles.Reset();
 
 	LightsProcessed = 0;
+	LightsCandidates = 0;
 	LightsShadowmapped = 0;
+	LightsDropped = 0;
 
 	// CollectLights will be null if the calling code decides that shadowmaps are not needed.
 	if (CollectLights != nullptr)

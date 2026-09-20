@@ -22,7 +22,9 @@ public:
 
 	static cycle_t UpdateCycles;
 	static int LightsProcessed;
+	static int LightsCandidates;
 	static int LightsShadowmapped;
+	static int LightsDropped;
 
 	void PerformUpdate();
 
@@ -69,7 +71,7 @@ protected:
 	bool mNewTree = false;
 
 	ShadowMap(const ShadowMap &) = delete;
-	ShadowMap &operator=(ShadowMap &) = delete;
+	ShadowMap &operator=(const ShadowMap &) = delete;
 
 public:
 	std::function<void()> CollectLights = nullptr;

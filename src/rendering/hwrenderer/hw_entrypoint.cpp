@@ -36,6 +36,7 @@
 #include "swrenderer/r_swscene.h"
 #include "swrenderer/r_renderer.h"
 #include "hw_dynlightdata.h"
+#include "hw_shadowselection.h"
 #include "hw_clock.h"
 #include "flatvertices.h"
 #include "v_palette.h"
@@ -49,6 +50,8 @@
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/scene/hw_drawcontext.h"
 #include "hw_vrmodes.h"
+
+#include <vector>
 
 EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Float, r_visibility)
@@ -72,35 +75,67 @@ void CleanSWDrawer()
 #include "g_levellocals.h"
 #include "a_dynlight.h"
 
+namespace
+{
+constexpr int NoShadowMapIndex = 16000000;
 
-void CollectLights(FLevelLocals* Level)
+HWShadowSelectionKey MakeShadowSelectionKey(FDynamicLight* light, const DVector3& viewPosition)
+{
+	HWShadowSelectionKey key;
+	const double dx = light->X() - viewPosition.X;
+	const double dy = light->Y() - viewPosition.Y;
+	const double dz = light->Z() - viewPosition.Z;
+	key.DistanceSquared = dx * dx + dy * dy + dz * dz;
+	key.X = light->X();
+	key.Y = light->Y();
+	key.Z = light->Z();
+	key.Radius = light->GetRadius();
+	key.Strength = light->GetStrength();
+	key.Linearity = light->GetLinearity();
+	key.SoftShadowRadius = light->GetSoftShadowRadius();
+	key.LightDefIntensity = light->GetLightDefIntensity();
+	key.Red = light->GetRed();
+	key.Green = light->GetGreen();
+	key.Blue = light->GetBlue();
+	key.Intensity = light->GetIntensity();
+	key.SecondaryIntensity = light->GetSecondaryIntensity();
+	key.LightType = light->lighttype;
+	key.Subtractive = light->IsSubtractive();
+	key.Additive = light->IsAdditive();
+	key.Spot = light->IsSpot();
+	return key;
+}
+}
+
+void CollectLights(FLevelLocals* Level, const DVector3& viewPosition)
 {
 	ShadowMap* sm = screen->mShadowMap;
-	int lightindex = 0;
+	std::vector<HWShadowSelectionCandidate<FDynamicLight*>> candidates;
 
-	// Todo: this should go through the blockmap in a spiral pattern around the player so that closer lights are preferred.
 	for (auto light = Level->lights; light; light = light->next)
 	{
 		ShadowMap::LightsProcessed++;
-		if (light->shadowmapped && light->IsActive() && lightindex < 1024)
-		{
-			ShadowMap::LightsShadowmapped++;
-
-			light->mShadowmapIndex = lightindex;
-			sm->SetLight(lightindex, (float)light->X(), (float)light->Y(), (float)light->Z(), light->GetRadius());
-			lightindex++;
-		}
-		else
-		{
-			light->mShadowmapIndex = 16000000;
-		}
-
+		light->mShadowmapIndex = NoShadowMapIndex;
+		if (light->shadowmapped && light->IsActive())
+			candidates.push_back({ light, MakeShadowSelectionKey(light, viewPosition) });
 	}
 
-	for (; lightindex < 1024; lightindex++)
+	ShadowMap::LightsCandidates = static_cast<int>(candidates.size());
+	HWSelectShadowCandidates(candidates);
+	ShadowMap::LightsShadowmapped = static_cast<int>(candidates.size());
+	ShadowMap::LightsDropped = ShadowMap::LightsCandidates - ShadowMap::LightsShadowmapped;
+
+	int lightindex = 0;
+	for (const auto& candidate : candidates)
 	{
-		sm->SetLight(lightindex, 0, 0, 0, 0);
+		auto light = candidate.Value;
+		light->mShadowmapIndex = lightindex;
+		sm->SetLight(lightindex, (float)light->X(), (float)light->Y(), (float)light->Z(), light->GetRadius());
+		lightindex++;
 	}
+
+	for (; lightindex < static_cast<int>(HWShadowMapLightCapacity); lightindex++)
+		sm->SetLight(lightindex, 0, 0, 0, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -121,8 +156,10 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 	if (mainview && toscreen && !(camera->Level->flags3 & LEVEL3_NOSHADOWMAP) && camera->Level->HasDynamicLights && gl_light_shadows > 0 && !lm_dynlights)
 	{
 		screen->mShadowMap->SetAABBTree(camera->Level->aabbTree);
-		screen->mShadowMap->SetCollectLights([=] {
-			CollectLights(camera->Level);
+		const auto shadowViewPosition = mainvp.Pos;
+		auto shadowLevel = camera->Level;
+		screen->mShadowMap->SetCollectLights([shadowLevel, shadowViewPosition] {
+			CollectLights(shadowLevel, shadowViewPosition);
 		});
 		screen->mShadowMap->PerformUpdate();
 	}
