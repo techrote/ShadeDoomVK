@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 #include <functional>
 #include <limits>
@@ -37,7 +38,7 @@ public:
 	}
 
 	uint64_t CurrentGeneration() const { return Generation; }
-	size_t TrackedKeys() const { return Marks.size(); }
+	std::size_t TrackedKeys() const { return Marks.size(); }
 
 private:
 	std::unordered_map<Key, uint64_t, Hash> Marks;
