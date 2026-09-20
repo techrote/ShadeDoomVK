@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Representative source-contract coverage for PF-004 LevelMesh mutations.
+"""Representative source-contract coverage for PF-004/PF-018 LevelMesh paths.
 
-Hosted CI has no IWAD/GPU runtime, so PF-004 pairs the compiled allocator/range
-fixture with focused source-route checks.  These checks deliberately inspect
-only the mutation paths owned by PF-004; they are not broad defect discovery.
+Hosted CI has no IWAD/GPU runtime, so the compiled allocator/range fixture is
+paired with focused source-route checks. These checks deliberately inspect
+only the mutation/performance paths owned by PF-004 and PF-018; they are not
+broad defect discovery and do not substitute for PF-018 real-workload proof.
 """
 
 from __future__ import annotations
@@ -44,8 +45,13 @@ class LevelMeshMutationContractTests(unittest.TestCase):
         cls.doom = source("src/rendering/hwrenderer/doom_levelmesh.cpp")
         cls.levelmesh_h = source("src/common/rendering/hwrenderer/data/hw_levelmesh.h")
         cls.levelmesh_cpp = source("src/common/rendering/hwrenderer/data/hw_levelmesh.cpp")
+        cls.levelmesh_contract = source(
+            "src/common/rendering/hwrenderer/data/hw_levelmesh_contract.h"
+        )
         cls.collision = source("src/common/rendering/hwrenderer/data/hw_collision.cpp")
         cls.vulkan = source("src/common/rendering/vulkan/vk_levelmesh.cpp")
+        cls.aabb = source("src/common/rendering/hwrenderer/data/hw_aabbtree.cpp")
+        cls.doom_aabb = source("src/rendering/hwrenderer/doom_aabbtree.cpp")
 
     def test_floor_and_ceiling_geometry_schedule_both_sides_and_shadow_membership(self) -> None:
         for signature in (
@@ -124,6 +130,39 @@ class LevelMeshMutationContractTests(unittest.TestCase):
             self.assertIn("MeshBufferChunkEndExclusive(range, IndexesPerBLAS)", body)
         self.assertNotIn("int end = range.End / IndexesPerBLAS;", cpu)
         self.assertIn("DynamicBLAS.size()", vk)
+
+    def test_pf018_allocator_uses_deterministic_size_index_and_bounded_growth(self) -> None:
+        alloc = function_body(self.levelmesh_contract, "int Alloc(int count)")
+        grow = function_body(self.levelmesh_contract, "void Grow(int amount)")
+        free = function_body(self.levelmesh_contract, "bool Free(int position, int count)")
+        self.assertIn("FreeBySize.lower_bound", alloc)
+        self.assertIn("std::numeric_limits<int>::min()", alloc)
+        self.assertIn("std::max<int64_t>(amount, geometric)", grow)
+        self.assertIn("static_cast<int64_t>(TotalSize) / 2", grow)
+        self.assertIn("UnindexFreeRange", free)
+        self.assertIn("IndexFreeRange", free)
+
+    def test_pf018_aabb_update_uses_cached_leaf_parent_topology(self) -> None:
+        rebuild = function_body(self.aabb, "void LevelAABBTree::RebuildNodePathCache()")
+        find_path = function_body(
+            self.aabb, "TArray<int> LevelAABBTree::FindNodePath(unsigned int line, unsigned int node)"
+        )
+        constructor = function_body(
+            self.doom_aabb, "DoomLevelAABBTree::DoomLevelAABBTree(FLevelLocals *lev)"
+        )
+        update = function_body(self.doom_aabb, "bool DoomLevelAABBTree::Update()")
+
+        self.assertIn("lineLeafNodes[n.line_index] = (int)i", rebuild)
+        self.assertIn("nodeParents[n.left_node] = (int)i", rebuild)
+        self.assertIn("nodeParents[n.right_node] = (int)i", rebuild)
+        self.assertIn("lineLeafNodes[line]", find_path)
+        self.assertIn("current = nodeParents[current]", find_path)
+        self.assertNotIn("FindNodePath(line, n.left_node)", find_path)
+        self.assertNotIn("FindNodePath(line, n.right_node)", find_path)
+        self.assertIn("RebuildNodePathCache();", constructor)
+        self.assertIn("FindNodePath(i, nodes.Size() - 1)", update)
+        self.assertIn("UpdateStats.MovedLines++", update)
+        self.assertIn("UpdateStats.UpdateNanoseconds", update)
 
 
 if __name__ == "__main__":
