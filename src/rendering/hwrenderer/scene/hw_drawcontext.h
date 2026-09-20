@@ -3,6 +3,7 @@
 #include "common/utility/tarray.h"
 #include "hw_clipper.h"
 #include "hw_portal.h"
+#include "hw_lightquery.h"
 
 struct HWDrawInfo;
 struct SortNode;
@@ -53,5 +54,12 @@ public:
 
 	FPortalSceneState portalState;
 
+	// PF-016: renderer-owned O(1)-style membership for one light query.
+	// Stable FDynamicLight pointer identity is never retained as a semantic key:
+	// BeginQuery advances the generation before every independent collection.
+	HWGenerationSet<FDynamicLight*> lightQuerySeen;
+
+	// Retained until every legacy user is proven migrated; PF-016's actor/model
+	// path no longer uses sorted insertion into this array.
 	TArray<FDynamicLight*> addedLightsArray;
 };
