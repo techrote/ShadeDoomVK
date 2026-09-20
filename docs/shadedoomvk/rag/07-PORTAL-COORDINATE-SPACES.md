@@ -1,7 +1,7 @@
 # Portal and coordinate-space contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active, compatibility-critical; PF-009 sprite-surface, PF-010 render-context and PF-012 probe-map spatial contracts incorporated  
+Status: active, compatibility-critical; PF-009 sprite-surface, PF-010 render-context, PF-012 probe-map spatial and PF-014 corrective contracts incorporated  
 Primary issues: PF-009, PF-010, PF-012, PF-014, PF-015, PF-016, SDVK-007, SDVK-012, SDVK-013
 
 ## Why this matters
@@ -79,6 +79,17 @@ PF-009 makes every item above except the final lighting basis explicit in `HWSpr
 
 PF-009 deliberately does not define sprite tangent space. SDVK-007 consumes this state to define and validate the future normal/right/up/forward basis without having to reconstruct frame, UV, billboard or portal meaning.
 
+## PF-014 corrective boundary
+
+PF-014 repairs two adjacent representation/state defects without changing the PF-009/PF-010 model:
+
+- sprite clipping initializes the unresolved ceiling candidate as `-NO_VAL`; the ordinary-sector ceiling fallback now tests that same sentinel. A matched 3D-floor ceiling or height-sector ceiling remains authoritative, and floor fallback is independent;
+- `HWSkyInfo` deduplication compares its semantic fields directly: both X offsets, Y offset, both resolved sky texture pointers, `skytexno1`, mirror/double-sky/sky2 flags and fade color. Struct padding is not semantic identity.
+
+The sky comparison deliberately uses numeric equality for float offsets, so representationally different `+0` and `-0` offsets deduplicate as the same sky state. No new normalization is applied to authored nonzero offsets or texture/flag/color identity.
+
+PF-014 does not alter `FPortalSceneState::isMirrored()`, PF-009's `RenderSurface.portalMirrored` snapshot, portal transform order, recursive context identity or parent restoration. Its regression fixture pins line-mirror/plane-mirror XOR parity and its source-contract coverage pins `Setup()` → child-context construction → recursive `DrawScene()` → `Shutdown()` → parent-context restore ordering.
+
 ## Model orientation
 
 Models use object-to-world and normal matrices; model renderer culling already combines model mirror state with portal mirror state. PF-009 classifies model-backed actors explicitly so downstream sprite-card consumers cannot accidentally apply sprite-surface policy to a model draw.
@@ -112,6 +123,8 @@ PF-009 supplies the orientation/mirror/portal inputs only. It does not add or al
 3. Camera texture and probe captures are separate render contexts; probe faces remain individually inspectable.
 4. Any persistent cache depending on position/orientation must include enough PF-010 view/portal generation identity to reject incompatible reuse.
 5. PF-012 lightmap probe selection compares tile-reconstructed world positions and probe positions in one LevelMesh XYZ convention; do not apply a view/raytrace axis swap or current portal-view transform to only one side.
-6. PF-009/PF-010 are extraction/refactor issues; they do not redefine Doom portal semantics or transform order.
-7. PF-009 state is observational: frame selection, quad geometry, clipping, UV assignment, material binding, palette/translation behavior and draw ordering remain inherited.
+6. PF-009/PF-010 are extraction/refactor issues; PF-014 is a bounded corrective issue; none redefine Doom portal semantics or transform order.
+7. PF-009 state is observational: frame selection, quad geometry, UV assignment, material binding, palette/translation behavior and draw ordering remain inherited; PF-014 changes only the reproduced clipping fallback defect.
 8. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
+9. Sky deduplication is semantic field identity, never raw `HWSkyInfo` object representation or padding.
+10. An unresolved sprite ceiling candidate uses `-NO_VAL` consistently from initialization through ordinary-sector fallback.
