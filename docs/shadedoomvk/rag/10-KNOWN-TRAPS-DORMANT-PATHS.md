@@ -62,17 +62,13 @@ PF-009 extracts orientation metadata; SDVK-007 owns new explicit tangent behavio
 
 ## 10. Sprite clipping sentinel inconsistency
 
-PF-014 implementation makes the ceiling fallback use the same `-NO_VAL` sentinel used to initialize `top` and to determine when 3D-floor scanning has both bounds. The floor sentinel, matched 3D-floor/height-sector values and inherited displacement policy remain unchanged. Adversarial coverage includes no candidate, floor-only, ceiling-only, paired 3D-floor and height-sector cases.
-
-Acceptance is pending exact-head CI, merge and `master` verification; retain this provenance entry until PF-014 is formally accepted.
+Resolved by PF-014 / PR #63, merged as `42aae69ec97b124970b88b8ddba314a486ac5a55`. `HWSprite::PerformSpriteClipAdjustment` now uses the same `-NO_VAL` ceiling sentinel from initialization through ordinary-sector fallback. The floor sentinel, matched 3D-floor/height-sector values and inherited displacement policy remain unchanged. Adversarial coverage includes no candidate, floor-only, ceiling-only, paired 3D-floor and height-sector cases.
 
 Owner: PF-014.
 
 ## 11. Sky-info equality uses raw memory comparison
 
-PF-014 implementation replaces `HWSkyInfo` raw-object `memcmp` identity with explicit comparison of all authored/resolved semantic fields. Object padding and representation noise no longer participate in sky deduplication; mirror/double-sky/sky2 state, both resolved textures, texture id, offsets and fade color remain identity.
-
-Acceptance is pending exact-head CI, merge and `master` verification; retain this provenance entry until PF-014 is formally accepted.
+Resolved by PF-014 / PR #63, merged as `42aae69ec97b124970b88b8ddba314a486ac5a55`. `HWSkyInfo` identity now compares all authored/resolved semantic fields explicitly; object padding and representation noise do not participate in deduplication. Mirror/double-sky/sky2 state, both resolved textures, texture id, offsets and fade color remain identity.
 
 Owner: PF-014.
 
