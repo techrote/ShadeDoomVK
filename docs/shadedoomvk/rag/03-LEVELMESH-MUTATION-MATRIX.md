@@ -1,7 +1,7 @@
 # LevelMesh mutation and invalidation matrix
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-004 mutation/allocation contract active; PF-012 probe-map invalidation and PF-015 visibility-cache consumption incorporated; PF-018 performance work must preserve it  
+Status: PF-004 mutation/allocation contract active; PF-012 probe-map invalidation and PF-015 visibility-cache consumption incorporated; PF-018 candidate preserves those semantics while indexing allocator free spans and caching immutable AABB topology  
 Primary issues: PF-004, PF-012, PF-015, PF-018, SDVK-014
 
 `LevelMesh`/`DoomLevelMesh` is the persistent renderer-side world representation used by lightmapping, renderer traces, Vulkan buffers and acceleration structures.
@@ -10,7 +10,9 @@ Primary files:
 
 - `src/common/rendering/hwrenderer/data/hw_levelmesh.h/.cpp`
 - `src/common/rendering/hwrenderer/data/hw_levelmesh_contract.h`
+- `src/common/rendering/hwrenderer/data/hw_aabbtree.h/.cpp`
 - `src/rendering/hwrenderer/doom_levelmesh.h/.cpp`
+- `src/rendering/hwrenderer/doom_aabbtree.h/.cpp`
 - `src/common/rendering/vulkan/vk_levelmesh.h/.cpp`
 - `src/levelmeshhelper.h`
 
@@ -61,9 +63,15 @@ PF-015 similarly does not add a mutation producer. It records the current `GetMu
 
 ## Allocation/update behavior
 
-`MeshBufferAllocator` keeps sorted free ranges and uses first-fit allocation. PF-004 adds PF-002 generation/span tracking plus fail-closed bounds, wrong-span, overlap and double-free checks while preserving the inherited growth policy for PF-018. `MeshBufferUploads` remains the dirty-range authority. Geometry release degenerates old indices before returning validated ranges.
+`MeshBufferAllocator` keeps address-ordered free ranges as the coalescing/validation authority. The PF-018 candidate adds a deterministic `{span size, start address}` index so allocation uses best-fit lookup without linearly scanning every free range. Equal-size spans resolve by the lowest address. PF-004 PF-002 generation/span tracking and fail-closed bounds, wrong-span, overlap and double-free checks remain authoritative; indexed lookup does not create a second ownership model.
 
-CPU and Vulkan acceleration-structure paths now share `MeshBufferChunkStart()` / `MeshBufferChunkEndExclusive()`. The exclusive end is rounded up, fixing the CPU path that previously selected zero BLAS partitions when a dirty index range fell wholly inside one partition. Vulkan dirty marking is also bounded by the currently allocated BLAS vector while buffer growth is waiting for `CheckBuffers()` to reset/recreate acceleration structures.
+PF-018 candidate growth is bounded geometric growth: on a miss, capacity grows by the larger of the required extension and 50% of current capacity, clamped to `INT_MAX`. Existing live allocations remain stationary. Allocator diagnostics expose search/candidate counts, grow events/elements, peak/used/free capacity and largest free span for representative-workload comparison.
+
+`MeshBufferUploads` remains the dirty-range authority and retains its existing merge semantics in the PF-018 candidate. No copy batching/upload rewrite is claimed without byte-identical real-workload evidence; callers can continue to inspect the authoritative merged ranges when collecting upload counts/volume.
+
+The Doom world AABB tree has immutable topology after construction: polyobject motion changes line coordinates and bounding boxes, not child edges. PF-018 therefore caches each tree line's leaf plus each node's parent once after construction. Moving-line updates reconstruct the same historical leaf→root path by following parents instead of recursively searching the complete tree from the root on every changed line. Any future topology mutation must rebuild this cache; bounding-box-only updates do not invalidate it. Observational counters cover cache builds, path lookups/steps, moved lines, updated nodes and cumulative update time.
+
+CPU and Vulkan acceleration-structure paths continue to share `MeshBufferChunkStart()` / `MeshBufferChunkEndExclusive()`. The exclusive end is rounded up, fixing the CPU path that previously selected zero BLAS partitions when a dirty index range fell wholly inside one partition. Vulkan dirty marking remains bounded by the currently allocated BLAS vector while buffer growth is waiting for `CheckBuffers()` to reset/recreate acceleration structures.
 
 ## Coupled resources
 
@@ -83,6 +91,8 @@ PF-012 adds a second boundary check at the actual lightmap copy consumer: a sele
 6. Lightmap copy page identity must be valid in both current LevelMesh metadata and current Vulkan resources before use.
 7. Two-sided Doom mutation callbacks must schedule both affected sidedefs; `OnSectorChangedTexZ()` is source-pinned by the PF oracle.
 8. Any renderer visibility cache whose result depends on LevelMesh trace geometry must reject reuse across a `Query` epoch change; PF-015 pins this at actor/static-light and sun-trace caches.
-9. PF-018 performance work must preserve the PF-004/PF-012/PF-015 mutation and visibility-validity contract.
+9. PF-018 allocator indexing/growth must preserve PF-004 generation/span ownership and may not move live ranges.
+10. PF-018 AABB caching may change path-discovery cost only: leaf identity, leaf→root order, updated AABBs and trace/query results must remain identical. Any topology mutation requires cache rebuild before cached paths are reused.
+11. PF-018 remains unaccepted until a representative real renderer workload demonstrates CPU/memory improvement and PF image/query/state equivalence; deterministic/source fixtures alone are insufficient.
 
-See `docs/shadedoomvk/PF-004-LEVELMESH-CONTRACT.md` for the executable ownership/allocator/AS contract, `docs/shadedoomvk/PF-015-SHADOW-VISIBILITY-CONTRACT.md` for the PF-015 cache consumer contract, and `rag/06-LIGHTMAP-PROBE-PIPELINE.md` for the PF-012 probe-map mapping/fallback contract.
+See `docs/shadedoomvk/PF-004-LEVELMESH-CONTRACT.md` for the executable ownership/allocator/AS contract, `docs/shadedoomvk/PF-015-SHADOW-VISIBILITY-CONTRACT.md` for the PF-015 cache consumer contract, `docs/shadedoomvk/issues/PF-018.md` for the performance candidate/acceptance boundary, and `rag/06-LIGHTMAP-PROBE-PIPELINE.md` for the PF-012 probe-map mapping/fallback contract.
