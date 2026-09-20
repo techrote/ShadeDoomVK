@@ -43,6 +43,7 @@
 #include <atomic>
 #include <chrono>
 #include <cmath>	// needed for std::floor on mac
+#include <vector>
 #include "hw_cvars.h"
 
 namespace
@@ -57,6 +58,8 @@ std::atomic<uint64_t> SunTraceCacheHits { 0 };
 std::atomic<uint64_t> SunTraceCacheMisses { 0 };
 std::atomic<uint64_t> LightQueryBaselineQueries { 0 };
 std::atomic<uint64_t> LightQueryLocalQueries { 0 };
+std::atomic<uint64_t> LightQueryQualificationPasses { 0 };
+std::atomic<uint64_t> LightQueryQualificationFallbacks { 0 };
 std::atomic<uint64_t> LightQueryVisitedSections { 0 };
 std::atomic<uint64_t> LightQueryCandidates { 0 };
 std::atomic<uint64_t> LightQueryDuplicates { 0 };
@@ -64,10 +67,30 @@ std::atomic<uint64_t> LightQueryFiltered { 0 };
 std::atomic<uint64_t> LightQueryTraces { 0 };
 std::atomic<uint64_t> LightQueryBaselineNanos { 0 };
 std::atomic<uint64_t> LightQueryLocalNanos { 0 };
+std::atomic<uint64_t> LightQueryQualificationNanos { 0 };
 
 uint64_t CurrentWorldQueryEpoch()
 {
 	return level.levelMesh ? level.levelMesh->GetMutationEpochs().Query : 0;
+}
+
+struct LightQuerySelection
+{
+	FDynamicLight* Light = nullptr;
+	int Group = 0;
+	int Class = LIGHTARRAY_NORMAL;
+
+	bool operator==(const LightQuerySelection& other) const
+	{
+		return Light == other.Light && Group == other.Group && Class == other.Class;
+	}
+};
+
+int LightQueryClass(FDynamicLight* light)
+{
+	if (light->IsSubtractive()) return LIGHTARRAY_SUBTRACTIVE;
+	if (light->IsAdditive()) return LIGHTARRAY_ADDITIVE;
+	return LIGHTARRAY_NORMAL;
 }
 }
 
@@ -356,16 +379,17 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	uint64_t filtered = 0;
 	uint64_t traces = 0;
 
-	auto processLightList = [&](FLightNode *node, int group)
+	auto processLightList = [&](FLightNode *node, int group, HWGenerationSet<FDynamicLight*>& seen,
+		FDynLightData* output, std::vector<LightQuerySelection>* selections, bool countDiagnostics)
 	{
-		++visitedSections;
+		if (countDiagnostics) ++visitedSections;
 		while (node)
 		{
 			FDynamicLight *light = node->lightsource;
-			++candidates;
+			if (countDiagnostics) ++candidates;
 			if (!light->ShouldLightActor(self))
 			{
-				++filtered;
+				if (countDiagnostics) ++filtered;
 				node = node->nextLight;
 				continue;
 			}
@@ -378,14 +402,14 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 			double distSquared = dx * dx + dy * dy + dz * dz;
 			if (distSquared >= radius * radius)
 			{
-				++filtered;
+				if (countDiagnostics) ++filtered;
 				node = node->nextLight;
 				continue;
 			}
 
-			if (!drawctx->lightQuerySeen.MarkFirst(light))
+			if (!seen.MarkFirst(light))
 			{
-				++duplicates;
+				if (countDiagnostics) ++duplicates;
 				node = node->nextLight;
 				continue;
 			}
@@ -396,14 +420,17 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 			if (needsTrace)
 			{
 				L *= 1.0f / dist;
-				++traces;
+				if (countDiagnostics) ++traces;
 			}
 
 			if (gl_spritelight > 0 || staticLight.TraceLightVisbility(node, L, dist, light->updated))
 			{
-				AddLightToList(modellightdata, group, light, true, gl_spritelight > 0);
+				if (selections)
+					selections->push_back({ light, group, LightQueryClass(light) });
+				if (output)
+					AddLightToList(*output, group, light, true, gl_spritelight > 0);
 			}
-			else
+			else if (countDiagnostics)
 			{
 				++filtered;
 			}
@@ -424,42 +451,64 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	if (useLocalSection)
 	{
 		LightQueryLocalQueries.fetch_add(1, std::memory_order_relaxed);
-		processLightList(self->section->lighthead, actorPortalGroup);
+		processLightList(self->section->lighthead, actorPortalGroup, drawctx->lightQuerySeen, &modellightdata, nullptr, true);
+		const uint64_t elapsed = (uint64_t)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - queryStart).count();
+		LightQueryLocalNanos.fetch_add(elapsed, std::memory_order_relaxed);
 	}
 	else
 	{
 		LightQueryBaselineQueries.fetch_add(1, std::memory_order_relaxed);
-		bool localExact = self && traceCache && self->section;
+		bool localGeometryExact = self && traceCache && self->section;
 		bool sawSubsector = false;
+		std::vector<LightQuerySelection> baselineSelections;
 
 		BSPWalkCircle(Level, x, y, radiusSquared, [&](subsector_t *subsector)
 		{
 			sawSubsector = true;
 			auto section = subsector->section;
 			const int group = subsector->sector->PortalGroup;
-			if (localExact && (section != self->section || group != actorPortalGroup))
-				localExact = false;
+			if (localGeometryExact && (section != self->section || group != actorPortalGroup))
+				localGeometryExact = false;
 
 			// The legacy validcount guard is intentionally retained. Candidate
 			// identity de-duplication is independently generation-stamped below.
 			if (section->validcount == dl_validcount) return;
-			processLightList(section->lighthead, group);
+			processLightList(section->lighthead, group, drawctx->lightQuerySeen, &modellightdata,
+				self && traceCache && self->section ? &baselineSelections : nullptr, true);
 		});
+
+		const uint64_t baselineElapsed = (uint64_t)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - queryStart).count();
+		LightQueryBaselineNanos.fetch_add(baselineElapsed, std::memory_order_relaxed);
 
 		if (self && traceCache && self->section)
 		{
+			bool localSelectionExact = false;
+			if (localGeometryExact && sawSubsector)
+			{
+				const auto qualificationStart = std::chrono::steady_clock::now();
+				HWGenerationSet<FDynamicLight*> comparisonSeen;
+				comparisonSeen.BeginQuery();
+				std::vector<LightQuerySelection> localSelections;
+				processLightList(self->section->lighthead, actorPortalGroup, comparisonSeen, nullptr, &localSelections, false);
+				localSelectionExact = baselineSelections == localSelections;
+				const uint64_t qualificationElapsed = (uint64_t)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - qualificationStart).count();
+				LightQueryQualificationNanos.fetch_add(qualificationElapsed, std::memory_order_relaxed);
+			}
+
+			if (localSelectionExact)
+				LightQueryQualificationPasses.fetch_add(1, std::memory_order_relaxed);
+			else
+				LightQueryQualificationFallbacks.fetch_add(1, std::memory_order_relaxed);
+
 			traceCache->LocalQueryPos = queryPos;
 			traceCache->LocalQuerySection = self->section;
 			traceCache->LocalQueryRadius = actorradius;
 			traceCache->LocalQueryPortalGroup = actorPortalGroup;
 			traceCache->LocalQueryKnown = true;
-			traceCache->LocalQueryExact = localExact && sawSubsector;
+			traceCache->LocalQueryExact = localSelectionExact;
 		}
 	}
 
-	const uint64_t elapsed = (uint64_t)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - queryStart).count();
-	if (useLocalSection) LightQueryLocalNanos.fetch_add(elapsed, std::memory_order_relaxed);
-	else LightQueryBaselineNanos.fetch_add(elapsed, std::memory_order_relaxed);
 	LightQueryVisitedSections.fetch_add(visitedSections, std::memory_order_relaxed);
 	LightQueryCandidates.fetch_add(candidates, std::memory_order_relaxed);
 	LightQueryDuplicates.fetch_add(duplicates, std::memory_order_relaxed);
@@ -498,15 +547,18 @@ ADD_STAT(actorlightcache)
 ADD_STAT(actorlightquery)
 {
 	FString out;
-	out.Format("baseline=%llu local=%llu sections=%llu candidates=%llu dup=%llu filtered=%llu traces=%llu baseline_ns=%llu local_ns=%llu",
+	out.Format("baseline=%llu local=%llu qualify_ok=%llu qualify_fallback=%llu sections=%llu candidates=%llu dup=%llu filtered=%llu traces=%llu baseline_ns=%llu local_ns=%llu qualify_ns=%llu",
 		(unsigned long long)LightQueryBaselineQueries.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryLocalQueries.load(std::memory_order_relaxed),
+		(unsigned long long)LightQueryQualificationPasses.load(std::memory_order_relaxed),
+		(unsigned long long)LightQueryQualificationFallbacks.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryVisitedSections.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryCandidates.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryDuplicates.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryFiltered.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryTraces.load(std::memory_order_relaxed),
 		(unsigned long long)LightQueryBaselineNanos.load(std::memory_order_relaxed),
-		(unsigned long long)LightQueryLocalNanos.load(std::memory_order_relaxed));
+		(unsigned long long)LightQueryLocalNanos.load(std::memory_order_relaxed),
+		(unsigned long long)LightQueryQualificationNanos.load(std::memory_order_relaxed));
 	return out;
 }
