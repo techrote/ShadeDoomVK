@@ -78,11 +78,20 @@
     {
       "id": "sprite-clip-top-sentinel",
       "category": "sprite",
-      "kind": "known_defect",
+      "kind": "invariant",
       "owner": "PF-014",
       "paths": ["src/rendering/hwrenderer/scene/hw_sprites.cpp"],
-      "required": ["float\\s+top\\s*=\\s*-NO_VAL", "top\\s*==\\s*NO_VAL"],
-      "forbidden": []
+      "required": ["float\\s+top\\s*=\\s*-NO_VAL", "top\\s*==\\s*-NO_VAL"],
+      "forbidden": ["top\\s*==\\s*NO_VAL"]
+    },
+    {
+      "id": "sky-info-semantic-identity",
+      "category": "portal",
+      "kind": "invariant",
+      "owner": "PF-014",
+      "paths": ["src/rendering/hwrenderer/scene/hw_portal.h"],
+      "required": ["operator==\\(const\\s+HWSkyInfo\\s*&\\s*inf\\)\\s*const", "x_offset\\[0\\]\\s*==\\s*inf\\.x_offset\\[0\\]", "texture\\[1\\]\\s*==\\s*inf\\.texture\\[1\\]", "skytexno1\\s*==\\s*inf\\.skytexno1", "fadecolor\\s*==\\s*inf\\.fadecolor"],
+      "forbidden": ["memcmp\\s*\\(this\\s*,\\s*&inf\\s*,\\s*sizeof\\(\\*this\\)\\)"]
     },
     {
       "id": "shadow-cap-traversal-order",
