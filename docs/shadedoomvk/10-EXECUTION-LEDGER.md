@@ -219,10 +219,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `b5437e22c4da23bef95651f17ec013a0fe52cb1a`; post-merge `master` Continuous Integration run 99 passed on that exact merge head.
 - PF-017 now has its PF-013 prerequisite satisfied and remains blocked only on PF-016. PF-014 / #31 and PF-015 / #32 remain dependency-ready.
 
+### 2026-09-20 — PF-014 accepted and merged
+
+- PF-014 / #31 completed through implementation PR #63; this acceptance reconciliation records the final gate transition after post-merge verification.
+- Exact implementation head `3350461964f5ee97e63eb84257b514c171459a1a` passed Continuous Integration run 102 with the deterministic PF renderer oracle, compiled PF-014 adversarial fixture, source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
+- Repaired the sprite ceiling sentinel fallback to use `-NO_VAL` consistently and replaced `HWSkyInfo` raw-object `memcmp` equality with explicit semantic-field identity. PF-009 sprite orientation and PF-010 portal-context ordering remain unchanged.
+- Merge commit: `42aae69ec97b124970b88b8ddba314a486ac5a55`; `master` was verified at that exact merge commit and post-merge Continuous Integration run 103 passed on the merge head.
+- PF-015 / #32 remains the highest-priority dependency-ready corrective issue. PF-014 does not newly unblock another PF issue by itself.
+- Gameplay/tic, material/palette/translation meaning, sprite frame/UV selection, portal transforms/recursion, audio, source ownership and donor/provenance semantics remain unchanged.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30.
-- **READY:** PF-014 / #31, PF-015 / #32.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31.
+- **READY:** PF-015 / #32.
 - **BLOCKED:** SDVK-001 / #1 until PF-020 / #37 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
