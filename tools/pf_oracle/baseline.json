@@ -128,10 +128,17 @@
       "owner": "PF-015"
     },
     {
+      "category": "portal",
+      "classification": "invariant_passed",
+      "id": "sky-info-semantic-identity",
+      "kind": "invariant",
+      "owner": "PF-014"
+    },
+    {
       "category": "sprite",
-      "classification": "known_defect_reproduced",
+      "classification": "invariant_passed",
       "id": "sprite-clip-top-sentinel",
-      "kind": "known_defect",
+      "kind": "invariant",
       "owner": "PF-014"
     },
     {
@@ -145,9 +152,9 @@
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 18,
-    "known_defect_reproduced": 2,
-    "probe_count": 20,
+    "invariant_passed": 20,
+    "known_defect_reproduced": 1,
+    "probe_count": 21,
     "unexpected": 0
   }
 }
