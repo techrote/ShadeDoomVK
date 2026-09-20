@@ -26,7 +26,8 @@ class LightQueryCorrectnessContractTests(unittest.TestCase):
     def test_generation_membership_replaces_sorted_per_query_duplicate_list(self) -> None:
         self.assertIn("HWGenerationSet<FDynamicLight*> lightQuerySeen", self.draw_context)
         self.assertIn("lightQuerySeen.BeginQuery()", self.sprite_light)
-        self.assertIn("lightQuerySeen.MarkFirst(light)", self.sprite_light)
+        self.assertIn("lightQuerySeen", self.sprite_light)
+        self.assertIn("seen.MarkFirst(light)", self.sprite_light)
         self.assertNotIn("addedLights.SortedFind", self.sprite_light)
         self.assertNotIn("addedLights.Insert", self.sprite_light)
         self.assertIn("std::unordered_map", self.query_h)
@@ -36,11 +37,11 @@ class LightQueryCorrectnessContractTests(unittest.TestCase):
         self.assertIn("light->ShouldLightActor(self)", self.sprite_light)
         self.assertIn("light->PosRelative(group)", self.sprite_light)
         self.assertIn("staticLight.TraceLightVisbility", self.sprite_light)
-        self.assertIn("AddLightToList(modellightdata, group, light, true", self.sprite_light)
-        self.assertIn("processLightList(self->section->lighthead, actorPortalGroup)", self.sprite_light)
-        self.assertIn("processLightList(section->lighthead, group)", self.sprite_light)
+        self.assertIn("AddLightToList(*output, group, light, true", self.sprite_light)
+        self.assertIn("processLightList(self->section->lighthead, actorPortalGroup", self.sprite_light)
+        self.assertIn("processLightList(section->lighthead, group", self.sprite_light)
 
-    def test_fast_path_is_exactly_qualified_and_has_fallback_boundaries(self) -> None:
+    def test_fast_path_requires_side_by_side_selected_identity_class_order_equivalence(self) -> None:
         for token in [
             "LocalQueryKnown",
             "LocalQueryExact",
@@ -51,16 +52,23 @@ class LightQueryCorrectnessContractTests(unittest.TestCase):
             "section != self->section",
             "group != actorPortalGroup",
             "BSPWalkCircle",
+            "std::vector<LightQuerySelection> baselineSelections",
+            "std::vector<LightQuerySelection> localSelections",
+            "baselineSelections == localSelections",
+            "LightQueryClass(light)",
+            "LocalQueryExact = localSelectionExact",
         ]:
             self.assertIn(token, self.sprite_light + self.dyn_data)
         # Qualification must not use PF-010 pass identity as a semantic key.
         self.assertNotIn("RenderContext.identity", self.sprite_light)
         self.assertNotIn("RenderContext.epoch", self.sprite_light)
 
-    def test_diagnostics_cover_candidate_source_and_filter_work(self) -> None:
+    def test_diagnostics_cover_candidate_source_filter_and_qualification_work(self) -> None:
         for token in [
             "LightQueryBaselineQueries",
             "LightQueryLocalQueries",
+            "LightQueryQualificationPasses",
+            "LightQueryQualificationFallbacks",
             "LightQueryVisitedSections",
             "LightQueryCandidates",
             "LightQueryDuplicates",
@@ -68,6 +76,7 @@ class LightQueryCorrectnessContractTests(unittest.TestCase):
             "LightQueryTraces",
             "LightQueryBaselineNanos",
             "LightQueryLocalNanos",
+            "LightQueryQualificationNanos",
             "ADD_STAT(actorlightquery)",
         ]:
             self.assertIn(token, self.sprite_light)
