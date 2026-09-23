@@ -137,6 +137,8 @@ class LevelMeshMutationContractTests(unittest.TestCase):
         free = function_body(self.levelmesh_contract, "bool Free(int position, int count)")
         self.assertIn("FreeBySize.lower_bound", alloc)
         self.assertIn("std::numeric_limits<int>::min()", alloc)
+        self.assertIn("Unused.size() <= IndexedThreshold", alloc)
+        self.assertIn("it->Count() < best->Count()", alloc)
         self.assertIn("std::max<int64_t>(amount, geometric)", grow)
         self.assertIn("static_cast<int64_t>(TotalSize) / 2", grow)
         self.assertIn("UnindexFreeRange", free)

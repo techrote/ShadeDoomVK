@@ -1,7 +1,7 @@
 # LevelMesh mutation and invalidation matrix
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-004 mutation/allocation contract active; PF-012 probe-map invalidation and PF-015 visibility-cache consumption incorporated; PF-018 candidate preserves those semantics while indexing allocator free spans and caching immutable AABB topology  
+Status: PF-004 mutation/allocation contract active; PF-012 probe-map invalidation and PF-015 visibility-cache consumption incorporated; PF-018 candidate preserves those semantics with hybrid best-fit free-span lookup and cached immutable AABB topology
 Primary issues: PF-004, PF-012, PF-015, PF-018, SDVK-014
 
 `LevelMesh`/`DoomLevelMesh` is the persistent renderer-side world representation used by lightmapping, renderer traces, Vulkan buffers and acceleration structures.
@@ -63,9 +63,9 @@ PF-015 similarly does not add a mutation producer. It records the current `GetMu
 
 ## Allocation/update behavior
 
-`MeshBufferAllocator` keeps address-ordered free ranges as the coalescing/validation authority. The PF-018 candidate adds a deterministic `{span size, start address}` index so allocation uses best-fit lookup without linearly scanning every free range. Equal-size spans resolve by the lowest address. PF-004 PF-002 generation/span tracking and fail-closed bounds, wrong-span, overlap and double-free checks remain authoritative; indexed lookup does not create a second ownership model.
+`MeshBufferAllocator` keeps address-ordered free ranges as the coalescing/validation authority. The PF-018 candidate scans lists of at most eight ranges for deterministic best fit, avoiding index-node churn in lightly fragmented moving-polyobject frames. Larger lists use a `{span size, start address}` index. Both paths choose the lowest address among equal-size spans. PF-004 PF-002 generation/span tracking and fail-closed bounds, wrong-span, overlap and double-free checks remain authoritative; lookup does not create a second ownership model.
 
-PF-018 candidate growth is bounded geometric growth: on a miss, capacity grows by the larger of the required extension and 50% of current capacity, clamped to `INT_MAX`. Existing live allocations remain stationary. Allocator diagnostics expose search/candidate counts, grow events/elements, peak/used/free capacity and largest free span for representative-workload comparison.
+PF-018 candidate growth is bounded geometric growth: on a miss, capacity grows by the larger of the required extension and 50% of current capacity, clamped to `INT_MAX`. Existing live allocations remain stationary. `pf018stats` exposes search/candidate counts, small-list/indexed attempts and index mutations, grow events/elements, peak free-range count and peak/used/free capacity for representative-workload comparison.
 
 `MeshBufferUploads` remains the dirty-range authority and retains its existing merge semantics in the PF-018 candidate. No copy batching/upload rewrite is claimed without byte-identical real-workload evidence; callers can continue to inspect the authoritative merged ranges when collecting upload counts/volume.
 

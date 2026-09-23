@@ -8,7 +8,7 @@
 #include <vector>
 
 // PF-004: shared allocation/dirty-range contract for persistent LevelMesh buffers.
-// PF-018: allocator lookup/growth instrumentation and deterministic size index.
+// PF-018: allocator lookup/growth instrumentation and hybrid best-fit lookup.
 // This header deliberately has no renderer/backend dependencies so the safety
 // model can be exercised by the deterministic PF fixture.
 struct MeshBufferRange
@@ -47,11 +47,17 @@ struct MeshBufferAllocatorStats
 	uint64_t AllocationCandidates = 0;
 	uint64_t GrownElements = 0;
 	uint64_t PeakTotalSize = 0;
+	uint64_t SmallRangeAllocations = 0;
+	uint64_t IndexedAllocations = 0;
+	uint64_t PeakFreeRanges = 0;
+	uint64_t IndexInsertions = 0;
+	uint64_t IndexErasures = 0;
 };
 
 class MeshBufferAllocator
 {
 public:
+	static constexpr size_t IndexedThreshold = 8;
 	void Reset(int size)
 	{
 		TotalSize = std::max(size, 0);
@@ -65,6 +71,7 @@ public:
 		Generations.Reset();
 		Stats.Resets++;
 		Stats.PeakTotalSize = std::max<uint64_t>(Stats.PeakTotalSize, static_cast<uint64_t>(TotalSize));
+		Stats.PeakFreeRanges = std::max<uint64_t>(Stats.PeakFreeRanges, Unused.size());
 	}
 
 	// PF-018: bounded geometric growth. The caller passes the minimum number of
@@ -99,6 +106,7 @@ public:
 		Stats.Grows++;
 		Stats.GrownElements += static_cast<uint64_t>(growth);
 		Stats.PeakTotalSize = std::max<uint64_t>(Stats.PeakTotalSize, static_cast<uint64_t>(TotalSize));
+		Stats.PeakFreeRanges = std::max<uint64_t>(Stats.PeakFreeRanges, Unused.size());
 	}
 
 	int GetTotalSize() const { return TotalSize; }
@@ -118,6 +126,13 @@ public:
 
 	int GetLargestFreeRange() const
 	{
+		if (Unused.size() <= IndexedThreshold)
+		{
+			int largest = 0;
+			for (const auto& range : Unused)
+				largest = std::max(largest, range.Count());
+			return largest;
+		}
 		return FreeBySize.empty() ? 0 : FreeBySize.rbegin()->first;
 	}
 
@@ -133,6 +148,30 @@ public:
 			return 0;
 
 		Stats.AllocationSearches++;
+		// A small address-ordered list can select the same deterministic
+		// best fit without tree-node churn on moving-polyobject frames.
+		if (Unused.size() <= IndexedThreshold)
+		{
+			Stats.SmallRangeAllocations++;
+			auto best = Unused.end();
+			for (auto it = Unused.begin(); it != Unused.end(); ++it)
+			{
+				Stats.AllocationCandidates++;
+				if (it->Count() >= count &&
+					(best == Unused.end() || it->Count() < best->Count()))
+					best = it;
+			}
+			if (best == Unused.end())
+				return -1;
+			const int position = best->Start;
+			best->Start += count;
+			if (best->Start == best->End)
+				Unused.erase(best);
+			Generations.Activate(position, static_cast<uint32_t>(count));
+			Stats.Allocations++;
+			return position;
+		}
+		Stats.IndexedAllocations++;
 		const auto fit = FreeBySize.lower_bound({ count, std::numeric_limits<int>::min() });
 		if (fit == FreeBySize.end())
 			return -1;
@@ -156,6 +195,8 @@ public:
 			Unused.erase(it);
 		else
 			IndexFreeRange(*it);
+		if (Unused.size() <= IndexedThreshold)
+			FreeBySize.clear();
 
 		Generations.Activate(position, static_cast<uint32_t>(count));
 		Stats.Allocations++;
@@ -231,6 +272,7 @@ public:
 		}
 
 		Stats.Frees++;
+		Stats.PeakFreeRanges = std::max<uint64_t>(Stats.PeakFreeRanges, Unused.size());
 		return true;
 	}
 
@@ -243,14 +285,35 @@ public:
 private:
 	void IndexFreeRange(const MeshBufferRange& range)
 	{
+		if (Unused.size() <= IndexedThreshold)
+		{
+			FreeBySize.clear();
+			return;
+		}
+		if (FreeBySize.empty())
+		{
+			for (const auto& item : Unused)
+				if (item.Count() > 0)
+				{
+					FreeBySize.insert({ item.Count(), item.Start });
+					Stats.IndexInsertions++;
+				}
+			return;
+		}
 		if (range.Count() > 0)
+		{
 			FreeBySize.insert({ range.Count(), range.Start });
+			Stats.IndexInsertions++;
+		}
 	}
 
 	void UnindexFreeRange(const MeshBufferRange& range)
 	{
-		if (range.Count() > 0)
+		if (Unused.size() > IndexedThreshold && range.Count() > 0)
+		{
 			FreeBySize.erase({ range.Count(), range.Start });
+			Stats.IndexErasures++;
+		}
 	}
 
 	int TotalSize = 0;
