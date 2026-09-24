@@ -88,6 +88,19 @@ struct sun_trace_cache_t
 	bool SunResult = false;
 	uint64_t QueryEpoch = 0;
 	int PortalGroup = 0;
+
+	// PF-016 actor/model candidate-source qualification. This is deliberately
+	// separate from PF-015 visibility validity: it records only the geometric
+	// fact that the actor's current render-radius circle touches one section in
+	// one portal group. Once proven, that exact actor state may source candidates
+	// directly from the section light list. Movement/radius/section/group changes
+	// force the baseline BSP qualification path again.
+	DVector3 LocalQueryPos = DVector3(-12345678.0, -12345678.0, -12345678.0);
+	const void* LocalQuerySection = nullptr;
+	double LocalQueryRadius = -1.0;
+	int LocalQueryPortalGroup = 0;
+	bool LocalQueryKnown = false;
+	bool LocalQueryExact = false;
 };
 
 enum FShadowCastingTypes
