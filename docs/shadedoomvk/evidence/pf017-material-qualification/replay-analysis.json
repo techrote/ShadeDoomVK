@@ -1,0 +1,230 @@
+{
+  "dbp37-default-profile": {
+    "0": {
+      "calls": 317002,
+      "median_batch_ns": 1862250.0,
+      "min_ns": 1782700,
+      "max_ns": 3021200,
+      "median_ns_per_call": 5.874568614709055,
+      "median_us_per_live_frame": 2.714650145772595
+    },
+    "1": {
+      "calls": 957151,
+      "median_batch_ns": 5763350.0,
+      "min_ns": 5372900,
+      "max_ns": 7009700,
+      "median_ns_per_call": 6.021359221272297,
+      "median_us_per_live_frame": 2.800461613216715
+    },
+    "2": {
+      "calls": 357322,
+      "median_batch_ns": 2081550.0,
+      "min_ns": 1969500,
+      "max_ns": 2730600,
+      "median_ns_per_call": 5.8254179703460744,
+      "median_us_per_live_frame": 1.3216190476190477
+    },
+    "3": {
+      "calls": 141920,
+      "median_batch_ns": 712450.0,
+      "min_ns": 660600,
+      "max_ns": 770000,
+      "median_ns_per_call": 5.020081736189402,
+      "median_us_per_live_frame": 0.42382510410469953
+    },
+    "4": {
+      "calls": 682350,
+      "median_batch_ns": 3498300.0,
+      "min_ns": 3430500,
+      "max_ns": 4194900,
+      "median_ns_per_call": 5.126841063970104,
+      "median_us_per_live_frame": 5.772772277227723
+    },
+    "verification": [
+      [
+        "verify",
+        "0",
+        "2811152",
+        "15228035472512624441"
+      ]
+    ],
+    "floor": [
+      [
+        "traversal_floor",
+        "24557450",
+        "67857100"
+      ]
+    ]
+  },
+  "sunlust24-default-profile": {
+    "0": {
+      "calls": 150834,
+      "median_batch_ns": 709800.0,
+      "min_ns": 680200,
+      "max_ns": 891200,
+      "median_ns_per_call": 4.705835554317992,
+      "median_us_per_live_frame": 30.860869565217392
+    },
+    "1": {
+      "calls": 128040,
+      "median_batch_ns": 578100.0,
+      "min_ns": 554700,
+      "max_ns": 994700,
+      "median_ns_per_call": 4.514995313964386,
+      "median_us_per_live_frame": 12.567391304347826
+    },
+    "2": {
+      "calls": 50896,
+      "median_batch_ns": 238350.0,
+      "min_ns": 229500,
+      "max_ns": 353100,
+      "median_ns_per_call": 4.683079220370953,
+      "median_us_per_live_frame": 10.83409090909091
+    },
+    "3": {
+      "calls": 58283,
+      "median_batch_ns": 275100.0,
+      "min_ns": 258700,
+      "max_ns": 363200,
+      "median_ns_per_call": 4.720072748485836,
+      "median_us_per_live_frame": 11.004
+    },
+    "4": {
+      "calls": 336042,
+      "median_batch_ns": 1516700.0,
+      "min_ns": 1451300,
+      "max_ns": 1714700,
+      "median_ns_per_call": 4.513423917248439,
+      "median_us_per_live_frame": 189.5875
+    },
+    "verification": [
+      [
+        "verify",
+        "0",
+        "748752",
+        "5814934509649675655"
+      ]
+    ],
+    "floor": [
+      [
+        "traversal_floor",
+        "7240950",
+        "18261900"
+      ]
+    ]
+  },
+  "sunlust30-arena-profile": {
+    "0": {
+      "calls": 216673,
+      "median_batch_ns": 1258850.0,
+      "min_ns": 1239300,
+      "max_ns": 1361600,
+      "median_ns_per_call": 5.809907095023377,
+      "median_us_per_live_frame": 125.885
+    },
+    "1": {
+      "calls": 238321,
+      "median_batch_ns": 1441200.0,
+      "min_ns": 1413600,
+      "max_ns": 1861500,
+      "median_ns_per_call": 6.047305944503422,
+      "median_us_per_live_frame": 110.86153846153847
+    },
+    "2": {
+      "calls": 82979,
+      "median_batch_ns": 493600.0,
+      "min_ns": 478600,
+      "max_ns": 524500,
+      "median_ns_per_call": 5.948492992202847,
+      "median_us_per_live_frame": 54.84444444444445
+    },
+    "3": {
+      "calls": 5590,
+      "median_batch_ns": 28950.0,
+      "min_ns": 28300,
+      "max_ns": 29600,
+      "median_ns_per_call": 5.178890876565295,
+      "median_us_per_live_frame": 2.895
+    },
+    "4": {
+      "calls": 145732,
+      "median_batch_ns": 717100.0,
+      "min_ns": 703400,
+      "max_ns": 807700,
+      "median_ns_per_call": 4.920676309938791,
+      "median_us_per_live_frame": 143.42
+    },
+    "verification": [
+      [
+        "verify",
+        "0",
+        "942422",
+        "15740000767818715591"
+      ]
+    ],
+    "floor": [
+      [
+        "traversal_floor",
+        "6892950",
+        "17666700"
+      ]
+    ]
+  },
+  "sunlust30-default-profile": {
+    "0": {
+      "calls": 154654,
+      "median_batch_ns": 771500.0,
+      "min_ns": 763400,
+      "max_ns": 790000,
+      "median_ns_per_call": 4.988555097184683,
+      "median_us_per_live_frame": 70.13636363636363
+    },
+    "1": {
+      "calls": 63887,
+      "median_batch_ns": 366150.0,
+      "min_ns": 362100,
+      "max_ns": 427100,
+      "median_ns_per_call": 5.731212922816849,
+      "median_us_per_live_frame": 24.41
+    },
+    "2": {
+      "calls": 23657,
+      "median_batch_ns": 129500.0,
+      "min_ns": 127700,
+      "max_ns": 171100,
+      "median_ns_per_call": 5.474066872384495,
+      "median_us_per_live_frame": 11.772727272727272
+    },
+    "3": {
+      "calls": 10436,
+      "median_batch_ns": 48050.0,
+      "min_ns": 47100,
+      "max_ns": 76100,
+      "median_ns_per_call": 4.604254503641242,
+      "median_us_per_live_frame": 2.8264705882352943
+    },
+    "4": {
+      "calls": 491589,
+      "median_batch_ns": 2198100.0,
+      "min_ns": 2166100,
+      "max_ns": 3772800,
+      "median_ns_per_call": 4.471418196908393,
+      "median_us_per_live_frame": 366.35
+    },
+    "verification": [
+      [
+        "verify",
+        "0",
+        "827378",
+        "7472116153983337971"
+      ]
+    ],
+    "floor": [
+      [
+        "traversal_floor",
+        "7442230",
+        "17748800"
+      ]
+    ]
+  }
+}

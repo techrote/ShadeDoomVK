@@ -1,0 +1,46 @@
+{
+  "baseline_sha": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+  "original_protocol_preserved": true,
+  "intended_difficulty": "Hurt Me Plenty",
+  "actual_difficulty": "Ultra-Violence",
+  "actual_argument": [
+    "+skill",
+    "3"
+  ],
+  "correction": "Console skill CVAR is zero-based. HMP is +skill 2; command-line -skill 3 is separately converted from one-based. All measured results use UV, not HMP. No rerun after GPU failure.",
+  "source_evidence": [
+    "src/g_game.cpp:119: gameskill named skill defaults to 2",
+    "src/d_main.cpp:2176-2179: -skill subtracts character 1",
+    "wadsrc/static/mapinfo/doomcommon.txt:180-218: normal third, hard fourth"
+  ],
+  "asset_audit": "No skill redefinitions in the loaded Sunlust/DBP37 MAPINFO or Champions source; Freedoom2 has no MAPINFO/ZMAPINFO lumps.",
+  "selection_limitation": "Initial map THINGS inspection used HMP flag bit 2; actual UV gameplay uses hard difficulty. Author HMP recommendation was intended but not executed.",
+  "champions_source": "zscript/champions/handler.txt:414-419 uses SKILLP_ACSReturn to compute chance unless champion_OverrideChance differs from -1. Skill deviation can alter variant populations.",
+  "completed_runs": [
+    {
+      "run": "dbp37-default-profile",
+      "completed": true,
+      "actual_skill_cvar": 3
+    },
+    {
+      "run": "sunlust24-arena-profile",
+      "completed": false,
+      "actual_skill_cvar": 3
+    },
+    {
+      "run": "sunlust24-default-profile",
+      "completed": true,
+      "actual_skill_cvar": 3
+    },
+    {
+      "run": "sunlust30-arena-profile",
+      "completed": true,
+      "actual_skill_cvar": 3
+    },
+    {
+      "run": "sunlust30-default-profile",
+      "completed": true,
+      "actual_skill_cvar": 3
+    }
+  ]
+}

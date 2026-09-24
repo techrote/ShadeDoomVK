@@ -1,0 +1,3856 @@
+{
+  "status": "NO-GO for retaining a material lookup candidate; PF-017 not accepted",
+  "baseline_sha": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+  "candidate_sha": null,
+  "local_root": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924",
+  "workloads": {
+    "dbp37-default-profile": {
+      "run": {
+        "name": "dbp37-default-profile",
+        "map": "MAP04",
+        "content": "dbp37",
+        "champions": true,
+        "production": false,
+        "source_base": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+        "exe": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\diagnostic\\vkdoom.exe",
+        "exe_sha256": "54BEF07801C0B2A69C7EC46C04FB108259C2F5CEE834E912BD8E7007DA0335EC",
+        "assets": [
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+            "sha256": "A8772E088847032510D97BA2312406A6998F21CBAB44D4FF10696FAA9C0ECD4B"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad",
+            "sha256": "D356DE75ACDB9C969175BDC3910839FB805415B7244FD7E65D05A9110F53C95A"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+            "sha256": "08DA7BDC92DAE1378B84CF28D21ECBA533A0F007B7DE28CB46336399D251737F"
+          }
+        ],
+        "initial_config_sha256": "B4E4F84EFF7F212BF4584E7C417D4E749A628499ADD91E63ADE2C817D0FDBAEB",
+        "sequence_sha256": "47B060B24853A18752CB6DD61846F91693F615CC78A87B7CC87DDEB038E96FDF",
+        "arguments": [
+          "-stdout",
+          "-noautoload",
+          "-nosound",
+          "-nojoy",
+          "-width",
+          "1904",
+          "-height",
+          "1001",
+          "-config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\dbp37-default-profile\\config.ini",
+          "-savedir",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\dbp37-default-profile\\save",
+          "-iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+          "-file",
+          "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+          "-rngseed",
+          "12345",
+          "+use_mouse",
+          "false",
+          "+m_use_mouse",
+          "0",
+          "+unbindall",
+          "+skill",
+          "3",
+          "+map",
+          "MAP04",
+          "+exec",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\dbp37-default-profile\\sequence.cfg"
+        ],
+        "start": "2026-09-24T18:53:08.2623722+01:00",
+        "end": "2026-09-24T18:53:30.3229873+01:00",
+        "exit": 0,
+        "timeout": false,
+        "driver_events": [],
+        "gpu_before": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 31",
+        "gpu_after": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 36"
+      },
+      "complete": true,
+      "images": [
+        "phase1.png",
+        "phase2.png",
+        "phase4.png"
+      ],
+      "clock_empty_mean_ns": 22.669,
+      "lifecycle_counts": {
+        "timer": 1,
+        "owner": 803,
+        "key": 875,
+        "layer": 3500,
+        "reset": 3725,
+        "destroy": 802
+      },
+      "phases": {
+        "0": {
+          "calls": 317002,
+          "hit": 316658,
+          "miss": 344,
+          "pop": {
+            "0": 233,
+            "1": 241520,
+            "2": 71142,
+            "3": 4107
+          },
+          "hit_comp": {
+            "1": 266607,
+            "2": 49659,
+            "3": 392
+          },
+          "miss_comp": {
+            "0": 233,
+            "1": 104,
+            "2": 7
+          },
+          "hit_position": {
+            "0": 266607,
+            "1": 49659,
+            "2": 392
+          },
+          "owner_repeat": 296609,
+          "global_repeat": 113399,
+          "alloc_ns": 15741900,
+          "maintain_ns": 35600,
+          "pop_timing": {
+            "0": {
+              "calls": 233,
+              "samples": 4,
+              "resolve_ns": 300,
+              "search_ns": 200,
+              "allocation_ns": 14907000,
+              "maintenance_ns": 22300,
+              "search_raw_estimate": 11650.0,
+              "search_adjusted_estimate": 6368.123,
+              "resolve_raw_estimate": 17475.0,
+              "resolve_adjusted_estimate": 12193.123
+            },
+            "1": {
+              "calls": 241520,
+              "samples": 3701,
+              "resolve_ns": 134700,
+              "search_ns": 126200,
+              "allocation_ns": 831700,
+              "maintenance_ns": 12100,
+              "search_raw_estimate": 8235564.442042691,
+              "search_adjusted_estimate": 2760547.562042691,
+              "resolve_raw_estimate": 8790257.768170765,
+              "resolve_adjusted_estimate": 3315240.888170765
+            },
+            "2": {
+              "calls": 71142,
+              "samples": 1145,
+              "resolve_ns": 47000,
+              "search_ns": 45400,
+              "allocation_ns": 3200,
+              "maintenance_ns": 1200,
+              "search_raw_estimate": 2820826.899563319,
+              "search_adjusted_estimate": 1208108.901563319,
+              "resolve_raw_estimate": 2920239.3013100433,
+              "resolve_adjusted_estimate": 1307521.3033100432
+            },
+            "3": {
+              "calls": 4107,
+              "samples": 74,
+              "resolve_ns": 2200,
+              "search_ns": 3600,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 199800.0,
+              "search_adjusted_estimate": 106698.417,
+              "resolve_raw_estimate": 122100.0,
+              "resolve_adjusted_estimate": 28998.417
+            }
+          },
+          "frames_count": 686,
+          "calls_per_frame": {
+            "p50": 460,
+            "p90": 462,
+            "p95": 462,
+            "p99": 462,
+            "p100": 13778
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 2
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "search_ns_estimate": 4081723.0036060098,
+          "resolve_ns_estimate": 4663953.731480808,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 462.1020408163265,
+          "mean_search_us_per_frame": 5.950033532953367,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 6.798766372421003,
+          "mean_miss_allocation_us_per_frame": 22.947376093294462,
+          "mean_maintenance_us_per_frame": 0.051895043731778424,
+          "key_changes_per_owner": 20393,
+          "sampled_calls": 4924,
+          "unsampled_population_calls": 0
+        },
+        "1": {
+          "calls": 957151,
+          "hit": 957125,
+          "miss": 26,
+          "pop": {
+            "2": 205800,
+            "1": 743093,
+            "3": 8232,
+            "0": 26
+          },
+          "hit_comp": {
+            "2": 144195,
+            "1": 812930
+          },
+          "miss_comp": {
+            "0": 26
+          },
+          "hit_position": {
+            "1": 144195,
+            "0": 812930
+          },
+          "owner_repeat": 901015,
+          "global_repeat": 351228,
+          "alloc_ns": 1007400,
+          "maintain_ns": 3500,
+          "pop_timing": {
+            "2": {
+              "calls": 205800,
+              "samples": 3199,
+              "resolve_ns": 128100,
+              "search_ns": 134000,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 8620568.927789934,
+              "search_adjusted_estimate": 3955288.727789934,
+              "resolve_raw_estimate": 8241006.564551423,
+              "resolve_adjusted_estimate": 3575726.364551423
+            },
+            "1": {
+              "calls": 743093,
+              "samples": 11907,
+              "resolve_ns": 424800,
+              "search_ns": 448600,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 27996264.365499288,
+              "search_adjusted_estimate": 11151089.148499288,
+              "resolve_raw_estimate": 26510952.07860922,
+              "resolve_adjusted_estimate": 9665776.86160922
+            },
+            "3": {
+              "calls": 8232,
+              "samples": 123,
+              "resolve_ns": 4900,
+              "search_ns": 7200,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 481873.17073170736,
+              "search_adjusted_estimate": 295261.9627317074,
+              "resolve_raw_estimate": 327941.4634146341,
+              "resolve_adjusted_estimate": 141330.2554146341
+            },
+            "0": {
+              "calls": 26,
+              "samples": 2,
+              "resolve_ns": 100,
+              "search_ns": 0,
+              "allocation_ns": 1007400,
+              "maintenance_ns": 3500,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 1300.0,
+              "resolve_adjusted_estimate": 710.606
+            }
+          },
+          "frames_count": 2058,
+          "calls_per_frame": {
+            "p50": 463,
+            "p90": 471,
+            "p95": 471,
+            "p99": 473,
+            "p100": 473
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "search_ns_estimate": 15401639.83902093,
+          "resolve_ns_estimate": 13383544.08757528,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 465.08794946550046,
+          "mean_search_us_per_frame": 7.483790009242434,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 6.5031798287537805,
+          "mean_miss_allocation_us_per_frame": 0.48950437317784257,
+          "mean_maintenance_us_per_frame": 0.0017006802721088435,
+          "key_changes_per_owner": 56136,
+          "sampled_calls": 15231,
+          "unsampled_population_calls": 0
+        },
+        "2": {
+          "calls": 357322,
+          "hit": 357290,
+          "miss": 32,
+          "pop": {
+            "2": 127165,
+            "1": 228076,
+            "3": 2066,
+            "0": 15
+          },
+          "hit_comp": {
+            "2": 107764,
+            "1": 249526
+          },
+          "miss_comp": {
+            "0": 15,
+            "1": 17
+          },
+          "hit_position": {
+            "1": 107764,
+            "0": 249526
+          },
+          "owner_repeat": 336103,
+          "global_repeat": 82694,
+          "alloc_ns": 1079700,
+          "maintain_ns": 5000,
+          "pop_timing": {
+            "2": {
+              "calls": 127165,
+              "samples": 1890,
+              "resolve_ns": 68000,
+              "search_ns": 81500,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 5483570.105820105,
+              "search_adjusted_estimate": 2600866.720820105,
+              "resolve_raw_estimate": 4575248.677248677,
+              "resolve_adjusted_estimate": 1692545.292248677
+            },
+            "1": {
+              "calls": 228076,
+              "samples": 3687,
+              "resolve_ns": 144000,
+              "search_ns": 150700,
+              "allocation_ns": 524600,
+              "maintenance_ns": 3400,
+              "search_raw_estimate": 9322227.61052346,
+              "search_adjusted_estimate": 4151972.76652346,
+              "resolve_raw_estimate": 8907768.917819364,
+              "resolve_adjusted_estimate": 3737514.0738193635
+            },
+            "3": {
+              "calls": 2066,
+              "samples": 36,
+              "resolve_ns": 900,
+              "search_ns": 2500,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 143472.22222222222,
+              "search_adjusted_estimate": 96638.06822222221,
+              "resolve_raw_estimate": 51650.0,
+              "resolve_adjusted_estimate": 4815.845999999998
+            },
+            "0": {
+              "calls": 15,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 555100,
+              "maintenance_ns": 1600,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 1575,
+          "calls_per_frame": {
+            "p50": 121,
+            "p90": 526,
+            "p95": 531,
+            "p99": 536,
+            "p100": 545
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "miss_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 1,
+            "p99": 1,
+            "p100": 1
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "search_ns_estimate": 6849477.555565787,
+          "resolve_ns_estimate": 5434875.212068041,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 226.8711111111111,
+          "mean_search_us_per_frame": 4.348874638454467,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 3.450714420360661,
+          "mean_miss_allocation_us_per_frame": 0.6855238095238095,
+          "mean_maintenance_us_per_frame": 0.0031746031746031746,
+          "key_changes_per_owner": 21219,
+          "sampled_calls": 5613,
+          "unsampled_population_calls": 15
+        },
+        "3": {
+          "calls": 141920,
+          "hit": 141798,
+          "miss": 122,
+          "pop": {
+            "0": 114,
+            "1": 112334,
+            "2": 29472
+          },
+          "hit_comp": {
+            "1": 131940,
+            "2": 9858
+          },
+          "miss_comp": {
+            "0": 114,
+            "1": 8
+          },
+          "hit_position": {
+            "0": 131940,
+            "1": 9858
+          },
+          "owner_repeat": 133576,
+          "global_repeat": 13444,
+          "alloc_ns": 263900,
+          "maintain_ns": 6000,
+          "pop_timing": {
+            "0": {
+              "calls": 114,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 252000,
+              "maintenance_ns": 5900,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "1": {
+              "calls": 112334,
+              "samples": 1780,
+              "resolve_ns": 82000,
+              "search_ns": 104900,
+              "allocation_ns": 11900,
+              "maintenance_ns": 100,
+              "search_raw_estimate": 6620132.921348314,
+              "search_adjusted_estimate": 4073633.475348314,
+              "resolve_raw_estimate": 5174937.078651686,
+              "resolve_adjusted_estimate": 2628437.632651686
+            },
+            "2": {
+              "calls": 29472,
+              "samples": 437,
+              "resolve_ns": 16900,
+              "search_ns": 20300,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 1369065.4462242562,
+              "search_adjusted_estimate": 700964.6782242561,
+              "resolve_raw_estimate": 1139763.8443935928,
+              "resolve_adjusted_estimate": 471663.07639359275
+            }
+          },
+          "frames_count": 1681,
+          "calls_per_frame": {
+            "p50": 88,
+            "p90": 88,
+            "p95": 101,
+            "p99": 101,
+            "p100": 101
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 1,
+            "p99": 1,
+            "p100": 1
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "search_ns_estimate": 4774598.15357257,
+          "resolve_ns_estimate": 3100100.709045279,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 84.42593694229625,
+          "mean_search_us_per_frame": 2.8403320366285367,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 1.8442003028228906,
+          "mean_miss_allocation_us_per_frame": 0.15698988697204047,
+          "mean_maintenance_us_per_frame": 0.003569303985722784,
+          "key_changes_per_owner": 8344,
+          "sampled_calls": 2217,
+          "unsampled_population_calls": 114
+        },
+        "4": {
+          "calls": 682350,
+          "hit": 681999,
+          "miss": 351,
+          "pop": {
+            "1": 616638,
+            "2": 61748,
+            "0": 240,
+            "3": 3724
+          },
+          "hit_comp": {
+            "1": 638620,
+            "2": 42997,
+            "3": 382
+          },
+          "miss_comp": {
+            "0": 240,
+            "1": 104,
+            "2": 7
+          },
+          "hit_position": {
+            "0": 638620,
+            "1": 42997,
+            "2": 382
+          },
+          "owner_repeat": 664584,
+          "global_repeat": 508060,
+          "alloc_ns": 4396700,
+          "maintain_ns": 11300,
+          "pop_timing": {
+            "1": {
+              "calls": 616638,
+              "samples": 9687,
+              "resolve_ns": 371300,
+              "search_ns": 315000,
+              "allocation_ns": 903100,
+              "maintenance_ns": 3300,
+              "search_raw_estimate": 20051715.70145556,
+              "search_adjusted_estimate": 6073148.879455559,
+              "resolve_raw_estimate": 23635562.03158873,
+              "resolve_adjusted_estimate": 9656995.209588729
+            },
+            "2": {
+              "calls": 61748,
+              "samples": 925,
+              "resolve_ns": 38200,
+              "search_ns": 42300,
+              "allocation_ns": 3200,
+              "maintenance_ns": 700,
+              "search_raw_estimate": 2823719.351351351,
+              "search_adjusted_estimate": 1423953.939351351,
+              "resolve_raw_estimate": 2550025.5135135134,
+              "resolve_adjusted_estimate": 1150260.1015135134
+            },
+            "0": {
+              "calls": 240,
+              "samples": 3,
+              "resolve_ns": 400,
+              "search_ns": 200,
+              "allocation_ns": 3490400,
+              "maintenance_ns": 7300,
+              "search_raw_estimate": 16000.000000000002,
+              "search_adjusted_estimate": 10559.440000000002,
+              "resolve_raw_estimate": 32000.000000000004,
+              "resolve_adjusted_estimate": 26559.440000000002
+            },
+            "3": {
+              "calls": 3724,
+              "samples": 63,
+              "resolve_ns": 2300,
+              "search_ns": 3400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 200977.77777777778,
+              "search_adjusted_estimate": 116558.42177777778,
+              "resolve_raw_estimate": 135955.55555555556,
+              "resolve_adjusted_estimate": 51536.19955555556
+            }
+          },
+          "frames_count": 606,
+          "calls_per_frame": {
+            "p50": 450,
+            "p90": 452,
+            "p95": 452,
+            "p99": 452,
+            "p100": 411424
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 2
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "search_ns_estimate": 7624220.680584688,
+          "resolve_ns_estimate": 10885350.950657796,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 1125.990099009901,
+          "mean_search_us_per_frame": 12.581222245189254,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 17.962625331118474,
+          "mean_miss_allocation_us_per_frame": 7.255280528052806,
+          "mean_maintenance_us_per_frame": 0.018646864686468645,
+          "key_changes_per_owner": 17766,
+          "sampled_calls": 10678,
+          "unsampled_population_calls": 0
+        }
+      },
+      "trace_validation": {
+        "replay_record_bytes": 56,
+        "source_record_bytes": 80,
+        "complete_run": true,
+        "key_definitions": 875,
+        "events": {
+          "timer": 1,
+          "owner": 803,
+          "key": 875,
+          "layer": 3500,
+          "reset": 3725,
+          "destroy": 802
+        },
+        "records": 2455745,
+        "errors": [],
+        "key_changes_per_owner": {
+          "0": 20393,
+          "1": 56136,
+          "2": 21219,
+          "3": 8344,
+          "4": 17766
+        },
+        "phase_calls": {
+          "0": 317002,
+          "1": 957151,
+          "2": 357322,
+          "3": 141920,
+          "4": 682350
+        },
+        "no_candidate": "This checks trace consistency only, not candidate equivalence or untested PF semantics."
+      }
+    },
+    "sunlust24-arena-profile": {
+      "run": {
+        "name": "sunlust24-arena-profile",
+        "map": "MAP24",
+        "content": "sunlust",
+        "champions": true,
+        "production": false,
+        "source_base": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+        "exe": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\diagnostic\\vkdoom.exe",
+        "exe_sha256": "54BEF07801C0B2A69C7EC46C04FB108259C2F5CEE834E912BD8E7007DA0335EC",
+        "assets": [
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+            "sha256": "A8772E088847032510D97BA2312406A6998F21CBAB44D4FF10696FAA9C0ECD4B"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+            "sha256": "6A90BECF56040896FD2876A29F60A7A528D9802B081E0A1CC7D7CC65D546A964"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+            "sha256": "08DA7BDC92DAE1378B84CF28D21ECBA533A0F007B7DE28CB46336399D251737F"
+          }
+        ],
+        "initial_config_sha256": "B4E4F84EFF7F212BF4584E7C417D4E749A628499ADD91E63ADE2C817D0FDBAEB",
+        "sequence_sha256": "74B3D8736CEDE22C52C1EB38F88B1BED8503E67F55AC65BA87CB69C7C4C9BE10",
+        "arguments": [
+          "-stdout",
+          "-noautoload",
+          "-nosound",
+          "-nojoy",
+          "-width",
+          "1904",
+          "-height",
+          "1001",
+          "-config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust24-arena-profile\\config.ini",
+          "-savedir",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust24-arena-profile\\save",
+          "-iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+          "-file",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+          "-rngseed",
+          "12345",
+          "+use_mouse",
+          "false",
+          "+m_use_mouse",
+          "0",
+          "+unbindall",
+          "+skill",
+          "3",
+          "+map",
+          "MAP24",
+          "+exec",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust24-arena-profile\\sequence.cfg"
+        ],
+        "start": "2026-09-24T18:55:29.7372930+01:00",
+        "end": "2026-09-24T18:56:30.3627209+01:00",
+        "exit": -1,
+        "timeout": true,
+        "driver_events": [
+          {
+            "TimeCreated": "2026-09-24T18:55:43.9413553+01:00",
+            "ProviderName": "nvlddmkm",
+            "Id": 153,
+            "Message": null
+          },
+          {
+            "TimeCreated": "2026-09-24T18:55:42.1366319+01:00",
+            "ProviderName": "nvlddmkm",
+            "Id": 153,
+            "Message": null
+          }
+        ],
+        "gpu_before": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 29",
+        "gpu_after": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 30"
+      },
+      "complete": false,
+      "images": [
+        "phase1.png"
+      ]
+    },
+    "sunlust24-default-profile": {
+      "run": {
+        "name": "sunlust24-default-profile",
+        "map": "MAP24",
+        "content": "sunlust",
+        "champions": true,
+        "production": false,
+        "source_base": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+        "exe": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\diagnostic\\vkdoom.exe",
+        "exe_sha256": "54BEF07801C0B2A69C7EC46C04FB108259C2F5CEE834E912BD8E7007DA0335EC",
+        "assets": [
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+            "sha256": "A8772E088847032510D97BA2312406A6998F21CBAB44D4FF10696FAA9C0ECD4B"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+            "sha256": "6A90BECF56040896FD2876A29F60A7A528D9802B081E0A1CC7D7CC65D546A964"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+            "sha256": "08DA7BDC92DAE1378B84CF28D21ECBA533A0F007B7DE28CB46336399D251737F"
+          }
+        ],
+        "initial_config_sha256": "B4E4F84EFF7F212BF4584E7C417D4E749A628499ADD91E63ADE2C817D0FDBAEB",
+        "sequence_sha256": "6674BA9B98B6D1FFC00F1ECB8A2F46216B214302C5A0D61637FD143ED5BD467D",
+        "arguments": [
+          "-stdout",
+          "-noautoload",
+          "-nosound",
+          "-nojoy",
+          "-width",
+          "1904",
+          "-height",
+          "1001",
+          "-config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust24-default-profile\\config.ini",
+          "-savedir",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust24-default-profile\\save",
+          "-iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+          "-file",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+          "-rngseed",
+          "12345",
+          "+use_mouse",
+          "false",
+          "+m_use_mouse",
+          "0",
+          "+unbindall",
+          "+skill",
+          "3",
+          "+map",
+          "MAP24",
+          "+exec",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust24-default-profile\\sequence.cfg"
+        ],
+        "start": "2026-09-24T18:51:40.7717930+01:00",
+        "end": "2026-09-24T18:52:06.3006989+01:00",
+        "exit": 0,
+        "timeout": false,
+        "driver_events": [],
+        "gpu_before": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 31",
+        "gpu_after": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 31"
+      },
+      "complete": true,
+      "images": [
+        "phase1.png",
+        "phase2.png",
+        "phase4.png"
+      ],
+      "clock_empty_mean_ns": 22.617,
+      "lifecycle_counts": {
+        "timer": 1,
+        "owner": 1153,
+        "key": 712,
+        "layer": 2848,
+        "reset": 5005,
+        "destroy": 1152
+      },
+      "phases": {
+        "0": {
+          "calls": 150834,
+          "hit": 150655,
+          "miss": 179,
+          "pop": {
+            "0": 123,
+            "1": 97050,
+            "2": 52931,
+            "3": 698,
+            "4": 32
+          },
+          "hit_comp": {
+            "1": 139407,
+            "2": 10997,
+            "3": 243,
+            "4": 8
+          },
+          "miss_comp": {
+            "0": 123,
+            "1": 38,
+            "2": 11,
+            "3": 7
+          },
+          "hit_position": {
+            "0": 139407,
+            "1": 10997,
+            "2": 243,
+            "3": 8
+          },
+          "owner_repeat": 147395,
+          "global_repeat": 121834,
+          "alloc_ns": 17017700,
+          "maintain_ns": 22100,
+          "pop_timing": {
+            "0": {
+              "calls": 123,
+              "samples": 2,
+              "resolve_ns": 100,
+              "search_ns": 100,
+              "allocation_ns": 15482800,
+              "maintenance_ns": 12600,
+              "search_raw_estimate": 6150.0,
+              "search_adjusted_estimate": 3368.109,
+              "resolve_raw_estimate": 6150.0,
+              "resolve_adjusted_estimate": 3368.109
+            },
+            "1": {
+              "calls": 97050,
+              "samples": 1522,
+              "resolve_ns": 40600,
+              "search_ns": 37400,
+              "allocation_ns": 777800,
+              "maintenance_ns": 5600,
+              "search_raw_estimate": 2384802.890932983,
+              "search_adjusted_estimate": 189823.0409329827,
+              "resolve_raw_estimate": 2588850.197109067,
+              "resolve_adjusted_estimate": 393870.3471090668
+            },
+            "2": {
+              "calls": 52931,
+              "samples": 843,
+              "resolve_ns": 24300,
+              "search_ns": 21800,
+              "allocation_ns": 377300,
+              "maintenance_ns": 2400,
+              "search_raw_estimate": 1368796.915776987,
+              "search_adjusted_estimate": 171656.48877698695,
+              "resolve_raw_estimate": 1525769.0391459074,
+              "resolve_adjusted_estimate": 328628.61214590725
+            },
+            "3": {
+              "calls": 698,
+              "samples": 6,
+              "resolve_ns": 200,
+              "search_ns": 100,
+              "allocation_ns": 379800,
+              "maintenance_ns": 1500,
+              "search_raw_estimate": 11633.333333333334,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 23266.666666666668,
+              "resolve_adjusted_estimate": 7480.000666666667
+            },
+            "4": {
+              "calls": 32,
+              "samples": 1,
+              "resolve_ns": 0,
+              "search_ns": 100,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 3200.0,
+              "search_adjusted_estimate": 2476.256,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 23,
+          "calls_per_frame": {
+            "p50": 2843,
+            "p90": 2843,
+            "p95": 2843,
+            "p99": 101544,
+            "p100": 101544
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 4
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 2,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 4
+          },
+          "search_ns_estimate": 367323.89470996964,
+          "resolve_ns_estimate": 733347.0689216406,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 6558.0,
+          "mean_search_us_per_frame": 15.970604117824767,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 31.884655170506115,
+          "mean_miss_allocation_us_per_frame": 739.9,
+          "mean_maintenance_us_per_frame": 0.9608695652173913,
+          "key_changes_per_owner": 3439,
+          "sampled_calls": 2374,
+          "unsampled_population_calls": 0
+        },
+        "1": {
+          "calls": 128040,
+          "hit": 128013,
+          "miss": 27,
+          "pop": {
+            "2": 85404,
+            "1": 42609,
+            "0": 27
+          },
+          "hit_comp": {
+            "1": 126551,
+            "2": 1462
+          },
+          "miss_comp": {
+            "0": 27
+          },
+          "hit_position": {
+            "0": 126551,
+            "1": 1462
+          },
+          "owner_repeat": 126969,
+          "global_repeat": 114333,
+          "alloc_ns": 1058500,
+          "maintain_ns": 4100,
+          "pop_timing": {
+            "2": {
+              "calls": 85404,
+              "samples": 1324,
+              "resolve_ns": 40100,
+              "search_ns": 32300,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 2083496.3746223566,
+              "search_adjusted_estimate": 151914.10662235646,
+              "resolve_raw_estimate": 2586631.722054381,
+              "resolve_adjusted_estimate": 655049.4540543808
+            },
+            "1": {
+              "calls": 42609,
+              "samples": 657,
+              "resolve_ns": 20000,
+              "search_ns": 19400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 1258165.296803653,
+              "search_adjusted_estimate": 294477.543803653,
+              "resolve_raw_estimate": 1297077.6255707762,
+              "resolve_adjusted_estimate": 333389.87257077615
+            },
+            "0": {
+              "calls": 27,
+              "samples": 1,
+              "resolve_ns": 0,
+              "search_ns": 100,
+              "allocation_ns": 1058500,
+              "maintenance_ns": 4100,
+              "search_raw_estimate": 2700.0,
+              "search_adjusted_estimate": 2089.341,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 46,
+          "calls_per_frame": {
+            "p50": 2842,
+            "p90": 2853,
+            "p95": 2853,
+            "p99": 2853,
+            "p100": 2853
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 2
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "population_pct": {
+            "p50": 2,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "search_ns_estimate": 448480.99142600945,
+          "resolve_ns_estimate": 988439.3266251569,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 2783.478260869565,
+          "mean_search_us_per_frame": 9.74958677013064,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 21.487811448372977,
+          "mean_miss_allocation_us_per_frame": 23.01086956521739,
+          "mean_maintenance_us_per_frame": 0.08913043478260871,
+          "key_changes_per_owner": 1071,
+          "sampled_calls": 1982,
+          "unsampled_population_calls": 0
+        },
+        "2": {
+          "calls": 50896,
+          "hit": 50809,
+          "miss": 87,
+          "pop": {
+            "2": 32435,
+            "1": 18381,
+            "0": 59,
+            "3": 21
+          },
+          "hit_comp": {
+            "1": 50114,
+            "2": 684,
+            "3": 11
+          },
+          "miss_comp": {
+            "0": 59,
+            "1": 23,
+            "2": 5
+          },
+          "hit_position": {
+            "0": 50114,
+            "1": 684,
+            "2": 11
+          },
+          "owner_repeat": 50279,
+          "global_repeat": 45116,
+          "alloc_ns": 4567000,
+          "maintain_ns": 14100,
+          "pop_timing": {
+            "2": {
+              "calls": 32435,
+              "samples": 485,
+              "resolve_ns": 15300,
+              "search_ns": 12400,
+              "allocation_ns": 405600,
+              "maintenance_ns": 1400,
+              "search_raw_estimate": 829265.9793814434,
+              "search_adjusted_estimate": 95683.58438144333,
+              "resolve_raw_estimate": 1023207.2164948455,
+              "resolve_adjusted_estimate": 289624.82149484544
+            },
+            "1": {
+              "calls": 18381,
+              "samples": 286,
+              "resolve_ns": 9900,
+              "search_ns": 8400,
+              "allocation_ns": 1108300,
+              "maintenance_ns": 3900,
+              "search_raw_estimate": 539861.5384615385,
+              "search_adjusted_estimate": 124138.4614615385,
+              "resolve_raw_estimate": 636265.3846153846,
+              "resolve_adjusted_estimate": 220542.30761538463
+            },
+            "0": {
+              "calls": 59,
+              "samples": 1,
+              "resolve_ns": 100,
+              "search_ns": 0,
+              "allocation_ns": 3053100,
+              "maintenance_ns": 8800,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 5900.0,
+              "resolve_adjusted_estimate": 4565.597
+            },
+            "3": {
+              "calls": 21,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 22,
+          "calls_per_frame": {
+            "p50": 2407,
+            "p90": 2734,
+            "p95": 2841,
+            "p99": 2865,
+            "p100": 2865
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "population_pct": {
+            "p50": 2,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "search_ns_estimate": 219822.04584298184,
+          "resolve_ns_estimate": 514732.7261102301,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 2313.4545454545455,
+          "mean_search_us_per_frame": 9.991911174680991,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 23.39694209591955,
+          "mean_miss_allocation_us_per_frame": 207.5909090909091,
+          "mean_maintenance_us_per_frame": 0.6409090909090909,
+          "key_changes_per_owner": 617,
+          "sampled_calls": 772,
+          "unsampled_population_calls": 21
+        },
+        "3": {
+          "calls": 58283,
+          "hit": 58038,
+          "miss": 245,
+          "pop": {
+            "0": 219,
+            "1": 25139,
+            "2": 32908,
+            "3": 16,
+            "4": 1
+          },
+          "hit_comp": {
+            "1": 57648,
+            "2": 384,
+            "3": 6
+          },
+          "miss_comp": {
+            "0": 219,
+            "1": 19,
+            "2": 6,
+            "3": 1
+          },
+          "hit_position": {
+            "0": 57648,
+            "1": 384,
+            "2": 6
+          },
+          "owner_repeat": 57813,
+          "global_repeat": 52117,
+          "alloc_ns": 4652600,
+          "maintain_ns": 14500,
+          "pop_timing": {
+            "0": {
+              "calls": 219,
+              "samples": 5,
+              "resolve_ns": 400,
+              "search_ns": 0,
+              "allocation_ns": 4149400,
+              "maintenance_ns": 9800,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 17520.0,
+              "resolve_adjusted_estimate": 12566.877
+            },
+            "1": {
+              "calls": 25139,
+              "samples": 407,
+              "resolve_ns": 11200,
+              "search_ns": 10900,
+              "allocation_ns": 230300,
+              "maintenance_ns": 1500,
+              "search_raw_estimate": 673255.773955774,
+              "search_adjusted_estimate": 104687.01095577399,
+              "resolve_raw_estimate": 691785.7493857493,
+              "resolve_adjusted_estimate": 123216.9863857493
+            },
+            "2": {
+              "calls": 32908,
+              "samples": 548,
+              "resolve_ns": 14700,
+              "search_ns": 14300,
+              "allocation_ns": 154100,
+              "maintenance_ns": 2600,
+              "search_raw_estimate": 858730.6569343065,
+              "search_adjusted_estimate": 114450.42093430646,
+              "resolve_raw_estimate": 882751.0948905109,
+              "resolve_adjusted_estimate": 138470.85889051086
+            },
+            "3": {
+              "calls": 16,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 118800,
+              "maintenance_ns": 600,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "4": {
+              "calls": 1,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 25,
+          "calls_per_frame": {
+            "p50": 2429,
+            "p90": 2443,
+            "p95": 2445,
+            "p99": 2449,
+            "p100": 2449
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 1,
+            "p99": 1,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 3
+          },
+          "population_pct": {
+            "p50": 2,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 4
+          },
+          "search_ns_estimate": 219137.43189008045,
+          "resolve_ns_estimate": 274254.72227626015,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 2331.32,
+          "mean_search_us_per_frame": 8.765497275603218,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 10.970188891050405,
+          "mean_miss_allocation_us_per_frame": 186.104,
+          "mean_maintenance_us_per_frame": 0.58,
+          "key_changes_per_owner": 470,
+          "sampled_calls": 960,
+          "unsampled_population_calls": 17
+        },
+        "4": {
+          "calls": 336042,
+          "hit": 335868,
+          "miss": 174,
+          "pop": {
+            "0": 127,
+            "1": 303159,
+            "2": 32057,
+            "3": 695,
+            "4": 4
+          },
+          "hit_comp": {
+            "1": 325019,
+            "2": 10612,
+            "3": 236,
+            "4": 1
+          },
+          "miss_comp": {
+            "0": 127,
+            "1": 35,
+            "2": 8,
+            "3": 4
+          },
+          "hit_position": {
+            "0": 325019,
+            "1": 10612,
+            "2": 236,
+            "3": 1
+          },
+          "owner_repeat": 332882,
+          "global_repeat": 308591,
+          "alloc_ns": 4546900,
+          "maintain_ns": 10400,
+          "pop_timing": {
+            "0": {
+              "calls": 127,
+              "samples": 7,
+              "resolve_ns": 800,
+              "search_ns": 100,
+              "allocation_ns": 3469300,
+              "maintenance_ns": 5700,
+              "search_raw_estimate": 1814.2857142857144,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 14514.285714285716,
+              "resolve_adjusted_estimate": 11641.926714285715
+            },
+            "1": {
+              "calls": 303159,
+              "samples": 4823,
+              "resolve_ns": 167200,
+              "search_ns": 145700,
+              "allocation_ns": 605500,
+              "maintenance_ns": 3700,
+              "search_raw_estimate": 9158255.504872486,
+              "search_adjusted_estimate": 2301708.401872486,
+              "resolve_raw_estimate": 10509679.618494714,
+              "resolve_adjusted_estimate": 3653132.5154947136
+            },
+            "2": {
+              "calls": 32057,
+              "samples": 476,
+              "resolve_ns": 12700,
+              "search_ns": 12700,
+              "allocation_ns": 237900,
+              "maintenance_ns": 500,
+              "search_raw_estimate": 855302.3109243698,
+              "search_adjusted_estimate": 130269.14192436985,
+              "resolve_raw_estimate": 855302.3109243698,
+              "resolve_adjusted_estimate": 130269.14192436985
+            },
+            "3": {
+              "calls": 695,
+              "samples": 8,
+              "resolve_ns": 300,
+              "search_ns": 500,
+              "allocation_ns": 234200,
+              "maintenance_ns": 500,
+              "search_raw_estimate": 43437.5,
+              "search_adjusted_estimate": 27718.684999999998,
+              "resolve_raw_estimate": 26062.5,
+              "resolve_adjusted_estimate": 10343.685
+            },
+            "4": {
+              "calls": 4,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 8,
+          "calls_per_frame": {
+            "p50": 2833,
+            "p90": 219342,
+            "p95": 219342,
+            "p99": 219342,
+            "p100": 219342
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 4
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 4
+          },
+          "search_ns_estimate": 2459696.228796856,
+          "resolve_ns_estimate": 3805387.269133369,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 42005.25,
+          "mean_search_us_per_frame": 307.462028599607,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 475.67340864167113,
+          "mean_miss_allocation_us_per_frame": 568.3625,
+          "mean_maintenance_us_per_frame": 1.3,
+          "key_changes_per_owner": 3160,
+          "sampled_calls": 5314,
+          "unsampled_population_calls": 4
+        }
+      },
+      "trace_validation": {
+        "replay_record_bytes": 56,
+        "source_record_bytes": 80,
+        "complete_run": true,
+        "key_definitions": 712,
+        "events": {
+          "timer": 1,
+          "owner": 1153,
+          "key": 712,
+          "layer": 2848,
+          "reset": 5005,
+          "destroy": 1152
+        },
+        "records": 724095,
+        "errors": [],
+        "key_changes_per_owner": {
+          "0": 3439,
+          "1": 1071,
+          "2": 617,
+          "3": 470,
+          "4": 3160
+        },
+        "phase_calls": {
+          "0": 150834,
+          "1": 128040,
+          "2": 50896,
+          "3": 58283,
+          "4": 336042
+        },
+        "no_candidate": "This checks trace consistency only, not candidate equivalence or untested PF semantics."
+      }
+    },
+    "sunlust30-arena-profile": {
+      "run": {
+        "name": "sunlust30-arena-profile",
+        "map": "MAP30",
+        "content": "sunlust",
+        "champions": true,
+        "production": false,
+        "source_base": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+        "exe": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\diagnostic\\vkdoom.exe",
+        "exe_sha256": "54BEF07801C0B2A69C7EC46C04FB108259C2F5CEE834E912BD8E7007DA0335EC",
+        "assets": [
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+            "sha256": "A8772E088847032510D97BA2312406A6998F21CBAB44D4FF10696FAA9C0ECD4B"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+            "sha256": "6A90BECF56040896FD2876A29F60A7A528D9802B081E0A1CC7D7CC65D546A964"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+            "sha256": "08DA7BDC92DAE1378B84CF28D21ECBA533A0F007B7DE28CB46336399D251737F"
+          }
+        ],
+        "initial_config_sha256": "B4E4F84EFF7F212BF4584E7C417D4E749A628499ADD91E63ADE2C817D0FDBAEB",
+        "sequence_sha256": "DA88190A515D2FC7EDFCE91F56372C8DAFAC2FE711F0D8C520E16DF125ACD8D7",
+        "arguments": [
+          "-stdout",
+          "-noautoload",
+          "-nosound",
+          "-nojoy",
+          "-width",
+          "1904",
+          "-height",
+          "1001",
+          "-config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust30-arena-profile\\config.ini",
+          "-savedir",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust30-arena-profile\\save",
+          "-iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+          "-file",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+          "-rngseed",
+          "12345",
+          "+use_mouse",
+          "false",
+          "+m_use_mouse",
+          "0",
+          "+unbindall",
+          "+skill",
+          "3",
+          "+map",
+          "MAP30",
+          "+exec",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust30-arena-profile\\sequence.cfg"
+        ],
+        "start": "2026-09-24T18:54:29.0422410+01:00",
+        "end": "2026-09-24T18:54:56.1716588+01:00",
+        "exit": 0,
+        "timeout": false,
+        "driver_events": [],
+        "gpu_before": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 30",
+        "gpu_after": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 30"
+      },
+      "complete": true,
+      "images": [
+        "phase1.png",
+        "phase2.png",
+        "phase4.png"
+      ],
+      "clock_empty_mean_ns": 23.205,
+      "lifecycle_counts": {
+        "timer": 1,
+        "owner": 1194,
+        "key": 2111,
+        "layer": 8444,
+        "reset": 5218,
+        "destroy": 1193
+      },
+      "phases": {
+        "0": {
+          "calls": 216673,
+          "hit": 215547,
+          "miss": 1126,
+          "pop": {
+            "0": 301,
+            "1": 153442,
+            "2": 45336,
+            "3": 8436,
+            "4": 297,
+            "5": 212,
+            "6": 214,
+            "7": 194,
+            "8": 139,
+            "9": 183,
+            "10": 188,
+            "11": 204,
+            "12": 209,
+            "13": 162,
+            "14": 248,
+            "15": 814,
+            "16": 716,
+            "17": 3681,
+            "18": 1697
+          },
+          "hit_comp": {
+            "1": 175471,
+            "2": 31821,
+            "3": 3563,
+            "10": 348,
+            "4": 679,
+            "11": 325,
+            "12": 317,
+            "5": 437,
+            "9": 338,
+            "13": 216,
+            "8": 377,
+            "16": 281,
+            "15": 320,
+            "14": 357,
+            "7": 325,
+            "17": 107,
+            "18": 28,
+            "6": 237
+          },
+          "miss_comp": {
+            "0": 301,
+            "1": 162,
+            "2": 109,
+            "3": 86,
+            "4": 74,
+            "5": 63,
+            "6": 50,
+            "7": 42,
+            "8": 39,
+            "9": 36,
+            "10": 34,
+            "11": 30,
+            "12": 24,
+            "13": 22,
+            "14": 21,
+            "15": 16,
+            "16": 13,
+            "17": 4
+          },
+          "hit_position": {
+            "0": 175471,
+            "1": 31821,
+            "2": 3563,
+            "9": 348,
+            "3": 679,
+            "10": 325,
+            "11": 317,
+            "4": 437,
+            "8": 338,
+            "12": 216,
+            "7": 377,
+            "15": 281,
+            "14": 320,
+            "13": 357,
+            "6": 325,
+            "16": 107,
+            "17": 28,
+            "5": 237
+          },
+          "owner_repeat": 194865,
+          "global_repeat": 134233,
+          "alloc_ns": 142727300,
+          "maintain_ns": 421200,
+          "pop_timing": {
+            "0": {
+              "calls": 301,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 59763900,
+              "maintenance_ns": 69600,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "1": {
+              "calls": 153442,
+              "samples": 2403,
+              "resolve_ns": 90800,
+              "search_ns": 79300,
+              "allocation_ns": 13467800,
+              "maintenance_ns": 48300,
+              "search_raw_estimate": 5063649.85434873,
+              "search_adjusted_estimate": 1503028.2443487304,
+              "resolve_raw_estimate": 5797974.864752393,
+              "resolve_adjusted_estimate": 2237353.2547523933
+            },
+            "2": {
+              "calls": 45336,
+              "samples": 760,
+              "resolve_ns": 25600,
+              "search_ns": 25500,
+              "allocation_ns": 9977800,
+              "maintenance_ns": 53400,
+              "search_raw_estimate": 1521142.105263158,
+              "search_adjusted_estimate": 469120.2252631581,
+              "resolve_raw_estimate": 1527107.3684210526,
+              "resolve_adjusted_estimate": 475085.4884210527
+            },
+            "3": {
+              "calls": 8436,
+              "samples": 114,
+              "resolve_ns": 4700,
+              "search_ns": 4100,
+              "allocation_ns": 9896900,
+              "maintenance_ns": 46600,
+              "search_raw_estimate": 303400.0,
+              "search_adjusted_estimate": 107642.62000000002,
+              "resolve_raw_estimate": 347800.0,
+              "resolve_adjusted_estimate": 152042.62000000002
+            },
+            "4": {
+              "calls": 297,
+              "samples": 7,
+              "resolve_ns": 300,
+              "search_ns": 800,
+              "allocation_ns": 7352400,
+              "maintenance_ns": 84100,
+              "search_raw_estimate": 33942.857142857145,
+              "search_adjusted_estimate": 27050.972142857147,
+              "resolve_raw_estimate": 12728.571428571428,
+              "resolve_adjusted_estimate": 5836.686428571428
+            },
+            "5": {
+              "calls": 212,
+              "samples": 4,
+              "resolve_ns": 200,
+              "search_ns": 100,
+              "allocation_ns": 6700700,
+              "maintenance_ns": 4200,
+              "search_raw_estimate": 5300.0,
+              "search_adjusted_estimate": 380.53999999999996,
+              "resolve_raw_estimate": 10600.0,
+              "resolve_adjusted_estimate": 5680.54
+            },
+            "6": {
+              "calls": 214,
+              "samples": 3,
+              "resolve_ns": 0,
+              "search_ns": 400,
+              "allocation_ns": 5414600,
+              "maintenance_ns": 36000,
+              "search_raw_estimate": 28533.333333333336,
+              "search_adjusted_estimate": 23567.463333333337,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "7": {
+              "calls": 194,
+              "samples": 3,
+              "resolve_ns": 100,
+              "search_ns": 400,
+              "allocation_ns": 4974300,
+              "maintenance_ns": 2700,
+              "search_raw_estimate": 25866.666666666668,
+              "search_adjusted_estimate": 21364.896666666667,
+              "resolve_raw_estimate": 6466.666666666667,
+              "resolve_adjusted_estimate": 1964.8966666666674
+            },
+            "8": {
+              "calls": 139,
+              "samples": 2,
+              "resolve_ns": 200,
+              "search_ns": 200,
+              "allocation_ns": 3976700,
+              "maintenance_ns": 2800,
+              "search_raw_estimate": 13900.0,
+              "search_adjusted_estimate": 10674.505000000001,
+              "resolve_raw_estimate": 13900.0,
+              "resolve_adjusted_estimate": 10674.505000000001
+            },
+            "9": {
+              "calls": 183,
+              "samples": 4,
+              "resolve_ns": 200,
+              "search_ns": 200,
+              "allocation_ns": 3532900,
+              "maintenance_ns": 44500,
+              "search_raw_estimate": 9150.0,
+              "search_adjusted_estimate": 4903.485000000001,
+              "resolve_raw_estimate": 9150.0,
+              "resolve_adjusted_estimate": 4903.485000000001
+            },
+            "10": {
+              "calls": 188,
+              "samples": 2,
+              "resolve_ns": 400,
+              "search_ns": 500,
+              "allocation_ns": 4424600,
+              "maintenance_ns": 2700,
+              "search_raw_estimate": 47000.0,
+              "search_adjusted_estimate": 42637.46,
+              "resolve_raw_estimate": 37600.0,
+              "resolve_adjusted_estimate": 33237.46
+            },
+            "11": {
+              "calls": 204,
+              "samples": 2,
+              "resolve_ns": 0,
+              "search_ns": 200,
+              "allocation_ns": 3118900,
+              "maintenance_ns": 2400,
+              "search_raw_estimate": 20400.0,
+              "search_adjusted_estimate": 15666.18,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "12": {
+              "calls": 209,
+              "samples": 1,
+              "resolve_ns": 0,
+              "search_ns": 100,
+              "allocation_ns": 2249900,
+              "maintenance_ns": 1200,
+              "search_raw_estimate": 20900.0,
+              "search_adjusted_estimate": 16050.155,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "13": {
+              "calls": 162,
+              "samples": 2,
+              "resolve_ns": 200,
+              "search_ns": 100,
+              "allocation_ns": 2114600,
+              "maintenance_ns": 19400,
+              "search_raw_estimate": 8100.0,
+              "search_adjusted_estimate": 4340.790000000001,
+              "resolve_raw_estimate": 16200.0,
+              "resolve_adjusted_estimate": 12440.79
+            },
+            "14": {
+              "calls": 248,
+              "samples": 4,
+              "resolve_ns": 300,
+              "search_ns": 200,
+              "allocation_ns": 2415900,
+              "maintenance_ns": 1500,
+              "search_raw_estimate": 12400.0,
+              "search_adjusted_estimate": 6645.160000000001,
+              "resolve_raw_estimate": 18600.0,
+              "resolve_adjusted_estimate": 12845.16
+            },
+            "15": {
+              "calls": 814,
+              "samples": 10,
+              "resolve_ns": 400,
+              "search_ns": 800,
+              "allocation_ns": 1576600,
+              "maintenance_ns": 1000,
+              "search_raw_estimate": 65120.0,
+              "search_adjusted_estimate": 46231.130000000005,
+              "resolve_raw_estimate": 32560.0,
+              "resolve_adjusted_estimate": 13671.130000000001
+            },
+            "16": {
+              "calls": 716,
+              "samples": 10,
+              "resolve_ns": 300,
+              "search_ns": 700,
+              "allocation_ns": 1320400,
+              "maintenance_ns": 600,
+              "search_raw_estimate": 50120.0,
+              "search_adjusted_estimate": 33505.22,
+              "resolve_raw_estimate": 21480.0,
+              "resolve_adjusted_estimate": 4865.220000000001
+            },
+            "17": {
+              "calls": 3681,
+              "samples": 52,
+              "resolve_ns": 3100,
+              "search_ns": 3300,
+              "allocation_ns": 448400,
+              "maintenance_ns": 200,
+              "search_raw_estimate": 233601.92307692306,
+              "search_adjusted_estimate": 148184.31807692308,
+              "resolve_raw_estimate": 219444.23076923075,
+              "resolve_adjusted_estimate": 134026.62576923077
+            },
+            "18": {
+              "calls": 1697,
+              "samples": 25,
+              "resolve_ns": 1400,
+              "search_ns": 1400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 95032.0,
+              "search_adjusted_estimate": 55653.115000000005,
+              "resolve_raw_estimate": 95032.0,
+              "resolve_adjusted_estimate": 55653.115000000005
+            }
+          },
+          "frames_count": 10,
+          "calls_per_frame": {
+            "p50": 14044,
+            "p90": 19744,
+            "p95": 128886,
+            "p99": 128886,
+            "p100": 128886
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 1787,
+            "p95": 1797,
+            "p99": 1797,
+            "p100": 1797
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 10,
+            "p100": 18
+          },
+          "miss_comparisons_pct": {
+            "p50": 2,
+            "p90": 11,
+            "p95": 13,
+            "p99": 16,
+            "p100": 17
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 3,
+            "p99": 17,
+            "p100": 18
+          },
+          "search_ns_estimate": 2536646.479831669,
+          "resolve_ns_estimate": 3160280.977037915,
+          "large_search_ns_estimate": 373817.0130769231,
+          "mean_calls_per_frame": 21667.3,
+          "mean_search_us_per_frame": 253.6646479831669,
+          "mean_large_search_us_per_frame": 37.38170130769231,
+          "mean_resolve_us_per_frame": 316.0280977037915,
+          "mean_miss_allocation_us_per_frame": 14272.73,
+          "mean_maintenance_us_per_frame": 42.12,
+          "key_changes_per_owner": 21808,
+          "sampled_calls": 3408,
+          "unsampled_population_calls": 301
+        },
+        "1": {
+          "calls": 238321,
+          "hit": 237769,
+          "miss": 552,
+          "pop": {
+            "0": 120,
+            "1": 164997,
+            "2": 44600,
+            "3": 12229,
+            "5": 160,
+            "6": 570,
+            "18": 5697,
+            "15": 2245,
+            "12": 468,
+            "7": 675,
+            "4": 344,
+            "16": 1202,
+            "17": 3201,
+            "10": 296,
+            "11": 146,
+            "13": 447,
+            "9": 187,
+            "8": 255,
+            "14": 482
+          },
+          "hit_comp": {
+            "1": 189503,
+            "3": 6282,
+            "2": 34800,
+            "5": 723,
+            "10": 531,
+            "14": 348,
+            "4": 1290,
+            "6": 590,
+            "7": 478,
+            "8": 592,
+            "9": 485,
+            "12": 415,
+            "13": 412,
+            "15": 363,
+            "16": 223,
+            "11": 432,
+            "17": 208,
+            "18": 94
+          },
+          "miss_comp": {
+            "0": 120,
+            "1": 35,
+            "2": 45,
+            "5": 40,
+            "6": 39,
+            "12": 21,
+            "10": 22,
+            "4": 35,
+            "3": 33,
+            "11": 23,
+            "7": 35,
+            "8": 28,
+            "9": 27,
+            "13": 21,
+            "15": 9,
+            "14": 17,
+            "16": 2
+          },
+          "hit_position": {
+            "0": 189503,
+            "2": 6282,
+            "1": 34800,
+            "4": 723,
+            "9": 531,
+            "13": 348,
+            "3": 1290,
+            "5": 590,
+            "6": 478,
+            "7": 592,
+            "8": 485,
+            "11": 415,
+            "12": 412,
+            "14": 363,
+            "15": 223,
+            "10": 432,
+            "16": 208,
+            "17": 94
+          },
+          "owner_repeat": 214246,
+          "global_repeat": 132520,
+          "alloc_ns": 44853200,
+          "maintain_ns": 133900,
+          "pop_timing": {
+            "0": {
+              "calls": 120,
+              "samples": 1,
+              "resolve_ns": 100,
+              "search_ns": 0,
+              "allocation_ns": 7401600,
+              "maintenance_ns": 16900,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 12000.0,
+              "resolve_adjusted_estimate": 9215.4
+            },
+            "1": {
+              "calls": 164997,
+              "samples": 2613,
+              "resolve_ns": 82800,
+              "search_ns": 72200,
+              "allocation_ns": 1800500,
+              "maintenance_ns": 7500,
+              "search_raw_estimate": 4559044.546498278,
+              "search_adjusted_estimate": 730289.1614982784,
+              "resolve_raw_estimate": 5228377.956371986,
+              "resolve_adjusted_estimate": 1399622.5713719865
+            },
+            "2": {
+              "calls": 44600,
+              "samples": 694,
+              "resolve_ns": 22200,
+              "search_ns": 20600,
+              "allocation_ns": 3106300,
+              "maintenance_ns": 15800,
+              "search_raw_estimate": 1323861.6714697406,
+              "search_adjusted_estimate": 288918.6714697407,
+              "resolve_raw_estimate": 1426685.878962536,
+              "resolve_adjusted_estimate": 391742.8789625362
+            },
+            "3": {
+              "calls": 12229,
+              "samples": 175,
+              "resolve_ns": 5400,
+              "search_ns": 6000,
+              "allocation_ns": 3043400,
+              "maintenance_ns": 11000,
+              "search_raw_estimate": 419280.0,
+              "search_adjusted_estimate": 135506.055,
+              "resolve_raw_estimate": 377352.0,
+              "resolve_adjusted_estimate": 93578.055
+            },
+            "5": {
+              "calls": 160,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 3544800,
+              "maintenance_ns": 2000,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "6": {
+              "calls": 570,
+              "samples": 9,
+              "resolve_ns": 200,
+              "search_ns": 900,
+              "allocation_ns": 3630900,
+              "maintenance_ns": 19500,
+              "search_raw_estimate": 57000.0,
+              "search_adjusted_estimate": 43773.15,
+              "resolve_raw_estimate": 12666.666666666666,
+              "resolve_adjusted_estimate": 0
+            },
+            "18": {
+              "calls": 5697,
+              "samples": 94,
+              "resolve_ns": 3300,
+              "search_ns": 4900,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 296971.27659574465,
+              "search_adjusted_estimate": 164772.39159574467,
+              "resolve_raw_estimate": 200001.06382978722,
+              "resolve_adjusted_estimate": 67802.17882978724
+            },
+            "15": {
+              "calls": 2245,
+              "samples": 30,
+              "resolve_ns": 900,
+              "search_ns": 1500,
+              "allocation_ns": 837800,
+              "maintenance_ns": 500,
+              "search_raw_estimate": 112250.0,
+              "search_adjusted_estimate": 60154.775,
+              "resolve_raw_estimate": 67350.0,
+              "resolve_adjusted_estimate": 15254.775000000001
+            },
+            "12": {
+              "calls": 468,
+              "samples": 12,
+              "resolve_ns": 500,
+              "search_ns": 700,
+              "allocation_ns": 1816900,
+              "maintenance_ns": 1600,
+              "search_raw_estimate": 27300.0,
+              "search_adjusted_estimate": 16440.06,
+              "resolve_raw_estimate": 19500.0,
+              "resolve_adjusted_estimate": 8640.060000000001
+            },
+            "7": {
+              "calls": 675,
+              "samples": 15,
+              "resolve_ns": 500,
+              "search_ns": 1400,
+              "allocation_ns": 3398200,
+              "maintenance_ns": 1600,
+              "search_raw_estimate": 63000.0,
+              "search_adjusted_estimate": 47336.625,
+              "resolve_raw_estimate": 22500.0,
+              "resolve_adjusted_estimate": 6836.625000000002
+            },
+            "4": {
+              "calls": 344,
+              "samples": 4,
+              "resolve_ns": 300,
+              "search_ns": 600,
+              "allocation_ns": 3612700,
+              "maintenance_ns": 18400,
+              "search_raw_estimate": 51600.0,
+              "search_adjusted_estimate": 43617.48,
+              "resolve_raw_estimate": 25800.0,
+              "resolve_adjusted_estimate": 17817.48
+            },
+            "16": {
+              "calls": 1202,
+              "samples": 26,
+              "resolve_ns": 1000,
+              "search_ns": 1700,
+              "allocation_ns": 175800,
+              "maintenance_ns": 200,
+              "search_raw_estimate": 78592.30769230769,
+              "search_adjusted_estimate": 50699.89769230769,
+              "resolve_raw_estimate": 46230.76923076923,
+              "resolve_adjusted_estimate": 18338.35923076923
+            },
+            "17": {
+              "calls": 3201,
+              "samples": 63,
+              "resolve_ns": 1900,
+              "search_ns": 4400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 223561.90476190473,
+              "search_adjusted_estimate": 149282.69976190472,
+              "resolve_raw_estimate": 96538.09523809524,
+              "resolve_adjusted_estimate": 22258.890238095235
+            },
+            "10": {
+              "calls": 296,
+              "samples": 3,
+              "resolve_ns": 0,
+              "search_ns": 300,
+              "allocation_ns": 1800600,
+              "maintenance_ns": 1100,
+              "search_raw_estimate": 29600.0,
+              "search_adjusted_estimate": 22731.32,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "11": {
+              "calls": 146,
+              "samples": 1,
+              "resolve_ns": 100,
+              "search_ns": 0,
+              "allocation_ns": 1964200,
+              "maintenance_ns": 800,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 14600.0,
+              "resolve_adjusted_estimate": 11212.07
+            },
+            "13": {
+              "calls": 447,
+              "samples": 5,
+              "resolve_ns": 300,
+              "search_ns": 200,
+              "allocation_ns": 2043500,
+              "maintenance_ns": 16100,
+              "search_raw_estimate": 17880.0,
+              "search_adjusted_estimate": 7507.365000000002,
+              "resolve_raw_estimate": 26820.0,
+              "resolve_adjusted_estimate": 16447.365
+            },
+            "9": {
+              "calls": 187,
+              "samples": 2,
+              "resolve_ns": 0,
+              "search_ns": 300,
+              "allocation_ns": 2289900,
+              "maintenance_ns": 18600,
+              "search_raw_estimate": 28050.0,
+              "search_adjusted_estimate": 23710.665,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "8": {
+              "calls": 255,
+              "samples": 4,
+              "resolve_ns": 200,
+              "search_ns": 400,
+              "allocation_ns": 2807100,
+              "maintenance_ns": 1400,
+              "search_raw_estimate": 25500.0,
+              "search_adjusted_estimate": 19582.725,
+              "resolve_raw_estimate": 12750.0,
+              "resolve_adjusted_estimate": 6832.725
+            },
+            "14": {
+              "calls": 482,
+              "samples": 9,
+              "resolve_ns": 200,
+              "search_ns": 2400,
+              "allocation_ns": 1579000,
+              "maintenance_ns": 900,
+              "search_raw_estimate": 128533.33333333334,
+              "search_adjusted_estimate": 117348.52333333335,
+              "resolve_raw_estimate": 10711.111111111111,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 13,
+          "calls_per_frame": {
+            "p50": 19861,
+            "p90": 20031,
+            "p95": 20140,
+            "p99": 20140,
+            "p100": 20140
+          },
+          "large_calls_per_frame": {
+            "p50": 1201,
+            "p90": 1225,
+            "p95": 1226,
+            "p99": 1226,
+            "p100": 1226
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 3,
+            "p99": 11,
+            "p100": 18
+          },
+          "miss_comparisons_pct": {
+            "p50": 5,
+            "p90": 12,
+            "p95": 14,
+            "p99": 15,
+            "p100": 16
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 3,
+            "p95": 15,
+            "p99": 18,
+            "p100": 18
+          },
+          "search_ns_estimate": 1921671.5653513097,
+          "resolve_ns_estimate": 2085599.4336331747,
+          "large_search_ns_estimate": 612647.6973832904,
+          "mean_calls_per_frame": 18332.384615384617,
+          "mean_search_us_per_frame": 147.82088964240845,
+          "mean_large_search_us_per_frame": 47.126745952560796,
+          "mean_resolve_us_per_frame": 160.43072566409037,
+          "mean_miss_allocation_us_per_frame": 3450.246153846154,
+          "mean_maintenance_us_per_frame": 10.3,
+          "key_changes_per_owner": 24075,
+          "sampled_calls": 3760,
+          "unsampled_population_calls": 160
+        },
+        "2": {
+          "calls": 82979,
+          "hit": 82865,
+          "miss": 114,
+          "pop": {
+            "3": 5193,
+            "2": 16970,
+            "1": 55361,
+            "0": 43,
+            "7": 137,
+            "18": 1860,
+            "6": 142,
+            "15": 812,
+            "5": 13,
+            "10": 89,
+            "12": 119,
+            "4": 91,
+            "16": 507,
+            "8": 188,
+            "14": 123,
+            "17": 1185,
+            "9": 47,
+            "11": 65,
+            "13": 34
+          },
+          "hit_comp": {
+            "1": 65958,
+            "2": 12299,
+            "3": 2141,
+            "6": 176,
+            "11": 141,
+            "10": 199,
+            "14": 118,
+            "4": 507,
+            "7": 163,
+            "9": 147,
+            "13": 119,
+            "12": 142,
+            "8": 204,
+            "5": 227,
+            "16": 76,
+            "17": 80,
+            "15": 139,
+            "18": 29
+          },
+          "miss_comp": {
+            "0": 43,
+            "7": 10,
+            "16": 2,
+            "1": 11,
+            "12": 2,
+            "10": 3,
+            "2": 3,
+            "9": 4,
+            "3": 6,
+            "6": 8,
+            "8": 7,
+            "13": 3,
+            "15": 4,
+            "14": 2,
+            "5": 3,
+            "11": 1,
+            "4": 2
+          },
+          "hit_position": {
+            "0": 65958,
+            "1": 12299,
+            "2": 2141,
+            "5": 176,
+            "10": 141,
+            "9": 199,
+            "13": 118,
+            "3": 507,
+            "6": 163,
+            "8": 147,
+            "12": 119,
+            "11": 142,
+            "7": 204,
+            "4": 227,
+            "15": 76,
+            "16": 80,
+            "14": 139,
+            "17": 29
+          },
+          "owner_repeat": 74919,
+          "global_repeat": 47129,
+          "alloc_ns": 10200500,
+          "maintain_ns": 25700,
+          "pop_timing": {
+            "3": {
+              "calls": 5193,
+              "samples": 70,
+              "resolve_ns": 1900,
+              "search_ns": 2300,
+              "allocation_ns": 823900,
+              "maintenance_ns": 2400,
+              "search_raw_estimate": 170627.14285714284,
+              "search_adjusted_estimate": 50123.57785714285,
+              "resolve_raw_estimate": 140952.85714285713,
+              "resolve_adjusted_estimate": 20449.292142857143
+            },
+            "2": {
+              "calls": 16970,
+              "samples": 252,
+              "resolve_ns": 7300,
+              "search_ns": 6100,
+              "allocation_ns": 94200,
+              "maintenance_ns": 1200,
+              "search_raw_estimate": 410781.74603174604,
+              "search_adjusted_estimate": 16992.89603174606,
+              "resolve_raw_estimate": 491591.2698412698,
+              "resolve_adjusted_estimate": 97802.41984126985
+            },
+            "1": {
+              "calls": 55361,
+              "samples": 821,
+              "resolve_ns": 28900,
+              "search_ns": 23300,
+              "allocation_ns": 1150000,
+              "maintenance_ns": 3800,
+              "search_raw_estimate": 1571146.5286236296,
+              "search_adjusted_estimate": 286494.5236236297,
+              "resolve_raw_estimate": 1948761.144945189,
+              "resolve_adjusted_estimate": 664109.139945189
+            },
+            "0": {
+              "calls": 43,
+              "samples": 1,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 2710200,
+              "maintenance_ns": 5500,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "7": {
+              "calls": 137,
+              "samples": 6,
+              "resolve_ns": 100,
+              "search_ns": 700,
+              "allocation_ns": 981100,
+              "maintenance_ns": 100,
+              "search_raw_estimate": 15983.333333333334,
+              "search_adjusted_estimate": 12804.248333333335,
+              "resolve_raw_estimate": 2283.3333333333335,
+              "resolve_adjusted_estimate": 0
+            },
+            "18": {
+              "calls": 1860,
+              "samples": 27,
+              "resolve_ns": 1100,
+              "search_ns": 1200,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 82666.66666666666,
+              "search_adjusted_estimate": 39505.36666666666,
+              "resolve_raw_estimate": 75777.77777777778,
+              "resolve_adjusted_estimate": 32616.477777777785
+            },
+            "6": {
+              "calls": 142,
+              "samples": 1,
+              "resolve_ns": 0,
+              "search_ns": 100,
+              "allocation_ns": 1178200,
+              "maintenance_ns": 4200,
+              "search_raw_estimate": 14200.0,
+              "search_adjusted_estimate": 10904.89,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "15": {
+              "calls": 812,
+              "samples": 17,
+              "resolve_ns": 400,
+              "search_ns": 1200,
+              "allocation_ns": 353000,
+              "maintenance_ns": 300,
+              "search_raw_estimate": 57317.64705882353,
+              "search_adjusted_estimate": 38475.18705882353,
+              "resolve_raw_estimate": 19105.88235294118,
+              "resolve_adjusted_estimate": 263.42235294117927
+            },
+            "5": {
+              "calls": 13,
+              "samples": 1,
+              "resolve_ns": 100,
+              "search_ns": 100,
+              "allocation_ns": 273400,
+              "maintenance_ns": 100,
+              "search_raw_estimate": 1300.0,
+              "search_adjusted_estimate": 998.335,
+              "resolve_raw_estimate": 1300.0,
+              "resolve_adjusted_estimate": 998.335
+            },
+            "10": {
+              "calls": 89,
+              "samples": 5,
+              "resolve_ns": 100,
+              "search_ns": 700,
+              "allocation_ns": 350300,
+              "maintenance_ns": 100,
+              "search_raw_estimate": 12460.0,
+              "search_adjusted_estimate": 10394.755000000001,
+              "resolve_raw_estimate": 1780.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "12": {
+              "calls": 119,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 153600,
+              "maintenance_ns": 200,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "4": {
+              "calls": 91,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 212000,
+              "maintenance_ns": 1200,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "16": {
+              "calls": 507,
+              "samples": 5,
+              "resolve_ns": 400,
+              "search_ns": 600,
+              "allocation_ns": 248400,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 60840.0,
+              "search_adjusted_estimate": 49075.065,
+              "resolve_raw_estimate": 40560.0,
+              "resolve_adjusted_estimate": 28795.065000000002
+            },
+            "8": {
+              "calls": 188,
+              "samples": 5,
+              "resolve_ns": 100,
+              "search_ns": 200,
+              "allocation_ns": 768500,
+              "maintenance_ns": 400,
+              "search_raw_estimate": 7520.0,
+              "search_adjusted_estimate": 3157.46,
+              "resolve_raw_estimate": 3760.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "14": {
+              "calls": 123,
+              "samples": 2,
+              "resolve_ns": 100,
+              "search_ns": 300,
+              "allocation_ns": 138300,
+              "maintenance_ns": 200,
+              "search_raw_estimate": 18450.0,
+              "search_adjusted_estimate": 15595.785,
+              "resolve_raw_estimate": 6150.0,
+              "resolve_adjusted_estimate": 3295.7850000000003
+            },
+            "17": {
+              "calls": 1185,
+              "samples": 24,
+              "resolve_ns": 500,
+              "search_ns": 1400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 69125.0,
+              "search_adjusted_estimate": 41627.075,
+              "resolve_raw_estimate": 24687.5,
+              "resolve_adjusted_estimate": 0
+            },
+            "9": {
+              "calls": 47,
+              "samples": 1,
+              "resolve_ns": 0,
+              "search_ns": 100,
+              "allocation_ns": 374300,
+              "maintenance_ns": 3200,
+              "search_raw_estimate": 4700.0,
+              "search_adjusted_estimate": 3609.365,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "11": {
+              "calls": 65,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 80600,
+              "maintenance_ns": 100,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "13": {
+              "calls": 34,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 310500,
+              "maintenance_ns": 2700,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 9,
+          "calls_per_frame": {
+            "p50": 5082,
+            "p90": 20172,
+            "p95": 20172,
+            "p99": 20172,
+            "p100": 20172
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 1234,
+            "p95": 1234,
+            "p99": 1234,
+            "p100": 1234
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 3,
+            "p99": 11,
+            "p100": 18
+          },
+          "miss_comparisons_pct": {
+            "p50": 2,
+            "p90": 12,
+            "p95": 15,
+            "p99": 16,
+            "p100": 16
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 3,
+            "p95": 15,
+            "p99": 18,
+            "p100": 18
+          },
+          "search_ns_estimate": 579758.5295713422,
+          "resolve_ns_estimate": 848329.937060035,
+          "large_search_ns_estimate": 198282.5987254902,
+          "mean_calls_per_frame": 9219.888888888889,
+          "mean_search_us_per_frame": 64.4176143968158,
+          "mean_large_search_us_per_frame": 22.0313998583878,
+          "mean_resolve_us_per_frame": 94.25888189555943,
+          "mean_miss_allocation_us_per_frame": 1133.388888888889,
+          "mean_maintenance_us_per_frame": 2.8555555555555556,
+          "key_changes_per_owner": 8060,
+          "sampled_calls": 1238,
+          "unsampled_population_calls": 309
+        },
+        "3": {
+          "calls": 5590,
+          "hit": 5415,
+          "miss": 175,
+          "pop": {
+            "0": 160,
+            "1": 2389,
+            "2": 3041
+          },
+          "hit_comp": {
+            "1": 3565,
+            "2": 1850
+          },
+          "miss_comp": {
+            "0": 160,
+            "1": 15
+          },
+          "hit_position": {
+            "0": 3565,
+            "1": 1850
+          },
+          "owner_repeat": 5275,
+          "global_repeat": 3731,
+          "alloc_ns": 921000,
+          "maintain_ns": 6700,
+          "pop_timing": {
+            "0": {
+              "calls": 160,
+              "samples": 2,
+              "resolve_ns": 0,
+              "search_ns": 100,
+              "allocation_ns": 897800,
+              "maintenance_ns": 6400,
+              "search_raw_estimate": 8000.0,
+              "search_adjusted_estimate": 4287.200000000001,
+              "resolve_raw_estimate": 0.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "1": {
+              "calls": 2389,
+              "samples": 38,
+              "resolve_ns": 900,
+              "search_ns": 1800,
+              "allocation_ns": 23200,
+              "maintenance_ns": 300,
+              "search_raw_estimate": 113163.15789473685,
+              "search_adjusted_estimate": 57726.41289473686,
+              "resolve_raw_estimate": 56581.57894736843,
+              "resolve_adjusted_estimate": 1144.8339473684318
+            },
+            "2": {
+              "calls": 3041,
+              "samples": 46,
+              "resolve_ns": 1200,
+              "search_ns": 1900,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 125606.52173913043,
+              "search_adjusted_estimate": 55040.11673913043,
+              "resolve_raw_estimate": 79330.43478260869,
+              "resolve_adjusted_estimate": 8764.02978260869
+            }
+          },
+          "frames_count": 10,
+          "calls_per_frame": {
+            "p50": 588,
+            "p90": 731,
+            "p95": 748,
+            "p99": 748,
+            "p100": 748
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 1,
+            "p99": 1,
+            "p100": 1
+          },
+          "population_pct": {
+            "p50": 2,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "search_ns_estimate": 117053.72963386729,
+          "resolve_ns_estimate": 9908.863729977122,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 559.0,
+          "mean_search_us_per_frame": 11.70537296338673,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 0.9908863729977122,
+          "mean_miss_allocation_us_per_frame": 92.1,
+          "mean_maintenance_us_per_frame": 0.67,
+          "key_changes_per_owner": 315,
+          "sampled_calls": 86,
+          "unsampled_population_calls": 0
+        },
+        "4": {
+          "calls": 145732,
+          "hit": 145588,
+          "miss": 144,
+          "pop": {
+            "0": 100,
+            "1": 102059,
+            "2": 39700,
+            "3": 3873
+          },
+          "hit_comp": {
+            "1": 120868,
+            "2": 23759,
+            "3": 961
+          },
+          "miss_comp": {
+            "0": 100,
+            "1": 38,
+            "2": 6
+          },
+          "hit_position": {
+            "0": 120868,
+            "1": 23759,
+            "2": 961
+          },
+          "owner_repeat": 133069,
+          "global_repeat": 97001,
+          "alloc_ns": 1008700,
+          "maintain_ns": 5800,
+          "pop_timing": {
+            "0": {
+              "calls": 100,
+              "samples": 2,
+              "resolve_ns": 100,
+              "search_ns": 100,
+              "allocation_ns": 953200,
+              "maintenance_ns": 3300,
+              "search_raw_estimate": 5000.0,
+              "search_adjusted_estimate": 2679.5,
+              "resolve_raw_estimate": 5000.0,
+              "resolve_adjusted_estimate": 2679.5
+            },
+            "1": {
+              "calls": 102059,
+              "samples": 1660,
+              "resolve_ns": 43800,
+              "search_ns": 41100,
+              "allocation_ns": 52300,
+              "maintenance_ns": 700,
+              "search_raw_estimate": 2526882.4698795183,
+              "search_adjusted_estimate": 158603.37487951852,
+              "resolve_raw_estimate": 2692882.048192771,
+              "resolve_adjusted_estimate": 324602.9531927714
+            },
+            "2": {
+              "calls": 39700,
+              "samples": 636,
+              "resolve_ns": 19600,
+              "search_ns": 16100,
+              "allocation_ns": 3200,
+              "maintenance_ns": 1800,
+              "search_raw_estimate": 1004984.2767295598,
+              "search_adjusted_estimate": 83745.77672955988,
+              "resolve_raw_estimate": 1223459.1194968554,
+              "resolve_adjusted_estimate": 302220.61949685554
+            },
+            "3": {
+              "calls": 3873,
+              "samples": 68,
+              "resolve_ns": 2000,
+              "search_ns": 2100,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 119607.35294117648,
+              "search_adjusted_estimate": 29734.38794117648,
+              "resolve_raw_estimate": 113911.76470588235,
+              "resolve_adjusted_estimate": 24038.799705882353
+            }
+          },
+          "frames_count": 5,
+          "calls_per_frame": {
+            "p50": 4505,
+            "p90": 128884,
+            "p95": 128884,
+            "p99": 128884,
+            "p100": 128884
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 2
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "search_ns_estimate": 274763.0395502549,
+          "resolve_ns_estimate": 653541.8723955093,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 29146.4,
+          "mean_search_us_per_frame": 54.95260791005097,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 130.70837447910185,
+          "mean_miss_allocation_us_per_frame": 201.74,
+          "mean_maintenance_us_per_frame": 1.16,
+          "key_changes_per_owner": 12663,
+          "sampled_calls": 2366,
+          "unsampled_population_calls": 0
+        }
+      },
+      "trace_validation": {
+        "replay_record_bytes": 56,
+        "source_record_bytes": 80,
+        "complete_run": true,
+        "key_definitions": 2111,
+        "events": {
+          "timer": 1,
+          "owner": 1194,
+          "key": 2111,
+          "layer": 8444,
+          "reset": 5218,
+          "destroy": 1193
+        },
+        "records": 689295,
+        "errors": [],
+        "key_changes_per_owner": {
+          "0": 21808,
+          "1": 24075,
+          "2": 8060,
+          "3": 315,
+          "4": 12663
+        },
+        "phase_calls": {
+          "0": 216673,
+          "1": 238321,
+          "2": 82979,
+          "3": 5590,
+          "4": 145732
+        },
+        "no_candidate": "This checks trace consistency only, not candidate equivalence or untested PF semantics."
+      }
+    },
+    "sunlust30-default-profile": {
+      "run": {
+        "name": "sunlust30-default-profile",
+        "map": "MAP30",
+        "content": "sunlust",
+        "champions": true,
+        "production": false,
+        "source_base": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+        "exe": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\diagnostic\\vkdoom.exe",
+        "exe_sha256": "54BEF07801C0B2A69C7EC46C04FB108259C2F5CEE834E912BD8E7007DA0335EC",
+        "assets": [
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+            "sha256": "A8772E088847032510D97BA2312406A6998F21CBAB44D4FF10696FAA9C0ECD4B"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+            "sha256": "6A90BECF56040896FD2876A29F60A7A528D9802B081E0A1CC7D7CC65D546A964"
+          },
+          {
+            "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+            "sha256": "08DA7BDC92DAE1378B84CF28D21ECBA533A0F007B7DE28CB46336399D251737F"
+          }
+        ],
+        "initial_config_sha256": "B4E4F84EFF7F212BF4584E7C417D4E749A628499ADD91E63ADE2C817D0FDBAEB",
+        "sequence_sha256": "DD194A88A5A4AB65D2A3D54DF1E0E7424B70F2EC65F6F33D0930962E32EFDAC6",
+        "arguments": [
+          "-stdout",
+          "-noautoload",
+          "-nosound",
+          "-nojoy",
+          "-width",
+          "1904",
+          "-height",
+          "1001",
+          "-config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust30-default-profile\\config.ini",
+          "-savedir",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust30-default-profile\\save",
+          "-iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+          "-file",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\sunlust\\sunlust\\sunlust.wad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\champions.pk3",
+          "-rngseed",
+          "12345",
+          "+use_mouse",
+          "false",
+          "+m_use_mouse",
+          "0",
+          "+unbindall",
+          "+skill",
+          "3",
+          "+map",
+          "MAP30",
+          "+exec",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\runs\\sunlust30-default-profile\\sequence.cfg"
+        ],
+        "start": "2026-09-24T18:50:07.2256802+01:00",
+        "end": "2026-09-24T18:50:32.5284397+01:00",
+        "exit": 0,
+        "timeout": false,
+        "driver_events": [],
+        "gpu_before": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 29",
+        "gpu_after": "NVIDIA GeForce GTX 1650 SUPER, 616.92, 31"
+      },
+      "complete": true,
+      "images": [
+        "phase1.png",
+        "phase2.png",
+        "phase4.png"
+      ],
+      "clock_empty_mean_ns": 22.191,
+      "lifecycle_counts": {
+        "timer": 1,
+        "owner": 1073,
+        "key": 436,
+        "layer": 1744,
+        "reset": 4728,
+        "destroy": 1072
+      },
+      "phases": {
+        "0": {
+          "calls": 154654,
+          "hit": 154500,
+          "miss": 154,
+          "pop": {
+            "0": 112,
+            "1": 105141,
+            "2": 45323,
+            "3": 4078
+          },
+          "hit_comp": {
+            "1": 126961,
+            "2": 26477,
+            "3": 1062
+          },
+          "miss_comp": {
+            "0": 112,
+            "1": 37,
+            "2": 5
+          },
+          "hit_position": {
+            "0": 126961,
+            "1": 26477,
+            "2": 1062
+          },
+          "owner_repeat": 140470,
+          "global_repeat": 102435,
+          "alloc_ns": 13333600,
+          "maintain_ns": 19300,
+          "pop_timing": {
+            "0": {
+              "calls": 112,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 13280800,
+              "maintenance_ns": 12400,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "1": {
+              "calls": 105141,
+              "samples": 1639,
+              "resolve_ns": 44600,
+              "search_ns": 40500,
+              "allocation_ns": 51100,
+              "maintenance_ns": 5300,
+              "search_raw_estimate": 2598053.9963392313,
+              "search_adjusted_estimate": 264870.0653392314,
+              "resolve_raw_estimate": 2861066.8700427087,
+              "resolve_adjusted_estimate": 527882.9390427088
+            },
+            "2": {
+              "calls": 45323,
+              "samples": 746,
+              "resolve_ns": 23600,
+              "search_ns": 17500,
+              "allocation_ns": 1700,
+              "maintenance_ns": 1600,
+              "search_raw_estimate": 1063207.1045576409,
+              "search_adjusted_estimate": 57444.41155764088,
+              "resolve_raw_estimate": 1433810.7238605898,
+              "resolve_adjusted_estimate": 428048.0308605898
+            },
+            "3": {
+              "calls": 4078,
+              "samples": 59,
+              "resolve_ns": 2000,
+              "search_ns": 1900,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 131325.42372881356,
+              "search_adjusted_estimate": 40830.52572881356,
+              "resolve_raw_estimate": 138237.28813559323,
+              "resolve_adjusted_estimate": 47742.39013559323
+            }
+          },
+          "frames_count": 11,
+          "calls_per_frame": {
+            "p50": 4403,
+            "p90": 4515,
+            "p95": 128886,
+            "p99": 128886,
+            "p100": 128886
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 2
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "search_ns_estimate": 363145.0026256858,
+          "resolve_ns_estimate": 1003673.3600388919,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 14059.454545454546,
+          "mean_search_us_per_frame": 33.013182056880524,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 91.24303273080835,
+          "mean_miss_allocation_us_per_frame": 1212.1454545454546,
+          "mean_maintenance_us_per_frame": 1.7545454545454544,
+          "key_changes_per_owner": 14184,
+          "sampled_calls": 2444,
+          "unsampled_population_calls": 112
+        },
+        "1": {
+          "calls": 63887,
+          "hit": 63861,
+          "miss": 26,
+          "pop": {
+            "2": 40349,
+            "1": 22139,
+            "3": 1373,
+            "0": 26
+          },
+          "hit_comp": {
+            "1": 43658,
+            "2": 19895,
+            "3": 308
+          },
+          "miss_comp": {
+            "0": 26
+          },
+          "hit_position": {
+            "0": 43658,
+            "1": 19895,
+            "2": 308
+          },
+          "owner_repeat": 52629,
+          "global_repeat": 37207,
+          "alloc_ns": 955800,
+          "maintain_ns": 3300,
+          "pop_timing": {
+            "2": {
+              "calls": 40349,
+              "samples": 629,
+              "resolve_ns": 21800,
+              "search_ns": 16500,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 1058439.586645469,
+              "search_adjusted_estimate": 163054.92764546908,
+              "resolve_raw_estimate": 1398423.211446741,
+              "resolve_adjusted_estimate": 503038.5524467409
+            },
+            "1": {
+              "calls": 22139,
+              "samples": 335,
+              "resolve_ns": 12900,
+              "search_ns": 8000,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 528692.5373134329,
+              "search_adjusted_estimate": 37405.9883134329,
+              "resolve_raw_estimate": 852516.7164179105,
+              "resolve_adjusted_estimate": 361230.16741791053
+            },
+            "3": {
+              "calls": 1373,
+              "samples": 18,
+              "resolve_ns": 600,
+              "search_ns": 700,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 53394.44444444444,
+              "search_adjusted_estimate": 22926.20144444444,
+              "resolve_raw_estimate": 45766.66666666667,
+              "resolve_adjusted_estimate": 15298.423666666673
+            },
+            "0": {
+              "calls": 26,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 955800,
+              "maintenance_ns": 3300,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 15,
+          "calls_per_frame": {
+            "p50": 4554,
+            "p90": 4630,
+            "p95": 4630,
+            "p99": 4630,
+            "p100": 4630
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "population_pct": {
+            "p50": 2,
+            "p90": 2,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "search_ns_estimate": 223387.11740334643,
+          "resolve_ns_estimate": 879567.1435313182,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 4259.133333333333,
+          "mean_search_us_per_frame": 14.892474493556428,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 58.63780956875454,
+          "mean_miss_allocation_us_per_frame": 63.72,
+          "mean_maintenance_us_per_frame": 0.22,
+          "key_changes_per_owner": 11258,
+          "sampled_calls": 982,
+          "unsampled_population_calls": 26
+        },
+        "2": {
+          "calls": 23657,
+          "hit": 23653,
+          "miss": 4,
+          "pop": {
+            "2": 14138,
+            "1": 9125,
+            "3": 390,
+            "0": 4
+          },
+          "hit_comp": {
+            "1": 16868,
+            "2": 6701,
+            "3": 84
+          },
+          "miss_comp": {
+            "0": 4
+          },
+          "hit_position": {
+            "0": 16868,
+            "1": 6701,
+            "2": 84
+          },
+          "owner_repeat": 20271,
+          "global_repeat": 13432,
+          "alloc_ns": 156900,
+          "maintain_ns": 900,
+          "pop_timing": {
+            "2": {
+              "calls": 14138,
+              "samples": 200,
+              "resolve_ns": 5800,
+              "search_ns": 5400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 381726.0,
+              "search_adjusted_estimate": 67989.64199999999,
+              "resolve_raw_estimate": 410002.0,
+              "resolve_adjusted_estimate": 96265.64199999999
+            },
+            "1": {
+              "calls": 9125,
+              "samples": 145,
+              "resolve_ns": 4900,
+              "search_ns": 4400,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 276896.5517241379,
+              "search_adjusted_estimate": 74403.67672413791,
+              "resolve_raw_estimate": 308362.0689655173,
+              "resolve_adjusted_estimate": 105869.19396551728
+            },
+            "3": {
+              "calls": 390,
+              "samples": 5,
+              "resolve_ns": 100,
+              "search_ns": 0,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 7800.0,
+              "resolve_adjusted_estimate": 0
+            },
+            "0": {
+              "calls": 4,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 156900,
+              "maintenance_ns": 900,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 11,
+          "calls_per_frame": {
+            "p50": 689,
+            "p90": 4707,
+            "p95": 5091,
+            "p99": 5091,
+            "p100": 5091
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "population_pct": {
+            "p50": 2,
+            "p90": 2,
+            "p95": 2,
+            "p99": 3,
+            "p100": 3
+          },
+          "search_ns_estimate": 142393.3187241379,
+          "resolve_ns_estimate": 202134.83596551727,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 2150.6363636363635,
+          "mean_search_us_per_frame": 12.94484715673981,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 18.37589417868339,
+          "mean_miss_allocation_us_per_frame": 14.263636363636364,
+          "mean_maintenance_us_per_frame": 0.08181818181818182,
+          "key_changes_per_owner": 3386,
+          "sampled_calls": 350,
+          "unsampled_population_calls": 4
+        },
+        "3": {
+          "calls": 10436,
+          "hit": 10330,
+          "miss": 106,
+          "pop": {
+            "0": 104,
+            "1": 7130,
+            "2": 3202
+          },
+          "hit_comp": {
+            "1": 8604,
+            "2": 1726
+          },
+          "miss_comp": {
+            "0": 104,
+            "1": 2
+          },
+          "hit_position": {
+            "0": 8604,
+            "1": 1726
+          },
+          "owner_repeat": 10302,
+          "global_repeat": 4873,
+          "alloc_ns": 191800,
+          "maintain_ns": 3300,
+          "pop_timing": {
+            "0": {
+              "calls": 104,
+              "samples": 0,
+              "resolve_ns": 0,
+              "search_ns": 0,
+              "allocation_ns": 187900,
+              "maintenance_ns": 3100,
+              "search_raw_estimate": 0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 0,
+              "resolve_adjusted_estimate": 0
+            },
+            "1": {
+              "calls": 7130,
+              "samples": 130,
+              "resolve_ns": 3700,
+              "search_ns": 5000,
+              "allocation_ns": 3900,
+              "maintenance_ns": 200,
+              "search_raw_estimate": 274230.7692307692,
+              "search_adjusted_estimate": 116008.9392307692,
+              "resolve_raw_estimate": 202930.76923076922,
+              "resolve_adjusted_estimate": 44708.93923076923
+            },
+            "2": {
+              "calls": 3202,
+              "samples": 55,
+              "resolve_ns": 2300,
+              "search_ns": 1700,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 98970.90909090909,
+              "search_adjusted_estimate": 27915.327090909093,
+              "resolve_raw_estimate": 133901.81818181818,
+              "resolve_adjusted_estimate": 62846.23618181818
+            }
+          },
+          "frames_count": 17,
+          "calls_per_frame": {
+            "p50": 626,
+            "p90": 778,
+            "p95": 778,
+            "p99": 778,
+            "p100": 778
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 1,
+            "p100": 1
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 2,
+            "p95": 2,
+            "p99": 2,
+            "p100": 2
+          },
+          "search_ns_estimate": 143924.2663216783,
+          "resolve_ns_estimate": 107555.17541258741,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 613.8823529411765,
+          "mean_search_us_per_frame": 8.466133313039899,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 6.326775024269848,
+          "mean_miss_allocation_us_per_frame": 11.28235294117647,
+          "mean_maintenance_us_per_frame": 0.19411764705882353,
+          "key_changes_per_owner": 134,
+          "sampled_calls": 185,
+          "unsampled_population_calls": 104
+        },
+        "4": {
+          "calls": 491589,
+          "hit": 491443,
+          "miss": 146,
+          "pop": {
+            "1": 447706,
+            "2": 39908,
+            "0": 102,
+            "3": 3873
+          },
+          "hit_comp": {
+            "1": 466619,
+            "2": 23863,
+            "3": 961
+          },
+          "miss_comp": {
+            "0": 102,
+            "1": 38,
+            "2": 6
+          },
+          "hit_position": {
+            "0": 466619,
+            "1": 23863,
+            "2": 961
+          },
+          "owner_repeat": 478924,
+          "global_repeat": 439774,
+          "alloc_ns": 968400,
+          "maintain_ns": 8200,
+          "pop_timing": {
+            "1": {
+              "calls": 447706,
+              "samples": 7051,
+              "resolve_ns": 214400,
+              "search_ns": 196200,
+              "allocation_ns": 45400,
+              "maintenance_ns": 2400,
+              "search_raw_estimate": 12457795.660190044,
+              "search_adjusted_estimate": 2522751.814190045,
+              "resolve_raw_estimate": 13613411.771379946,
+              "resolve_adjusted_estimate": 3678367.925379947
+            },
+            "2": {
+              "calls": 39908,
+              "samples": 680,
+              "resolve_ns": 18900,
+              "search_ns": 15700,
+              "allocation_ns": 3500,
+              "maintenance_ns": 1800,
+              "search_raw_estimate": 921405.2941176471,
+              "search_adjusted_estimate": 35806.86611764715,
+              "resolve_raw_estimate": 1109207.6470588234,
+              "resolve_adjusted_estimate": 223609.21905882342
+            },
+            "0": {
+              "calls": 102,
+              "samples": 1,
+              "resolve_ns": 200,
+              "search_ns": 0,
+              "allocation_ns": 919500,
+              "maintenance_ns": 4000,
+              "search_raw_estimate": 0.0,
+              "search_adjusted_estimate": 0,
+              "resolve_raw_estimate": 20400.0,
+              "resolve_adjusted_estimate": 18136.518
+            },
+            "3": {
+              "calls": 3873,
+              "samples": 64,
+              "resolve_ns": 1400,
+              "search_ns": 1800,
+              "allocation_ns": 0,
+              "maintenance_ns": 0,
+              "search_raw_estimate": 108928.125,
+              "search_adjusted_estimate": 22982.381999999998,
+              "resolve_raw_estimate": 84721.875,
+              "resolve_adjusted_estimate": 0
+            }
+          },
+          "frames_count": 6,
+          "calls_per_frame": {
+            "p50": 4505,
+            "p90": 349694,
+            "p95": 349694,
+            "p99": 349694,
+            "p100": 349694
+          },
+          "large_calls_per_frame": {
+            "p50": 0,
+            "p90": 0,
+            "p95": 0,
+            "p99": 0,
+            "p100": 0
+          },
+          "hit_comparisons_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "miss_comparisons_pct": {
+            "p50": 0,
+            "p90": 1,
+            "p95": 1,
+            "p99": 2,
+            "p100": 2
+          },
+          "population_pct": {
+            "p50": 1,
+            "p90": 1,
+            "p95": 2,
+            "p99": 2,
+            "p100": 3
+          },
+          "search_ns_estimate": 2581541.062307692,
+          "resolve_ns_estimate": 3920113.6624387703,
+          "large_search_ns_estimate": 0,
+          "mean_calls_per_frame": 81931.5,
+          "mean_search_us_per_frame": 430.2568437179487,
+          "mean_large_search_us_per_frame": 0.0,
+          "mean_resolve_us_per_frame": 653.3522770731283,
+          "mean_miss_allocation_us_per_frame": 161.4,
+          "mean_maintenance_us_per_frame": 1.3666666666666667,
+          "key_changes_per_owner": 12665,
+          "sampled_calls": 7796,
+          "unsampled_population_calls": 0
+        }
+      },
+      "trace_validation": {
+        "replay_record_bytes": 56,
+        "source_record_bytes": 80,
+        "complete_run": true,
+        "key_definitions": 436,
+        "events": {
+          "timer": 1,
+          "owner": 1073,
+          "key": 436,
+          "layer": 1744,
+          "reset": 4728,
+          "destroy": 1072
+        },
+        "records": 744223,
+        "errors": [],
+        "key_changes_per_owner": {
+          "0": 14184,
+          "1": 11258,
+          "2": 3386,
+          "3": 134,
+          "4": 12665
+        },
+        "phase_calls": {
+          "0": 154654,
+          "1": 63887,
+          "2": 23657,
+          "3": 10436,
+          "4": 491589
+        },
+        "no_candidate": "This checks trace consistency only, not candidate equivalence or untested PF semantics."
+      }
+    }
+  },
+  "not_run": [
+    "DBP37 MAP04 without Champions",
+    "Freedoom MAP01 without Champions",
+    "User-supplied KEX IWAD profiles",
+    "All production runtime/probe overhead confirmation",
+    "Candidate A/B pairs (no candidate)"
+  ],
+  "production_confirmation": "Not performed: GPU launches stopped after Sunlust MAP24 arena timeout and NVIDIA event 153. Production baseline built and preserved. No candidate A/B pairs.",
+  "sampling": "1/64 deterministic xorshift selection, 100000 empty clock pairs per run. Per-population sample estimates include unsampled-population limitations; clipped subtraction is diagnostic attribution, not precise isolated ns/call.",
+  "replay": "Independent accepted semantic linear scan on 32-byte entries; exact ordered frequencies, owner epochs and growth; 2 warmups +10 batches; not renderer benefit.",
+  "configuration_audit": {
+    "baseline_sha": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+    "original_protocol_preserved": true,
+    "intended_difficulty": "Hurt Me Plenty",
+    "actual_difficulty": "Ultra-Violence",
+    "actual_argument": [
+      "+skill",
+      "3"
+    ],
+    "correction": "Console skill CVAR is zero-based. HMP is +skill 2; command-line -skill 3 is separately converted from one-based. All measured results use UV, not HMP. No rerun after GPU failure.",
+    "source_evidence": [
+      "src/g_game.cpp:119: gameskill named skill defaults to 2",
+      "src/d_main.cpp:2176-2179: -skill subtracts character 1",
+      "wadsrc/static/mapinfo/doomcommon.txt:180-218: normal third, hard fourth"
+    ],
+    "asset_audit": "No skill redefinitions in the loaded Sunlust/DBP37 MAPINFO or Champions source; Freedoom2 has no MAPINFO/ZMAPINFO lumps.",
+    "selection_limitation": "Initial map THINGS inspection used HMP flag bit 2; actual UV gameplay uses hard difficulty. Author HMP recommendation was intended but not executed.",
+    "champions_source": "zscript/champions/handler.txt:414-419 uses SKILLP_ACSReturn to compute chance unless champion_OverrideChance differs from -1. Skill deviation can alter variant populations.",
+    "completed_runs": [
+      {
+        "run": "dbp37-default-profile",
+        "completed": true,
+        "actual_skill_cvar": 3
+      },
+      {
+        "run": "sunlust24-arena-profile",
+        "completed": false,
+        "actual_skill_cvar": 3
+      },
+      {
+        "run": "sunlust24-default-profile",
+        "completed": true,
+        "actual_skill_cvar": 3
+      },
+      {
+        "run": "sunlust30-arena-profile",
+        "completed": true,
+        "actual_skill_cvar": 3
+      },
+      {
+        "run": "sunlust30-default-profile",
+        "completed": true,
+        "actual_skill_cvar": 3
+      }
+    ]
+  }
+}

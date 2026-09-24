@@ -1,0 +1,20 @@
+{
+  "baseline": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+  "selection_before_results": [
+    "Sunlust MAP24 HMP with default Champions",
+    "Sunlust MAP30 HMP with default Champions",
+    "DBP37 MAP04 HMP with default Champions",
+    "DBP37 MAP04 HMP without Champions control",
+    "Freedoom2 MAP01 HMP without Champions control"
+  ],
+  "rationale": "Authored Sunlust monster-dense rooms plausibly sustain more translated uses of the same sprite material. DBP37 is a published material-rich comparison and existing small-cache control. No added monsters or artificial keys. Freedoom 0.13.0 supplies verified Doom II-compatible base assets; not stock Doom II.",
+  "phases": {
+    "0": "startup plus 70-tic warmup",
+    "1": "210 tics stationary live rendering",
+    "2": "35 tics forward,35 right turn,70 stationary",
+    "3": "filter 0 for70tics,filter6 for70tics",
+    "4": "normal map reload then70tics"
+  },
+  "settings": "HMP skill3; rngseed12345; Champions default -1; god to sustain observation, no freeze/notarget; mouse disabled, no joystick, empty key binds; same initial PF016 config;1904x1001;uncapped/no vsync",
+  "decision": "Qualify from weighted owned search cost over all phase1/2 calls and the sustained phase1 frame distribution, not max population. Candidate only if mechanism and absolute savings can be established above probe/noise floor. No preselected favorable windows."
+}
