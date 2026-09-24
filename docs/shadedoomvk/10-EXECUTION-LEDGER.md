@@ -251,6 +251,13 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-017 / #34 is now dependency-ready after PF-003/PF-008/PF-013/PF-016; no PF-017 implementation was started. PF-018 status and remaining PF-019/PF-020/SDVK gates are unchanged.
 - Residual scope: one Windows/NVIDIA runtime configuration and bounded deterministic checkpoints; retained fallback qualification allocation cost. No shader/light-math/quality, gameplay, palette/material, audio or donor-source ownership change.
 
+### 2026-09-24 — PF-018 runtime qualified; final-head gate pending
+
+- PF-018 / #35 implementation PR #68 was reconciled with PF-016 on current `master@4f6df9843e742c59defcf4ce1a5686271b2b5c75`; tested candidate `7d390a3fb2dbda65688933ab5f868092afec5a41` has only the nine PF-018 implementation files as a delta.
+- Five alternating production DBP37 MAP04 pairs on one GTX 1650 SUPER/driver/build configuration all launched and rendered. Identical read-only capacity instrumentation in four complete pairs measured 11,702,876 baseline versus 8,635,124 candidate logical bytes across the ten LevelMesh arrays (−26.21%); production exports independently repeat the vertex/surface reductions. MAP04 exercises setup allocation/growth, not moving AABB lines or a steady-state CPU gain.
+- The targeted GLDEFS-light derivative exercises moving AABB lines. Direct fixed-tic RayTest input/fraction records match 1,630/1,630, production paused world pixels and oriented faces match, and five warm AABB pairs give 310.378 versus 159.175 ns per moved line median (−48.72%). Whole BeginFrame diagnostic medians are 20.129 versus 20.082 ms/frame (−0.23%, mixed pairs), so no material whole-path speedup is claimed.
+- The original fixture, PF-004 ownership/generation/span and PF-018 fragmentation/best-fit/bounded-growth stress are covered by the compiled deterministic oracle. All eight checks passed on reconciled source head in CI run 36000665523. Doom2-only MAP01 launched on both revisions; an uncapped DBP37 MAP01 startup hang/TDR occurred on baseline and is a separate compatibility issue. One mouse-overlapped test-only capacity timeout is preserved/excluded and a later pair is clean. DBP50 was not retested.
+- `PF-018-RUNTIME-EVIDENCE.md` records exact hashes, commands, raw logs and limitations. This is **not** the completed issue gate: final documentation-head CI, merge and post-merge `master` verification are still required. PF-019 remains blocked on PF-017 and PF-018.
 ## Current implementation gate
 
 - **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33.
