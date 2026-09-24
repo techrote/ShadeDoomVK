@@ -4,6 +4,7 @@
 #include "actor.h"
 #include "cycler.h"
 #include "g_levellocals.h"
+#include "hw_dynlightdata.h"
 
 struct side_t;
 struct seg_t;
@@ -312,6 +313,12 @@ public:
 	bool explicitpitch;
 
 	bool updated;
+
+	// PF-017 source-owned packing snapshots. The four slots correspond to the
+	// existing force-attenuation / trace boolean combinations. GetLight() zeros
+	// the complete FDynamicLight on every allocation/freelist reuse, so source
+	// reincarnation cannot inherit a prior object's snapshot identity.
+	FDynLightPackingSnapshot packingSnapshots[4];
 
 	int oldred, oldgreen, oldblue;
 
