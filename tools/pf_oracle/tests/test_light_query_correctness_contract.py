@@ -63,6 +63,24 @@ class LightQueryCorrectnessContractTests(unittest.TestCase):
         self.assertNotIn("RenderContext.identity", self.sprite_light)
         self.assertNotIn("RenderContext.epoch", self.sprite_light)
 
+    def test_local_membership_elision_requires_unique_section_ownership(self) -> None:
+        # AddLightNode must reuse an existing target link before allocating:
+        # a single section traversal therefore cannot encounter one light twice.
+        links = source("src/playsim/a_dynlight.cpp")
+        add = links.split("FLightNode * AddLightNode(", 1)[1].split("static FLightNode * DeleteLightNode", 1)[0]
+        self.assertLess(add.index("if (node->targ==linkto)"), add.index("node = new FLightNode"))
+        reuse = add.split("if (node->targ==linkto)", 1)[1].split("node = node->nextTarget", 1)[0]
+        self.assertIn("return(nextnode)", reuse)
+        self.assertIn("bool deduplicate = true", self.sprite_light)
+        self.assertIn("deduplicate && !seen.MarkFirst(light)", self.sprite_light)
+        local = self.sprite_light.split("if (useLocalSection)", 1)[1].split("\n\telse", 1)[0]
+        self.assertIn("&modellightdata, nullptr, true, false)", local)
+        self.assertEqual(self.sprite_light.count("&modellightdata, nullptr, true, false)"), 1)
+        # The BSP source and independent qualification comparison keep the default.
+        baseline = self.sprite_light.split("processLightList(section->lighthead", 1)[1].split("});", 1)[0]
+        self.assertNotIn("true, false)", baseline)
+        self.assertIn("nullptr, &localSelections, false)", self.sprite_light)
+
     def test_diagnostics_cover_candidate_source_filter_and_qualification_work(self) -> None:
         for token in [
             "LightQueryBaselineQueries",

@@ -13,7 +13,7 @@ PF-016 changes CPU-side actor/model dynamic-light collection only. It does not c
 5. PF-015 actor/world/portal visibility-cache validation and trace when required;
 6. `AddLightToList(..., forceAttenuate=true, doTrace=gl_spritelight>0)` with the existing normal/subtractive/additive classification and light fields.
 
-The baseline and local candidate sources may not fork this logic.
+The baseline and local candidate sources may not fork eligibility, portal-relative distance, visibility, or output packing. Duplicate membership is necessary when BSP traversal can encounter a light through multiple lists. After qualification, the local source visits exactly one section list once: `AddLightNode` in `a_dynlight.cpp` reuses the existing `(light, section)` node before allocating a new link, so this traversal is already unique and omits the redundant membership lookup. The independent qualification comparison retains generation membership and remains authoritative.
 
 ## Generation-stamped duplicate membership
 
@@ -42,3 +42,15 @@ The PF-016 compiled fixture pins generation reset/de-duplication, first-encounte
 ## Provenance
 
 The local-source concept is adapted from the recorded `MAD-VKDoom@2c433f2a495ec208c6cc9e248c2c85e3bb14a6f5` research lead, but this implementation is independently bounded by ShadeDoomVK's PF-009/PF-011/PF-015 contracts. No donor source is cherry-picked and no unresolved donor portal assumption is imported.
+
+## Local repair validation (2026-09-24)
+
+The original PR head `90b8de0ac56fc2daa1bb22f0411a6f2d40b0f9a8` failed representative sprite-setup timing despite cheaper local queries than its own fallback population. The previous internal timing compared different actors and was not an end-to-end A/B. Current master `f7d531026de5bd33181946cd91040d5f54438103` has the same source tree as the historical baseline `31cf32b3995dbeabaeaaad02058b4c5de966410d`.
+
+Actual Vulkan-path diagnostics found that the interior fixture already visits one section per baseline query: both revisions scan 179,928 candidates and pack 48,787 selected lights for 833 queries per frame. Warm visibility calls, duplicate rejections, allocations and fallback are zero. The original local path still performed 48,787 hash membership operations per frame without eliminating a duplicate. A hash-only ablation reduced setup cost but did not beat baseline; eliding only the proven-redundant qualified-local lookup did.
+
+Five interleaved RelWithDebInfo pairs with identical frame-only logging produced per-run warm setup medians of 3.876270/3.881421/4.133544/3.886331/4.113935 ms baseline and 3.713339/3.730444/3.680725/3.732130/3.712254 ms repair. The median of run medians improves 4.45%, and every pair improves. Each sample uses frames 100–399. All five full 1904×1001 clean images are pixel-identical. Separate diagnostic binaries match 97,575 selected-identity/order/group/class and packed-light records at frame 200 in each of the interior and boundary fixtures, with identical full images. Pointer addresses are preserved as run-local evidence and normalized to explicit source-light semantics for cross-process comparison.
+
+The boundary diagnostic still takes 440 BSP fallbacks and 393 local queries per frame, rejects the same 28,544 duplicates, and selects the same 48,787 lights. It also identifies 5,190 temporary selection-vector allocations (1,864,000 requested bytes) per frame in repeated fallback qualification. This repair does not change fallback qualification or its allocation policy. Portal displacement, PF-015 visibility/cache invalidation including moving occluders, light filtering and packing remain byte-for-byte unchanged. The local fixtures contain no portals and run `gl_spritelight=2`, so their zero CPU visibility calls are not presented as new live portal/occlusion coverage; those contracts retain their compiled/source regression coverage.
+
+Raw logs, frame distributions, diagnostic patches/binaries, semantic state, settings/hashes and images are retained locally under `C:/ShadeDoomVK/pf-local-evidence/pf016/repair-20260924`. `analyze.py` reproduces `analysis.json`. Intrusive diagnostic stage timers are attribution evidence only, not acceptance timing. Full DBP50 MAP08 was not launched. PF-016 is not accepted or merged by this local record; uninstrumented validation and required CI remain separate gates.

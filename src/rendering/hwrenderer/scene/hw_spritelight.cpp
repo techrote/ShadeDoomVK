@@ -380,7 +380,7 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	uint64_t traces = 0;
 
 	auto processLightList = [&](FLightNode *node, int group, HWGenerationSet<FDynamicLight*>& seen,
-		FDynLightData* output, std::vector<LightQuerySelection>* selections, bool countDiagnostics)
+		FDynLightData* output, std::vector<LightQuerySelection>* selections, bool countDiagnostics, bool deduplicate = true)
 	{
 		if (countDiagnostics) ++visitedSections;
 		while (node)
@@ -407,7 +407,7 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 				continue;
 			}
 
-			if (!seen.MarkFirst(light))
+			if (deduplicate && !seen.MarkFirst(light))
 			{
 				if (countDiagnostics) ++duplicates;
 				node = node->nextLight;
@@ -451,7 +451,10 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	if (useLocalSection)
 	{
 		LightQueryLocalQueries.fetch_add(1, std::memory_order_relaxed);
-		processLightList(self->section->lighthead, actorPortalGroup, drawctx->lightQuerySeen, &modellightdata, nullptr, true);
+		// AddLightNode keeps one node per (light, section). A qualified query
+		// visits exactly this list once, so only the BSP source needs membership
+		// checks across lists. Keep every eligibility/portal/visibility test.
+		processLightList(self->section->lighthead, actorPortalGroup, drawctx->lightQuerySeen, &modellightdata, nullptr, true, false);
 		const uint64_t elapsed = (uint64_t)std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - queryStart).count();
 		LightQueryLocalNanos.fetch_add(elapsed, std::memory_order_relaxed);
 	}
