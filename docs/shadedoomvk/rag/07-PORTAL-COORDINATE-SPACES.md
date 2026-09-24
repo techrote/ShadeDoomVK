@@ -49,6 +49,8 @@ Dynamic-light and sprite code often works in a sector `PortalGroup` and uses dis
 
 An actor-light fast path that reads only the actor's current section but loses portal-relative group semantics is incorrect even if it works on non-portal maps.
 
+Accepted PF-016 / PR #67 retains `PosRelative(group)` in the shared candidate pipeline. Local sourcing requires a baseline BSP proof of one section/one group plus equal selected light identity/order/class/group; its cached position/radius/section/group key must match. Actual runtime fixtures prove a 1536-unit linked-group displacement on qualified local selection, cross-group fallback and invalidation after portal-group changes. These query-source keys remain separate from PF-015 world-query visibility validity and PF-010 transient pass identity. See `PF-016-RUNTIME-EVIDENCE.md` for runtime state/images and normalization of process-local identities.
+
 PF-009 records both sprite source and render portal-group identities plus the inherited `thruportal` route discriminator. The state is descriptive and does not replace current displacement logic.
 
 PF-010 context identity is likewise not a replacement for portal-group displacement. It identifies the view/pass in which a renderer query occurs; the spatial query must still use the correct portal-group coordinate semantics.

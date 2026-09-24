@@ -1,5 +1,7 @@
 # PF-016 dynamic-light query contract
 
+Status: accepted through PR #67, merge `6091d6739c4b7dc96ef7913c911bf4eba89d7715`; exact-head and post-merge CI passed. The historical local repair notes below are superseded for acceptance status by [PF-016-RUNTIME-EVIDENCE.md](PF-016-RUNTIME-EVIDENCE.md).
+
 PF-016 changes CPU-side actor/model dynamic-light collection only. It does not change light eligibility, attenuation, colour/classification, shadow/PBR policy, portal displacement, gameplay/tic state, materials, palette/translation semantics, audio, or source/provenance ownership.
 
 ## Authoritative candidate pipeline
@@ -60,3 +62,9 @@ Raw logs, frame distributions, diagnostic patches/binaries, semantic state, sett
 Implementation commit `c2684881a5b0c1b74cb361eced0c35b2ac17b90e` was rebuilt after commit. The final uninstrumented candidate executable SHA-256 is `7300e538f87ff34672172c67a374bea745d9759e6ba341e1af1fa9b3fc44e3de`; baseline is `7385754e18ac7a5bf7e043f610d8f7aae2ae1cb148396f4fb8fd0bc0c4af8ace`. Five uncontended, warm, interleaved confirmation pairs produced baseline `S: Setup` snapshots 4.609, 4.074, 4.234, 3.971, 4.137 ms and repair 3.854, 3.761, 3.715, 3.749, 3.781 ms. Medians are **4.137 / 3.761 ms (-9.09%)**, p90 4.459 / 3.8248 ms and p95 4.534 / 3.8394 ms. Every pair improves. All five full images are pixel-identical. These built-in snapshots are separate from the per-frame distributions above and are not interval averages or FPS-derived values.
 
 The final confirmation excludes an earlier exploratory exact-build series that overlapped hash/image analysis; those raw runs are retained. All qualified launches exited 0 without timeout, fatal renderer log or new display-driver event. The local representative CPU/state/image gate is **PASS**. PR update and required CI were initiated only after this gate passed. PF-016 remains open, unmerged and not accepted; this documentation-only follow-up changes no renderer source from the tested implementation commit.
+
+## Completed runtime acceptance (2026-09-24)
+
+The remaining live correctness gates now pass: linked groups with 1536-unit displacement, portal-relative selection on a qualified local query, cross-group and section-boundary BSP fallback, actual model-list `LevelMesh::Trace` visibility, stationary actor/light world-query invalidation under a moving polyobject, static cache reuse, point/spot/additive/subtractive ordering, sprites/models, small/large radii and invalidation after position/radius/section/group changes. Three controlled baseline/candidate pairs match 1,738 selected/packed records and 576 visibility/cache records at six image checkpoints; all 18 full images are pixel-identical. Another 1,450 selected/packed records match at exact mutation tics. A camera-contaminated exploratory pair was preserved as INCONCLUSIVE and replaced with input-locked comparisons.
+
+No renderer correction was needed. The measured implementation `c2684881a5b0c1b74cb361eced0c35b2ac17b90e`, submitted head `4c753f92b155ad72aa7e017001bfc4d9f7fd1bb0` and implementation merge have identical renderer/test sources. The previously validated production performance gate remains applicable. Diagnostic binaries disable render interpolation for exact simulation checkpoints and are explicitly excluded from timing claims. See the runtime evidence document for hashes, normalization, fallback limitations, scripts, raw local artifact paths and exact CI provenance.

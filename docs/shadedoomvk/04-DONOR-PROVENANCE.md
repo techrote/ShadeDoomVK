@@ -45,7 +45,7 @@ Concept: gather eligible lights for sufficiently small actors from a local secti
 
 Known donor limitation: portal-group handling contains a TODO/assumption.
 
-Reconciled disposition: **benchmark/reimplement as a PF-016 hypothesis** only after PF-009/PF-015 establish sprite/visibility correctness. Exact selected-light equivalence is required for the qualified fast path.
+Reconciled disposition: **independently reimplemented and accepted in PF-016 / PR #67**, merge `6091d6739c4b7dc96ef7913c911bf4eba89d7715`. No donor source was cherry-picked and the donor portal TODO was not imported. The accepted path first proves one-section/one-group geometry and compares baseline/local selected identity, order and class; position/radius/section/group changes force qualification again. Actual linked-portal displacement, cross-group fallback, renderer visibility/cache behavior and images match the baseline, with a representative CPU improvement. See `PF-016-RUNTIME-EVIDENCE.md` and `PF-016-LIGHT-QUERY-CONTRACT.md` for bounded runtime coverage and retained fallback cost.
 
 ### MrRaveYard/MAD-VKDoom — dynamic-light bookkeeping experiments
 
