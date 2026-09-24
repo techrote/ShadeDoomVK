@@ -25,6 +25,7 @@
 
 #include "tarray.h"
 #include "vectors.h"
+#include "hw_lightreuse.h"
 #include <cstdint>
 
 enum FDynLightInfoFlags
@@ -60,6 +61,8 @@ struct FDynLightInfo
 	int flags; // 20
 };
 
+using FDynLightPackingSnapshot = HWLightPackingSnapshot<FDynLightInfo>;
+
 enum FDynLightDataArrays
 {
 	LIGHTARRAY_NORMAL,
@@ -72,14 +75,16 @@ enum FDynLightDataArrays
 struct FDynLightData
 {
 	TArray<FDynLightInfo> arrays[3];
+	TArray<uint64_t> revisions[3];
 
 	void Clear()
 	{
-		arrays[LIGHTARRAY_NORMAL].Clear();
-		arrays[LIGHTARRAY_SUBTRACTIVE].Clear();
-		arrays[LIGHTARRAY_ADDITIVE].Clear();
+		for (int i = 0; i < 3; ++i)
+		{
+			arrays[i].Clear();
+			revisions[i].Clear();
+		}
 	}
-
 };
 
 struct sun_trace_cache_t
@@ -113,5 +118,33 @@ enum FShadowCastingTypes
 
 extern thread_local FDynLightData lightdata;
 
+// PF-017: only top-level PF-010 render epochs may qualify source-owned packing
+// reuse. Epoch rollback/wrap disables reuse fail-closed for the process.
+uint64_t HWBeginDynLightPackingContext(uint64_t epoch);
+void HWEndDynLightPackingContext(uint64_t epoch);
+uint64_t HWActiveDynLightPackingContext();
+
+class HWDynLightPackingContextScope
+{
+public:
+	explicit HWDynLightPackingContextScope(uint64_t epoch)
+		: mEpoch(HWBeginDynLightPackingContext(epoch))
+	{
+	}
+
+	~HWDynLightPackingContextScope()
+	{
+		if (mEpoch != 0)
+			HWEndDynLightPackingContext(mEpoch);
+	}
+
+	HWDynLightPackingContextScope(const HWDynLightPackingContextScope&) = delete;
+	HWDynLightPackingContextScope& operator=(const HWDynLightPackingContextScope&) = delete;
+
+	bool Qualified() const { return mEpoch != 0; }
+
+private:
+	uint64_t mEpoch = 0;
+};
 
 #endif
