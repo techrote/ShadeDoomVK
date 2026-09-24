@@ -34,8 +34,171 @@
 #include "hwrenderer/scene/hw_drawstructs.h"
 #include "g_levellocals.h"
 
+#include <atomic>
+#include <limits>
+#include <type_traits>
+
 // If we want to share the array to avoid constant allocations it needs to be thread local unless it'd be littered with expensive synchronization.
 thread_local FDynLightData lightdata;
+
+namespace
+{
+static_assert(sizeof(FDynLightInfo) == 80, "PF-017 packing snapshots require the accepted 80-byte FDynLightInfo layout");
+static_assert(std::is_trivially_copyable<FDynLightInfo>::value, "PF-017 snapshots require trivially copyable packed light records");
+
+thread_local HWLightPackingContextState DynLightPackingContext;
+
+class HWAtomicLightPackingRevisionClock
+{
+public:
+	uint64_t Allocate()
+	{
+		if (mDisabled.load(std::memory_order_relaxed))
+			return 0;
+
+		uint64_t current = mNextRevision.load(std::memory_order_relaxed);
+		for (;;)
+		{
+			if (current == 0 || current == std::numeric_limits<uint64_t>::max())
+			{
+				mDisabled.store(true, std::memory_order_release);
+				return 0;
+			}
+
+			if (mNextRevision.compare_exchange_weak(
+				current, current + 1,
+				std::memory_order_relaxed,
+				std::memory_order_relaxed))
+			{
+				return current;
+			}
+
+			if (mDisabled.load(std::memory_order_acquire))
+				return 0;
+		}
+	}
+
+private:
+	std::atomic<uint64_t> mNextRevision{ 1 };
+	std::atomic<bool> mDisabled{ false };
+};
+
+HWAtomicLightPackingRevisionClock DynLightPackingRevisionClock;
+
+int PackLightInfo(FDynLightInfo& info, int group, FDynamicLight* light, bool forceAttenuate, bool doTrace)
+{
+	info = {};
+
+	int lightClass = LIGHTARRAY_NORMAL;
+	DVector3 pos = light->PosRelative(group);
+
+	info.radius = light->GetRadius();
+
+	float cs;
+	if (light->IsAdditive())
+	{
+		cs = HWLightCompat::AdditiveGpuColorScale;
+		lightClass = LIGHTARRAY_ADDITIVE;
+	}
+	else
+	{
+		cs = 1.0f;
+	}
+
+	if (light->target && (light->target->renderflags2 & RF2_LIGHTMULTALPHA))
+		cs *= (float)light->target->Alpha;
+
+	// Multiply intensity from GLDEFS
+	cs *= (float)light->GetLightDefIntensity();
+
+	info.r = HWLightCompat::NormalizeColorChannel(light->GetRed()) * cs;
+	info.g = HWLightCompat::NormalizeColorChannel(light->GetGreen()) * cs;
+	info.b = HWLightCompat::NormalizeColorChannel(light->GetBlue()) * cs;
+
+	if (light->IsSubtractive())
+	{
+		DVector3 v(info.r, info.g, info.b);
+		float length = (float)v.Length();
+
+		info.r = length - info.r;
+		info.g = length - info.g;
+		info.b = length - info.b;
+		lightClass = LIGHTARRAY_SUBTRACTIVE;
+	}
+
+	if (light->shadowmapped && screen->mShadowMap->Enabled())
+	{
+		info.flags |= LIGHTINFO_SHADOWMAPPED;
+		info.shadowIndex = light->mShadowmapIndex;
+	}
+	else
+	{
+		info.shadowIndex = 1024;
+	}
+
+	if (light->IsAttenuated() || forceAttenuate)
+		info.flags |= LIGHTINFO_ATTENUATED;
+
+	if (light->IsSpot())
+	{
+		info.flags |= LIGHTINFO_SPOT;
+
+		info.spotInnerAngle = (float)light->pSpotInnerAngle->Cos();
+		info.spotOuterAngle = (float)light->pSpotOuterAngle->Cos();
+
+		DAngle negPitch = -*light->pPitch;
+		DAngle Angle = light->target->Angles.Yaw;
+		double xzLen = negPitch.Cos();
+		info.spotDirX = float(-Angle.Cos() * xzLen);
+		info.spotDirY = float(-negPitch.Sin());
+		info.spotDirZ = float(-Angle.Sin() * xzLen);
+	}
+
+	if (light->Trace() && doTrace)
+		info.flags |= (LIGHTINFO_TRACE | LIGHTINFO_SHADOWMAPPED);
+
+	info.x = float(pos.X);
+	info.z = float(pos.Y);
+	info.y = float(pos.Z);
+
+	info.softShadowRadius = (gl_light_shadow_filter == 0 && !gl_light_shadow_nearest_dither) ? 0 : light->GetSoftShadowRadius();
+	info.linearity = HWLightCompat::ClampLinearity(light->GetLinearity());
+	info.strength = light->GetStrength();
+
+	return lightClass;
+}
+
+bool QualifiesForPackingReuse(int group, FDynamicLight* light, uint64_t contextEpoch)
+{
+	if (contextEpoch == 0 || light->IsSpot())
+		return false;
+
+	if (light->target && (light->target->renderflags2 & RF2_LIGHTMULTALPHA))
+		return false;
+
+	// Foreign portal groups alter packed position. Keep those on the accepted
+	// path rather than trying to make a source-owned snapshot multi-space.
+	if (!light->Sector || group != light->Sector->PortalGroup)
+		return false;
+
+	return true;
+}
+}
+
+uint64_t HWBeginDynLightPackingContext(uint64_t epoch)
+{
+	return DynLightPackingContext.Begin(epoch);
+}
+
+void HWEndDynLightPackingContext(uint64_t epoch)
+{
+	DynLightPackingContext.End(epoch);
+}
+
+uint64_t HWActiveDynLightPackingContext()
+{
+	return DynLightPackingContext.ActiveEpoch();
+}
 
 //==========================================================================
 //
@@ -81,92 +244,41 @@ bool GetLight(FDynLightData& dld, int group, Plane & p, FDynamicLight * light, b
 void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool forceAttenuate, bool doTrace)
 {
 	FDynLightInfo info = {};
+	int lightClass = LIGHTARRAY_NORMAL;
+	uint64_t revision = 0;
 
-	int i = LIGHTARRAY_NORMAL;
+	const uint64_t contextEpoch = HWActiveDynLightPackingContext();
+	const bool qualified = QualifiesForPackingReuse(group, light, contextEpoch);
+	const unsigned snapshotIndex = (forceAttenuate ? 1u : 0u) | (doTrace ? 2u : 0u);
 
-	DVector3 pos = light->PosRelative(group);
-	
-	info.radius = light->GetRadius();
-
-	float cs;
-	if (light->IsAdditive()) 
+	if (qualified && HWTryReuseLightPackingSnapshot(
+		light->packingSnapshots[snapshotIndex],
+		contextEpoch,
+		group,
+		info,
+		lightClass,
+		revision))
 	{
-		cs = HWLightCompat::AdditiveGpuColorScale;
-		i = LIGHTARRAY_ADDITIVE;
-	}
-	else 
-	{
-		cs = 1.0f;
-	}
-
-	if (light->target && (light->target->renderflags2 & RF2_LIGHTMULTALPHA))
-		cs *= (float)light->target->Alpha;
-
-	// Multiply intensity from GLDEFS
-	cs *= (float)light->GetLightDefIntensity();
-
-	info.r = HWLightCompat::NormalizeColorChannel(light->GetRed()) * cs;
-	info.g = HWLightCompat::NormalizeColorChannel(light->GetGreen()) * cs;
-	info.b = HWLightCompat::NormalizeColorChannel(light->GetBlue()) * cs;
-
-	if (light->IsSubtractive())
-	{
-		DVector3 v(info.r, info.g, info.b);
-		float length = (float)v.Length();
-		
-		info.r = length - info.r;
-		info.g = length - info.g;
-		info.b = length - info.b;
-		i = LIGHTARRAY_SUBTRACTIVE;
+		dld.arrays[lightClass].Push(info);
+		dld.revisions[lightClass].Push(revision);
+		return;
 	}
 
-	if(light->shadowmapped && screen->mShadowMap->Enabled())
-	{
-		info.flags |= LIGHTINFO_SHADOWMAPPED;
-		info.shadowIndex = light->mShadowmapIndex;
-	}
-	else
-	{
-		info.shadowIndex = 1024;
-	}
+	lightClass = PackLightInfo(info, group, light, forceAttenuate, doTrace);
 
-	// Store attenuate flag in the sign bit of the float.
-	if (light->IsAttenuated() || forceAttenuate)
+	if (qualified)
 	{
-		info.flags |= LIGHTINFO_ATTENUATED;
+		revision = HWCommitLightPackingSnapshot(
+			light->packingSnapshots[snapshotIndex],
+			info,
+			lightClass,
+			group,
+			contextEpoch,
+			DynLightPackingRevisionClock);
 	}
 
-	if (light->IsSpot())
-	{
-		info.flags |= LIGHTINFO_SPOT;
-
-		info.spotInnerAngle = (float)light->pSpotInnerAngle->Cos();
-		info.spotOuterAngle = (float)light->pSpotOuterAngle->Cos();
-
-		DAngle negPitch = -*light->pPitch;
-		DAngle Angle = light->target->Angles.Yaw;
-		double xzLen = negPitch.Cos();
-		info.spotDirX = float(-Angle.Cos() * xzLen);
-		info.spotDirY = float(-negPitch.Sin());
-		info.spotDirZ = float(-Angle.Sin() * xzLen);
-	}
-
-	if(light->Trace() && doTrace)
-	{
-		info.flags |= (LIGHTINFO_TRACE | LIGHTINFO_SHADOWMAPPED);
-	}
-
-	info.x = float(pos.X);
-	info.z = float(pos.Y);
-	info.y = float(pos.Z);
-
-	info.softShadowRadius = (gl_light_shadow_filter == 0 && !gl_light_shadow_nearest_dither)? 0 : light->GetSoftShadowRadius();
-
-	info.linearity = HWLightCompat::ClampLinearity(light->GetLinearity());
-
-	info.strength = light->GetStrength();
-
-	dld.arrays[i].Push(info);
+	dld.arrays[lightClass].Push(info);
+	dld.revisions[lightClass].Push(revision);
 }
 
 void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVector3& sundir, const FVector3& suncolor, bool doTrace)
@@ -187,4 +299,5 @@ void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVec
 	info.strength = HWLightCompat::SunProxyStrength;
 
 	dld.arrays[LIGHTARRAY_NORMAL].Push(info);
+	dld.revisions[LIGHTARRAY_NORMAL].Push(0);
 }
