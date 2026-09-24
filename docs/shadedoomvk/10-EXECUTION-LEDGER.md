@@ -266,11 +266,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Frozen contract: PF-004 ownership/generation/span checks and stationary live ranges remain authoritative; best-fit lookup and bounded growth reduce main LevelMesh array capacity on representative DBP37 MAP04; cached immutable leaf→parent AABB traversal preserves direct fixed-tic queries, production geometry and paused world pixels on the moving GLDEFS-light fixture. No dirty-upload batching or whole-frame CPU speedup is claimed. `PF-018-RUNTIME-EVIDENCE.md` retains measurements, raw-log paths and exclusions.
 - PF-018 is complete. PF-019 / #36 now waits only on PF-017 / #34; PF-020 / #37 still waits on unfinished PF issues. The baseline DBP37 MAP01 startup TDR, prior DBP50 crashes and one excluded mouse-overlapped diagnostic timeout do not enter the PF-018 benefit claim. DBP37 MAP01/DBP50 compatibility remains separate work.
 
+### 2026-09-24 - PF-017 baseline profiled; candidate rejected
+
+- PF-017 / #34 remains open. Accepted baseline master 66b09a872b9d45b496a27c1bf1406d8a74606cd2 was profiled on the physical GTX 1650 SUPER.
+- The dense PF-016 fixture produced 49,473 logical light records but 217 distinct packed records and 3,971,280 mapped copy bytes per steady frame. Complete-list/subrange reuse could save only 2.40%.
+- A per-record hash/reference-buffer/shader-indirection prototype cut mapped writes 94.24% yet increased five-pair production S: Setup median from 3.615 to 8.432 ms (+133.25%) and All from 18.227 to 24.225 ms (+32.91%). Every pair regressed; all five full RGB images matched. The prototype was restored, not merged.
+- The dense fixture had at most one material variant per material; DBP37 MAP04 had at most three. A hashed descriptor lookup therefore lacks measured benefit and was not implemented. Optional default-resource sharing was not attempted.
+- Canonical PF-017-PROFILING-NOTES.md records exact binaries, source patch hashes, commands, local raw evidence, limitations and next action. No PF-017 acceptance/CI/merge gate is claimed. PF-019 remains blocked on PF-017.
+
 ## Current implementation gate
 
 - **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
-- **READY:** PF-017 / #34. PF-018 is accepted; no PF-017 implementation is included in the PF-018 acceptance work.
-- **BLOCKED:** PF-019 / #36 on PF-017; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. Its measured hash/indirection prototype regressed; see PF-017-PROFILING-NOTES.md.
+- **BLOCKED:** PF-019 / #36 on PF-017 acceptance; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
 ## Future implementation ledger rule

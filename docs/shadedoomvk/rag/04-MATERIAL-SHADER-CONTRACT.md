@@ -1,7 +1,7 @@
 # Material and shader contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries implemented pending acceptance  
+Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 hash lookup deferred after profiling
 Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
 
 ## Current material model
@@ -130,6 +130,10 @@ PF-013 owns numerical safety at the roughness-zero edge while preserving normal 
 `VkMaterial::GetDescriptorEntry` caches bindless ranges keyed by material state such as clamp mode, translation/palette and global shader. Richer materials consume contiguous bindless slots. PF-003/PF-017 harden lifetime and lookup behavior before SDVK height layers increase pressure.
 
 PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Vulkan still iterates the ordered layers and chooses each sampler from `GetLayerFilter(i)`. PF-013's RedIsAlpha bit is different: it changes the producer/consumer interpretation of the bound R8 texture, so it is explicitly part of descriptor identity. PF-003 generation/lifetime/reservation rules remain authoritative.
+
+## PF-017 lookup profiling boundary
+
+Accepted master retained the per-material linear descriptor-variant scan after physical profiling: the dense PF-016 workload populated at most one variant per material and DBP37 MAP04 at most three. No representative hashed-lookup benefit was demonstrated. The exact state partition and PF-003 cleanup remain unchanged; PF-017-PROFILING-NOTES.md records the counts and unresolved performance gate.
 
 ## Invariants
 

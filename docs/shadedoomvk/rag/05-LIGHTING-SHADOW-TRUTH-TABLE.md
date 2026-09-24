@@ -21,6 +21,8 @@ Primary files:
 
 `FDynLightInfo` carries position/color, spot direction/angles, radius, linearity, strength, soft-shadow radius, shadow index and flags. Light arrays distinguish normal, subtractive and additive classes.
 
+PF-017 physical profiling did not change this representation. On a dense PF-016 fixture, 49,473 logical consumer records repeated only 217 packed states, but a frame-local hash plus shader indirection increased representative production S: Setup median from 3.615 to 8.432 ms across five alternating pairs. The prototype was restored; the contiguous accepted upload and shader range semantics remain authoritative. See PF-017-PROFILING-NOTES.md for hashes, limits and the unresolved performance gate.
+
 ## Actor/sprite lighting modes
 
 ### CPU aggregate sprite light — active compatibility path
