@@ -104,7 +104,7 @@ Owner: PF-015.
 
 ## 17. Dynamic-light collection uses costly duplicate maintenance
 
-Actor GPU light-list collection BSP-walks and uses sorted duplicate lookup/insertion. Optimize only after PF-015 visibility/portal correctness is accepted.
+Resolved by PF-016 / PR #67, merge `6091d6739c4b7dc96ef7913c911bf4eba89d7715`. The shared candidate pipeline uses generation membership for BSP/qualification and omits redundant membership only on a proven unique, qualified single-section list. Baseline/local identity/order/class/group equivalence is checked before enabling; changes to actor position/radius/section/group invalidate qualification. Runtime portal/visibility/model/invalidation fixtures and exact images pass, with a 9.09% representative production setup median improvement and a separate 4.45% warm-frame improvement. Submitted-head and post-merge CI passed. Unsupported fallback remains correct but repeated qualification still allocates temporary selection vectors; that cost is not claimed fixed. See `PF-016-RUNTIME-EVIDENCE.md`.
 
 Owner: PF-016.
 

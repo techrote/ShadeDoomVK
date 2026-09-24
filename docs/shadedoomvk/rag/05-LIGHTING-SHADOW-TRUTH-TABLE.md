@@ -1,7 +1,7 @@
 # Lighting and shadow truth table
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; PF-011 compatibility math and PF-015 shadow/cache correctness contracts incorporated  
+Status: active; PF-011 compatibility math, PF-015 shadow/cache correctness and accepted PF-016 query equivalence incorporated
 Primary issues: PF-011, PF-015, PF-016, PF-017, SDVK-009, SDVK-012, SDVK-013
 
 ## Dynamic light data
@@ -14,6 +14,7 @@ Primary files:
 - `src/common/rendering/hwrenderer/data/hw_lightcompat.h`
 - `src/common/rendering/hwrenderer/data/hw_shadowselection.h`
 - `src/common/rendering/hwrenderer/data/hw_visibilitycache.h`
+- `src/common/rendering/hwrenderer/data/hw_lightquery.h`
 - `src/rendering/hwrenderer/scene/hw_spritelight.cpp`
 - scene wall/flat/decal/sprite files
 - `wadsrc/static/shaders/scene/lightmodel_*.glsl`
@@ -32,9 +33,13 @@ PF-015 keeps that math unchanged but hardens the optional static actor/light vis
 
 ### GPU/per-pixel light list — active
 
-`HWDrawInfo::GetDynSpriteLightList` collects candidate lights, performs distance/filter/visibility logic and uploads `FDynLightData`. It currently uses `BSPWalkCircle` plus per-section linked lists and sorted duplicate suppression.
+`HWDrawInfo::GetDynSpriteLightList` owns one candidate eligibility/portal-relative/radius/visibility/packing pipeline. PF-016 replaces sorted per-query membership with `HWGenerationSet<FDynamicLight*>`, preserving first-encounter order. The baseline candidate source remains `BSPWalkCircle`; a local section source is used only after an actual baseline/local selected identity/order/class/group comparison and proof that the circle touches one section in one group. Successful qualification is cached by position, render radius, section and portal group. Any key change re-enters baseline qualification; ambiguous, boundary and cross-group cases stay on BSP.
 
-PF-011 names list-packing calibration in `HWLightCompat`: additive GPU color scale `0.2`, normalized byte color channels, uploaded linearity clamped to `[0,1]`, and the sunlight-proxy constants. PF-016 may replace collection/dedup internals only with selected-light equivalence evidence.
+`AddLightNode` guarantees one node per (light, section), so the already-qualified single-list traversal omits duplicate membership work. Qualification and BSP keep independent generation membership. PF-015 visibility inputs remain checked on every relevant query. `stat actorlightquery` exposes source/qualification/candidate/duplicate/filter/trace counts and timings; `stat actorlightcache` retains cache reasons. Repeated unsupported qualification retains temporary vector allocation costs.
+
+PR #67 is accepted at merge `6091d6739c4b7dc96ef7913c911bf4eba89d7715`, with successful submitted-head/post-merge CI and live portal/model/sprite/visibility/invalidation equivalence. Mode-0 ordinary sprites use the separate aggregate path; per-pixel models invoke this list path and its renderer-private CPU traces even in mode 0. See `PF-016-RUNTIME-EVIDENCE.md` for actual path activation, exact images/state and the production performance gate.
+
+PF-011 names list-packing calibration in `HWLightCompat`: additive GPU color scale `0.2`, normalized byte color channels, uploaded linearity clamped to `[0,1]`, and the sunlight-proxy constants. PF-016 preserves that calibration while optimizing candidate sourcing and duplicate membership, with selected-light equivalence evidence.
 
 PF-015 does not optimize this gathering path. It only changes whether an existing actor/static-light trace result is valid to reuse.
 

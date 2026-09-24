@@ -238,11 +238,24 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-016 / #33 and PF-018 / #35 become dependency-ready. PF-017 / #34 remains blocked on PF-016; PF-019 / #36 remains blocked on PF-017 and PF-018; PF-020 / #37 remains blocked on all unfinished PF issues.
 - Gameplay/tic, PF-011 lighting calibration, shadow-map capacity/resolution/filtering, ray-query capability/fallback routing, actor-light gathering policy, portal transforms, sprite/material/palette/translation meaning, audio, source ownership and donor/provenance semantics remain unchanged.
 
+### 2026-09-24 — PF-016 accepted and merged
+
+- PF-016 / #33 completed through implementation PR #67; this reconciliation follows successful post-merge verification.
+- Tested renderer implementation: `c2684881a5b0c1b74cb361eced0c35b2ac17b90e`; submitted head: `4c753f92b155ad72aa7e017001bfc4d9f7fd1bb0`. Renderer/test source is identical across those revisions and the merge.
+- All eight required PF-oracle/Windows/macOS/Linux checks passed in exact-head run 35984105517 and post-merge run 35990476576.
+- Merge: `6091d6739c4b7dc96ef7913c911bf4eba89d7715`, verified on `master`.
+- One query pipeline preserves portal-relative filtering, visibility, selected identity/order/class and packing. Generation membership replaces sorted maintenance; unique local traversal skips redundant membership only after exact side-by-side qualification. Position/radius/section/group changes invalidate qualification, and unsupported cases remain BSP.
+- Representative production S: Setup median improves 4.137 to 3.761 ms (-9.09%), all five interleaved pairs winning; separate warm distributions improve 4.45%. Five production image pairs and interior/boundary state comparisons are exact.
+- Remaining live runtime gates pass: linked displaced groups, cross-group fallback, actual model-list visibility/cache results under moving occlusion, static hits, all light classes/types, models/sprites, radius/section boundaries and qualification invalidation. Eighteen images are pixel-identical; 1,738 selected/packed plus 576 visibility/cache records match at image checkpoints, with 1,450 matching mutation-tic records. A camera-contaminated exploratory pair is preserved/excluded, and input-locked reruns pass.
+- Raw evidence is under `C:/ShadeDoomVK/pf-local-evidence/pf016/runtime-20260924` and `repair-20260924`; `PF-016-RUNTIME-EVIDENCE.md` indexes hashes, scripts and limits. All 318 historical artifact hashes were verified unchanged. No new device loss/driver timeout occurred and no full DBP50 MAP08 was launched.
+- PF-017 / #34 is now dependency-ready after PF-003/PF-008/PF-013/PF-016; no PF-017 implementation was started. PF-018 status and remaining PF-019/PF-020/SDVK gates are unchanged.
+- Residual scope: one Windows/NVIDIA runtime configuration and bounded deterministic checkpoints; retained fallback qualification allocation cost. No shader/light-math/quality, gameplay, palette/material, audio or donor-source ownership change.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32.
-- **READY:** PF-016 / #33, PF-018 / #35. PF-016 is the next highest-priority issue in the recorded final repair path.
-- **BLOCKED:** PF-017 / #34 on PF-016; PF-019 / #36 on PF-017 and PF-018; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33.
+- **READY:** PF-017 / #34, PF-018 / #35. PF-017 became dependency-ready after PF-016 acceptance; no PF-017 implementation is included in that acceptance work.
+- **BLOCKED:** PF-019 / #36 on PF-017 and PF-018; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
 ## Future implementation ledger rule
