@@ -83,6 +83,9 @@ VkRSBuffers::VkRSBuffers(VulkanRenderDevice* fb)
 		.Create(fb->GetDevice());
 
 	Lightbuffer.Data = Lightbuffer.SSO->Map(0, Lightbuffer.SSO->size);
+	Lightbuffer.RevisionShadow.resize(Lightbuffer.Count, 0);
+	Lightbuffer.RangeShadow.resize(Lightbuffer.Count);
+	Lightbuffer.RangeShadowValid.resize(Lightbuffer.Count, 0);
 
 	Bonebuffer.SSO = BufferBuilder()
 		.Usage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT)
