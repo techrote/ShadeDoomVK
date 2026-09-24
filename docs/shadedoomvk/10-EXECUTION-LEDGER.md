@@ -290,10 +290,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - No material lookup candidate was implemented. Diagnostic source was archived/restored; accepted source rebuilt, deterministic oracle matched twice, and unchanged PF-003/PF-008/PF-013/generation fixtures passed with MSVC assertions. Evidence-record CI remains separate from renderer acceptance.
 - [PF-017-MATERIAL-QUALIFICATION.md](PF-017-MATERIAL-QUALIFICATION.md) and machine-readable evidence retain the no-go decision, every workload, exact identities, uncertainty and next action. Light work/full acceptance are unchanged; #34 remains open and PF-019 blocked.
 
+### 2026-09-24 - PF-017 off-GPU light-reuse candidate frozen
+
+- GitHub issue #34 was revised from technique-specific requirements to measured outcomes: the slower material hash/index paths are a completed no-go, physical light-record compaction is not mandatory, and a safe documented no-go is valid when an optimization does not pay for itself.
+- Draft PR #74 reconstructs the previously measured source-owned packing-revision/temporal-write design on `master@8c9e92458d1b08d8ff00f7c7874441433e63e5a9` without reviving the rejected frame-local hash/indirection representation.
+- Frozen renderer/test source head `e028fd88b29aa2d0d82e4e04a09ea644bfa56670` passed all eight jobs in CI run 36047117838. The PF oracle ran 110 tests and the inherited deterministic baseline; Windows Visual Studio Debug/RelWithDebInfo, macOS Debug/Release, Linux GCC 12 RelWithDebInfo, Linux Clang 11 Debug and Linux Clang 15 Release all passed.
+- The new deterministic/adversarial contract covers source reincarnation after freelist reuse, distinct equal-byte sources, repeated-source physical positions, packed-state mutation, light-class/group transitions, new PF-010 epochs, inherited portal epochs with foreign-group fallback, unsupported revision-zero fallback, mapped-buffer recreation, range bounds, and epoch/revision wrap/exhaustion fail-closed behavior.
+- No GTX 1650 SUPER workload was launched in this pass. This is **not PF-017 acceptance** and PR #74 remains draft/unmerged. The remaining gate is final-source physical A/B performance plus image/state equivalence on the representative light-rich workload; if the benefit does not survive, the candidate must be restored/rejected rather than merged.
+- PF-019 / #36 remains blocked until PF-017 is accepted or receives a complete no-go disposition.
+
 ## Current implementation gate
 
 - **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
-- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. The second attempt found a light-only setup benefit, but both material hash indexes regressed and full light identity/lifetime acceptance is absent; see PF-017-MATERIAL-QUALIFICATION.md, PF-017-REUSE-RESEARCH.md and historical PF-017-PROFILING-NOTES.md.
+- **PHYSICAL GATE PENDING:** PF-017 / #34 has a completed material-lookup no-go and an off-GPU-qualified source-owned light-reuse candidate in draft PR #74. Source head `e028fd88b29aa2d0d82e4e04a09ea644bfa56670` passed all eight CI jobs in run 36047117838; final GTX 1650 SUPER A/B performance and image/state equivalence remain required before merge/acceptance.
 - **BLOCKED:** PF-019 / #36 on PF-017 acceptance; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 

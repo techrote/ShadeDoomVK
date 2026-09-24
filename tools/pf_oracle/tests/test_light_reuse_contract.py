@@ -24,6 +24,7 @@ class LightReuseContractTests(unittest.TestCase):
         cls.light_h = source("src/playsim/a_dynlight.h")
         cls.light_cpp = source("src/playsim/a_dynlight.cpp")
         cls.entrypoint = source("src/rendering/hwrenderer/hw_entrypoint.cpp")
+        cls.rendercontext_h = source("src/rendering/hwrenderer/scene/hw_rendercontext.h")
         cls.rs_h = source("src/common/rendering/vulkan/buffers/vk_rsbuffers.h")
         cls.rs_cpp = source("src/common/rendering/vulkan/buffers/vk_rsbuffers.cpp")
         cls.renderstate = source("src/common/rendering/vulkan/vk_renderstate.cpp")
@@ -51,6 +52,16 @@ class LightReuseContractTests(unittest.TestCase):
         self.assertLess(shadow, scope)
         self.assertLess(attenuation, scope)
         self.assertLess(scope, eye_loop)
+
+    def test_portal_recursion_inherits_epoch_but_foreign_group_records_fallback(self) -> None:
+        portal = self.rendercontext_h.split(
+            "inline HWRenderContext MakeHWPortalRenderContext", 1
+        )[1].split("}", 1)[0]
+        self.assertIn("context.epoch = parent.epoch", portal)
+        self.assertIn(
+            "!light->Sector || group != light->Sector->PortalGroup",
+            self.dyn_cpp,
+        )
 
     def test_qualified_domain_excludes_ambiguous_mutation_spaces(self) -> None:
         for token in [
@@ -87,6 +98,17 @@ class LightReuseContractTests(unittest.TestCase):
         self.assertNotIn("RevisionShadow.assign", begin_frame)
         self.assertIn("Lightbuffer.UploadIndex = 0", begin_frame)
         self.assertIn("Lightbuffer.DataIndex = 0", begin_frame)
+
+        # A VkRSBuffers reincarnation recreates the mapped storage and resets
+        # both shadows together; per-frame cursor reset deliberately does not.
+        self.assertIn(
+            "Lightbuffer.RevisionShadow.resize(Lightbuffer.Count, 0)",
+            self.rs_cpp,
+        )
+        self.assertIn(
+            "Lightbuffer.RangeShadowValid.resize(Lightbuffer.Count, 0)",
+            self.rs_cpp,
+        )
 
     def test_buffer_bounds_reject_range_index_equal_to_capacity(self) -> None:
         upload = self.renderstate.split(

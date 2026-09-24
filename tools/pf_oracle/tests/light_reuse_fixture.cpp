@@ -41,6 +41,15 @@ int main()
 	assert(bRevision1 != 0);
 	assert(bRevision1 != aRevision1);
 
+	// Repeated references to one source are safe only while the exact physical
+	// positions still carry that same source revision. Replacing either
+	// position with another equal-byte source must force a copy.
+	const uint64_t duplicatePrevious[] = { aRevision1, aRevision1 };
+	const uint64_t duplicateUnchanged[] = { aRevision1, aRevision1 };
+	const uint64_t duplicateReplaced[] = { aRevision1, bRevision1 };
+	assert(HWLightUploadClassCanReuse(duplicateUnchanged, duplicatePrevious, 2));
+	assert(!HWLightUploadClassCanReuse(duplicateReplaced, duplicatePrevious, 2));
+
 	context.End(epoch1);
 	const uint64_t epoch2 = context.Begin(2);
 	assert(epoch2 == 2);
