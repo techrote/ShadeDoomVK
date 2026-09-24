@@ -1,7 +1,7 @@
 # Material and shader contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 hash lookup deferred after profiling
+Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 node/flat hash lookups rejected after physical profiling
 Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
 
 ## Current material model
@@ -145,3 +145,5 @@ Accepted master retained the per-material linear descriptor-variant scan after p
 6. Custom semantic identity includes the original custom authoring slot; compact binding position alone is not semantic identity.
 7. Height/POM remains outside PF-008/PF-013.
 8. PF-013 roughness-zero safety must not become an implicit PBR calibration or roughness-floor policy.
+
+The second PF-017 attempt exercised published Champions translations with 15-17 variants per material. Node and flat canonical keys (resolved clamp/remap, global shader fields, indexed mode and indexed RedIsAlpha, scoped by VkMaterial owner) matched the linear oracle but regressed measured lookup time by 94.8% and 36.8%. Both prototypes were restored. A high maximum variant count alone does not justify hashing; PF-003 retirement and PF-008/PF-013 boundaries remain unchanged. See [PF-017-REUSE-RESEARCH.md](../PF-017-REUSE-RESEARCH.md).

@@ -110,13 +110,13 @@ Owner: PF-016.
 
 ## 18. GPU light buffer notes lack of deduplication
 
-LightBufferSSO retains contiguous per-consumer light arrays. PF-017 profiling on accepted master 66b09a872b9d45b496a27c1bf1406d8a74606cd2 found 49,473 references to 217 packed records in a dense frame, but exact whole-range/subrange reuse saved only 2.40%. A frame-local per-record hash plus shader indirection cut mapped writes 94.24% yet increased representative S: Setup median 133.25% across five alternating pairs. The prototype was restored. Source identity is absent from FDynLightData; future sharing must prove logical order/class/lifetime and measured benefit. See PF-017-PROFILING-NOTES.md.
+LightBufferSSO retains contiguous per-consumer light arrays. PF-017 profiling on accepted master 66b09a872b9d45b496a27c1bf1406d8a74606cd2 found 49,473 references to 217 packed records in a dense frame, but exact whole-range/subrange reuse saved only 2.40%. A frame-local per-record hash plus shader indirection cut mapped writes 94.24% yet increased representative S: Setup median 133.25% across five alternating pairs. The prototype was restored. Source identity is absent from accepted FDynLightData; future sharing must prove logical order/class/lifetime and measured benefit. The second source-owned revision/temporal-write prototype avoids those hashes/fetches and improves setup 6.83%, but is not intra-frame physical compaction and has incomplete identity/lifetime acceptance. It was restored. See PF-017-PROFILING-NOTES.md and [PF-017-REUSE-RESEARCH.md](../PF-017-REUSE-RESEARCH.md).
 
 Owner: PF-017.
 
 ## 19. Material descriptor variants use linear search
 
-VkMaterial::GetDescriptorEntry still scans cached variants. PF-017 physical profiling found at most one variant per material in the dense light scene and three in DBP37 MAP04; 38,572 of 42,285 DBP37 lookups scanned a one-entry cache. No representative hash benefit was established, so the accepted linear path remains. Any future key must preserve PF-013 palette/RedIsAlpha, translation, clamp and global-shader distinctions and PF-003 retirement. See PF-017-PROFILING-NOTES.md.
+VkMaterial::GetDescriptorEntry still scans cached variants. PF-017 physical profiling found at most one variant per material in the dense light scene and three in DBP37 MAP04; 38,572 of 42,285 DBP37 lookups scanned a one-entry cache. A second Champions workload reaches 15-17 variants, but node/flat hash lookups are 94.8%/36.8% slower than the same executable's accepted scan despite zero observed oracle mismatches. Both were restored; the accepted linear path remains. See [PF-017-REUSE-RESEARCH.md](../PF-017-REUSE-RESEARCH.md). Any future key must preserve PF-013 palette/RedIsAlpha, translation, clamp and global-shader distinctions and PF-003 retirement. See PF-017-PROFILING-NOTES.md.
 
 Owner: PF-017.
 

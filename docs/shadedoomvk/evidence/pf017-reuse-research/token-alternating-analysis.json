@@ -1,0 +1,152 @@
+{
+  "pairs": [
+    {
+      "pair": 1,
+      "baseline-prod": {
+        "all": 17.872,
+        "render": 0.51,
+        "setup": 3.764,
+        "portal": 0.0,
+        "drawcalls": 0.174,
+        "postprocess": 0.075,
+        "finish": 13.466,
+        "sprite_setup": 3.71
+      },
+      "token-prod": {
+        "all": 17.724,
+        "render": 0.54,
+        "setup": 3.519,
+        "portal": 0.0,
+        "drawcalls": 0.177,
+        "postprocess": 0.104,
+        "finish": 13.493,
+        "sprite_setup": 3.451
+      },
+      "image_exact": true
+    },
+    {
+      "pair": 2,
+      "baseline-prod": {
+        "all": 17.888,
+        "render": 0.571,
+        "setup": 3.633,
+        "portal": 0.0,
+        "drawcalls": 0.172,
+        "postprocess": 0.085,
+        "finish": 13.546,
+        "sprite_setup": 3.573
+      },
+      "token-prod": {
+        "all": 17.784,
+        "render": 0.608,
+        "setup": 3.551,
+        "portal": 0.0,
+        "drawcalls": 0.183,
+        "postprocess": 0.105,
+        "finish": 13.453,
+        "sprite_setup": 3.48
+      },
+      "image_exact": true
+    },
+    {
+      "pair": 3,
+      "baseline-prod": {
+        "all": 17.741,
+        "render": 0.456,
+        "setup": 3.565,
+        "portal": 0.0,
+        "drawcalls": 0.175,
+        "postprocess": 0.101,
+        "finish": 13.565,
+        "sprite_setup": 3.527
+      },
+      "token-prod": {
+        "all": 17.694,
+        "render": 0.595,
+        "setup": 3.379,
+        "portal": 0.0,
+        "drawcalls": 0.179,
+        "postprocess": 0.104,
+        "finish": 13.557,
+        "sprite_setup": 3.318
+      },
+      "image_exact": true
+    },
+    {
+      "pair": 4,
+      "baseline-prod": {
+        "all": 17.934,
+        "render": 0.53,
+        "setup": 3.713,
+        "portal": 0.0,
+        "drawcalls": 0.173,
+        "postprocess": 0.088,
+        "finish": 13.544,
+        "sprite_setup": 3.66
+      },
+      "token-prod": {
+        "all": 17.648,
+        "render": 0.517,
+        "setup": 3.445,
+        "portal": 0.0,
+        "drawcalls": 0.176,
+        "postprocess": 0.08,
+        "finish": 13.55,
+        "sprite_setup": 3.386
+      },
+      "image_exact": true
+    },
+    {
+      "pair": 5,
+      "baseline-prod": {
+        "all": 18.012,
+        "render": 0.543,
+        "setup": 3.727,
+        "portal": 0.0,
+        "drawcalls": 0.176,
+        "postprocess": 0.071,
+        "finish": 13.622,
+        "sprite_setup": 3.679
+      },
+      "token-prod": {
+        "all": 17.779,
+        "render": 0.567,
+        "setup": 3.478,
+        "portal": 0.0,
+        "drawcalls": 0.178,
+        "postprocess": 0.129,
+        "finish": 13.552,
+        "sprite_setup": 3.41
+      },
+      "image_exact": true
+    }
+  ],
+  "medians": {
+    "baseline-prod": {
+      "all": 17.888,
+      "render": 0.53,
+      "setup": 3.713,
+      "portal": 0.0,
+      "drawcalls": 0.174,
+      "postprocess": 0.085,
+      "finish": 13.546,
+      "sprite_setup": 3.66
+    },
+    "token-prod": {
+      "all": 17.724,
+      "render": 0.567,
+      "setup": 3.478,
+      "portal": 0.0,
+      "drawcalls": 0.178,
+      "postprocess": 0.104,
+      "finish": 13.55,
+      "sprite_setup": 3.41
+    }
+  },
+  "baseline-prod_exe_sha256": "9774ea1ff5de82c4537d548735bd20c4429bc239caa9e1fecf58b0e345d2be6a",
+  "token-prod_exe_sha256": "86f92ba90955300d15807ec13a61f8ad0158b4f640ffe41cbe0dc4bb12991b31",
+  "accepted_master_at_attempt_start": "b5fcab0a4c4847607007a6562c74b28c6e46a4d3",
+  "baseline_binary_build_commit": "66b09a872b9d45b496a27c1bf1406d8a74606cd2",
+  "candidate_source": "b5fcab0a4c4847607007a6562c74b28c6e46a4d3 plus token-reuse-production.patch",
+  "source_relation": "Accepted master differs from baseline binary build commit only in six documentation files; renderer/shader/test sources are identical."
+}

@@ -21,7 +21,7 @@ Primary files:
 
 `FDynLightInfo` carries position/color, spot direction/angles, radius, linearity, strength, soft-shadow radius, shadow index and flags. Light arrays distinguish normal, subtractive and additive classes.
 
-PF-017 physical profiling did not change this representation. On a dense PF-016 fixture, 49,473 logical consumer records repeated only 217 packed states, but a frame-local hash plus shader indirection increased representative production S: Setup median from 3.615 to 8.432 ms across five alternating pairs. The prototype was restored; the contiguous accepted upload and shader range semantics remain authoritative. See PF-017-PROFILING-NOTES.md for hashes, limits and the unresolved performance gate.
+PF-017 physical profiling did not change this representation. On a dense PF-016 fixture, 49,473 logical consumer records repeated only 217 packed states, but a frame-local hash plus shader indirection increased representative production S: Setup median from 3.615 to 8.432 ms across five alternating pairs. The prototype was restored; the contiguous accepted upload and shader range semantics remain authoritative. See PF-017-PROFILING-NOTES.md for hashes, limits and the unresolved performance gate. A second source-owned packing-revision/temporal-write prototype avoids per-reference hashes and shader indirection, improves dense S: Setup 6.83% and reduces mapped writes 13.83% with observed exact state/images. It retains all physical record positions and has incomplete source-ID/lifetime acceptance; no renderer change was retained. See [PF-017-REUSE-RESEARCH.md](../PF-017-REUSE-RESEARCH.md).
 
 ## Actor/sprite lighting modes
 

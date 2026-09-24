@@ -1,0 +1,27 @@
+{
+  "baseline-diag-moving-mode1-oracle": {
+    "exit": 0,
+    "driver_events": [],
+    "buffer_sha256": "ddcd07a656cdd85ec7a02abce06672a0a4ec46906ab7dacd3324073336c9377c"
+  },
+  "token-diag-moving-mode1-oracle": {
+    "exit": 0,
+    "driver_events": [],
+    "calls": 41665,
+    "hits": 16934,
+    "fallback": 22043,
+    "packing_mismatches": 0,
+    "buffer_sha256": "ddcd07a656cdd85ec7a02abce06672a0a4ec46906ab7dacd3324073336c9377c"
+  },
+  "token-diag-static-mode0-fallback": {
+    "exit": 0,
+    "driver_events": [],
+    "calls": 36737,
+    "hits": 13350,
+    "fallback": 20699,
+    "packing_mismatches": 0,
+    "buffer_sha256": "118212915e0e0d4c570d403f001abc55dd43ae72ff0f9e869947629e65019a64"
+  },
+  "moving_buffer_exact": true,
+  "moving_image_exact": true
+}

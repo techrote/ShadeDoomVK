@@ -1,0 +1,42 @@
+{
+  "frames": [
+    100,
+    299
+  ],
+  "upload_medians": [
+    840.0,
+    49473.0,
+    3422000.0,
+    67024.0,
+    254000.0,
+    840.0,
+    42775.0,
+    6698.0,
+    0.0
+  ],
+  "packing_medians": [
+    49688.0,
+    36077.0,
+    13263.0,
+    0.0
+  ],
+  "buffer_exact": true,
+  "buffer_sha256": "6e273052f80d9b179fd069ec0c5532cf0193b08eec2674f323736b65465df5c0",
+  "upload_columns": [
+    "calls",
+    "refs",
+    "bytes",
+    "comparisonBytes",
+    "fullUploadNs",
+    "unqualifiedClassFallbacks",
+    "normal",
+    "sub",
+    "add"
+  ],
+  "packing_columns": [
+    "calls",
+    "hits",
+    "fallback",
+    "mismatches"
+  ]
+}
