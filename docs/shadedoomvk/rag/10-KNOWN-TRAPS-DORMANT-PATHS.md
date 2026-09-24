@@ -110,13 +110,13 @@ Owner: PF-016.
 
 ## 18. GPU light buffer notes lack of deduplication
 
-`LightBufferSSO` has a source TODO to deduplicate individual lights. Preserve surface/range semantics if implementing it.
+LightBufferSSO retains contiguous per-consumer light arrays. PF-017 profiling on accepted master 66b09a872b9d45b496a27c1bf1406d8a74606cd2 found 49,473 references to 217 packed records in a dense frame, but exact whole-range/subrange reuse saved only 2.40%. A frame-local per-record hash plus shader indirection cut mapped writes 94.24% yet increased representative S: Setup median 133.25% across five alternating pairs. The prototype was restored. Source identity is absent from FDynLightData; future sharing must prove logical order/class/lifetime and measured benefit. See PF-017-PROFILING-NOTES.md.
 
 Owner: PF-017.
 
 ## 19. Material descriptor variants use linear search
 
-`VkMaterial::GetDescriptorEntry` scans cached variants. Rich translated/global-shader material use can increase this cost.
+VkMaterial::GetDescriptorEntry still scans cached variants. PF-017 physical profiling found at most one variant per material in the dense light scene and three in DBP37 MAP04; 38,572 of 42,285 DBP37 lookups scanned a one-entry cache. No representative hash benefit was established, so the accepted linear path remains. Any future key must preserve PF-013 palette/RedIsAlpha, translation, clamp and global-shader distinctions and PF-003 retirement. See PF-017-PROFILING-NOTES.md.
 
 Owner: PF-017.
 
