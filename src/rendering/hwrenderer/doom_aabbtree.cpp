@@ -24,6 +24,7 @@
 
 #include "doom_aabbtree.h"
 #include "g_levellocals.h"
+#include <chrono>
 
 using namespace hwrenderer;
 
@@ -76,6 +77,11 @@ DoomLevelAABBTree::DoomLevelAABBTree(FLevelLocals *lev)
 		treeline.dx = (float)line.v2->fX() - treeline.x;
 		treeline.dy = (float)line.v2->fY() - treeline.y;
 	}
+
+	// PF-018: topology is frozen after construction. Cache the leaf/parent
+	// relationships once; moving polyobject lines only change AABBs and line
+	// coordinates, not the tree edges.
+	RebuildNodePathCache();
 }
 
 bool DoomLevelAABBTree::GenerateTree(const FVector2 *centroids, bool dynamicsubtree)
@@ -115,6 +121,7 @@ bool DoomLevelAABBTree::GenerateTree(const FVector2 *centroids, bool dynamicsubt
 
 bool DoomLevelAABBTree::Update()
 {
+	const auto updateStart = std::chrono::steady_clock::now();
 	bool modified = false;
 	for (unsigned int i = dynamicStartLine; i < mapLines.Size(); i++)
 	{
@@ -155,9 +162,17 @@ bool DoomLevelAABBTree::Update()
 
 				treelines[i] = treeline;
 				modified = true;
+				UpdateStats.MovedLines++;
+				UpdateStats.UpdatedNodes += path.Size();
 			}
 		}
 	}
+
+	UpdateStats.UpdateCalls++;
+	const auto elapsed = std::chrono::duration_cast<std::chrono::nanoseconds>(
+		std::chrono::steady_clock::now() - updateStart).count();
+	if (elapsed > 0)
+		UpdateStats.UpdateNanoseconds += static_cast<uint64_t>(elapsed);
 	return modified;
 }
 

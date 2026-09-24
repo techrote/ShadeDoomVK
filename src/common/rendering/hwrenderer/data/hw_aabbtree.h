@@ -3,6 +3,7 @@
 
 #include "tarray.h"
 #include "vectors.h"
+#include <cstdint>
 
 namespace hwrenderer
 {
@@ -35,6 +36,19 @@ struct AABBTreeLine
 	float dx, dy;
 };
 
+// PF-018: observational counters for the dynamic AABB update path. These do
+// not participate in tree/query semantics and are intentionally cumulative.
+struct AABBTreeUpdateStats
+{
+	uint64_t PathCacheBuilds = 0;
+	uint64_t PathLookups = 0;
+	uint64_t PathParentSteps = 0;
+	uint64_t UpdateCalls = 0;
+	uint64_t MovedLines = 0;
+	uint64_t UpdatedNodes = 0;
+	uint64_t UpdateNanoseconds = 0;
+};
+
 class LevelAABBTree
 {
 protected:
@@ -46,6 +60,13 @@ protected:
 
 	int dynamicStartNode = 0;
 	int dynamicStartLine = 0;
+
+	// PF-018: topology is immutable after construction for the current Doom
+	// implementation. Cache leaf->parent relationships once so moving lines do
+	// not recursively rediscover the same route through the complete tree.
+	TArray<int> nodeParents;
+	TArray<int> lineLeafNodes;
+	AABBTreeUpdateStats UpdateStats;
 
 public:
 	// Shoot a ray from ray_start to ray_end and return the closest hit as a fractional value between 0 and 1. Returns 1 if no line was hit.
@@ -63,6 +84,7 @@ public:
 	size_t DynamicLinesSize() const { return (treelines.Size() - dynamicStartLine) * sizeof(AABBTreeLine); }
 	size_t DynamicNodesOffset() const { return dynamicStartNode * sizeof(AABBTreeNode); }
 	size_t DynamicLinesOffset() const { return dynamicStartLine * sizeof(AABBTreeLine); }
+	const AABBTreeUpdateStats &GetUpdateStats() const { return UpdateStats; }
 
 	virtual bool Update() = 0;
 
@@ -70,6 +92,9 @@ public:
 
 protected:
 
+	// Rebuild after any topology mutation. Bounding-box-only updates do not
+	// invalidate the cache.
+	void RebuildNodePathCache();
 	TArray<int> FindNodePath(unsigned int line, unsigned int node);
 	// Test if a ray overlaps an AABB node or not
 	bool OverlapRayAABB(const DVector2 &ray_start2d, const DVector2 &ray_end2d, const AABBTreeNode &node);

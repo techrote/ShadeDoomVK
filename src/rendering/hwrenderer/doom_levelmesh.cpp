@@ -17,6 +17,8 @@
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_walldispatcher.h"
 #include "hwrenderer/scene/hw_flatdispatcher.h"
+#include "doom_aabbtree.h"
+#include <chrono>
 #include <unordered_map>
 
 #include "vm.h"
@@ -101,6 +103,8 @@ static int InvalidateLightmap()
 
 cycle_t ProcessLevelMesh;
 cycle_t DynamicBLASTime;
+static uint64_t PF018ProcessNanoseconds = 0;
+static uint64_t PF018ProcessFrames = 0;
 
 ADD_STAT(lightmap)
 {
@@ -155,6 +159,64 @@ ADD_STAT(levelmesh)
 	else
 		out = "No level mesh";
 	return out;
+}
+
+// PF-018 cumulative diagnostics. Sampling the command outside the timed
+// interval avoids console output in the hot allocator/AABB paths.
+static void PrintPF018AllocatorStats(const char* name, const MeshBufferAllocator& allocator)
+{
+	const auto& stats = allocator.GetStats();
+	Printf("PF018_ALLOC name=%s allocations=%llu frees=%llu searches=%llu candidates=%llu grows=%llu grown_elements=%llu total=%d used=%d free=%d largest_free=%d free_ranges=%llu peak_total=%llu invalid_allocations=%llu invalid_frees=%llu small_allocs=%llu indexed_allocs=%llu peak_free_ranges=%llu index_inserts=%llu index_erases=%llu\n",
+		name,
+		static_cast<unsigned long long>(stats.Allocations),
+		static_cast<unsigned long long>(stats.Frees),
+		static_cast<unsigned long long>(stats.AllocationSearches),
+		static_cast<unsigned long long>(stats.AllocationCandidates),
+		static_cast<unsigned long long>(stats.Grows),
+		static_cast<unsigned long long>(stats.GrownElements),
+		allocator.GetTotalSize(), allocator.GetUsedSize(), allocator.GetFreeSize(),
+		allocator.GetLargestFreeRange(),
+		static_cast<unsigned long long>(allocator.GetFreeRanges().size()),
+		static_cast<unsigned long long>(stats.PeakTotalSize),
+		static_cast<unsigned long long>(stats.InvalidAllocations),
+		static_cast<unsigned long long>(stats.InvalidFrees),
+		static_cast<unsigned long long>(stats.SmallRangeAllocations),
+		static_cast<unsigned long long>(stats.IndexedAllocations),
+		static_cast<unsigned long long>(stats.PeakFreeRanges),
+		static_cast<unsigned long long>(stats.IndexInsertions),
+		static_cast<unsigned long long>(stats.IndexErasures));
+}
+
+CCMD(pf018stats)
+{
+	if (!RequireLevelMesh()) return;
+	Printf("PF018_PROCESS frames=%llu total_ns=%llu\n",
+		static_cast<unsigned long long>(PF018ProcessFrames),
+		static_cast<unsigned long long>(PF018ProcessNanoseconds));
+	const auto& free = level.levelMesh->FreeLists;
+	PrintPF018AllocatorStats("vertex", free.Vertex);
+	PrintPF018AllocatorStats("index", free.Index);
+	PrintPF018AllocatorStats("uniforms", free.Uniforms);
+	PrintPF018AllocatorStats("surface", free.Surface);
+	PrintPF018AllocatorStats("light", free.Light);
+	PrintPF018AllocatorStats("light_index", free.LightIndex);
+
+	if (level.aabbTree)
+	{
+		const auto& stats = level.aabbTree->GetUpdateStats();
+		Printf("PF018_AABB cache_builds=%llu path_lookups=%llu parent_steps=%llu update_calls=%llu moved_lines=%llu updated_nodes=%llu update_ns=%llu\n",
+			static_cast<unsigned long long>(stats.PathCacheBuilds),
+			static_cast<unsigned long long>(stats.PathLookups),
+			static_cast<unsigned long long>(stats.PathParentSteps),
+			static_cast<unsigned long long>(stats.UpdateCalls),
+			static_cast<unsigned long long>(stats.MovedLines),
+			static_cast<unsigned long long>(stats.UpdatedNodes),
+			static_cast<unsigned long long>(stats.UpdateNanoseconds));
+	}
+	else
+	{
+		Printf("PF018_AABB unavailable=1\n");
+	}
 }
 
 CCMD(dumplevelmesh)
@@ -671,6 +733,7 @@ void DoomLevelMesh::AddSidesToDrawLists(const TArray<int>& sides, LevelMeshDrawL
 
 void DoomLevelMesh::BeginFrame(FLevelLocals& doomMap)
 {
+	const auto pf018ProcessStart = std::chrono::steady_clock::now();
 	LastFrameStats = CurFrameStats;
 	CurFrameStats = Stats();
 
@@ -781,6 +844,9 @@ void DoomLevelMesh::BeginFrame(FLevelLocals& doomMap)
 	r_viewpoint.camera = oldcamera;
 
 	ProcessLevelMesh.Unclock();
+	PF018ProcessNanoseconds += static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
+		std::chrono::steady_clock::now() - pf018ProcessStart).count());
+	PF018ProcessFrames++;
 }
 
 void DoomLevelMesh::UploadDynLights(FLevelLocals& doomMap)

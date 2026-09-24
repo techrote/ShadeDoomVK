@@ -26,30 +26,65 @@
 namespace hwrenderer
 {
 
+void LevelAABBTree::RebuildNodePathCache()
+{
+	nodeParents.Resize(nodes.Size());
+	for (unsigned int i = 0; i < nodeParents.Size(); i++)
+		nodeParents[i] = -1;
+
+	lineLeafNodes.Resize(treelines.Size());
+	for (unsigned int i = 0; i < lineLeafNodes.Size(); i++)
+		lineLeafNodes[i] = -1;
+
+	for (unsigned int i = 0; i < nodes.Size(); i++)
+	{
+		const AABBTreeNode &n = nodes[i];
+		if (n.line_index >= 0)
+		{
+			if ((unsigned int)n.line_index < lineLeafNodes.Size())
+				lineLeafNodes[n.line_index] = (int)i;
+		}
+		else
+		{
+			if (n.left_node >= 0 && (unsigned int)n.left_node < nodeParents.Size())
+				nodeParents[n.left_node] = (int)i;
+			if (n.right_node >= 0 && (unsigned int)n.right_node < nodeParents.Size())
+				nodeParents[n.right_node] = (int)i;
+		}
+	}
+
+	UpdateStats.PathCacheBuilds++;
+}
+
 TArray<int> LevelAABBTree::FindNodePath(unsigned int line, unsigned int node)
 {
-	const AABBTreeNode &n = nodes[node];
+	UpdateStats.PathLookups++;
 
-	if (n.aabb_left > treelines[line].x || n.aabb_right < treelines[line].x ||
-		n.aabb_top > treelines[line].y || n.aabb_bottom < treelines[line].y)
-	{
-		return {};
-	}
+	// Lazy rebuild protects future callers that construct a different subclass
+	// without explicitly priming the cache. Current Doom trees build it once
+	// after topology construction and only mutate bounding boxes thereafter.
+	if (nodeParents.Size() != nodes.Size() || lineLeafNodes.Size() != treelines.Size())
+		RebuildNodePathCache();
 
 	TArray<int> path;
-	if (n.line_index == -1)
-	{
-		path = FindNodePath(line, n.left_node);
-		if (path.Size() == 0)
-			path = FindNodePath(line, n.right_node);
+	if (line >= lineLeafNodes.Size() || node >= nodes.Size())
+		return path;
 
-		if (path.Size())
-			path.Push(node);
-	}
-	else if (n.line_index == (int)line)
+	int current = lineLeafNodes[line];
+	while (current >= 0 && (unsigned int)current < nodes.Size())
 	{
-		path.Push(node);
+		path.Push(current);
+		if ((unsigned int)current == node)
+			return path;
+
+		current = nodeParents[current];
+		UpdateStats.PathParentSteps++;
 	}
+
+	// The requested node is not an ancestor of this line. Preserve the old
+	// recursive routine's empty-result contract rather than returning a partial
+	// route.
+	path.Clear();
 	return path;
 }
 

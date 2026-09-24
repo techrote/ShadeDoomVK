@@ -1,6 +1,9 @@
 #include "hw_levelmesh_contract.h"
 #include <cassert>
+#include <climits>
+#include <cstdint>
 #include <iostream>
+#include <vector>
 
 int main()
 {
@@ -49,6 +52,137 @@ int main()
 	allocator.Reset(8);
 	assert(!allocator.ValidateIdentity(beforeResetId));
 
+	// PF-018: equal-size fragmented holes resolve deterministically by address.
+	// The small-list best-fit path examines both holes without tree-node churn.
+	MeshBufferAllocator fragmented;
+	fragmented.Reset(32);
+	const int f0 = fragmented.Alloc(4);
+	const int f1 = fragmented.Alloc(8);
+	const int f2 = fragmented.Alloc(4);
+	const int f3 = fragmented.Alloc(8);
+	const int f4 = fragmented.Alloc(8);
+	assert(f0 == 0 && f1 == 4 && f2 == 12 && f3 == 16 && f4 == 24);
+	assert(fragmented.Free(f1, 8));
+	assert(fragmented.Free(f3, 8));
+	const auto searchesBefore = fragmented.GetStats().AllocationSearches;
+	const auto candidatesBefore = fragmented.GetStats().AllocationCandidates;
+	const int bestFit = fragmented.Alloc(6);
+	assert(bestFit == 4);
+	assert(fragmented.GetStats().AllocationSearches == searchesBefore + 1);
+	assert(fragmented.GetStats().AllocationCandidates == candidatesBefore + 2);
+	assert(fragmented.GetLargestFreeRange() == 8);
+	assert(fragmented.GetFreeSize() == 10);
+
+	// Coalescing after a best-fit split must keep both indexes synchronized.
+	assert(fragmented.Free(bestFit, 6));
+	assert(fragmented.Free(f0, 4));
+	assert(fragmented.Free(f2, 4));
+	assert(fragmented.Free(f4, 8));
+	assert(fragmented.GetUsedSize() == 0);
+	assert(fragmented.GetFreeRanges().size() == 1);
+	assert(fragmented.GetLargestFreeRange() == 32);
+
+	// Exercise the small-list/index transition in both directions. Every
+	// request must pick the exact smallest fitting span, then lowest address.
+	MeshBufferAllocator hybrid;
+	hybrid.Reset(256);
+	std::vector<int> blocks;
+	for (int i = 0; i < 32; i++)
+	{
+		const int position = hybrid.Alloc(8);
+		assert(position == i * 8);
+		blocks.push_back(position);
+	}
+	for (int i = 0; i < 32; i += 2)
+		assert(hybrid.Free(blocks[i], 8));
+	assert(hybrid.GetFreeRanges().size() == 16);
+	std::vector<int> small;
+	for (int i = 0; i < 32; i++)
+	{
+		int expected = -1;
+		int bestSize = INT_MAX;
+		for (const auto& range : hybrid.GetFreeRanges())
+		{
+			if (range.Count() >= 4 && range.Count() < bestSize)
+			{
+				expected = range.Start;
+				bestSize = range.Count();
+			}
+		}
+		const int position = hybrid.Alloc(4);
+		assert(position == expected);
+		small.push_back(position);
+	}
+	assert(hybrid.GetFreeRanges().empty());
+	for (int i = 1; i < 32; i += 2)
+		assert(hybrid.Free(blocks[i], 8));
+	for (int position : small)
+		assert(hybrid.Free(position, 4));
+	assert(hybrid.GetFreeRanges().size() == 1);
+	assert(hybrid.GetLargestFreeRange() == 256);
+	assert(hybrid.GetStats().InvalidAllocations == 0);
+	assert(hybrid.GetStats().InvalidFrees == 0);
+	assert(hybrid.GetStats().IndexedAllocations > 0);
+	assert(hybrid.GetStats().SmallRangeAllocations > 0);
+	assert(hybrid.GetStats().PeakFreeRanges >= 16);
+
+	// Repeatedly split and coalesce around the index threshold. Compare each
+	// allocation with an independent best-fit choice from the free spans.
+	MeshBufferAllocator stressed;
+	stressed.Reset(512);
+	std::vector<std::pair<int, int>> live;
+	uint32_t randomState = 0x18aabb01u;
+	for (int step = 0; step < 10000; ++step)
+	{
+		randomState = randomState * 1664525u + 1013904223u;
+		if (!live.empty() && (randomState & 3u) == 0)
+		{
+			const size_t index = (randomState >> 8) % live.size();
+			assert(stressed.Free(live[index].first, live[index].second));
+			live.erase(live.begin() + index);
+			continue;
+		}
+		const int count = 1 + static_cast<int>((randomState >> 16) % 12);
+		int expected = -1;
+		int bestSize = INT_MAX;
+		for (const auto& range : stressed.GetFreeRanges())
+			if (range.Count() >= count && range.Count() < bestSize)
+			{
+				expected = range.Start;
+				bestSize = range.Count();
+			}
+		const int position = stressed.Alloc(count);
+		assert(position == expected);
+		if (position >= 0)
+			live.push_back({ position, count });
+	}
+	for (const auto& block : live)
+		assert(stressed.Free(block.first, block.second));
+	assert(stressed.GetFreeRanges().size() == 1);
+	assert(stressed.GetLargestFreeRange() == 512);
+	assert(stressed.GetStats().InvalidAllocations == 0);
+	assert(stressed.GetStats().InvalidFrees == 0);
+	assert(stressed.GetStats().IndexedAllocations > 0);
+	assert(stressed.GetStats().SmallRangeAllocations > 0);
+
+	// PF-018 bounded growth: small misses grow by 50%, large misses grow only
+	// by the demanded amount, and pre-existing allocation identities do not move.
+	MeshBufferAllocator growth;
+	growth.Reset(16);
+	const int stable = growth.Alloc(16);
+	const auto stableIdentity = growth.CurrentIdentity(stable);
+	growth.Grow(1);
+	assert(growth.GetTotalSize() == 24);
+	assert(growth.ValidateIdentity(stableIdentity));
+	assert(growth.GetStats().GrownElements == 8);
+	assert(growth.Alloc(4) == 16);
+	growth.Grow(40);
+	assert(growth.GetTotalSize() == 64);
+	assert(growth.ValidateIdentity(stableIdentity));
+	assert(growth.GetStats().Grows == 2);
+	assert(growth.GetStats().GrownElements == 48);
+	assert(growth.GetStats().PeakTotalSize == 64);
+
 	// Adversarial BLAS partition boundaries. The pre-PF-004 CPU path used
 	// floor(End / chunk), so {1,2} incorrectly selected zero partitions.
 	assert(MeshBufferChunkStart({ 1, 2 }, 8) == 0);
@@ -82,6 +216,6 @@ int main()
 	assert(reset.Portals == geometry.Portals + 1);
 	assert(reset.LightmapProbe == geometry.LightmapProbe + 1);
 
-	std::cout << "PF-004 LevelMesh allocator/mutation fixture passed\n";
+	std::cout << "PF-004/PF-018 LevelMesh allocator/mutation fixture passed\n";
 	return 0;
 }
