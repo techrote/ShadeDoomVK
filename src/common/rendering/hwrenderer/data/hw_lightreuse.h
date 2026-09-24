@@ -104,14 +104,14 @@ bool HWTryReuseLightPackingSnapshot(
 	return true;
 }
 
-template<class PackedRecord>
+template<class PackedRecord, class RevisionClock>
 uint64_t HWCommitLightPackingSnapshot(
 	HWLightPackingSnapshot<PackedRecord>& snapshot,
 	const PackedRecord& packed,
 	int lightClass,
 	int portalGroup,
 	uint64_t contextEpoch,
-	HWLightPackingRevisionClock& clock)
+	RevisionClock& clock)
 {
 	const bool changed =
 		!snapshot.valid ||
