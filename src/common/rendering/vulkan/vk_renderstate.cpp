@@ -641,30 +641,75 @@ void VkRenderState::SetTextureMatrix(const VSMatrix& matrix)
 
 int VkRenderState::UploadLights(const FDynLightData& data)
 {
-	// All meaasurements here are in vec4's.
-	int size0 = data.arrays[LIGHTARRAY_NORMAL].Size();
-	int size1 = data.arrays[LIGHTARRAY_SUBTRACTIVE].Size();
-	int size2 = data.arrays[LIGHTARRAY_ADDITIVE].Size();
-	int totalsize = size0 + size1 + size2;
-
-	int indexindex = mRSBuffers->Lightbuffer.UploadIndex;
-	int dataindex = mRSBuffers->Lightbuffer.DataIndex;
-
-	if((indexindex <= mRSBuffers->Lightbuffer.Count) && (dataindex + totalsize <= mRSBuffers->Lightbuffer.Count))
+	// All measurements here are in vec4s.
+	const int sizes[3] =
 	{
-		mRSBuffers->Lightbuffer.UploadIndex++;
+		(int)data.arrays[LIGHTARRAY_NORMAL].Size(),
+		(int)data.arrays[LIGHTARRAY_SUBTRACTIVE].Size(),
+		(int)data.arrays[LIGHTARRAY_ADDITIVE].Size()
+	};
+	const int totalsize = sizes[0] + sizes[1] + sizes[2];
 
-		mRSBuffers->Lightbuffer.DataIndex += totalsize;
+	auto& lightbuffer = mRSBuffers->Lightbuffer;
+	const int indexindex = lightbuffer.UploadIndex;
+	const int dataindex = lightbuffer.DataIndex;
 
-		int parmcnt[] = { dataindex, dataindex + size0, dataindex + size0 + size1, dataindex + size0 + size1 + size2 };
+	if ((indexindex < lightbuffer.Count) && (dataindex + totalsize <= lightbuffer.Count))
+	{
+		lightbuffer.UploadIndex++;
+		lightbuffer.DataIndex += totalsize;
 
-		int* indexptr = ((int*)mRSBuffers->Lightbuffer.Data) + (indexindex * 4);
-		memcpy(indexptr, parmcnt, sizeof(int) * 4);
+		const std::array<int, 4> parmcnt =
+		{
+			dataindex,
+			dataindex + sizes[0],
+			dataindex + sizes[0] + sizes[1],
+			dataindex + totalsize
+		};
 
-		FDynLightInfo* dataptr = ((FDynLightInfo*)(((int*)mRSBuffers->Lightbuffer.Data) + (mRSBuffers->Lightbuffer.Count * 4))) + dataindex;
-		memcpy(dataptr, &data.arrays[0][0], size0 * sizeof(FDynLightInfo));
-		memcpy(dataptr + size0, &data.arrays[1][0], size1 * sizeof(FDynLightInfo));
-		memcpy(dataptr + (size0 + size1), &data.arrays[2][0], size2 * sizeof(FDynLightInfo));
+		int* indexptr = ((int*)lightbuffer.Data) + (indexindex * 4);
+		if (!lightbuffer.RangeShadowValid[indexindex] ||
+			lightbuffer.RangeShadow[indexindex] != parmcnt)
+		{
+			memcpy(indexptr, parmcnt.data(), sizeof(int) * 4);
+			lightbuffer.RangeShadow[indexindex] = parmcnt;
+			lightbuffer.RangeShadowValid[indexindex] = 1;
+		}
+
+		FDynLightInfo* dataptr =
+			((FDynLightInfo*)(((int*)lightbuffer.Data) + (lightbuffer.Count * 4))) + dataindex;
+
+		int classOffset = 0;
+		for (int lightClass = 0; lightClass < 3; ++lightClass)
+		{
+			const int count = sizes[lightClass];
+			if (count == 0)
+				continue;
+
+			const bool revisionsAligned =
+				(int)data.revisions[lightClass].Size() == count;
+			const uint64_t* revisions =
+				revisionsAligned ? data.revisions[lightClass].Data() : nullptr;
+			uint64_t* previousRevisions =
+				lightbuffer.RevisionShadow.data() + dataindex + classOffset;
+
+			const bool canReuse =
+				revisionsAligned &&
+				HWLightUploadClassCanReuse(revisions, previousRevisions, (size_t)count);
+
+			if (!canReuse)
+			{
+				memcpy(
+					dataptr + classOffset,
+					data.arrays[lightClass].Data(),
+					(size_t)count * sizeof(FDynLightInfo));
+
+				for (int i = 0; i < count; ++i)
+					previousRevisions[i] = revisionsAligned ? revisions[i] : 0;
+			}
+
+			classOffset += count;
+		}
 
 		return indexindex;
 	}
