@@ -1,0 +1,105 @@
+{
+  "measurement": "timed resolved-key lookup; oracle outside timer; frames > 1000 with >8-variant lookups",
+  "pairs": [
+    {
+      "pair": 1,
+      "linear": {
+        "frames": 735,
+        "large_ns_per_call": 44.52732817264837,
+        "large_calls": 21315,
+        "total_calls": 1310167,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      },
+      "hash": {
+        "frames": 720,
+        "large_ns_per_call": 97.11685823754789,
+        "large_calls": 20880,
+        "total_calls": 1282684,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      }
+    },
+    {
+      "pair": 2,
+      "linear": {
+        "frames": 735,
+        "large_ns_per_call": 47.74571897724607,
+        "large_calls": 21315,
+        "total_calls": 1309651,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      },
+      "hash": {
+        "frames": 722,
+        "large_ns_per_call": 100.32954436908969,
+        "large_calls": 20938,
+        "total_calls": 1286346,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      }
+    },
+    {
+      "pair": 3,
+      "linear": {
+        "frames": 720,
+        "large_ns_per_call": 46.326628352490424,
+        "large_calls": 20880,
+        "total_calls": 1282932,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      },
+      "hash": {
+        "frames": 735,
+        "large_ns_per_call": 90.98287590898428,
+        "large_calls": 21315,
+        "total_calls": 1310917,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      }
+    },
+    {
+      "pair": 4,
+      "linear": {
+        "frames": 723,
+        "large_ns_per_call": 46.711499022273095,
+        "large_calls": 20967,
+        "total_calls": 1288564,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      },
+      "hash": {
+        "frames": 726,
+        "large_ns_per_call": 86.84810487318325,
+        "large_calls": 21054,
+        "total_calls": 1294170,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      }
+    },
+    {
+      "pair": 5,
+      "linear": {
+        "frames": 708,
+        "large_ns_per_call": 49.53243717124489,
+        "large_calls": 20532,
+        "total_calls": 1260945,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      },
+      "hash": {
+        "frames": 730,
+        "large_ns_per_call": 90.95890410958904,
+        "large_calls": 21170,
+        "total_calls": 1301078,
+        "oracle_errors_all_frames": 0,
+        "max_variants": 15
+      }
+    }
+  ],
+  "median_large_ns_per_call": {
+    "linear": 46.711499022273095,
+    "hash": 90.98287590898428
+  },
+  "exe_sha256": "da9324d7f5b3029ab660520f43444b7b38c1f3542abd84c0c11a4b0b5cbf6283"
+}

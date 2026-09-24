@@ -1,6 +1,6 @@
 # PF-017 profiling and rejected prototype — 2026-09-24
 
-Status: **NOT ACCEPTED.** Dependencies are satisfied, but no PF-017 renderer change has a measured benefit under the issue's exact-output contract. Issue #34 remains open and PF-019 remains blocked. Experimental renderer/shader changes were restored to accepted master source before this record.
+Status: **NOT ACCEPTED.** This is the historical first-attempt record. The [second attempt](PF-017-REUSE-RESEARCH.md) found a light-only setup benefit without per-reference hashing or shader indirection, but both material hash lookups regressed and complete acceptance remains absent. Issue #34 remains open and PF-019 remains blocked. Experimental renderer/shader changes were restored before each evidence submission.
 
 ## Exact source and environment
 

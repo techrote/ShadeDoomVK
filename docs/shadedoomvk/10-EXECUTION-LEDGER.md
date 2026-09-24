@@ -274,10 +274,18 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - The dense fixture had at most one material variant per material; DBP37 MAP04 had at most three. A hashed descriptor lookup therefore lacks measured benefit and was not implemented. Optional default-resource sharing was not attempted.
 - Canonical PF-017-PROFILING-NOTES.md records exact binaries, source patch hashes, commands, local raw evidence, limitations and next action. No PF-017 acceptance/CI/merge gate is claimed. PF-019 remains blocked on PF-017.
 
+### 2026-09-24 - PF-017 second attempt: light benefit observed, material indexes rejected
+
+- Accepted master b5fcab0a4c4847607007a6562c74b28c6e46a4d3 is renderer-identical to baseline binary build 66b09a872b9d45b496a27c1bf1406d8a74606cd2. The second attempt used dedicated branch pf-017-range-reuse-profiling and preserved base/patch/header/binary identities; no experimental renderer commit is proposed for acceptance.
+- A source-owned packing-revision/temporal-write prototype avoids per-reference hashing and shader indirection. Five alternating production pairs improve S: Setup median 3.660 to 3.410 ms (-6.83%), all pairs winning and full images exact. Separate diagnostics show 13.83% fewer mapped bytes, byte-exact dense/moving checkpoint buffers and zero packing-oracle mismatches. Physical record layout is unchanged; complete source-ID/lifetime/adversarial proof remains required.
+- Real Champions MAP08 content reaches 15 variants (17 using the mod's all-champions setting). Same-executable comparisons show node hash 46.71 to 90.98 ns/call (+94.8%, five pairs) and flat hash 46.20 to 63.21 ns/call (+36.8%, three pairs). Every pair regresses; direct linear-oracle mismatches are zero. Neither hash is retained.
+- All experimental renderer changes were restored. PF-017-REUSE-RESEARCH.md and checked-in analyses record exact evidence, content identity, runtime limits, an inaccessible optional larger-variant asset and next action. No general whole-frame speedup, intra-frame physical compaction or descriptor saving is claimed.
+- PF-017 / #34 remains not accepted and open. A promising light subset does not satisfy full scope. PF-019 / #36 remains blocked and was not started. The evidence-record PR/check/merge gate is separate from implementation acceptance.
+
 ## Current implementation gate
 
 - **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
-- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. Its measured hash/indirection prototype regressed; see PF-017-PROFILING-NOTES.md.
+- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. The second attempt found a light-only setup benefit, but both material hash indexes regressed and full light identity/lifetime acceptance is absent; see PF-017-REUSE-RESEARCH.md and historical PF-017-PROFILING-NOTES.md.
 - **BLOCKED:** PF-019 / #36 on PF-017 acceptance; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
