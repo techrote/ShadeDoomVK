@@ -258,11 +258,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - The targeted GLDEFS-light derivative exercises moving AABB lines. Direct fixed-tic RayTest input/fraction records match 1,630/1,630, production paused world pixels and oriented faces match, and five warm AABB pairs give 310.378 versus 159.175 ns per moved line median (−48.72%). Whole BeginFrame diagnostic medians are 20.129 versus 20.082 ms/frame (−0.23%, mixed pairs), so no material whole-path speedup is claimed.
 - The original fixture, PF-004 ownership/generation/span and PF-018 fragmentation/best-fit/bounded-growth stress are covered by the compiled deterministic oracle. All eight checks passed on reconciled source head in CI run 36000665523. Doom2-only MAP01 launched on both revisions; an uncapped DBP37 MAP01 startup hang/TDR occurred on baseline and is a separate compatibility issue. One mouse-overlapped test-only capacity timeout is preserved/excluded and a later pair is clean. DBP50 was not retested.
 - `PF-018-RUNTIME-EVIDENCE.md` records exact hashes, commands, raw logs and limitations. This is **not** the completed issue gate: final documentation-head CI, merge and post-merge `master` verification are still required. PF-019 remains blocked on PF-017 and PF-018.
+
+### 2026-09-24 — PF-018 accepted and merged
+
+- PF-018 / #35 implementation and evidence PR #68 passed the unchanged acceptance gate. Runtime-tested implementation `7d390a3fb2dbda65688933ab5f868092afec5a41` compared with PF-016-accepted `master@4f6df9843e742c59defcf4ce1a5686271b2b5c75`; final documentation head `84fc7b527e9bcb94dd01a1b9041ee8f02f5548cf` changed only canonical evidence. All eight exact-head checks passed in CI run 36005308547.
+- Merge commit `8ad883ada35b80dbf750462dbb4c36b5edf38893` has the exact final PR tree and was verified as local and remote `master`. All eight post-merge checks passed on that exact merge head in CI run 36006321198.
+- Frozen contract: PF-004 ownership/generation/span checks and stationary live ranges remain authoritative; best-fit lookup and bounded growth reduce main LevelMesh array capacity on representative DBP37 MAP04; cached immutable leaf→parent AABB traversal preserves direct fixed-tic queries, production geometry and paused world pixels on the moving GLDEFS-light fixture. No dirty-upload batching or whole-frame CPU speedup is claimed. `PF-018-RUNTIME-EVIDENCE.md` retains measurements, raw-log paths and exclusions.
+- PF-018 is complete. PF-019 / #36 now waits only on PF-017 / #34; PF-020 / #37 still waits on unfinished PF issues. The baseline DBP37 MAP01 startup TDR, prior DBP50 crashes and one excluded mouse-overlapped diagnostic timeout do not enter the PF-018 benefit claim. DBP37 MAP01/DBP50 compatibility remains separate work.
+
 ## Current implementation gate
 
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33.
-- **READY:** PF-017 / #34, PF-018 / #35. PF-017 became dependency-ready after PF-016 acceptance; no PF-017 implementation is included in that acceptance work.
-- **BLOCKED:** PF-019 / #36 on PF-017 and PF-018; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
+- **READY:** PF-017 / #34. PF-018 is accepted; no PF-017 implementation is included in the PF-018 acceptance work.
+- **BLOCKED:** PF-019 / #36 on PF-017; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
 ## Future implementation ledger rule
