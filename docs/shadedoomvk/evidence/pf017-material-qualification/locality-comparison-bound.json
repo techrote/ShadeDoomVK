@@ -1,0 +1,64 @@
+{
+  "dbp37-default-profile": {
+    "other": {
+      "calls": 1497745,
+      "linear_comparisons": 1709571,
+      "repeat": 1430872,
+      "hypothetical_last_hit_comparisons": 1564846
+    },
+    "sustained-small": {
+      "calls": 957125,
+      "linear_comparisons": 1101320,
+      "repeat": 901015,
+      "hypothetical_last_hit_comparisons": 1013235
+    }
+  },
+  "sunlust24-default-profile": {
+    "other": {
+      "calls": 595370,
+      "linear_comparisons": 619066,
+      "repeat": 588369,
+      "hypothetical_last_hit_comparisons": 603046
+    },
+    "sustained-small": {
+      "calls": 128013,
+      "linear_comparisons": 129475,
+      "repeat": 126969,
+      "hypothetical_last_hit_comparisons": 129057
+    }
+  },
+  "sunlust30-arena-profile": {
+    "other": {
+      "calls": 449415,
+      "linear_comparisons": 592197,
+      "repeat": 408128,
+      "hypothetical_last_hit_comparisons": 550766
+    },
+    "sustained-small": {
+      "calls": 223540,
+      "linear_comparisons": 268462,
+      "repeat": 210820,
+      "hypothetical_last_hit_comparisons": 243429
+    },
+    "sustained-large": {
+      "calls": 14229,
+      "linear_comparisons": 73760,
+      "repeat": 3426,
+      "hypothetical_last_hit_comparisons": 75093
+    }
+  },
+  "sunlust30-default-profile": {
+    "other": {
+      "calls": 679926,
+      "linear_comparisons": 742907,
+      "repeat": 649967,
+      "hypothetical_last_hit_comparisons": 713139
+    },
+    "sustained-small": {
+      "calls": 63861,
+      "linear_comparisons": 84372,
+      "repeat": 52629,
+      "hypothetical_last_hit_comparisons": 75429
+    }
+  }
+}

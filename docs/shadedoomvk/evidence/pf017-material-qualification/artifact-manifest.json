@@ -1,0 +1,812 @@
+{
+  "local_root": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924",
+  "baseline_sha": "84bbbacbc2cea8568e78ac2f0e059ffc5608a897",
+  "candidate_sha": null,
+  "files": [
+    {
+      "path": "analyse.py",
+      "bytes": 3048,
+      "sha256": "24c76d9f153a12b79d078adf5db1c16d87fcca18d8b5599dc63d67026a2a3df4"
+    },
+    {
+      "path": "baseline-build.log",
+      "bytes": 2542,
+      "sha256": "b2c04819ca10dc2dff4c40774e20cacdf573e43e113b82f88c46da400061ffba"
+    },
+    {
+      "path": "baseline-prod/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "path": "baseline-prod/fm_banks/GENMIDI.GS.wopl",
+      "bytes": 118767,
+      "sha256": "3e90b1e13007fb97c29d4a6f819519f1065892495c259961913317402a779514"
+    },
+    {
+      "path": "baseline-prod/fm_banks/gs-by-papiezak-and-sneakernets.wopn",
+      "bytes": 274864,
+      "sha256": "488327960374b95dcc302e5586622a62fc21bdda7082f92a40258002ed267f40"
+    },
+    {
+      "path": "baseline-prod/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "path": "baseline-prod/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "path": "baseline-prod/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "path": "baseline-prod/soundfonts/vkdoom.sf2",
+      "bytes": 3299098,
+      "sha256": "a9058609b07c1f0e0c1f420e76c2e80ba78136e6173e836caab51ffb13e552f1"
+    },
+    {
+      "path": "baseline-prod/vkdoom-stripped.pdb",
+      "bytes": 12046336,
+      "sha256": "4f945f5a16711e98fa13d5d2a4ca71eb8235bed4044882aa597669a9979acd0a"
+    },
+    {
+      "path": "baseline-prod/vkdoom.exe",
+      "bytes": 12053504,
+      "sha256": "402296ee1d439f2973bb040d3de87e500786497da2de8461d66f9703e64403c6"
+    },
+    {
+      "path": "baseline-prod/vkdoom.pdb",
+      "bytes": 77565952,
+      "sha256": "90423917e19cedc52df9b2971a3999b285e3e79fbeaf29f792d81a11cefe501f"
+    },
+    {
+      "path": "baseline-prod/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "path": "baseline-prod/vktool-stripped.pdb",
+      "bytes": 12046336,
+      "sha256": "9b84b2471e7ffd7bacfcfa49716474a74c3dd11c6eee025b4493522e54430a89"
+    },
+    {
+      "path": "baseline-prod/vktool.exe",
+      "bytes": 12050432,
+      "sha256": "98a08f49142f0b9678ce41f7b529c604de0b378e02e1dabc7f108e54ecb762dd"
+    },
+    {
+      "path": "baseline-prod/vktool.pdb",
+      "bytes": 77549568,
+      "sha256": "665876a2a2a748022655d9552d607ff7c9231e1f64178b7e434f50b6ec84ab52"
+    },
+    {
+      "path": "baseline-prod/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "path": "configuration-audit.json",
+      "bytes": 1792,
+      "sha256": "ce84a6bf1e79b28545fbaed396ac343d85d272e2811f0d1dc2cd4a7489b3f8e0"
+    },
+    {
+      "path": "contract-tests/build/CMakeFiles/4.4.3/CompilerIdCXX/CompilerIdCXX.exe",
+      "bytes": 15360,
+      "sha256": "59019d721b745afc063822c0a0bf9983bf80dd28049426b7475d522d7a65e5a0"
+    },
+    {
+      "path": "contract-tests/build/RelWithDebInfo/bindless_allocator.exe",
+      "bytes": 74240,
+      "sha256": "962c37864d11d68a50342a98d0e404ceb700183085b73933d27c7b0846bde868"
+    },
+    {
+      "path": "contract-tests/build/RelWithDebInfo/material_correctness.exe",
+      "bytes": 69120,
+      "sha256": "a106fb26d5a6914e36e686c96613ab7faeb2e311e7b6523b4c56cc9bb551104f"
+    },
+    {
+      "path": "contract-tests/build/RelWithDebInfo/material_layer_semantics.exe",
+      "bytes": 37376,
+      "sha256": "9dde393aad2812b524e80ef1bbb9b69f863cf5443b16c484ce976c077d47d6c8"
+    },
+    {
+      "path": "contract-tests/build/RelWithDebInfo/resource_generation.exe",
+      "bytes": 53760,
+      "sha256": "8ad68f6750092039fe4fec9a6e2f2428c8a848af7e3a0c24139f080df6f9395e"
+    },
+    {
+      "path": "contract-tests/build.log",
+      "bytes": 2309,
+      "sha256": "0c202caa0e1ed6cbe1aba3605bf812d1c300a207719b73fb4ffd06adab0d9acf"
+    },
+    {
+      "path": "contract-tests/CMakeLists.txt",
+      "bytes": 612,
+      "sha256": "9b1e1f8a6b66354658c55e0a7e6b715a2fd7d827ccf15fb97bb99b93857ca827"
+    },
+    {
+      "path": "contract-tests/configure.log",
+      "bytes": 634,
+      "sha256": "a3f61a4be966a9a6e051934e67c1851749e8520d2b9be4c867f29562140d55a7"
+    },
+    {
+      "path": "contract-tests/results.log",
+      "bytes": 117,
+      "sha256": "194f529f45022037298130ea1c58e4789063e51a4259ce74bb71014bd53401ea"
+    },
+    {
+      "path": "diagnostic/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "path": "diagnostic/fm_banks/GENMIDI.GS.wopl",
+      "bytes": 118767,
+      "sha256": "3e90b1e13007fb97c29d4a6f819519f1065892495c259961913317402a779514"
+    },
+    {
+      "path": "diagnostic/fm_banks/gs-by-papiezak-and-sneakernets.wopn",
+      "bytes": 274864,
+      "sha256": "488327960374b95dcc302e5586622a62fc21bdda7082f92a40258002ed267f40"
+    },
+    {
+      "path": "diagnostic/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "path": "diagnostic/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "path": "diagnostic/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "path": "diagnostic/soundfonts/vkdoom.sf2",
+      "bytes": 3299098,
+      "sha256": "a9058609b07c1f0e0c1f420e76c2e80ba78136e6173e836caab51ffb13e552f1"
+    },
+    {
+      "path": "diagnostic/vkdoom-stripped.pdb",
+      "bytes": 12046336,
+      "sha256": "8c528254582337cb098fd7f9f5150142ed3bc926955f2a7e016d121093716528"
+    },
+    {
+      "path": "diagnostic/vkdoom.exe",
+      "bytes": 12061184,
+      "sha256": "54bef07801c0b2a69c7ec46c04fb108259c2f5cee834e912bd8e7007da0335ec"
+    },
+    {
+      "path": "diagnostic/vkdoom.pdb",
+      "bytes": 77582336,
+      "sha256": "8ab04cc3d8336fcc2e0326894387b818f703d2a60f1843f528e5348e2878000c"
+    },
+    {
+      "path": "diagnostic/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "path": "diagnostic/vktool-stripped.pdb",
+      "bytes": 12046336,
+      "sha256": "9ef1e0b7a301071fa65fdd0e74d275290adc5ff066376604a181e41523e04a39"
+    },
+    {
+      "path": "diagnostic/vktool.exe",
+      "bytes": 12057088,
+      "sha256": "e76dcc7548c79eb6d313ab79825dd33b2f61d333d0a0b27271a08e0024013a68"
+    },
+    {
+      "path": "diagnostic/vktool.pdb",
+      "bytes": 77565952,
+      "sha256": "1c8cebd49a6af8f99a55fe9619028ea54f9ab052056b40bada90c946455faac9"
+    },
+    {
+      "path": "diagnostic/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "path": "diagnostic.patch",
+      "bytes": 6703,
+      "sha256": "bd110fb2aa16367a821e08f7ec1c2cc7addc85288501e2d645bbfeb015701e28"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/COPYING.txt",
+      "bytes": 1644,
+      "sha256": "7c62f2c520769c798774f416637eec4921e5f0aafdac1245ae7c8a8cf65fe102"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/CREDITS-MUSIC.txt",
+      "bytes": 9388,
+      "sha256": "2bb77677bbc4e587bba44ccb6514ee0f5397c7bb8ae9580b9188d3d6a57c0a31"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/CREDITS.txt",
+      "bytes": 15872,
+      "sha256": "72364333d295c598d75ef9553d3b3661ad0b60e27271c87b7637c74b2f46918a"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/freedoom-manual-en.pdf",
+      "bytes": 1333497,
+      "sha256": "95051bb49cedcd3e1f96ac48b78ed2c00d32441a404f62f880a51ee4ccb53d24"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/freedoom-manual-es.pdf",
+      "bytes": 1347608,
+      "sha256": "c1d1624c6b30f1ae012cc943518216f4d5466b101b2bf1dc84159ea1ea6b932f"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/freedoom-manual-fr.pdf",
+      "bytes": 1357453,
+      "sha256": "5335641472d6ce3a3e29d6ce5031d68617a69c59d177aad5a6eb9fdfb8e2c3f8"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/freedoom1.wad",
+      "bytes": 28795076,
+      "sha256": "7323bcc168c5a45ff10749b339960e98314740a734c30d4b9f3337001f9e703d"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/freedoom2.wad",
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/NEWS.html",
+      "bytes": 33827,
+      "sha256": "e188c80ae56bc2c10ddfb857b063f0dff60c08cdeb90b1b88f675222315d38f8"
+    },
+    {
+      "path": "freedoom/freedoom-0.13.0/README.html",
+      "bytes": 34415,
+      "sha256": "e4ec61d6449c4116e818c79e15e178dacbf78cee43a637b7c468f04d0c4390b0"
+    },
+    {
+      "path": "freedoom-0.13.0-CHECKSUM",
+      "bytes": 898,
+      "sha256": "01a627fa0c80b7446f4f435df6fffef8f354a9987b23870bc5ea5464ca82e977"
+    },
+    {
+      "path": "freedoom-0.13.0.zip",
+      "bytes": 24143781,
+      "sha256": "3f9b264f3e3ce503b4fb7f6bdcb1f419d93c7b546f4df3e874dd878db9688f59"
+    },
+    {
+      "path": "inspect_assets.py",
+      "bytes": 1189,
+      "sha256": "a16254ecf0604d91b5852dd42743ed5e8c58f8d9465c19b1af78a9ec6efdf2e2"
+    },
+    {
+      "path": "instrument.py",
+      "bytes": 5314,
+      "sha256": "a76063b2823414bb62a60f0cc9e15669ab62ee06d408228fb0c072b8d35fef8d"
+    },
+    {
+      "path": "locality-comparison-bound.json",
+      "bytes": 1649,
+      "sha256": "d2fd069e41d79de246903e0e78104c2125573a99f26e6a0ef29310b1b39c5f6f"
+    },
+    {
+      "path": "locality.py",
+      "bytes": 1133,
+      "sha256": "dcfa059d615b4c09127e1a96bb2fc0ee8e205df2630e39e3b8dd0ad36911cf35"
+    },
+    {
+      "path": "prepare_replay.py",
+      "bytes": 2153,
+      "sha256": "d09ef346c53267fe7a44b5de4abeec28d3d2f004eefa40021c0b0e096e8df68f"
+    },
+    {
+      "path": "prior-verification.json",
+      "bytes": 196,
+      "sha256": "01da8b45a8d7fc9e5d693dd4c6485e6666e871dc3a1a78a2a079f5cb6c3fdc0a"
+    },
+    {
+      "path": "probe-build.log",
+      "bytes": 3297,
+      "sha256": "0b6445557f69fa45b141f741a55b117923dc98c43731b6be73015a923b833a0a"
+    },
+    {
+      "path": "probe-phase-build.log",
+      "bytes": 3210,
+      "sha256": "fb59d568ec55c94ab49611d4b3382ceb3adf241d58173f5c9be800b1d01f1ee7"
+    },
+    {
+      "path": "protocol.json",
+      "bytes": 1421,
+      "sha256": "ef92ee37522794845032a832a45b782036625542b1880c772d2a9d205c924dd8"
+    },
+    {
+      "path": "replay/build/CMakeFiles/4.4.3/CompilerIdCXX/CompilerIdCXX.exe",
+      "bytes": 15360,
+      "sha256": "597f9699e2a9bf28e4f60821493538cda579dd4043c2e84164975f42f5be412e"
+    },
+    {
+      "path": "replay/build/RelWithDebInfo/replay.exe",
+      "bytes": 90112,
+      "sha256": "16542ffa19607121d0ad576024c074588b48244fd2d787c6a5c4dac026f0e739"
+    },
+    {
+      "path": "replay/build.log",
+      "bytes": 471,
+      "sha256": "6a38028489354974400a6ebc293a007648a7f0aa75664f110cfae5b1d0f40982"
+    },
+    {
+      "path": "replay/build2.log",
+      "bytes": 319,
+      "sha256": "b7897a5198c8c801663c2960e82e85243813f662dfb0fc70063e0d1eb3f839b8"
+    },
+    {
+      "path": "replay/CMakeLists.txt",
+      "bytes": 209,
+      "sha256": "e59c5efc25f3723cdb14fa1deb23227ca3ea92f12dbfbbd78e015a0d3a66a3a9"
+    },
+    {
+      "path": "replay/configure.log",
+      "bytes": 626,
+      "sha256": "12bd1f981c83ee63eba51207d120a07b78621b95b6ded5004e19c1a0a8e8429a"
+    },
+    {
+      "path": "replay/replay.cpp",
+      "bytes": 2847,
+      "sha256": "3d3f0b9bdfe1a670ccb5567a58e0db08b14dcf8d962ae731a19b8fc0b1a660ef"
+    },
+    {
+      "path": "replay-analysis.json",
+      "bytes": 5688,
+      "sha256": "f7a807b4a54b9f63caefb6689bd352dfaac84d494ace3bffed24b29bb8b90123"
+    },
+    {
+      "path": "report.py",
+      "bytes": 3878,
+      "sha256": "07614c7ba1eeb34d682ba353315413e2cebcf9c77d966993c6a28bb6b56ef9d0"
+    },
+    {
+      "path": "restored-build.log",
+      "bytes": 3297,
+      "sha256": "eb754c8a512758513bff719ed05a4617c36708c620a5cded16fbcad0a5f85386"
+    },
+    {
+      "path": "restored-oracle-a.json",
+      "bytes": 4365,
+      "sha256": "3fa893a309c279b0d0aa34681dfe24cc158fa4016ca790aa6e3facf8739c9760"
+    },
+    {
+      "path": "restored-oracle-b.json",
+      "bytes": 4365,
+      "sha256": "3fa893a309c279b0d0aa34681dfe24cc158fa4016ca790aa6e3facf8739c9760"
+    },
+    {
+      "path": "restored-unittest.log",
+      "bytes": 39364,
+      "sha256": "3df1c4902a8afc00cf1d27e40da1910699ae43d339a13e1a1761cfeae9727ae8"
+    },
+    {
+      "path": "run-initial.ps1",
+      "bytes": 4379,
+      "sha256": "5ba5374a8b7586509c234d136399a0e22d025c2633f9984b2ee1700536d5b415"
+    },
+    {
+      "path": "run.ps1",
+      "bytes": 4436,
+      "sha256": "581a353882fabed622350a4dcdc22c5df3e3626eafc9f50305dca70cb2865e48"
+    },
+    {
+      "path": "runs/dbp37-default-profile/analysis.json",
+      "bytes": 579255,
+      "sha256": "642086912e396b81f4a65a827a7d442807a2f831ca2f5226271a816ac7dabd60"
+    },
+    {
+      "path": "runs/dbp37-default-profile/config.ini",
+      "bytes": 16939,
+      "sha256": "d47b524e8e78baa0b51c276d6b654253ad07511970692dee882903785dde2d4f"
+    },
+    {
+      "path": "runs/dbp37-default-profile/lookup.bin",
+      "bytes": 196459600,
+      "sha256": "071501598a28779a0b5fc5e017957ce126223959b3fe0b61f59e6331f16f27b5"
+    },
+    {
+      "path": "runs/dbp37-default-profile/lookup.bin.events.csv",
+      "bytes": 331948,
+      "sha256": "59e0009f930eeb22ddb870804bfd2515646afdf1c1fe5e693024aef005c52911"
+    },
+    {
+      "path": "runs/dbp37-default-profile/lookup.bin.frames.csv",
+      "bytes": 116202,
+      "sha256": "c0fb591bec1bb6bae4c9c551181736cf280edc3ff6ea3cf97dadd90dc0287c44"
+    },
+    {
+      "path": "runs/dbp37-default-profile/phase1.png",
+      "bytes": 495511,
+      "sha256": "2b800d5d67eb13cbf5327f0c7db161eac412ec3a27d7760c889c8a4e8cf05404"
+    },
+    {
+      "path": "runs/dbp37-default-profile/phase2.png",
+      "bytes": 510084,
+      "sha256": "f4ddf6602172e3ad8033e43b96ef0226c12c5ce0e13cdbd1fae79390b1e424b0"
+    },
+    {
+      "path": "runs/dbp37-default-profile/phase4.png",
+      "bytes": 494890,
+      "sha256": "42560c8bff52b2cf326963d6349ab40dbd9d2ea6261c6b55cbccd38a74f77e1b"
+    },
+    {
+      "path": "runs/dbp37-default-profile/replay-timing.csv",
+      "bytes": 2414,
+      "sha256": "7c4835bd907774df11ae768f4a0cbbb7353717923b0872fa3093b2fa96cf7dd7"
+    },
+    {
+      "path": "runs/dbp37-default-profile/replay.bin",
+      "bytes": 137521720,
+      "sha256": "5aee351478bc766e250526f7a5d8a12756ca7a06db5a4e10a74dc2597d87386e"
+    },
+    {
+      "path": "runs/dbp37-default-profile/run.json",
+      "bytes": 2434,
+      "sha256": "b7f16b38798f18d89430d5ac639cd06a896ae7a87156898832631d8f7d686475"
+    },
+    {
+      "path": "runs/dbp37-default-profile/sequence.cfg",
+      "bytes": 883,
+      "sha256": "47b060b24853a18752cb6dd61846f91693f615cc78a87b7cc87ddeb038e96fdf"
+    },
+    {
+      "path": "runs/dbp37-default-profile/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/dbp37-default-profile/stdout.log",
+      "bytes": 2948,
+      "sha256": "fcf15fc51f12145739589842ca1ac779341e11b3609b9575f175456b5463ce4b"
+    },
+    {
+      "path": "runs/dbp37-default-profile/trace-validation.json",
+      "bytes": 633,
+      "sha256": "94198169f764857aa1f74360e8168699731d859c6b6a64672eb7bacd7a182277"
+    },
+    {
+      "path": "runs/dbp37-default-profile/work/benchmarks.txt",
+      "bytes": 699,
+      "sha256": "0a2262a08b3f4b75bf40dc0ee4a93b8ba725dbea434896bf7f0a0fca2c0c8bfa"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/config.ini",
+      "bytes": 15858,
+      "sha256": "3c7979d4f9c8a905f7eb63d337273b4d1a525a31a5d21ccf22f52c1ee7990edd"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/lookup.bin",
+      "bytes": 8843264,
+      "sha256": "b66fd73ea727886cb8ddaad67abcddd1fa9299eb74af48dcd9e5887b6df2d08a"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/lookup.bin.events.csv",
+      "bytes": 122719,
+      "sha256": "f573e03bdc574aa35772442553373d992d8a96bef69bcbdd26c214bcaceb7fe1"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/lookup.bin.frames.csv",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/phase1.png",
+      "bytes": 31431,
+      "sha256": "14b7a8817aae1e330889ed3f003d86916b95dccdbba95af06f9deeed2b24d269"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/run.json",
+      "bytes": 2877,
+      "sha256": "d03d37dd71b8b78df19e7c27b6eacbabba651b8149bc2d8b754518a03f44e4c2"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/sequence.cfg",
+      "bytes": 908,
+      "sha256": "74b3d8736cede22c52c1eb38f88b1bed8503e67f55ac65ba87cb69c7c4c9be10"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/stdout.log",
+      "bytes": 2767,
+      "sha256": "d347b8aef27366c1edddb632b0c29ae33beb34303508ce0b2e91fe4fc73209cb"
+    },
+    {
+      "path": "runs/sunlust24-arena-profile/work/benchmarks.txt",
+      "bytes": 685,
+      "sha256": "6581270e5afd5dca28e1864d842805a808681c289aa7212b29cd4b157b6a4d00"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/analysis.json",
+      "bytes": 27374,
+      "sha256": "6fde8588dbffab10e26275bd3be68d6c3c9d1a5cce59e402e84ae1d9f09a8370"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/config.ini",
+      "bytes": 16939,
+      "sha256": "075d79fb6bb25e08653da18e3b03eed9568c14bd0454053a621d748637d313e4"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/lookup.bin",
+      "bytes": 57927600,
+      "sha256": "d956f913424fe7be4cc2a0928840e6b6fe0831300adaa6bd7237449993708143"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/lookup.bin.events.csv",
+      "bytes": 324774,
+      "sha256": "6bd235911df8dd3524926ef3fa8f0ce0ad05476d8428706304b896c9145a7976"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/lookup.bin.frames.csv",
+      "bytes": 2299,
+      "sha256": "753a3b0d87a5f002a595c3c24e375c38c567bbbe69519fdf4471933d79a38d85"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/phase1.png",
+      "bytes": 855719,
+      "sha256": "40ca73be0d9c4d2662025da7aae0bb4452c9ab8729ee44aee4d4a14af0ae0cda"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/phase2.png",
+      "bytes": 773601,
+      "sha256": "6e0be8d54690b8590dcaf1b0a5fd7444ef1402b43fa62c29c69b899eacb380ff"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/phase4.png",
+      "bytes": 854926,
+      "sha256": "56329b9b327d8c8c95a543c500f9c46b1e60b07d39bde3f491c445996a8e6532"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/replay-timing.csv",
+      "bytes": 2311,
+      "sha256": "e26e61b71ac56a12db79dffa14a5810a9469d685813a8079c1de1c48452c1d88"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/replay.bin",
+      "bytes": 40549320,
+      "sha256": "a209cab2d8f0230f21aa9e3ea779e8bd149c5d2efad0968e31da463f57f72670"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/run.json",
+      "bytes": 2582,
+      "sha256": "dc70cdace697114df3b830b340f51ea708edb517beafae555465c52e490ab5d4"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/sequence.cfg",
+      "bytes": 899,
+      "sha256": "6674ba9b98b6d1ffc00f1ecb8a2f46216b214302c5a0d61637fd143ed5bd467d"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/stdout.log",
+      "bytes": 2906,
+      "sha256": "c015b37bc8a9e17a38f1a23a9cd10c3b7bb43624c0cdb04608a67d12ca3537c6"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/trace-validation.json",
+      "bytes": 626,
+      "sha256": "60030ed12bb28578b87e24bfea42ccc540dfe4071a4995cd482083c27594441b"
+    },
+    {
+      "path": "runs/sunlust24-default-profile/work/benchmarks.txt",
+      "bytes": 701,
+      "sha256": "3f219634d4d02c75ac676542c366abb08e9f4775d12d20d717fb987f1cfd1723"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/analysis.json",
+      "bytes": 41868,
+      "sha256": "171c2597757f9189a38fe4fdb3285765a75a252927586112f4caae8917774a7c"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/config.ini",
+      "bytes": 16939,
+      "sha256": "8cf1e2257bd22fbcbf8a526c94b1f07690b10ebb6fd7ec6892009f8916832b00"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/lookup.bin",
+      "bytes": 55143600,
+      "sha256": "361fb3d3f3ec824d88463d4387711edad10d4c1df0ed955c8e0c3c7f815be4cf"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/lookup.bin.events.csv",
+      "bytes": 679285,
+      "sha256": "16d994a199ebc6a4152ca09805c833ea318c0198bed4910ededd05527f1eaf6c"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/lookup.bin.frames.csv",
+      "bytes": 844,
+      "sha256": "bc8a89ec5152ceb1357352070b9b3f49adfba47a58ffc9abea0988d558c63a7b"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/phase1.png",
+      "bytes": 858762,
+      "sha256": "e0006a2859199e3dbe03e82c7473dbd01928de9e5d12d10d03034178e206f708"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/phase2.png",
+      "bytes": 236167,
+      "sha256": "427ab38686d4a4034fe079094f54cda5094f3ffb0ab6df20fc4146d09f59746e"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/phase4.png",
+      "bytes": 509140,
+      "sha256": "1d667912e413739d0ac91051dccc405ead2e2674ba885b5351595ee914b35b1d"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/replay-timing.csv",
+      "bytes": 2352,
+      "sha256": "619fcd452e77ba2d8678352a2a10af99ca0edd8bf7d1f4d934622b90f51d9460"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/replay.bin",
+      "bytes": 38600520,
+      "sha256": "8b6b99216156657b19c97dbf78cbb3cee8010967a5d7e2e84d5ae214dab14755"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/run.json",
+      "bytes": 2574,
+      "sha256": "e4b3a6bf8c75e706b0127eab4db59e8bccd85f8c7658fe65fc8a64e520181ab2"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/sequence.cfg",
+      "bytes": 904,
+      "sha256": "da88190a515d2fc7edfce91f56372c8dafac2fe711f0d8c520e16df125acd8d7"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/stdout.log",
+      "bytes": 2870,
+      "sha256": "bc627412e9cbdb6591a9f1e793439d10201dfb9537df210b11f731a9e9192069"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/trace-validation.json",
+      "bytes": 631,
+      "sha256": "45292f3270996eb13b27dc75bd2186d1650ff5cb2e52a9c079ed86a102260132"
+    },
+    {
+      "path": "runs/sunlust30-arena-profile/work/benchmarks.txt",
+      "bytes": 725,
+      "sha256": "ca8948e4515a10cf5af85b89c74e9ad50c7a5b970e3cf49b9883be866a2f99b5"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/analysis.json",
+      "bytes": 20393,
+      "sha256": "7dd8d6b217ed78e19adb6187b73e3a8fbfb5b6530635a1b824ad7a81c7b6b02f"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/config.ini",
+      "bytes": 16939,
+      "sha256": "9056a1595065f29e776a840023646e966103cd3d01ff85c542f67a8a74f40f40"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/lookup.bin",
+      "bytes": 59537840,
+      "sha256": "ace22817584cf166a8dca8d76b7f8a0ceb72ce5466c3f30053275e2027a079e4"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/lookup.bin.events.csv",
+      "bytes": 238763,
+      "sha256": "a07542c1f4f78d1b47a4640e2ea86251024bba4ca3274b67f6fda0d21c4b53ac"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/lookup.bin.frames.csv",
+      "bytes": 1063,
+      "sha256": "230ebadadf12621fe163ce488fafce47a379904647786cfb791d407f7cd8ead5"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/phase1.png",
+      "bytes": 509426,
+      "sha256": "d88147ee3d98aa158344a2fecc0a118d5a32191934ab6f7621d97ba77461dd01"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/phase2.png",
+      "bytes": 448215,
+      "sha256": "85fb883cc470cb32ae67d9d6c043263f9afdedf4387e06fef5fc9e88f96a86b1"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/phase4.png",
+      "bytes": 509147,
+      "sha256": "da947ca935e7d4a187fda279837b8c4409ad577e786fa3cb515e48adb49cde09"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/replay-timing.csv",
+      "bytes": 2291,
+      "sha256": "7399a57e8ac9ea1c974111c71d227314fb3066253b63d3fa5d6b693a2f17ba98"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/replay.bin",
+      "bytes": 41676488,
+      "sha256": "9437bded5756f536f4820be1ad1a9c12e7ecea6a6022f180817fe2fb4eee3ee6"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/run.json",
+      "bytes": 2582,
+      "sha256": "352354a14c777804d56f1a2a56f18af8dbba411bc385fefb3621a433ad2ebf44"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/sequence.cfg",
+      "bytes": 899,
+      "sha256": "dd194a88a5a4ab65d2a3d54df1e0e7424b70f2ec65f6f33d0930962e32efdac6"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/stdout.log",
+      "bytes": 2870,
+      "sha256": "e3339372befdbb4a7eabbd00aceb419628dc4f7983ece2848fe643ad17afea2d"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/trace-validation.json",
+      "bytes": 629,
+      "sha256": "6b7f055fe4cbe75394c18a9a2da698d7ee077ec769eb18832d1f76d8a36d2c41"
+    },
+    {
+      "path": "runs/sunlust30-default-profile/work/benchmarks.txt",
+      "bytes": 705,
+      "sha256": "059c458039608ae95b459b43cbaa0f1ac9fcba4d847271e05af03f6ad5204f86"
+    },
+    {
+      "path": "stock-iwad-and-driver.json",
+      "bytes": 914,
+      "sha256": "a24dcc89f749e58e86520e76e5ca538de6fcd3549ae05df732534bd84a435431"
+    },
+    {
+      "path": "STOP-LAUNCHES.txt",
+      "bytes": 101,
+      "sha256": "6fa4edd54f1bad849167c2d13e8ad57053a86074bf1313dd57d54028ec066f57"
+    },
+    {
+      "path": "sunlust/sunlust/sunlust.txt",
+      "bytes": 2952,
+      "sha256": "e5c3e93ee5b188a4263f6f3f04649c5713141c464f41fe78b1611088982b9b53"
+    },
+    {
+      "path": "sunlust/sunlust/sunlust.wad",
+      "bytes": 65966252,
+      "sha256": "6a90becf56040896fd2876a29f60a7a528d9802b081e0a1cc7d7cc65d546a964"
+    },
+    {
+      "path": "sunlust/sunlust/sunlust_extra_info.txt",
+      "bytes": 23602,
+      "sha256": "8cb41747aea2f95f735742a0f7504947bcd931eff945248f4f6f5eb2799c3bdb"
+    },
+    {
+      "path": "sunlust.zip",
+      "bytes": 24388254,
+      "sha256": "46bc1fe72abec5ad06739b91657f3ed2fed1fda967cd38e6faa4a1701999d64a"
+    },
+    {
+      "path": "vk_pf017probe.h",
+      "bytes": 2887,
+      "sha256": "707152a1da247851c7c7110799d002f507f23eda7474cc74927a4544e07da952"
+    },
+    {
+      "path": "write_docs.py",
+      "bytes": 23219,
+      "sha256": "f8999131d56135193498d4b5a72a0ecd825c6c7477850bd7522082ea34f7458c"
+    }
+  ]
+}

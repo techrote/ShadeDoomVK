@@ -282,10 +282,18 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - All experimental renderer changes were restored. PF-017-REUSE-RESEARCH.md and checked-in analyses record exact evidence, content identity, runtime limits, an inaccessible optional larger-variant asset and next action. No general whole-frame speedup, intra-frame physical compaction or descriptor saving is claimed.
 - PF-017 / #34 remains not accepted and open. A promising light subset does not satisfy full scope. PF-019 / #36 remains blocked and was not started. The evidence-record PR/check/merge gate is separate from implementation acceptance.
 
+### 2026-09-24 - PF-017 material workload qualification: no implementation retained
+
+- Baseline/local/remote master `84bbbacbc2cea8568e78ac2f0e059ffc5608a897`; dedicated branch `pf-017-material-qualification`. All 322 prior evidence hashes verified unchanged.
+- Published Sunlust/Champions with verified Freedoom produces median 1,201 expensive-cache lookups/frame in an authored MAP30 arena, but only about 47.13 microseconds/frame of estimated large-cache search. Starting cameras and DBP37 remain small-cache cases. The previous-hit hypothesis increases large-cache comparisons 1.81%.
+- A MAP24 arena timeout with NVIDIA error 153 stopped GPU launches. No production confirmation or candidate pairs exist. The user-supplied stock KEX Doom II IWAD was identified after the failure and remains unprofiled.
+- No material lookup candidate was implemented. Diagnostic source was archived/restored; accepted source rebuilt, deterministic oracle matched twice, and unchanged PF-003/PF-008/PF-013/generation fixtures passed with MSVC assertions. Evidence-record CI remains separate from renderer acceptance.
+- [PF-017-MATERIAL-QUALIFICATION.md](PF-017-MATERIAL-QUALIFICATION.md) and machine-readable evidence retain the no-go decision, every workload, exact identities, uncertainty and next action. Light work/full acceptance are unchanged; #34 remains open and PF-019 blocked.
+
 ## Current implementation gate
 
 - **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
-- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. The second attempt found a light-only setup benefit, but both material hash indexes regressed and full light identity/lifetime acceptance is absent; see PF-017-REUSE-RESEARCH.md and historical PF-017-PROFILING-NOTES.md.
+- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. The second attempt found a light-only setup benefit, but both material hash indexes regressed and full light identity/lifetime acceptance is absent; see PF-017-MATERIAL-QUALIFICATION.md, PF-017-REUSE-RESEARCH.md and historical PF-017-PROFILING-NOTES.md.
 - **BLOCKED:** PF-019 / #36 on PF-017 acceptance; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
