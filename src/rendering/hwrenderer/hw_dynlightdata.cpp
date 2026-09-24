@@ -41,6 +41,18 @@
 // If we want to share the array to avoid constant allocations it needs to be thread local unless it'd be littered with expensive synchronization.
 thread_local FDynLightData lightdata;
 
+//==========================================================================
+//
+// Light related CVARs
+//
+//==========================================================================
+
+// These shouldn't be called 'gl...' anymore...
+CVAR (Bool, gl_light_sprites, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+CVAR (Bool, gl_light_particles, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+
+CVAR (Bool, gl_light_shadow_nearest_dither, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+
 namespace
 {
 static_assert(sizeof(FDynLightInfo) == 80, "PF-017 packing snapshots require the accepted 80-byte FDynLightInfo layout");
@@ -199,18 +211,6 @@ uint64_t HWActiveDynLightPackingContext()
 {
 	return DynLightPackingContext.ActiveEpoch();
 }
-
-//==========================================================================
-//
-// Light related CVARs
-//
-//==========================================================================
-
-// These shouldn't be called 'gl...' anymore...
-CVAR (Bool, gl_light_sprites, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-CVAR (Bool, gl_light_particles, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
-
-CVAR (Bool, gl_light_shadow_nearest_dither, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 
 
 //==========================================================================
