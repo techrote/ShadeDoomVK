@@ -129,6 +129,10 @@ Swapchain recreation is a separate lifetime boundary. The old image-owned semaph
 
 Primary source paths are `src/common/rendering/vulkan/framebuffers/vk_framebuffer.*` and `src/common/rendering/vulkan/commands/vk_commandbuffer.cpp`. The PF oracle owns a source-contract regression that forbids the former singleton render-finished semaphore design. This correctness fix does not establish a causal link to the historical driver resets tracked by CFX.
 
+## Transfer uploads and buffer consumers
+
+Transfer copies into `VkHardwareBuffer` GPU-only buffers are published by `PublishTransferWrite` in `vk_hwbuffer.cpp`, using a buffer/range-scoped dependency from transfer write to index, vertex, shader or later-transfer consumer access. The separate `Flatbuffer.IndexBuffer` copy in `VkRenderState::SetShadowData` has a buffer-scoped transfer-write to index-read dependency before draw use. Same-queue submission order alone did not make these writes visible to `INDEX_READ` in synchronization validation. See `CFX-002-BUFFER-UPLOAD-SYNC.md` for #87 hardware evidence and the independent #86 swapchain-clear finding.
+
 ## Dynamic-light identity
 
 Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or LevelMesh light records. Actor light collection may deduplicate by light pointer and then upload copied structs. Shadow maps also assign a finite shadow index.

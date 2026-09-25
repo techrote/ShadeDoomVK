@@ -45,6 +45,7 @@ class HardwareBufferUploadSynchronizationContractTests(unittest.TestCase):
         cls.publish = function_body(cls.text, "void PublishTransferWrite(")
         cls.set_data = function_body(cls.text, "void VkHardwareBuffer::SetData(")
         cls.set_sub_data = function_body(cls.text, "void VkHardwareBuffer::SetSubData(")
+        cls.flatbuffer_upload = function_body(source("src/common/rendering/vulkan/vk_renderstate.cpp"), "void VkRenderState::SetShadowData(")
 
     def test_transfer_write_is_source_scope(self) -> None:
         self.assertIn(
@@ -136,6 +137,19 @@ class HardwareBufferUploadSynchronizationContractTests(unittest.TestCase):
         )
         self.assertLess(copy, publish)
 
+
+    def test_flatbuffer_index_upload_is_published(self) -> None:
+        copy = self.flatbuffer_upload.index(
+            "transferCommands->copyBuffer(staging.get(), buffer.get());"
+        )
+        barrier = self.flatbuffer_upload.index(
+            ".AddBuffer(buffer.get(), VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDEX_READ_BIT)"
+        )
+        self.assertLess(copy, barrier)
+        self.assertIn(
+            ".Execute(transferCommands, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);",
+            self.flatbuffer_upload,
+        )
 
 if __name__ == "__main__":
     unittest.main()
