@@ -1,0 +1,101 @@
+{
+  "schema": "cfx-002-integrated-safe-check-v1",
+  "integration_source_sha": "d05e7991f0fd08953f9707e22aa1fcae94552712",
+  "component_prs": [
+    84,
+    85
+  ],
+  "run_ids": {
+    "pr85_core": "cfx-20260925T061135Z-2f44dda90763",
+    "combined_sync": "cfx-20260925T061257Z-ba0e52633bfa",
+    "combined_core": "cfx-20260925T061442Z-55282f495ac2",
+    "new_off": "cfx-20260925T061718Z-b7824f93a392",
+    "new_capture": "cfx-20260925T061751Z-83c43ad3f7b9",
+    "new_repeat": "cfx-20260925T061814Z-6189006b3835"
+  },
+  "pr85_core": {
+    "mode_verified": true,
+    "map_reached": true,
+    "semaphore_vuid_count": 0
+  },
+  "combined_core": {
+    "mode_verified": true,
+    "map_reached": true,
+    "validation_error_count": 0
+  },
+  "combined_sync": {
+    "mode_verified": true,
+    "map_reached": true,
+    "mipmap_blit_hazard_count": 0,
+    "new_swapchain_clear_waw_count": 10,
+    "new_transfer_index_raw_count": 10,
+    "validation_error_count": 20
+  },
+  "new_triplet": {
+    "pass": false,
+    "state_assertions": {
+      "executable": true,
+      "source_patch": true,
+      "iwad": true,
+      "config": true,
+      "map": true,
+      "resolution": true,
+      "exit_zero": true,
+      "mesh_header": true,
+      "mesh_objects": true,
+      "mesh_faces": true,
+      "mesh_vertex_count": true,
+      "mesh_uv_count": true
+    },
+    "off_vs_capture": {
+      "same_dimensions": true,
+      "changed_pixels": 1572,
+      "changed_channels": 4576,
+      "max_channel_delta": 231,
+      "mean_absolute_channel_delta": 0.027835959558648635
+    },
+    "off_vs_off_repeat": {
+      "same_dimensions": true,
+      "changed_pixels": 57,
+      "changed_channels": 171,
+      "max_channel_delta": 31,
+      "mean_absolute_channel_delta": 0.00029872088695618107
+    }
+  },
+  "cross_build_off": {
+    "old_run_id": "cfx-20260925T052427Z-bcd26d97aaa4",
+    "new_run_id": "cfx-20260925T061814Z-6189006b3835",
+    "pixel_metrics": {
+      "same_dimensions": true,
+      "changed_pixels": 0,
+      "changed_channels": 0,
+      "max_channel_delta": 0,
+      "mean_absolute_channel_delta": 0.0
+    },
+    "state_assertions": {
+      "header": true,
+      "objects": true,
+      "faces": true,
+      "vertex_count": true,
+      "uv_count": true,
+      "map": true,
+      "config_sha256": true,
+      "actual_resolution": true,
+      "iwad": true
+    }
+  },
+  "driver_event_tokens": {
+    "pr85_core": false,
+    "combined_sync": false,
+    "combined_core": false,
+    "new_off": false,
+    "new_capture": false,
+    "new_repeat": false
+  },
+  "limits": [
+    "sync validation duplicate_message_limit caps each distinct hazard at 10",
+    "image fixture is one safe stationary MAP01 view",
+    "new off/capture/off triplet failed its strict within-triplet variance threshold; cross-build off pixels were exactly equal",
+    "no deliberate device loss or primary crash route was used"
+  ]
+}
