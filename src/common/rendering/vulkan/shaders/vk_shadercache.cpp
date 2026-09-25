@@ -1,5 +1,6 @@
 
 #include "vk_shadercache.h"
+#include <zvulkan/cfxtrace.h>
 #include "vulkan/vk_renderdevice.h"
 #include "sha1.h"
 #include "filesystem.h"
@@ -14,6 +15,7 @@ VkShaderCache::VkShaderCache(VulkanRenderDevice* fb) : fb(fb)
 	FString path = M_GetCachePath(true);
 	CreatePath(path.GetChars());
 	CacheFilename = path + "/shadercache.zdsc";
+	CfxTrace::Mark("shader-cache-path", CacheFilename.GetChars());
 
 	using namespace std::chrono;
 	LaunchTime = (uint64_t)(duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
@@ -43,7 +45,11 @@ std::vector<uint32_t> VkShaderCache::Compile(ShaderType type, const TArrayView<V
 	FString key = CalcSha1(type, sources);
 	std::vector<uint32_t> code = GetFromCache(key);
 	if (!code.empty())
+	{
+		CfxTrace::Mark("shader-cache-hit", key.GetChars());
 		return code;
+	}
+	CfxTrace::Mark("shader-compile-enter", key.GetChars());
 
 	// No match or out of date
 	// Compile it and store the dependencies:
@@ -58,6 +64,7 @@ std::vector<uint32_t> VkShaderCache::Compile(ShaderType type, const TArrayView<V
 	for (const VkShaderSource& source : sources)
 		compiler.AddSource(source.Name, source.Code);
 	cachedCompile.Code = compiler.Compile(fb->GetDevice());
+	CfxTrace::Mark("shader-compile-complete", key.GetChars());
 	cachedCompile.LastUsed = LaunchTime;
 	return AddToCache(key, std::move(cachedCompile));
 }

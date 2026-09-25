@@ -21,6 +21,7 @@
 */
 
 #include "vk_renderpass.h"
+#include <zvulkan/cfxtrace.h>
 #include "vk_pprenderpass.h"
 #include "vulkan/vk_renderstate.h"
 #include "vulkan/vk_renderdevice.h"
@@ -88,6 +89,7 @@ VkRenderPassManager::VkRenderPassManager(VulkanRenderDevice* fb) : fb(fb)
 	FString path = M_GetCachePath(true);
 	CreatePath(path.GetChars());
 	CacheFilename = path + "/pipelinecache.zdpc";
+	CfxTrace::Mark("pipeline-cache-path", CacheFilename.GetChars());
 
 	PipelineCacheBuilder builder;
 	builder.DebugName("PipelineCache");
@@ -611,6 +613,15 @@ std::unique_ptr<VulkanPipeline> VkRenderPassSetup::CreateWithStats(GraphicsPipel
 
 std::unique_ptr<GraphicsPipelineBuilder> VkRenderPassSetup::CreatePipeline(const VkPipelineKey& key, bool isUberShader, UniformStructHolder& Uniforms)
 {
+	if (CfxTrace::Enabled())
+	{
+		char detail[120];
+		std::snprintf(detail, sizeof(detail), "pipeline=0x%llx shader=0x%llx style=0x%x uber=%d",
+			static_cast<unsigned long long>(key.AsQWORD),
+			static_cast<unsigned long long>(key.ShaderKey.AsQWORD),
+			key.RenderStyle.AsDWORD, isUberShader ? 1 : 0);
+		CfxTrace::Mark("pipeline-first-use", detail);
+	}
 	VkShaderProgram* program = fb->GetShaderManager()->GetProgram(key.ShaderKey, isUberShader);
 
 	Uniforms.Clear();

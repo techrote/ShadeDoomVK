@@ -1,0 +1,82 @@
+# CFX-002 capture substrate (review record)
+
+Status: **partial #77, 2026-09-25**. Parent #75; provisional incident input is #76 / PR #80, specifically CFX-DBP37-MAP01-20260924. PR #80 was unmerged when this branch started. Nothing here selects a different primary or begins #78. The source branch starts at `8c9e92458d1b08d8ff00f7c7874441433e63e5a9` and is independent of the CFX-001 documentation change. Do not infer a repair or common cause from this capture work.
+
+## Current machine inventory
+
+Read-only queries used `vulkaninfo --summary` and full `vulkaninfo`, bundled headers, existing `C:\ShadeDoomVK\pf-local-evidence\driver-crash-forensics\` snapshots, Visual Studio installation files, installed-package records and WinDbg package metadata. The CFX-001 report in PR #80 contains historical event correlations; the entries here are **collection-time capability**, not historical per-process state.
+
+| Facility | Observed on GTX 1650 SUPER machine | CFX-002 path |
+|---|---|---|
+| Vulkan loader/runtime | `C:\Windows\System32\vulkan-1.dll` 1.4.341.0; device API 1.4.351, NVIDIA driver 616.92 / Vulkan driver 616.368.0, Windows build 26200 | `vulkaninfo-summary.txt` before launch, engine startup output after launch |
+| Vulkan SDK/header | No standalone Vulkan SDK directory/installation found; repository ZVulkan headers are Vulkan 1.3.270 and bundled volk | Build against bundled interface |
+| Core, sync, GPU-assisted validation | `vulkaninfo --summary` lists only `VK_LAYER_NV_optimus`, `VK_LAYER_NV_present`, `VK_LAYER_OBS_HOOK`; **no** `VK_LAYER_KHRONOS_validation` | Named modes are prepared in `tools/cfx_capture.py` and fail closed on this machine. Activation is **unverified/unavailable**, so #77 acceptance is not met |
+| Debug utils | `VK_EXT_debug_utils` revision 2 exposed | Diagnostic run enables it even without validation; object names and command-buffer labels are opt-in |
+| NV checkpoints | `VK_NV_device_diagnostic_checkpoints` revision 2 exposed and enabled in safe trace | Marker addresses persist in `VkCommandBufferManager`; on application-observed device loss, query graphics/present queue and log returned marker/stage. Safe completed-frame query returned zero entries; no device-loss retrieval was provoked |
+| EXT device fault | `VK_EXT_device_fault` revision 2, `deviceFault=true`, `deviceFaultVendorBinary=true`; existing ZVulkan enables/query path | On returned device loss, bound address/vendor arrays to 128 and binary to 32 MiB. Trace and optional `device-fault.bin` are saved before teardown |
+| KHR device fault | `VK_KHR_device_fault` revision 1 exposed by device, but **not represented by bundled 1.3.270 headers/volk** | No KHR call or mixing with EXT |
+| NVIDIA Aftermath | No Crash Dump Monitor, Nsight Graphics host, or Aftermath SDK found in installed-program entries or standard NVIDIA install roots | Unavailable. No global/whitelist policy or SDK integration changed. If a Monitor is installed later, use its application whitelist for this exact EXE and separate dump/shader-debug directories, pin EXE/PDB/PK3/SPIR-V identity, and verify its status before a primary run. Do not combine Monitor and SDK collection by default |
+| Process dump / debugger | `comsvcs.dll` MiniDump worked on a sleeping Python process; WinDbg app 1.2606.22001.0, `cdb.exe` 10.0.29617.1000 opened the 28,585,121-byte dump and printed thread stacks | Launcher captures `process.dmp` **before** a timeout kill and grants the owner read access; WinDbg thread-stack procedure below |
+| MSVC ASan | Visual Studio 2022 Build Tools, MSBuild 17.14.51, MSVC tools 14.44.35207; x64 `clang_rt.asan*` libraries present | A harmless `/fsanitize=address /Zi` program compiled and returned 0 after its runtime DLL directory was added to that process's PATH. Focused CPU harness only; no whole-renderer ASan build |
+| RenderDoc | No executable on PATH or registered installation found | Unavailable; a future last-good-frame aid only, not a crash dump substitute |
+
+The archived HKLM 64-bit `ImplicitLayers` entry points at `C:\ProgramData\obs-studio-hook\obs-vulkan64.json` with DWORD 0; the WOW64 registry has a 32-bit counterpart. This is an **implicit** layer. A CFX-002 safe traced `vkdoom.exe` loader log explicitly says `Insert instance layer "VK_LAYER_OBS_HOOK"` and `Inserted device layer`. It also inserts both NVIDIA layers. This establishes that OBS **loaded in that safe process**, not that it loaded historically or caused any incident. The launcher preserves `VK_LOADER_DEBUG=layer` output in `loader-layers.log` and extracts loaded names to the manifest. OBS was not disabled or uninstalled.
+
+## Diagnostic modes and activation gate
+
+`tools/cfx_capture.py` has **off**, **capture**, **core**, **sync**, and **gpu-assisted** modes.
+
+- `off`: no CFX environment variables or Vulkan trace; use for a matched safe control.
+- `capture`: CFX run/trace/fault paths and Vulkan loader layer proof. Debug utils and NV checkpoints are requested when available. This is the smallest viable capture mode on the present machine.
+- `core`: force `VK_LAYER_KHRONOS_validation` via per-process `VK_INSTANCE_LAYERS`; no sync/GPU-assisted request.
+- `sync`: core layer plus isolated `vk_layer_settings.txt` setting `khronos_validation.enables = VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT`.
+- `gpu-assisted`: core layer plus `VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT` in its own settings file.
+
+The runner preflights installed layers, so the last three modes currently abort **before launch**. After a layer becomes available, inspect `loader-layers.log` for actual insertion and layer output for the requested feature; merely selecting `vk_debug` or writing a settings file is insufficient proof. GPU-assisted mode is likely high overhead and can perturb timing; use a safe control and core first, then sync. A clean validation log does not establish correct lifetime, synchronization, or GPU work. With the present absent layer, no core/sync/GPU-assisted activation claim is made.
+
+For an installed layer, the settings file is per-run; `VK_LAYER_SETTINGS_PATH` points to it and does not alter global settings. The exact extension/config syntax follows [LunarG layer settings](https://vulkan.lunarg.com/doc/view/latest/linux/layer_configuration.html) and [synchronization validation setup](https://vulkan.lunarg.com/doc/view/1.4.357.0/windows/antora/tutorial/latest/Synchronization/Synchronization_Validation/02_validation_layer.html).
+
+## Manifest and timeline contract
+
+Every invocation creates a unique `cfx-UTC-12hex` directory. `manifest.json` is written with status `PREPARED` **before** any application launch and updated to `RUNNING` with PID and then the observed result. It reuses the CFX-001 `source`, `content`, `run`, `environment`, `failure`, `artifacts`, and `unknowns` groups. The source group includes Git SHA, dirty status, tracked-diff plus untracked-source patch SHA-256, EXE/PDB hashes and colocated PK3/DLL/PDB hashes. Content entries are in load order with role/hash/path. The run group preserves command, working directory, requested map/skill/seed/camera, config hash, declared cap/VSync/MSAA, engine-reported resolution and **prelaunch** pipeline/shader cache hash or explicit missing state. The runner copies the supplied config and existing caches into the run directory before launch; these files are local evidence, not repository assets. The engine trace observed `C:\Users\-\AppData\Local\zdoom\cache\{pipelinecache.zdpc,shadercache.zdsc}`; this machine's packaged LocalCache alias exposed the same cache bytes, but use the engine-reported direct path for a future manifest. The environment group contains OS/GPU/driver/Vulkan summary, actual inserted layers and runtime capability marks. Unknown values remain null rather than inferred.
+
+`timeline.tsv` is the bounded, synchronous diagnostic file. Columns: UTC epoch milliseconds, thread hash, renderer frame, gameplay tic, global submission ordinal, coarse stage, event, detail, VkResult integer. It is overwritten with a marked latest-100,000-record tail when full. A stage `stage-enter` without `stage-complete` identifies the last unfinished CPU stage. `vk-enter` without a matching return identifies a call that had not returned at capture time; it is **not** an observed device loss. A negative returned VkResult and `device-lost-observed` are direct application evidence. Each `gpu-checkpoint-recorded` line names a persistent marker pointer and command-buffer handle. `submit-buffer` joins that handle to the submission ordinal and fence slot. Only `gpu-checkpoint-confirmed` from the queue query on device loss is GPU execution evidence; a debug label or recorded marker alone is not.
+
+Coarse stages: startup/map preparation at `SetLevelMesh`; resource/mesh upload at `BeginFrame`/LevelMesh; lighting/shadows at `SetShadowMaps`; world, portals and sprites/translucency at `HWDrawInfo::DrawScene`; postprocess at `PostProcessScene`; present at `Update`. This is not per-draw tracing. The Vulkan seam logs queue submissions, buffer handles, fence slot/recycle and frame waits/resets, image acquire, present, shader compile/cache-hit key, and pipeline first-use key. Existing source-level pipeline/shader key semantics remain authoritative; the logged packed key is an exact-build correlator. Debug names cover submit fence/semaphore slots and existing named buffers/commands; debug labels are inserted on stage changes in each command buffer. Labels do not prove GPU execution.
+
+Only `capture` mode was safely smoke tested. Marker extension enablement and command recording were observed; completed-frame checkpoint query returned zero, so device-loss checkpoint output remains untested. EXT fault retrieval likewise cannot be safely tested without device loss. The handler avoids normal rendering after an observed loss and skips the inherited teardown idle wait only in a traced lost-device run.
+
+## Files under one run directory
+
+Always: `manifest.json`, `vulkaninfo-summary.txt` and copies of supplied `config-before.ini`, `pipelinecache-before.zdpc`, `shadercache-before.zdsc` when those inputs exist. After launch: `stdout.log`, `stderr.log`, `loader-layers.log`, bounded `system-events.xml` and `application-events.xml`. The manifest's `artifact_files` lists files actually present and their sizes. In capture/validation mode: `timeline.tsv` if startup reaches trace initialization. In sync/GPU-assisted mode: `vk_layer_settings.txt`. Conditional: `device-fault.bin` if EXT returns a vendor binary after observed loss; `process.dmp` if the timeout path captured a hung process; manually analyzed `threads.txt`/other debugger output. Absent conditional files mean no such evidence was produced, not a clean GPU.
+
+A later #78 operator should correlate the manifest run ID and process PID with timeline UTC values; use `submit-buffer` to join marker pointer/command buffer to submission/fence slot, then compare the last `gpu-checkpoint-confirmed` queue data and last CPU `vk-enter`/return. Use the same run directory's pre-kill process dump to identify the actual blocked thread. Event XML timestamps/IDs and the captured driver/loader state provide independent OS correlation. A TDR kernel dump alone cannot identify the submitting application thread.
+
+## Hang capture and thread stacks
+
+The default runner timeout **first** invokes `rundll32.exe C:\Windows\System32\comsvcs.dll, MiniDump <PID> <RUN_DIR>\process.dmp full` (45-second capture bound), grants the current file-owner SID read access, then kills the process. This machine's `comsvcs` output initially had only SYSTEM/Administrators read ACL; the owner grant was required for WinDbg. If dump capture fails or times out, the manifest records that status. Never interpret an absent/partial dump as a thread-state finding.
+
+For post-run analysis with the matching `vkdoom.pdb` from the manifest:
+
+```powershell
+& 'C:\Program Files\WindowsApps\Microsoft.WinDbg_1.2606.22001.0_x64__8wekyb3d8bbwe\amd64\cdb.exe' -z '<RUN_DIR>\process.dmp' -y '<EXE_AND_PDB_DIRECTORY>' -c '~*kb; q' -logo '<RUN_DIR>\threads.txt'
+```
+
+Inspect all threads for `vkWaitForFences`, queue submit/present/acquire, mutex/worker waits, or an application spin. The harmless synthetic Python sleep test produced `C:\ShadeDoomVK\pf-local-evidence\cfx002-safe\synthetic-readable.dmp` (MDMP header) and `synthetic-stack.txt`; `cdb` printed the sleeping process's threads. No known-crash WAD was used.
+
+## Safe verification and unresolved gate
+
+- MSVC RelWithDebInfo `zdoom` target built successfully with the trace hooks. A small ASan-instrumented CPU program compiled and returned 0 with its runtime on PATH.
+- Manifest prepare-only test: `cfx-20260925T014722Z-427d0e358f82`; no game launch.
+- Traced safe Doom II MAP01 control `cfx-20260925T015445Z-0c467755ddef`: reached `MAP01 - Entryway`; stage order and tic/submission progression recorded; ran for a fixed ten-second control window and was intentionally stopped. Cache-identity smoke `cfx-20260925T020332Z-6e1fad3b83f5` reached the map, recorded shader cache hits/pipeline first-use keys and command-buffer-to-submit joins. The final exact-build safe smoke `cfx-20260925T020806Z-92154c4ca075` reached MAP01 with separate tic/frame/submission and prelaunch copies of both cache files; runtime capability marks reported ray query disabled, NV checkpoints enabled and EXT device fault enabled. Its requested 800×600 command-line values did not become the reported resolution (1920×1080); use the actual engine result and an isolated verified config in #78. The first short `+exec` control quit before map load and is not scene evidence.
+- Matched diagnostics-off safe Doom II MAP01 control `cfx-20260925T015551Z-a8e6a8887fa7`: reached the same map title; no `timeline.tsv` was created. These controls are startup/state checks, not image equivalence proof. No new `nvlddmkm` System event appeared in the checked interval.
+- A CPU-only C++ trace smoke logged a synthetic negative result and completed its stage without hanging; it did not call Vulkan or simulate real device loss. Synthetic process dump + WinDbg stack verified. No unexpected GPU reset or device loss occurred.
+- Core, synchronization and GPU-assisted validation prepare distinct manifests/settings files but **cannot be activated here** because the layer is absent. Both a core-mode launch request and an unapproved DBP37 MAP01 launch request were rejected before process creation. Aftermath unavailable. No deliberate DBP37 MAP01, Sunlust MAP24 crash route, DBP50 route, or STOP-LAUNCHES bypass was attempted.
+
+The remaining #77 acceptance blockers are actual validation-layer activation, an image/state-equivalence check of the safe renderer, and device-loss-only checkpoint/fault retrieval that cannot be proven without a future approved incident or a safe synthetic Vulkan error device. Keep #77 open and this PR reviewable/draft until the first two are resolved. The optional fault/checkpoint results are explicitly conditional; do not manufacture a device loss to fill them.
+
+## Future CFX-003 mode (after human review, **do not run under #77**)
+
+Use **`capture`**, one process, one run directory, exact DBP37 source/content/config/camera from CFX-001, uncapped state as documented rather than a purported cap fix, 60-second watchdog, explicit prelaunch pipeline and shader cache paths, matching PDB, and `--approved-cfx003`. The runner blocks known crash routes without that explicit gate, refuses any input under a `STOP-LAUNCHES.txt` ancestor, and requires a dump on CFX-003 timeout. Core validation on a safe equivalent path should first become available and be verified; investigate any real report before heavier sync/GPU-assisted modes. This recommendation is a configuration for later review, **not** authorization to launch #78 now.
+
+Do not alter TDR, driver, GPU clocks, OBS registration, or renderer quality policy. Do not infer a common DBP37/DBP50/Sunlust mechanism. For host hypotheses, use focused pre-submit checks of shader-visible ranges, LevelMesh upload semantics, descriptor owner/generation, and pipeline specialization consistency; the installed MSVC ASan toolchain can aid a bounded CPU harness but does not validate GPU shader behavior.

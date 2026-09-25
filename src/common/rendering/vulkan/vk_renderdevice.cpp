@@ -21,6 +21,7 @@
 */
 
 #include <zvulkan/vulkanobjects.h>
+#include <zvulkan/cfxtrace.h>
 
 #include <inttypes.h>
 
@@ -214,6 +215,7 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 {
 	VulkanDeviceBuilder builder;
 	builder.OptionalRayQuery();
+	if (CfxTrace::Enabled()) builder.OptionalExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME);
 	builder.RequireExtension(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
 	if (surface)
 	{
@@ -223,6 +225,11 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 	builder.SelectDevice(vk_device);
 	SupportedDevices = builder.FindDevices(instance);
 	mDevice = builder.Create(instance);
+	if (CfxTrace::Enabled())
+	{
+		CfxTrace::Mark("capability", mDevice->SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) ? "nv-checkpoints-enabled" : "nv-checkpoints-unavailable");
+		CfxTrace::Mark("capability", mDevice->SupportsExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME) && mDevice->EnabledFeatures.Fault.deviceFault ? "ext-device-fault-enabled" : "ext-device-fault-unavailable");
+	}
 	mCapabilities = VulkanCapabilities::FromDevice(mDevice.get());
 	mCapabilities.DepthD24S8 = SupportsRenderTargetFormat(VK_FORMAT_D24_UNORM_S8_UINT);
 	mCapabilities.DepthD32S8 = SupportsRenderTargetFormat(VK_FORMAT_D32_SFLOAT_S8_UINT);
@@ -250,12 +257,15 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 		}
 	}
 
+	CfxTrace::Mark("capability", mUseRayQuery ? "ray-query-enabled" : "ray-query-disabled");
+	CfxTrace::Mark("capability", mCapabilities.SupportsGraphicsPipelineLibrary() ? "graphics-pipeline-library-supported" : "graphics-pipeline-library-unavailable");
 	mShaderCache = std::make_unique<VkShaderCache>(this);
 }
 
 VulkanRenderDevice::~VulkanRenderDevice()
 {
-	vkDeviceWaitIdle(mDevice->device); // make sure the GPU is no longer using any objects before RAII tears them down
+	if (!CfxTrace::Enabled() || !CfxTrace::State().deviceLost.load())
+		vkDeviceWaitIdle(mDevice->device); // inherited normal teardown; lost diagnostic device must not wait again
 
 	delete mSkyData;
 	delete mShadowMap;
@@ -371,6 +381,7 @@ void VulkanRenderDevice::InitializeState()
 
 void VulkanRenderDevice::Update()
 {
+	CfxTrace::Stage cfxStage("present");
 	twoD.Reset();
 	Flush3D.Reset();
 
@@ -461,6 +472,7 @@ void VulkanRenderDevice::UploadLightProbes(int probeCount, const TArray<uint16_t
 
 void VulkanRenderDevice::PostProcessScene(bool swscene, int fixedcm, float flash, bool palettePostprocess, const std::function<void()> &afterBloomDrawEndScene2D)
 {
+	CfxTrace::Stage cfxStage("postprocess");
 	if (!swscene) mPostprocess->BlitSceneToPostprocess(); // Copy the resulting scene to the current post process texture
 	mPostprocess->PostProcessScene(fixedcm, flash, palettePostprocess, afterBloomDrawEndScene2D);
 }
@@ -648,6 +660,8 @@ TArray<uint8_t> VulkanRenderDevice::GetScreenshotBuffer(int &pitch, ESSType &col
 
 void VulkanRenderDevice::BeginFrame()
 {
+	CfxTrace::NextFrame();
+	CfxTrace::Stage cfxStage("resource-mesh-upload");
 	vmaSetCurrentFrameIndex(mDevice->allocator, 0);
 	membudgets.Resize(mDevice->PhysicalDevice.Properties.Memory.memoryHeapCount);
 	vmaGetHeapBudgets(mDevice->allocator, membudgets.data());
@@ -764,6 +778,7 @@ void VulkanRenderDevice::PrintStartupLog()
 
 void VulkanRenderDevice::SetLevelMesh(LevelMesh* mesh)
 {
+	CfxTrace::Stage cfxStage("startup-map-preparation");
 	if (!mesh) // Vulkan must have a mesh for its data structures in shaders to remain sane
 	{
 		NullMesh.reset(new LevelMesh()); // we must have a completely new mesh here as the upload ranges needs to reset as well
@@ -781,6 +796,7 @@ void VulkanRenderDevice::UpdateLightmaps(const TArray<LightmapTile*>& tiles)
 
 void VulkanRenderDevice::SetShadowMaps(const TArray<float>& lights, hwrenderer::LevelAABBTree* tree, bool newTree)
 {
+	CfxTrace::Stage cfxStage("lighting-shadows");
 	auto buffers = GetBufferManager();
 
 	buffers->Shadowmap.Lights->SetData(sizeof(float) * lights.Size(), lights.Data(), BufferUsageType::Stream);
