@@ -271,6 +271,7 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 
 		CfxTrace::Mark("vk-enter", "AcquireImage");
 		fb->GetFramebufferManager()->AcquireImage();
+		CfxTrace::Mark("vk-return", "AcquireImage");
 	}
 
 	FlushCommands(finish, true, uploadOnly);
@@ -281,6 +282,7 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 			fb->FPSLimit();
 		CfxTrace::Mark("vk-enter", "QueuePresent");
 		fb->GetFramebufferManager()->QueuePresent();
+		CfxTrace::Mark("vk-return", "QueuePresent");
 	}
 
 	int numWaitFences = min(mNextSubmit, (int)maxConcurrentSubmitCount);
