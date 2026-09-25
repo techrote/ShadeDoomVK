@@ -1,6 +1,7 @@
 
 #include "vulkaninstance.h"
 #include "vulkanbuilders.h"
+#include "cfxtrace.h"
 #include <mutex>
 #include <set>
 #include <string>
@@ -136,6 +137,15 @@ void VulkanInstance::CreateInstance()
 		{
 			EnabledExtensions.insert(ext.extensionName);
 		}
+	}
+
+	if (CfxTrace::Enabled())
+	{
+		for (const auto& ext : AvailableExtensions)
+			if (std::strcmp(ext.extensionName, VK_EXT_DEBUG_UTILS_EXTENSION_NAME) == 0)
+				EnabledExtensions.insert(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		CfxTrace::Mark("capability", debugLayerFound ? "engine-debug-messenger-active" : "engine-debug-messenger-inactive");
+		CfxTrace::Mark("capability", EnabledExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) ? "debug-utils-enabled" : "debug-utils-unavailable");
 	}
 
 	std::vector<const char*> enabledLayersCStr;

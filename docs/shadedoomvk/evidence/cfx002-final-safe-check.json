@@ -1,0 +1,122 @@
+{
+  "schema": "cfx-002-final-safe-check-v1",
+  "base_master_sha": "4ddc57ee9cb7243171654df68a627b461fb6cb3d",
+  "tested_diagnostics_source_sha": "c6c1a534d8009f56e8c524e86ffad093102753ea",
+  "exe_sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+  "scope": "Safe Doom II MAP01 on GTX 1650 SUPER; no #78 DBP37 MAP01 launch",
+  "validation_runs": {
+    "core": {
+      "run_id": "cfx-20260925T083205Z-bd66f4ea5eaa",
+      "status": "EXITED",
+      "exit_code": 0,
+      "activation_verified": true,
+      "map_reached": true,
+      "validation_errors": 0,
+      "validation_warnings": 0
+    },
+    "sync": {
+      "run_id": "cfx-20260925T083226Z-2993855947ae",
+      "status": "EXITED",
+      "exit_code": 0,
+      "activation_verified": true,
+      "map_reached": true,
+      "validation_errors": 0,
+      "validation_warnings": 0,
+      "sync_hazards": 0
+    },
+    "gpu_assisted": {
+      "run_id": "cfx-20260925T083315Z-3479e0830f74",
+      "status": "SAFE_STOP",
+      "exit_code": 1,
+      "activation_verified": true,
+      "nonzero_shader_instrumentation": true,
+      "map_reached": false,
+      "validation_errors": 0,
+      "validation_warnings": 12,
+      "stop_reason": "bounded 20-second safe startup window"
+    }
+  },
+  "equivalence": {
+    "schema": "cfx-002-safe-equivalence-v1",
+    "runs": {
+      "off": {
+        "id": "cfx-20260925T083513Z-76331257493f",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\cfx-20260925T083513Z-76331257493f",
+        "image": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\off.png",
+        "image_sha256": "ca3a1aa673b85398c195dac465902fb24253d8d94e27bcc35151bc739d402899",
+        "mesh_sha256": "b830f3da42fd19cc85eec2f682349a992a668a079718faa73ca3b3427417aa7c"
+      },
+      "capture": {
+        "id": "cfx-20260925T083533Z-b2cf88ede5d1",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\cfx-20260925T083533Z-b2cf88ede5d1",
+        "image": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\capture.png",
+        "image_sha256": "5a9b1e046c183ef074d056fde1e8f678d1ac1521b448e6c9ef196e8728a2ded2",
+        "mesh_sha256": "b830f3da42fd19cc85eec2f682349a992a668a079718faa73ca3b3427417aa7c"
+      },
+      "repeat": {
+        "id": "cfx-20260925T083556Z-36545a82b282",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\cfx-20260925T083556Z-36545a82b282",
+        "image": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\off-repeat.png",
+        "image_sha256": "ca3a1aa673b85398c195dac465902fb24253d8d94e27bcc35151bc739d402899",
+        "mesh_sha256": "de10849fa5d8e153a52fe3d53e41c7b65361f861bcab991af682172dab289e41"
+      }
+    },
+    "state_assertions": {
+      "executable": true,
+      "source_patch": true,
+      "iwad": true,
+      "config": true,
+      "map": true,
+      "resolution": true,
+      "exit_zero": true,
+      "mesh_header": true,
+      "mesh_objects": true,
+      "mesh_faces": true,
+      "mesh_vertex_count": true,
+      "mesh_uv_count": true
+    },
+    "image_off_vs_capture": {
+      "same_dimensions": true,
+      "changed_pixels": 1572,
+      "changed_channels": 4576,
+      "max_channel_delta": 231,
+      "mean_absolute_channel_delta": 0.027835959558648635
+    },
+    "image_off_vs_off_repeat": {
+      "same_dimensions": true,
+      "changed_pixels": 0,
+      "changed_channels": 0,
+      "max_channel_delta": 0,
+      "mean_absolute_channel_delta": 0.0
+    },
+    "within_observed_off_repeat_variance": false,
+    "mesh_payload_limit": "OBJ vertex/UV payload differs within off/off controls; topology, counts, and objects are asserted, full vertex bytes are not.",
+    "scope_limit": "One stationary safe Doom II MAP01 view; this is not proof of all renderer paths.",
+    "pass": false
+  },
+  "independent_off_control": {
+    "run_id": "cfx-20260925T052427Z-bcd26d97aaa4",
+    "image_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\off.png",
+    "image_sha256": "5a9b1e046c183ef074d056fde1e8f678d1ac1521b448e6c9ef196e8728a2ded2",
+    "byte_identical_to_final_capture": true,
+    "prior_off_off_repeat_mean_absolute_channel_delta": 0.029983
+  },
+  "capture_timeline": {
+    "run_id": "cfx-20260925T083533Z-b2cf88ede5d1",
+    "run_dir": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-final\\cfx-20260925T083533Z-b2cf88ede5d1",
+    "trace_file": "timeline.tsv",
+    "recorded": "run/frame/tic/submission, queue present/fence spans, debug labels and checkpoint markers; device-fault extension enabled",
+    "post_loss_collection_tested": false
+  },
+  "reset_check": {
+    "window_local": "2026-09-25 09:31-09:38 Europe/London",
+    "matching_system_gpu_events": 0,
+    "matching_application_gpu_wer_events": 0
+  },
+  "limits": [
+    "Final strict within-triplet image comparator failed (off/off-repeat exactly equal; off/capture 1,572 pixels).",
+    "GPU-assisted validation activated but did not complete MAP01 within bounded startup window.",
+    "One stationary safe view does not cover every rendering path.",
+    "No deliberate device loss; post-loss checkpoint and device-fault output remain untested."
+  ]
+}

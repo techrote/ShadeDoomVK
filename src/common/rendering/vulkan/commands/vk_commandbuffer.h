@@ -13,6 +13,7 @@ public:
 	~VkCommandBufferManager();
 
 	void BeginFrame();
+	void DiagnosticMarker(VulkanCommandBuffer* commands, const char* stage);
 
 	VulkanCommandBuffer* GetTransferCommands();
 	VulkanCommandBuffer* GetDrawCommands();
@@ -75,6 +76,10 @@ private:
 	std::unique_ptr<VulkanFence> mSubmitFence[maxConcurrentSubmitCount];
 	VkFence mSubmitWaitFences[maxConcurrentSubmitCount];
 	int mNextSubmit = 0;
+	struct DiagnosticCheckpoint { char name[96]; };
+	std::vector<std::unique_ptr<DiagnosticCheckpoint>> mCheckpoints;
+	const char* mLastDrawStage = nullptr;
+	const char* mLastTransferStage = nullptr;
 
 	struct TimestampQuery
 	{

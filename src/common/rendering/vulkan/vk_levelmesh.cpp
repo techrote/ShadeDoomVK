@@ -21,6 +21,7 @@
 */
 
 #include "vk_levelmesh.h"
+#include <zvulkan/cfxtrace.h>
 #include "zvulkan/vulkanbuilders.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/commands/vk_commandbuffer.h"
@@ -65,6 +66,7 @@ void VkLevelMesh::ResetAccelStruct()
 
 void VkLevelMesh::BeginFrame()
 {
+	CfxTrace::Stage cfxStage("resource-mesh-upload");
 	bool accelStructNeedsUpdate = false;
 	if (useRayQuery && IndexesPerBLAS != 0)
 	{

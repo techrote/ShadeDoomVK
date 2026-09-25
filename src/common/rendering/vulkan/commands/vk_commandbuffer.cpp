@@ -21,6 +21,7 @@
 */
 
 #include "vk_commandbuffer.h"
+#include <zvulkan/cfxtrace.h>
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/vk_renderstate.h"
 #include "vulkan/vk_postprocess.h"
@@ -45,11 +46,19 @@ VkCommandBufferManager::VkCommandBufferManager(VulkanRenderDevice* fb) : fb(fb)
 		.DebugName("mCommandPool")
 		.Create(fb->GetDevice());
 
-	for (auto& semaphore : mSubmitSemaphore)
-		semaphore.reset(new VulkanSemaphore(fb->GetDevice()));
-
-	for (auto& fence : mSubmitFence)
-		fence.reset(new VulkanFence(fb->GetDevice()));
+	for (int i = 0; i < maxConcurrentSubmitCount; i++)
+	{
+		mSubmitSemaphore[i].reset(new VulkanSemaphore(fb->GetDevice()));
+		mSubmitFence[i].reset(new VulkanFence(fb->GetDevice()));
+		if (CfxTrace::Enabled())
+		{
+			char name[48];
+			std::snprintf(name, sizeof(name), "CFX submit semaphore slot %d", i);
+			mSubmitSemaphore[i]->SetDebugName(name);
+			std::snprintf(name, sizeof(name), "CFX submit fence slot %d", i);
+			mSubmitFence[i]->SetDebugName(name);
+		}
+	}
 
 	for (int i = 0; i < maxConcurrentSubmitCount; i++)
 		mSubmitWaitFences[i] = mSubmitFence[i]->fence;
@@ -76,6 +85,12 @@ VulkanCommandBuffer* VkCommandBufferManager::GetTransferCommands()
 		mTransferCommands = mCommandPool->createBuffer();
 		mTransferCommands->SetDebugName("TransferCommands");
 		mTransferCommands->begin();
+		mLastTransferStage = nullptr;
+	}
+	if (CfxTrace::Enabled() && mTransferCommands)
+	{
+		const char* stage = CfxTrace::CurrentStage();
+		if (stage != mLastTransferStage) { DiagnosticMarker(mTransferCommands.get(), stage); mLastTransferStage = stage; }
 	}
 	return mTransferCommands.get();
 }
@@ -88,6 +103,12 @@ VulkanCommandBuffer* VkCommandBufferManager::GetDrawCommands()
 		mDrawCommands = mCommandPool->createBuffer();
 		mDrawCommands->SetDebugName("DrawCommands");
 		mDrawCommands->begin();
+		mLastDrawStage = nullptr;
+	}
+	if (CfxTrace::Enabled() && mDrawCommands)
+	{
+		const char* stage = CfxTrace::CurrentStage();
+		if (stage != mLastDrawStage) { DiagnosticMarker(mDrawCommands.get(), stage); mLastDrawStage = stage; }
 	}
 	return mDrawCommands.get();
 }
@@ -109,6 +130,28 @@ void VkCommandBufferManager::EndThreadCommands(std::unique_ptr<VulkanCommandBuff
 	mThreadCommands.push_back(std::move(commands));
 }
 
+void VkCommandBufferManager::DiagnosticMarker(VulkanCommandBuffer* commands, const char* stage)
+{
+	if (!CfxTrace::Enabled() || !commands) return;
+	if (fb->GetDevice()->Instance->EnabledExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) && vkCmdInsertDebugUtilsLabelEXT)
+	{
+		VkDebugUtilsLabelEXT label = { VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT };
+		label.pLabelName = stage;
+		vkCmdInsertDebugUtilsLabelEXT(commands->buffer, &label);
+	}
+	if (fb->GetDevice()->SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) && vkCmdSetCheckpointNV && mCheckpoints.size() < 100000)
+	{
+		auto marker = std::make_unique<DiagnosticCheckpoint>();
+		std::snprintf(marker->name, sizeof(marker->name), "frame=%llu stage=%s",
+			static_cast<unsigned long long>(CfxTrace::State().frame.load()), stage);
+		char line[160];
+		std::snprintf(line, sizeof(line), "marker=%p cmd=%p %s", marker.get(), commands->buffer, marker->name);
+		CfxTrace::Mark("gpu-checkpoint-recorded", line);
+		vkCmdSetCheckpointNV(commands->buffer, marker.get());
+		mCheckpoints.push_back(std::move(marker));
+	}
+}
+
 void VkCommandBufferManager::BeginFrame()
 {
 	if (mNextTimestampQuery > 0)
@@ -127,18 +170,38 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 		VkResult result;
 		do
 		{
+			CfxTrace::Mark("vk-enter", "vkWaitForFences/recycle");
 			result = vkWaitForFences(fb->GetDevice()->device, 1, &mSubmitFence[currentIndex]->fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+			CfxTrace::Mark("vk-return", "vkWaitForFences/recycle", static_cast<int>(result));
 			fb->GetDevice()->CheckVulkanError(result, "Could not wait for commands");
 		} while (result != VK_SUCCESS);
 
+		CfxTrace::Mark("vk-enter", "vkResetFences/recycle");
 		result = vkResetFences(fb->GetDevice()->device, 1, &mSubmitFence[currentIndex]->fence);
+		CfxTrace::Mark("vk-return", "vkResetFences/recycle", static_cast<int>(result));
 		fb->GetDevice()->CheckVulkanError(result, "Could not reset fence");
 	}
 
+	if (CfxTrace::Enabled())
+	{
+		CfxTrace::NextSubmission();
+		char detail[100];
+		std::snprintf(detail, sizeof(detail), "graphics slot=%d buffers=%zu finish=%d last=%d",
+			currentIndex, count, finish ? 1 : 0, lastsubmit ? 1 : 0);
+		CfxTrace::Mark("submit-enter", detail);
+	}
 	QueueSubmit submit;
 
 	for (size_t i = 0; i < count; i++)
+	{
+		if (CfxTrace::Enabled())
+		{
+			char detail[80];
+			std::snprintf(detail, sizeof(detail), "cmd=%p slot=%d", commands[i]->buffer, currentIndex);
+			CfxTrace::Mark("submit-buffer", detail);
+		}
 		submit.AddCommandBuffer(commands[i]);
+	}
 
 	if (mNextSubmit > 0)
 		submit.AddWait(VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, mSubmitSemaphore[(mNextSubmit - 1) % maxConcurrentSubmitCount].get());
@@ -152,7 +215,9 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 	if (!lastsubmit)
 		submit.AddSignal(mSubmitSemaphore[currentIndex].get());
 
+	CfxTrace::Mark("vk-enter", "vkQueueSubmit");
 	submit.Execute(fb->GetDevice(), fb->GetDevice()->GraphicsQueue, mSubmitFence[currentIndex].get());
+	CfxTrace::Mark("vk-return", "vkQueueSubmit", 0);
 	mNextSubmit++;
 }
 
@@ -204,7 +269,9 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 		Finish.Reset();
 		Finish.Clock();
 
+		CfxTrace::Mark("vk-enter", "AcquireImage");
 		fb->GetFramebufferManager()->AcquireImage();
+		CfxTrace::Mark("vk-return", "AcquireImage");
 	}
 
 	FlushCommands(finish, true, uploadOnly);
@@ -213,13 +280,17 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 	{
 		if (!fb->GetVSync())
 			fb->FPSLimit();
+		CfxTrace::Mark("vk-enter", "QueuePresent");
 		fb->GetFramebufferManager()->QueuePresent();
+		CfxTrace::Mark("vk-return", "QueuePresent");
 	}
 
 	int numWaitFences = min(mNextSubmit, (int)maxConcurrentSubmitCount);
 	if (numWaitFences > 0)
 	{
+		CfxTrace::Mark("vk-enter", "vkWaitForFences/frame");
 		VkResult result = vkWaitForFences(fb->GetDevice()->device, numWaitFences, mSubmitWaitFences, VK_TRUE, std::numeric_limits<uint64_t>::max());
+		CfxTrace::Mark("vk-return", "vkWaitForFences/frame", static_cast<int>(result));
 		fb->GetDevice()->CheckVulkanError(result, "Could not wait for commands");
 		if (result == VK_TIMEOUT)
 			VulkanError("vkWaitForFences timed out! Broken display driver?");
@@ -227,12 +298,28 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 		if (finish)
 			fb->GetFramebufferManager()->RetirePresentSemaphoresAfterFrame();
 
+		CfxTrace::Mark("vk-enter", "vkResetFences/frame");
 		result = vkResetFences(fb->GetDevice()->device, numWaitFences, mSubmitWaitFences);
+		CfxTrace::Mark("vk-return", "vkResetFences/frame", static_cast<int>(result));
 		fb->GetDevice()->CheckVulkanError(result, "Could not reset fences");
 		mNextSubmit = 0;
 	}
 
 	DeleteFrameObjects(uploadOnly);
+
+	if (finish && CfxTrace::Enabled() &&
+		fb->GetDevice()->SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) &&
+		vkGetQueueCheckpointDataNV)
+	{
+		static bool checked = false;
+		if (!checked)
+		{
+			checked = true;
+			uint32_t count = 0;
+			vkGetQueueCheckpointDataNV(fb->GetDevice()->GraphicsQueue, &count, nullptr);
+			CfxTrace::Mark("gpu-checkpoint-smoke", count ? "queue-returned-markers" : "queue-returned-zero");
+		}
+	}
 
 	if (finish)
 	{
