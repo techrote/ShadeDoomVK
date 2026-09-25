@@ -1,8 +1,8 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active  
-Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, PF-013, SDVK-004
+Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active; PF-017 source-owned light-packing candidate off-GPU-qualified, physical acceptance pending  
+Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, PF-013, PF-017, SDVK-004
 
 ## Core rule
 
@@ -138,6 +138,20 @@ Transfer copies into `VkHardwareBuffer` GPU-only buffers are published by `Publi
 Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or LevelMesh light records. Actor light collection may deduplicate by light pointer and then upload copied structs. Shadow maps also assign a finite shadow index.
 
 Pointer identity is currently meaningful inside a frame/cache but must not become a persistent serialized identity.
+
+### PF-017 source-owned temporal packing candidate
+
+PR #74 keeps shader-visible `FDynLightInfo` arrays and `LightBufferSSO` offsets unchanged while attaching four packing snapshots to each live `FDynamicLight` incarnation, one for each existing force-attenuation/trace combination.
+
+- A snapshot is owned by the actual `FDynamicLight` object incarnation, not by packed-byte equality. The existing `GetLight()` allocation/freelist path zeroes the complete object after allocation/reuse, so a recycled address cannot inherit the previous source's snapshot.
+- Each changed packed record/class/group obtains a process-monotonic non-zero packing revision. Revision `0` means unqualified/fallback. Revision exhaustion fails closed instead of wrapping to a stale token.
+- PF-010 top-level render epochs bound snapshot reuse. First qualified use in a new epoch executes the accepted packer; unchanged state may retain its revision. Portal recursion inherits its parent's PF-010 epoch, but foreign portal-group packing is deliberately unqualified.
+- Spot lights, `RF2_LIGHTMULTALPHA` records, foreign-group records, sunlight and any record without a valid active context use accepted packing/copy behavior with revision `0`.
+- `FDynLightData` preserves exact class/order and carries a parallel revision sequence. Persistent mapped-buffer shadows are meaningful only at the same physical record offsets; an entire class skips its mapped write only when every current revision is non-zero and equals the shadow at that exact position.
+- Recreating `VkRSBuffers` recreates the mapped buffer and initializes revision/range shadows together. Ordinary `BeginFrame` resets write cursors but intentionally retains shadows describing the still-resident mapped bytes.
+- Epoch rollback/reuse and revision wrap/exhaustion permanently disable the corresponding reuse mechanism for safety rather than accepting ambiguous identity.
+
+This is renderer-local transient identity only; it is never a gameplay or serialized identity. Source head `e028fd88b29aa2d0d82e4e04a09ea644bfa56670` passed the complete off-GPU eight-job CI matrix in run 36047117838. Final PF-017 acceptance still requires the physical GTX 1650 SUPER performance/equivalence gate; until then this contract is a candidate on PR #74, not accepted `master` architecture.
 
 ## Async texture lifetime and staging
 

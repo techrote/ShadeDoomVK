@@ -3,6 +3,8 @@
 
 #include "vulkan/buffers/vk_hwbuffer.h"
 #include "vulkan/shaders/vk_shader.h"
+#include <array>
+#include <vector>
 
 class VkMatrixBufferWriter;
 class VkSurfaceUniformsBufferWriter;
@@ -42,6 +44,12 @@ public:
 		int Count = MAX_LIGHT_DATA;
 		std::unique_ptr<VulkanBuffer> SSO;
 		void* Data = nullptr;
+
+		// PF-017 CPU shadows describe the bytes already resident at each
+		// persistent mapped location. Revision 0 is never reusable.
+		std::vector<uint64_t> RevisionShadow;
+		std::vector<std::array<int, 4>> RangeShadow;
+		std::vector<uint8_t> RangeShadowValid;
 	} Lightbuffer;
 
 	struct

@@ -130,8 +130,8 @@ class LightingCompatContractTests(unittest.TestCase):
     def test_color_class_and_gldefs_semantics_remain_distinct(self) -> None:
         # GPU additive color is pre-scaled, subtractive color is packed as a
         # positive complement, and GLDEFS intensity remains multiplicative.
-        self.assertIn("i = LIGHTARRAY_ADDITIVE;", self.dynlight_cpp)
-        self.assertIn("i = LIGHTARRAY_SUBTRACTIVE;", self.dynlight_cpp)
+        self.assertIn("lightClass = LIGHTARRAY_ADDITIVE;", self.dynlight_cpp)
+        self.assertIn("lightClass = LIGHTARRAY_SUBTRACTIVE;", self.dynlight_cpp)
         self.assertIn("cs *= (float)light->GetLightDefIntensity();", self.dynlight_cpp)
         self.assertIn("info.r = length - info.r;", self.dynlight_cpp)
         self.assertIn("info.g = length - info.g;", self.dynlight_cpp)

@@ -174,6 +174,11 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 	// This function will only do something if the setting differs.
 	FLightDefaults::SetAttenuationForLevel(!!(camera->Level->flags3 & LEVEL3_ATTENUATE));
 
+	// PF-017: begin source-owned packing reuse only after shadow-map selection
+	// and attenuation have reached their final state for this top-level
+	// viewpoint. Recursive portals remain inside this PF-010 epoch.
+	HWDynLightPackingContextScope lightPackingContext(contextEpoch);
+
 	static HWDrawContext mainthread_drawctx;
 
 	hw_ClearFakeFlat(&mainthread_drawctx);
