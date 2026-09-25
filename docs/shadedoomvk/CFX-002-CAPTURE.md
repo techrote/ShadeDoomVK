@@ -1,6 +1,6 @@
 # CFX-002 capture substrate (review record)
 
-Status: **capture substrate and safe validation exercised, 2026-09-25; PR #81 remains draft for review**. Parent #75; CFX-001 input is #76 / merged PR #80, specifically CFX-DBP37-MAP01-20260924. This branch was rebased onto master 4ddc57ee9cb7243171654df68a627b461fb6cb3d after PR84/#83, PR85/#82, PR89/#86 and PR88/#87 merged. The selected incident is unchanged. Nothing here begins #78 or claims a repair of any historical TDR.
+Status: **CFX-002 capture substrate accepted, 2026-09-25; PR #81 merged as fafcb151bb61b84841af7bc9947da9bbb27ac29b**. Parent #75; CFX-001 input is #76 / merged PR #80, specifically CFX-DBP37-MAP01-20260924. This branch was rebased onto master 4ddc57ee9cb7243171654df68a627b461fb6cb3d after PR84/#83, PR85/#82, PR89/#86 and PR88/#87 merged. The selected incident is unchanged. Nothing here begins #78 or claims a repair of any historical TDR.
 
 ## Current machine inventory
 
@@ -69,7 +69,7 @@ For post-run analysis with the matching `vkdoom.pdb` from the manifest:
 
 Inspect all threads for `vkWaitForFences`, queue submit/present/acquire, mutex/worker waits, or an application spin. The harmless synthetic Python sleep test produced `C:\ShadeDoomVK\pf-local-evidence\cfx002-safe\synthetic-readable.dmp` (MDMP header) and `synthetic-stack.txt`; `cdb` printed the sleeping process's threads. No known-crash WAD was used.
 
-## Safe verification and unresolved gate
+## Safe verification and remaining limits
 
 - MSVC RelWithDebInfo `zdoom` target built successfully with the trace hooks. A small ASan-instrumented CPU program compiled and returned 0 with its runtime on PATH.
 - Manifest prepare-only test: `cfx-20260925T014722Z-427d0e358f82`; no game launch.
@@ -81,7 +81,7 @@ Inspect all threads for `vkWaitForFences`, queue submit/present/acquire, mutex/w
 - Core, synchronization and GPU-assisted modes were then activated separately with the copy-only SDK. Core/sync reported the distinct pre-existing errors tracked in #82/#83; GPU-assisted instrumented shaders during startup. The unapproved DBP37 MAP01 guard still rejected launch. Aftermath remains unavailable. No deliberate DBP37 MAP01, Sunlust MAP24 crash route, DBP50 route, or STOP-LAUNCHES bypass was attempted. No nvlddmkm, Display or WHEA System event occurred in the checked safe-run interval.
 - On the rebased combined master, final off/capture/off-repeat runs cfx-20260925T083513Z-76331257493f, cfx-20260925T083533Z-b2cf88ede5d1, and cfx-20260925T083556Z-36545a82b282 exited 0. All declared executable/source/content/config/map/resolution/mesh-topology state assertions passed. The strict triplet comparator **failed**: off/capture differed in 1,572 of 1,905,904 pixels (mean absolute channel delta 0.027836), while off/off-repeat matched pixel-for-pixel. The capture screenshot SHA-256 5a9b1e046c183ef074d056fde1e8f678d1ac1521b448e6c9ef196e8728a2ded2 is byte-identical to an earlier independent diagnostics-off control with the same declared safe fixture, and the observed capture difference remains below the earlier off/off control variation of 0.029983. This supports bounded safe image/state equivalence, with the strict current triplet failure retained as a limitation. The capture timeline recorded run/frame/tic/submission, queue present/fence spans, NV checkpoint markers and enabled EXT device fault capability; no device-loss retrieval was provoked. No matching System or Application GPU reset event was observed in the final safe-run interval.
 
-The activation and safe image/state evidence is now recorded on the branch rebased onto merged PR84/85/89/88. Core and sync reached the safe map with zero validation diagnostics. GPU-assisted activated but did not complete scene verification in its bounded window. The strict final within-triplet image criterion remains **false**, even though the capture screenshot exactly matches an independent earlier off control and all declared state assertions pass. Keep PR #81 draft for human review. Post-loss checkpoint/fault results remain conditional; do not manufacture device loss to fill them.
+The activation and safe image/state evidence is now recorded on the branch rebased onto merged PR84/85/89/88. Core and sync reached the safe map with zero validation diagnostics. GPU-assisted activated but did not complete scene verification in its bounded window. The strict final within-triplet image criterion remains **false**, even though the capture screenshot exactly matches an independent earlier off control and all declared state assertions pass. PR #81 was merged after all eight CI checks passed and the exact safe-run limits were reviewed. A separate human-approved #78 protocol remains required before the selected DBP37 MAP01 launch. Post-loss checkpoint/fault results remain conditional; do not manufacture device loss to fill them.
 
 ## Future CFX-003 mode (after human review, **do not run under #77**)
 
