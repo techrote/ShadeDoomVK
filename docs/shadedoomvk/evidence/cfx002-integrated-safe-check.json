@@ -29,7 +29,11 @@
     "mipmap_blit_hazard_count": 0,
     "new_swapchain_clear_waw_count": 10,
     "new_transfer_index_raw_count": 10,
-    "validation_error_count": 20
+    "validation_error_count": 20,
+    "new_hazard_issues": [
+      86,
+      87
+    ]
   },
   "new_triplet": {
     "pass": false,
