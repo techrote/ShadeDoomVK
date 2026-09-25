@@ -765,7 +765,11 @@ void VkRenderState::SetShadowData(const TArray<FFlatVertex>& vertices, const TAr
 		memcpy(dst, indexes.Data(), bufsize);
 		staging->Unmap();
 
-		commands->GetTransferCommands()->copyBuffer(staging.get(), buffer.get());
+		auto transferCommands = commands->GetTransferCommands();
+		transferCommands->copyBuffer(staging.get(), buffer.get());
+		PipelineBarrier()
+			.AddBuffer(buffer.get(), VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_INDEX_READ_BIT)
+			.Execute(transferCommands, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT);
 		commands->TransferDeleteList->Add(std::move(staging));
 
 		commands->DrawDeleteList->Add(std::move(mRSBuffers->Flatbuffer.IndexBuffer));
