@@ -29,6 +29,60 @@
 #include <zvulkan/vulkanbuilders.h>
 #include "engineerrors.h"
 
+namespace
+{
+void PublishTransferWrite(VulkanCommandBuffer* commands, VulkanBuffer* buffer, VkBufferUsageFlags usage, VkDeviceSize offset, VkDeviceSize size)
+{
+	// Transfer uploads are recorded before draw commands on the same graphics queue,
+	// but queue/command-buffer order alone does not make transfer writes visible to
+	// later buffer consumers. Keep the dependency scoped to this uploaded range.
+	VkPipelineStageFlags dstStageMask = VK_PIPELINE_STAGE_TRANSFER_BIT;
+	VkAccessFlags dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+	if (usage & VK_BUFFER_USAGE_TRANSFER_SRC_BIT)
+	{
+		dstStageMask |= VK_PIPELINE_STAGE_TRANSFER_BIT;
+		dstAccessMask |= VK_ACCESS_TRANSFER_READ_BIT;
+	}
+
+	if (usage & (VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT))
+		dstStageMask |= VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
+
+	if (usage & VK_BUFFER_USAGE_VERTEX_BUFFER_BIT)
+		dstAccessMask |= VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
+
+	if (usage & VK_BUFFER_USAGE_INDEX_BUFFER_BIT)
+		dstAccessMask |= VK_ACCESS_INDEX_READ_BIT;
+
+	if (usage & (VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT))
+		dstStageMask |= VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT | VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
+
+	if (usage & VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT)
+		dstAccessMask |= VK_ACCESS_UNIFORM_READ_BIT;
+
+	if (usage & VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
+		dstAccessMask |= VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_SHADER_WRITE_BIT;
+
+	VkBufferMemoryBarrier barrier = { VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER };
+	barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+	barrier.dstAccessMask = dstAccessMask;
+	barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	barrier.buffer = buffer->buffer;
+	barrier.offset = offset;
+	barrier.size = size;
+
+	commands->pipelineBarrier(
+		VK_PIPELINE_STAGE_TRANSFER_BIT,
+		dstStageMask,
+		0,
+		0, nullptr,
+		1, &barrier,
+		0, nullptr);
+}
+}
+
+
 VkHardwareBuffer::VkHardwareBuffer(VulkanRenderDevice* fb) : fb(fb)
 {
 	fb->GetBufferManager()->AddBuffer(this);
@@ -95,7 +149,9 @@ void VkHardwareBuffer::SetData(size_t size, const void *data, BufferUsageType us
 			mStaging->Unmap();
 		}
 
-		fb->GetCommands()->GetTransferCommands()->copyBuffer(mStaging.get(), mBuffer.get());
+		auto commands = fb->GetCommands()->GetTransferCommands();
+		commands->copyBuffer(mStaging.get(), mBuffer.get());
+		PublishTransferWrite(commands, mBuffer.get(), mBufferType, 0, mBuffer->size);
 	}
 	else if (usage == BufferUsageType::Persistent)
 	{
@@ -148,7 +204,9 @@ void VkHardwareBuffer::SetSubData(size_t offset, size_t size, const void *data)
 		memcpy(dst, data, size);
 		mStaging->Unmap();
 
-		fb->GetCommands()->GetTransferCommands()->copyBuffer(mStaging.get(), mBuffer.get(), offset, offset, size);
+		auto commands = fb->GetCommands()->GetTransferCommands();
+		commands->copyBuffer(mStaging.get(), mBuffer.get(), offset, offset, size);
+		PublishTransferWrite(commands, mBuffer.get(), mBufferType, offset, size);
 	}
 	else
 	{
