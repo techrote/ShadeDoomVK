@@ -10,8 +10,9 @@ PR88 first added range-scoped transfer-write publication after `VkHardwareBuffer
 | --- | --- |
 | RelWithDebInfo `zdoom` build | Passed locally, MSVC 17.14.51 |
 | Doom II MAP01 sync validation | `cfx-20260925T073908Z-63c0c4aaf262`: exit 0, Khronos synchronization validation activation confirmed by loader and `CURRENT-VALIDATION-ENABLED` |
+| Exact PR88 head repeat | cfx-20260925T074343Z-6b087354cb38 on 1cf0d76b347418c427001a95e99472e00c890396: exit 0, synchronization validation active, zero #87 transfer/index hazards |
 | #87 signature | Pre-fix 10; hardware-buffer-only fix 1; final fix 0 |
-| Other sync findings | Ten swapchain-clear write-after-write reports remain on PR88 alone; independently fixed in open PR89 for #86. No new error type appeared. |
+| Other sync findings | Ten swapchain-clear write-after-write reports remain on PR88 alone; independently fixed in merged PR89 for #86. No new error type appeared. |
 | Fixed-frame off-mode control | `cfx-20260925T073946Z-90f007bdca4f`: exit 0; identical IWAD, starting config hash, map and 1904 x 1001 resolution to pre-fix `cfx-20260925T052427Z-bcd26d97aaa4` |
 | Image/state | 1,949 of 1,905,904 RGB pixels differ; mean absolute channel delta 0.027905, within preserved off/off variation of 0.029983; LevelMesh object/face counts match at 547/2,408 |
 | Device loss/reset | None observed; no matching system or application GPU reset event in the safe-run window |
