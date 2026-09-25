@@ -41,14 +41,16 @@ VkFramebufferManager::VkFramebufferManager(VulkanRenderDevice* fb) : fb(fb)
 			.DebugName("SwapChainImageAvailableSemaphore")
 			.Create(fb->GetDevice());
 
-		RenderFinishedSemaphore = SemaphoreBuilder()
-			.DebugName("RenderFinishedSemaphore")
-			.Create(fb->GetDevice());
 	}
 }
 
 VkFramebufferManager::~VkFramebufferManager()
 {
+}
+
+VulkanSemaphore* VkFramebufferManager::GetRenderFinishedSemaphore() const
+{
+	return RenderFinishedSemaphores[PresentImageIndex].get();
 }
 
 void VkFramebufferManager::AcquireImage()
@@ -58,6 +60,14 @@ void VkFramebufferManager::AcquireImage()
 
 	if (SwapChain->Lost() || fb->GetClientWidth() != CurrentWidth || fb->GetClientHeight() != CurrentHeight || fb->GetVSync() != CurrentVSync || CurrentHdr != vk_hdr)
 	{
+		// Queue/device idle does not prove that presentation released a wait
+		// semaphore. Keep the old image-owned set until a presentation of the new
+		// swapchain has completed (proved by reacquisition plus the frame fence).
+		if (!RenderFinishedSemaphores.empty())
+			RetiredRenderFinishedSemaphores.push_back(std::move(RenderFinishedSemaphores));
+		FirstPresentedImageIndex = -1;
+		RetirementProofPending = false;
+
 		Framebuffers.clear();
 
 		CurrentWidth = fb->GetClientWidth();
@@ -66,11 +76,29 @@ void VkFramebufferManager::AcquireImage()
 		CurrentHdr = vk_hdr;
 
 		SwapChain->Create(CurrentWidth, CurrentHeight, CurrentVSync ? 2 : 3, CurrentVSync, CurrentHdr);
+
+		// Present-wait binary semaphores are owned by swapchain image. Reacquiring
+		// an image proves its previous presentation has retired, making the matching
+		// semaphore safe to signal again without a steady-state queue idle.
+		RenderFinishedSemaphores.clear();
+		RenderFinishedSemaphores.reserve(SwapChain->ImageCount());
+		for (int i = 0; i < SwapChain->ImageCount(); i++)
+		{
+			RenderFinishedSemaphores.push_back(SemaphoreBuilder()
+				.DebugName("RenderFinishedSemaphore")
+				.Create(fb->GetDevice()));
+		}
 	}
 
+	RetirementProofPending = false;
 	PresentImageIndex = SwapChain->AcquireImage(SwapChainImageAvailableSemaphore.get());
 	if (PresentImageIndex != -1)
 	{
+		// The acquired image must have been presented once by this generation.
+		// The frame submit waits for the acquire semaphore, and its fence wait
+		// later proves the earlier presentation has released old resources.
+		RetirementProofPending = !RetiredRenderFinishedSemaphores.empty() &&
+			PresentImageIndex == FirstPresentedImageIndex;
 		fb->GetPostprocess()->DrawPresentTexture(fb->mOutputLetterbox, true, false);
 	}
 }
@@ -78,5 +106,18 @@ void VkFramebufferManager::AcquireImage()
 void VkFramebufferManager::QueuePresent()
 {
 	if (PresentImageIndex != -1)
-		SwapChain->QueuePresent(PresentImageIndex, RenderFinishedSemaphore.get());
+	{
+		SwapChain->QueuePresent(PresentImageIndex, GetRenderFinishedSemaphore());
+		if (FirstPresentedImageIndex == -1)
+			FirstPresentedImageIndex = PresentImageIndex;
+	}
+}
+
+void VkFramebufferManager::RetirePresentSemaphoresAfterFrame()
+{
+	if (RetirementProofPending)
+	{
+		RetiredRenderFinishedSemaphores.clear();
+		RetirementProofPending = false;
+	}
 }

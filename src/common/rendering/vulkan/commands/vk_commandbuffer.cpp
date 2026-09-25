@@ -146,7 +146,7 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 	if (finish && fb->GetFramebufferManager()->PresentImageIndex != -1)
 	{
 		submit.AddWait(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, fb->GetFramebufferManager()->SwapChainImageAvailableSemaphore.get());
-		submit.AddSignal(fb->GetFramebufferManager()->RenderFinishedSemaphore.get());
+		submit.AddSignal(fb->GetFramebufferManager()->GetRenderFinishedSemaphore());
 	}
 
 	if (!lastsubmit)
@@ -223,6 +223,9 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 		fb->GetDevice()->CheckVulkanError(result, "Could not wait for commands");
 		if (result == VK_TIMEOUT)
 			VulkanError("vkWaitForFences timed out! Broken display driver?");
+
+		if (finish)
+			fb->GetFramebufferManager()->RetirePresentSemaphoresAfterFrame();
 
 		result = vkResetFences(fb->GetDevice()->device, numWaitFences, mSubmitWaitFences);
 		fb->GetDevice()->CheckVulkanError(result, "Could not reset fences");
