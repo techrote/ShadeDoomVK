@@ -207,8 +207,8 @@
       "kind": "invariant",
       "owner": "CFX-#82",
       "paths": ["src/common/rendering/vulkan/framebuffers/vk_framebuffer.h", "src/common/rendering/vulkan/framebuffers/vk_framebuffer.cpp", "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp"],
-      "required": ["std::vector<std::unique_ptr<VulkanSemaphore>>\\s+RenderFinishedSemaphores", "SwapChain->ImageCount\\(\\)", "vkQueueWaitIdle\\(fb->GetDevice\\(\\)->PresentQueue\\)", "GetRenderFinishedSemaphore\\(\\)\\s*const", "submit\\.AddSignal\\(fb->GetFramebufferManager\\(\\)->GetRenderFinishedSemaphore\\(\\)\\)", "QueuePresent\\(PresentImageIndex,\\s*GetRenderFinishedSemaphore\\(\\)\\)"],
-      "forbidden": ["std::unique_ptr<VulkanSemaphore>\\s+RenderFinishedSemaphore\\s*;"]
+      "required": ["std::vector<std::unique_ptr<VulkanSemaphore>>\\s+RenderFinishedSemaphores", "SwapChain->ImageCount\\(\\)", "RetiredRenderFinishedSemaphores\\.push_back\\(std::move\\(RenderFinishedSemaphores\\)\\)", "PresentImageIndex\\s*==\\s*FirstPresentedImageIndex", "RetiredRenderFinishedSemaphores\\.clear\\(\\)", "fb->GetFramebufferManager\\(\\)->RetirePresentSemaphoresAfterFrame\\(\\)", "GetRenderFinishedSemaphore\\(\\)\\s*const", "submit\\.AddSignal\\(fb->GetFramebufferManager\\(\\)->GetRenderFinishedSemaphore\\(\\)\\)", "QueuePresent\\(PresentImageIndex,\\s*GetRenderFinishedSemaphore\\(\\)\\)"],
+      "forbidden": ["std::unique_ptr<VulkanSemaphore>\\s+RenderFinishedSemaphore\\s*;", "vkQueueWaitIdle\\(fb->GetDevice\\(\\)->PresentQueue\\)"]
     }
   ]
 }

@@ -60,15 +60,13 @@ void VkFramebufferManager::AcquireImage()
 
 	if (SwapChain->Lost() || fb->GetClientWidth() != CurrentWidth || fb->GetClientHeight() != CurrentHeight || fb->GetVSync() != CurrentVSync || CurrentHdr != vk_hdr)
 	{
-		// A graphics fence only proves the signal operation completed; it does not
-		// prove that vkQueuePresentKHR has consumed its wait semaphore. Before a
-		// swapchain rebuild replaces image-owned semaphores, retire all presentation
-		// work that can still reference the old set.
-		if (SwapChain->ImageCount() > 0)
-		{
-			VkResult result = vkQueueWaitIdle(fb->GetDevice()->PresentQueue);
-			fb->GetDevice()->CheckVulkanError(result, "Could not wait for presentation queue during swapchain recreation");
-		}
+		// Queue/device idle does not prove that presentation released a wait
+		// semaphore. Keep the old image-owned set until a presentation of the new
+		// swapchain has completed (proved by reacquisition plus the frame fence).
+		if (!RenderFinishedSemaphores.empty())
+			RetiredRenderFinishedSemaphores.push_back(std::move(RenderFinishedSemaphores));
+		FirstPresentedImageIndex = -1;
+		RetirementProofPending = false;
 
 		Framebuffers.clear();
 
@@ -92,9 +90,15 @@ void VkFramebufferManager::AcquireImage()
 		}
 	}
 
+	RetirementProofPending = false;
 	PresentImageIndex = SwapChain->AcquireImage(SwapChainImageAvailableSemaphore.get());
 	if (PresentImageIndex != -1)
 	{
+		// The acquired image must have been presented once by this generation.
+		// The frame submit waits for the acquire semaphore, and its fence wait
+		// later proves the earlier presentation has released old resources.
+		RetirementProofPending = !RetiredRenderFinishedSemaphores.empty() &&
+			PresentImageIndex == FirstPresentedImageIndex;
 		fb->GetPostprocess()->DrawPresentTexture(fb->mOutputLetterbox, true, false);
 	}
 }
@@ -102,5 +106,18 @@ void VkFramebufferManager::AcquireImage()
 void VkFramebufferManager::QueuePresent()
 {
 	if (PresentImageIndex != -1)
+	{
 		SwapChain->QueuePresent(PresentImageIndex, GetRenderFinishedSemaphore());
+		if (FirstPresentedImageIndex == -1)
+			FirstPresentedImageIndex = PresentImageIndex;
+	}
+}
+
+void VkFramebufferManager::RetirePresentSemaphoresAfterFrame()
+{
+	if (RetirementProofPending)
+	{
+		RetiredRenderFinishedSemaphores.clear();
+		RetirementProofPending = false;
+	}
 }

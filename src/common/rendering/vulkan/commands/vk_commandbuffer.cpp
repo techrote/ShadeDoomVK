@@ -224,6 +224,9 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 		if (result == VK_TIMEOUT)
 			VulkanError("vkWaitForFences timed out! Broken display driver?");
 
+		if (finish)
+			fb->GetFramebufferManager()->RetirePresentSemaphoresAfterFrame();
+
 		result = vkResetFences(fb->GetDevice()->device, numWaitFences, mSubmitWaitFences);
 		fb->GetDevice()->CheckVulkanError(result, "Could not reset fences");
 		mNextSubmit = 0;
