@@ -17,9 +17,13 @@ import uuid
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 KNOWN_CRASH = ("dbp37", "sunlust", "dbp50")
 MODES = ("off", "capture", "core", "sync", "gpu-assisted")
-FEATURE = {
-    "sync": "VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT",
-    "gpu-assisted": "VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT",
+VALIDATION_SETTINGS = {
+    "core": ("validate_core = true", "validate_sync = false", "gpuav_enable = false"),
+    "sync": ("validate_core = false", "validate_sync = true", "gpuav_enable = false",
+             "syncval_submit_time_validation = true"),
+    "gpu-assisted": ("validate_core = false", "validate_sync = false", "gpuav_enable = true",
+                     "gpuav_shader_instrumentation = true",
+                     "gpuav_debug_print_instrumentation_info = true"),
 }
 
 
@@ -102,6 +106,10 @@ def main():
     ap.add_argument("--resolution")
     ap.add_argument("--cap-vsync-msaa")
     ap.add_argument("--mode", choices=MODES, default="capture")
+    ap.add_argument("--validation-layer-dir", type=pathlib.Path,
+                    help="directory containing local Khronos validation JSON and DLL; process-scoped")
+    ap.add_argument("--isolate-workdir", action="store_true",
+                    help="run from a per-run work directory for screenshot/state fixtures")
     ap.add_argument("--pre-arg", action="append", default=[])
     ap.add_argument("--arg", action="append", default=[])
     ap.add_argument("--timeout", type=int, default=60)
@@ -129,14 +137,26 @@ def main():
         ap.error("CFX-003 requires explicit pipeline and shader cache paths")
     if args.approved_cfx003 and (args.mode != "capture" or not args.config or args.timeout > 60):
         ap.error("CFX-003 requires capture mode, an exact config, and a watchdog of at most 60 seconds")
-    if args.launch and args.mode in ("core", "sync", "gpu-assisted"):
-        probe = subprocess.run(["vulkaninfo", "--summary"], capture_output=True, text=True)
+    probe_env = os.environ.copy()
+    layer_dir = args.validation_layer_dir.resolve() if args.validation_layer_dir else None
+    if layer_dir:
+        manifest_file = layer_dir / "VkLayer_khronos_validation.json"
+        library_file = layer_dir / "VkLayer_khronos_validation.dll"
+        if not manifest_file.is_file() or not library_file.is_file():
+            ap.error("validation layer directory must contain Khronos JSON and DLL")
+        probe_env["VK_ADD_LAYER_PATH"] = str(layer_dir)
+    if args.launch and args.mode in VALIDATION_SETTINGS:
+        probe = subprocess.run(["vulkaninfo", "--summary"], capture_output=True, text=True,
+                               env=probe_env)
         if "VK_LAYER_KHRONOS_validation" not in probe.stdout:
-            ap.error("VK_LAYER_KHRONOS_validation is not installed; validation mode unavailable")
+            ap.error("VK_LAYER_KHRONOS_validation unavailable in this process layer path")
 
     run_id = "cfx-" + dt.datetime.now(dt.timezone.utc).strftime("%Y%m%dT%H%M%SZ-") + uuid.uuid4().hex[:12]
     run_dir = args.run_root.resolve() / run_id
     run_dir.mkdir(parents=True, exist_ok=False)
+    work_dir = run_dir / "work" if args.isolate_workdir else args.exe.parent.resolve()
+    if args.isolate_workdir:
+        work_dir.mkdir()
     for source, name in ((args.config, "config-before.ini"),
                          (args.pipeline_cache, "pipelinecache-before.zdpc"),
                          (args.shader_cache, "shadercache-before.zdsc")):
@@ -192,10 +212,13 @@ def main():
                 "fps_vsync_msaa": args.cap_vsync_msaa,
                 "pipeline_cache_identity": identity(args.pipeline_cache) if args.pipeline_cache else None,
                 "shader_cache_identity": identity(args.shader_cache) if args.shader_cache else None,
-                "working_directory": str(args.exe.parent.resolve())},
+                "working_directory": str(work_dir)},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
                         "vulkan_runtime": None, "active_vulkan_layers": None,
                         "validation_or_capture_mode": args.mode,
+                        "validation_layer_dir": str(layer_dir) if layer_dir else None,
+                        "validation_layer_json": identity(layer_dir / "VkLayer_khronos_validation.json") if layer_dir else None,
+                        "validation_layer_dll": identity(layer_dir / "VkLayer_khronos_validation.dll") if layer_dir else None,
                         "capability_state": None},
         "failure": {"application_observation": None, "watchdog_action": None,
                     "last_known_cpu_stage": None, "last_known_gpu_stage": None},
@@ -207,7 +230,8 @@ def main():
                                          "device-fault.bin", "process.dmp"],
         "unknowns": ["actual loaded layers and enabled device features require launch evidence"]
     }
-    probe = subprocess.run(["vulkaninfo", "--summary"], capture_output=True, text=True)
+    probe = subprocess.run(["vulkaninfo", "--summary"], capture_output=True, text=True,
+                           env=probe_env)
     (run_dir / "vulkaninfo-summary.txt").write_text(probe.stdout + probe.stderr)
     manifest["environment"]["vulkan_runtime"] = next((l.strip() for l in probe.stdout.splitlines()
                                                       if "Vulkan Instance Version" in l), None)
@@ -215,11 +239,15 @@ def main():
                                            if "deviceName" in l), None)
     manifest["environment"]["driver"] = next((l.strip() for l in probe.stdout.splitlines()
                                               if "driverInfo" in l), None)
-    if args.mode in FEATURE:
+    if args.mode in VALIDATION_SETTINGS:
         settings = run_dir / "vk_layer_settings.txt"
-        settings.write_text("khronos_validation.enables = " + FEATURE[args.mode] +
-                            "\nkhronos_validation.report_flags = error;warning;perf;info\n")
-        manifest["artifacts"].append(settings.name)
+        settings.write_text("\n".join("khronos_validation." + item for item in
+                                      VALIDATION_SETTINGS[args.mode]) +
+                            "\nkhronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG\n" +
+                            "khronos_validation.report_flags = error;warn;info\n" +
+                            "khronos_validation.log_filename = " +
+                            str(run_dir / "validation.log").replace("\\", "/") + "\n")
+        manifest["artifacts"].extend((settings.name, "validation.log"))
     manifest_path = run_dir / "manifest.json"
     def save():
         manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
@@ -227,17 +255,17 @@ def main():
     print(run_dir)
     if not args.launch:
         return 0
-    env = os.environ.copy()
+    env = probe_env.copy()
     if args.mode != "off":
         env.update(CFX_RUN_ID=run_id, CFX_TRACE_FILE=str(trace), CFX_FAULT_BIN=str(fault),
                    VK_LOADER_DEBUG="layer")
-    if args.mode in ("core", "sync", "gpu-assisted"):
+    if args.mode in VALIDATION_SETTINGS:
         env["VK_INSTANCE_LAYERS"] = "VK_LAYER_KHRONOS_validation"
-    if args.mode in FEATURE:
+    if args.mode in VALIDATION_SETTINGS:
         env["VK_LAYER_SETTINGS_PATH"] = str(run_dir / "vk_layer_settings.txt")
     timed_out = False
     with out.open("wb") as stdout, err.open("wb") as stderr:
-        proc = subprocess.Popen(command, cwd=args.exe.parent, env=env, stdout=stdout, stderr=stderr)
+        proc = subprocess.Popen(command, cwd=work_dir, env=env, stdout=stdout, stderr=stderr)
         manifest["status"] = "RUNNING"
         manifest["pid"] = proc.pid
         save()
@@ -260,14 +288,26 @@ def main():
         if name in loader and re.search(r"(Insert|Loading|using).*" + name, loader, re.I)]
     manifest["environment"]["layer_activation_evidence"] = "loader-layers.log"
     layer_loaded = "VK_LAYER_KHRONOS_validation" in manifest["environment"]["active_vulkan_layers"]
-    feature_seen = args.mode in FEATURE and FEATURE[args.mode] in (loader + console)
+    validation_log = (run_dir / "validation.log").read_text(errors="replace") if (run_dir / "validation.log").is_file() else ""
+    enabled_modes = {
+        "core": "  - Core Checks" in validation_log,
+        "sync": "  - Synchronization" in validation_log,
+        "gpu-assisted": "  - GPU-AV" in validation_log,
+    }
+    instrumented = bool(re.search(r"instrumentation count: [1-9]|instrumentation performed: true",
+                                  console, re.I))
+    manifest["environment"]["validation_enabled_report"] = [
+        line.strip() for line in validation_log.splitlines()
+        if line.startswith("  - ")]
+    manifest["environment"]["gpuav_shader_instrumentation_observed"] = instrumented
     manifest["environment"]["validation_mode_verified"] = (
         True if args.mode in ("off", "capture") else
-        layer_loaded if args.mode == "core" else
-        bool(layer_loaded and feature_seen))
+        bool(layer_loaded and enabled_modes[args.mode] and
+             (args.mode != "gpu-assisted" or instrumented)))
     manifest["environment"]["validation_mode_activation_evidence"] = (
-        "loader insertion" if args.mode == "core" and layer_loaded else
-        "layer feature token in output" if feature_seen and layer_loaded else None)
+        "loader insertion plus CURRENT-VALIDATION-ENABLED report" if
+        args.mode in VALIDATION_SETTINGS and layer_loaded and enabled_modes[args.mode]
+        else None)
     if platform.system() == "Windows":
         for log_name, filename in (("System", "system-events.xml"),
                                    ("Application", "application-events.xml")):
@@ -303,6 +343,8 @@ def main():
         identity(args.pipeline_cache) if args.pipeline_cache else None)
     manifest["run"]["shader_cache_after"] = (
         identity(args.shader_cache) if args.shader_cache else None)
+    if args.isolate_workdir:
+        manifest["artifacts"].extend(("work/levelmesh.obj", "work/levelmesh.mtl"))
     manifest["artifact_files"] = [
         {"path": str(run_dir / name), "size": (run_dir / name).stat().st_size}
         for name in manifest["artifacts"] if (run_dir / name).is_file()]
