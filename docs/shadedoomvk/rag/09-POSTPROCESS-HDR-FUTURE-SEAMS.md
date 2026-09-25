@@ -107,6 +107,10 @@ Potentially useful for expensive shadow/volumetric effects, but must follow the 
 
 Z-min/max/light-tile render resources currently exist even though the scene tiled-light path is dormant. PF-019 may avoid allocating work proven unused in the active configuration, but only after PF-007 capability state and PF-006 pipeline identity make the active path explicit.
 
+## Swapchain postprocess clear synchronization
+
+The swapchain output of `VkPPRenderPassSetup::CreateRenderPass` uses a color `loadOp=CLEAR` and an automatic layout transition. Its external-to-subpass dependency must include color attachment write access at the color attachment output stage, for both stencil and non-stencil variants. #86 added that destination access after synchronization validation reported a write-after-write hazard at the clear. The safe proof and remaining #87 finding are in `CFX-002-SWAPCHAIN-CLEAR-SYNC.md`.
+
 ## Invariants
 
 1. Preserve HDR precision and current postprocess outputs during PF unless an issue owns a correctness fix.
