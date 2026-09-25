@@ -118,8 +118,31 @@ def main():
     ap.add_argument("--launch", action="store_true", help="otherwise only prepare the manifest")
     ap.add_argument("--approved-cfx003", action="store_true",
                     help="reserved for a separately reviewed CFX-003 primary run")
+    ap.add_argument("--approved-cfx005", action="store_true",
+                    help="deliberate CFX-005 replay under a separate lane plan")
+    ap.add_argument("--cfx005-lane-plan", type=pathlib.Path,
+                    help="immutable CFX-005 per-GPU lane-opening JSON")
     args = ap.parse_args()
+    if args.approved_cfx003 and args.approved_cfx005:
+        ap.error("choose one crash campaign approval scope")
+    if args.cfx005_lane_plan and not args.approved_cfx005:
+        ap.error("--cfx005-lane-plan requires --approved-cfx005")
+    if args.approved_cfx005:
+        if not args.cfx005_lane_plan or not args.cfx005_lane_plan.is_file():
+            ap.error("CFX-005 requires an existing lane-opening JSON")
+        try:
+            lane_plan = json.loads(args.cfx005_lane_plan.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            ap.error(f"invalid CFX-005 lane-opening JSON: {exc}")
+        if (not isinstance(lane_plan, dict) or
+                lane_plan.get("schema") != "cfx-005-lane-v1" or
+                lane_plan.get("issue") != 92 or lane_plan.get("status") != "OPEN"):
+            ap.error("CFX-005 lane-opening JSON must name open issue #92")
+        if not args.run_root.resolve().is_relative_to(args.cfx005_lane_plan.parent.resolve()):
+            ap.error("CFX-005 run root must be inside its lane directory")
     files = [args.exe, args.iwad, *args.pwad, *args.addon]
+    if args.cfx005_lane_plan:
+        files.append(args.cfx005_lane_plan)
     if args.config:
         files.append(args.config)
     for path in files:
@@ -129,14 +152,16 @@ def main():
         ap.error("STOP-LAUNCHES.txt guard applies to an input")
     risky = args.map.upper() in ("MAP01", "MAP24", "MAP08") and any(
         key in p.name.lower() for p in args.pwad + args.addon for key in KNOWN_CRASH)
-    if args.launch and risky and not args.approved_cfx003:
-        ap.error("known crash route requires separate CFX-003 human review")
-    if args.approved_cfx003 and args.skip_dump_on_timeout:
-        ap.error("CFX-003 requires a pre-kill process dump")
-    if args.approved_cfx003 and (not args.pipeline_cache or not args.shader_cache):
-        ap.error("CFX-003 requires explicit pipeline and shader cache paths")
-    if args.approved_cfx003 and (args.mode != "capture" or not args.config or args.timeout > 60):
-        ap.error("CFX-003 requires capture mode, an exact config, and a watchdog of at most 60 seconds")
+    crash_approved = args.approved_cfx003 or args.approved_cfx005
+    campaign = "CFX-005" if args.approved_cfx005 else "CFX-003"
+    if args.launch and risky and not crash_approved:
+        ap.error("known crash route requires a separately approved CFX-003 or CFX-005 campaign")
+    if crash_approved and args.skip_dump_on_timeout:
+        ap.error(f"{campaign} requires a pre-kill process dump")
+    if crash_approved and (not args.pipeline_cache or not args.shader_cache):
+        ap.error(f"{campaign} requires explicit pipeline and shader cache paths")
+    if crash_approved and (args.mode != "capture" or not args.config or args.timeout > 60):
+        ap.error(f"{campaign} requires capture mode, an exact config, and a watchdog of at most 60 seconds")
     probe_env = os.environ.copy()
     layer_dir = args.validation_layer_dir.resolve() if args.validation_layer_dir else None
     if layer_dir:
@@ -212,7 +237,9 @@ def main():
                 "fps_vsync_msaa": args.cap_vsync_msaa,
                 "pipeline_cache_identity": identity(args.pipeline_cache) if args.pipeline_cache else None,
                 "shader_cache_identity": identity(args.shader_cache) if args.shader_cache else None,
-                "working_directory": str(work_dir)},
+                "working_directory": str(work_dir),
+                "crash_campaign_approval": campaign if crash_approved else None,
+                "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
                         "vulkan_runtime": None, "active_vulkan_layers": None,
                         "validation_or_capture_mode": args.mode,
