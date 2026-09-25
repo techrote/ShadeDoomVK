@@ -1,0 +1,878 @@
+{
+  "schema": "cfx-005-evidence-ledger-v1",
+  "issue": 92,
+  "parent_issue": 75,
+  "origin_issue": 78,
+  "status": "IN_PROGRESS",
+  "recorded_at_utc": "2026-09-25T16:47:18.834787+00:00",
+  "raw_root": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692",
+  "lane_opening": {
+    "schema": "cfx-005-lane-v1",
+    "issue": 92,
+    "status": "OPEN",
+    "campaign_id": "CFX5-20260925-PRIMARY",
+    "lane_id": "GTX1650SUPER-61692",
+    "opened_at_utc": "2026-09-25T16:29:57.485632+00:00",
+    "operator_authorization": "Repo owner instructed carry out issue #92 in current chat; #92 expressly permits multiple controlled crashes.",
+    "prior_guard": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\STOP-LAUNCHES.txt",
+      "state": "preserved and active for CFX-003 root",
+      "scope_transition": "This is a separately authorized CFX-005 campaign in a new evidence root; the CFX-003 marker is neither removed nor bypassed."
+    },
+    "gpu": "NVIDIA GeForce GTX 1650 SUPER",
+    "pci_device_id": "0x2187",
+    "driver": "616.92",
+    "environment_manifest": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\environment-preflight.json",
+      "sha256": "164ec9e19e16b903654710becb3455e6f28577aed44a4ab80f63fa22ecd2a8f5",
+      "bytes": 1767
+    },
+    "scenario_manifest": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\scenario.json",
+      "sha256": "4c1b4bb708177d37bb202ea22df55e8a150e29bd4f4112223300ba5028e2d9f7",
+      "bytes": 2711
+    },
+    "budget": {
+      "target_initial_launches": 3,
+      "absolute_max_launches": 5,
+      "max_confirmed_device_loss_or_reset_episodes": 3,
+      "expand_to_five_only_if_first_three_mixed": true
+    },
+    "recovery": "After each launch, preserve raw evidence, confirm driver/device enumeration and temperature/clocks, check new OS events and desktop health, and record recovery before another launch.",
+    "stop_if": [
+      "persistent display artifacting",
+      "driver does not recover normally",
+      "OS or filesystem instability",
+      "capture tooling failure",
+      "evidence of hardware degradation",
+      "more than one hard power-off",
+      "operator stop marker",
+      "budget exhausted"
+    ],
+    "cache_policy": "Before each primary replay, back up current global cache, install the exact preserved pre-CFX003 cache snapshots, verify hashes, then restore global cache afterward. Engine reads Windows LocalAppData/zdoom/cache, so supplying a cache path to the capture runner alone does not select the cache.",
+    "validation_policy": "Use capture without validation as the unchanged first scenario.",
+    "health_gate": "PASS: user confirmed normal desktop; nvidia-smi and vulkaninfo enumerate expected device; no vkdoom/build workload; 214582259712 bytes free; last nvlddmkm event remains CFX003 record 5056.",
+    "next_attempt": "CFX5-GTX1650SUPER-001"
+  },
+  "scenario": {
+    "id": "CFX5-S01",
+    "origin_issue": 78,
+    "origin_attempt": "CFX003-001",
+    "origin_run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+    "source_sha": "16996e38954b70d0187eecda5a7a0e55a4cc7a49",
+    "capture_runner_sha": "b46ed216ae2eb30e23730004bf32627ca6eba449",
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+      "bytes": 12067328
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.pdb",
+      "sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+      "bytes": 77729792
+    },
+    "iwad": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+      "sha256": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c",
+      "bytes": 16087017
+    },
+    "pwad": {
+      "path": "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad",
+      "sha256": "d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a",
+      "bytes": 48797931
+    },
+    "config": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\inputs\\vkdoom.ini",
+      "sha256": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+      "bytes": 17636
+    },
+    "pipeline_cache": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\inputs\\pipelinecache-baseline.zdpc",
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+      "bytes": 9701371
+    },
+    "shader_cache": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\inputs\\shadercache-baseline.zdsc",
+      "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd",
+      "bytes": 11323798
+    },
+    "map": "MAP01",
+    "skill": null,
+    "seed": null,
+    "camera": "initial map startup, no scripted movement",
+    "resolution": "1904x1001",
+    "fps_cap": 0,
+    "vsync": false,
+    "msaa": 4,
+    "capture_mode": "capture",
+    "watchdog_seconds": 60,
+    "script_policy": "Identical commands, per-attempt screenshot output path only.",
+    "baseline_signature": {
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "frame": 7,
+      "tic": 5,
+      "submissions": [
+        10,
+        11
+      ],
+      "wait_return": -4,
+      "wait_duration_ms": 1903,
+      "confirmed_checkpoint": "graphics world-stage BOTTOM_OF_PIPE on submission 10",
+      "fault_types": [
+        "READ_INVALID_EXT",
+        "INSTRUCTION_POINTER_FAULT_EXT"
+      ],
+      "system_events": [
+        5055,
+        5056
+      ],
+      "wer_141_new": false,
+      "dump_state": "post-error fatal dialog"
+    }
+  },
+  "environment_preflight": {
+    "schema": "cfx-005-gpu-environment-v1",
+    "recorded_at_utc": "2026-09-25T16:29:57.239089+00:00",
+    "gpu_name": "NVIDIA GeForce GTX 1650 SUPER",
+    "pci_device_id": "0x218710DE",
+    "driver_version": "616.92",
+    "vulkan_device_api": "1.4.351",
+    "os": "Windows 11 Pro 10.0.26200",
+    "user_display_health_confirmation": "2026-09-25: desktop normal, no persistent artifacts or display corruption",
+    "last_nvlddmkm_record_id": 5056,
+    "last_wer_record_id": 6104,
+    "last_nvlddmkm_event_local": "2026-09-25T16:55:47+01:00",
+    "free_disk_bytes": 214582259712,
+    "no_vkdoom_build_or_gpu_benchmark_process": true,
+    "artifacts": {
+      "nvidia-smi-q.txt": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\nvidia-smi-q.txt",
+        "sha256": "d7ba7998aaeb3f84499e0b3e29a266e86be81c071ac4c1f0b6ad18f28a01eb97",
+        "bytes": 20368
+      },
+      "vulkaninfo-summary.txt": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\vulkaninfo-summary.txt",
+        "sha256": "4a44d5d3b7cbeb69a8d333df217f478f48a1088940c9e1b89f8c5000b264d8bd",
+        "bytes": 2493
+      }
+    },
+    "global_cache_backup": {
+      "pipelinecache.zdpc": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\global-cache-backup\\pipelinecache.zdpc",
+        "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+        "bytes": 9701371
+      },
+      "shadercache.zdsc": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\global-cache-backup\\shadercache.zdsc",
+        "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da",
+        "bytes": 11323798
+      }
+    }
+  },
+  "primary_counts": {
+    "launches": 2,
+    "confirmed_device_losses": 2,
+    "new_wer_141_episodes": 1,
+    "successful_completions": 0,
+    "invalid_attempts": 0
+  },
+  "attempts": [
+    {
+      "plan": {
+        "schema": "cfx-005-attempt-plan-v1",
+        "issue": 92,
+        "attempt_id": "CFX5-GTX1650SUPER-001",
+        "lane_id": "GTX1650SUPER-61692",
+        "scenario_id": "CFX5-S01",
+        "planned_at_utc": "2026-09-25T16:31:22.812613+00:00",
+        "status": "PLANNED",
+        "hypothesis": "The CFX003-001 application device loss repeats with the same executable, preserved content/config and prelaunch cache on the same GTX 1650 SUPER.",
+        "single_intended_change": "New CFX-005 run identity/output paths and launcher approval scope only; renderer executable, WADs, initial config, cache snapshot, mode, map and startup commands are pinned.",
+        "predictions": {
+          "matching_device_loss": "Application returns -4 near the initial MAP01 frames, with nvlddmkm event correlation and a comparable world/graphics checkpoint and invalid-read fault type; count one crash episode and health-check before retry.",
+          "different_device_loss": "Preserve a distinct failure signature; do not cluster by mere device loss.",
+          "normal_exit": "Record a non-reproduction under exact declared state; repeat within budget before inferring intermittency.",
+          "timeout_without_vk_return": "Capture pre-kill process dump and distinguish CPU wait/hang from OS driver evidence.",
+          "invalid_environment": "Do not count as a launch; repair protocol before GPU work."
+        },
+        "source_sha": "b46ed216ae2eb30e23730004bf32627ca6eba449",
+        "binary_sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+        "pdb_sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+        "input_sha256": {
+          "iwad": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c",
+          "pwad": "d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a",
+          "config": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+          "script": "0a81471d0adc3152bcac4cabd7f3f690667a783864c56b1f25a3f36b3af84e71",
+          "baseline_pipeline_cache": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+          "baseline_shader_cache": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+        },
+        "prelaunch_event_cursor": {
+          "nvlddmkm_system_record_id": 5056,
+          "wer_application_record_id": 6104
+        },
+        "run_arguments": [
+          "--exe",
+          "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+          "--run-root",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\runs",
+          "--iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+          "--pwad",
+          "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad",
+          "--config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\inputs\\vkdoom.ini",
+          "--pipeline-cache",
+          "C:\\Users\\-\\AppData\\Local\\zdoom\\cache\\pipelinecache.zdpc",
+          "--shader-cache",
+          "C:\\Users\\-\\AppData\\Local\\zdoom\\cache\\shadercache.zdsc",
+          "--map",
+          "MAP01",
+          "--mode",
+          "capture",
+          "--timeout",
+          "60",
+          "--resolution",
+          "1904x1001",
+          "--cap-vsync-msaa",
+          "uncapped; vsync=false; MSAA=4",
+          "--pre-arg=-stdout",
+          "--pre-arg=-noautoload",
+          "--pre-arg=-nosound",
+          "--pre-arg=-nojoy",
+          "--pre-arg=-width",
+          "--pre-arg=1904",
+          "--pre-arg=-height",
+          "--pre-arg=1001",
+          "--pre-arg=-savedir",
+          "--pre-arg=C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\save",
+          "--arg=+exec",
+          "--arg=C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\inputs\\capture.cfg",
+          "--approved-cfx005",
+          "--cfx005-lane-plan",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\lane-opening.json",
+          "--launch"
+        ],
+        "global_cache_backup": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\global-cache-backup",
+        "stop_guard_review": "CFX003 marker exists and applies to old campaign root; this #92 lane has a distinct root and is explicitly authorized. DBP50/Sunlust guards remain untouched.",
+        "health_gate": "User reports artifact-free desktop; same GPU/driver enumerates, 29 C idle at lane opening, no vkdoom/build workload, sufficient free disk.",
+        "budget_gate": "Attempt 1 of initial 3; max 5 total, max 3 confirmed device losses per lane.",
+        "run_id": null
+      },
+      "result": {
+        "schema": "cfx-005-attempt-result-v1",
+        "attempt_id": "CFX5-GTX1650SUPER-001",
+        "run_id": "cfx-20260925T163257Z-21973cafcd66",
+        "disposition": "SUPPORTS",
+        "crash_id": "CFX5-CRASH-001",
+        "launch_count_this_lane": 1,
+        "device_loss_count_this_lane": 1,
+        "application_observation": "VK_ERROR_DEVICE_LOST",
+        "driver_event_record_ids": [
+          5060,
+          5061
+        ],
+        "analysis_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\analysis.json",
+        "analysis_sha256": "c140ee3059f9056c0d1f07c5f42a033a3cc05445cf8b97d46df689b865e05ed0",
+        "operator_note_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\operator-note.json",
+        "recovery_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-001\\recovery.json",
+        "interpretation": "First replay strongly matches CFX003-001 on same GPU, including world checkpoint and invalid-read fault address, but no initiating shader/resource is known.",
+        "next_action": "Attempt 2 with unchanged inputs/cache snapshot after passing recovery checks."
+      },
+      "analysis": {
+        "schema": "cfx-005-attempt-analysis-v1",
+        "issue": 92,
+        "attempt_id": "CFX5-GTX1650SUPER-001",
+        "crash_id": "CFX5-CRASH-001",
+        "run_id": "cfx-20260925T163257Z-21973cafcd66",
+        "disposition": "SUPPORTS",
+        "failure_class": "application-observed VK_ERROR_DEVICE_LOST with two contemporaneous NVIDIA 153 records",
+        "manifest_status": "FAILED",
+        "exit_status": 4294967295,
+        "frame": 7,
+        "tic": 4,
+        "last_cpu_stage": "present",
+        "last_submission_ordinal": 11,
+        "fence_wait": {
+          "entered_ms_utc": 1790353981254,
+          "returned_ms_utc": 1790353983159,
+          "duration_ms": 1905,
+          "result": -4
+        },
+        "graphics_submissions": {
+          "10": {
+            "command_buffers": [
+              "00000191353870D0",
+              "000001913538E0D0"
+            ],
+            "vkQueueSubmit_result": 0
+          },
+          "11": {
+            "command_buffers": [
+              "00000191353C60D0",
+              "00000191353C28D0"
+            ],
+            "vkQueueSubmit_result": 0
+          }
+        },
+        "confirmed_gpu_checkpoints": [
+          {
+            "queue": "graphics",
+            "stage_flag": 1,
+            "marker": "00000191EC7B5A70",
+            "command_buffer": "000001913538E0D0",
+            "frame": 7,
+            "stage": "startup",
+            "submission_ordinal": 10
+          },
+          {
+            "queue": "graphics",
+            "stage_flag": 8192,
+            "marker": "00000191EC7B5A00",
+            "command_buffer": "000001913538E0D0",
+            "frame": 7,
+            "stage": "world",
+            "submission_ordinal": 10
+          }
+        ],
+        "device_fault_addresses": [
+          {
+            "type": 6,
+            "address": "0x20010bc90",
+            "precision_bytes": 16
+          },
+          {
+            "type": 1,
+            "address": "0x1da00000",
+            "precision_bytes": 4096
+          }
+        ],
+        "driver_events": [
+          {
+            "record_id": 5060,
+            "event_id": 153,
+            "utc": "2026-09-25T16:33:01.2576719Z",
+            "data": [
+              "\\Device\\Video3",
+              "Error occurred on GPUID: 700"
+            ],
+            "binary": "00000000020030000000000099000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_id": 5061,
+            "event_id": 153,
+            "utc": "2026-09-25T16:33:03.1340604Z",
+            "data": [
+              "\\Device\\Video3",
+              "Error occurred on GPUID: 700"
+            ],
+            "binary": "00000000020030000000000099000000000000000000000000000000000000000000000000000000"
+          }
+        ],
+        "new_wer_141_at_first_recheck": false,
+        "process_dump": "absent because application exited before 60-second timeout; no process dump expected",
+        "gpu_capability": [
+          "engine-debug-messenger-inactive",
+          "debug-utils-enabled",
+          "nv-checkpoints-enabled",
+          "ext-device-fault-enabled",
+          "ray-query-disabled",
+          "graphics-pipeline-library-supported"
+        ],
+        "active_layers": [
+          "VK_LAYER_OBS_HOOK",
+          "VK_LAYER_NV_optimus",
+          "VK_LAYER_NV_present"
+        ],
+        "comparison_to_cfx003": {
+          "same_application_result": true,
+          "same_frame": true,
+          "tic_changed_from": 5,
+          "tic_changed_to": 4,
+          "same_submission_ordinals": [
+            10,
+            11
+          ],
+          "same_checkpoint_semantic_stage": "graphics world-stage BOTTOM_OF_PIPE in submission 10",
+          "same_invalid_read_address_and_precision": true,
+          "instruction_pointer_address_changed": true,
+          "pipeline_first_use_count": 22,
+          "pipeline_first_use_unique_count": 20,
+          "pipeline_first_use_key_set_equal": true,
+          "pipeline_first_use_sequence_equal": false,
+          "shader_cache_hit_count": 150,
+          "shader_cache_hit_unique_count": 138,
+          "shader_cache_hit_key_set_equal": true,
+          "shader_cache_hit_sequence_equal": false,
+          "same_nvidia_event_binary_payload": true
+        },
+        "interpretation": "First independent primary-lane replay closely matches CFX003-001. The equal invalid-read address is strong signature evidence on this device, but it does not map to a resource; checkpoint and returned wait do not identify the initiating command.",
+        "artifact_hashes": {
+          "manifest.json": {
+            "bytes": 10717,
+            "sha256": "50243f43c94e05079e3cc643fd1634f94ab88c3aafb80a608605ca160b167d6a"
+          },
+          "timeline.tsv": {
+            "bytes": 46471,
+            "sha256": "0fc1f61fa5c0eef4054a0f1b419aa8cafe6a735db880e8df02e662c82fc3772a"
+          },
+          "stdout.log": {
+            "bytes": 1991,
+            "sha256": "d9c623683b3cbf75ecbf0bd2ef3cdb91bc83363999f1e87f3b62188f0dbacc79"
+          },
+          "stderr.log": {
+            "bytes": 12607,
+            "sha256": "3d0a0c4369cfa33472ca9939304f4bcf80261d67b1a6b55a7da2d799b36a719c"
+          },
+          "loader-layers.log": {
+            "bytes": 12195,
+            "sha256": "2afb10156d8529645c6a931298b3ec8e449a38905e0d92e8e0dbc8571453a7aa"
+          },
+          "device-fault.bin": {
+            "bytes": 528456,
+            "sha256": "c5aa9b39840e944b07566b4fbaa5f044510e1aa7b23284378eabd6bf4999a89f"
+          },
+          "config-before.ini": {
+            "bytes": 17636,
+            "sha256": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b"
+          },
+          "pipelinecache-before.zdpc": {
+            "bytes": 9701371,
+            "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+          },
+          "shadercache-before.zdsc": {
+            "bytes": 11323798,
+            "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+          },
+          "vulkaninfo-summary.txt": {
+            "bytes": 2493,
+            "sha256": "4a44d5d3b7cbeb69a8d333df217f478f48a1088940c9e1b89f8c5000b264d8bd"
+          },
+          "plan.json": {
+            "bytes": 4404,
+            "sha256": "9ad3b7eae9e5ce46b865564faaf170c9a042d0aee14497c0d03cd9313d32c8ee"
+          },
+          "execution-start.json": {
+            "bytes": 2222,
+            "sha256": "30129fdcf2f58cc9a034ef62934acde09eba923e8857f00e5998d29cc5dfdf0e"
+          },
+          "execution-result.json": {
+            "bytes": 546,
+            "sha256": "af152eb37b9259b21cecfa746e42c2f0b5b0f8ede5ac4360bb8be57aca3eb53c"
+          },
+          "runner.stdout.txt": {
+            "bytes": 126,
+            "sha256": "41acb57d40b33602202f54a7044898d8a5e815f77faa45abd8cda08115b477fb"
+          },
+          "runner.stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "system-5060.xml": {
+            "bytes": 673,
+            "sha256": "ebf5d6c1e5442d43a286b3ec44398b8bdfc5eede11bbbb21cc5b4629d4a677c9"
+          },
+          "system-5061.xml": {
+            "bytes": 672,
+            "sha256": "c0219c92c06d32a110e812684a7ad15dbb4a99bad3ffe94021b243b7e1393977"
+          },
+          "vulkaninfo-after.txt": {
+            "bytes": 2493,
+            "sha256": "c33c7ca11ebc6c552039ac335cf640f6518cc9e11d0b8f6d472bd5792ae787ad"
+          },
+          "nvidia-smi-after.txt": {
+            "bytes": 20378,
+            "sha256": "ab123b8b9016a68f1c49ba0017fbe6c86e9f7e24b247a489c5c9bef457dbfb84"
+          }
+        }
+      }
+    },
+    {
+      "plan": {
+        "schema": "cfx-005-attempt-plan-v1",
+        "issue": 92,
+        "attempt_id": "CFX5-GTX1650SUPER-002",
+        "lane_id": "GTX1650SUPER-61692",
+        "scenario_id": "CFX5-S01",
+        "planned_at_utc": "2026-09-25T16:37:47.364164+00:00",
+        "status": "PLANNED",
+        "hypothesis": "The CFX003-001 application device loss repeats with the same executable, preserved content/config and prelaunch cache on the same GTX 1650 SUPER.",
+        "single_intended_change": "Second independent process/run identity and per-attempt output paths only; repeat exact CFX5-S01 executable, assets, initial config/cache snapshot and capture mode.",
+        "predictions": {
+          "matching_device_loss": "Application returns -4 near the initial MAP01 frames, with nvlddmkm event correlation and a comparable world/graphics checkpoint and invalid-read fault type; count one crash episode and health-check before retry.",
+          "different_device_loss": "Preserve a distinct failure signature; do not cluster by mere device loss.",
+          "normal_exit": "Record a non-reproduction under exact declared state; repeat within budget before inferring intermittency.",
+          "timeout_without_vk_return": "Capture pre-kill process dump and distinguish CPU wait/hang from OS driver evidence.",
+          "invalid_environment": "Do not count as a launch; repair protocol before GPU work."
+        },
+        "source_sha": "b46ed216ae2eb30e23730004bf32627ca6eba449",
+        "binary_sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+        "pdb_sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+        "input_sha256": {
+          "iwad": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c",
+          "pwad": "d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a",
+          "config": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+          "script": "47cd67f9bde072bebba58e392d318caf8d38a1f366f44c87de54987bd75b8185",
+          "baseline_pipeline_cache": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+          "baseline_shader_cache": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+        },
+        "prelaunch_event_cursor": {
+          "nvlddmkm_system_record_id": 5061,
+          "wer_application_record_id": 6104
+        },
+        "run_arguments": [
+          "--exe",
+          "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+          "--run-root",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\runs",
+          "--iwad",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+          "--pwad",
+          "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad",
+          "--config",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\inputs\\vkdoom.ini",
+          "--pipeline-cache",
+          "C:\\Users\\-\\AppData\\Local\\zdoom\\cache\\pipelinecache.zdpc",
+          "--shader-cache",
+          "C:\\Users\\-\\AppData\\Local\\zdoom\\cache\\shadercache.zdsc",
+          "--map",
+          "MAP01",
+          "--mode",
+          "capture",
+          "--timeout",
+          "60",
+          "--resolution",
+          "1904x1001",
+          "--cap-vsync-msaa",
+          "uncapped; vsync=false; MSAA=4",
+          "--pre-arg=-stdout",
+          "--pre-arg=-noautoload",
+          "--pre-arg=-nosound",
+          "--pre-arg=-nojoy",
+          "--pre-arg=-width",
+          "--pre-arg=1904",
+          "--pre-arg=-height",
+          "--pre-arg=1001",
+          "--pre-arg=-savedir",
+          "--pre-arg=C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\save",
+          "--arg=+exec",
+          "--arg=C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\inputs\\capture.cfg",
+          "--approved-cfx005",
+          "--cfx005-lane-plan",
+          "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\lane-opening.json",
+          "--launch"
+        ],
+        "global_cache_backup": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\global-cache-backup",
+        "stop_guard_review": "CFX003 marker exists and applies to old campaign root; this #92 lane has a distinct root and is explicitly authorized. DBP50/Sunlust guards remain untouched.",
+        "health_gate": "User reports artifact-free desktop; same GPU/driver enumerates, 29 C idle at lane opening, no vkdoom/build workload, sufficient free disk.",
+        "budget_gate": "Attempt 2 of initial 3; one confirmed loss so far, max 5 launches and 3 losses.",
+        "run_id": null
+      },
+      "result": {
+        "schema": "cfx-005-attempt-result-v1",
+        "attempt_id": "CFX5-GTX1650SUPER-002",
+        "run_id": "cfx-20260925T163802Z-fb7bc5f7a0a2",
+        "disposition": "SUPPORTS",
+        "crash_id": "CFX5-CRASH-002",
+        "launch_count_this_lane": 2,
+        "device_loss_count_this_lane": 2,
+        "application_observation": "VK_ERROR_DEVICE_LOST",
+        "driver_event_record_ids": [
+          5062,
+          5063,
+          5064
+        ],
+        "new_wer_141_record_ids": [
+          6107,
+          6113
+        ],
+        "analysis_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\analysis.json",
+        "analysis_sha256": "b09c6c4c4d13f9dbb48eea940ae87bf3c7f51fca4b4ab05a62f7a36202889149",
+        "machine_health_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\machine-health.json",
+        "interpretation": "Second replay matches CFX003-001 and first CFX005 loss; new WER LiveKernelEvent 141 names a vanished same-minute WATCHDOG dump. The readable process dump sees post-error dialog state.",
+        "next_action": "Hold attempt 3 until display health is confirmed; if healthy, run only the preregistered third primary replay."
+      },
+      "analysis": {
+        "schema": "cfx-005-attempt-analysis-v1",
+        "issue": 92,
+        "attempt_id": "CFX5-GTX1650SUPER-002",
+        "crash_id": "CFX5-CRASH-002",
+        "run_id": "cfx-20260925T163802Z-fb7bc5f7a0a2",
+        "disposition": "SUPPORTS",
+        "failure_class": "application-observed VK_ERROR_DEVICE_LOST plus new WER LiveKernelEvent 141 and three NVIDIA 153 records",
+        "manifest_status": "TIMEOUT",
+        "exit_status": 1,
+        "frame": 7,
+        "tic": 4,
+        "last_cpu_stage": "present",
+        "last_submission_ordinal": 11,
+        "fence_wait": {
+          "entered_ms_utc": 1790354286571,
+          "returned_ms_utc": 1790354288761,
+          "duration_ms": 2190,
+          "result": -4
+        },
+        "graphics_submissions": {
+          "10": {
+            "command_buffers": [
+              "00000138007070D0",
+              "000001380070E0D0"
+            ],
+            "vkQueueSubmit_result": 0
+          },
+          "11": {
+            "command_buffers": [
+              "00000138007460D0",
+              "00000138007428D0"
+            ],
+            "vkQueueSubmit_result": 0
+          }
+        },
+        "confirmed_gpu_checkpoints": [
+          {
+            "queue": "graphics",
+            "stage_flag": 1,
+            "marker": "00000138EA51B490",
+            "command_buffer": "000001380070E0D0",
+            "frame": 7,
+            "stage": "startup",
+            "submission_ordinal": 10
+          },
+          {
+            "queue": "graphics",
+            "stage_flag": 8192,
+            "marker": "00000138EA51BF80",
+            "command_buffer": "000001380070E0D0",
+            "frame": 7,
+            "stage": "world",
+            "submission_ordinal": 10
+          }
+        ],
+        "device_fault_addresses": [
+          {
+            "type": 6,
+            "address": "0x200109490",
+            "precision_bytes": 16
+          },
+          {
+            "type": 1,
+            "address": "0x1da00000",
+            "precision_bytes": 4096
+          }
+        ],
+        "driver_events": [
+          {
+            "record_id": 5062,
+            "event_id": 153,
+            "utc": "2026-09-25T16:38:06.5738681Z",
+            "binary": "00000000020030000000000099000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_id": 5063,
+            "event_id": 153,
+            "utc": "2026-09-25T16:38:08.4507857Z",
+            "binary": "00000000020030000000000099000000000000000000000000000000000000000000000000000000"
+          },
+          {
+            "record_id": 5064,
+            "event_id": 153,
+            "utc": "2026-09-25T16:38:08.7517798Z",
+            "binary": "00000000020030000000000099000000000000000000000000000000000000000000000000000000"
+          }
+        ],
+        "wer_reports": [
+          {
+            "record_id": 6107,
+            "watchdog_filenames": [
+              "WATCHDOG-20260925-1738.dmp"
+            ]
+          },
+          {
+            "record_id": 6108,
+            "watchdog_filenames": [
+              "WATCHDOG-20260920-1451.dmp"
+            ]
+          },
+          {
+            "record_id": 6109,
+            "watchdog_filenames": [
+              "WATCHDOG-20260923-1824.dmp"
+            ]
+          },
+          {
+            "record_id": 6110,
+            "watchdog_filenames": [
+              "WATCHDOG-20260923-2259.dmp"
+            ]
+          },
+          {
+            "record_id": 6111,
+            "watchdog_filenames": [
+              "WATCHDOG-20260924-1309.dmp"
+            ]
+          },
+          {
+            "record_id": 6112,
+            "watchdog_filenames": [
+              "WATCHDOG-20260924-1333.dmp"
+            ]
+          },
+          {
+            "record_id": 6113,
+            "watchdog_filenames": [
+              "WATCHDOG-20260925-1738.dmp"
+            ]
+          }
+        ],
+        "new_wer_141": {
+          "record_ids": [
+            6107,
+            6113
+          ],
+          "unique_report_id": "984b0ba5-867d-47f1-9dfa-8513668f2f48",
+          "referenced_dump": "WATCHDOG-20260925-1738.dmp",
+          "dump_survives": false,
+          "old_replayed_record_ids": [
+            6108,
+            6109,
+            6110,
+            6111,
+            6112
+          ]
+        },
+        "process_dump": {
+          "captured": true,
+          "readable": true,
+          "main_thread_state": "Win32DisplayWindow::RunLoop -> ErrorWindow::ExecModal -> ShowFatalError -> GameMain catch",
+          "capture_timing": "60-second watchdog, after vkWaitForFences returned -4; post-error state"
+        },
+        "pipeline_first_use_unique_set_matches_cfx003": true,
+        "shader_cache_hit_unique_set_matches_cfx003": true,
+        "comparison_to_cfx003": "Same frame/submission/checkpoint semantic stage and invalid-read address/precision; tic and instruction-pointer address differ. New 0x141 WER reference adds OS reset classification, but the kernel dump file is absent.",
+        "artifact_hashes": {
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\application-events.xml": {
+            "bytes": 92845,
+            "sha256": "28b9ac901a4b872a35e05a303068de11b974f1c1a55db2038f1d08e4bc330d73"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\config-before.ini": {
+            "bytes": 17636,
+            "sha256": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\device-fault.bin": {
+            "bytes": 468436,
+            "sha256": "9c4b65affcbef443ff1f66b9c6d20bf8fa9f6fcea487b00e351f41c510a19287"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\loader-layers.log": {
+            "bytes": 12195,
+            "sha256": "2afb10156d8529645c6a931298b3ec8e449a38905e0d92e8e0dbc8571453a7aa"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\manifest.json": {
+            "bytes": 11489,
+            "sha256": "9e98a8279c63656bc27d2fa81c542d13e8f13d630c25fe15346a70ef4c1e48d9"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\pipelinecache-before.zdpc": {
+            "bytes": 9701371,
+            "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\process.dmp": {
+            "bytes": 741782401,
+            "sha256": "5b339963016d0eb7ead92b694a30bd2d26f05c82c89feb8e833c65f2433c22ea"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\shadercache-before.zdsc": {
+            "bytes": 11323798,
+            "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\stderr.log": {
+            "bytes": 12607,
+            "sha256": "3d0a0c4369cfa33472ca9939304f4bcf80261d67b1a6b55a7da2d799b36a719c"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\stdout.log": {
+            "bytes": 1991,
+            "sha256": "651b9656ce26de0036bb6a6f58af4dbeb3dd1dbf6ebfe4d9ea1da8229e348060"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\system-events.xml": {
+            "bytes": 89898,
+            "sha256": "b7015d2f038810d0486a7aa82ce8bc724a19a08ece9fcfe42f7a31e35f68125a"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\timeline.tsv": {
+            "bytes": 46743,
+            "sha256": "f50395b96199d0972aa61f1b9c1f955e6c4de7ee39b6dc6ebe804587170240be"
+          },
+          "runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\vulkaninfo-summary.txt": {
+            "bytes": 2493,
+            "sha256": "4a44d5d3b7cbeb69a8d333df217f478f48a1088940c9e1b89f8c5000b264d8bd"
+          },
+          "application-6107.xml": {
+            "bytes": 1734,
+            "sha256": "8bd3304af32d4084a6da7cf25df78ba4770f37588da53459c957335a660236fe"
+          },
+          "application-6108.xml": {
+            "bytes": 1737,
+            "sha256": "c0c773b52bcb7a2883a1340b180a12fc8c780f66e388a7d30b8f36d7b9fa0fbd"
+          },
+          "application-6109.xml": {
+            "bytes": 1737,
+            "sha256": "dc183f1a1ef1617ec96021639d3bd2b589fb93c83dc588ce369383e92d099674"
+          },
+          "application-6110.xml": {
+            "bytes": 1737,
+            "sha256": "bbf5e5b70de422ddf7936dbce1d5d8d1bf3ae5a60f34b9dbe4c9810bc924080a"
+          },
+          "application-6111.xml": {
+            "bytes": 1737,
+            "sha256": "963e69e15edb1e21951189f451ad6f4919a6b57a895b4c1015ab282b36952390"
+          },
+          "application-6112.xml": {
+            "bytes": 1737,
+            "sha256": "5bfe3ef273d64be51ea203815d0eb94de6216e14848697d6b57496208051a9f1"
+          },
+          "application-6113.xml": {
+            "bytes": 1736,
+            "sha256": "d3f81e2b9985f26e02c585269a1d517e46c687758c31656bd3885a71d1bfa800"
+          },
+          "execution-result.json": {
+            "bytes": 537,
+            "sha256": "5e521aaa7d96fae81ac6583a9912631725a99a3351f33766eaa74b0ab5b07a51"
+          },
+          "execution-start.json": {
+            "bytes": 2222,
+            "sha256": "bd8812d113a196216b080a3547654b51720f7a02a12b616876f5d4dc39618f37"
+          },
+          "plan.json": {
+            "bytes": 4398,
+            "sha256": "0747bcd1bf27be6cb6899b9aa5c3ef940ddb8203cd9d25fe24f56a8e1220c874"
+          },
+          "runner.stderr.txt": {
+            "bytes": 0,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "runner.stdout.txt": {
+            "bytes": 126,
+            "sha256": "cbfa8b0b4d2028cd014d065d03da763e2e0498322fb1ebeb287ef5a548e3cbe4"
+          },
+          "system-5062.xml": {
+            "bytes": 673,
+            "sha256": "81ded739654ba6f8d5629e16b2e07bae2d0574915299bfac395b42b1c6914967"
+          },
+          "system-5063.xml": {
+            "bytes": 672,
+            "sha256": "020dc3c28e4631d823beb36a883bf69d16babc2e479e5cb08439866b66e35bbf"
+          },
+          "system-5064.xml": {
+            "bytes": 673,
+            "sha256": "c0d5cf308425128925d5bdb5b69aaabbda8e8b93679758d5cc25d0f5cd1dda96"
+          },
+          "threads.txt": {
+            "bytes": 35418,
+            "sha256": "27cd2569d8fa029004841338b6dc01c83f34ec86e29d673d1a513c6b6a8fc9d2"
+          }
+        }
+      }
+    }
+  ],
+  "secondary_gpu": null,
+  "limitations": [
+    "Third primary attempt is planned but held for post-attempt-2 display-health confirmation.",
+    "No secondary GPU is installed or identified in this evidence lane.",
+    "EXT addresses and checkpoints do not identify a shader/resource or initiating command."
+  ]
+}
