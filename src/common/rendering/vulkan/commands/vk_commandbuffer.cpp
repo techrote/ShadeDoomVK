@@ -146,7 +146,7 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 	if (finish && fb->GetFramebufferManager()->PresentImageIndex != -1)
 	{
 		submit.AddWait(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, fb->GetFramebufferManager()->SwapChainImageAvailableSemaphore.get());
-		submit.AddSignal(fb->GetFramebufferManager()->RenderFinishedSemaphore.get());
+		submit.AddSignal(fb->GetFramebufferManager()->GetRenderFinishedSemaphore());
 	}
 
 	if (!lastsubmit)

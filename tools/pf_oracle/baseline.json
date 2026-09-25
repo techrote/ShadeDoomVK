@@ -16,6 +16,7 @@
     {"category":"material","classification":"invariant_passed","id":"material-pbr-layers","kind":"invariant","owner":"PF-008"},
     {"category":"portal","classification":"invariant_passed","id":"portal-mirror-handedness","kind":"invariant","owner":"PF-010"},
     {"category":"lighting","classification":"invariant_passed","id":"portal-relative-actor-lighting","kind":"invariant","owner":"PF-016"},
+    {"category":"resource_lifetime","classification":"invariant_passed","id":"present-semaphore-image-lifetime","kind":"invariant","owner":"CFX-#82"},
     {"category":"probe_lightmap","classification":"invariant_passed","id":"probe-map-live-selection","kind":"invariant","owner":"PF-012"},
     {"category":"view_context","classification":"invariant_passed","id":"render-context-entrypoints","kind":"invariant","owner":"PF-010"},
     {"category":"resource_lifetime","classification":"invariant_passed","id":"renderer-generation-primitives","kind":"invariant","owner":"PF-002"},
@@ -27,9 +28,9 @@
   "programme": "PF-001",
   "schema_version": 1,
   "summary": {
-    "invariant_passed": 22,
+    "invariant_passed": 23,
     "known_defect_reproduced": 0,
-    "probe_count": 22,
+    "probe_count": 23,
     "unexpected": 0
   }
 }

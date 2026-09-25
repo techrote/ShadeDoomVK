@@ -41,14 +41,16 @@ VkFramebufferManager::VkFramebufferManager(VulkanRenderDevice* fb) : fb(fb)
 			.DebugName("SwapChainImageAvailableSemaphore")
 			.Create(fb->GetDevice());
 
-		RenderFinishedSemaphore = SemaphoreBuilder()
-			.DebugName("RenderFinishedSemaphore")
-			.Create(fb->GetDevice());
 	}
 }
 
 VkFramebufferManager::~VkFramebufferManager()
 {
+}
+
+VulkanSemaphore* VkFramebufferManager::GetRenderFinishedSemaphore() const
+{
+	return RenderFinishedSemaphores[PresentImageIndex].get();
 }
 
 void VkFramebufferManager::AcquireImage()
@@ -58,6 +60,16 @@ void VkFramebufferManager::AcquireImage()
 
 	if (SwapChain->Lost() || fb->GetClientWidth() != CurrentWidth || fb->GetClientHeight() != CurrentHeight || fb->GetVSync() != CurrentVSync || CurrentHdr != vk_hdr)
 	{
+		// A graphics fence only proves the signal operation completed; it does not
+		// prove that vkQueuePresentKHR has consumed its wait semaphore. Before a
+		// swapchain rebuild replaces image-owned semaphores, retire all presentation
+		// work that can still reference the old set.
+		if (SwapChain->ImageCount() > 0)
+		{
+			VkResult result = vkQueueWaitIdle(fb->GetDevice()->PresentQueue);
+			fb->GetDevice()->CheckVulkanError(result, "Could not wait for presentation queue during swapchain recreation");
+		}
+
 		Framebuffers.clear();
 
 		CurrentWidth = fb->GetClientWidth();
@@ -66,6 +78,18 @@ void VkFramebufferManager::AcquireImage()
 		CurrentHdr = vk_hdr;
 
 		SwapChain->Create(CurrentWidth, CurrentHeight, CurrentVSync ? 2 : 3, CurrentVSync, CurrentHdr);
+
+		// Present-wait binary semaphores are owned by swapchain image. Reacquiring
+		// an image proves its previous presentation has retired, making the matching
+		// semaphore safe to signal again without a steady-state queue idle.
+		RenderFinishedSemaphores.clear();
+		RenderFinishedSemaphores.reserve(SwapChain->ImageCount());
+		for (int i = 0; i < SwapChain->ImageCount(); i++)
+		{
+			RenderFinishedSemaphores.push_back(SemaphoreBuilder()
+				.DebugName("RenderFinishedSemaphore")
+				.Create(fb->GetDevice()));
+		}
 	}
 
 	PresentImageIndex = SwapChain->AcquireImage(SwapChainImageAvailableSemaphore.get());
@@ -78,5 +102,5 @@ void VkFramebufferManager::AcquireImage()
 void VkFramebufferManager::QueuePresent()
 {
 	if (PresentImageIndex != -1)
-		SwapChain->QueuePresent(PresentImageIndex, RenderFinishedSemaphore.get());
+		SwapChain->QueuePresent(PresentImageIndex, GetRenderFinishedSemaphore());
 }

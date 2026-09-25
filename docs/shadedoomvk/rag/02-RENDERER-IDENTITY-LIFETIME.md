@@ -121,6 +121,14 @@ Environment-probe reset remains owned by `VkTextureManager`'s PF-002 environment
 
 The experimental `LightProbeAABBTree` is not part of this live identity path; its `Update()`/`Upload()` remain dormant.
 
+## Swapchain presentation semaphore lifetime
+
+Issue #82 closes an inherited binary-semaphore lifetime hole in the presentation path. `VkFramebufferManager` owns one render-finished semaphore per live swapchain image, and both the present-bound graphics submit and `QueuePresent` select the semaphore by the current acquired image index. Steady-state reuse is therefore gated by reacquisition of that same image, which proves the preceding presentation wait for that image has retired; a graphics submission fence alone is not treated as presentation completion.
+
+Swapchain recreation is a separate lifetime boundary. Before `VulkanSwapChain::Create()` destroys/replaces the old swapchain and the image-indexed semaphore set, `VkFramebufferManager::AcquireImage()` waits the present queue idle when an old image set exists. The new semaphore vector is then rebuilt to the actual `SwapChain->ImageCount()`. This synchronization cost is confined to resize/VSync/HDR/lost-swapchain rebuilds and is not part of steady-state frame presentation.
+
+Primary source paths are `src/common/rendering/vulkan/framebuffers/vk_framebuffer.*` and `src/common/rendering/vulkan/commands/vk_commandbuffer.cpp`. The PF oracle owns a source-contract regression that forbids the former singleton render-finished semaphore design. This correctness fix does not establish a causal link to the historical driver resets tracked by CFX.
+
 ## Dynamic-light identity
 
 Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or LevelMesh light records. Actor light collection may deduplicate by light pointer and then upload copied structs. Shadow maps also assign a finite shadow index.
@@ -148,6 +156,7 @@ The planner records requests, arena slices, reuses, wrap waits, oversize/invalid
 - BLAS/TLAS rebuild/update;
 - canvas/dynamic texture resize/recreate;
 - Vulkan device/render-buffer reset;
+- swapchain recreation/image-count changes and outstanding presentation waits;
 - asynchronous upload completion after logical resource destruction.
 
 ## Required diagnostics after PF
@@ -174,3 +183,4 @@ For recyclable resource classes expose, where practical:
 7. Staging bytes may not be reused until all transfer commands that reference those bytes are retired.
 8. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
 9. Single-byte texture storage format alone is not material identity: palette-index and RedIsAlpha/luminance variants must remain distinct through resident-image and descriptor caching.
+10. A render-finished binary semaphore may not be reused merely because its graphics signal fence completed; steady-state reuse is gated by reacquiring the owning swapchain image, and swapchain recreation retires outstanding presentation work before replacing image-owned semaphores.

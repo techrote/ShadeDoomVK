@@ -200,6 +200,15 @@
       "paths": ["src/rendering/hwrenderer/doom_levelmesh.cpp"],
       "required": ["OnSectorChangedTexZ\\s*\\(.*?if\\s*\\(line->sidedef\\[0\\]\\).*?UpdateSide\\(line->sidedef\\[0\\].*?if\\s*\\(line->sidedef\\[1\\]\\).*?UpdateSide\\(line->sidedef\\[1\\]"],
       "forbidden": ["OnSectorChangedTexZ\\s*\\(.*?else\\s+if\\s*\\(line->sidedef\\[1\\]\\)"]
+    },
+    {
+      "id": "present-semaphore-image-lifetime",
+      "category": "resource_lifetime",
+      "kind": "invariant",
+      "owner": "CFX-#82",
+      "paths": ["src/common/rendering/vulkan/framebuffers/vk_framebuffer.h", "src/common/rendering/vulkan/framebuffers/vk_framebuffer.cpp", "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp"],
+      "required": ["std::vector<std::unique_ptr<VulkanSemaphore>>\\s+RenderFinishedSemaphores", "SwapChain->ImageCount\\(\\)", "vkQueueWaitIdle\\(fb->GetDevice\\(\\)->PresentQueue\\)", "GetRenderFinishedSemaphore\\(\\)\\s*const", "submit\\.AddSignal\\(fb->GetFramebufferManager\\(\\)->GetRenderFinishedSemaphore\\(\\)\\)", "QueuePresent\\(PresentImageIndex,\\s*GetRenderFinishedSemaphore\\(\\)\\)"],
+      "forbidden": ["std::unique_ptr<VulkanSemaphore>\\s+RenderFinishedSemaphore\\s*;"]
     }
   ]
 }
