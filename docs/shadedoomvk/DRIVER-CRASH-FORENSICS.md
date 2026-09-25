@@ -104,3 +104,7 @@ The diagnostic load log names these archived resources; the hashes below were re
 | `lights.pk3` | `fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952` |
 | `brightmaps.pk3` | `574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e` |
 | `game_widescreen_gfx.pk3` | `459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9` |
+
+## CFX-003 / #78 observed continuation (2026-09-25)
+
+The selected DBP37 MAP01 case was launched once on current instrumented master. It reached frame 7/tic 5 and returned VK_ERROR_DEVICE_LOST from a frame-fence wait after graphics submissions 10 and 11. Two new nvlddmkm event 153 records correlate in time. NV checkpoints locate a confirmed world-stage marker in submission 10; EXT device fault reports an invalid read plus instruction-pointer address without a shader/resource mapping. The watchdog dump caught the fatal-error dialog after the wait returned, not an in-flight fence stall. The #78 one-loss stop guard is active; no further GPU launch occurred. See CFX-003-DBP37-REPRODUCTION.md and evidence/cfx003-dbp37-attempts.json for exact identities, timestamps, hashes, limitations and next offline task. Earlier statements above that #78 had not begun describe the CFX-001 handoff date.
