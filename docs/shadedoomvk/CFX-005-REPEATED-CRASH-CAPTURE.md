@@ -1,6 +1,6 @@
-# CFX-005 / #92: repeated DBP37 capture, completed primary-lane record
+# CFX-005 / #92: repeated DBP37 capture and P400 comparison
 
-Status: PRIMARY LANE COMPLETE; SECONDARY LANE PENDING. All three preregistered GTX 1650 SUPER replays produced application-observed device loss. The primary lane has a STOP-LAUNCHES.txt marker and is exhausted. No secondary GPU lane has begun. The checked-in machine-readable ledger is evidence/cfx005-primary-attempts.json. Large raw artifacts remain outside Git at C:/ShadeDoomVK/pf-local-evidence/cfx005-dbp37-20260925/gtx1650super-61692/.
+Status: PRIMARY LANE COMPLETE; P400 LANE HOLD_NATIVE_DISPLAY; #92 IN PROGRESS. Three GTX 1650 SUPER and two P400 target replays returned application-observed device loss. The P400 completed one safe control. Both lanes have STOP-LAUNCHES.txt markers; the primary budget is exhausted and the P400 has one loss remaining under its cumulative three-loss cap. Checked-in ledgers: evidence/cfx005-primary-attempts.json and evidence/cfx005-p400-attempts.json. Large raw artifacts remain outside Git under the per-GPU roots recorded below.
 
 ## Lane opening and invariant
 
@@ -21,6 +21,51 @@ Each launch has its own immutable plan, manifest, raw timeline, fault binary, ex
 
 ## Recovery and next decision
 
-After attempts 1 and 2, the owner confirmed normal display and the CLI/device checks passed, including restored global caches and no new WHEA, Display or Kernel-Power instability event. After attempt 3, the owner again reported a normal display. NVIDIA still enumerated the GTX 1650 SUPER on driver 616.92 at 29 C, the cache wrapper restored both files, and the lane STOP marker was written. The primary budget is exhausted. A secondary-GPU lane requires the owner to install/identify the device and a fresh per-GPU capability and health manifest; no cross-GPU conclusion is possible yet. An AMD HD 7770 is a prospective owner choice, not an installed or capability-verified device.
+After attempts 1 and 2, the owner confirmed normal display and the CLI/device checks passed, including restored global caches and no new WHEA, Display or Kernel-Power instability event. After attempt 3, the owner again reported a normal display. NVIDIA still enumerated the GTX 1650 SUPER on driver 616.92 at 29 C, the cache wrapper restored both files, and the lane STOP marker was written. The primary budget is exhausted. The owner subsequently reported the HD 7770 dead and installed a Quadro P400; no HD 7770 physical replay was performed. The P400 observations and remaining gate are recorded below.
 
 The strongest current statement is three-for-three repeatability of the same device-loss signature on this GTX 1650 SUPER with pinned content/config/cache, including the same invalid-read address/precision and world-stage checkpoint. It is not yet a causal application bug, a proven driver defect, or a faulting shader/resource. #79 can use the exact invalid-read report and world/submission boundary for offline minimisation without treating another crash as a fix.
+
+
+## P400 capability and safe control (2026-09-30)
+
+Raw root: `C:/ShadeDoomVK/pf-local-evidence/cfx005-dbp37-20260930/p400-58278/`. The owner installed driver 582.78 after the initial P400 Code10/BasicDisplay preflight. We did not install/change drivers or TDR, clocks, voltage or power policy. Current master at the evidence update is `423c656158a2843c64b2071bd2fff5761724a9e6`. Every physical launch used capture runner source `b46ed216ae2eb30e23730004bf32627ca6eba449` and the original pinned executable/PDB; the renderer binary has not been rebuilt or changed for this comparison.
+
+Actual Vulkan/NVML inventory exposed only the Quadro P400 (PCI device 0x1cb3, 2048 MiB, driver 582.78, device Vulkan 1.4.312; loader 1.4.341). All five required bindless descriptor-indexing features and MSAA 4 passed. NV diagnostic checkpoints revision 2 and EXT device fault revision 2, including vendor binary support, were advertised and enabled by the application. KHR device fault was absent. Graphics pipeline libraries were enabled. Ray query was unsupported and effectively disabled, matching the primary lane's effective fallback. Capture-only mode loaded OBS/NVIDIA implicit layers and no validation layer. This is a compatible execution path, not an unsupported-path result. Aftermath was not enabled; its earlier unavailable inventory was not re-established after the owner's driver installation.
+
+The preserved IWAD-slot-only MAP01 control (`cfx-20260930T220036Z-336d527a56de`) completed normally with exit 0, a scene screenshot, 40 frames/tic 239, and no new GPU-reset or WHEA/Display/Kernel-Power instability event at collection. The exact historical `Doom2.wad` hash is preserved; its rendered content is custom, so this is not described as a verified stock Doom II control. No DBP37 PWAD was loaded in this control. Both target launches retained the original content/config/settings and portable source/include-keyed SPIR-V cache. Each started from the same P400-only pipeline cache generated by this safe control (SHA-256 `5346f5f7972604d93013c13db17f2dfa7979bdc16957a35cd788e65d22a6d507`). The primary opaque driver cache was never copied to the P400. The one-attempt wrapper restored both original global cache files after every launch.
+
+## Independent P400 attempts
+
+| Attempt | Run ID | Application observation | EXT fault | OS evidence and process dump |
+|---|---|---|---|---|
+| CFX5-P400-001 | cfx-20260930T220331Z-649ffe016f4a | Frame 7/tic 8, CPU stage postprocess; graphics submission 11, `vkQueueSubmit`, error -4 logged 13 ms after entry | Type 2 invalid write at 0x1de00000, precision 4096; type 4 invalid execute at 0x20006b7d8, 0x2000b6f48 and 0x2000b7e58, precision 8 | New nvlddmkm 153 record 5844, Video4/GPUID 600; no new WER 141 at first check. Readable 720903036-byte full process dump and matching-PDB `threads.txt`. |
+| CFX5-P400-002 | cfx-20260930T221229Z-4490fb662ae2 | Frame 7/tic 7, CPU stage postprocess; graphics submission 11, `vkQueueSubmit`, error -4 logged 15 ms after entry | Same type 2 invalid-write address/precision; type 4 invalid execute at 0x2000a7c58, precision 8 | New nvlddmkm 153 record 5850, Video4/GPUID 600; no new WER 141 at first check. Readable 696137660-byte full process dump and matching-PDB `threads.txt`. |
+
+Both traces explicitly record `vk-error` and `device-lost-observed` with result -4. Their prior submissions 9/10 succeeded in frame 6. The new driver event timestamps precede entry into the failing frame-7 submit, so the call observing loss is not evidence that submission 11 initiated it. Both 60-second watchdog dumps show `Win32DisplayWindow::RunLoop -> ErrorWindow::ExecModal -> ShowFatalError -> GameMain` catch after the Vulkan error returned. TIMEOUT describes the later fatal-dialog watchdog termination, not a never-returning submit. Neither P400 trace contains a GPU-confirmed checkpoint entry or produces a vendor device-fault binary. Both collection paths exist and were enabled; query counts/results are not logged, so absence cannot establish why they returned no such output. Device-fault addresses do survive. No shader/resource or initiating command is identified.
+
+The pinned capture runner only recognized loss through `vk-return -4` or literal `VK_ERROR_DEVICE_LOST`. Submit error handling throws before its normal return marker, so both immutable raw manifests incorrectly summarize first failure as `other Vulkan error`. The checked-in derived analysis retains that discrepancy and classifies the explicit -4 error/loss events correctly. This PR extends the scanner to those events, adds eight focused regression tests, and runs them in CI. The corrected scanner was also applied offline to both preserved physical traces and reports `VK_ERROR_DEVICE_LOST`; the raw manifests were not rewritten. First-attempt savedir retained a primary output path, which contained no files; attempt 2 corrected only that output path. The ledger preserves this protocol limitation.
+
+## Cross-GPU comparison and display-route limitation
+
+| Evidence | GTX 1650 SUPER / 616.92 / 4 GiB | Quadro P400 / 582.78 / 2 GiB |
+|---|---|---|
+| Target launches / application losses / successful targets | 3 / 3 / 0 | 2 / 2 / 0 |
+| New WER 141 episodes at collection | 2 | 0 |
+| First observed Vulkan error | Frame fence wait after successful frame-7 submissions 10/11 | Graphics submission 11 at frame 7; submissions 9/10 succeeded in frame 6 |
+| EXT fault types | Type 1 invalid read; type 6 instruction-pointer fault | Type 2 invalid write; type 4 invalid execute |
+| Confirmed GPU checkpoint | World, BOTTOM_OF_PIPE, submission 10 | None emitted despite enabled support |
+| Unique pipeline keys / shader-cache-hit keys | 20 / 138 | Same sets: 20 / 138 |
+| Pipeline-cache starting state | Preserved primary target-warm cache | P400 safe-control-warm cache |
+| Display routing | Primary display GPU | P400 renderer, separate BasicDisplay sink on 1650-connected monitor |
+
+After attempt 1 the owner disclosed that the monitor remained physically connected to the 1650 because no miniDisplayPort cable was available. `dxdiag-post-attempt1.txt` confirms Microsoft Basic Display Driver as the active display-only sink with GTX 1650 SUPER Code31, while P400 is a healthy full render device with no current display mode. The original opening is preserved, a display-route amendment records this fact, and attempt 2 deliberately held the topology fixed. The safe control also used that topology. Normal visible desktop recovery therefore describes the current BasicDisplay output; P400 recovery is separately supported by Code0, Vulkan/NVML enumeration and 23–24 C temperature checks.
+
+The two P400 losses repeat a materially different reported fault signature from the primary lane. They establish application-observed loss on a second compatible GPU/driver under the declared route. Overall comparison remains **INCONCLUSIVE** for causal attribution: architecture, driver generation, VRAM, per-device pipeline cache and display routing differ. Matching shader/pipeline key sets do not identify the offending instruction or prove identical compiled GPU work. An identical numeric frame alone is not a common-root-cause result.
+
+## Native P400 output gate and handoff
+
+The owner confirmed normal display after both P400 losses and plans to borrow a miniDisplayPort cable. `lane-status.json` and the P400 `STOP-LAUNCHES.txt` hold further launches on the present route. No third P400 target was launched or preregistered. #92 and PR #93 remain open/draft; this is not an acceptance-complete second lane.
+
+A future native-output sibling phase must preserve all existing STOP markers and the cumulative P400 budget: **two device-loss episodes used, three maximum, one remaining**. Connecting the monitor does not reset that budget. Before launching, capture fresh DxDiag/display-adapter, Vulkan/NVML and OS-event baselines proving the P400 actually owns the active output, check device health/storage and record the phase opening with this route change as the intended difference. Run the preserved safe control on that route first. Only after it passes, preregister the remaining target replay with the same executable/PDB, content, config, settings, portable SPIR-V snapshot and P400 pipeline-cache policy; identify the updated capture-runner SHA separately. Do not repair/re-enable another adapter or change GPU/system policy implicitly. Another loss exhausts the current P400 loss cap and stops physical work. A successful replay is a discriminator and requires an explicit mixed-outcome decision within the existing launch/loss limits.
+
+Offline #79 can compare the surviving invalid-read versus invalid-write/execute reports, preceding submissions and matching key sets. It must not attribute either fault address to a resource without an actual mapping, or infer a faulting shader from the CPU stage where loss was observed.

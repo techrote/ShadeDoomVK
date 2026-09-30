@@ -51,7 +51,7 @@ def scan_failure(trace, stdout, stderr, timed_out, returncode):
     for p in (trace, stdout, stderr):
         if p.is_file():
             data += p.read_text(errors="replace")[-2_000_000:]
-    if "VK_ERROR_DEVICE_LOST" in data or re.search(r"vk-return[^\n]*\t-4(?:\n|$)", data):
+    if "VK_ERROR_DEVICE_LOST" in data or re.search(r"(?:vk-return|vk-error|device-lost-observed)[^\n]*\t-4(?:\n|$)", data):
         return "VK_ERROR_DEVICE_LOST"
     if "vk-error" in data:
         return "other Vulkan error"
