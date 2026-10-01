@@ -4,7 +4,7 @@ Status: **reviewable precise blocker; no causal repair**, 2026-10-01. Parent #75
 
 ## Input and dependency boundary
 
-Use [CFX-003](CFX-003-DBP37-REPRODUCTION.md) and its immutable attempt ledger. Additional CFX-005 physical evidence is the provisional [PR #93](https://github.com/techrote/ShadeDoomVK/pull/93) handoff at `c786f1c5a31f47427fb30e99cb7396f97ec4cecb`; it is open, review-ready and 8/8 CI green at this investigation. Acceptance of the CFX-004 combined evidence depends on reviewing/merging that handoff. This branch does not copy or supersede PR #93's capture implementation. Exact master remained unchanged during the offline work.
+Use [CFX-003](CFX-003-DBP37-REPRODUCTION.md) and its immutable attempt ledger. Additional CFX-005 physical evidence is the reviewed [PR #93](https://github.com/techrote/ShadeDoomVK/pull/93) handoff at `c786f1c5a31f47427fb30e99cb7396f97ec4cecb`, merged after 8/8 CI green at `bc1c312691eef93daf9c512588bb14f31dca46d7`. It was provisional during the original offline investigation; that dependency is now satisfied. PR #94 integrates this exact master, preserving both forensic appendices. No renderer code differs between the original investigation base and this integration.
 
 All six dumps use EXE SHA-256 `15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd`, PDB SHA-256 `b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394`, CodeView GUID `43bfc543-3656-4d78-ac05-9b180ce4da2a`, age **28**. Physical renderer source is `16996e38954b70d0187eecda5a7a0e55a4cc7a49` (binary built from code-equivalent `c6c1a534...`). Capture script commits differ from that renderer identity. Do not apply this layout to historical Sunlust's same GUID with age 14 or another build.
 

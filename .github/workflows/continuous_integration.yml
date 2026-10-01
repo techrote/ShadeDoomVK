@@ -20,6 +20,9 @@ jobs:
     - name: Test oracle implementation
       run: python3 -m unittest discover -s tools/pf_oracle/tests -v
 
+    - name: Test crash-capture failure classification
+      run: python3 tools/test_cfx_capture.py
+
     - name: Verify deterministic PF baseline
       run: |
         mkdir -p build/pf-oracle

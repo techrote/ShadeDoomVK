@@ -9,7 +9,8 @@
     "cfx003": "evidence/cfx003-dbp37-attempts.json",
     "cfx005_provisional_pr": 93,
     "cfx005_provisional_head": "c786f1c5a31f47427fb30e99cb7396f97ec4cecb",
-    "merge_required_for_acceptance": true
+    "merge_required_for_acceptance": false,
+    "accepted_merge_sha": "bc1c312691eef93daf9c512588bb14f31dca46d7"
   },
   "result": "PRECISE UNRESOLVED BLOCKER; NO RENDERER REPAIR",
   "primary_incident_id": "CFX-DBP37-MAP01-20260924",
@@ -910,5 +911,6 @@
     "fix": "Reject existing samefile aliases before extraction/writing",
     "post_fix": "19 focused tests pass; both aliased input files remain byte-identical",
     "new_gpu_launches": 0
-  }
+  },
+  "integration_master_sha": "bc1c312691eef93daf9c512588bb14f31dca46d7"
 }
