@@ -4,7 +4,7 @@
   "parent": 75,
   "base_master": "83a7ac25ec581a10e72248a39d5d206f248a2d1d",
   "branch": "cfx006-capture-identities",
-  "observed_at_utc": "2026-10-01T21:30:30.419270+00:00",
+  "observed_at_utc": "2026-10-01T21:42:20.351288+00:00",
   "status": "IMPLEMENTED_OFFLINE_PR_ACCEPTANCE_PENDING",
   "gpu_launches": 0,
   "physical_equivalence": "NOT_RUN_STOPPED_LANES",
@@ -17,7 +17,7 @@
       "toolchain": "MSVC 19.44.35228 / VS Build Tools 17.14.40",
       "raw_log": {
         "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-asan-tests.log",
-        "sha256": "85fc6a1d921bc1e162b7442761405d8481d4be06e0dfa7b5d0c411ca84dfef00",
+        "sha256": "3a5fc9defb21a78782f00260068d083f90e9dc08538309eeb8f23d1d52b04a8f",
         "size": 1882
       }
     },
@@ -45,19 +45,20 @@
     "directory": "C:/ShadeDoomVK/build-cfx006",
     "log": {
       "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-final-build.log",
-      "sha256": "9e57dec50f01e3e323805f85b29fba350a15060b59fedf12a3f6fe31c5191efc",
-      "size": 2129
+      "sha256": "0d1ffc2c62d97cec5c909cb40db4b69876f295360d55f53afaee24a45e41ea4d",
+      "size": 2308
     },
     "exe": {
       "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.exe",
-      "sha256": "cd118ba6b28c238c8f84ae116058eefdf77d64cdeee799a5e7790ff017348c5d",
+      "sha256": "34d8dcba63ce9115e71b78035c933f894760d94ba7336724c84a9eb7d714b90a",
       "size": 12080128
     },
     "pdb": {
       "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.pdb",
-      "sha256": "1101dd136b11aa053f287a0b796a9cb50a9ae25e1da37bfbff7e6bfaa5c8c190",
+      "sha256": "4c48ca4a959b92c0664b5f58d4875f7eb11224137d6b29014be0621abcb9ae15",
       "size": 77418496
-    }
+    },
+    "renderer_code_commit": "ece2c650c"
   },
   "preserved_forensic_input": {
     "exe": {
@@ -109,5 +110,61 @@
     "run": 36929221484,
     "status": "FAILED_TEST_ISOLATION",
     "detail": "All renderer/compiled fixture assertions passed; mocked subprocess intercepted Linux platform.platform uname -p. Mock platform identity explicitly; fixture rerun passes on Windows ASan. Fresh full CI required."
+  },
+  "healthy_nv_query_correction": {
+    "vuid": "VUID-vkGetQueueCheckpointDataNV-queue-02025",
+    "spec": "https://docs.vulkan.org/refpages/latest/refpages/source/vkGetQueueCheckpointDataNV.html",
+    "removed_from": "VkCommandBufferManager::WaitForCommands",
+    "historical_capture_audit": [
+      {
+        "run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\attempt-001\\runs\\cfx-20260925T155541Z-0ddb0be3fb9b\\timeline.tsv",
+        "sha256": "0acb34bc4b87d0c9b8892e2a43a91d233f1a6e5f0c93f628a0d1a6f24539c42f",
+        "healthy_query_smoke_records": [
+          "1790351744210\t2814617177520746154\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260925T163802Z-fb7bc5f7a0a2",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\timeline.tsv",
+        "sha256": "f50395b96199d0972aa61f1b9c1f955e6c4de7ee39b6dc6ebe804587170240be",
+        "healthy_query_smoke_records": [
+          "1790354284933\t15175677215065088276\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260925T165624Z-8d82fb1ce3d1",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-003\\runs\\cfx-20260925T165624Z-8d82fb1ce3d1\\timeline.tsv",
+        "sha256": "ed1205773d7e2188c818e1f366cbc193e7f5f5f718bc78e36b76a7823dc40798",
+        "healthy_query_smoke_records": [
+          "1790355386331\t12424797502719788366\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260930T220331Z-649ffe016f4a",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\attempt-001\\runs\\cfx-20260930T220331Z-649ffe016f4a\\timeline.tsv",
+        "sha256": "8fe76a470e0b47f80c8d5c36df70d1ff92a97cc122f0529cfe46533e98e0985a",
+        "healthy_query_smoke_records": [
+          "1790805814033\t12614780340772456151\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260930T221229Z-4490fb662ae2",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\attempt-002\\runs\\cfx-20260930T221229Z-4490fb662ae2\\timeline.tsv",
+        "sha256": "d61afbd02ac9e523b8f3f1a8160a19b4bb008afa07d2f1ba16172aaadfba01e1",
+        "healthy_query_smoke_records": [
+          "1790806352192\t9481956439438701064\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\runs\\cfx-20261001T193835Z-c91d81c1724d\\timeline.tsv",
+        "sha256": "ff4badbd2e957c08673c65f3833cf9d663b624245d0ec27a5ab486dfd2f8fa6a",
+        "healthy_query_smoke_records": [
+          "1790883518197\t852755704880262151\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      }
+    ],
+    "causality": "UNKNOWN_DIAGNOSTIC_CONFOUNDER_NOT_CRASH_REPAIR"
   }
 }
