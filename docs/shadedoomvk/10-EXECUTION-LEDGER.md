@@ -315,3 +315,8 @@ Do not record an issue as complete merely because a PR exists or CI ran; accepta
 - CFX-004 / #79's precise-blocker disposition is reviewed in PR #94, with six post-error CPU collision snapshots and 19 focused adversarial tests. Its master integration preserves both CFX-004 and CFX-005 forensic appendices; this entry does not predeclare the PR merged.
 - No renderer repair, semantic change, workaround or new GPU launch is retained. #75 remains open on mapping the captured fault to the consuming shader/resource/submission and exact uploaded bytes/descriptor lifetime. Both physical lane budgets remain exhausted with STOP guards active.
 - PF-020 / #37 remains blocked; no PF/SDVK release gate is lifted. The evidence acceptance does not establish application correctness or a driver defect.
+
+### 2026-10-01 — CFX-006 accepted; bounded CFX-007 continuation authorized
+
+- #95/PR #96 reviewed, 8/8 CI green at head `3b530c5cd28c78e76ffcac487b963f4886646509`, merged and verified on master `a6880fdb22e2f3d9ee85f3a86384b48ad7af9373`. Bounded query/resource identities accepted; initiating crash unresolved and PF-020/#75 remain blocked.
+- #97/CFX-007 is a separately authorized causal continuation: at most 16 targeted launches and 6 correlated loss/TDR episodes, automatic recovery gate replaces routine human visual checkpoints. Historical six guards remain immutable; no old binary/old lane reopening. See issues/CFX-007.md.

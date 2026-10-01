@@ -100,6 +100,38 @@ def capture_environment(base, mode, run_id, trace, fault, resource_trace):
     return env
 
 
+def check_cfx007_lane(path, run_root, exe):
+    """New scope only: merged CFX-006 binary, intact historical guards, finite ledger."""
+    if not path or not path.is_file():
+        raise ValueError("CFX-007 requires an existing lane-opening JSON")
+    lane = json.loads(path.read_text(encoding="utf-8"))
+    if (lane.get("schema") != "cfx-007-lane-v1" or lane.get("issue") != 97 or
+            lane.get("status") != "OPEN" or lane.get("substrate_merge") !=
+            "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373"):
+        raise ValueError("CFX-007 requires the new #97 merged-substrate lane")
+    if not run_root.resolve().is_relative_to(path.parent.resolve()):
+        raise ValueError("CFX-007 run root must be inside its lane")
+    for parent in (run_root.resolve(), *run_root.resolve().parents):
+        if (parent / "STOP-LAUNCHES.txt").exists():
+            raise ValueError("CFX-007 run-root stop guard")
+    if digest(exe) != lane.get("exe_sha256") or digest(exe.with_suffix(".pdb")) != lane.get("pdb_sha256"):
+        raise ValueError("CFX-007 binary/PDB identity changed")
+    if lane["exe_sha256"] == "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd":
+        raise ValueError("CFX-007 rejects pre-CFX-006 binary")
+    for guard in lane.get("historical_guards", []):
+        if digest(pathlib.Path(guard["path"])) != guard["sha256"]:
+            raise ValueError("CFX-007 historical guard changed")
+    if len(lane.get("historical_guards", [])) != 6:
+        raise ValueError("CFX-007 requires all six historical guards")
+    state = json.loads((path.parent / "state.json").read_text(encoding="utf-8"))
+    if (state.get("status") != "OPEN" or not 0 <= state.get("launches", -1) <= 16 or
+            (state.get("launches") == 16 and not state.get("pending_attempt")) or
+            not 0 <= state.get("loss_episodes", -1) < 6 or
+            lane.get("max_launches") != 16 or lane.get("max_loss_episodes") != 6):
+        raise ValueError("CFX-007 stopped or budget exhausted")
+    return lane
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--exe", type=pathlib.Path, required=True)
@@ -135,10 +167,12 @@ def main():
                     help="deliberate CFX-005 replay under a separate lane plan")
     ap.add_argument("--cfx005-lane-plan", type=pathlib.Path,
                     help="immutable CFX-005 per-GPU lane-opening JSON")
+    ap.add_argument("--approved-cfx007", action="store_true", help="new #97 bounded causal continuation")
+    ap.add_argument("--cfx007-lane-plan", type=pathlib.Path)
     args = ap.parse_args()
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
-    if args.approved_cfx003 and args.approved_cfx005:
+    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007)) > 1:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
         ap.error("--cfx005-lane-plan requires --approved-cfx005")
@@ -155,7 +189,16 @@ def main():
             ap.error("CFX-005 lane-opening JSON must name open issue #92")
         if not args.run_root.resolve().is_relative_to(args.cfx005_lane_plan.parent.resolve()):
             ap.error("CFX-005 run root must be inside its lane directory")
+    if args.cfx007_lane_plan and not args.approved_cfx007:
+        ap.error("--cfx007-lane-plan requires --approved-cfx007")
+    if args.approved_cfx007:
+        try:
+            check_cfx007_lane(args.cfx007_lane_plan, args.run_root, args.exe)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            ap.error(str(exc))
     files = [args.exe, args.iwad, *args.pwad, *args.addon]
+    if args.cfx007_lane_plan:
+        files.append(args.cfx007_lane_plan)
     if args.cfx005_lane_plan:
         files.append(args.cfx005_lane_plan)
     if args.config:
@@ -167,10 +210,10 @@ def main():
         ap.error("STOP-LAUNCHES.txt guard applies to an input")
     risky = args.map.upper() in ("MAP01", "MAP24", "MAP08") and any(
         key in p.name.lower() for p in args.pwad + args.addon for key in KNOWN_CRASH)
-    crash_approved = args.approved_cfx003 or args.approved_cfx005
-    campaign = "CFX-005" if args.approved_cfx005 else "CFX-003"
+    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007
+    campaign = "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
     if args.launch and risky and not crash_approved:
-        ap.error("known crash route requires a separately approved CFX-003 or CFX-005 campaign")
+        ap.error("known crash route requires a separately approved CFX-003, CFX-005 or CFX-007 campaign")
     if crash_approved and args.skip_dump_on_timeout:
         ap.error(f"{campaign} requires a pre-kill process dump")
     if crash_approved and (not args.pipeline_cache or not args.shader_cache):
@@ -254,7 +297,8 @@ def main():
                 "shader_cache_identity": identity(args.shader_cache) if args.shader_cache else None,
                 "working_directory": str(work_dir),
                 "crash_campaign_approval": campaign if crash_approved else None,
-                "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None},
+                "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None,
+                "cfx007_lane_plan": identity(args.cfx007_lane_plan) if args.cfx007_lane_plan else None},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
                         "vulkan_runtime": None, "active_vulkan_layers": None,
                         "validation_or_capture_mode": args.mode,
