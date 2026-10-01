@@ -1,0 +1,857 @@
+{
+  "schema": "cfx-005-native-evidence-ledger-v1",
+  "issue": 92,
+  "parent_issue": 75,
+  "status": "CAPTURE_COMPLETE_REVIEW_PENDING",
+  "raw_root": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native",
+  "recorded_at_utc": "2026-10-01T19:45:21.038787+00:00",
+  "environment": {
+    "schema": "cfx-005-native-environment-v1",
+    "issue": 92,
+    "recorded_at_utc": "2026-10-01T19:35:31.500586+00:00",
+    "gpu": "Quadro P400",
+    "pci_device_id": "0x1cb3",
+    "driver": "582.78",
+    "vram_mib": 2048,
+    "vulkan_device_api": "1.4.312",
+    "loader": "1.4.341",
+    "native_output": {
+      "device_name": "\\\\.\\DISPLAY2",
+      "primary": true,
+      "bounds": {
+        "left": 0,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1080
+      },
+      "work": {
+        "left": 0,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1048
+      },
+      "adapter": {
+        "device_name": "\\\\.\\DISPLAY2",
+        "name": "NVIDIA Quadro P400",
+        "device_id": "PCI\\VEN_10DE&DEV_1CB3&SUBSYS_11BE10DE&REV_A1",
+        "state_flags": 5
+      }
+    },
+    "display_route": "Primary DISPLAY2 is P400; BasicDisplay/GTX1650SUPER Code31 remains secondary DISPLAY1.",
+    "capability_inventory": "vulkaninfo-full.txt",
+    "capture_runner_sha": "8d997c7a1f5011e626e1256b84a48fb05876e9d8",
+    "renderer_source_sha": "16996e38954b70d0187eecda5a7a0e55a4cc7a49",
+    "temperature_c": 25,
+    "nvml_display_active": true,
+    "owner_action": "Owner connected monitor 2 to P400 and set it primary after request; confirmed Done.",
+    "artifact_hashes": {
+      "display-adapters.json": {
+        "sha256": "cf458c856ff589bb6ad6bebe582ebea457371ccab88515e3421ca9344806ad65",
+        "bytes": 656
+      },
+      "display-topology.json": {
+        "sha256": "6c9c0ab787bca0efa8bca9f334f7f2469f4a67123df4a0a9e263c3db40fc1ef5",
+        "bytes": 1992
+      },
+      "display_probe.py": {
+        "sha256": "993cc9c788885cc7ba96903683263c1424e02be653527c6b6e25ca94bd94b470",
+        "bytes": 2644
+      },
+      "dxdiag-preflight.txt": {
+        "sha256": "9c3350b3a8fb10a18167e34b8685d504b07435dd6ee2bf35fa04e75ccf46696b",
+        "bytes": 180921
+      },
+      "nvidia-smi-q.txt": {
+        "sha256": "cb07c4df446ab3ebe99bc87c735c57513256eaeba3f72e85ec48f5ef802c68b2",
+        "bytes": 16588
+      },
+      "os.json": {
+        "sha256": "617c9fd8b28124918eae325398108afa9e717605b5031409ff3d51f44dea05e6",
+        "bytes": 154
+      },
+      "vulkaninfo-full-warnings.txt": {
+        "sha256": "6e0e4327c08e007bca8037fb185064d37e651b8b097778b11e5c7becb95e949d",
+        "bytes": 290
+      },
+      "vulkaninfo-full.txt": {
+        "sha256": "479e9f9b098b425a09eb30f5d217c810a87d8c7261dd33029a3e54daa86568c1",
+        "bytes": 85799
+      },
+      "vulkaninfo-summary-warnings.txt": {
+        "sha256": "6e0e4327c08e007bca8037fb185064d37e651b8b097778b11e5c7becb95e949d",
+        "bytes": 290
+      },
+      "vulkaninfo-summary.txt": {
+        "sha256": "0291f091817c651a6843d4276b95dc3b1bd8c36fc35069975a78fd6eefd7ac07",
+        "bytes": 2122
+      }
+    }
+  },
+  "lane_opening": {
+    "schema": "cfx-005-lane-v1",
+    "issue": 92,
+    "status": "OPEN",
+    "campaign_id": "CFX5-20261001-P400-NATIVE",
+    "lane_id": "P400-58278-NATIVE",
+    "opened_at_utc": "2026-10-01T19:35:31.500586+00:00",
+    "operator_authorization": "Existing #92 repeated capture authorization; native-output handoff executed after owner connected P400 monitor and made it main display.",
+    "phase_change": "Native P400 display is now primary; window is not moved during launch. Other adapter remains installed/displaying secondary.",
+    "gpu": "Quadro P400",
+    "driver": "582.78",
+    "budget": {
+      "prior_p400_target_launches": 2,
+      "prior_p400_device_loss_episodes": 2,
+      "cumulative_device_loss_cap": 3,
+      "remaining_device_loss_episodes": 1,
+      "planned_native_target_launches": 1,
+      "absolute_max_p400_target_launches": 5,
+      "expand_only_if_first_three_mixed": true
+    },
+    "prior_guards": [
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\STOP-LAUNCHES.txt",
+        "scope": "Preserved cross-adapter phase STOP; native-output sibling phase explicitly defined by prior handoff; no reset of budget."
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\STOP-LAUNCHES.txt",
+        "scope": "Primary GPU exhausted, preserved"
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\STOP-LAUNCHES.txt",
+        "scope": "CFX003 exhausted, preserved"
+      }
+    ],
+    "environment_manifest_sha256": "1ae9de1043c72507b34c327b4c86561acfde7bcfe6a8aad8734e3a21046f01d3",
+    "prior_status_sha256": "53300b2d4c01bd8e0c5757f77df336cf08550cfa9215d31d7b76c9299443afa7",
+    "source_sha": "8d997c7a1f5011e626e1256b84a48fb05876e9d8",
+    "binary_sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+    "pdb_sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+    "safe_control_required": true,
+    "target_cache_policy": "Reset exact Sept30 P400-only safe-control-warm pipeline and portable SPIR-V snapshots before native target, not the newly generated native control cache.",
+    "input_copy_provenance": {
+      "pipelinecache-baseline.zdpc": {
+        "from": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\inputs\\pipelinecache-baseline.zdpc",
+        "sha256": "5346f5f7972604d93013c13db17f2dfa7979bdc16957a35cd788e65d22a6d507"
+      },
+      "shadercache-baseline.zdsc": {
+        "from": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\inputs\\shadercache-baseline.zdsc",
+        "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+      },
+      "vkdoom.ini": {
+        "from": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\inputs\\vkdoom.ini",
+        "sha256": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b"
+      }
+    },
+    "mode": "capture",
+    "watchdog_seconds": 60,
+    "window_observation": "Read-only bounded Win32 position/monitor snapshots, no window movement, no per-draw tracing.",
+    "stop_if": [
+      "safe control fails",
+      "persistent display corruption",
+      "device does not recover",
+      "OS/filesystem instability",
+      "capture tooling fails",
+      "native window routing unproven",
+      "one additional device loss/reset episode",
+      "operator stop"
+    ]
+  },
+  "safe_control": {
+    "schema": "cfx-005-control-result-v1",
+    "disposition": "PASS",
+    "run_id": "cfx-20261001T193552Z-7ed8029d2672",
+    "source_sha": "8d997c7a1f5011e626e1256b84a48fb05876e9d8",
+    "exit_status": 0,
+    "frames_completed": 895,
+    "tic": 241,
+    "actual_gpu": "Quadro P400",
+    "driver": "582.78",
+    "native_output_proof": "MainWindow 1904x1001 observed on P400 DISPLAY2 while rendering; no window movement",
+    "application_failure": null,
+    "new_gpu_reset_or_whea_display_kernelpower_events": false,
+    "capture_capabilities": [
+      "engine-debug-messenger-inactive",
+      "debug-utils-enabled",
+      "nv-checkpoints-enabled",
+      "ext-device-fault-enabled",
+      "ray-query-disabled",
+      "graphics-pipeline-library-supported"
+    ],
+    "global_cache_restored": true,
+    "content_note": "Preserved historical IWAD-slot file only; not a verified stock Doom II control",
+    "scene_review": "Normal expected prison/dual-pistol scene; screenshot visually inspected",
+    "artifacts": {
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\application-events.xml": {
+        "sha256": "3646e60a231b5079fd1b0fd039a8fc5991f35d137c9c98844b9463268f131b11",
+        "bytes": 94664
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\config-before.ini": {
+        "sha256": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+        "bytes": 17636
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\loader-layers.log": {
+        "sha256": "16f3293d5c525f9c00c802489e961a448167bdea5534f98b8fdd5ea23a1f3967",
+        "bytes": 12169
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\manifest.json": {
+        "sha256": "b9894414246e424b5ef666ddea9518072bcda4d7bd996dd68aaa709453595d73",
+        "bytes": 9667
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\shadercache-before.zdsc": {
+        "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd",
+        "bytes": 11323798
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\stderr.log": {
+        "sha256": "35459d59923e52718fe5939dae6188f8a78297416e47326daddcb61a95cd754a",
+        "bytes": 12560
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\stdout.log": {
+        "sha256": "adac5ef7b3d5adabb34b4807afb9cc072590ff9f541b194654af3521158ac3d6",
+        "bytes": 1790
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\system-events.xml": {
+        "sha256": "1daa615d3ab7e00b4be0996fbb2a7d3a8a8fc5aaa47713eb3f59591c11434932",
+        "bytes": 83230
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\timeline.tsv": {
+        "sha256": "4251787899182a00e6b231b0e231387fe8293a2a9b0ca76d15f13587085cc81f",
+        "bytes": 4705928
+      },
+      "runs\\cfx-20261001T193552Z-7ed8029d2672\\vulkaninfo-summary.txt": {
+        "sha256": "24f6803d2cf11fd4ea1d8e5428248f94d781ab733d20b09ceab09f45f0c5e1fb",
+        "bytes": 2412
+      },
+      "scene.png": {
+        "sha256": "5dd9cc5c3c5c1fa6a3c8a4043f640e10fb4ed5007aa205be3368202890dc2030",
+        "bytes": 372232
+      },
+      "window-observation.json": {
+        "sha256": "7aa31d102163e78f3747c235b92a92498c0eeebe5a7577a00c730612fb77c236",
+        "bytes": 1475
+      },
+      "health-events.json": {
+        "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+        "bytes": 4
+      },
+      "execution-result.json": {
+        "sha256": "19c88c02b1eda0004d2ae1fa9ce3094a51972c07c2f246aa51d23f6a68cbec5d",
+        "bytes": 498
+      }
+    }
+  },
+  "attempt": {
+    "plan": {
+      "schema": "cfx-005-attempt-plan-v1",
+      "issue": 92,
+      "status": "PLANNED",
+      "attempt_id": "CFX5-P400-003-NATIVE",
+      "scenario_id": "CFX5-S01",
+      "planned_at_utc": "2026-10-01T19:38:17.958064+00:00",
+      "source_sha": "8d997c7a1f5011e626e1256b84a48fb05876e9d8",
+      "binary_sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+      "pdb_sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+      "expected_gpu": "Quadro P400",
+      "expected_driver": "582.78",
+      "expected_pci_device_id": "0x1CB310DE",
+      "inputs": {
+        "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\inputs\\vkdoom.ini": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\inputs\\capture.cfg": "8d44d0cad82fe21683bc1630de3599e5905b06113ab8d172a223d6fba58aa65e",
+        "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad": "d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c"
+      },
+      "cache_inputs": {
+        "pipelinecache.zdpc": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\inputs\\pipelinecache-baseline.zdpc",
+        "shadercache.zdsc": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\inputs\\shadercache-baseline.zdsc"
+      },
+      "cache_sha256": {
+        "pipelinecache.zdpc": "5346f5f7972604d93013c13db17f2dfa7979bdc16957a35cd788e65d22a6d507",
+        "shadercache.zdsc": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+      },
+      "cache_policy": "P400-specific pipeline cache generated only by safe IWAD-slot-only MAP01 control; reset to that exact snapshot before every target. Original portable source/include-keyed SPIR-V cache preserved. Primary pipeline cache is never installed on P400.",
+      "hypothesis": "P400 device loss persists with its own native primary monitor, with unchanged renderer inputs and cache; display-route contribution is tested.",
+      "predictions": {
+        "same_failure": "Same P400 submit-side -4 and invalid-write/execute fault despite native output: display-route alone is insufficient; exhaust cumulative loss cap and stop.",
+        "different_failure": "Preserve distinct result/operation/fault/checkpoint; any additional loss exhausts cap.",
+        "normal_exit": "Native run completes and screenshot survives: potential route/timing discriminator, not proof of a fix; record mixed outcome and stop for review of existing budget.",
+        "timeout_no_return": "Preserve pre-kill dump; do not assume device loss without actual result/event evidence.",
+        "bad_environment": "No launch counted; stop and repair protocol."
+      },
+      "run_arguments": [
+        "--exe",
+        "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+        "--run-root",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\runs",
+        "--iwad",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+        "--pwad",
+        "C:\\ShadeDoomVK\\dbp37\\DBP37_AUGZEN.wad",
+        "--config",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\inputs\\vkdoom.ini",
+        "--pipeline-cache",
+        "C:\\Users\\-\\AppData\\Local\\zdoom\\cache\\pipelinecache.zdpc",
+        "--shader-cache",
+        "C:\\Users\\-\\AppData\\Local\\zdoom\\cache\\shadercache.zdsc",
+        "--map",
+        "MAP01",
+        "--mode",
+        "capture",
+        "--timeout",
+        "60",
+        "--resolution",
+        "1904x1001",
+        "--cap-vsync-msaa",
+        "uncapped; vsync=false; MSAA=4",
+        "--pre-arg=-stdout",
+        "--pre-arg=-noautoload",
+        "--pre-arg=-nosound",
+        "--pre-arg=-nojoy",
+        "--pre-arg=-width",
+        "--pre-arg=1904",
+        "--pre-arg=-height",
+        "--pre-arg=1001",
+        "--pre-arg=-savedir",
+        "--pre-arg=C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\save",
+        "--arg=+exec",
+        "--arg=C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\inputs\\capture.cfg",
+        "--approved-cfx005",
+        "--cfx005-lane-plan",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\lane-opening.json",
+        "--launch"
+      ],
+      "lane_id": "P400-58278-NATIVE",
+      "single_intended_change": "Native P400 output replaces BasicDisplay presentation destination; other GPU remains secondary. New capture-runner classifier and read-only window observations are declared telemetry changes, not renderer changes.",
+      "prelaunch_event_cursor": {
+        "nvlddmkm_system_record_id": 5850,
+        "wer_application_record_id": 7607
+      },
+      "display_route": "Primary DISPLAY2 is P400 native output; BasicDisplay remains secondary DISPLAY1",
+      "comparison_scope": "Within-P400 output-route discriminator plus coupled GPU/driver comparison with primary; not a GPU-only causal test.",
+      "native_display_device": "\\\\.\\DISPLAY2",
+      "cumulative_budget": {
+        "prior_target_launches": 2,
+        "prior_device_loss_episodes": 2,
+        "max_device_loss_episodes": 3,
+        "remaining_before_launch": 1
+      },
+      "safe_control_result_sha256": "4d70ed6521d87dd3024f9d14f5e0ee8a5e714e265da06524ef83677dff50c23e"
+    },
+    "analysis": {
+      "schema": "cfx-005-attempt-analysis-v1",
+      "issue": 92,
+      "attempt_id": "CFX5-P400-003-NATIVE",
+      "crash_id": "CFX5-CRASH-P400-003-NATIVE",
+      "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+      "disposition": "DEVICE_LOSS_NATIVE_OUTPUT_CONFIRMED_FULL_FAULT_CLUSTER_INCONCLUSIVE",
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "raw_manifest_observation": "VK_ERROR_DEVICE_LOST",
+      "manifest_status": "TIMEOUT",
+      "exit_status": 1,
+      "frame": 8,
+      "tic": 7,
+      "last_cpu_stage": "postprocess",
+      "last_pre_error_cpu_stage_completed": "sprites-translucency",
+      "stage_complete_limitation": "Postprocess stage-complete after device-lost is scope unwinding, not successful GPU completion.",
+      "returned_operation": "vkQueueSubmit",
+      "error_context": "Could not submit command buffer",
+      "error_result": -4,
+      "operation_entered_ms_utc": 1790883519974,
+      "error_logged_ms_utc": 1790883519994,
+      "operation_to_error_ms": 20,
+      "graphics_submissions": {
+        "1": {
+          "frame": 1,
+          "tic": 0,
+          "stage": "resource-mesh-upload",
+          "context": "graphics slot=0 buffers=2 finish=0 last=1",
+          "command_buffers": [
+            "00000138709C9C00",
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "2": {
+          "frame": 1,
+          "tic": 0,
+          "stage": "resource-mesh-upload",
+          "context": "graphics slot=0 buffers=1 finish=0 last=1",
+          "command_buffers": [
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "3": {
+          "frame": 1,
+          "tic": 0,
+          "stage": "present",
+          "context": "graphics slot=0 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "0000013870905E30",
+            "00000138709C9C00"
+          ],
+          "result": 0
+        },
+        "4": {
+          "frame": 2,
+          "tic": 0,
+          "stage": "present",
+          "context": "graphics slot=0 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "00000138709C9C00",
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "5": {
+          "frame": 3,
+          "tic": 0,
+          "stage": "present",
+          "context": "graphics slot=0 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "00000138709C9C00",
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "6": {
+          "frame": 4,
+          "tic": 0,
+          "stage": "present",
+          "context": "graphics slot=0 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "00000138709C9C00",
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "7": {
+          "frame": 5,
+          "tic": 0,
+          "stage": "present",
+          "context": "graphics slot=0 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "00000138709C9C00",
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "8": {
+          "frame": 6,
+          "tic": 1,
+          "stage": "postprocess",
+          "context": "graphics slot=0 buffers=2 finish=0 last=0",
+          "command_buffers": [
+            "00000138709C9C00",
+            "0000013870905E30"
+          ],
+          "result": 0
+        },
+        "9": {
+          "frame": 6,
+          "tic": 1,
+          "stage": "present",
+          "context": "graphics slot=1 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "00000138003446F0",
+            "0000013825C564C0"
+          ],
+          "result": 0
+        },
+        "10": {
+          "frame": 7,
+          "tic": 7,
+          "stage": "postprocess",
+          "context": "graphics slot=0 buffers=2 finish=0 last=0",
+          "command_buffers": [
+            "0000013870905E30",
+            "00000138709C9C00"
+          ],
+          "result": 0
+        },
+        "11": {
+          "frame": 7,
+          "tic": 7,
+          "stage": "present",
+          "context": "graphics slot=1 buffers=2 finish=1 last=1",
+          "command_buffers": [
+            "00000138003446F0",
+            "0000013825C564C0"
+          ],
+          "result": 0
+        },
+        "12": {
+          "frame": 8,
+          "tic": 7,
+          "stage": "postprocess",
+          "context": "graphics slot=0 buffers=2 finish=0 last=0",
+          "command_buffers": [
+            "0000013870905E30",
+            "00000138709C9C00"
+          ],
+          "result": -4
+        }
+      },
+      "last_frame_fence_return": {
+        "frame": 7,
+        "tic": 7,
+        "submission": 11,
+        "vk_result": 0,
+        "utc_ms": 1790883519971
+      },
+      "confirmed_gpu_checkpoints": [],
+      "checkpoint_smoke_context": [
+        "queue-returned-zero"
+      ],
+      "device_fault_addresses": [],
+      "device_fault_binary_present": false,
+      "missing_gpu_fault_evidence": "NV checkpoints and EXT device fault enabled; no confirmed post-loss checkpoint/address/vendor-binary output. Query counts/results after loss not logged; absence reason unknown.",
+      "driver_event_record_ids": [
+        5915
+      ],
+      "driver_event_device_path": "\\Device\\000000d4",
+      "driver_event_gpuid": 600,
+      "driver_event_utc": "2026-10-01T19:38:39.9687755Z",
+      "driver_event_precedes_observing_submit_enter": true,
+      "new_wer_141_at_first_check": false,
+      "process_dump": {
+        "bytes": 688667655,
+        "readable": true,
+        "matching_private_pdb_loaded": true,
+        "main_thread_state": "Win32DisplayWindow::RunLoop -> ErrorWindow::ExecModal -> ShowFatalError -> GameMain catch",
+        "capture_timing": "60-second watchdog, after Vulkan submit error; post-error UI"
+      },
+      "pipeline_first_use_unique_count": 20,
+      "shader_cache_hit_unique_count": 138,
+      "pipeline_unique_set_matches_prior_p400": true,
+      "shader_unique_set_matches_prior_p400": true,
+      "native_display_proof": {
+        "schema": "cfx-005-window-observation-v1",
+        "read_only": true,
+        "observations": [
+          {
+            "observed_at_utc": "2026-10-01T19:38:37.131544+00:00",
+            "hwnd": "0x1404b4",
+            "pid": 15620,
+            "class": "MainWindow",
+            "window_bounds": {
+              "left": 704,
+              "top": 348,
+              "right": 1216,
+              "bottom": 732
+            },
+            "client_width": 496,
+            "client_height": 345,
+            "monitor": {
+              "device_name": "\\\\.\\DISPLAY2",
+              "primary": true,
+              "bounds": {
+                "left": 0,
+                "top": 0,
+                "right": 1920,
+                "bottom": 1080
+              },
+              "work": {
+                "left": 0,
+                "top": 0,
+                "right": 1920,
+                "bottom": 1048
+              }
+            }
+          },
+          {
+            "observed_at_utc": "2026-10-01T19:38:37.450209+00:00",
+            "hwnd": "0x1404b4",
+            "pid": 15620,
+            "class": "MainWindow",
+            "window_bounds": {
+              "left": 0,
+              "top": 20,
+              "right": 1920,
+              "bottom": 1060
+            },
+            "client_width": 1904,
+            "client_height": 1001,
+            "monitor": {
+              "device_name": "\\\\.\\DISPLAY2",
+              "primary": true,
+              "bounds": {
+                "left": 0,
+                "top": 0,
+                "right": 1920,
+                "bottom": 1080
+              },
+              "work": {
+                "left": 0,
+                "top": 0,
+                "right": 1920,
+                "bottom": 1048
+              }
+            }
+          }
+        ]
+      },
+      "comparison_limits": [
+        "P400/582.78/2GiB vs GTX1650SUPER/616.92/4GiB; coupled GPU and driver difference.",
+        "Native app window is confirmed on P400 primary DISPLAY2; BasicDisplay/1650 Code31 remains active as a secondary monitor.",
+        "P400 safe-control-warm cache differs from primary target-warm cache, but this exact P400 snapshot matches both earlier P400 targets.",
+        "New telemetry-only capture classifier and bounded read-only window observations are declared; renderer binary unchanged.",
+        "Native run has no device-fault addresses/checkpoints to establish the full invalid-write/execute cluster.",
+        "No resource/shader/initiating submission or common root cause identified."
+      ],
+      "artifact_hashes": {
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\application-events.xml": {
+          "sha256": "3646e60a231b5079fd1b0fd039a8fc5991f35d137c9c98844b9463268f131b11",
+          "bytes": 94664
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\config-before.ini": {
+          "sha256": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+          "bytes": 17636
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\loader-layers.log": {
+          "sha256": "16f3293d5c525f9c00c802489e961a448167bdea5534f98b8fdd5ea23a1f3967",
+          "bytes": 12169
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\manifest.json": {
+          "sha256": "8d86d701d2563d98acb1c75461781ac53f87977c6b9c266fe3ce33a8d9d46abf",
+          "bytes": 11236
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\pipelinecache-before.zdpc": {
+          "sha256": "5346f5f7972604d93013c13db17f2dfa7979bdc16957a35cd788e65d22a6d507",
+          "bytes": 2870716
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\process.dmp": {
+          "sha256": "024222165b41043bc40ccb3c148ea73140fbb56f747d07250f813738397c2f19",
+          "bytes": 688667655
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\shadercache-before.zdsc": {
+          "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd",
+          "bytes": 11323798
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\stderr.log": {
+          "sha256": "35459d59923e52718fe5939dae6188f8a78297416e47326daddcb61a95cd754a",
+          "bytes": 12560
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\stdout.log": {
+          "sha256": "fe65c12f9eebd3eec19bac83a0a5366e3edf7af76dfca25a391840759b0d2e6e",
+          "bytes": 1972
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\system-events.xml": {
+          "sha256": "37888c5d82dcc8e128d54daed88431cf9b44089a4b2fb32d1cea79b1377430b6",
+          "bytes": 83150
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\timeline.tsv": {
+          "sha256": "ff4badbd2e957c08673c65f3833cf9d663b624245d0ec27a5ab486dfd2f8fa6a",
+          "bytes": 48760
+        },
+        "runs\\cfx-20261001T193835Z-c91d81c1724d\\vulkaninfo-summary.txt": {
+          "sha256": "24f6803d2cf11fd4ea1d8e5428248f94d781ab733d20b09ceab09f45f0c5e1fb",
+          "bytes": 2412
+        },
+        "cdb.stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "cdb.stdout.txt": {
+          "sha256": "ee94c3f19deeae20af0ee6c3a8b33acfa3b2e309a7d40f702ec8bb381f1940e1",
+          "bytes": 34885
+        },
+        "display-adapters-post.json": {
+          "sha256": "6bc155c63531f8865261e0e88a338c77057c5ecfdf1caf5609186b5590b9910e",
+          "bytes": 415
+        },
+        "driver-events.json": {
+          "sha256": "db0d057d14b4b1eecf56c6feee11dc308adb55b0ce8ae496e17ec5a24254b23e",
+          "bytes": 133
+        },
+        "execution-result.json": {
+          "sha256": "ea57151a5b24b6439c90946987047da048d3a048745d026888802c5e6c231d78",
+          "bytes": 490
+        },
+        "execution-start.json": {
+          "sha256": "f90efccce5963af17fdc44742242d4fceb99827e6bb25e26b8e69e6988d34deb",
+          "bytes": 731
+        },
+        "health-events.json": {
+          "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+          "bytes": 4
+        },
+        "nvidia-smi-post.txt": {
+          "sha256": "97ac15096089d9f0c93708d815e8bf3157fd8c117d70827e8b1d25e1a95e7106",
+          "bytes": 16993
+        },
+        "plan.json": {
+          "sha256": "e5a7967a11ee098eac617aa1579493ec6aaa95afd484305dd714c27c9d96714b",
+          "bytes": 5376
+        },
+        "prelaunch-display-topology.json": {
+          "sha256": "6c9c0ab787bca0efa8bca9f334f7f2469f4a67123df4a0a9e263c3db40fc1ef5",
+          "bytes": 1992
+        },
+        "runner.stderr.txt": {
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        },
+        "runner.stdout.txt": {
+          "sha256": "5bac9a8100d4df04695e8e1fb772f4b79179ee263350dfe3d1d339f5a81a79fc",
+          "bytes": 125
+        },
+        "system-5915.xml": {
+          "sha256": "3a4116886b7aa22dc85013fed453919dcaada2c91f79477335035aca4527809c",
+          "bytes": 675
+        },
+        "threads.txt": {
+          "sha256": "3081c4e067c0f5540ea79247284131c99a50dd2cb409c14968d7f7bb16a2845e",
+          "bytes": 36948
+        },
+        "wer-events.json": {
+          "sha256": "a5338d955b09046ec0b16f3a9625b7955c763aae07dc722e474e6078745f932f",
+          "bytes": 4
+        },
+        "window-observation.json": {
+          "sha256": "fee0f7fdbfd1bb06996fe238034b71ab404ca681f7f5e66c7efb65056401118d",
+          "bytes": 1477
+        }
+      }
+    },
+    "result": {
+      "schema": "cfx-005-attempt-result-v1",
+      "issue": 92,
+      "attempt_id": "CFX5-P400-003-NATIVE",
+      "crash_id": "CFX5-CRASH-P400-003-NATIVE",
+      "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "disposition": "DEVICE_LOSS_NATIVE_OUTPUT_CONFIRMED_FULL_FAULT_CLUSTER_INCONCLUSIVE",
+      "manifest_status": "TIMEOUT",
+      "exit_status": 1,
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\analysis.json",
+        "sha256": "7b73df8ec2f151479635f24a31efe553fd2b9f37eb5d4ab93cb89c6265f3f19b",
+        "bytes": 12300
+      },
+      "recovery": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\recovery.json",
+        "sha256": "546f09059adb82cc3fa60144bb6cf993f2bb2ab2eb2916b279b8206f4db6f17c",
+        "bytes": 585
+      },
+      "next_action": "STOP_CUMULATIVE_P400_BUDGET_EXHAUSTED; offline #79 only"
+    },
+    "recovery": {
+      "schema": "cfx-005-lane-recovery-v1",
+      "attempt_id": "CFX5-P400-003-NATIVE",
+      "checked_at_utc": "2026-10-01T19:45:21.038787+00:00",
+      "user_display_confirmation": "Yes, both displays look normal",
+      "gpu": "Quadro P400",
+      "driver": "582.78",
+      "temperature_c": 24,
+      "gpu_enumerates": true,
+      "p400_device_error_code": 0,
+      "new_whea_display_kernelpower_events": false,
+      "global_cache_restored": true,
+      "display_route": "P400 primary native DISPLAY2; BasicDisplay secondary DISPLAY1",
+      "decision": "STOP: third cumulative P400 loss; no further GPU launches"
+    }
+  },
+  "lane_status": {
+    "schema": "cfx-005-lane-status-v1",
+    "issue": 92,
+    "lane_id": "P400-58278-NATIVE",
+    "status": "STOP_BUDGET_EXHAUSTED",
+    "recorded_at_utc": "2026-10-01T19:45:21.038787+00:00",
+    "native_target_launches": 1,
+    "native_device_losses": 1,
+    "native_safe_controls": 1,
+    "cumulative_p400_target_launches": 3,
+    "cumulative_p400_device_losses": 3,
+    "cumulative_p400_successful_target_completions": 0,
+    "cumulative_p400_new_wer_141_episodes_at_collection": 0,
+    "device_loss_budget_cap": 3,
+    "remaining_device_loss_budget": 0,
+    "gpu_health": "Recovered: Code0, 24C, native output, both displays normal per owner",
+    "comparison_classification": "DIFFERENT_REPORTED_SIGNATURE; causal attribution INCONCLUSIVE",
+    "next_task": "#79 offline source-level/resource and shader-visible range minimisation, preserving these inputs; improve logging of fault-query return/count results before any future approved lane."
+  },
+  "phase_artifact_hashes": {
+    "display-adapters.json": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\display-adapters.json",
+      "sha256": "cf458c856ff589bb6ad6bebe582ebea457371ccab88515e3421ca9344806ad65",
+      "bytes": 656
+    },
+    "display-topology.json": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\display-topology.json",
+      "sha256": "6c9c0ab787bca0efa8bca9f334f7f2469f4a67123df4a0a9e263c3db40fc1ef5",
+      "bytes": 1992
+    },
+    "display_probe.py": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\display_probe.py",
+      "sha256": "993cc9c788885cc7ba96903683263c1424e02be653527c6b6e25ca94bd94b470",
+      "bytes": 2644
+    },
+    "dxdiag-preflight.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\dxdiag-preflight.txt",
+      "sha256": "9c3350b3a8fb10a18167e34b8685d504b07435dd6ee2bf35fa04e75ccf46696b",
+      "bytes": 180921
+    },
+    "environment-preflight.json": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\environment-preflight.json",
+      "sha256": "1ae9de1043c72507b34c327b4c86561acfde7bcfe6a8aad8734e3a21046f01d3",
+      "bytes": 2715
+    },
+    "execute_attempt.py": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\execute_attempt.py",
+      "sha256": "ed6faa16ec29e1820b0a65893dc4289c0465f531531e67bdc44c347fc937b6cf",
+      "bytes": 7286
+    },
+    "lane-opening.json": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\lane-opening.json",
+      "sha256": "558dfbdba4f7cdce3c8c7d26d19f32d26c342b5bdd35485df66dc596f705759b",
+      "bytes": 3386
+    },
+    "lane-status.json": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\lane-status.json",
+      "sha256": "cd15b686b6e060bbf06700e1629f8850c23bea2108947901bf6c56e16c755eff",
+      "bytes": 936
+    },
+    "nvidia-smi-q.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\nvidia-smi-q.txt",
+      "sha256": "cb07c4df446ab3ebe99bc87c735c57513256eaeba3f72e85ec48f5ef802c68b2",
+      "bytes": 16588
+    },
+    "os.json": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\os.json",
+      "sha256": "617c9fd8b28124918eae325398108afa9e717605b5031409ff3d51f44dea05e6",
+      "bytes": 154
+    },
+    "STOP-LAUNCHES.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\STOP-LAUNCHES.txt",
+      "sha256": "d29632b8bc3c2b4a889662395f3791066a357f48cbf83b34c1b8daaabdb2c9f8",
+      "bytes": 380
+    },
+    "vulkaninfo-full-warnings.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\vulkaninfo-full-warnings.txt",
+      "sha256": "6e0e4327c08e007bca8037fb185064d37e651b8b097778b11e5c7becb95e949d",
+      "bytes": 290
+    },
+    "vulkaninfo-full.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\vulkaninfo-full.txt",
+      "sha256": "479e9f9b098b425a09eb30f5d217c810a87d8c7261dd33029a3e54daa86568c1",
+      "bytes": 85799
+    },
+    "vulkaninfo-summary-warnings.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\vulkaninfo-summary-warnings.txt",
+      "sha256": "6e0e4327c08e007bca8037fb185064d37e651b8b097778b11e5c7becb95e949d",
+      "bytes": 290
+    },
+    "vulkaninfo-summary.txt": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\vulkaninfo-summary.txt",
+      "sha256": "0291f091817c651a6843d4276b95dc3b1bd8c36fc35069975a78fd6eefd7ac07",
+      "bytes": 2122
+    }
+  },
+  "acceptance": {
+    "primary_repeatability": "3/3 GTX1650SUPER losses; original ledger unchanged",
+    "secondary_capability_and_compatible_path": "P400 capability verified; same effective features, binary/config/content; three independent target launches total, latest on verified native P400 output",
+    "per_launch_and_per_crash_records": "Each of six target launches has own plan/run/analysis/crash ID and artifact hashes; both P400 safe controls also preserved",
+    "comparison": "Both GPUs lose device; primary read/IP faults vs initial P400 write/execute faults; native P400 broad loss repeats without detailed fault output, so full cluster and cause unresolved",
+    "next_task": "Offline #79 resource/range/shader investigation and bounded diagnostic query-status logging; no additional physical launches in these exhausted lanes"
+  },
+  "diagnostic_only_changes": "Current capture-runner classifier recognizes returned submit-side loss, plus read-only window monitor proof outside engine; production renderer unchanged"
+}

@@ -2,7 +2,7 @@
   "schema": "cfx-005-secondary-evidence-ledger-v1",
   "issue": 92,
   "parent_issue": 75,
-  "status": "HOLD_NATIVE_DISPLAY",
+  "status": "CROSS_ADAPTER_PHASE_STOPPED_NATIVE_PHASE_COMPLETE",
   "raw_root": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278",
   "environment": {
     "schema": "cfx-005-environment-v1",
@@ -989,5 +989,26 @@
       }
     }
   ],
-  "next_protocol": "Native P400 display sibling phase with preserved cumulative budget, fresh inventory, safe control, and pinned source/exe/config/WAD/SPIR-V and P400 pipeline cache. Do not call the current two display-confounded launches native-output results."
+  "next_protocol": "No more physical launches: cumulative P400 loss budget exhausted. Offline #79 investigation; see native phase ledger. Both dated phase STOP markers and original opening records preserved.",
+  "native_phase": {
+    "ledger": "cfx005-p400-native-attempt.json",
+    "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+    "native_target_launches": 1,
+    "native_device_losses": 1,
+    "native_safe_controls": 1,
+    "native_output_proven": true,
+    "full_fault_cluster": "INCONCLUSIVE: native run emitted no fault addresses/checkpoints"
+  },
+  "cumulative_counts": {
+    "target_launches": 3,
+    "application_device_loss_episodes": 3,
+    "successful_target_completions": 0,
+    "new_nvlddmkm_153_episodes": 3,
+    "new_wer_141_episodes_at_collection": 0,
+    "successful_safe_controls": 2,
+    "display_route_confounded_attempts": 2,
+    "native_output_attempts": 1,
+    "invalid_attempts": 0,
+    "remaining_device_loss_budget": 0
+  }
 }

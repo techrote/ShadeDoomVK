@@ -3,7 +3,7 @@
   "issue": 92,
   "parent_issue": 75,
   "origin_issue": 78,
-  "status": "PRIMARY_COMPLETE_SECONDARY_HOLD_NATIVE_DISPLAY",
+  "status": "CAPTURE_COMPLETE_REVIEW_PENDING",
   "recorded_at_utc": "2026-09-25T17:15:55.987756+00:00",
   "raw_root": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692",
   "lane_opening": {
@@ -1230,16 +1230,17 @@
     "gpu": "Quadro P400",
     "driver": "582.78",
     "ledger": "cfx005-p400-attempts.json",
-    "target_launches": 2,
-    "confirmed_device_losses": 2,
-    "successful_safe_controls": 1,
-    "status": "HOLD_NATIVE_DISPLAY",
-    "comparison_classification": "INCONCLUSIVE",
-    "display_route": "P400 renderer; monitor on GTX1650SUPER via Microsoft Basic Display Driver (Code31).",
-    "remaining_device_loss_budget": 1
+    "target_launches": 3,
+    "confirmed_device_losses": 3,
+    "successful_safe_controls": 2,
+    "status": "STOP_BUDGET_EXHAUSTED",
+    "comparison_classification": "DIFFERENT_REPORTED_SIGNATURE; CAUSAL_ATTRIBUTION_INCONCLUSIVE",
+    "display_route": "First two P400 attempts cross-adapter; third on verified native P400 primary output. BasicDisplay adapter remains secondary.",
+    "remaining_device_loss_budget": 0,
+    "native_ledger": "cfx005-p400-native-attempt.json"
   },
   "limitations": [
-    "Two P400/582.78 launches returned submit-side device loss with invalid-write/invalid-execute faults. GPU, driver, VRAM, per-device pipeline cache and display-route differences prevent causal attribution; native P400 output phase is pending.",
+    "Three P400/582.78 launches returned submit-side device loss. First two report invalid-write/execute faults; native-output third has no fault addresses/checkpoints. GPU/driver/VRAM/cache differences prevent causal attribution; native output does not prevent broad device-loss reproduction.",
     "EXT addresses and checkpoints do not identify a shader/resource or initiating command.",
     "The new WER 141 kernel dump file from attempt 3 was absent at collection; the full application process dump is preserved."
   ],
@@ -1248,5 +1249,5 @@
     "reason": "Three confirmed application device losses in three preregistered launches; primary budget exhausted.",
     "user_display_after_attempt_3": "Normal, no persistent display corruption."
   },
-  "secondary_update_date": "2026-09-30"
+  "secondary_update_date": "2026-10-01"
 }
