@@ -925,6 +925,7 @@ void VkLevelMeshUploader::UploadData(VulkanBuffer* dest, size_t destOffset, cons
 	if (src)
 		memcpy(data + datapos, src, size);
 
+	CfxTrace::Upload(transferBuffer->diagnosticId, dest->diagnosticId, datapos, destOffset, data + datapos, size);
 	copyCommands.emplace_back(transferBuffer.get(), dest, datapos, destOffset, size);
 	datapos += size;
 }

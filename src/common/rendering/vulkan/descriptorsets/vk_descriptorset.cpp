@@ -489,6 +489,14 @@ int VkDescriptorSetManager::AllocBindlessSlot(int count)
 			Bindless.Plan.DeviceLimit,
 			VkBindlessLimitSourceName(Bindless.Plan.DeviceLimitSource));
 	}
+	if (CfxTrace::ResourcesEnabled())
+	{
+		const auto id = Bindless.Allocator.CurrentIdentity(index);
+		char line[200];
+		std::snprintf(line, sizeof(line), "set_id=%llu index=%d generation=%u epoch=%u span=%u",
+			(unsigned long long)Bindless.Set->diagnosticId, id.Index, id.Generation, id.Epoch, id.Span);
+		CfxTrace::ResourceMark("bindless-allocate", line);
+	}
 	return index;
 }
 
@@ -497,6 +505,14 @@ void VkDescriptorSetManager::FreeBindlessSlot(int index)
 	if (index <= 0)
 		return;
 
+	if (CfxTrace::ResourcesEnabled())
+	{
+		const auto id = Bindless.Allocator.CurrentIdentity(index);
+		char line[200];
+		std::snprintf(line, sizeof(line), "set_id=%llu index=%d generation=%u epoch=%u span=%u",
+			(unsigned long long)Bindless.Set->diagnosticId, id.Index, id.Generation, id.Epoch, id.Span);
+		CfxTrace::ResourceMark("bindless-free-enter", line);
+	}
 	if (!Bindless.Allocator.Free(index))
 		I_FatalError("Invalid or duplicate bindless slot free at index %d.", index);
 }
@@ -506,6 +522,17 @@ void VkDescriptorSetManager::SetBindlessTexture(int index, VulkanImageView* imag
 	if (index < 0 || index >= Bindless.Plan.Effective)
 		I_FatalError("Bindless descriptor write index %d is outside effective capacity %d.", index, Bindless.Plan.Effective);
 
+	if (CfxTrace::ResourcesEnabled())
+	{
+		// Only allocation starts have PF tokens; interior/fixed slots are explicitly
+		// raw slot writes and are correlated with the preceding allocation span.
+		const auto id = Bindless.Allocator.CurrentIdentity(index);
+		char line[260];
+		std::snprintf(line, sizeof(line), "set_id=%llu index=%d generation=%u epoch=%u span=%u view=0x%llx sampler=0x%llx",
+			(unsigned long long)Bindless.Set->diagnosticId, index, id.Generation, id.Epoch, id.Span,
+			(unsigned long long)(uint64_t)imageview->view, (unsigned long long)(uint64_t)sampler->sampler);
+		CfxTrace::ResourceMark("bindless-write-queued", line);
+	}
 	Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, imageview, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 

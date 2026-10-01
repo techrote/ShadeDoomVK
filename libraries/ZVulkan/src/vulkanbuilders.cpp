@@ -560,6 +560,7 @@ std::unique_ptr<VulkanBuffer> BufferBuilder::Create(VulkanDevice* device)
 	}
 
 	auto obj = std::make_unique<VulkanBuffer>(device, buffer, allocation, (size_t)bufferInfo.size);
+	CfxTrace::Object("resource-name", "buffer", obj->diagnosticId, (uint64_t)buffer, (uint64_t)bufferInfo.size, debugName ? debugName : "");
 	if (debugName)
 		obj->SetDebugName(debugName);
 	return obj;
@@ -1588,6 +1589,11 @@ WriteDescriptors& WriteDescriptors::AddBuffer(VulkanDescriptorSet* descriptorSet
 
 	auto extra = std::make_unique<WriteExtra>();
 	extra->bufferInfo = bufferInfo;
+	if (CfxTrace::ResourcesEnabled())
+	{
+		extra->diagnosticSetId = descriptorSet->diagnosticId;
+		extra->diagnosticBufferId = buffer->diagnosticId;
+	}
 
 	VkWriteDescriptorSet descriptorWrite = {};
 	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1676,7 +1682,24 @@ WriteDescriptors& WriteDescriptors::AddAccelerationStructure(VulkanDescriptorSet
 void WriteDescriptors::Execute(VulkanDevice* device)
 {
 	if (!writes.empty())
+	{
+		if (CfxTrace::ResourcesEnabled())
+		{
+			for (size_t i = 0; i < writes.size(); ++i)
+			{
+				const auto& w = writes[i];
+				if (!w.pBufferInfo) continue;
+				char line[280];
+				std::snprintf(line, sizeof(line), "set_id=%llu set=0x%llx binding=%u array=%u type=%u buffer_id=%llu buffer=0x%llx offset=%llu range=%llu",
+					(unsigned long long)writeExtras[i]->diagnosticSetId, (unsigned long long)(uint64_t)w.dstSet,
+					w.dstBinding, w.dstArrayElement, (unsigned)w.descriptorType, (unsigned long long)writeExtras[i]->diagnosticBufferId,
+					(unsigned long long)(uint64_t)w.pBufferInfo->buffer, (unsigned long long)w.pBufferInfo->offset, (unsigned long long)w.pBufferInfo->range);
+				CfxTrace::ResourceMark("descriptor-buffer-write-enter", line);
+			}
+		}
 		vkUpdateDescriptorSets(device->device, (uint32_t)writes.size(), writes.data(), 0, nullptr);
+		CfxTrace::ResourceMark("descriptor-write-return", "vkUpdateDescriptorSets api=void");
+	}
 }
 
 /////////////////////////////////////////////////////////////////////////////

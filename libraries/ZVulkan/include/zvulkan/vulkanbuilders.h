@@ -558,6 +558,8 @@ public:
 private:
 	struct WriteExtra
 	{
+		uint64_t diagnosticSetId = 0;
+		uint64_t diagnosticBufferId = 0;
 		VkDescriptorImageInfo imageInfo;
 		VkDescriptorBufferInfo bufferInfo;
 		VkBufferView bufferView;

@@ -2,6 +2,7 @@
 
 #include "vulkaninstance.h"
 #include "cfxtrace.h"
+#include "cfxfault.h"
 
 #include <functional>
 #include <mutex>
@@ -62,31 +63,20 @@ public:
 		if (result == VK_ERROR_DEVICE_LOST)
 		{
 			if (CfxTrace::Enabled()) { CfxTrace::State().deviceLost.store(true); CfxTrace::Mark("device-lost-observed", text, static_cast<int>(result)); }
-			if (SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) && vkGetQueueCheckpointDataNV)
+			try
 			{
-				auto capture = [](VkQueue queue, const char* queueName) {
-					if (!queue) return;
-					uint32_t count = 0;
-					vkGetQueueCheckpointDataNV(queue, &count, nullptr);
-					std::vector<VkCheckpointDataNV> data(std::min(count, 256u));
-					for (auto& item : data) item.sType = VK_STRUCTURE_TYPE_CHECKPOINT_DATA_NV;
-					count = static_cast<uint32_t>(data.size());
-					if (count) vkGetQueueCheckpointDataNV(queue, &count, data.data());
-					for (uint32_t i = 0; i < count && i < data.size(); i++)
-					{
-						char line[120];
-						std::snprintf(line, sizeof(line), "%s stage=%u marker=%p", queueName, data[i].stage, data[i].pCheckpointMarker);
-						CfxTrace::Mark("gpu-checkpoint-confirmed", line);
-					}
-				};
-				capture(GraphicsQueue, "graphics");
-				if (PresentQueue != GraphicsQueue) capture(PresentQueue, "present");
+				CfxFault::QueryNV(GraphicsQueue, "graphics", SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME), vkGetQueueCheckpointDataNV);
+				if (PresentQueue != GraphicsQueue)
+					CfxFault::QueryNV(PresentQueue, "present", SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME), vkGetQueueCheckpointDataNV);
+				VulkanDeviceFaultInfo info = GetDeviceFaultInfo();
+				if (!info.description.empty()) VulkanPrintLog("fault", info.description);
+				for (const auto& vendorInfo : info.vendorInfos) VulkanPrintLog("fault", vendorInfo);
 			}
-			VulkanDeviceFaultInfo info = GetDeviceFaultInfo();
-			if (!info.description.empty())
-				VulkanPrintLog("fault", info.description);
-			for (const std::string& vendorInfo : info.vendorInfos)
-				VulkanPrintLog("fault", vendorInfo);
+			catch (...)
+			{
+				// Never replace the original device-loss exception with allocation/IO failure.
+				CfxTrace::Mark("fault-collection-exception", "bounded collection abandoned; original VkResult retained", static_cast<int>(result));
+			}
 		}
 		VulkanError((text + std::string(": ") + VkResultToString(result)).c_str());
 	}

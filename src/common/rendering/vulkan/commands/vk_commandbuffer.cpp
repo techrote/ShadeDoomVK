@@ -196,8 +196,9 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 	{
 		if (CfxTrace::Enabled())
 		{
-			char detail[80];
-			std::snprintf(detail, sizeof(detail), "cmd=%p slot=%d", commands[i]->buffer, currentIndex);
+			char detail[160];
+			std::snprintf(detail, sizeof(detail), "cmd=%p cmd_id=%llu slot=%d fence=%p queue=%p", commands[i]->buffer,
+				(unsigned long long)commands[i]->diagnosticId, currentIndex, (void*)mSubmitFence[currentIndex]->fence, (void*)fb->GetDevice()->GraphicsQueue);
 			CfxTrace::Mark("submit-buffer", detail);
 		}
 		submit.AddCommandBuffer(commands[i]);
@@ -307,19 +308,8 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 
 	DeleteFrameObjects(uploadOnly);
 
-	if (finish && CfxTrace::Enabled() &&
-		fb->GetDevice()->SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) &&
-		vkGetQueueCheckpointDataNV)
-	{
-		static bool checked = false;
-		if (!checked)
-		{
-			checked = true;
-			uint32_t count = 0;
-			vkGetQueueCheckpointDataNV(fb->GetDevice()->GraphicsQueue, &count, nullptr);
-			CfxTrace::Mark("gpu-checkpoint-smoke", count ? "queue-returned-markers" : "queue-returned-zero");
-		}
-	}
+	// NV checkpoint retrieval is valid only after device loss. Safe activation
+	// is established by capability and gpu-checkpoint-recorded breadcrumbs.
 
 	if (finish)
 	{
@@ -331,9 +321,13 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 
 void VkCommandBufferManager::DeleteFrameObjects(bool uploadOnly)
 {
+	CfxTrace::Object("retirement-list-release", "transfer-list", TransferDeleteList->DiagnosticId, 0, TransferDeleteList->TotalSize);
 	TransferDeleteList = std::make_unique<DeleteList>();
 	if (!uploadOnly)
+	{
+		CfxTrace::Object("retirement-list-release", "draw-list", DrawDeleteList->DiagnosticId, 0, DrawDeleteList->TotalSize);
 		DrawDeleteList = std::make_unique<DeleteList>();
+	}
 }
 
 void VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name)

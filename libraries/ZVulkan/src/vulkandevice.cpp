@@ -184,33 +184,17 @@ void VulkanDevice::SetObjectName(const char* name, uint64_t handle, VkObjectType
 
 VulkanDeviceFaultInfo VulkanDevice::GetDeviceFaultInfo()
 {
-	if (!SupportsExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME) || !EnabledFeatures.Fault.deviceFault)
-		return {};
-
-	VkDeviceFaultCountsEXT counts = { VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT };
-	VkResult result = vkGetDeviceFaultInfoEXT(device, &counts, nullptr);
-	if (result != VK_INCOMPLETE && result != VK_SUCCESS)
-		return {};
-
-	// Bound allocations even if a faulty implementation reports excessive counts.
-	counts.addressInfoCount = std::min(counts.addressInfoCount, 128u);
-	counts.vendorInfoCount = std::min(counts.vendorInfoCount, 128u);
-	counts.vendorBinarySize = std::min<VkDeviceSize>(counts.vendorBinarySize, 32u * 1024u * 1024u);
-	std::vector<VkDeviceFaultAddressInfoEXT> addressInfos(counts.addressInfoCount);
-	std::vector<VkDeviceFaultVendorInfoEXT> vendorInfos(counts.vendorInfoCount);
-	std::vector<uint8_t> vendorBinaryData(static_cast<size_t>(counts.vendorBinarySize));
-
-	VkDeviceFaultInfoEXT info = { VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT };
-	info.pAddressInfos = addressInfos.data();
-	info.pVendorInfos = vendorInfos.data();
-	info.pVendorBinaryData = vendorBinaryData.data();
-
-	result = vkGetDeviceFaultInfoEXT(device, &counts, &info);
-	if (result != VK_SUCCESS && result != VK_INCOMPLETE)
-		return {};
+	auto payload = CfxFault::QueryEXT(device, SupportsExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME), EnabledFeatures.Fault.deviceFault, vkGetDeviceFaultInfoEXT);
+	if (!payload.available) return {};
+	const auto& info = payload.info;
+	const auto& counts = payload.counts;
+	const auto& addressInfos = payload.addresses;
+	const auto& vendorInfos = payload.vendors;
+	const auto& vendorBinaryData = payload.binary;
+	const auto result = payload.result;
 
 	VulkanDeviceFaultInfo lostinfo;
-	lostinfo.description = info.description;
+	lostinfo.description.assign(info.description, std::find(info.description, info.description + VK_MAX_DESCRIPTION_SIZE, '\0'));
 
 	for (uint32_t i = 0; i < counts.addressInfoCount && i < addressInfos.size(); i++)
 	{
@@ -227,16 +211,18 @@ VulkanDeviceFaultInfo VulkanDevice::GetDeviceFaultInfo()
 	{
 		if (std::FILE* out = std::fopen(binaryPath, "wb"))
 		{
-			std::fwrite(vendorBinaryData.data(), 1,
+			const auto written = std::fwrite(vendorBinaryData.data(), 1,
 				static_cast<size_t>(std::min<VkDeviceSize>(counts.vendorBinarySize, vendorBinaryData.size())), out);
-			std::fclose(out);
-			CfxTrace::Mark("device-fault-binary", binaryPath, static_cast<int>(result));
+			const int closed = std::fclose(out);
+			CfxTrace::Mark(written == vendorBinaryData.size() && closed == 0 ? "device-fault-binary" : "device-fault-binary-write-error", binaryPath, static_cast<int>(result));
 		}
+		else CfxTrace::Mark("device-fault-binary-open-error", binaryPath);
 	}
 
 	for (uint32_t i = 0; i < counts.vendorInfoCount && i < vendorInfos.size(); i++)
 	{
-		lostinfo.vendorInfos.push_back(vendorInfos[i].description);
+		lostinfo.vendorInfos.emplace_back(vendorInfos[i].description,
+			std::find(vendorInfos[i].description, vendorInfos[i].description + VK_MAX_DESCRIPTION_SIZE, '\0'));
 	}
 
 	return lostinfo;
