@@ -81,6 +81,22 @@ int main(int argc, char** argv)
 {
     assert(argc == 2);
     std::string mode = argv[1];
+    if (mode == "parallel")
+    {
+        CfxTrace::State().records = 99999; // enter one rotation without a huge fixture
+        std::vector<std::thread> workers;
+        for (int i = 0; i < 4; ++i) workers.emplace_back([] { for (int j = 0; j < 32; ++j) CfxTrace::Mark("parallel", "synthetic worker"); });
+        for (auto& worker : workers) worker.join();
+        return 0;
+    }
+    if (mode == "teardown")
+    {
+        // Registered before first trace construction: renderer teardown may have
+        // been registered before tracing started. Its log must remain safe.
+        std::atexit([] { CfxTrace::Mark("late-teardown", "synthetic renderer destruction"); });
+        CfxTrace::Mark("early-setup", "before atexit");
+        return 0;
+    }
     if (mode == "faults")
     {
         assert(!CfxFault::QueryEXT(nullptr, false, true, fault).available);

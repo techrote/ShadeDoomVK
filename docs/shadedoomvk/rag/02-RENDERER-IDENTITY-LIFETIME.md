@@ -192,3 +192,5 @@ For recyclable resource classes expose, where practical:
 ## CFX-006 diagnostic identities (#95)
 
 Opt-in `CFX_RESOURCE_TRACE=1` with a valid CFX run/trace adds allocation IDs to ZVulkan buffers/descriptor sets/commands and frame retirement lists. The existing PF allocator tokens remain authoritative; logging does not validate or alter lifetime. `WriteDescriptors::Execute` records buffer binding/range targets; bindless allocation/free/queued writes expose existing PF generations. Resource records cap at 8192 with explicit omission. See [CFX-006](../CFX-006-CAPTURE-IDENTITIES.md) for seams, joins and partial coverage. GPU visibility/consumption and image handle generations remain unproven.
+
+The CFX logger retains one process-lifetime state so renderer atexit/resource-destruction callbacks cannot outlive its file/mutex. File availability during tail rotation uses an atomic flag and the writer mutex. CPU-only teardown/rotation fixtures verify this diagnostic lifetime boundary; renderer ownership/retirement is unchanged.

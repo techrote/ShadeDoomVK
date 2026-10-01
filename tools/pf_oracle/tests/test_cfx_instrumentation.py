@@ -56,6 +56,19 @@ class CfxInstrumentationTests(unittest.TestCase):
         self.assertIn("returned=0 capacity=256 truncated=0 api=void", text)
         self.assertEqual(text.count("gpu-checkpoint-confirmed"), 512)
 
+    def test_concurrent_tail_rotation_keeps_whole_records(self):
+        text = self.run_fixture("parallel")
+        self.assertIn("rotated tail", text)
+        rows = text.splitlines()[2:]
+        self.assertEqual(len(rows), 127)
+        self.assertTrue(all(len(row.split("\t")) == 9 for row in rows))
+        self.assertTrue(all("\tparallel\t" in row for row in rows))
+
+    def test_logger_outlives_renderer_atexit_callback(self):
+        text = self.run_fixture("teardown")
+        self.assertIn("early-setup", text)
+        self.assertIn("late-teardown", text)
+
     def test_collection_exception_keeps_original_failure(self):
         text = self.run_fixture("handler")
         self.assertIn("device-lost-observed\tsynthetic-submit\t-4", text)

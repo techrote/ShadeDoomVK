@@ -19,6 +19,7 @@ struct TraceState
 {
 	std::mutex mutex;
 	std::FILE* file = nullptr;
+	std::atomic<bool> enabled{ false };
 	std::string path;
 	std::string run;
 	std::atomic<uint64_t> frame{ 0 };
@@ -45,26 +46,31 @@ struct TraceState
 				std::fflush(file);
 				const char* resources = std::getenv("CFX_RESOURCE_TRACE");
 				this->resources = resources && std::string(resources) == "1";
+				enabled.store(true);
 			}
 		}
 	}
-	~TraceState() { if (file) std::fclose(file); }
+
 };
 
-inline TraceState& State() { static TraceState state; return state; }
-inline bool Enabled() { return State().file != nullptr; }
+// Renderer atexit callbacks may predate trace initialization. Keep one bounded
+// state/file alive until process termination; every record is already flushed.
+// The OS closes the handle. Never destroy the mutex/file before renderer teardown.
+inline TraceState& State() { static TraceState* state = new TraceState(); return *state; }
+inline bool Enabled() { return State().enabled.load(); }
 inline const char*& CurrentStage() { static thread_local const char* stage = "startup"; return stage; }
 inline void Mark(const char* event, const char* detail = "", int result = 0)
 {
 	auto& s = State();
-	if (!s.file) return;
+	if (!s.enabled.load()) return;
 	std::lock_guard<std::mutex> guard(s.mutex);
+	if (!s.file) return;
 	if (s.records >= 100000)
 	{
 		std::fclose(s.file);
 		s.file = std::fopen(s.path.c_str(), "wb");
 		s.records = 0;
-		if (!s.file) return;
+		if (!s.file) { s.enabled.store(false); return; }
 		std::fprintf(s.file, "# CFX-002 trace v1 run=%s (rotated tail)\nms_utc\tthread\tframe\ttic\tsubmission\tstage\tevent\tdetail\tresult\n", s.run.c_str());
 	}
 	const auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();

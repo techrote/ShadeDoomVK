@@ -4,21 +4,21 @@
   "parent": 75,
   "base_master": "83a7ac25ec581a10e72248a39d5d206f248a2d1d",
   "branch": "cfx006-capture-identities",
-  "observed_at_utc": "2026-10-01T21:42:20.351288+00:00",
+  "observed_at_utc": "2026-10-01T22:06:43.966555+00:00",
   "status": "IMPLEMENTED_OFFLINE_PR_ACCEPTANCE_PENDING",
   "gpu_launches": 0,
   "physical_equivalence": "NOT_RUN_STOPPED_LANES",
   "capability_inventory": "NOT_REFRESHED_OFFLINE_ONLY",
   "tests": {
     "focused": {
-      "count": 9,
-      "passed": 9,
+      "count": 11,
+      "passed": 11,
       "msvc_address_sanitizer": true,
       "toolchain": "MSVC 19.44.35228 / VS Build Tools 17.14.40",
       "raw_log": {
         "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-asan-tests.log",
-        "sha256": "3a5fc9defb21a78782f00260068d083f90e9dc08538309eeb8f23d1d52b04a8f",
-        "size": 1882
+        "sha256": "3b4ae7f085064989b56e5d4961c4e734782a9750a6e0e9cd7c7ea91942ad33b1",
+        "size": 2193
       }
     },
     "classifier": {
@@ -45,20 +45,21 @@
     "directory": "C:/ShadeDoomVK/build-cfx006",
     "log": {
       "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-final-build.log",
-      "sha256": "0d1ffc2c62d97cec5c909cb40db4b69876f295360d55f53afaee24a45e41ea4d",
-      "size": 2308
+      "sha256": "5ecbb9fe9f59c23e3bae0e961236cb4f0fb13532cb0f619a7ee01e5af4021e15",
+      "size": 2327
     },
     "exe": {
       "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.exe",
-      "sha256": "34d8dcba63ce9115e71b78035c933f894760d94ba7336724c84a9eb7d714b90a",
-      "size": 12080128
+      "sha256": "a901a2489718ec674dec1aba2d69e45eef3464e2a2dc6aeabf308545a2ec6734",
+      "size": 12080640
     },
     "pdb": {
       "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.pdb",
-      "sha256": "4c48ca4a959b92c0664b5f58d4875f7eb11224137d6b29014be0621abcb9ae15",
+      "sha256": "e3f28af0670ee4d763749e546291e108ac4c26a4d28240d0e4206c10939236fc",
       "size": 77418496
     },
-    "renderer_code_commit": "ece2c650c"
+    "renderer_code_base": "e53736936dde749ebef211ad41a699df86dacaee",
+    "renderer_code_local_patch_sha256": "ef1fd5c032e95a6b5e3d2a4f39393ff5729b025a66da78c0b0a822cf8e0a238c"
   },
   "preserved_forensic_input": {
     "exe": {
@@ -166,5 +167,16 @@
       }
     ],
     "causality": "UNKNOWN_DIAGNOSTIC_CONFOUNDER_NOT_CRASH_REPAIR"
+  },
+  "logger_teardown_regression": {
+    "pre_fix_code": "e53736936dde749ebef211ad41a699df86dacaee",
+    "pre_fix_failure": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-teardown-before-fix.log",
+      "sha256": "07992ae4a57a481d8c2e2418d1c4703b0cfdb2605cbfb5183b26454ef0848ae7",
+      "size": 2856
+    },
+    "finding": "atexit callback registered before trace initialization loses late-teardown record",
+    "correction": "one process-lifetime state/file/mutex; atomic enabled flag and serialized FILE access during rotation",
+    "post_fix": "11 tests pass with MSVC ASan; four workers crossing forced rotation retain 127 whole records"
   }
 }
