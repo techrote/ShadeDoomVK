@@ -41,6 +41,8 @@ def main():
         if not state.get('safe_controls_passed'):ap.error('safe controls not accepted')
         if state.get('analysis_pending'):ap.error('previous informative target requires analysis before another risk')
     health=collect(attempt,opening['health_since_utc']);save(attempt/'health-before.json',health)
+    if health['windows'].get('boot')!=opening['baseline_boot_utc']:
+        health['pass']=False;health['stop_reasons'].append('unexpected machine reboot')
     if not health['pass']:
         stop(lane,state,health['stop_reasons']);ap.error('automatic prelaunch health gate failed')
     print('preflight PASS',plan['attempt_id'],flush=True)
@@ -86,6 +88,7 @@ def main():
         dump=manifest['failure'].get('watchdog_action',{})
         if not loss:faults.append('hard/no-return renderer hang')
         if dump.get('status')!='captured':faults.append('required pre-kill process dump not captured')
+    if health['windows'].get('boot')!=opening['baseline_boot_utc']:faults.append('unexpected machine reboot')
     if not health['pass']:faults.extend(health['stop_reasons'])
     if not plan.get('risky') and (loss or not manifest or manifest['status']!='EXITED' or manifest['exit_status']!=0):faults.append('safe control failed')
     if manifest:

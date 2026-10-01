@@ -13,6 +13,14 @@ def command(args, timeout=20):
         return {"command":args,"code":None,"error":str(e),"stdout":"","stderr":""}
 
 
+def events_since(data, since):
+    cutoff=dt.datetime.fromisoformat(since)
+    filtered=dict(data)
+    for key in ("events","wer"):
+        filtered[key]=[e for e in data.get(key,[]) if dt.datetime.fromisoformat(e["Time"].replace("Z","+00:00"))>=cutoff]
+    return filtered
+
+
 def windows_reasons(data):
     reasons=[]
     adapters=data.get("adapters",[])
@@ -33,8 +41,8 @@ $since=[DateTime]::Parse('__SINCE__').ToUniversalTime()
 $adapters=@(Get-CimInstance Win32_VideoController | Select-Object Name,PNPDeviceID,Status,ConfigManagerErrorCode,DriverVersion)
 $games=@(Get-Process vkdoom,zdoom -ErrorAction SilentlyContinue | Select-Object Id,Name,Responding)
 $explorer=@(Get-Process explorer -ErrorAction SilentlyContinue | Select-Object Id,SessionId,Responding)
-$events=@(Get-WinEvent -FilterHashtable @{LogName='System';StartTime=$since} -ErrorAction SilentlyContinue | Where-Object {$_.ProviderName -match 'WHEA|BugCheck|Display|nvlddmkm|Kernel-Power' -or $_.Id -eq 6008} | ForEach-Object {[PSCustomObject]@{Id=$_.Id;RecordId=$_.RecordId;Provider=$_.ProviderName;Time=$_.TimeCreated.ToUniversalTime().ToString('o');Message=$_.Message;Xml=$_.ToXml()}})
-$wer=@(Get-WinEvent -FilterHashtable @{LogName='Application';ProviderName='Windows Error Reporting';StartTime=$since} -ErrorAction SilentlyContinue | ForEach-Object {[PSCustomObject]@{Id=$_.Id;RecordId=$_.RecordId;Time=$_.TimeCreated.ToUniversalTime().ToString('o');Message=$_.Message;Xml=$_.ToXml()}})
+$events=@(Get-WinEvent -FilterHashtable @{LogName='System';StartTime=$since.ToLocalTime()} -ErrorAction SilentlyContinue | Where-Object {$_.ProviderName -match 'WHEA|BugCheck|Display|nvlddmkm|Kernel-Power' -or $_.Id -eq 6008} | ForEach-Object {[PSCustomObject]@{Id=$_.Id;RecordId=$_.RecordId;Provider=$_.ProviderName;Time=$_.TimeCreated.ToUniversalTime().ToString('o');Message=$_.Message;Xml=$_.ToXml()}})
+$wer=@(Get-WinEvent -FilterHashtable @{LogName='Application';ProviderName='Windows Error Reporting';StartTime=$since.ToLocalTime()} -ErrorAction SilentlyContinue | ForEach-Object {[PSCustomObject]@{Id=$_.Id;RecordId=$_.RecordId;Time=$_.TimeCreated.ToUniversalTime().ToString('o');Message=$_.Message;Xml=$_.ToXml()}})
 [PSCustomObject]@{adapters=$adapters;games=$games;explorer=$explorer;events=$events;wer=$wer;boot=(Get-CimInstance Win32_OperatingSystem).LastBootUpTime.ToUniversalTime().ToString('o')} | ConvertTo-Json -Depth 5
 """.replace("__SINCE__",since)
     ps=command(["powershell","-NoProfile","-NonInteractive","-Command",script],40)
@@ -45,7 +53,10 @@ $wer=@(Get-WinEvent -FilterHashtable @{LogName='Application';ProviderName='Windo
     else:
         try:data=json.loads(ps["stdout"].lstrip("\ufeff"))
         except ValueError:reasons.append("Windows health output invalid")
-    if data: reasons.extend(windows_reasons(data))
+    if data:
+        try: data=events_since(data,since)
+        except (ValueError,KeyError,TypeError): reasons.append("invalid event UTC timestamp")
+        reasons.extend(windows_reasons(data))
     if gpu["code"]!=0:reasons.append("nvidia-smi failed")
     else:
         try:

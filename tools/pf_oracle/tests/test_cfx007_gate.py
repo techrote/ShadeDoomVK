@@ -64,3 +64,10 @@ class RecoveryEvents(unittest.TestCase):
         with patch.dict(h.os.environ,{'PSMODULEPATH':'incompatible'},clear=True),patch.object(h.subprocess,'run',return_value=subprocess.CompletedProcess([],0,'','')) as run:
             h.command(['powershell','-Command','CPU-only mock'])
             self.assertFalse(any(k.lower()=='psmodulepath' for k in run.call_args.kwargs['env']))
+
+    def test_utc_cursor_excludes_old_includes_new_anomaly(self):
+        d=self.baseline();d['events']=[{'Provider':'Microsoft-Windows-Kernel-Power','Id':41,'RecordId':1,'Time':'2026-10-01T22:33:26Z'},{'Provider':'Microsoft-Windows-WHEA-Logger','Id':17,'RecordId':2,'Time':'2026-10-01T23:00:01Z'}]
+        filtered=h.events_since(d,'2026-10-01T23:00:00+00:00')
+        self.assertEqual([e['RecordId'] for e in filtered['events']],[2])
+        self.assertTrue(h.windows_reasons(filtered))
+        self.assertIn('StartTime=$since.ToLocalTime()', (ROOT/'tools/cfx007_health.py').read_text())
