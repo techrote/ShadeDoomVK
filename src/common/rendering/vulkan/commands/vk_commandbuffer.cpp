@@ -308,19 +308,8 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 
 	DeleteFrameObjects(uploadOnly);
 
-	if (finish && CfxTrace::Enabled() &&
-		fb->GetDevice()->SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) &&
-		vkGetQueueCheckpointDataNV)
-	{
-		static bool checked = false;
-		if (!checked)
-		{
-			checked = true;
-			uint32_t count = 0;
-			vkGetQueueCheckpointDataNV(fb->GetDevice()->GraphicsQueue, &count, nullptr);
-			CfxTrace::Mark("gpu-checkpoint-smoke", count ? "queue-returned-markers" : "queue-returned-zero");
-		}
-	}
+	// NV checkpoint retrieval is valid only after device loss. Safe activation
+	// is established by capability and gpu-checkpoint-recorded breadcrumbs.
 
 	if (finish)
 	{

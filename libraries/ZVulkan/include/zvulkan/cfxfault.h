@@ -45,8 +45,8 @@ inline Payload QueryEXT(VkDevice device, bool extension, bool feature, PFN_vkGet
 	p.addresses.resize(p.counts.addressInfoCount);
 	p.vendors.resize(p.counts.vendorInfoCount);
 	p.binary.resize(static_cast<size_t>(p.counts.vendorBinarySize));
-	// Null pointers for zero capacity are required; a vector's empty data() is not
-	// specified to be null. Keep storage alive through the query and interpretation.
+	// Use null pointers for zero-capacity arrays; empty vector::data() need not
+	// be null. Keep storage alive through the query and interpretation.
 	p.info.pAddressInfos = p.addresses.empty() ? nullptr : p.addresses.data();
 	p.info.pVendorInfos = p.vendors.empty() ? nullptr : p.vendors.data();
 	p.info.pVendorBinaryData = p.binary.empty() ? nullptr : p.binary.data();

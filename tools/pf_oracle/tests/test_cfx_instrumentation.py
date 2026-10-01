@@ -87,6 +87,10 @@ class CfxInstrumentationTests(unittest.TestCase):
         self.assertIn("data + datapos, size", source)
         commands = (ROOT / "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp").read_text(encoding="utf-8")
         self.assertIn("commands[i]->diagnosticId", commands)
+        wait = commands.split("void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)")[1]
+        self.assertNotIn("vkGetQueueCheckpointDataNV(", wait)
+        handler = (ROOT / "libraries/ZVulkan/include/zvulkan/vulkandevice.h").read_text(encoding="utf-8")
+        self.assertLess(handler.index("result == VK_ERROR_DEVICE_LOST"), handler.index("CfxFault::QueryNV("))
         pipeline = (ROOT / "src/common/rendering/vulkan/pipelines/vk_renderpass.cpp").read_text(encoding="utf-8")
         for field in ("Layout.AsDWORD", "SpecialEffect", "EffectState", "VertexFormat"):
             self.assertIn("key.ShaderKey." + field, pipeline)
