@@ -100,6 +100,13 @@ def capture_environment(base, mode, run_id, trace, fault, resource_trace):
     return env
 
 
+def artifact_inventory(run_dir, names):
+    # manifest.json changes when this inventory is saved. Its final identity is
+    # recorded externally by the campaign artifact index, not self-referentially.
+    return [{"path": str(run_dir / name), "size": (run_dir / name).stat().st_size}
+            for name in names if name != "manifest.json" and (run_dir / name).is_file()]
+
+
 def check_cfx007_lane(path, run_root, exe):
     """New scope only: merged CFX-006 binary, intact historical guards, finite ledger."""
     if not path or not path.is_file():
@@ -118,7 +125,9 @@ def check_cfx007_lane(path, run_root, exe):
         raise ValueError("CFX-007 binary/PDB identity changed")
     if lane["exe_sha256"] == "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd":
         raise ValueError("CFX-007 rejects pre-CFX-006 binary")
-    for guard in lane.get("historical_guards", []):
+    guards = lane.get("historical_guards", []) + lane.get("prior_phase_guards", [])
+    if lane.get("preflight_stop_guard"): guards = guards + [lane["preflight_stop_guard"]]
+    for guard in guards:
         if digest(pathlib.Path(guard["path"])) != guard["sha256"]:
             raise ValueError("CFX-007 historical guard changed")
     if len(lane.get("historical_guards", [])) != 6:
@@ -434,9 +443,7 @@ def main():
         identity(args.shader_cache) if args.shader_cache else None)
     if args.isolate_workdir:
         manifest["artifacts"].extend(("work/levelmesh.obj", "work/levelmesh.mtl"))
-    manifest["artifact_files"] = [
-        {"path": str(run_dir / name), "size": (run_dir / name).stat().st_size}
-        for name in manifest["artifacts"] if (run_dir / name).is_file()]
+    manifest["artifact_files"] = artifact_inventory(run_dir, manifest["artifacts"])
     save()
     return 0 if timed_out and args.skip_dump_on_timeout else code if code >= 0 else 1
 

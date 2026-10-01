@@ -71,3 +71,12 @@ class RecoveryEvents(unittest.TestCase):
         self.assertEqual([e['RecordId'] for e in filtered['events']],[2])
         self.assertTrue(h.windows_reasons(filtered))
         self.assertIn('StartTime=$since.ToLocalTime()', (ROOT/'tools/cfx007_health.py').read_text())
+
+class ManifestInventory(unittest.TestCase):
+    def test_final_manifest_not_self_sized(self):
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t);(root/'manifest.json').write_text('{}');(root/'timeline.tsv').write_bytes(b'complete')
+            records=m.artifact_inventory(root,['manifest.json','timeline.tsv','missing.dmp'])
+            (root/'manifest.json').write_text(json.dumps({'artifact_files':records}))
+            self.assertEqual(records,[{'path':str(root/'timeline.tsv'),'size':8}])
+            self.assertIn('artifact_inventory(run_dir, manifest["artifacts"])',(ROOT/'tools/cfx_capture.py').read_text())
