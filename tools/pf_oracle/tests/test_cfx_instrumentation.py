@@ -114,7 +114,7 @@ class CfxManifestTests(unittest.TestCase):
                     return subprocess.CompletedProcess(command, 0, b"", b"")
                 self.assertEqual(command, ["vulkaninfo", "--summary"])
                 return subprocess.CompletedProcess(command, 0, "Synthetic probe; no GPU used", "")
-            with patch.object(sys, "argv", args), patch.object(module, "git", return_value=""), patch.object(module.subprocess, "run", side_effect=fake_run), contextlib.redirect_stdout(io.StringIO()):
+            with patch.object(sys, "argv", args), patch.object(module, "git", return_value=""), patch.object(module.platform, "platform", return_value="synthetic OS"), patch.object(module.subprocess, "run", side_effect=fake_run), contextlib.redirect_stdout(io.StringIO()):
                 self.assertEqual(module.main(), 0)
             manifest = json.loads(next(root.glob("cfx-*/manifest.json")).read_text())
             self.assertEqual(manifest["status"], "PREPARED")

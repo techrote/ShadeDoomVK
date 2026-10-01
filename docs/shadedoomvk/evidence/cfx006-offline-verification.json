@@ -17,7 +17,7 @@
       "toolchain": "MSVC 19.44.35228 / VS Build Tools 17.14.40",
       "raw_log": {
         "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-asan-tests.log",
-        "sha256": "94a4dbb871f4b2ff4cc71bf70626c8ab4be431d9e0ec713256483336a2e76369",
+        "sha256": "85fc6a1d921bc1e162b7442761405d8481d4be06e0dfa7b5d0c411ca84dfef00",
         "size": 1882
       }
     },
@@ -104,5 +104,10 @@
       "size": 101
     }
   ],
-  "remaining_blocker": "No mapping of initiating shader/resource/submission or proof of actual GPU-consumed bytes. Parent/PF-020 remain blocked. Future physical work requires new reviewed protocol and budget."
+  "remaining_blocker": "No mapping of initiating shader/resource/submission or proof of actual GPU-consumed bytes. Parent/PF-020 remain blocked. Future physical work requires new reviewed protocol and budget.",
+  "ci_first_attempt": {
+    "run": 36929221484,
+    "status": "FAILED_TEST_ISOLATION",
+    "detail": "All renderer/compiled fixture assertions passed; mocked subprocess intercepted Linux platform.platform uname -p. Mock platform identity explicitly; fixture rerun passes on Windows ASan. Fresh full CI required."
+  }
 }

@@ -77,3 +77,5 @@ On Linux the same test discovers `c++` and compiles the legal CPU fixture. The W
 ## Remaining acceptance boundary
 
 This supplies observable query outcomes and prepared/upload/descriptor lifetime identities. It does not map any preserved fault to an initiating resource/shader/submission, prove historical/future GPU bytes, repair the crash or clear PF-020. Review/CI and a new human-reviewed physical measurement remain separate. No new loss/reset occurred because no GPU workload was launched.
+
+Initial CI run `36929221484` exposed a test-isolation error: the mocked subprocess intercepted Linux stdlib `platform.platform()` calling `uname -p`. The fixture now supplies synthetic OS identity explicitly; it still mocks the Vulkan probe and cannot call a GPU. Renderer/compiled fixture checks passed in that run; fresh complete CI is required.
