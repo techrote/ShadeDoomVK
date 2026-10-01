@@ -126,3 +126,7 @@ Adversarial/boundary verification lives in `tools/pf_oracle/tests/vulkan_capabil
 4. Runtime descriptor capacity must respect physical-device limits.
 5. Optional Vulkan features need explicit non-feature/fallback behavior rather than unexplained failure.
 6. PF-007 does not alter gameplay/tic, material, palette/translation, sprite, portal, audio, demo-determinism, source-ownership or provenance semantics.
+
+## CFX-006 error/creation capture (#95)
+
+EXT fault count/data query spans record actual returned status/counts, unavailable paths and bounded truncation. NV void queries record queue/count/capacity separately from GPU-confirmed checkpoint markers. Collection exceptions preserve the original Vulkan error; no retry/recovery or renderer work is added. `VkRenderPassSetup::TracePipelineIdentity` observes full pipeline creation and graphics-library link inputs, including shader layout/effect/vertex and render-pass keys. Creation inputs do not identify a faulting instruction. See [CFX-006](../CFX-006-CAPTURE-IDENTITIES.md); historical support inventories are not refreshed by these offline tests.

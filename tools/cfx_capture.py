@@ -89,6 +89,17 @@ def capture_dump(pid, target):
         return {"status": "dump timeout", "command": cmd, "path": str(target)}
 
 
+def capture_environment(base, mode, run_id, trace, fault, resource_trace):
+    env = base.copy()
+    # A parent shell cannot accidentally enable CFX in an off/control run.
+    for key in ("CFX_RUN_ID", "CFX_TRACE_FILE", "CFX_FAULT_BIN", "CFX_RESOURCE_TRACE"):
+        env.pop(key, None)
+    if mode != "off":
+        env.update(CFX_RUN_ID=run_id, CFX_TRACE_FILE=str(trace), CFX_FAULT_BIN=str(fault),
+                   VK_LOADER_DEBUG="layer", CFX_RESOURCE_TRACE="1" if resource_trace else "0")
+    return env
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--exe", type=pathlib.Path, required=True)
@@ -106,6 +117,8 @@ def main():
     ap.add_argument("--resolution")
     ap.add_argument("--cap-vsync-msaa")
     ap.add_argument("--mode", choices=MODES, default="capture")
+    ap.add_argument("--resource-trace", action="store_true",
+                    help="CFX-006 bounded resource/range/fingerprint evidence (changes CPU overhead)")
     ap.add_argument("--validation-layer-dir", type=pathlib.Path,
                     help="directory containing local Khronos validation JSON and DLL; process-scoped")
     ap.add_argument("--isolate-workdir", action="store_true",
@@ -123,6 +136,8 @@ def main():
     ap.add_argument("--cfx005-lane-plan", type=pathlib.Path,
                     help="immutable CFX-005 per-GPU lane-opening JSON")
     args = ap.parse_args()
+    if args.resource_trace and args.mode == "off":
+        ap.error("--resource-trace requires an enabled diagnostic mode")
     if args.approved_cfx003 and args.approved_cfx005:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
@@ -243,6 +258,12 @@ def main():
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
                         "vulkan_runtime": None, "active_vulkan_layers": None,
                         "validation_or_capture_mode": args.mode,
+                        "resource_trace": {"enabled": args.resource_trace,
+                                           "schema": "cfx-006-resource-v1",
+                                           "record_limit": 8192,
+                                           "hash_per_upload_bytes": 16777216,
+                                           "hash_per_run_bytes": 67108864,
+                                           "fingerprint_algorithm": "fnv1a64"},
                         "validation_layer_dir": str(layer_dir) if layer_dir else None,
                         "validation_layer_json": identity(layer_dir / "VkLayer_khronos_validation.json") if layer_dir else None,
                         "validation_layer_dll": identity(layer_dir / "VkLayer_khronos_validation.dll") if layer_dir else None,
@@ -282,10 +303,7 @@ def main():
     print(run_dir)
     if not args.launch:
         return 0
-    env = probe_env.copy()
-    if args.mode != "off":
-        env.update(CFX_RUN_ID=run_id, CFX_TRACE_FILE=str(trace), CFX_FAULT_BIN=str(fault),
-                   VK_LOADER_DEBUG="layer")
+    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace)
     if args.mode in VALIDATION_SETTINGS:
         env["VK_INSTANCE_LAYERS"] = "VK_LAYER_KHRONOS_validation"
     if args.mode in VALIDATION_SETTINGS:

@@ -146,6 +146,7 @@ void VkHardwareBuffer::SetData(size_t size, const void *data, BufferUsageType us
 		{
 			void* dst = mStaging->Map(0, bufsize);
 			memcpy(dst, data, size);
+			CfxTrace::Upload(mStaging->diagnosticId, mBuffer->diagnosticId, 0, 0, dst, size);
 			mStaging->Unmap();
 		}
 
@@ -202,6 +203,7 @@ void VkHardwareBuffer::SetSubData(size_t offset, size_t size, const void *data)
 	{
 		void *dst = mStaging->Map(offset, size);
 		memcpy(dst, data, size);
+		CfxTrace::Upload(mStaging->diagnosticId, mBuffer->diagnosticId, offset, offset, dst, size);
 		mStaging->Unmap();
 
 		auto commands = fb->GetCommands()->GetTransferCommands();

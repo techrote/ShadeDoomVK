@@ -611,17 +611,24 @@ std::unique_ptr<VulkanPipeline> VkRenderPassSetup::CreateWithStats(GraphicsPipel
 	return pipeline;
 }
 
-std::unique_ptr<GraphicsPipelineBuilder> VkRenderPassSetup::CreatePipeline(const VkPipelineKey& key, bool isUberShader, UniformStructHolder& Uniforms)
+void VkRenderPassSetup::TracePipelineIdentity(const VkPipelineKey& key, bool isUberShader, const char* path)
 {
 	if (CfxTrace::Enabled())
 	{
-		char detail[120];
-		std::snprintf(detail, sizeof(detail), "pipeline=0x%llx shader=0x%llx style=0x%x uber=%d",
+		char detail[360];
+		std::snprintf(detail, sizeof(detail), "pipeline=0x%llx shader=0x%llx style=0x%x uber=%d layout=0x%x special=%d effect=%d vertex=%d pass_depth=%d pass_samples=%d pass_buffers=%d pass_format=%d path=%s",
 			static_cast<unsigned long long>(key.AsQWORD),
 			static_cast<unsigned long long>(key.ShaderKey.AsQWORD),
-			key.RenderStyle.AsDWORD, isUberShader ? 1 : 0);
+			key.RenderStyle.AsDWORD, isUberShader ? 1 : 0, key.ShaderKey.Layout.AsDWORD,
+			key.ShaderKey.SpecialEffect, key.ShaderKey.EffectState, key.ShaderKey.VertexFormat,
+			PassKey.DepthStencil, PassKey.Samples, PassKey.DrawBuffers, static_cast<int>(PassKey.DrawBufferFormat), path);
 		CfxTrace::Mark("pipeline-first-use", detail);
 	}
+}
+
+std::unique_ptr<GraphicsPipelineBuilder> VkRenderPassSetup::CreatePipeline(const VkPipelineKey& key, bool isUberShader, UniformStructHolder& Uniforms)
+{
+	TracePipelineIdentity(key, isUberShader, "full");
 	VkShaderProgram* program = fb->GetShaderManager()->GetProgram(key.ShaderKey, isUberShader);
 
 	Uniforms.Clear();
@@ -779,6 +786,7 @@ VulkanPipeline* VkRenderPassSetup::GetFragmentShaderLibrary(const VkPipelineKey&
 
 std::unique_ptr<VulkanPipeline> VkRenderPassSetup::LinkPipeline(const VkPipelineKey& key, bool isUberShader, UniformStructHolder& Uniforms)
 {
+	TracePipelineIdentity(key, isUberShader, "library-link");
 	VkShaderProgram* program = fb->GetShaderManager()->GetProgram(key.ShaderKey, isUberShader);
 
 	Uniforms.Clear();

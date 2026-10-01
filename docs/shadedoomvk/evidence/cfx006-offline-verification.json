@@ -1,0 +1,108 @@
+{
+  "schema": "cfx-006-offline-verification-v1",
+  "issue": 95,
+  "parent": 75,
+  "base_master": "83a7ac25ec581a10e72248a39d5d206f248a2d1d",
+  "branch": "cfx006-capture-identities",
+  "observed_at_utc": "2026-10-01T21:30:30.419270+00:00",
+  "status": "IMPLEMENTED_OFFLINE_PR_ACCEPTANCE_PENDING",
+  "gpu_launches": 0,
+  "physical_equivalence": "NOT_RUN_STOPPED_LANES",
+  "capability_inventory": "NOT_REFRESHED_OFFLINE_ONLY",
+  "tests": {
+    "focused": {
+      "count": 9,
+      "passed": 9,
+      "msvc_address_sanitizer": true,
+      "toolchain": "MSVC 19.44.35228 / VS Build Tools 17.14.40",
+      "raw_log": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-asan-tests.log",
+        "sha256": "94a4dbb871f4b2ff4cc71bf70626c8ab4be431d9e0ec713256483336a2e76369",
+        "size": 1882
+      }
+    },
+    "classifier": {
+      "count": 8,
+      "passed": 8
+    },
+    "deterministic_oracle": [
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-oracle-a.json",
+        "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+        "size": 4561
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-oracle-b.json",
+        "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+        "size": 4561
+      }
+    ]
+  },
+  "build": {
+    "configuration": "RelWithDebInfo",
+    "target": "zdoom",
+    "exit_code": 0,
+    "directory": "C:/ShadeDoomVK/build-cfx006",
+    "log": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-final-build.log",
+      "sha256": "9e57dec50f01e3e323805f85b29fba350a15060b59fedf12a3f6fe31c5191efc",
+      "size": 2129
+    },
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "cd118ba6b28c238c8f84ae116058eefdf77d64cdeee799a5e7790ff017348c5d",
+      "size": 12080128
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.pdb",
+      "sha256": "1101dd136b11aa053f287a0b796a9cb50a9ae25e1da37bfbff7e6bfaa5c8c190",
+      "size": 77418496
+    }
+  },
+  "preserved_forensic_input": {
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+      "size": 12067328
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.pdb",
+      "sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+      "size": 77729792
+    },
+    "unchanged": true
+  },
+  "stop_guards": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\STOP-LAUNCHES.txt",
+      "sha256": "d29632b8bc3c2b4a889662395f3791066a357f48cbf83b34c1b8daaabdb2c9f8",
+      "size": 380
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\STOP-LAUNCHES.txt",
+      "sha256": "ba83eec57a874e1ff4c05319c5edbf65482d5e85d3b84285508d5bdce1b5b271",
+      "size": 586
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\STOP-LAUNCHES.txt",
+      "sha256": "c98e4c73ca98387a22aabbfb8bfc9630ac858c7cfd6ae09cefd7e5714946cb8b",
+      "size": 413
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\dbp50-v1.2-map08-20260924\\STOP-LAUNCHES.txt",
+      "sha256": "e3b37e596e5beb24bd59a5556e7cdcf01f8e2f6dbc26118bcb32edbb3202a62d",
+      "size": 194
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\STOP-LAUNCHES.txt",
+      "sha256": "6c2c135e19cca83905cef0903df1a0bdea2f4004615b0e636711511c2adb8dc3",
+      "size": 506
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\STOP-LAUNCHES.txt",
+      "sha256": "6fa4edd54f1bad849167c2d13e8ad57053a86074bf1313dd57d54028ec066f57",
+      "size": 101
+    }
+  ],
+  "remaining_blocker": "No mapping of initiating shader/resource/submission or proof of actual GPU-consumed bytes. Parent/PF-020 remain blocked. Future physical work requires new reviewed protocol and budget."
+}

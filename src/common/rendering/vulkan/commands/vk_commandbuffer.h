@@ -33,6 +33,7 @@ public:
 	class DeleteList
 	{
 	public:
+		const uint64_t DiagnosticId = CfxTrace::NewResourceId();
 		std::vector<std::unique_ptr<VulkanBuffer>> Buffers;
 		std::vector<std::unique_ptr<VulkanSampler>> Samplers;
 		std::vector<std::unique_ptr<VulkanImage>> Images;
@@ -44,7 +45,19 @@ public:
 		std::vector<std::unique_ptr<VulkanCommandBuffer>> CommandBuffers;
 		size_t TotalSize = 0;
 
-		void Add(std::unique_ptr<VulkanBuffer> obj) { if (obj) { TotalSize += obj->size; Buffers.push_back(std::move(obj)); } }
+		void Add(std::unique_ptr<VulkanBuffer> obj)
+		{
+			if (!obj) return;
+			if (CfxTrace::ResourcesEnabled())
+			{
+				char line[120];
+				std::snprintf(line, sizeof(line), "buffer_id=%llu list_id=%llu",
+					(unsigned long long)obj->diagnosticId, (unsigned long long)DiagnosticId);
+				CfxTrace::ResourceMark("resource-retire", line);
+			}
+			TotalSize += obj->size;
+			Buffers.push_back(std::move(obj));
+		}
 		void Add(std::unique_ptr<VulkanSampler> obj) { if (obj) { Samplers.push_back(std::move(obj)); } }
 		void Add(std::unique_ptr<VulkanImage> obj) { if (obj) { Images.push_back(std::move(obj)); } }
 		void Add(std::unique_ptr<VulkanImageView> obj) { if (obj) { ImageViews.push_back(std::move(obj)); } }
