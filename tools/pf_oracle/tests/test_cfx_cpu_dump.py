@@ -1,10 +1,14 @@
 """Synthetic legal CPU/minidump fixtures: no WAD, shaders, Vulkan or GPU."""
+from contextlib import redirect_stdout
 import importlib.util
+import io
+import os
 import json
 from pathlib import Path
 import struct
 import tempfile
 import unittest
+from unittest import mock
 import uuid
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -162,6 +166,28 @@ class DumpChecks(unittest.TestCase):
         self.addCleanup(dump.close)
         with self.assertRaises(cfx.EvidenceError):
             dump.memory(dump.base + cfx.LEVEL_RVA, 1)
+
+    def test_cli_rejects_hard_link_alias_to_either_input(self):
+        for source in (self.path, self.manifest):
+            with self.subTest(source=source.name):
+                make_dump(self.path)
+                alias = Path(self.temp.name) / (source.name + ".alias.json")
+                os.link(source, alias)
+                before = source.read_bytes()
+                args = ["cfx_cpu_dump.py", "--dump", str(self.path),
+                        "--manifest", str(self.manifest), "--output", str(alias)]
+                with mock.patch("sys.argv", args), redirect_stdout(io.StringIO()):
+                    self.assertEqual(cfx.main(), 2)
+                self.assertEqual(source.read_bytes(), before)
+
+    def test_cli_rejects_input_path_as_output(self):
+        make_dump(self.path)
+        before = self.path.read_bytes()
+        args = ["cfx_cpu_dump.py", "--dump", str(self.path),
+                "--manifest", str(self.manifest), "--output", str(self.path)]
+        with mock.patch("sys.argv", args), redirect_stdout(io.StringIO()):
+            self.assertEqual(cfx.main(), 2)
+        self.assertEqual(self.path.read_bytes(), before)
 
     def test_guid_and_age_must_both_match(self):
         for kwargs in ({"age": 14}, {"guid": "00000000-0000-0000-0000-000000000000"}):

@@ -287,7 +287,9 @@ def main():
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     try:
-        if args.output.resolve() in (args.dump.resolve(), args.manifest.resolve()):
+        inputs = (args.dump, args.manifest)
+        if (args.output.resolve() in tuple(p.resolve() for p in inputs) or
+                (args.output.exists() and any(args.output.samefile(p) for p in inputs))):
             raise EvidenceError("output must not overwrite input evidence")
         report = inspect(args.dump, args.manifest)
         args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

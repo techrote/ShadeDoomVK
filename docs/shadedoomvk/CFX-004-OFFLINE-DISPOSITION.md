@@ -52,7 +52,7 @@ python tools/cfx_cpu_dump.py --dump C:/path/to/run/process.dmp --manifest C:/pat
 python -m unittest discover -s tools/pf_oracle/tests -p test_cfx_cpu_dump.py -v
 ```
 
-Exit 0: the specific checks passed; 1: a reported invariant violation; 2: incomplete/unsupported evidence. Never interpret exit 0 as proof of application/Vulkan correctness. Output contains hashes/metadata, not proprietary geometry. The output cannot overwrite the dump or manifest.
+Exit 0: the specific checks passed; 1: a reported invariant violation; 2: incomplete/unsupported evidence. Never interpret exit 0 as proof of application/Vulkan correctness. Output contains hashes/metadata, not proprietary geometry. The output cannot overwrite the dump or manifest, including through an existing hard-link alias. Review found that path resolution alone missed this alias; the synthetic pre-fix CLI test returned 0 and overwrote its test input. File-identity checks now reject aliases before extraction/writing, with both dump and manifest preservation asserted. No original capture was used for this negative test.
 
 The parser uses Microsoft's [Memory64List](https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/ns-minidumpapiset-minidump_memory64_list) and [ModuleList module](https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/ns-minidumpapiset-minidump_module) layouts. Its narrow MSVC object layout is independently pinned by this PDB, not inferred from those container definitions.
 
@@ -102,9 +102,9 @@ No common causal mechanism has been proven, so none is classified SAME PROVEN ME
 |---|---|
 | Primary causal proof / valid vendor reproducer / precise blocker | Precise blocker above; no causal claim or vendor-validity claim |
 | Minimization and dead ends | No reduction retained; CPU bounds/tree/stack candidate fails to expose an invalid captured state; native output still loses device with absent fault payload |
-| Bounded repair and regression | Explicit no-renderer-code disposition; read-only checker with 17 legal positive/adversarial tests |
+| Bounded repair and regression | Explicit no-renderer-code disposition; read-only checker with 19 legal positive/adversarial tests |
 | Cross-case disposition | Every one of the seven CFX-001 incident IDs classified above and in JSON |
 | Physical limitation | Zero new launches; original and cumulative lane stops remain; no candidate physical verification claimed |
 | Parent/programme disposition | #75 remains open on named discriminator; PF-020/#37 remains blocked; no SDVK transition |
 
-Local verification: 17 focused tests pass; deterministic PF oracle matches its baseline twice with identical SHA-256 `2f8d95cf...`. Full local discovery ran 131 tests: 120 Python/source tests pass, 11 existing compiled-fixture tests cannot run because `c++` is absent from this Windows PATH (`FileNotFoundError`). This is **not** a green full local suite. Linux CI's configured compiler must run those fixtures. No engine source was modified, so no new renderer equivalence/GPU run was needed or attempted. CI/review/merge acceptance is a separate gate.
+Local verification: 19 focused tests pass; deterministic PF oracle matches its baseline twice with identical SHA-256 `2f8d95cf...`. Full local discovery ran 133 tests: 122 Python/source tests pass, 11 existing compiled-fixture tests cannot run because `c++` is absent from this Windows PATH (`FileNotFoundError`). This is **not** a green full local suite. Linux CI's configured compiler must run those fixtures. No engine source was modified, so no new renderer equivalence/GPU run was needed or attempted. CI/review/merge acceptance is a separate gate.

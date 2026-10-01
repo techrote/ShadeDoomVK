@@ -730,10 +730,10 @@
   "pf020_issue37": "BLOCKED on unresolved map-dependent device loss and other existing PF gates; SDVK001 remains blocked",
   "parent75": "OPEN on named causal discriminator",
   "local_checks": {
-    "focused_tests": 17,
+    "focused_tests": 19,
     "focused_result": "PASS",
-    "full_suite_tests": 131,
-    "python_or_source_pass": 120,
+    "full_suite_tests": 133,
+    "python_or_source_pass": 122,
     "compiler_dependent_unavailable": 11,
     "full_suite_result": "NOT GREEN LOCALLY: c++ executable absent from PATH; existing compiled fixtures raise FileNotFoundError",
     "oracle_a_b_identical": true,
@@ -869,6 +869,21 @@
       "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\tests.txt",
       "sha256": "5f13a0255ca158432841ae0009b659fafd82203112f3778f0ef5fc32b9414380",
       "size": 43753
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\review-prefixed-tests.txt",
+      "sha256": "605fba3f9514c0b74065260f563afe556fed7c7481b316c2607f83a7e0fb5d1f",
+      "size": 3852
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\review-fixed-tests.txt",
+      "sha256": "b96516acdfe24900763c79cd8f92e69f5b1239a3dcabc09de40c5995accc3c40",
+      "size": 2351
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\review-full-tests.txt",
+      "sha256": "dd3d111d97e06298cef5ec9d4dfb2126dfca5f36f71eb79c6f758a8e5a829bb6",
+      "size": 44005
     }
   ],
   "limitations": [
@@ -886,6 +901,14 @@
     "pdb_age": 28,
     "level_rva": "0xc052b0"
   },
-  "verification_tool_sha256": "44db8166b374ec196c0d3950950cececf4c3fb04119bb53db1fabe9f99bb02f5",
-  "verification_tests_sha256": "73c20a3f11512a918a53bc98eaaaf66d3c926d89fa51ec5017088086b4d70ded"
+  "verification_tool_sha256": "336f6bde84724f81b9fe431acf59f63b4835ab6c81799fb9dbd378fdb20bc7df",
+  "verification_tests_sha256": "acdcdfa83d3b271fc1bd7622f63edf4572688342e0797729f94cb58f95a74d3b",
+  "review_hardening": {
+    "baseline_head": "f3b1de16c6cf104b263273f44215f3e780db66fe",
+    "finding": "An output hard-link alias could overwrite the input dump/manifest despite path resolution guard",
+    "pre_fix_fixture": "Two synthetic input aliases returned 0 instead of rejecting; no original evidence used",
+    "fix": "Reject existing samefile aliases before extraction/writing",
+    "post_fix": "19 focused tests pass; both aliased input files remain byte-identical",
+    "new_gpu_launches": 0
+  }
 }
