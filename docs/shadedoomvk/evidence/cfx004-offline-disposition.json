@@ -1,0 +1,916 @@
+{
+  "schema": "cfx-004-offline-disposition-v1",
+  "parent_issue": 75,
+  "issue": 79,
+  "observed_at_local": "2026-10-01",
+  "base_sha": "423c656158a2843c64b2071bd2fff5761724a9e6",
+  "physical_input_source_sha": "16996e38954b70d0187eecda5a7a0e55a4cc7a49",
+  "capture_handoff": {
+    "cfx003": "evidence/cfx003-dbp37-attempts.json",
+    "cfx005_provisional_pr": 93,
+    "cfx005_provisional_head": "c786f1c5a31f47427fb30e99cb7396f97ec4cecb",
+    "merge_required_for_acceptance": false,
+    "accepted_merge_sha": "bc1c312691eef93daf9c512588bb14f31dca46d7"
+  },
+  "result": "PRECISE UNRESOLVED BLOCKER; NO RENDERER REPAIR",
+  "primary_incident_id": "CFX-DBP37-MAP01-20260924",
+  "causal_proof": false,
+  "valid_minimized_vendor_reproducer": false,
+  "new_gpu_launches": 0,
+  "guard_policy": "CFX003 stop and cumulative three-loss caps on both CFX005 GPU lanes remain active",
+  "cpu_snapshots": [
+    {
+      "run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+      "dump": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\attempt-001\\runs\\cfx-20260925T155541Z-0ddb0be3fb9b\\process.dmp",
+        "size": 738640578,
+        "sha256": "76e4363c8e2ac4864f53ed825ecea8db705c2a41c92d9deb9f745cf090f0ebcf"
+      },
+      "manifest_sha256": "98a417f0531486dfbe924daa2257278956a864a3604eef875a8f3afff49e6a11",
+      "root": 46,
+      "index_count": 334302,
+      "arrays": {
+        "vertices": {
+          "address": "0x2004ff73040",
+          "count": 226975,
+          "capacity": 266269,
+          "stride": 32,
+          "sha256": "25daf11aa739f1ba12e47428579155f24a2d91a208903fb1876ff63f0006ae4a"
+        },
+        "indexes": {
+          "address": "0x2004c6a0040",
+          "count": 446805,
+          "capacity": 446805,
+          "stride": 4,
+          "sha256": "29ae47a1e37bfc71b83633c30e8b67030c65d49a7c8d2e7052ed03aa001ac090"
+        },
+        "nodes": {
+          "address": "0x200524e7040",
+          "count": 445782,
+          "capacity": 445782,
+          "stride": 48,
+          "sha256": "90492d7cf6803a8ef59f4498988a0abb97234a96eebae30af1eea1e0e48f5fb4"
+        }
+      },
+      "post_error_collision_extent": {
+        "tlas_nodes": 47,
+        "blas_slots": 32,
+        "indexes_per_blas": 13965,
+        "instance_count": 24,
+        "recomputed_upload_node_count": 222889,
+        "nonnull_slots_contiguous_from_zero": true,
+        "nonnull_blas_node_counts": [
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9307,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          8737
+        ]
+      },
+      "checks": {
+        "reachable_nodes": 222865,
+        "leaves": 111433,
+        "max_reachable_node": 222888,
+        "peak_pending_stack": 18,
+        "glsl_stack_capacity": 64,
+        "max_leaf_element": 334299,
+        "referenced_vertices": 183405,
+        "max_referenced_vertex": 183405,
+        "reachable_semantic_sha256": "9538fdded65fc22919688974b4e0eb2e5ff422ba2996b069cdbd3b3e7f610cf3",
+        "logical_indexes_sha256": "3c3f9036b8f02f861e4a360ba6b40a4536888d1e3b5c34f32c630acc305ec36f",
+        "error_count": 0,
+        "errors_first_32": []
+      }
+    },
+    {
+      "run_id": "cfx-20260925T163802Z-fb7bc5f7a0a2",
+      "dump": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\process.dmp",
+        "size": 741782401,
+        "sha256": "5b339963016d0eb7ead92b694a30bd2d26f05c82c89feb8e833c65f2433c22ea"
+      },
+      "manifest_sha256": "9e98a8279c63656bc27d2fa81c542d13e8f13d630c25fe15346a70ef4c1e48d9",
+      "root": 46,
+      "index_count": 334302,
+      "arrays": {
+        "vertices": {
+          "address": "0x138d7c94040",
+          "count": 226975,
+          "capacity": 266269,
+          "stride": 32,
+          "sha256": "ed551316acb5e5d87fddace87e7fa0e9f12c4396ca3e39d2bad54aaf086429d9"
+        },
+        "indexes": {
+          "address": "0x138d4c3c040",
+          "count": 446805,
+          "capacity": 446805,
+          "stride": 4,
+          "sha256": "268894f04fdae88a36eae54064cb778dba0ddd13f288a7d26e9cf3dabad69fd0"
+        },
+        "nodes": {
+          "address": "0x138da208040",
+          "count": 445782,
+          "capacity": 445782,
+          "stride": 48,
+          "sha256": "aa08e483bd23d499b346efed57e0b9c6bc875c7aabcbf7f08720956deb8914bf"
+        }
+      },
+      "post_error_collision_extent": {
+        "tlas_nodes": 47,
+        "blas_slots": 32,
+        "indexes_per_blas": 13965,
+        "instance_count": 24,
+        "recomputed_upload_node_count": 222889,
+        "nonnull_slots_contiguous_from_zero": true,
+        "nonnull_blas_node_counts": [
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9307,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          8737
+        ]
+      },
+      "checks": {
+        "reachable_nodes": 222865,
+        "leaves": 111433,
+        "max_reachable_node": 222888,
+        "peak_pending_stack": 18,
+        "glsl_stack_capacity": 64,
+        "max_leaf_element": 334299,
+        "referenced_vertices": 183405,
+        "max_referenced_vertex": 183405,
+        "reachable_semantic_sha256": "517b9a53ae7aa3656ed026a6fb77028e5892fcb24d35633b0896b0ec2a401a7e",
+        "logical_indexes_sha256": "f9b66220143adcfcd532e3d0e61cb926e7970b95c1b255aeb86dd96bd73cfd76",
+        "error_count": 0,
+        "errors_first_32": []
+      }
+    },
+    {
+      "run_id": "cfx-20260925T165624Z-8d82fb1ce3d1",
+      "dump": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-003\\runs\\cfx-20260925T165624Z-8d82fb1ce3d1\\process.dmp",
+        "size": 738100290,
+        "sha256": "08b9dc6b51b2c7a59effd5fb366d21d528a2b3616f3b067b9038edc8b7db7e4a"
+      },
+      "manifest_sha256": "c41b87f34eca678ca8c5e32a7466e7427e871641f774f54b6fe16330157000cf",
+      "root": 46,
+      "index_count": 334302,
+      "arrays": {
+        "vertices": {
+          "address": "0x1ba5d1cc040",
+          "count": 226975,
+          "capacity": 266269,
+          "stride": 32,
+          "sha256": "a79f56b2f6567fe58daee012d74b51ccffc3ebbb22f5d4f611d5fc5864b2b34a"
+        },
+        "indexes": {
+          "address": "0x1ba5a633040",
+          "count": 446805,
+          "capacity": 446805,
+          "stride": 4,
+          "sha256": "268894f04fdae88a36eae54064cb778dba0ddd13f288a7d26e9cf3dabad69fd0"
+        },
+        "nodes": {
+          "address": "0x1ba5ec81040",
+          "count": 445782,
+          "capacity": 445782,
+          "stride": 48,
+          "sha256": "a1751a41e98359b44bcc9f56db9e8b5eef87ab1917e4f89818ef7e0764f53eee"
+        }
+      },
+      "post_error_collision_extent": {
+        "tlas_nodes": 47,
+        "blas_slots": 32,
+        "indexes_per_blas": 13965,
+        "instance_count": 24,
+        "recomputed_upload_node_count": 222889,
+        "nonnull_slots_contiguous_from_zero": true,
+        "nonnull_blas_node_counts": [
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9307,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          8737
+        ]
+      },
+      "checks": {
+        "reachable_nodes": 222865,
+        "leaves": 111433,
+        "max_reachable_node": 222888,
+        "peak_pending_stack": 18,
+        "glsl_stack_capacity": 64,
+        "max_leaf_element": 334299,
+        "referenced_vertices": 183405,
+        "max_referenced_vertex": 183405,
+        "reachable_semantic_sha256": "c80b2a20a3ec04d30381274880ff411e98108819261606baa4268e469adb0905",
+        "logical_indexes_sha256": "f9b66220143adcfcd532e3d0e61cb926e7970b95c1b255aeb86dd96bd73cfd76",
+        "error_count": 0,
+        "errors_first_32": []
+      }
+    },
+    {
+      "run_id": "cfx-20260930T220331Z-649ffe016f4a",
+      "dump": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\attempt-001\\runs\\cfx-20260930T220331Z-649ffe016f4a\\process.dmp",
+        "size": 720903036,
+        "sha256": "5f4c7b80c5b6c3b7f6e28db090b710879d7437b0deb8d4515b76da480b67ca0b"
+      },
+      "manifest_sha256": "38ccb6d13c949d0017f09f5eec38fd42c0289b1bb209c596d36890733b1b1393",
+      "root": 46,
+      "index_count": 334302,
+      "arrays": {
+        "vertices": {
+          "address": "0x166f5533040",
+          "count": 226975,
+          "capacity": 266269,
+          "stride": 32,
+          "sha256": "206b80595b5fbd5701e046f4eb08b00c7fe2aa3bed1f34805097437743d34de5"
+        },
+        "indexes": {
+          "address": "0x166f1c12040",
+          "count": 446805,
+          "capacity": 446805,
+          "stride": 4,
+          "sha256": "c126d4be701d6a53a4575a2146abb7692bf5a26f8e04f40514f11b0bec6931de"
+        },
+        "nodes": {
+          "address": "0x166f7aa1040",
+          "count": 445782,
+          "capacity": 445782,
+          "stride": 48,
+          "sha256": "9087070102a95559c192945005afa7f36e8e67a465ed036b6c906d2470150f82"
+        }
+      },
+      "post_error_collision_extent": {
+        "tlas_nodes": 47,
+        "blas_slots": 32,
+        "indexes_per_blas": 13965,
+        "instance_count": 24,
+        "recomputed_upload_node_count": 222887,
+        "nonnull_slots_contiguous_from_zero": true,
+        "nonnull_blas_node_counts": [
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          8733
+        ]
+      },
+      "checks": {
+        "reachable_nodes": 222863,
+        "leaves": 111432,
+        "max_reachable_node": 222886,
+        "peak_pending_stack": 18,
+        "glsl_stack_capacity": 64,
+        "max_leaf_element": 334299,
+        "referenced_vertices": 183404,
+        "max_referenced_vertex": 183405,
+        "reachable_semantic_sha256": "04037305492e538290443c72bf883110989cc151d9f4e12fab17277edcc43acb",
+        "logical_indexes_sha256": "4a625e60fc3ff66bebaa0306f26aab59bc701eab7917cac6373573e511801b9f",
+        "error_count": 0,
+        "errors_first_32": []
+      }
+    },
+    {
+      "run_id": "cfx-20260930T221229Z-4490fb662ae2",
+      "dump": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\attempt-002\\runs\\cfx-20260930T221229Z-4490fb662ae2\\process.dmp",
+        "size": 696137660,
+        "sha256": "afa784ebbbf0b16ee97a4dfa4238adb3ad3350d889d6546ffaad08934131c261"
+      },
+      "manifest_sha256": "0fca845dd78f933dced3bf13998a0241b4d99c7653d2f9d1c4b53d87f428b639",
+      "root": 46,
+      "index_count": 334302,
+      "arrays": {
+        "vertices": {
+          "address": "0x1de92791040",
+          "count": 226975,
+          "capacity": 266269,
+          "stride": 32,
+          "sha256": "f07a3488e6c67a14969e0908c2bec76e5028b33c259fed36575158467c4e3c54"
+        },
+        "indexes": {
+          "address": "0x1de8f21a040",
+          "count": 446805,
+          "capacity": 446805,
+          "stride": 4,
+          "sha256": "e316dc95391179aa4134cac953e8b2692378f5f37fee9fba90afce7deaf67384"
+        },
+        "nodes": {
+          "address": "0x1de94d04040",
+          "count": 445782,
+          "capacity": 445782,
+          "stride": 48,
+          "sha256": "0d4cf734309ede8938646af320549ad0e7d50693800dbbce64e8dcfe3c44d73f"
+        }
+      },
+      "post_error_collision_extent": {
+        "tlas_nodes": 47,
+        "blas_slots": 32,
+        "indexes_per_blas": 13965,
+        "instance_count": 24,
+        "recomputed_upload_node_count": 222887,
+        "nonnull_slots_contiguous_from_zero": true,
+        "nonnull_blas_node_counts": [
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          8733
+        ]
+      },
+      "checks": {
+        "reachable_nodes": 222863,
+        "leaves": 111432,
+        "max_reachable_node": 222886,
+        "peak_pending_stack": 18,
+        "glsl_stack_capacity": 64,
+        "max_leaf_element": 334299,
+        "referenced_vertices": 183404,
+        "max_referenced_vertex": 183405,
+        "reachable_semantic_sha256": "80bd89e5ce2506ed7a2cae9440fe8f3487149ce6e9aff103866b1d35d41a83fc",
+        "logical_indexes_sha256": "73dd09d197a97b66521d9fbb791e2106fe0c7dd9c9c0a101246d1296d46bbe7d",
+        "error_count": 0,
+        "errors_first_32": []
+      }
+    },
+    {
+      "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+      "dump": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\runs\\cfx-20261001T193835Z-c91d81c1724d\\process.dmp",
+        "size": 688667655,
+        "sha256": "024222165b41043bc40ccb3c148ea73140fbb56f747d07250f813738397c2f19"
+      },
+      "manifest_sha256": "8d86d701d2563d98acb1c75461781ac53f87977c6b9c266fe3ce33a8d9d46abf",
+      "root": 46,
+      "index_count": 334302,
+      "arrays": {
+        "vertices": {
+          "address": "0x1382bf86040",
+          "count": 226975,
+          "capacity": 266269,
+          "stride": 32,
+          "sha256": "bab986a910e2003373f8f9336ca59858603cef08f9ecd5ca59df37f46cf2895e"
+        },
+        "indexes": {
+          "address": "0x1382a095040",
+          "count": 446805,
+          "capacity": 446805,
+          "stride": 4,
+          "sha256": "29ae47a1e37bfc71b83633c30e8b67030c65d49a7c8d2e7052ed03aa001ac090"
+        },
+        "nodes": {
+          "address": "0x1382e4fa040",
+          "count": 445782,
+          "capacity": 445782,
+          "stride": 48,
+          "sha256": "4301d1460bba1e96cb8eeaa29b1fa22f966bd15a1201c875f33cfd644fd3fe92"
+        }
+      },
+      "post_error_collision_extent": {
+        "tlas_nodes": 47,
+        "blas_slots": 32,
+        "indexes_per_blas": 13965,
+        "instance_count": 24,
+        "recomputed_upload_node_count": 222889,
+        "nonnull_slots_contiguous_from_zero": true,
+        "nonnull_blas_node_counts": [
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9307,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          9309,
+          8737
+        ]
+      },
+      "checks": {
+        "reachable_nodes": 222865,
+        "leaves": 111433,
+        "max_reachable_node": 222888,
+        "peak_pending_stack": 18,
+        "glsl_stack_capacity": 64,
+        "max_leaf_element": 334299,
+        "referenced_vertices": 183405,
+        "max_referenced_vertex": 183405,
+        "reachable_semantic_sha256": "0604c5bb31adcef05d9a469d22cba0b0e3ee7309b8e4ecaea33f67b7eb1c280b",
+        "logical_indexes_sha256": "3c3f9036b8f02f861e4a360ba6b40a4536888d1e3b5c34f32c630acc305ec36f",
+        "error_count": 0,
+        "errors_first_32": []
+      }
+    }
+  ],
+  "shader_key_audit": [
+    {
+      "run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+      "pipeline_first_use_count": 22,
+      "shader_qword_keys": [
+        8458240,
+        8458272,
+        14749700,
+        14749764,
+        42012672,
+        42012800,
+        47255552,
+        48304132,
+        68761489408,
+        68761489664,
+        206166888448
+      ],
+      "use_raytrace_bit13_set_count": 0,
+      "use_shadowmap_bit12_set_count": 22,
+      "limitations": [
+        "First-use/create event, not a per-draw execution record",
+        "Missing Layout.AsDWORD, SpecialEffect, EffectState and VertexFormat",
+        "LIGHTINFO_TRACE runtime light flags can invoke fallback despite UseRaytrace=0"
+      ]
+    },
+    {
+      "run_id": "cfx-20260925T163802Z-fb7bc5f7a0a2",
+      "pipeline_first_use_count": 22,
+      "shader_qword_keys": [
+        8458240,
+        8458272,
+        14749700,
+        14749764,
+        42012672,
+        42012800,
+        47255552,
+        48304132,
+        68761489408,
+        68761489664,
+        206166888448
+      ],
+      "use_raytrace_bit13_set_count": 0,
+      "use_shadowmap_bit12_set_count": 22,
+      "limitations": [
+        "First-use/create event, not a per-draw execution record",
+        "Missing Layout.AsDWORD, SpecialEffect, EffectState and VertexFormat",
+        "LIGHTINFO_TRACE runtime light flags can invoke fallback despite UseRaytrace=0"
+      ]
+    },
+    {
+      "run_id": "cfx-20260925T165624Z-8d82fb1ce3d1",
+      "pipeline_first_use_count": 22,
+      "shader_qword_keys": [
+        8458240,
+        8458272,
+        14749700,
+        14749764,
+        42012672,
+        42012800,
+        47255552,
+        48304132,
+        68761489408,
+        68761489664,
+        206166888448
+      ],
+      "use_raytrace_bit13_set_count": 0,
+      "use_shadowmap_bit12_set_count": 22,
+      "limitations": [
+        "First-use/create event, not a per-draw execution record",
+        "Missing Layout.AsDWORD, SpecialEffect, EffectState and VertexFormat",
+        "LIGHTINFO_TRACE runtime light flags can invoke fallback despite UseRaytrace=0"
+      ]
+    },
+    {
+      "run_id": "cfx-20260930T220331Z-649ffe016f4a",
+      "pipeline_first_use_count": 22,
+      "shader_qword_keys": [
+        8458240,
+        8458272,
+        14749700,
+        14749764,
+        42012672,
+        42012800,
+        47255552,
+        48304132,
+        68761489408,
+        68761489664,
+        206166888448
+      ],
+      "use_raytrace_bit13_set_count": 0,
+      "use_shadowmap_bit12_set_count": 22,
+      "limitations": [
+        "First-use/create event, not a per-draw execution record",
+        "Missing Layout.AsDWORD, SpecialEffect, EffectState and VertexFormat",
+        "LIGHTINFO_TRACE runtime light flags can invoke fallback despite UseRaytrace=0"
+      ]
+    },
+    {
+      "run_id": "cfx-20260930T221229Z-4490fb662ae2",
+      "pipeline_first_use_count": 22,
+      "shader_qword_keys": [
+        8458240,
+        8458272,
+        14749700,
+        14749764,
+        42012672,
+        42012800,
+        47255552,
+        48304132,
+        68761489408,
+        68761489664,
+        206166888448
+      ],
+      "use_raytrace_bit13_set_count": 0,
+      "use_shadowmap_bit12_set_count": 22,
+      "limitations": [
+        "First-use/create event, not a per-draw execution record",
+        "Missing Layout.AsDWORD, SpecialEffect, EffectState and VertexFormat",
+        "LIGHTINFO_TRACE runtime light flags can invoke fallback despite UseRaytrace=0"
+      ]
+    },
+    {
+      "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+      "pipeline_first_use_count": 22,
+      "shader_qword_keys": [
+        8458240,
+        8458272,
+        14749700,
+        14749764,
+        42012672,
+        42012800,
+        47255552,
+        48304132,
+        68761489408,
+        68761489664,
+        206166888448
+      ],
+      "use_raytrace_bit13_set_count": 0,
+      "use_shadowmap_bit12_set_count": 22,
+      "limitations": [
+        "First-use/create event, not a per-draw execution record",
+        "Missing Layout.AsDWORD, SpecialEffect, EffectState and VertexFormat",
+        "LIGHTINFO_TRACE runtime light flags can invoke fallback despite UseRaytrace=0"
+      ]
+    }
+  ],
+  "hypotheses": [
+    {
+      "name": "CPU collision tree/index corruption or fallback stack overflow",
+      "result": "No violation in six post-error CPU snapshots; not excluded for GPU-visible state",
+      "missing": "Exact pre-submit uploaded node/index/vertex bytes and consumed descriptor ranges"
+    },
+    {
+      "name": "Resource/descriptor lifetime or memory visibility",
+      "result": "Unproven; post-error CPU snapshots cannot validate GPU ownership/visibility",
+      "missing": "Submission-correlated buffer/descriptor generation and retirement record"
+    },
+    {
+      "name": "Specific shader/pipeline/cache or valid excessive workload",
+      "result": "Unproven; cached first-use identities do not identify failing draw",
+      "missing": "Full specialization/layout/effect identity and faulting instruction or pass/resource mapping"
+    },
+    {
+      "name": "Cross-adapter presentation required for failure",
+      "result": "Native P400 output still lost device; cross-adapter output not required for broad failure",
+      "missing": "Cannot equate native no-fault-payload result with earlier invalid-write/execute payload; other adapter remains installed"
+    },
+    {
+      "name": "Driver or implicit layer defect",
+      "result": "Unproven; application validity and isolated same-signature reproducer not established",
+      "missing": "Validated minimized consuming workload or compatible decoding of preserved vendor dump"
+    }
+  ],
+  "remaining_discriminator": "Map the preserved fault/checkpoint to the actual consuming shader/resource/submission, with exact uploaded bytes and descriptor/retirement identity. Available post-error CPU data and downstream Vulkan return do not provide this mapping.",
+  "minimization": {
+    "retained_gpu_reductions": [],
+    "reason": "No demonstrated invalid invariant or mapped consuming workload; stop guards prohibit signature-preserving GPU minimization. Synthetic fixtures test the checker and are not DBP37 crash reproducers."
+  },
+  "no_code_disposition": "Only read-only forensic Python tooling/tests/docs; no engine, shader, workaround or rendering-policy change.",
+  "cross_case_disposition": [
+    {
+      "incident_id": "CFX-DBP50-20260920-MAP08",
+      "relation_to_primary_mechanism": "INSUFFICIENT HISTORICAL EVIDENCE",
+      "reason": "Original/v1.2 MAP08 driver/TDR evidence lacks application initiating operation and resource mapping. LevelMesh-off failures contradict a universal LevelMesh-required hypothesis, not proof of a different root cause."
+    },
+    {
+      "incident_id": "CFX-DBP50-20260923-1824",
+      "relation_to_primary_mechanism": "INSUFFICIENT HISTORICAL EVIDENCE",
+      "reason": "Original/v1.2 MAP08 driver/TDR evidence lacks application initiating operation and resource mapping. LevelMesh-off failures contradict a universal LevelMesh-required hypothesis, not proof of a different root cause."
+    },
+    {
+      "incident_id": "CFX-DBP50-20260923-2259",
+      "relation_to_primary_mechanism": "INSUFFICIENT HISTORICAL EVIDENCE",
+      "reason": "Original/v1.2 MAP08 driver/TDR evidence lacks application initiating operation and resource mapping. LevelMesh-off failures contradict a universal LevelMesh-required hypothesis, not proof of a different root cause."
+    },
+    {
+      "incident_id": "CFX-DBP50-V12-20260924-1309",
+      "relation_to_primary_mechanism": "INSUFFICIENT HISTORICAL EVIDENCE",
+      "reason": "Original/v1.2 MAP08 driver/TDR evidence lacks application initiating operation and resource mapping. LevelMesh-off failures contradict a universal LevelMesh-required hypothesis, not proof of a different root cause."
+    },
+    {
+      "incident_id": "CFX-DBP37-MAP01-20260924",
+      "relation_to_primary_mechanism": "CONSISTENT BUT UNPROVEN",
+      "reason": "Same preserved content/config startup failure on a later instrumented binary; historical dump/application loss observation absent; initiating mechanism unknown."
+    },
+    {
+      "incident_id": "CFX-MAP04-CAPDIAG-20260924",
+      "relation_to_primary_mechanism": "INSUFFICIENT HISTORICAL EVIDENCE",
+      "reason": "Timeout with no new driver event, no application error or retained stack. No evidence to equate it with a GPU device-loss mechanism."
+    },
+    {
+      "incident_id": "CFX-SUNLUST-MAP24-20260924",
+      "relation_to_primary_mechanism": "INSUFFICIENT HISTORICAL EVIDENCE",
+      "reason": "Arena driver events/partial CPU trace but no fault/resource/submission mapping or process dump; distinct content and workload."
+    }
+  ],
+  "pf020_issue37": "BLOCKED on unresolved map-dependent device loss and other existing PF gates; SDVK001 remains blocked",
+  "parent75": "OPEN on named causal discriminator",
+  "local_checks": {
+    "focused_tests": 19,
+    "focused_result": "PASS",
+    "full_suite_tests": 133,
+    "python_or_source_pass": 122,
+    "compiler_dependent_unavailable": 11,
+    "full_suite_result": "NOT GREEN LOCALLY: c++ executable absent from PATH; existing compiled fixtures raise FileNotFoundError",
+    "oracle_a_b_identical": true,
+    "oracle_sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+  },
+  "raw_artifacts": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\all-cpu-snapshots.json",
+      "sha256": "dc417ae79044599998d8bd2474baee81115da7906538b441916407333fddacc6",
+      "size": 26716
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cdb-blas-output.txt",
+      "sha256": "af136b74a86a44ff495571163195d1d5b470da70897f7c599d2839e7de15d2e4",
+      "size": 12519
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cdb-collision-output.txt",
+      "sha256": "48438790977bf2aa702a6ed51a8744d03b6583487650407d3f79bab5610dfe6e",
+      "size": 11811
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cfx-20260925T155541Z-0ddb0be3fb9b-cpu.json",
+      "sha256": "eeeaf956f6dcf193b1a61e19341278b1ca1e89aec3a2fc2627e00239cbd7fdce",
+      "size": 4107
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cfx-20260925T163802Z-fb7bc5f7a0a2-cpu.json",
+      "sha256": "cc21d0990a7a8e4406d7670ecf0e3338b33c89d779533d1bd8d308cce18300a0",
+      "size": 4127
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cfx-20260925T165624Z-8d82fb1ce3d1-cpu.json",
+      "sha256": "53328c18888d51f8ad7e75bb16752254d0b361bd850e92c2689a1e436f8a43f5",
+      "size": 4127
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cfx-20260930T220331Z-649ffe016f4a-cpu.json",
+      "sha256": "9f5e4abc6f179242162becea75d87d5aef540ebc4c0149c86177178efd6264c4",
+      "size": 4119
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cfx-20260930T221229Z-4490fb662ae2-cpu.json",
+      "sha256": "52abf33c863977143db95271fc88113c45d26ff4b54793fbffa6488aa5567076",
+      "size": 4119
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\cfx-20261001T193835Z-c91d81c1724d-cpu.json",
+      "sha256": "c278e232b66e0e9394390b294f376dad31e6b3437ee13bd6906efec31d94b047",
+      "size": 4126
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\focused-tests.txt",
+      "sha256": "23c1a4192d3f10713d59606bfca7f15d8b20222d094939f4b16eee21a75653f4",
+      "size": 2099
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\oracle-a.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "size": 4561
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\oracle-b.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "size": 4561
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-blas-layout.txt",
+      "sha256": "d8b26fde9847dd6c411ca53946a0ba298878140474f390fd0bdcbe4ee27e86cd",
+      "size": 14246
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-collision-layout.txt",
+      "sha256": "97308372a3bdb194f800a96bccb0e5f7b6e05b5f1a61364038d025dd4b8b0583",
+      "size": 13538
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-cpu-layout.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-cpu-layout.stdout.txt",
+      "sha256": "3086fd327210e5c86bc4a95f125ecf59e34952b75b66cd346757b5cdf8b47433",
+      "size": 5664
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-cpu-layout.txt",
+      "sha256": "38f53b5205ba0832639960c3edfcb915c258e5a5885bbf58f3231690b72a4a41",
+      "size": 7481
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-mesh-layout.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-mesh-layout.stdout.txt",
+      "sha256": "660840cd765a6978cf3f9cad9528d529a72e549add9de672435c7e8ab59c096f",
+      "size": 5259
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-mesh-layout.txt",
+      "sha256": "2819f466b1321fac597f90f1557949adee8bbb431b5441270ef60032749cf3bc",
+      "size": 7074
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-mesh-state.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-mesh-state.stdout.txt",
+      "sha256": "ae933e2b7660a182d7e4ddb87248e107b7acda5dff79a6e0ca404441cbc144a9",
+      "size": 16341
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\p400-native-mesh-state.txt",
+      "sha256": "bb2c82476c9f959433dd5c569403409be48d2d0cc237545f185d306719693f80",
+      "size": 18342
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\shader-key-audit.json",
+      "sha256": "94219e7ba8f5e0b09062d36c124c9d5eff4f39e6b57f854cdbb20fb622822d31",
+      "size": 4037
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\snapshot.json",
+      "sha256": "be08d1db54b3c18b54d11c5d93808ba8485b3a30c07829cf7d1c4be6ca650932",
+      "size": 880
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\tests.txt",
+      "sha256": "5f13a0255ca158432841ae0009b659fafd82203112f3778f0ef5fc32b9414380",
+      "size": 43753
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\review-prefixed-tests.txt",
+      "sha256": "605fba3f9514c0b74065260f563afe556fed7c7481b316c2607f83a7e0fb5d1f",
+      "size": 3852
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\review-fixed-tests.txt",
+      "sha256": "b96516acdfe24900763c79cd8f92e69f5b1239a3dcabc09de40c5995accc3c40",
+      "size": 2351
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx004-offline-20261001\\review-full-tests.txt",
+      "sha256": "dd3d111d97e06298cef5ec9d4dfb2126dfca5f36f71eb79c6f758a8e5a829bb6",
+      "size": 44005
+    }
+  ],
+  "limitations": [
+    "No per-draw GPU-consumed bytes/descriptor generations",
+    "Recomputed upload extent comes from post-error CPU builders; actual submitted GPU upload/visibility not established",
+    "No assumption that CPU post-error state equals pre-fault GPU state",
+    "Core/sync/GPU-assisted safe-path evidence does not validate failing primary capture mode",
+    "No compatible fault decoder/materially minimized vendor workload; no external vendor submission",
+    "EXT query failure/zero count and NV zero checkpoint returns are not fully distinguished by existing post-loss logs"
+  ],
+  "pinned_layout": {
+    "exe_sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+    "pdb_sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+    "pdb_guid": "43bfc543-3656-4d78-ac05-9b180ce4da2a",
+    "pdb_age": 28,
+    "level_rva": "0xc052b0"
+  },
+  "verification_tool_sha256": "336f6bde84724f81b9fe431acf59f63b4835ab6c81799fb9dbd378fdb20bc7df",
+  "verification_tests_sha256": "acdcdfa83d3b271fc1bd7622f63edf4572688342e0797729f94cb58f95a74d3b",
+  "review_hardening": {
+    "baseline_head": "f3b1de16c6cf104b263273f44215f3e780db66fe",
+    "finding": "An output hard-link alias could overwrite the input dump/manifest despite path resolution guard",
+    "pre_fix_fixture": "Two synthetic input aliases returned 0 instead of rejecting; no original evidence used",
+    "fix": "Reject existing samefile aliases before extraction/writing",
+    "post_fix": "19 focused tests pass; both aliased input files remain byte-identical",
+    "new_gpu_launches": 0
+  },
+  "integration_master_sha": "bc1c312691eef93daf9c512588bb14f31dca46d7"
+}

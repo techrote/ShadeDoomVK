@@ -1,6 +1,6 @@
 # CFX-005 / #92: repeated DBP37 capture and P400 comparison
 
-Status: CAPTURE COMPLETE; REVIEW PENDING. Three GTX 1650 SUPER and three P400 target replays returned application-observed device loss. Two P400 safe controls passed. The third P400 target used verified native P400 output. Both GPUs reached their cumulative three-loss caps; all STOP markers remain active. PR #93 is the reviewable evidence/capture change; #92 stays open until review and merge. Checked-in ledgers: evidence/cfx005-primary-attempts.json, evidence/cfx005-p400-attempts.json and evidence/cfx005-p400-native-attempt.json. Large artifacts remain outside Git under their recorded per-GPU/phase roots.
+Status: CAPTURE COMPLETE; REVIEWED AND MERGED via PR #93 at `bc1c312691eef93daf9c512588bb14f31dca46d7` after 8/8 CI green. Three GTX 1650 SUPER and three P400 target replays returned application-observed device loss. Two P400 safe controls passed. The third P400 target used verified native P400 output. Both GPUs reached their cumulative three-loss caps; all STOP markers remain active. PR #93 is the accepted evidence/capture change; #92 meets the repeated-capture acceptance gate. Checked-in ledgers: evidence/cfx005-primary-attempts.json, evidence/cfx005-p400-attempts.json and evidence/cfx005-p400-native-attempt.json. Large artifacts remain outside Git under their recorded per-GPU/phase roots.
 
 ## Lane opening and invariant
 
@@ -102,7 +102,7 @@ Classify the reported comparison as **DIFFERENT FAILURE SIGNATURE; causal attrib
 | Classification without overclaiming | Different reported signatures; native detailed cluster/cause inconclusive; all hardware/driver/cache/route/telemetry differences explicit |
 | Next source/minimisation task | #79 offline mapping of shader-visible ranges/resources and submission ordering; fault-query return/count logging gap named below |
 
-The capture deliverables are ready for review. Keep #92 open until the evidence/capture PR is reviewed and merged; no additional target launch is needed to meet the repeated-capture objective under this bounded plan.
+The capture deliverables were reviewed and merged through PR #93 after verifying 135 raw artifact hashes without mismatch. #92 meets its bounded repeated-capture objective; no additional target launch is needed or permitted by the exhausted lane plans.
 
 ## Offline handoff to #79
 

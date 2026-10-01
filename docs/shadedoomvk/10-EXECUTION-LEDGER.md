@@ -309,3 +309,9 @@ When a PF or SDVK gate issue merges, append a concise entry naming:
 - material residual blocker(s).
 
 Do not record an issue as complete merely because a PR exists or CI ran; acceptance criteria and merge-to-master verification remain mandatory.
+## 2026-10-01 - CFX evidence acceptance; PF-020 remains blocked
+
+- CFX-005 / #92 capture evidence and scanner regression were reviewed and merged through PR #93 at `bc1c312691eef93daf9c512588bb14f31dca46d7` after 8/8 CI passed. Three GTX and three P400 target losses, two safe P400 controls and the native display-route discriminator are preserved. 135 raw artifact hashes were checked without mismatch.
+- CFX-004 / #79's precise-blocker disposition is reviewed in PR #94, with six post-error CPU collision snapshots and 19 focused adversarial tests. Its master integration preserves both CFX-004 and CFX-005 forensic appendices; this entry does not predeclare the PR merged.
+- No renderer repair, semantic change, workaround or new GPU launch is retained. #75 remains open on mapping the captured fault to the consuming shader/resource/submission and exact uploaded bytes/descriptor lifetime. Both physical lane budgets remain exhausted with STOP guards active.
+- PF-020 / #37 remains blocked; no PF/SDVK release gate is lifted. The evidence acceptance does not establish application correctness or a driver defect.
