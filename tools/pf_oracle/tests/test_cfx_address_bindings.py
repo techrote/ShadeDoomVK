@@ -77,6 +77,8 @@ class AddressCallbackTests(unittest.TestCase):
         self.assertIn('flushed=0 cutoff=3', trace)
         self.assertIn('flushed=4 cutoff=4', trace)
         self.assertEqual(len(bindings.splitlines()[2:]), 4)
+        self.assertIn('owned-before-callback', bindings)
+        self.assertNotIn('XXXXXXXXXXXXXXXXXXXXX', bindings)
 
     def test_malformed_chain_is_bounded_and_missing_object_is_explicit(self):
         trace, bindings = self.fixture('malformed')

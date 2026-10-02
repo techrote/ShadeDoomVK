@@ -134,6 +134,11 @@
         "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\bin-repair-unlaunched\\vkdoom.pdb",
         "sha256": "d4c528fe7b0beac0e7bb113ca7caace0adbe5c63de6b207f21173f6ed80a820b",
         "bytes": 77656064
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\cpu-tests-queue-lifetime-asan.log",
+        "sha256": "8099edec2be3df5b45428a938ebab25d2037f8690aea448cdea2f4c5d50ef7bf",
+        "bytes": 8626
       }
     ],
     "source_files": [
@@ -156,15 +161,15 @@
         "repository_path": "tools/cfx_address_correlate.py"
       },
       {
-        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\pf_oracle\\tests\\cfx_address_fixture.cpp",
-        "sha256": "4beac5f51778f80514acd25e59771d5004b43d88940a40dfabff03d2488a18e4",
-        "bytes": 4816,
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source-lifetime\\tools\\pf_oracle\\tests\\cfx_address_fixture.cpp",
+        "sha256": "0d24b7b7636455b5fe8b848790d82bce706e2ce7d2d26b6808c3e19c54a153fa",
+        "bytes": 5116,
         "repository_path": "tools/pf_oracle/tests/cfx_address_fixture.cpp"
       },
       {
-        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\pf_oracle\\tests\\test_cfx_address_bindings.py",
-        "sha256": "a73b9de377515972e9ad02c9f03b8f1d26d3370c85b90bb3813407d024d6070c",
-        "bytes": 10247,
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source-lifetime\\tools\\pf_oracle\\tests\\test_cfx_address_bindings.py",
+        "sha256": "6eb570637864bc68bd11eecd123c6da6ab3d58a678635e44ecd576e1c931eafc",
+        "bytes": 10366,
         "repository_path": "tools/pf_oracle/tests/test_cfx_address_bindings.py"
       },
       {
@@ -174,6 +179,7 @@
         "repository_path": "tools/pf_oracle/tests/test_cfx008_gate.py"
       }
     ],
-    "limitations": "Repaired hardware callback emission/overhead/equivalence still unverified. No DBP37 target was launched under#99. No causal repair."
+    "limitations": "Repaired hardware callback emission/overhead/equivalence still unverified. No DBP37 target was launched under#99. No causal repair.",
+    "payload_lifetime_test": "Drain held behind unpublished slot; callback-owned name bytes overwritten before drain; original copied name preserved.65 final CFX MSVC-ASan tests pass. Renderer code/binary unchanged by this test strengthening."
   }
 }

@@ -82,7 +82,12 @@ int main(int argc, char** argv)
 		// Model a preempted producer at slot0: drain cannot pass it. Another
 		// callback still completes and snapshot returns within its fixed budget.
 		auto& s = CfxAddress::State(); s.records.store(1);
+		char transientName[] = "owned-before-callback";
+		objects[0].pObjectName = transientName;
 		std::thread worker(emit); worker.join();
+		// Drain is held behind slot0, so it cannot read this queued record until
+		// after the callback-owned name bytes have been overwritten.
+		std::memset(transientName, 'X', std::strlen(transientName));
 		const auto start = std::chrono::steady_clock::now();
 		CfxAddress::Snapshot("device-lost");
 		assert(std::chrono::steady_clock::now() - start < std::chrono::seconds(1));
