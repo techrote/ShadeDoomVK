@@ -1,0 +1,688 @@
+{
+  "schema": "cfx-007-attempt-ledger-v1",
+  "issue": 97,
+  "parent_issue": 75,
+  "selected_incident": "CFX-DBP37-MAP01-20260924",
+  "substrate_merge": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+  "status": "IN_PROGRESS_CRASH_UNRESOLVED",
+  "counts": {
+    "launches": 13,
+    "loss_episodes": 3,
+    "max_launches": 16,
+    "max_loss_episodes": 6
+  },
+  "active_phase": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair",
+  "attempts": [
+    {
+      "attempt_id": "CFX7-CONTROL-001",
+      "run_id": "cfx-20261001T230115Z-2fb8c735c782",
+      "risky": false,
+      "discriminator": "Known-safe preserved IWAD-slot MAP01 controls establish merged-renderer normal output/state and resource-trace opt-in equivalence against two off controls. No target/crash-prone PWAD.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "355893dde19ead3bf79d6ee16144496c7ae9645a",
+      "mode": "off",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-reconciled\\control-001\\runs\\cfx-20261001T230115Z-2fb8c735c782\\manifest.json",
+        "bytes": 9704,
+        "sha256": "95b7bf6d6ec6cf2d78d221cc087168bee3f26aa9acf8867ed14970e2e496475f"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:01:41.629550+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [
+          "artifact missing/changed"
+        ],
+        "counts": {
+          "launches": 1,
+          "loss_episodes": 0
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-reconciled\\control-001\\plan.json",
+        "bytes": 3421,
+        "sha256": "7e3fd6955d14c6dfc0e8e2495ce85a7bb62dac2dc89c95f1cb288ff0e4aacb05"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-reconciled\\control-001\\artifact-index.json",
+        "bytes": 7339,
+        "sha256": "e82dec30c55e8b949097c1158e5ac75e6d378cdb0ce2240f39844ad942ed329c"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-002",
+      "run_id": "cfx-20261001T230426Z-542d7d04f9ee",
+      "risky": false,
+      "discriminator": "Known-safe preserved IWAD-slot MAP01 controls establish merged-renderer normal output/state and resource-trace opt-in equivalence against two off controls. No target/crash-prone PWAD.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "e42f0fceb9f69c497a91e1bf8029198a250f23eb",
+      "mode": "off",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-002\\runs\\cfx-20261001T230426Z-542d7d04f9ee\\manifest.json",
+        "bytes": 9505,
+        "sha256": "c637040c56eefc676169b98b100836ab84c43b72a1da787f299046d0dd15d329"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:04:37.755282+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 2,
+          "loss_episodes": 0
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-002\\plan.json",
+        "bytes": 3421,
+        "sha256": "b92a79bcf9d28d6ada759cd6942443a9b9f6aeaba9080e204dd00265a19648da"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-002\\artifact-index.json",
+        "bytes": 7339,
+        "sha256": "25cfc6df83bf659abab324978d361895b615f7432deabfbfee1ca3a044a10e9f"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-003",
+      "run_id": "cfx-20261001T230503Z-df3237064404",
+      "risky": false,
+      "discriminator": "Known-safe preserved IWAD-slot MAP01 controls establish merged-renderer normal output/state and resource-trace opt-in equivalence against two off controls. No target/crash-prone PWAD.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "e42f0fceb9f69c497a91e1bf8029198a250f23eb",
+      "mode": "capture",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-003\\runs\\cfx-20261001T230503Z-df3237064404\\manifest.json",
+        "bytes": 9828,
+        "sha256": "f0c41b3f35b15fd07dcfb1d3422a5101b5c5038d9595b3c1df5bce04c32046ed"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:05:15.547627+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 3,
+          "loss_episodes": 0
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-003\\plan.json",
+        "bytes": 3450,
+        "sha256": "34b5ae3920de4c9abb127af241719b5c0a79c2f0503d19841f347cf276bb2ba3"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-003\\artifact-index.json",
+        "bytes": 7633,
+        "sha256": "ca71ee42593f6fec3ffa5b2c813a68911f068db46e0498f059993f128e9f08e6"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-004",
+      "run_id": "cfx-20261001T230902Z-aab52c7633ad",
+      "risky": false,
+      "discriminator": "Established safe paused/capped fixture with fixed rngseed12345 separates resource instrumentation output/state from uncontrolled off/off timing/RNG and retains startup trace inside100k bound. Safe-only cap, never primary settings.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "e42f0fceb9f69c497a91e1bf8029198a250f23eb",
+      "mode": "off",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-004\\runs\\cfx-20261001T230902Z-aab52c7633ad\\manifest.json",
+        "bytes": 9579,
+        "sha256": "c3e957050b77a19fdca8a60a04aac040c1bf4dde3fbfd1e99ebbd6f07adaea62"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:09:11.816639+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 4,
+          "loss_episodes": 0
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-004\\plan.json",
+        "bytes": 3532,
+        "sha256": "5fb6a9207932b88e608b41db50710857610562f57bff0b308f25878c58c9e04a"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-004\\artifact-index.json",
+        "bytes": 7049,
+        "sha256": "805e818de92903345bd3e7479af9b7d7fe258201a3ab1c2a9dc6a328504b75ae"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-005",
+      "run_id": "cfx-20261001T231034Z-2a0167f06a9a",
+      "risky": false,
+      "discriminator": "Established safe paused/capped fixture with fixed rngseed12345 separates resource instrumentation output/state from uncontrolled off/off timing/RNG and retains startup trace inside100k bound. Safe-only cap, never primary settings.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "e42f0fceb9f69c497a91e1bf8029198a250f23eb",
+      "mode": "off",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-005\\runs\\cfx-20261001T231034Z-2a0167f06a9a\\manifest.json",
+        "bytes": 9578,
+        "sha256": "0ad6c7913376ba40352ac06f32535444f73e7963e04ac2ba33b22b5c97f59323"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:10:43.288783+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 5,
+          "loss_episodes": 0
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-005\\plan.json",
+        "bytes": 3532,
+        "sha256": "df4c334193661183f31063d3ca09443a67745cb6fc0f529a52026cf66ff66a98"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-005\\artifact-index.json",
+        "bytes": 7049,
+        "sha256": "98af0e45dec7ee547231a63e69dcd33f269a723dee6a45225fc2f6669028ab13"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-006",
+      "run_id": "cfx-20261001T231123Z-01deace2d62b",
+      "risky": false,
+      "discriminator": "Established safe paused/capped fixture with fixed rngseed12345 separates resource instrumentation output/state from uncontrolled off/off timing/RNG and retains startup trace inside100k bound. Safe-only cap, never primary settings.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "e42f0fceb9f69c497a91e1bf8029198a250f23eb",
+      "mode": "capture",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-006\\runs\\cfx-20261001T231123Z-01deace2d62b\\manifest.json",
+        "bytes": 10121,
+        "sha256": "278ed1617bb79fbf189b3b1f9664973064ffcf89ca6c37ad6358082c389a8a59"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:11:32.599554+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 6,
+          "loss_episodes": 0
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-006\\plan.json",
+        "bytes": 3561,
+        "sha256": "817d6385a191ba496f1c29cb132c086b156b99f3e06e59094278753b43f96165"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-006\\artifact-index.json",
+        "bytes": 7344,
+        "sha256": "e32e990a28fa853e672a12007fec51659ec3db5a6d73a247a4691549d8a35f58"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-007",
+      "run_id": "cfx-20261002T080945Z-e771c73008ab",
+      "risky": false,
+      "discriminator": "Safe full-scene GPU-assisted validation activation with same paused/capped control inputs; determine shader-access instrumentation and scene completion before DBP37 target.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "d647c807d0f2325c5cacfadb1d25f6b63ddadae6",
+      "mode": "gpu-assisted",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-007\\runs\\cfx-20261002T080945Z-e771c73008ab\\manifest.json",
+        "bytes": 11769,
+        "sha256": "374eef1109bbe8054776ea88e2133c8ecb902e056728ad80b0d316076e1a37c9"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T08:11:19.791345+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [
+          "hard/no-return renderer hang",
+          "safe control failed"
+        ],
+        "counts": {
+          "launches": 8,
+          "loss_episodes": 1
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-007\\plan.json",
+        "bytes": 4064,
+        "sha256": "1515dc05cd1070015bd82c2f74777d22ed68bf8370214e8788d6669696b75823"
+      },
+      "application_observation": "timeout; no Vulkan return proven",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-007\\analysis.json",
+        "bytes": 1379,
+        "sha256": "98cae441edbc93953c0154af0099725ec98fc1f7c9b1e66bdf5293e00f607697"
+      },
+      "validation": {
+        "verified": true,
+        "errors": 0,
+        "warnings": 12
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\control-007\\artifact-index.json",
+        "bytes": 7392,
+        "sha256": "4cd46b615bb97571c4ce6013609c8dd0c462c8044f9bddf632a33af81ff3ff74"
+      }
+    },
+    {
+      "attempt_id": "CFX7-TARGET-001",
+      "run_id": "cfx-20261001T231413Z-49a9aabf258e",
+      "risky": true,
+      "discriminator": "First mandatory merged-CFX006 exact DBP37 startup. Test whether loss persists after removal of invalid healthy NV query, and collect actual UploadData/copy-command/submission/fence/retirement plus descriptor/PF-generation/pipeline identities to localize GPU-visible range/lifetime hypotheses not resolved by clean post-error CPU trees. No repeated characterization.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "e42f0fceb9f69c497a91e1bf8029198a250f23eb",
+      "mode": "capture",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\target-001\\runs\\cfx-20261001T231413Z-49a9aabf258e\\manifest.json",
+        "bytes": 11078,
+        "sha256": "c02a09d7591d4d3daa80b633f72b997c278a3b81e01505a2c0529b79fd6c014d"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-01T23:15:18.879087+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": true,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 7,
+          "loss_episodes": 1
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\target-001\\plan.json",
+        "bytes": 4720,
+        "sha256": "7b1c578ef288508211f5061aca290062fc080f6e641293e05bb539df177187cc"
+      },
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\target-001\\analysis.json",
+        "bytes": 3553,
+        "sha256": "b135f118ebd6d6e190dbf7aa1c8d68049325eabf1872e054fdda3f7d9a118932"
+      },
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\target-001\\artifact-index.json",
+        "bytes": 7074,
+        "sha256": "28a09d69c9df5fd767c4b2eccb643137ddcde60e10e476802755e250e4909541"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-008",
+      "run_id": "cfx-20261002T081457Z-8aefd93e9132",
+      "risky": false,
+      "discriminator": "Short safe GPUAV full scene20tic exit/image/state; prior160tic fixture exceeded deadline with proven late progress; establish target access-validator usability without disabling any access checks.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "d647c807d0f2325c5cacfadb1d25f6b63ddadae6",
+      "mode": "gpu-assisted",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-008\\runs\\cfx-20261002T081457Z-8aefd93e9132\\manifest.json",
+        "bytes": 11354,
+        "sha256": "51f22500fe9df9c60a93cd7757922bdf63d03f633ed666592a722b0d1f3abda9"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T08:15:12.638104+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 9,
+          "loss_episodes": 1
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-008\\plan.json",
+        "bytes": 4088,
+        "sha256": "b87697b150b7ebd60ffd5dc8c524216641c7c64c07c96cf391df827b322adfd8"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-008\\analysis.json",
+        "bytes": 344,
+        "sha256": "29390b3e2faa1fe4edae5aad87e7e9776b8de0d4a8e183cee685ee0e1f5a40e0"
+      },
+      "validation": {
+        "verified": true,
+        "errors": 0,
+        "warnings": 12
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-008\\artifact-index.json",
+        "bytes": 7925,
+        "sha256": "22d9ce0e1171f67bea576b5d1dc314e6c1cd07534fd6ead9e9464994b79b7eaf"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-009",
+      "run_id": "cfx-20261002T101415Z-55e4c13eb2ab",
+      "risky": false,
+      "discriminator": "Same safe LevelMesh=true short scene under sync validation, test missing TRANSFER_WRITE -> INDEX_READ/VERTEX_ATTRIBUTE_READ visibility in VkLevelMesh::BeginFrame versus VkHardwareBuffer-only #87 repair; activation proof and exact hazards.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "d647c807d0f2325c5cacfadb1d25f6b63ddadae6",
+      "mode": "sync",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-009\\runs\\cfx-20261002T101415Z-55e4c13eb2ab\\manifest.json",
+        "bytes": 11363,
+        "sha256": "8f3cc37895b3f5d8221790b015a9df7ed7f2ab538360658c3778450e540525cb"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T10:14:21.396065+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 11,
+          "loss_episodes": 2
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-009\\plan.json",
+        "bytes": 4067,
+        "sha256": "3996e7390c5d4bff3e3218dbacfab93e4d870148359113f98603c9e22eb9e092"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": null,
+      "validation": {
+        "verified": true,
+        "errors": 1,
+        "warnings": 0
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\control-009\\artifact-index.json",
+        "bytes": 7923,
+        "sha256": "aab681767811cff43a5a2df7a44654a1fd27a7687e9409f09c462e202773b14d"
+      }
+    },
+    {
+      "attempt_id": "CFX7-TARGET-002",
+      "run_id": "cfx-20261002T081716Z-e875390a0dd5",
+      "risky": true,
+      "discriminator": "Same merged renderer and original DBP37 startup, GPU-assisted validation only. Test shader-visible descriptor/buffer indexing vs clean allocation/CPU-range audit. Need actual set/binding/shader/index diagnosis; success under instrumentation alone is perturbation, not repair.",
+      "renderer_source": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
+      "runner_source": "d647c807d0f2325c5cacfadb1d25f6b63ddadae6",
+      "mode": "gpu-assisted",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\target-002\\runs\\cfx-20261002T081716Z-e875390a0dd5\\manifest.json",
+        "bytes": 12310,
+        "sha256": "400a129902b2740a033cec94c04f805a3c07c4ca0bd0d136fcd481f55addbe71"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T08:18:21.812005+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": true,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 10,
+          "loss_episodes": 2
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\target-002\\plan.json",
+        "bytes": 5070,
+        "sha256": "e30b997f06473a65f35612013cd80bb91767bb2c71766bcada3e6c5598d3b17c"
+      },
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\target-002\\analysis.json",
+        "bytes": 1366,
+        "sha256": "7d02c798f8056b230bb2a1bdf07c0645748812ea00fb2ec0ced5b6d062cad92f"
+      },
+      "validation": {
+        "verified": true,
+        "errors": 0,
+        "warnings": 12
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-validation\\target-002\\artifact-index.json",
+        "bytes": 7652,
+        "sha256": "4425fe298af9f145fa9fae05be7de8becf471e63262e0a471bc40b487e5fc5dc"
+      }
+    },
+    {
+      "attempt_id": "CFX7-CONTROL-010",
+      "run_id": "cfx-20261002T101950Z-9a3358b5dc39",
+      "risky": false,
+      "discriminator": "Correctness candidate safe paused equivalent scene under sync validation: require former IndexBuffer hazard gone, zero validation errors, identical pixels/protected mesh state vs control004/005/006. Source repair only; no production cap/feature changes.",
+      "renderer_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "runner_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "mode": "sync",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\control-010\\runs\\cfx-20261002T101950Z-9a3358b5dc39\\manifest.json",
+        "bytes": 11769,
+        "sha256": "8c9e228d2f6fc3bcf202247b12414222a42c7f684b8434f312e868bd28f3799c"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T10:20:00.071358+00:00",
+        "runner_exit_code": 0,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": false,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 12,
+          "loss_episodes": 2
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\control-010\\plan.json",
+        "bytes": 4169,
+        "sha256": "ae3cf92c5b8c72608dde6d1ad6b4ed571eab1ab968c022f3e13d081dd4cdc4ef"
+      },
+      "application_observation": null,
+      "exit_status": 0,
+      "status": "EXITED",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\control-010\\analysis.json",
+        "bytes": 511,
+        "sha256": "4d1a96ba2985e6b6904b74d27be750aac63ee33c4dab57ef36f443ef3d99a200"
+      },
+      "validation": {
+        "verified": true,
+        "errors": 0,
+        "warnings": 0
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\control-010\\artifact-index.json",
+        "bytes": 8126,
+        "sha256": "b14a7495896e3376b70196a8a9f41b2f15f84b422473d7a6cf9aef7e49923072"
+      }
+    },
+    {
+      "attempt_id": "CFX7-TARGET-003",
+      "run_id": "cfx-20261002T102203Z-e3c017b04823",
+      "risky": true,
+      "discriminator": "Former DBP37 startup with one source correctness repair: LevelMesh upload visibility to vertex/index input. Original capture-only mode/config/content/cache/script uncapped/VSync/MSAA retained. Does demonstrated index-read hazard correction eliminate the loss? First of at most3 independent successes; any loss disproves sole-cause claim, analyze instead of repeating.",
+      "renderer_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "runner_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "mode": "capture",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-003\\runs\\cfx-20261002T102203Z-e3c017b04823\\manifest.json",
+        "bytes": 11490,
+        "sha256": "13f3774b02727328c3f787664408853e5bd32746a9b55ac13c62165bf79f1248"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T10:23:07.957815+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": true,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 13,
+          "loss_episodes": 3
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-003\\plan.json",
+        "bytes": 4584,
+        "sha256": "013c8b6bb16ceae16faf918639bcc6f46f89057d3213df07f6ecc945135dedd8"
+      },
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-003\\analysis.json",
+        "bytes": 1144,
+        "sha256": "9d650e6caac89c189e9fc747143c89daacf3e7e4a730f9d377659c08f1fe841a"
+      },
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-003\\artifact-index.json",
+        "bytes": 7258,
+        "sha256": "3d4e5e8bfc7eda04fe3ea915139c702b1080ce3ac95fbb48c5ba3e3858ff906c"
+      }
+    }
+  ],
+  "limitations": [
+    "Initial requested1904x1001 clamps1902x993 after display topology change",
+    "Preserved IWAD-slot file is not asserted stock DoomII",
+    "GPUAV lost-state report delivery incomplete possible; no clean-log correctness claim",
+    "Matching dumps capture post-error UI; no initiating driver stack",
+    "Vendor binary retained but no installed decoder/shader mapping",
+    "Index visibility repair removes independent safe hazard but DBP37 still loses device"
+  ],
+  "safe_equivalence": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261001-capturefix\\safe-equivalence-paused.json",
+    "bytes": 2658,
+    "sha256": "5c96cff3bd1788eb82d213456f72be1abfe488e0da86fc6c4b3dbecd6a3210c9"
+  },
+  "repair_safe_control": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\control-010\\analysis.json",
+    "bytes": 511,
+    "sha256": "4d1a96ba2985e6b6904b74d27be750aac63ee33c4dab57ef36f443ef3d99a200"
+  }
+}
