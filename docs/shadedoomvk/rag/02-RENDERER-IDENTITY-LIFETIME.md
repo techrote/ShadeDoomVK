@@ -133,6 +133,8 @@ Primary source paths are `src/common/rendering/vulkan/framebuffers/vk_framebuffe
 
 Transfer copies into `VkHardwareBuffer` GPU-only buffers are published by `PublishTransferWrite` in `vk_hwbuffer.cpp`, using a buffer/range-scoped dependency from transfer write to index, vertex, shader or later-transfer consumer access. The separate `Flatbuffer.IndexBuffer` copy in `VkRenderState::SetShadowData` has a buffer-scoped transfer-write to index-read dependency before draw use. Same-queue submission order alone did not make these writes visible to `INDEX_READ` in synchronization validation. See `CFX-002-BUFFER-UPLOAD-SYNC.md` for #87 hardware evidence and the independent #86 swapchain-clear finding.
 
+CFX-007/#97 identifies a separate LevelMesh uploader path: `VkLevelMesh::BeginFrame` must publish transfer writes to **vertex attribute and index reads at vertex input**, in addition to shader reads, in both software-traversal and ray-query branches. These buffers are directly bound by `VkRenderState::ApplyLevelMesh`. Safe GTX1650 SUPER synchronization validation reported a `READ_AFTER_WRITE` on `IndexBuffer` at `vkCmdDrawIndexed` with the old shader-only scope. The focused contract pins both branches; physical crash repair remains pending validation. No quality or resource ownership change is implied.
+
 ## Dynamic-light identity
 
 Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or LevelMesh light records. Actor light collection may deduplicate by light pointer and then upload copied structs. Shadow maps also assign a finite shadow index.
