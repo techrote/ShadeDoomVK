@@ -68,6 +68,49 @@ def verify_files(data, description):
     for item in data['files']:
         if not item.get('sha256') or digest(pathlib.Path(item['path'])) != item['sha256']:
             raise ValueError(description + ' evidence changed')
+    for item in data.get('excluded_failed_files', []):
+        path = pathlib.Path(item['path'])
+        if (path.name != 'process.dmp' or item.get('bytes') != 0 or item.get('sha256') is not None or
+                item.get('reason') != 'failed-empty-watchdog-dump' or not path.is_file() or path.stat().st_size != 0):
+            raise ValueError(description + ' invalid failed-file exclusion')
+
+
+def content_identity(content):
+    return [{'role': c['role'], 'sha256': c['sha256']} for c in content]
+
+
+def check_prior_phase(lane, state, guard_map):
+    prior = lane.get('prior_phase')
+    if not prior: return
+    old_opening = verified_record(prior.get('opening'), 'CFX010 prior phase opening')
+    old = verified_record(prior.get('state'), 'CFX010 stopped prior phase')
+    if (old_opening.get('issue') != 105 or old.get('status') != 'STOPPED' or old.get('pending_attempt') or
+            lane.get('foreground_policy') != 'one-shot-verified-monitored-v1'):
+        raise ValueError('CFX010 continuation requires frozen stopped phase and foreground policy')
+    analysis = verified_analysis(prior.get('analysis'))
+    if (analysis.get('attempt_id') != old.get('last_informative_attempt') or any(analysis.get(k) is not True for k in (
+            'operator_focus_confounded', 'normal_exit_verified', 'hardware_recovery_verified', 'stop_not_renderer_hang'))):
+        raise ValueError('CFX010 stopped phase needs complete operator-focus/recovery explanation')
+    verify_files(verified_record(prior.get('artifact_index'), 'CFX010 prior usable index'), 'CFX010 prior usable index')
+    preserved = list(old_opening.get('historical_guards', []))
+    stop = pathlib.Path(prior['state']['path']).resolve().parent / 'STOP-LAUNCHES.txt'
+    preserved.append({'path': str(stop), 'sha256': digest(stop)})
+    if any(not g.get('sha256') or guard_map.get(str(pathlib.Path(g['path']).resolve())) != g['sha256'] for g in preserved):
+        raise ValueError('CFX010 prior phase STOP set must remain preserved')
+    if any(type(old.get(k)) is not int or old[k] < 0 or state[k] < old[k] for k in ('launches', 'loss_episodes')):
+        raise ValueError('CFX010 stopped phase counts must carry forward')
+    for record in old.get('attempts', []):
+        if record not in state.get('attempts', []):
+            raise ValueError('CFX010 previous attempt records must remain carried')
+    if old_opening.get('accepted_baseline') != lane['accepted_baseline'] or old_opening.get('renderer_source') != lane['renderer_source']:
+        raise ValueError('CFX010 continuation renderer changed')
+    for case, profile in lane['case_profiles'].items():
+        before = old_opening['case_profiles'][case]
+        if (any(profile.get(k) != before.get(k) for k in ('map', 'settings', 'config_values', 'route', 'pre_arguments',
+                'target_script_sha256', 'control_script_sha256', 'control_completion_markers')) or
+                content_identity(profile['content_order']) != content_identity(before['content_order']) or
+                profile['config_source']['sha256'] != before['config_source']['sha256']):
+            raise ValueError('CFX010 foreground continuation may not change historical renderer/route/content identity')
 
 
 def check_lane(path, run_root, exe):
@@ -143,6 +186,7 @@ def check_lane(path, run_root, exe):
     if (state.get('status') != 'OPEN' or any(type(state.get(k)) is not int or state[k] < old_state[k]
             for k in ('launches', 'loss_episodes')) or state['loss_episodes'] > state['launches']):
         raise ValueError('CFX010 cumulative counts must carry14/2 forward')
+    check_prior_phase(lane, state, guard_map)
     return lane
 
 
@@ -153,7 +197,7 @@ def arguments(argv):
         ap.add_argument('--' + name)
     for name in ('pwad', 'addon', 'pre-arg', 'arg'):
         ap.add_argument('--' + name, action='append', default=[])
-    for name in ('approved-cfx010', 'resource-trace', 'address-bindings', 'launch', 'isolate-workdir'):
+    for name in ('approved-cfx010', 'resource-trace', 'address-bindings', 'launch', 'isolate-workdir', 'verify-foreground'):
         ap.add_argument('--' + name, action='store_true')
     return ap.parse_args(argv)
 
@@ -189,6 +233,8 @@ def validate_plan(plan, opening, attempt, *, reservation=False):
         if done >= 3:
             raise ValueError('CFX010 case success validation saturated at three')
     a = arguments(plan['run_arguments'])
+    if a.verify_foreground != (opening.get('foreground_policy') == 'one-shot-verified-monitored-v1'):
+        raise ValueError('CFX010 foreground proof must match its new continuation policy')
     if (a.mode != 'capture' or not a.approved_cfx010 or not a.resource_trace or not a.address_bindings or
             not a.launch or not a.isolate_workdir or not 1 <= int(a.timeout or 0) <= 60 or
             pathlib.Path(a.exe or '').resolve() != pathlib.Path(plan['exe']).resolve() or
@@ -249,7 +295,7 @@ def require_control(state, opening, plan):
     content = profile.get('control_content_order', [profile['content_order'][0]])
     if (proof.get('schema') != 'cfx-010-control-proof-v1' or proof.get('accepted') is not True or
             proof.get('renderer_source') != RENDERER or proof.get('settings') != plan['settings'] or
-            proof.get('control_content_order') != content):
+            content_identity(proof.get('control_content_order', [])) != content_identity(content)):
         raise ValueError('CFX010 matching-settings control missing')
     verify_files(proof, 'CFX010 control')
 
@@ -320,6 +366,9 @@ def verify_completion(manifest, plan, run, opening):
     actual = re.match(r'^(\d+)\s*x\s*(\d+)(?:\s|$)', manifest.get('run', {}).get('actual_resolution') or '')
     if not actual or [int(actual[1]), int(actual[2])] != expected:
         raise ValueError('CFX010 actual renderer resolution differs from approved case')
+    if opening.get('foreground_policy') == 'one-shot-verified-monitored-v1':
+        from cfx010_foreground import verify
+        verify(manifest.get('environment', {}).get('foreground'), run / 'timeline.tsv')
     markers = plan['route']['completion_markers'] if plan['risky'] else opening['case_profiles'][plan['case']]['control_completion_markers']
     if (not isinstance(markers, list) or not 1 <= len(markers) <= 64 or len(set(markers)) != len(markers) or
             any(not isinstance(marker, str) or not marker.strip() for marker in markers)):

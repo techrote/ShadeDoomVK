@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -362,7 +363,10 @@ def main():
     ap.add_argument('--cfx009-lane-plan', type=pathlib.Path)
     ap.add_argument('--approved-cfx010', action='store_true', help='#105 supervised PR104 cross-case qualification')
     ap.add_argument('--cfx010-lane-plan', type=pathlib.Path)
+    ap.add_argument('--verify-foreground', action='store_true', help='CFX010 continuation: one focus request and bounded interference proof')
     args = ap.parse_args()
+    if args.verify_foreground and not args.approved_cfx010:
+        ap.error('--verify-foreground requires its separate CFX010 continuation')
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
     if args.address_bindings and not args.resource_trace:
@@ -626,13 +630,31 @@ def main():
     if args.mode in VALIDATION_SETTINGS:
         env["VK_LAYER_SETTINGS_PATH"] = str(run_dir / "vk_layer_settings.txt")
     timed_out = False
+    host_abort = None
     with out.open("wb") as stdout, err.open("wb") as stderr:
         proc = subprocess.Popen(command, cwd=work_dir, env=env, stdout=stdout, stderr=stderr)
+        process_deadline = time.monotonic() + args.timeout
         manifest["status"] = "RUNNING"
         manifest["pid"] = proc.pid
         save()
+        foreground = None
+        if args.verify_foreground:
+            try:
+                from cfx010_foreground import ForegroundSession
+                foreground = ForegroundSession(proc, seconds=min(10, args.timeout))
+                manifest['environment']['foreground'] = foreground.report.copy()
+            except OSError as exc:
+                manifest['environment']['foreground'] = {'requested': True, 'verified': False, 'reason': str(exc)}
+            save()
         try:
-            code = proc.wait(timeout=args.timeout)
+            if args.verify_foreground:
+                from cfx010_foreground import abort_failed_start
+                host_abort = abort_failed_start(proc, manifest['environment'].get('foreground'), trace)
+            if host_abort:
+                manifest['failure']['host_abort'] = {'reason': host_abort[0], 'bounded_child_stop': True}
+                code = host_abort[1]
+            else:
+                code = proc.wait(timeout=max(.001, process_deadline - time.monotonic()) if args.verify_foreground else args.timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
             manifest["failure"]["watchdog_action"] = (
@@ -640,6 +662,9 @@ def main():
                 else capture_dump(proc.pid, dump))
             proc.kill()
             code = proc.wait(timeout=15)
+        finally:
+            if foreground:
+                manifest['environment']['foreground'] = foreground.finish()
     loader = err.read_text(errors="replace") if err.is_file() else ""
     console = out.read_text(errors="replace") if out.is_file() else ""
     (run_dir / "loader-layers.log").write_text("\n".join(
@@ -690,7 +715,7 @@ def main():
     manifest["failure"]["first_observed_failure"] = (
         None if timed_out and args.skip_dump_on_timeout
         else manifest["failure"]["application_observation"])
-    manifest["status"] = ("SAFE_STOP" if timed_out and args.skip_dump_on_timeout
+    manifest["status"] = ("HOST_ABORT" if host_abort else "SAFE_STOP" if timed_out and args.skip_dump_on_timeout
                           else "TIMEOUT" if timed_out else
                           "EXITED" if code == 0 else "FAILED")
     if trace.is_file():

@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / 'tools'))
 import cfx_capture as capture
 import cfx010_gate as gate
 import cfx010_execute as execute
+import cfx010_foreground as foreground
 from cfx_address_correlate import FIELDS
 
 
@@ -340,6 +341,121 @@ class CrossCase(unittest.TestCase):
             record = self.record(p)
             with self.assertRaises(ValueError): gate.approved_script_hash(plan | {'analysis_prerequisite': record,
                 'capture_adjustment': plan['capture_adjustment'] | {'analysis': record}}, profile, script)
+
+    def stopped_phase(self):
+        phase = self.root / 'stopped-cfx010'; phase.mkdir()
+        for profile in self.opening['case_profiles'].values():
+            profile['config_source'] = {'path': str(self.evidence), 'sha256': capture.digest(self.evidence)}
+        old_opening = json.loads(json.dumps(self.opening))
+        old = {'status': 'STOPPED', 'launches': 21, 'loss_episodes': 2, 'pending_attempt': None,
+               'analysis_pending': 'confounded-target', 'last_informative_attempt': 'confounded-target',
+               'attempts': [{'attempt_id': 'confounded-target', 'classification': 'watchdog-no-return'}]}
+        data = {'opening': old_opening, 'state': old,
+                'analysis': {'analysis_complete': True, 'source_analysis_pending': False, 'attempt_id': 'confounded-target',
+                    'conclusion': 'Operator focus delay, completed normal exit, healthy recovery; preserve STOP.',
+                    'operator_focus_confounded': True, 'normal_exit_verified': True, 'hardware_recovery_verified': True,
+                    'stop_not_renderer_hang': True, 'files': [self.record(self.evidence)]},
+                'artifact_index': {'files': [self.record(self.evidence)]}}
+        prior = {}
+        for name, value in data.items():
+            p = phase / (name + '.json'); p.write_text(json.dumps(value)); prior[name] = self.record(p)
+        stop = phase / 'STOP-LAUNCHES.txt'; stop.write_bytes(b'preserve timeout/focus stop')
+        self.opening.update(prior_phase=prior, foreground_policy='one-shot-verified-monitored-v1')
+        self.opening['historical_guards'].append(self.record(stop))
+        self.state.update(launches=21, loss_episodes=2, attempts=old['attempts'], last_analysis=prior['analysis'])
+        self.save()
+        return prior
+
+    def test_new_foreground_phase_preserves_stop_counts_attempts_and_actual_profiles(self):
+        prior = self.stopped_phase(); self.check()
+        for changes in ({'launches': 20}, {'attempts': []}):
+            old = self.state.copy(); self.state.update(changes); self.save()
+            with self.assertRaises(ValueError): self.check()
+            self.state = old
+        self.save()
+        self.opening['case_profiles']['sunlust-champions']['settings'] = self.settings | {'vsync': True}; self.save()
+        with self.assertRaisesRegex(ValueError, 'historical renderer'): self.check()
+        self.opening['case_profiles']['sunlust-champions']['settings'] = self.settings; self.save()
+        p = pathlib.Path(prior['analysis']['path']); data = json.loads(p.read_text()); data['stop_not_renderer_hang'] = False
+        p.write_text(json.dumps(data)); prior['analysis'] = self.record(p); self.save()
+        with self.assertRaisesRegex(ValueError, 'operator-focus'): self.check()
+
+    def test_foreground_policy_requires_explicit_flag_and_control_reuses_content_hash_only(self):
+        self.stopped_phase()
+        attempt, plan = self.plan(False)
+        with self.assertRaisesRegex(ValueError, 'foreground proof'): gate.validate_plan(plan, self.opening, attempt)
+        gate.validate_plan(plan | {'run_arguments': plan['run_arguments'] + ['--verify-foreground']}, self.opening, attempt)
+        self.control()
+        copied = self.lane / 'isolated-copy.wad'; copied.write_bytes(self.iwad.read_bytes())
+        self.opening['case_profiles']['dbp50-original']['content_order'][0] = {'role': 'IWAD', **self.record(copied)}
+        gate.require_control(self.state, self.opening, plan)
+        copied.write_bytes(b'changed'); self.opening['case_profiles']['dbp50-original']['content_order'][0] = {'role': 'IWAD', **self.record(copied)}
+        with self.assertRaises(ValueError): gate.require_control(self.state, self.opening, plan)
+
+    def test_empty_failed_dump_is_explicit_index_exclusion_not_successful_capture(self):
+        attempt = self.lane / 'dump-index'; attempt.mkdir()
+        dump = attempt / 'process.dmp'; dump.write_bytes(b'')
+        trace = attempt / 'timeline.tsv'; trace.write_bytes(b'usable')
+        manifest = {'status': 'TIMEOUT', 'failure': {'watchdog_action': {'status': 'failed'}}}
+        original_digest = execute.digest
+        def unreadable_empty(path):
+            if path == dump: raise PermissionError('empty comsvcs dump cannot be read')
+            return original_digest(path)
+        with mock.patch.object(execute, 'digest', side_effect=unreadable_empty):
+            index = execute.artifact_index(attempt, manifest)
+        self.assertEqual(index['excluded_failed_files'][0]['reason'], 'failed-empty-watchdog-dump')
+        gate.verify_files(index, 'usable index')
+        self.assertEqual(gate.classify(manifest, False, []), 'watchdog-no-return')
+        dump.write_bytes(b'nonempty dump')
+        with self.assertRaises(ValueError): gate.verify_files(index, 'usable index')
+
+    def test_one_foreground_request_and_bounded_monitor_no_input_calls(self):
+        api = SimpleNamespace(windows=lambda pid: [7], activate=mock.Mock(return_value=True), foreground=lambda: 7,
+            install_events=lambda pid, callback: 'hooks', pump_events=lambda: None, remove_events=mock.Mock(),
+            owner=lambda window: (42, 1), inspect=lambda window: {'alive': True, 'visible': True, 'minimized': False,
+                'thread_info_ok': True, 'in_move_size': False})
+        def fake_thread(target, daemon):
+            def start():
+                target.__self__.report['event_hooks_installed'] = True; target.__self__.ready.set()
+            return SimpleNamespace(start=start, join=lambda timeout: None, is_alive=lambda: False)
+        proc = SimpleNamespace(pid=42, poll=lambda: None)
+        with mock.patch.object(foreground.threading, 'Thread', side_effect=fake_thread), mock.patch.object(foreground.time, 'time', return_value=.05):
+            session = foreground.ForegroundSession(proc, api=api)
+            session.stop.wait = mock.Mock(side_effect=[False, True])
+            session.monitor(); report = session.finish()
+        self.assertEqual(api.activate.call_count, 1); self.assertTrue(report['verified']); self.assertEqual(report['checks'], 1)
+        timeline = self.lane / 'focus-timeline.tsv'
+        timeline.write_text('# fixture\ncolumns\n100\t1\t1\t0\t0\tstartup\tframe\tbegin\t0\n')
+        foreground.verify(report, timeline)
+        for changed in ({'verified_at_ms': 101}, {'checks': 0}, {'events': [{'kind': 'focus-or-modal-interference', 'ms': 101}]}):
+            with self.assertRaises(ValueError): foreground.verify(report | changed, timeline)
+        self.assertEqual(api.remove_events.call_count, 1)
+        # A restored foreground sampled as normal cannot erase a transient native event.
+        session.receive_event(3, 8, 75, 150); session.receive_event(10, 7, 80, 150)
+        self.assertEqual(session.report['events'][0]['ms'], 75)
+        with self.assertRaises(ValueError): foreground.verify(session.report, timeline)
+
+    def test_failed_or_late_foreground_start_stops_child_immediately_without_watchdog(self):
+        timeline = self.lane / 'startup-timeline.tsv'
+        timeline.write_text('# fixture\ncolumns\n100\t1\t1\t0\t0\tstartup\tframe\tbegin\t0\n')
+        proc = SimpleNamespace(poll=mock.Mock(return_value=None), kill=mock.Mock(), wait=mock.Mock(return_value=-1))
+        for report in ({'verified': False}, {'verified': True, 'event_hooks_installed': True, 'verified_at_ms': 101}):
+            self.assertIsNotNone(foreground.abort_failed_start(proc, report, timeline))
+        self.assertEqual(proc.kill.call_count, 2); proc.wait.assert_called_with(timeout=15)
+        proc.kill.reset_mock()
+        self.assertIsNone(foreground.abort_failed_start(proc, {'verified': True, 'event_hooks_installed': True, 'verified_at_ms': 99}, timeline))
+        proc.kill.assert_not_called()
+
+    def test_native_focus_event_time_cannot_be_relabelled_as_later_teardown(self):
+        timeline = self.lane / 'event-timeline.tsv'
+        timeline.write_text('# fixture\ncolumns\n100\t1\t1\t0\t0\tstartup\tframe\tbegin\t0\n'
+            '150\t1\t1\t0\t0\tstartup\taddress-binding-summary\treason=device-teardown records=0\t0\n')
+        report = {'verified': True, 'focus_requests': 1, 'pid': 42, 'foreground_pid': 42, 'monitor_stopped': True,
+            'event_hooks_installed': True, 'event_hooks_removed': True, 'checks': 1, 'verified_at_ms': 50,
+            'events': [{'kind': 'native-foreground-change', 'ms': 120, 'delivered_ms': 180, 'alive': False, 'visible': False}]}
+        with self.assertRaises(ValueError): foreground.verify(report, timeline)
+        report['events'][0]['ms'] = 160
+        foreground.verify(report, timeline)
 
 
 if __name__ == '__main__': unittest.main()

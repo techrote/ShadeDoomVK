@@ -13,6 +13,20 @@ from cfx007_health import collect
 from cfx010_gate import accept_control, capture_coverage, check_lane, classify, settings_key, validate_plan, verify_completion
 
 
+def artifact_index(attempt, manifest):
+    files = []; excluded = []
+    for path in attempt.rglob('*'):
+        if not path.is_file() or path.name == 'artifact-index.json': continue
+        size = path.stat().st_size
+        watchdog = (manifest.get('failure', {}).get('watchdog_action') or {}) if manifest else {}
+        if (path.name == 'process.dmp' and size == 0 and manifest and manifest.get('status') == 'TIMEOUT'
+                and watchdog.get('status') in ('failed', 'partial', 'timeout')):
+            excluded.append({'path': str(path), 'bytes': 0, 'sha256': None, 'reason': 'failed-empty-watchdog-dump'})
+            continue
+        files.append({'path': str(path), 'bytes': size, 'sha256': digest(path)})
+    return {'schema': 'cfx-010-artifacts-v1', 'files': files, 'excluded_failed_files': excluded}
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--plan', type=pathlib.Path, required=True)
@@ -128,9 +142,7 @@ def main():
              'loss_episode': episode, 'recovery_pass': health['pass'], 'classification': classification,
              'correlated_nv153': driver_faults, 'capture_coverage': coverage, 'stop_reasons': faults,
              'counts': {'launches': state['launches'], 'loss_episodes': state['loss_episodes']}})
-        files = [{'path': str(p), 'bytes': p.stat().st_size, 'sha256': digest(p)} for p in attempt.rglob('*')
-                 if p.is_file() and p.name != 'artifact-index.json']
-        save(attempt / 'artifact-index.json', {'schema': 'cfx-010-artifacts-v1', 'files': files})
+        save(attempt / 'artifact-index.json', artifact_index(attempt, manifest))
     except OSError as e:
         faults.append('artifact index/storage failed: ' + str(e)); stop(lane, state, faults, 'CFX-010')
     print(json.dumps({'attempt': plan['attempt_id'], 'classification': classification, 'status': state['status'], 'stop_reasons': faults}), flush=True)
