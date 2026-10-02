@@ -1,0 +1,718 @@
+{
+  "schema": "cfx-009-neutral-descriptor-validation-v1",
+  "issue": 102,
+  "parent": 75,
+  "pull_request": 104,
+  "recorded_at_utc": "2026-10-02T16:53:32.171868+00:00",
+  "physical_validation_saturated": true,
+  "required_independent_successes": 3,
+  "observed_independent_successes": 3,
+  "full_PR_acceptance_pending": [
+    "final documentation-head CI",
+    "final review and merge verification"
+  ],
+  "conclusion": "Three independent exact DBP37 MAP01 candidate runs complete without device loss after reserved removed lightmap/probe slots are republished with permanent initialized typed neutral views. The old startup atlas still retires normally after frame6 fence success; frame7 and final fences succeed. Safe capture/core/synchronization controls preserve exact pixels and protected mesh state. This validates the compatibility/lifetime repair for this reproduced route under the specified machine and configuration; it does not identify a unique executed shader access or establish a driver defect.",
+  "provenance": {
+    "renderer_source": "3916c82f2f87f0173e1b9ad748faac19365a5415",
+    "runner_source": "7de7ddd0c1fff42b08181165bd225c1333045341",
+    "private_evidence_root": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-neutral-descriptors",
+    "runtime_files": {
+      "brightmaps.pk3": {
+        "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e",
+        "bytes": 246181
+      },
+      "game_support.pk3": {
+        "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de",
+        "bytes": 2381991
+      },
+      "game_widescreen_gfx.pk3": {
+        "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9",
+        "bytes": 5565936
+      },
+      "lights.pk3": {
+        "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952",
+        "bytes": 24059
+      },
+      "vkdoom.exe": {
+        "sha256": "102a3d148e96b28e0b630f86b2a295f8e7fe2638e49e1a189d4b453bfa735d4c",
+        "bytes": 12092416
+      },
+      "vkdoom.pdb": {
+        "sha256": "799f69bc6a7f2b8f88a7032fdace537cb7e12af5519b1bb81c7fbfb24eff08a8",
+        "bytes": 77697024
+      },
+      "vkdoom.pk3": {
+        "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78",
+        "bytes": 4237850
+      },
+      "zmusic.dll": {
+        "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a",
+        "bytes": 2469888
+      }
+    },
+    "build_proof": {
+      "path": "build-proof.json",
+      "sha256": "b6c38e9002030ed9b26ac366572e730b8d5ce6b45cda0c14a2fc3ad4c47f466e",
+      "size": 3262
+    },
+    "build_log": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-neutral-descriptors-build.log",
+      "sha256": "ad55fd39c880d0eef2d4148b1d865077ffc680b7ebfd83a12cf8f01e41ef5933",
+      "size": 2221
+    },
+    "focused_tests": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-neutral-descriptors-tests-106.log",
+      "sha256": "bd702b9339bba3b80e6af2c549a4cd3f8e9d293def07e18e463a77cbcc82d45f",
+      "size": 15094
+    },
+    "build_identity_note": "Root verified precommit build source equals committed3916 renderer; later HEAD may contain documentation only."
+  },
+  "machine": {
+    "gpu": "NVIDIA GeForce GTX 1650 SUPER",
+    "driver": "616.92",
+    "windows_driver": "32.0.16.1692",
+    "OS_build": "26200",
+    "vulkan_loader": "1.4.341",
+    "baseline_boot_utc": "2026-10-01T22:33:23.5000000Z",
+    "implicit_layers_preserved": [
+      "VK_LAYER_OBS_HOOK",
+      "VK_LAYER_NV_optimus",
+      "VK_LAYER_NV_present"
+    ]
+  },
+  "repair": {
+    "permanent_fallback_types": [
+      "R16G16B16A16_SFLOAT",
+      "R16_UINT"
+    ],
+    "initialization": [
+      "floatRGBA(0,0,0,0)",
+      "probeUINT0",
+      "TransferDst-to-ShaderReadOnly barriers"
+    ],
+    "publication_contract": "Write active pages[0,M) and removed pages[M,previousN), validate bounded reserved span before writes, and commit published count after descriptor writer returns. Dynamic slots are untouched.",
+    "allocation_topology": "Reuse the constructor1x1 float/probe allocation pair as permanent fallback; no retained old atlases or added fallback allocation pair.",
+    "unchanged": "Active atlas semantics, shader code, fence waits, owner retirement, dynamic descriptor slots and production cap/VSync/MSAA settings remain unchanged."
+  },
+  "exact_reproducer": {
+    "map": "MAP01",
+    "content_order": [
+      {
+        "name": "Doom2.wad",
+        "sha256": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c"
+      },
+      {
+        "name": "DBP37_AUGZEN.wad",
+        "sha256": "d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a"
+      }
+    ],
+    "renderer_settings": {
+      "gl_levelmesh": true,
+      "lm_dynlights": false,
+      "gl_ubershaders": "preserved default",
+      "resolution": [
+        1902,
+        993
+      ],
+      "actual_expected": [
+        1902,
+        993
+      ],
+      "cap": false,
+      "vsync": false,
+      "msaa": 4,
+      "seed": null,
+      "historical_nominal": [
+        1904,
+        1001
+      ]
+    },
+    "diagnostic_modes": {
+      "mode": "capture",
+      "resources": true,
+      "address_bindings": true,
+      "retain_replaced_lightmaps": false,
+      "validation": "off"
+    },
+    "startup_console": "gl_levelmesh true; lm_dynlights false; bench; wait 120; wait 120; screenshot <unique-output>; wait 2; quit",
+    "config_before_sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+    "window_outer": [
+      1918,
+      1032
+    ],
+    "actual_client_and_PNG": [
+      1902,
+      993
+    ],
+    "pipeline_cache_before_sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+    "shader_cache_before_sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd",
+    "independence": "Three separate process starts, fresh run IDs/output roots, identical prelaunch config/content and restored baseline caches; no automatic retries."
+  },
+  "causal_chain": {
+    "public_comparison_reference": "cfx009-retirement-comparison.json",
+    "matched_pre_repair_OFF": "Same instrumented pre-candidate binary/config/content/cache restored frame7 device loss when ordinary atlas retirement was enabled.",
+    "matched_pre_repair_ON": "Retaining the replaced atlas survived; used only as a discriminator and not retained as the production repair.",
+    "candidate": "Typed neutral reserved descriptor publication survives while ordinary old owner retirement and the formerly faulted8MiB interval unbind still occur.",
+    "direct_observation": "CPU API return/publication precede submission8, old atlas unbind follows successful frame6/submission9 fence, and frame7/submission11 fence succeeds in each trial.",
+    "inference": "The evidence supports reserved descriptor target lifetime/content compatibility as the repaired mechanism for this route.",
+    "not_proven": [
+      "Original illegal dynamic descriptor use",
+      "Unique offending executed shader/pipeline/instruction",
+      "Descriptor contents read back from the GPU",
+      "NVIDIA driver defect"
+    ]
+  },
+  "controls": [
+    {
+      "mode": "capture",
+      "run_id": "cfx-20261002T162804Z-523ea7194fca",
+      "proof": {
+        "path": "control-proof.json",
+        "sha256": "323ec93e9825ffad2807136bd913b9b4c67bb0785f8ec69f27cd1da3127aaa91",
+        "size": 3246
+      },
+      "manifest": {
+        "path": "control-neutral/runs/cfx-20261002T162804Z-523ea7194fca/manifest.json",
+        "sha256": "88cd0e51c15d6a3adb3339e2929ea17e1e2ef897ca9459a0a0e4bf9a16c499f1",
+        "size": 17022
+      },
+      "artifact_index": {
+        "path": "control-neutral/artifact-index.json",
+        "sha256": "489ffbec5edde2fbc820d641e88c4ba4fdf996f4d151464515a48f091a9f97a5",
+        "size": 8001
+      },
+      "exit_status": 0,
+      "device_loss_or_tdr": false,
+      "recovery_pass": true,
+      "caches_restored": {
+        "pipelinecache.zdpc": true,
+        "shadercache.zdsc": true
+      },
+      "validation_mode_verified": true,
+      "active_layers": [
+        "VK_LAYER_OBS_HOOK",
+        "VK_LAYER_NV_optimus",
+        "VK_LAYER_NV_present"
+      ],
+      "enabled_validation_modes": [],
+      "validation_diagnostics": null,
+      "identical_pixels": true,
+      "dimensions": [
+        1902,
+        993
+      ],
+      "protected_mesh_equal": true,
+      "full_obj_bytes_asserted": false,
+      "address_capture": {
+        "run_id": "cfx-20261002T162804Z-523ea7194fca",
+        "records": 7526,
+        "teardown": {
+          "records": 7526,
+          "omitted": 0,
+          "contended": 0,
+          "writer_ok": 1,
+          "limit": 32768,
+          "flushed": 7526,
+          "cutoff": 7526
+        },
+        "binds": 1708,
+        "unbinds": 1711
+      }
+    },
+    {
+      "mode": "core",
+      "run_id": "cfx-20261002T163405Z-30b013a6fa1d",
+      "proof": {
+        "path": "control-neutral-core/safe-validation-proof.json",
+        "sha256": "5ed814720657bc4e77ff81ffc29a2ef3f9c3bb2e3a0e96a784156db361b66fc6",
+        "size": 1391
+      },
+      "manifest": {
+        "path": "control-neutral-core/runs/cfx-20261002T163405Z-30b013a6fa1d/manifest.json",
+        "sha256": "6268c90ebccb5752ade5b94873d7af4de63c41bad4a8e77c50bafd004eabb10f",
+        "size": 18106
+      },
+      "artifact_index": {
+        "path": "control-neutral-core/artifact-index.json",
+        "sha256": "6b3811abd91fe012c790f448ddcfb364ef8446844cb3468447cf0e3fd7806d0d",
+        "size": 8997
+      },
+      "exit_status": 0,
+      "device_loss_or_tdr": false,
+      "recovery_pass": true,
+      "caches_restored": {
+        "pipelinecache.zdpc": true,
+        "shadercache.zdsc": true
+      },
+      "validation_mode_verified": true,
+      "active_layers": [
+        "VK_LAYER_KHRONOS_validation",
+        "VK_LAYER_OBS_HOOK",
+        "VK_LAYER_NV_optimus",
+        "VK_LAYER_NV_present"
+      ],
+      "enabled_validation_modes": [
+        "- Core Checks",
+        "- Stateless Parameter",
+        "- Object lifetime",
+        "- Thread Safety",
+        "- Handle Wrapping"
+      ],
+      "validation_diagnostics": [],
+      "identical_pixels": true,
+      "dimensions": [
+        1902,
+        993
+      ],
+      "protected_mesh_equal": true,
+      "full_obj_bytes_asserted": false,
+      "address_capture": {
+        "run_id": "cfx-20261002T163405Z-30b013a6fa1d",
+        "records": 7138,
+        "teardown": {
+          "records": 7138,
+          "omitted": 0,
+          "contended": 0,
+          "writer_ok": 1,
+          "limit": 32768,
+          "flushed": 7138,
+          "cutoff": 7138
+        },
+        "binds": 1611,
+        "unbinds": 1614
+      }
+    },
+    {
+      "mode": "sync",
+      "run_id": "cfx-20261002T163141Z-8da120b44853",
+      "proof": {
+        "path": "control-neutral-sync/safe-validation-proof.json",
+        "sha256": "21c0e43c14923ef9f0fb77d471f6015c03f7cfb63d892eca29bccd2d66962968",
+        "size": 1395
+      },
+      "manifest": {
+        "path": "control-neutral-sync/runs/cfx-20261002T163141Z-8da120b44853/manifest.json",
+        "sha256": "2ead4ccbfd108ce48af5623c13b0f35a0d3805e6b8ca80982dac0f42a374871f",
+        "size": 18110
+      },
+      "artifact_index": {
+        "path": "control-neutral-sync/artifact-index.json",
+        "sha256": "3a51bccee47576254d490c4c62285ac02b2a615218cbe809021b41ae7e2bb325",
+        "size": 8997
+      },
+      "exit_status": 0,
+      "device_loss_or_tdr": false,
+      "recovery_pass": true,
+      "caches_restored": {
+        "pipelinecache.zdpc": true,
+        "shadercache.zdsc": true
+      },
+      "validation_mode_verified": true,
+      "active_layers": [
+        "VK_LAYER_KHRONOS_validation",
+        "VK_LAYER_OBS_HOOK",
+        "VK_LAYER_NV_optimus",
+        "VK_LAYER_NV_present"
+      ],
+      "enabled_validation_modes": [
+        "- Synchronization",
+        "- Stateless Parameter",
+        "- Object lifetime",
+        "- Thread Safety",
+        "- Handle Wrapping"
+      ],
+      "validation_diagnostics": [],
+      "identical_pixels": true,
+      "dimensions": [
+        1902,
+        993
+      ],
+      "protected_mesh_equal": true,
+      "full_obj_bytes_asserted": false,
+      "address_capture": {
+        "run_id": "cfx-20261002T163141Z-8da120b44853",
+        "records": 7138,
+        "teardown": {
+          "records": 7138,
+          "omitted": 0,
+          "contended": 0,
+          "writer_ok": 1,
+          "limit": 32768,
+          "flushed": 7138,
+          "cutoff": 7138
+        },
+        "binds": 1611,
+        "unbinds": 1614
+      }
+    }
+  ],
+  "targets": [
+    {
+      "trial": 1,
+      "attempt_id": "CFX9-TARGET-NEUTRAL-001",
+      "run_id": "cfx-20261002T163542Z-8fc0090c50e8",
+      "analysis": {
+        "path": "target-neutral-001/independent-analysis.json",
+        "sha256": "156f9cef073d6189ef85307169169759d9e85821d2247c3393dc2830c499ab47",
+        "size": 31446
+      },
+      "artifact_index": {
+        "path": "target-neutral-001/artifact-index.json",
+        "sha256": "f3916b989694813b638d4547432faf85e020c3f664c557700b922a921885fd7f",
+        "size": 7476
+      },
+      "artifact_count": 26,
+      "all_indexed_unchanged": true,
+      "all8_runtime_unchanged": true,
+      "all_content_config_script_cache_inputs_match": true,
+      "manifest": {
+        "path": "target-neutral-001/runs/cfx-20261002T163542Z-8fc0090c50e8/manifest.json",
+        "sha256": "86199940c0e83ae40b7256d0713c952924efd12131de53dbaadc2ec5593e784e",
+        "size": 16718
+      },
+      "plan": {
+        "path": "target-neutral-001/plan.json",
+        "sha256": "5ca9498413a45bb6da510bafbde4c1f61ce4d0a74b60e900d520606475cb0676",
+        "size": 9053
+      },
+      "exit_status": 0,
+      "device_loss_or_tdr": false,
+      "retention_active": false,
+      "last_frame": 1334,
+      "last_tic": 241,
+      "last_submission": 2666,
+      "actual_resolution": [
+        1902,
+        993
+      ],
+      "config_before_sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+      "caches_restored": {
+        "pipelinecache.zdpc": true,
+        "shadercache.zdsc": true
+      },
+      "publication": {
+        "frame": 6,
+        "cpu_submission": 7,
+        "ms_utc": 1790958950066,
+        "detail": "previous=1 active=0 removed=1 set_id=9 light_view=0x18f802a63d0 probe_view=0x18f802a6550",
+        "api_return_ms_utc": 1790958950066,
+        "next_submit_frame": 6,
+        "next_submit": 8,
+        "next_submit_ms_utc": 1790958950067
+      },
+      "ordinary_retirement": {
+        "base": "0x1da00000",
+        "bytes": 8388608,
+        "frame": 6,
+        "submission": 9,
+        "ms_utc": 1790958950218,
+        "preceding_fence_ms_utc": 1790958950216,
+        "preceding_fence_result": 0
+      },
+      "frame7_fences_success": [
+        {
+          "ms_utc": "1790958950283",
+          "thread": "70352458143016962",
+          "frame": "7",
+          "tic": "18",
+          "submission": "11",
+          "stage": "present",
+          "event": "vk-return",
+          "detail": "vkWaitForFences/frame",
+          "result": "0"
+        }
+      ],
+      "final_fence_success": {
+        "ms_utc": "1790958956645",
+        "thread": "70352458143016962",
+        "frame": "1334",
+        "tic": "241",
+        "submission": "2666",
+        "stage": "present",
+        "event": "vk-return",
+        "detail": "vkWaitForFences/frame",
+        "result": "0"
+      },
+      "same42_early_pipeline_keys_as_matched_failing_OFF": true,
+      "capture_scope": {
+        "stream_contiguous_records": 32768,
+        "startup_through_frame7_records": 4576,
+        "startup_prefix_complete": true,
+        "last_admitted_record_frame": 1012,
+        "later_omitted": 10318,
+        "whole_run_binding_capture_complete": false
+      },
+      "recovery": {
+        "new_OS_events": [],
+        "boot_unchanged": true,
+        "no_remaining_game_processes": true,
+        "desktop_responsive": true,
+        "NVML_query_code": 0,
+        "vulkan_enumeration_code": 0,
+        "storage_free_bytes": 159528288256,
+        "pass": true
+      }
+    },
+    {
+      "trial": 2,
+      "attempt_id": "CFX9-TARGET-NEUTRAL-002",
+      "run_id": "cfx-20261002T164151Z-111b9d4b6077",
+      "analysis": {
+        "path": "target-neutral-002/independent-analysis.json",
+        "sha256": "91a3ef22178ff7d06cae1c9a7b7bef7828a5d4e04a30a0deaf57213a3a3a86fa",
+        "size": 29442
+      },
+      "artifact_index": {
+        "path": "target-neutral-002/artifact-index.json",
+        "sha256": "756bb4caf7dc26cafb9a209c9b31bef0d6f3f2415cff9990fee770ec6744bf2f",
+        "size": 7749
+      },
+      "artifact_count": 27,
+      "all_indexed_unchanged": true,
+      "all8_runtime_unchanged": true,
+      "all_content_config_script_cache_inputs_match": true,
+      "manifest": {
+        "path": "target-neutral-002/runs/cfx-20261002T164151Z-111b9d4b6077/manifest.json",
+        "sha256": "25aac41c58e3dea577ee70cd71c4eda9172cb75d10f20a4e8f85da16687c011f",
+        "size": 16763
+      },
+      "plan": {
+        "path": "target-neutral-002/plan.json",
+        "sha256": "af448b1b74672c56bdf49bedec400bbe23c2300b1c1632433ced7718bc42ab69",
+        "size": 10323
+      },
+      "exit_status": 0,
+      "device_loss_or_tdr": false,
+      "retention_active": false,
+      "last_frame": 1404,
+      "last_tic": 241,
+      "last_submission": 2806,
+      "actual_resolution": [
+        1902,
+        993
+      ],
+      "config_before_sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+      "caches_restored": {
+        "pipelinecache.zdpc": true,
+        "shadercache.zdsc": true
+      },
+      "publication": {
+        "frame": 6,
+        "cpu_submission": 7,
+        "ms_utc": 1790959318909,
+        "detail": "previous=1 active=0 removed=1 set_id=9 light_view=0x258bd9f63d0 probe_view=0x258bd9f6550",
+        "api_return_ms_utc": 1790959318909,
+        "next_submit_frame": 6,
+        "next_submit": 8,
+        "next_submit_ms_utc": 1790959318910
+      },
+      "ordinary_retirement": {
+        "base": "0x1da00000",
+        "bytes": 8388608,
+        "frame": 6,
+        "submission": 9,
+        "ms_utc": 1790959319078,
+        "preceding_fence_ms_utc": 1790959319077,
+        "preceding_fence_result": 0
+      },
+      "frame7_fences_success": [
+        {
+          "ms_utc": "1790959319125",
+          "thread": "7991404838286995216",
+          "frame": "7",
+          "tic": "18",
+          "submission": "11",
+          "stage": "present",
+          "event": "vk-return",
+          "detail": "vkWaitForFences/frame",
+          "result": "0"
+        }
+      ],
+      "final_fence_success": {
+        "ms_utc": "1790959325510",
+        "thread": "7991404838286995216",
+        "frame": "1404",
+        "tic": "241",
+        "submission": "2806",
+        "stage": "present",
+        "event": "vk-return",
+        "detail": "vkWaitForFences/frame",
+        "result": "0"
+      },
+      "same42_early_pipeline_keys_as_matched_failing_OFF": true,
+      "capture_scope": {
+        "stream_contiguous_records": 32768,
+        "startup_through_frame7_records": 4576,
+        "startup_prefix_complete": true,
+        "last_admitted_record_frame": 1012,
+        "later_omitted": 12274,
+        "whole_run_binding_capture_complete": false
+      },
+      "recovery": {
+        "new_OS_events": [],
+        "boot_unchanged": true,
+        "no_remaining_game_processes": true,
+        "desktop_responsive": true,
+        "NVML_query_code": 0,
+        "vulkan_enumeration_code": 0,
+        "storage_free_bytes": 159433936896,
+        "pass": true
+      }
+    },
+    {
+      "trial": 3,
+      "attempt_id": "CFX9-TARGET-NEUTRAL-003",
+      "run_id": "cfx-20261002T164857Z-a62961404b0b",
+      "analysis": {
+        "path": "target-neutral-003/independent-analysis.json",
+        "sha256": "7c19748a2a74e25a71db72f873d85990fc2b6e485ba116ccfa3a8899a1505bd7",
+        "size": 29456
+      },
+      "artifact_index": {
+        "path": "target-neutral-003/artifact-index.json",
+        "sha256": "9026449a79f6db0127abbc286174dae1126a833cc7a7ef3f53838c09faad28ff",
+        "size": 7749
+      },
+      "artifact_count": 27,
+      "all_indexed_unchanged": true,
+      "all8_runtime_unchanged": true,
+      "all_content_config_script_cache_inputs_match": true,
+      "manifest": {
+        "path": "target-neutral-003/runs/cfx-20261002T164857Z-a62961404b0b/manifest.json",
+        "sha256": "c0fae4c831540bce7629615e0b7850e27418c3d0e99e297d5f061e5d472be5ee",
+        "size": 16762
+      },
+      "plan": {
+        "path": "target-neutral-003/plan.json",
+        "sha256": "14d6064d269556e4d6e57519e6fb7be75c2cde138f25de64cb80c47d135a2bde",
+        "size": 10324
+      },
+      "exit_status": 0,
+      "device_loss_or_tdr": false,
+      "retention_active": false,
+      "last_frame": 1420,
+      "last_tic": 241,
+      "last_submission": 2838,
+      "actual_resolution": [
+        1902,
+        993
+      ],
+      "config_before_sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+      "caches_restored": {
+        "pipelinecache.zdpc": true,
+        "shadercache.zdsc": true
+      },
+      "publication": {
+        "frame": 6,
+        "cpu_submission": 7,
+        "ms_utc": 1790959744718,
+        "detail": "previous=1 active=0 removed=1 set_id=9 light_view=0x151802a63d0 probe_view=0x151802a6550",
+        "api_return_ms_utc": 1790959744718,
+        "next_submit_frame": 6,
+        "next_submit": 8,
+        "next_submit_ms_utc": 1790959744719
+      },
+      "ordinary_retirement": {
+        "base": "0x1da00000",
+        "bytes": 8388608,
+        "frame": 6,
+        "submission": 9,
+        "ms_utc": 1790959744864,
+        "preceding_fence_ms_utc": 1790959744863,
+        "preceding_fence_result": 0
+      },
+      "frame7_fences_success": [
+        {
+          "ms_utc": "1790959744919",
+          "thread": "17950552096277361610",
+          "frame": "7",
+          "tic": "18",
+          "submission": "11",
+          "stage": "present",
+          "event": "vk-return",
+          "detail": "vkWaitForFences/frame",
+          "result": "0"
+        }
+      ],
+      "final_fence_success": {
+        "ms_utc": "1790959751310",
+        "thread": "17950552096277361610",
+        "frame": "1420",
+        "tic": "241",
+        "submission": "2838",
+        "stage": "present",
+        "event": "vk-return",
+        "detail": "vkWaitForFences/frame",
+        "result": "0"
+      },
+      "same42_early_pipeline_keys_as_matched_failing_OFF": true,
+      "capture_scope": {
+        "stream_contiguous_records": 32768,
+        "startup_through_frame7_records": 4576,
+        "startup_prefix_complete": true,
+        "last_admitted_record_frame": 1012,
+        "later_omitted": 12702,
+        "whole_run_binding_capture_complete": false
+      },
+      "recovery": {
+        "new_OS_events": [],
+        "boot_unchanged": true,
+        "no_remaining_game_processes": true,
+        "desktop_responsive": true,
+        "NVML_query_code": 0,
+        "vulkan_enumeration_code": 0,
+        "storage_free_bytes": 159123566592,
+        "pass": true
+      }
+    }
+  ],
+  "recovery_summary": {
+    "all_six_candidate_launches_healthy": true,
+    "new_device_loss_or_TDR_events": 0,
+    "new_OS_or_hardware_health_anomalies": [],
+    "persistent_corruption_observed": false,
+    "physical_pixel_integrity": "Routine human visual checkpoint waived by owner; desktop/session responsiveness is automated evidence, not pixel readback.",
+    "cumulative_counts": {
+      "launches": 14,
+      "loss_episodes": 2
+    },
+    "carried_previous_counts": {
+      "launches": 8,
+      "loss_episodes": 2
+    },
+    "historical_guards_preserved": 15,
+    "old_states_limits_and_STOP_files_immutable": true
+  },
+  "tests": {
+    "focused_CFX_tests": 106,
+    "result": "PASS",
+    "MSVC_ASan": true,
+    "production_publication_helper_fixtures": 5,
+    "source_ordering_contract_tests": 3,
+    "build": "PASS",
+    "CI": {
+      "run_id": 37033699518,
+      "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37033699518",
+      "required_checks_passed": 8,
+      "reported_head": "7de7ddd0c1fff42b08181165bd225c1333045341",
+      "final_documentation_head_CI": "PENDING"
+    }
+  },
+  "limitations": [
+    "Validation clean results cover the separate safe fixtures; the three exact target runs use capture mode, not a validation-layer claim.",
+    "Each target address stream has a complete contiguous startup prefix through the former frame7 failure window, but later32768-record cap omissions prevent whole-run or teardown address-history completeness claims.",
+    "No GPU descriptor readback; publication/lifetime order is source and CPU API plus address-callback evidence.",
+    "The safe fullRGBA image is exact; protected mesh state is exact, while full floating-point OBJ bytes are not asserted.",
+    "No matching-pixel baseline claim is made for the DBP37 target screenshot.",
+    "No optional process dump is needed for an independently healthy normally exited process.",
+    "Hardware coverage is this GTX1650SUPER/616.92 configuration; no universal all-map/all-GPU correctness claim.",
+    "Raw dumps, proprietary content and oversized traces remain in private local evidence."
+  ],
+  "closure": {
+    "proposed_state": "VALIDATION_SATURATED",
+    "proposal_helper": "C:\\ShadeDoomVK\\pf-local-evidence\\close-cfx009-neutral-validation.py",
+    "no_further_physical_runs": true,
+    "final_analysis_registration_required": true,
+    "current_state_not_mutated_by_this_report": true
+  }
+}
