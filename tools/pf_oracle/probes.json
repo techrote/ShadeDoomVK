@@ -153,7 +153,7 @@
       "kind": "invariant",
       "owner": "PF-003",
       "paths": ["src/common/rendering/vulkan/descriptorsets/vk_bindless.h", "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp"],
-      "required": ["MaxLightmapPages\\s*=\\s*128", "LightmapDescriptorsPerPage\\s*=\\s*2", "DynamicStart\\s*=\\s*LightmapStart\\s*\\+\\s*MaxLightmapPages\\s*\\*\\s*LightmapDescriptorsPerPage", "lightmapEnd\\s*>\\s*VkBindlessLayout::DynamicStart"],
+      "required": ["MaxLightmapPages\\s*=\\s*128", "LightmapDescriptorsPerPage\\s*=\\s*2", "DynamicStart\\s*=\\s*LightmapStart\\s*\\+\\s*MaxLightmapPages\\s*\\*\\s*LightmapDescriptorsPerPage", "end\\s*>\\s*VkBindlessLayout::DynamicStart\\s*\\|\\|\\s*end\\s*>\\s*effectiveCapacity", "VkPlanLightmapDescriptorPublication\\(Bindless\\.PublishedLightmapPages", "if\\s*\\(!publication\\.IsValid\\(\\)\\)"],
       "forbidden": []
     },
     {
