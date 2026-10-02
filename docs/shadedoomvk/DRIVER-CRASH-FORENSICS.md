@@ -93,6 +93,9 @@ CFX-002 should first pin a run manifest with source/patch/EXE/PDB/PK3/DLL/conten
 
 No causal repair or grouping is proposed. The next highest-value action is CFX-002 off-GPU capture instrumentation, especially a bounded pre-kill user-process stack and submit/checkpoint timeline, before any physical reproduction.
 
+The preceding selection and unknowns describe the CFX-001 handoff. Dated CFX
+continuations below preserve subsequent demonstrated results separately.
+
 ### Archived Sunlust diagnostic runtime bundle hashes
 
 The diagnostic load log names these archived resources; the hashes below were read from the preserved files during CFX-001. Their presence does not establish that the same files were used in other incidents.
@@ -168,3 +171,42 @@ The matched lifetime comparison uses the same retention-capable binary, correcte
 PR104's source repair republishes only previously published, removed lightmap/probe slots to permanent initialized correctly typed neutral views before submission and ordinary fence-controlled owner release. Three independent exact former reproducer runs pass with retention OFF, normal same8MiB startup atlas retirement at frame6 and successful frame7 fences. Safe capture/core/sync controls preserve exact1902×993 images/protected mesh, actually activate the separate validation modes and report zero diagnostics;106 focused CFX tests pass under MSVC ASan. All pre/post health and cache gates pass. Physical validation stops at3/3, with zero candidate losses. [Validation identities/proofs/limits](evidence/cfx009-neutral-descriptor-validation.json).
 
 Healthy targets preserve complete startup binding prefixes but later reach the fixed callback cap; whole-run binding completeness is not claimed. Loss-only fault/checkpoint/dump collection is correctly absent on those normal exits; old failing evidence remains immutable. This validates the bounded primary DBP37 repair scope. It does not establish a shared cause or repaired status for DBP50 or Sunlust/Champions, nor a uniquely identified NVIDIA defect. #75/PF-020 remain open pending their separate dispositions and synthesis.
+
+## CFX-010 / #105 practical cross-case qualification, 2026-10-02
+
+The unchanged accepted PR104 renderer, source-equivalent to merge
+`d0789c88f88049116022e7b904026cddeaba8ac4`, completed three independent comparable
+processes for **each** selected original DBP50 MAP08, separately hashed DBP50 v1.2
+MAP08, and Sunlust MAP24 + Champions route. Retention was OFF; all nine qualified
+targets observed initialized neutral removed-slot publication before the successful
+frame fence, ordinary delete-list release and old-atlas address unbind. No native
+device loss, new correlated driver/reset event, watchdog termination or health
+anomaly occurred in those targets. Current practical coverage is demonstrated;
+identical historical causes and attribution solely to PR104 remain unproven.
+
+DBP50 retains the selected 1264×681, tic-paced, MSAA4, VSync-OFF, LevelMesh-OFF
+configuration. Its IWAD-slot input has a PWAD header, so it is not described as
+verified stock Doom II. Sunlust retains Freedoom2, Champions, seed12345, actual UV
+skill3, 1904×1001, uncapped/MSAA4, forward/right-turn movement after phase1, filter
+0/6 and MAP24 reload. All four phase images and completion milestones were checked.
+The historical diagnostic EXE/PDB and unknown cache/layer state differ from this
+accepted production baseline; missing historical fields remain unknown.
+
+Three unqualified observations remain separate: a normally exited Sunlust route
+with its deferred phase3 screenshot cancelled by the next map action; a focus-pause
+run whose watchdog raced normal closure and produced only a failed empty dump;
+and a DBP50 v1.2 pre-frame foreground startup abort. The narrowly reviewed capture
+adjustment waits two tics after phase3 screenshot before reload. Opt-in host tooling
+uses one focus request, at most250ms readback settling and bounded focus/modal
+monitoring; it neither changes renderer code nor silently counts interrupted runs.
+The empty failed dump supplies no application-thread evidence.
+
+CFX010 used17 processes: five safe controls and12 target attempts (nine qualified,
+three excluded), with **zero new device-loss/TDR events**. All valid targets fully
+flushed address callbacks through teardown. Generic resource tracing reached its
+8192-event startup cap, so whole-run descriptor/resource/pipeline history is not
+claimed. Capture mode is not a core/sync/GPUAV validation result. Historical STOPs
+remain unchanged; the final scope is `QUALIFICATION_SATURATED` with its own STOP.
+P400 repaired-code coverage remains untested. See the [report](CFX-010-CROSS-CASE-QUALIFICATION.md)
+and [case matrix](evidence/cfx010-cross-case.json) for exact identities, routes,
+attempts, artifact hashes, exclusions and next synthesis action. #75/PF020 remain open.

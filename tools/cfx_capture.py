@@ -12,6 +12,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 import uuid
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
@@ -62,6 +63,16 @@ def scan_failure(trace, stdout, stderr, timed_out, returncode):
     if returncode and returncode != 0:
         return "nonzero application exit; inspect stdout/stderr"
     return None
+
+
+def failure_metadata(trace, stdout, stderr, timed_out, returncode, *, safe_stop=False, host_abort=None):
+    observation = 'controlled safe stop' if safe_stop else scan_failure(trace, stdout, stderr, timed_out, returncode)
+    # Killing a child after failed host activation explains its generic exit status.
+    # Explicit Vulkan/device-loss/CPU-exception observations must still survive.
+    if host_abort and observation == 'nonzero application exit; inspect stdout/stderr':
+        observation = None
+    first = None if safe_stop else observation or (host_abort[0] if host_abort else None)
+    return {'application_observation': observation, 'first_observed_failure': first}
 
 
 def capture_dump(pid, target):
@@ -206,6 +217,12 @@ def check_cfx009_lane(path, run_root, exe):
         if old.get('status') != 'STOPPED' or state['launches'] < old['launches'] or state['loss_episodes'] < old['loss_episodes']:
             raise ValueError('CFX-009 prior counts must carry forward')
     return lane
+
+
+def check_cfx010_lane(path, run_root, exe):
+    # Separate #105 approval; the saturated #102 scope is never reused.
+    from cfx010_gate import check_lane
+    return check_lane(path, run_root, exe)
 
 
 def verified_record(record, description):
@@ -354,14 +371,19 @@ def main():
     ap.add_argument("--cfx008-lane-plan", type=pathlib.Path)
     ap.add_argument('--approved-cfx009', action='store_true', help='#102 finite v1 or supervised-adaptive v2 epoch')
     ap.add_argument('--cfx009-lane-plan', type=pathlib.Path)
+    ap.add_argument('--approved-cfx010', action='store_true', help='#105 supervised PR104 cross-case qualification')
+    ap.add_argument('--cfx010-lane-plan', type=pathlib.Path)
+    ap.add_argument('--verify-foreground', action='store_true', help='CFX010 continuation: one focus request and bounded interference proof')
     args = ap.parse_args()
+    if args.verify_foreground and not args.approved_cfx010:
+        ap.error('--verify-foreground requires its separate CFX010 continuation')
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
     if args.address_bindings and not args.resource_trace:
         ap.error("--address-bindings requires --resource-trace")
     if args.retain_replaced_lightmaps and (args.mode != 'capture' or not args.resource_trace or not args.address_bindings):
         ap.error('--retain-replaced-lightmaps requires capture/resource/address diagnostics')
-    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007, args.approved_cfx008, args.approved_cfx009)) > 1:
+    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007, args.approved_cfx008, args.approved_cfx009, args.approved_cfx010)) > 1:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
         ap.error("--cfx005-lane-plan requires --approved-cfx005")
@@ -415,7 +437,33 @@ def main():
                     raise ValueError('CFX-009 requires the executor durable reservation')
         except (OSError, ValueError, KeyError, TypeError) as exc:
             ap.error(str(exc))
+    if args.cfx010_lane_plan and not args.approved_cfx010:
+        ap.error('--cfx010-lane-plan requires --approved-cfx010')
+    if args.approved_cfx010:
+        try:
+            lane = check_cfx010_lane(args.cfx010_lane_plan, args.run_root, args.exe)
+            if (args.mode != 'capture' or not args.address_bindings or not args.resource_trace or
+                    args.validation_layer_dir or args.retain_replaced_lightmaps):
+                raise ValueError('CFX010 requires unchanged capture/resource/address with retention OFF')
+            from cfx010_gate import validate_plan
+            attempt = args.run_root.resolve().parent
+            plan_path = attempt / 'plan.json'
+            plan = json.loads(plan_path.read_text(encoding='utf-8'))
+            validate_plan(plan, lane, attempt, reservation=args.launch)
+            if sys.argv[1:] != plan['run_arguments']:
+                raise ValueError('CFX010 actual capture arguments differ from preregistration')
+            if args.launch:
+                state = json.loads((args.cfx010_lane_plan.parent / 'state.json').read_text(encoding='utf-8'))
+                reservation = json.loads((attempt / 'execution-start.json').read_text(encoding='utf-8'))
+                if (state.get('pending_attempt') != plan['attempt_id'] or
+                        reservation.get('attempt_id') != plan['attempt_id'] or
+                        reservation.get('plan_sha256') != digest(plan_path)):
+                    raise ValueError('CFX010 requires matching executor durable reservation')
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            ap.error(str(exc))
     files = [args.exe, args.iwad, *args.pwad, *args.addon]
+    if args.cfx010_lane_plan:
+        files.append(args.cfx010_lane_plan)
     if args.cfx009_lane_plan:
         files.append(args.cfx009_lane_plan)
     if args.cfx008_lane_plan:
@@ -433,8 +481,8 @@ def main():
         ap.error("STOP-LAUNCHES.txt guard applies to an input")
     risky = args.map.upper() in ("MAP01", "MAP24", "MAP08") and any(
         key in p.name.lower() for p in args.pwad + args.addon for key in KNOWN_CRASH)
-    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007 or args.approved_cfx008 or args.approved_cfx009
-    campaign = 'CFX-009' if args.approved_cfx009 else "CFX-008" if args.approved_cfx008 else "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
+    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007 or args.approved_cfx008 or args.approved_cfx009 or args.approved_cfx010
+    campaign = 'CFX-010' if args.approved_cfx010 else 'CFX-009' if args.approved_cfx009 else "CFX-008" if args.approved_cfx008 else "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
     if args.launch and risky and not crash_approved:
         ap.error("known crash route requires a separately approved CFX-003, CFX-005 or CFX-007 campaign")
     if crash_approved and args.skip_dump_on_timeout:
@@ -523,8 +571,9 @@ def main():
                 "crash_campaign_approval": campaign if crash_approved else None,
                 "cfx008_lane_plan": identity(args.cfx008_lane_plan) if args.cfx008_lane_plan else None,
                 "cfx009_lane_plan": identity(args.cfx009_lane_plan) if args.cfx009_lane_plan else None,
+                "cfx010_lane_plan": identity(args.cfx010_lane_plan) if args.cfx010_lane_plan else None,
                 "renderer_source": (json.loads(p.read_text(encoding='utf-8'))['renderer_source']
-                                    if (p := args.cfx009_lane_plan or args.cfx008_lane_plan) else None),
+                                    if (p := args.cfx010_lane_plan or args.cfx009_lane_plan or args.cfx008_lane_plan) else None),
                 "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None,
                 "cfx007_lane_plan": identity(args.cfx007_lane_plan) if args.cfx007_lane_plan else None},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
@@ -591,13 +640,31 @@ def main():
     if args.mode in VALIDATION_SETTINGS:
         env["VK_LAYER_SETTINGS_PATH"] = str(run_dir / "vk_layer_settings.txt")
     timed_out = False
+    host_abort = None
     with out.open("wb") as stdout, err.open("wb") as stderr:
         proc = subprocess.Popen(command, cwd=work_dir, env=env, stdout=stdout, stderr=stderr)
+        process_deadline = time.monotonic() + args.timeout
         manifest["status"] = "RUNNING"
         manifest["pid"] = proc.pid
         save()
+        foreground = None
+        if args.verify_foreground:
+            try:
+                from cfx010_foreground import ForegroundSession
+                foreground = ForegroundSession(proc, seconds=min(10, args.timeout))
+                manifest['environment']['foreground'] = foreground.report.copy()
+            except OSError as exc:
+                manifest['environment']['foreground'] = {'requested': True, 'verified': False, 'reason': str(exc)}
+            save()
         try:
-            code = proc.wait(timeout=args.timeout)
+            if args.verify_foreground:
+                from cfx010_foreground import abort_failed_start
+                host_abort = abort_failed_start(proc, manifest['environment'].get('foreground'), trace)
+            if host_abort:
+                manifest['failure']['host_abort'] = {'reason': host_abort[0], 'bounded_child_stop': True}
+                code = host_abort[1]
+            else:
+                code = proc.wait(timeout=max(.001, process_deadline - time.monotonic()) if args.verify_foreground else args.timeout)
         except subprocess.TimeoutExpired:
             timed_out = True
             manifest["failure"]["watchdog_action"] = (
@@ -605,6 +672,9 @@ def main():
                 else capture_dump(proc.pid, dump))
             proc.kill()
             code = proc.wait(timeout=15)
+        finally:
+            if foreground:
+                manifest['environment']['foreground'] = foreground.finish()
     loader = err.read_text(errors="replace") if err.is_file() else ""
     console = out.read_text(errors="replace") if out.is_file() else ""
     (run_dir / "loader-layers.log").write_text("\n".join(
@@ -649,13 +719,9 @@ def main():
     manifest["run"]["actual_resolution"] = actual.group(1).strip() if actual else None
     ray = re.search(r"ray-query-enabled=(yes|no)", console)
     manifest["environment"]["ray_query_enabled"] = ray.group(1) if ray else None
-    manifest["failure"]["application_observation"] = (
-        "controlled safe stop" if timed_out and args.skip_dump_on_timeout
-        else scan_failure(trace, out, err, timed_out, code))
-    manifest["failure"]["first_observed_failure"] = (
-        None if timed_out and args.skip_dump_on_timeout
-        else manifest["failure"]["application_observation"])
-    manifest["status"] = ("SAFE_STOP" if timed_out and args.skip_dump_on_timeout
+    manifest['failure'].update(failure_metadata(trace, out, err, timed_out, code,
+        safe_stop=timed_out and args.skip_dump_on_timeout, host_abort=host_abort))
+    manifest["status"] = ("HOST_ABORT" if host_abort else "SAFE_STOP" if timed_out and args.skip_dump_on_timeout
                           else "TIMEOUT" if timed_out else
                           "EXITED" if code == 0 else "FAILED")
     if trace.is_file():
