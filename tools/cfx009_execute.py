@@ -1,5 +1,6 @@
-"""One #102 attempt. Initial control/target only; repair phase requires source evidence.
-The immutable campaign ceiling is six total launches and two loss episodes.
+"""One preregistered #102 attempt, never an automatic loop or retry.
+Finite v1 ceilings remain immutable; supervised v2 epochs carry counts/evidence
+and require complete analysis plus a control for the exact renderer experiment.
 """
 import sys
 from cfx007_execute import main

@@ -27,9 +27,15 @@
 #include "vulkan/vk_postprocess.h"
 #include "hw_cvars.h"
 #include "fcolormap.h"
+#include <zvulkan/cfxtrace.h>
+#include <cstring>
 
 VkTextureManager::VkTextureManager(VulkanRenderDevice* fb) : fb(fb)
 {
+	const char* retain = CfxTrace::ResourcesEnabled() ? std::getenv("CFX_RETAIN_REPLACED_LIGHTMAPS") : nullptr;
+	DiagnosticRetainReplacedLightmaps = retain && std::strcmp(retain, "1") == 0;
+	if (DiagnosticRetainReplacedLightmaps)
+		CfxTrace::Mark("lightmap-retention-enabled", "experiment-only; replaced pages retained until texture-manager teardown; cap=128");
 	CreateNullTexture();
 	CreateBrdfLutTexture();
 	CreateGamePalette();
@@ -887,10 +893,30 @@ void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t
 {
 	LightmapEpoch.Invalidate();
 
+	// Change ownership only for the explicit causal probe. Do not rewrite descriptors,
+	// allocate fallback images, change uploads or add GPU waits. Fail before moving
+	// any page if repeated map changes exceed the diagnostic ownership bound.
+	if (DiagnosticRetainReplacedLightmaps && Lightmaps.size() > 128 - DiagnosticRetainedLightmaps.size())
+		I_FatalError("CFX-009 lightmap retention probe exhausted its 128-page bound");
 	for (auto& tex : Lightmaps)
 	{
-		tex.Light.Reset(fb);
-		tex.Probe.Reset(fb);
+		if (DiagnosticRetainReplacedLightmaps)
+		{
+			char detail[256];
+			std::snprintf(detail, sizeof(detail), "light_image=0x%llx light_view=0x%llx probe_image=0x%llx probe_view=0x%llx retained_page=%llu replacement_count=%d",
+				(unsigned long long)(tex.Light.Image ? tex.Light.Image->image : VK_NULL_HANDLE),
+				(unsigned long long)(tex.Light.View ? tex.Light.View->view : VK_NULL_HANDLE),
+				(unsigned long long)(tex.Probe.Image ? tex.Probe.Image->image : VK_NULL_HANDLE),
+				(unsigned long long)(tex.Probe.View ? tex.Probe.View->view : VK_NULL_HANDLE),
+				(unsigned long long)DiagnosticRetainedLightmaps.size(), count);
+			CfxTrace::Mark("lightmap-retained", detail);
+			DiagnosticRetainedLightmaps.push_back(std::move(tex));
+		}
+		else
+		{
+			tex.Light.Reset(fb);
+			tex.Probe.Reset(fb);
+		}
 	}
 	Lightmaps.clear();
 	Lightmaps.resize(count);

@@ -1,4 +1,4 @@
-"""Execute ONE preregistered CFX-007 experiment with recovery and finite ledger.
+"""Execute ONE preregistered experiment with recovery and cumulative ledger.
 No loops, driver/policy changes or automatic reboot. Large evidence stays local.
 """
 import argparse,datetime as dt,hashlib,json,pathlib,shutil,subprocess,sys
@@ -29,17 +29,24 @@ def main(protocol='CFX-007'):
     a=ap.parse_args();pp=a.plan.resolve();attempt=pp.parent;lane=attempt.parent
     plan=json.loads(pp.read_text(encoding='utf-8'));state=json.loads((lane/'state.json').read_text(encoding='utf-8'))
     opening=json.loads((lane/'lane-opening.json').read_text(encoding='utf-8'))
-    if state.get('pending_attempt') or state['launches']>=max_launches or state['loss_episodes']>=max_losses:ap.error('pending attempt or finite budget exhausted')
+    adaptive=cfx009 and opening.get('schema')=='cfx-009-lane-v2'
+    if state.get('pending_attempt') or (not adaptive and (state['launches']>=max_launches or state['loss_episodes']>=max_losses)):ap.error('pending attempt or finite budget exhausted')
     if plan.get('issue')!=issue or not plan.get('discriminator') or plan.get('status')!='PLANNED':ap.error('missing new discriminator/plan')
     if (attempt/'execution-start.json').exists():ap.error('attempt ID already used')
+    if any(record.get('attempt_id')==plan['attempt_id'] for record in state.get('attempts',[])):ap.error('attempt ID already recorded')
     if any((parent/'STOP-LAUNCHES.txt').exists() for parent in (attempt,*attempt.parents)):ap.error('active new-scope STOP guard')
     exe=pathlib.Path(plan['exe'])
     (check_cfx009_lane if cfx009 else check_cfx008_lane if cfx008 else check_cfx007_lane)(lane/'lane-opening.json',attempt/'runs',exe)
     if cfx008 or cfx009:
-        from cfx008_gate import validate_plan,require_control,accept_control
+        from cfx008_gate import validate_plan,require_control,accept_control,require_analysis
         validate_plan(plan,opening,attempt,'cfx009' if cfx009 else 'cfx008')
-        if (not plan.get('risky') and state['launches']!=0) or (plan.get('risky') and state['launches']!=1):ap.error(protocol+' initial phase requires one control then one target; subsequent experiments need source analysis')
-        if plan.get('risky'):require_control(lane,state,protocol.lower())
+        if not adaptive and ((not plan.get('risky') and state['launches']!=0) or (plan.get('risky') and state['launches']!=1)):ap.error(protocol+' initial phase requires one control then one target; subsequent experiments need source analysis')
+        if adaptive:
+            old=json.loads(pathlib.Path(opening['previous_epoch']['state']['path']).read_text(encoding='utf-8'))
+            if any(record.get('attempt_id')==plan['attempt_id'] for record in old.get('attempts',[])):ap.error('attempt ID used in previous epoch')
+        if plan.get('risky'):
+            require_control(lane,state,protocol.lower(),opening,plan.get('retain_replaced_lightmaps',False))
+            if adaptive:require_analysis(state,opening,plan)
     for path,expected in plan['inputs'].items():
         if digest(pathlib.Path(path))!=expected:ap.error('input identity changed: '+path)
     for name,identity in opening['runtime_files'].items():
@@ -109,9 +116,11 @@ def main(protocol='CFX-007'):
             state['control_proof_sha256']=digest(lane/'control-proof.json');state['safe_controls_passed']=True
         except (OSError,ValueError,KeyError,TypeError) as e:faults.append('safe activation/equivalence gate: '+str(e))
     state['pending_attempt']=None
-    state['analysis_pending']=plan['attempt_id'] if plan.get('risky') else None
+    if plan.get('risky'):
+        state['analysis_pending']=plan['attempt_id']
+        state['last_informative_attempt']=plan['attempt_id']
     state.setdefault('attempts',[]).append({'attempt_id':plan['attempt_id'],'plan':str(pp),'manifest':str(paths[0]) if paths else None,'loss_episode':loss or expected_tdr or wer_tdr,'discriminator':plan['discriminator']})
-    if state['launches']>=max_launches or state['loss_episodes']>=max_losses:faults.append('finite campaign ceiling reached')
+    if not adaptive and (state['launches']>=max_launches or state['loss_episodes']>=max_losses):faults.append('finite campaign ceiling reached')
     if faults:stop(lane,state,faults,protocol)
     else:save(lane/'state.json',state)
     save(attempt/'execution-result.json',{'ended_at_utc':dt.datetime.now(dt.timezone.utc).isoformat(),'runner_exit_code':result.returncode if result else None,'global_cache_restored':restored,'loss_episode':loss or expected_tdr or wer_tdr,'recovery_pass':health['pass'],'stop_reasons':faults,'counts':{'launches':state['launches'],'loss_episodes':state['loss_episodes']}})

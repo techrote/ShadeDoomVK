@@ -1,0 +1,104 @@
+{
+  "schema": "cfx-009-target-analysis-v1",
+  "run_id": "cfx-20261002T133554Z-0457f18b9f15",
+  "renderer_source": "d7ebce43449e9f347dccf399999832e11ea7c105",
+  "counts": {
+    "launches": 2,
+    "loss_episodes": 1
+  },
+  "observed": {
+    "device_loss": "vkWaitForFences/frame returned -4",
+    "frame": 7,
+    "tic": 18,
+    "outstanding_submission": 11,
+    "read_address": "0x1da00000",
+    "read_precision": 4096,
+    "instruction_address": "0x200109490",
+    "instruction_precision": 16,
+    "loss_binding_records": 4568,
+    "omitted": 0,
+    "flushed": 4568,
+    "cutoff": 4568,
+    "read_overlap_resource": "VkTextureManager.Lightmap",
+    "image_handle": "0x23881ed4ed0",
+    "memory_handle": "0x23880b3c050",
+    "allocation_base": "0x1da00000",
+    "allocation_bytes": 8388608,
+    "bound_frame": 1,
+    "unbound_frame": 6,
+    "unbound_cpu_submission": 9,
+    "instruction_overlap_events": 0,
+    "fault_binary_bytes": 509796,
+    "gpu_bottom_checkpoint": "world cmd_id186 submitted10",
+    "gpu_top_checkpoint": "startup cmd_id186 submitted10",
+    "dump_main_thread": "ErrorWindow::ExecModal / Win32DisplayWindow::RunLoop / GetMessageW; after returned loss",
+    "private_matching_pdb_loaded": true,
+    "recovery_pass": true
+  },
+  "inference": "Lightmap reserved descriptor retirement/replacement is the leading concrete source hypothesis. Interval history does not establish dynamic shader use, unique live allocation generation or causal proof.",
+  "source_analysis_pending": false,
+  "files": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\manifest.json",
+      "sha256": "8173ffed634af4ea57697ab15da020aebf14a017a3dc27a5c607f0a087d4eeeb",
+      "size": 13493
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\timeline.tsv",
+      "sha256": "3cd978cf72d465483e758f4802d959aa5337bc0e01b11486c46b787b9b737a2d",
+      "size": 927773
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\address-bindings.tsv",
+      "sha256": "81c390352c248b72f727cf89d058ef16431da902ac5da1d7f26d2616ab4f516f",
+      "size": 630261
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\stdout.log",
+      "sha256": "0173edf951ade99741380e3116144379cee0cd415869b4bb907ff239c5ca7e1f",
+      "size": 2120
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\device-fault.bin",
+      "sha256": "3ac322310159d41a4b7cdeca33a16eb15a958bd2ca704fb2cbcd2026939a8af8",
+      "size": 509796
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\process.dmp",
+      "sha256": "0c7d54a09a99bbd587984691d2bc2f649b076b428d90ae25f0ee6169958bde4c",
+      "size": 764573803
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\read-address-overlap.json",
+      "sha256": "81f8ea3108bd3179b4fb0c49750ba1d9c022356f556ad4aa84d4d6fd1be68639",
+      "size": 3365
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\instruction-address-overlap.json",
+      "sha256": "16ab0edf85274483d160a7239aa186333282df5466acd07f3be8bd0a82f168e9",
+      "size": 1456
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\cdb-allthreads.txt",
+      "sha256": "4bb9c95bda7094c7ca6cf2327565fa956b7db8fdfc5c1781ae3a49a7c0262cd8",
+      "size": 27377
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\health-after.json",
+      "sha256": "3bb9d8583f6d0b95470adb288a807e100c7837f98845068b148c3469e884926d",
+      "size": 11232
+    }
+  ],
+  "analysis_complete": true,
+  "conclusion": "Read interval joins retired startup lightmap. Exact post-loss CPU indexed geometry excludes nonnegative lightmap indices; no intended reserved slot3 sampling established. Next one-factor discriminator retains replaced atlas resources; not a production repair.",
+  "completed_source_analysis": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\source-analysis-complete.json",
+    "sha256": "0281dd2290a020e4b0f1a93e8b76c4e3b16b9da0428b03487a0c22ac76ff4b9d",
+    "size": 15658
+  },
+  "cpu_mesh_evidence": {
+    "path": "C:\\ShadeDoomVK\\source\\docs\\shadedoomvk\\evidence\\cfx009-cpu-mesh.json",
+    "sha256": "01be77d5eb9721f4f687adcc72e2c4120139645e8b7aea6a4fd8ec6080d57459",
+    "size": 9890
+  }
+}

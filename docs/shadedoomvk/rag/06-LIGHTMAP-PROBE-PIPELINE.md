@@ -104,3 +104,9 @@ The per-texel selector itself is independent of Vulkan ray-query support; ray-qu
 7. Probe rendering is a non-main render context and must not inherit main-view temporal assumptions.
 8. The dormant AABB tree is not the active GPU probe selector.
 9. SDVK-010 may qualify environment response only on top of this established plumbing/fallback contract.
+
+## CFX-009 lifetime discriminator (#102)
+
+The complete DBP37 read-fault interval joins the startup lightmap, retired on the one-to-zero atlas transition. Exact post-loss CPU indexed vertices do not request a lightmap; submitted GPU bytes remain unproven. `PARTIALLY_BOUND` permits undefined descriptors when dynamically unused, so the removed reserved views alone do not demonstrate a Vulkan violation.
+
+`VkTextureManager::CreateLightmap` has an explicit experimental `CFX_RETAIN_REPLACED_LIGHTMAPS=1` ownership branch, enabled only with resource diagnostics. It keeps complete replaced light/probe objects until texture-manager teardown, bounded to128 pages with diagnostic failure before overflow. Defaults retain the existing frame-delete path. It changes neither descriptors nor shaders/uploads/waits/quality. The capture runner records the request; actual `lightmap-retention-enabled` / `lightmap-retained` events plus address history must prove activation. This is a causal probe, not a production crash repair. See [notebook](../CFX-009-CAUSAL-REPAIR.md).

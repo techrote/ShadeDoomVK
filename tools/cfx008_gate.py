@@ -2,7 +2,7 @@
 import json
 import pathlib
 import re
-from cfx_capture import digest
+from cfx_capture import digest, verified_analysis
 from cfx_address_correlate import read_bindings
 
 
@@ -61,6 +61,11 @@ def accept_control(attempt, opening, protocol='cfx-008'):
     report = activation(run / 'address-bindings.tsv', run / 'timeline.tsv', manifest['run_id'])
     if protocol == 'cfx-009' and not {'flushed', 'cutoff'} <= report['teardown'].keys():
         raise ValueError('CFX-009 requires the repaired queued collector flush proof')
+    retention = manifest['environment'].get('retain_replaced_lightmaps', {}).get('requested', False)
+    if opening.get('schema') == 'cfx-009-lane-v2' and retention:
+        cpu = (run / 'timeline.tsv').read_text(encoding='utf-8')
+        if '\tlightmap-retention-enabled\t' not in cpu or '\tlightmap-retained\t' not in cpu:
+            raise ValueError('retained lightmap experiment activation/replacement not proven')
     reference = opening['control_reference']
     for name in ('image', 'mesh'):
         if digest(pathlib.Path(reference[name]['path'])) != reference[name]['sha256']:
@@ -76,21 +81,40 @@ def accept_control(attempt, opening, protocol='cfx-008'):
              attempt / 'health-before.json', attempt / 'health-after.json', attempt / 'plan.json',
              pathlib.Path(reference['image']['path']), pathlib.Path(reference['mesh']['path'])]
     return {'schema': protocol+'-control-proof-v1', 'accepted': True, 'run_id': manifest['run_id'],
+            'renderer_source': manifest['run']['renderer_source'], 'retain_replaced_lightmaps': retention,
             'activation': report, 'identical_pixels': True, 'dimensions': dimensions,
             'protected_mesh_equal': True, 'full_obj_bytes_asserted': False,
             'files': [{'path': str(p), 'sha256': digest(p)} for p in files]}
 
 
-def require_control(lane, state, protocol='cfx-008'):
+def require_control(lane, state, protocol='cfx-008', opening=None, retain_replaced_lightmaps=False):
     path = lane / 'control-proof.json'
     if not state.get('control_proof_sha256') or digest(path) != state['control_proof_sha256']:
         raise ValueError('accepted safe-control proof missing/changed')
     proof = json.loads(path.read_text(encoding='utf-8'))
     if proof.get('schema') != protocol+'-control-proof-v1' or not proof.get('accepted') or not proof.get('files'):
         raise ValueError('invalid safe-control proof')
+    if opening and opening.get('schema') == 'cfx-009-lane-v2':
+        if (proof.get('renderer_source') != opening['renderer_source'] or
+                proof.get('retain_replaced_lightmaps') is not retain_replaced_lightmaps):
+            raise ValueError('new renderer/experiment requires its own accepted safe control')
     for record in proof['files']:
         if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
             raise ValueError('safe-control evidence changed')
+
+
+def require_analysis(state, opening, plan):
+    """No risky continuation without a durable, fully analysed previous result."""
+    registered = state.get('last_analysis') or opening['previous_epoch']['analysis']
+    record = plan.get('analysis_prerequisite')
+    if record != registered:
+        raise ValueError('risky experiment must name the registered complete analysis')
+    analysis = verified_analysis(record)
+    if state.get('analysis_pending'):
+        raise ValueError('previous informative target requires source analysis')
+    last = state.get('last_informative_attempt')
+    if last and analysis.get('attempt_id') != last:
+        raise ValueError('analysis does not cover the latest informative target')
 
 
 def validate_plan(plan, opening, attempt, protocol='cfx008'):
@@ -99,7 +123,8 @@ def validate_plan(plan, opening, attempt, protocol='cfx008'):
     ap = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
     for name in ('exe', 'run-root', protocol+'-lane-plan', 'mode', 'timeout'):
         ap.add_argument('--' + name)
-    for name in ('approved-'+protocol, 'resource-trace', 'address-bindings', 'skip-dump-on-timeout', 'launch'):
+    for name in ('approved-'+protocol, 'resource-trace', 'address-bindings', 'skip-dump-on-timeout', 'launch',
+                 'retain-replaced-lightmaps'):
         ap.add_argument('--' + name, action='store_true')
     a, rest = ap.parse_known_args(plan['run_arguments'])
     if (a.mode != 'capture' or a.timeout != '60' or not getattr(a, 'approved_'+protocol) or
@@ -109,8 +134,24 @@ def validate_plan(plan, opening, attempt, protocol='cfx008'):
             pathlib.Path(getattr(a, protocol+'_lane_plan') or '').resolve() != attempt.parent / 'lane-opening.json' or
             any(s.startswith(('--approved-cfx00', '--validation-layer-dir')) for s in rest) or
             plan.get('renderer_source') != opening['renderer_source'] or
-            plan.get('schema') != protocol.replace('cfx', 'cfx-')+'-attempt-v1'):
+            plan.get('schema') != protocol.replace('cfx', 'cfx-')+'-attempt-'+
+                ('v2' if opening.get('schema') == 'cfx-009-lane-v2' else 'v1')):
         raise ValueError('CFX-008 requires exact capture/address arguments and merged renderer')
+    adaptive = opening.get('schema') == 'cfx-009-lane-v2'
+    if a.retain_replaced_lightmaps and not adaptive:
+        raise ValueError('retention discriminator requires its supervised CFX-009 epoch')
+    if adaptive:
+        if (type(plan.get('retain_replaced_lightmaps')) is not bool or
+                plan['retain_replaced_lightmaps'] != a.retain_replaced_lightmaps):
+            raise ValueError('planned and actual retention discriminator disagree')
+        if plan.get('risky'):
+            if any(not isinstance(plan.get(k), str) or not plan[k].strip()
+                   for k in ('hypothesis', 'single_change')) or not plan.get('predicted_outcomes'):
+                raise ValueError('risky experiment requires hypothesis, one change and predicted outcomes')
+            if not isinstance(plan['predicted_outcomes'], (dict, list)):
+                raise ValueError('predicted outcomes must describe outcomes and interpretations')
+            if not plan.get('analysis_prerequisite'):
+                raise ValueError('risky experiment requires durable source analysis prerequisite')
     if protocol == 'cfx009':
         validate_output(plan['run_arguments'], attempt)
 

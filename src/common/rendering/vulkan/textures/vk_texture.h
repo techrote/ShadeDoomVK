@@ -209,6 +209,9 @@ private:
 	bool CheckUploadID(int id);
 
 	VulkanRenderDevice* fb = nullptr;
+	// CFX-009 causal probe only. Never enabled by renderer settings/defaults.
+	bool DiagnosticRetainReplacedLightmaps = false;
+	std::vector<Lightmap> DiagnosticRetainedLightmaps;
 
 	std::list<VkHardwareTexture*> Textures;
 	std::list<VkPPTexture*> PPTextures;
