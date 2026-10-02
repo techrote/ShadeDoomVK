@@ -89,14 +89,17 @@ def capture_dump(pid, target):
         return {"status": "dump timeout", "command": cmd, "path": str(target)}
 
 
-def capture_environment(base, mode, run_id, trace, fault, resource_trace):
+def capture_environment(base, mode, run_id, trace, fault, resource_trace, address_file=None):
     env = base.copy()
     # A parent shell cannot accidentally enable CFX in an off/control run.
-    for key in ("CFX_RUN_ID", "CFX_TRACE_FILE", "CFX_FAULT_BIN", "CFX_RESOURCE_TRACE"):
+    for key in ("CFX_RUN_ID", "CFX_TRACE_FILE", "CFX_FAULT_BIN", "CFX_RESOURCE_TRACE",
+                "CFX_ADDRESS_TRACE", "CFX_ADDRESS_FILE"):
         env.pop(key, None)
     if mode != "off":
         env.update(CFX_RUN_ID=run_id, CFX_TRACE_FILE=str(trace), CFX_FAULT_BIN=str(fault),
                    VK_LOADER_DEBUG="layer", CFX_RESOURCE_TRACE="1" if resource_trace else "0")
+        if resource_trace and address_file:
+            env.update(CFX_ADDRESS_TRACE="1", CFX_ADDRESS_FILE=str(address_file))
     return env
 
 
@@ -166,6 +169,8 @@ def main():
     ap.add_argument("--mode", choices=MODES, default="capture")
     ap.add_argument("--resource-trace", action="store_true",
                     help="CFX-006 bounded resource/range/fingerprint evidence (changes CPU overhead)")
+    ap.add_argument("--address-bindings", action="store_true",
+                    help="opt-in driver address binding reports; requires --resource-trace (hardware smoke pending)")
     ap.add_argument("--validation-layer-dir", type=pathlib.Path,
                     help="directory containing local Khronos validation JSON and DLL; process-scoped")
     ap.add_argument("--isolate-workdir", action="store_true",
@@ -187,6 +192,8 @@ def main():
     args = ap.parse_args()
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
+    if args.address_bindings and not args.resource_trace:
+        ap.error("--address-bindings requires --resource-trace")
     if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007)) > 1:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
@@ -264,6 +271,7 @@ def main():
     out = run_dir / "stdout.log"
     err = run_dir / "stderr.log"
     fault = run_dir / "device-fault.bin"
+    addresses = run_dir / "address-bindings.tsv" if args.address_bindings else None
     dump = run_dir / "process.dmp"
     runtime = []
     for p in sorted(args.exe.parent.iterdir()):
@@ -323,6 +331,10 @@ def main():
                                            "hash_per_upload_bytes": 16777216,
                                            "hash_per_run_bytes": 67108864,
                                            "fingerprint_algorithm": "fnv1a64"},
+                        "address_bindings": {"requested": args.address_bindings,
+                                             "schema": "cfx-address-bindings-v1",
+                                             "record_limit": 32768,
+                                             "hardware_activation_verified": False},
                         "validation_layer_dir": str(layer_dir) if layer_dir else None,
                         "validation_layer_json": identity(layer_dir / "VkLayer_khronos_validation.json") if layer_dir else None,
                         "validation_layer_dll": identity(layer_dir / "VkLayer_khronos_validation.dll") if layer_dir else None,
@@ -337,6 +349,8 @@ def main():
                                          "device-fault.bin", "process.dmp"],
         "unknowns": ["actual loaded layers and enabled device features require launch evidence"]
     }
+    if addresses:
+        manifest["artifacts"].append(addresses.name)
     probe = subprocess.run(["vulkaninfo", "--summary"], capture_output=True, text=True,
                            env=probe_env)
     (run_dir / "vulkaninfo-summary.txt").write_text(probe.stdout + probe.stderr)
@@ -362,7 +376,7 @@ def main():
     print(run_dir)
     if not args.launch:
         return 0
-    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace)
+    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace, addresses)
     if args.mode in VALIDATION_SETTINGS:
         env["VK_INSTANCE_LAYERS"] = "VK_LAYER_KHRONOS_validation"
     if args.mode in VALIDATION_SETTINGS:
@@ -439,6 +453,10 @@ def main():
         rows = [l.split("\t") for l in trace.read_text(errors="replace").splitlines()[2:]]
         manifest["environment"]["capability_state"] = [
             r[7] for r in rows if len(r) > 7 and r[6] == "capability"]
+        manifest["environment"]["address_bindings"]["hardware_activation_verified"] = (
+            args.address_bindings and
+            "address-binding-report-enabled" in manifest["environment"]["capability_state"] and
+            addresses.is_file() and bool(re.search(r"\t(?:bind|unbind)\t", addresses.read_text(errors="replace"))))
         stages = [r[5] for r in rows if len(r) > 6 and r[6] == "stage-complete"]
         manifest["failure"]["last_known_cpu_stage"] = stages[-1] if stages else None
         confirmed = [r[7] for r in rows if len(r) > 7 and r[6] == "gpu-checkpoint-confirmed"]

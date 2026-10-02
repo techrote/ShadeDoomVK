@@ -216,6 +216,8 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 	VulkanDeviceBuilder builder;
 	builder.OptionalRayQuery();
 	if (CfxTrace::Enabled()) builder.OptionalExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME);
+	if (CfxAddress::Enabled() && instance->AddressBindingMessengerActive)
+		builder.OptionalExtension(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME);
 	builder.RequireExtension(VK_EXT_DESCRIPTOR_INDEXING_EXTENSION_NAME);
 	if (surface)
 	{
@@ -229,6 +231,8 @@ VulkanRenderDevice::VulkanRenderDevice(void *hMonitor, bool fullscreen, std::sha
 	{
 		CfxTrace::Mark("capability", mDevice->SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME) ? "nv-checkpoints-enabled" : "nv-checkpoints-unavailable");
 		CfxTrace::Mark("capability", mDevice->SupportsExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME) && mDevice->EnabledFeatures.Fault.deviceFault ? "ext-device-fault-enabled" : "ext-device-fault-unavailable");
+		if (CfxAddress::State().requested)
+			CfxTrace::Mark("capability", mDevice->EnabledFeatures.AddressBinding.reportAddressBinding ? "address-binding-report-enabled" : "address-binding-report-unavailable");
 	}
 	mCapabilities = VulkanCapabilities::FromDevice(mDevice.get());
 	mCapabilities.DepthD24S8 = SupportsRenderTargetFormat(VK_FORMAT_D24_UNORM_S8_UINT);

@@ -1893,6 +1893,10 @@ std::vector<VulkanCompatibleDevice> VulkanDeviceBuilder::FindDevices(const std::
 		enabledFeatures.DescriptorIndexing.descriptorBindingVariableDescriptorCount = deviceFeatures.DescriptorIndexing.descriptorBindingVariableDescriptorCount;
 		enabledFeatures.DescriptorIndexing.shaderSampledImageArrayNonUniformIndexing = deviceFeatures.DescriptorIndexing.shaderSampledImageArrayNonUniformIndexing;
 		enabledFeatures.Fault.deviceFault = deviceFeatures.Fault.deviceFault;
+		enabledFeatures.AddressBinding.reportAddressBinding =
+			instance->AddressBindingMessengerActive &&
+			dev.EnabledDeviceExtensions.count(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME) &&
+			deviceFeatures.AddressBinding.reportAddressBinding;
 		enabledFeatures.GraphicsPipelineLibrary.graphicsPipelineLibrary = deviceFeatures.GraphicsPipelineLibrary.graphicsPipelineLibrary;
 
 		// Figure out which queue can present

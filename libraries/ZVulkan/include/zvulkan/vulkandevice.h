@@ -3,6 +3,7 @@
 #include "vulkaninstance.h"
 #include "cfxtrace.h"
 #include "cfxfault.h"
+#include "cfxaddress.h"
 
 #include <functional>
 #include <mutex>
@@ -65,6 +66,7 @@ public:
 			if (CfxTrace::Enabled()) { CfxTrace::State().deviceLost.store(true); CfxTrace::Mark("device-lost-observed", text, static_cast<int>(result)); }
 			try
 			{
+				CfxAddress::Snapshot("device-lost");
 				CfxFault::QueryNV(GraphicsQueue, "graphics", SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME), vkGetQueueCheckpointDataNV);
 				if (PresentQueue != GraphicsQueue)
 					CfxFault::QueryNV(PresentQueue, "present", SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME), vkGetQueueCheckpointDataNV);
