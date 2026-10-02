@@ -185,9 +185,20 @@ def check_cfx008_lane(path, run_root, exe, *, protocol='CFX-008', issue=99,
 
 
 def check_cfx009_lane(path, run_root, exe):
-    return check_cfx008_lane(path, run_root, exe, protocol='CFX-009', issue=102,
+    lane = check_cfx008_lane(path, run_root, exe, protocol='CFX-009', issue=102,
                             merge='d7ebce43449e9f347dccf399999832e11ea7c105',
                             guards_required=12, max_launches=6, max_losses=2)
+    if lane.get('prior_phase'):
+        prior = lane['prior_phase']
+        for key in ('state', 'stop'):
+            record = prior[key]
+            if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
+                raise ValueError('CFX-009 prior stopped phase changed')
+        old = json.loads(pathlib.Path(prior['state']['path']).read_text(encoding='utf-8'))
+        state = json.loads((path.parent / 'state.json').read_text(encoding='utf-8'))
+        if old.get('status') != 'STOPPED' or state['launches'] < old['launches'] or state['loss_episodes'] < old['loss_episodes']:
+            raise ValueError('CFX-009 prior counts must carry forward')
+    return lane
 
 
 def main():

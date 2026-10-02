@@ -111,3 +111,21 @@ def validate_plan(plan, opening, attempt, protocol='cfx008'):
             plan.get('renderer_source') != opening['renderer_source'] or
             plan.get('schema') != protocol.replace('cfx', 'cfx-')+'-attempt-v1'):
         raise ValueError('CFX-008 requires exact capture/address arguments and merged renderer')
+    if protocol == 'cfx009':
+        validate_output(plan['run_arguments'], attempt)
+
+
+def validate_output(arguments, attempt):
+    """Check the actual console script, not just the runner's manifest paths."""
+    marker = '--arg=+exec'
+    if arguments.count(marker) != 1:
+        raise ValueError('one explicit capture script required')
+    index = arguments.index(marker) + 1
+    if index >= len(arguments) or not arguments[index].startswith('--arg='):
+        raise ValueError('capture script argument missing')
+    script = pathlib.Path(arguments[index][len('--arg='):]).resolve()
+    if script != (attempt / 'inputs/capture.cfg').resolve():
+        raise ValueError('capture script must belong to this attempt')
+    destinations = re.findall(r'\bscreenshot\s+"([^"]+)"', script.read_text(encoding='utf-8'))
+    if len(destinations) != 1 or pathlib.Path(destinations[0]).resolve() != (attempt / 'scene.png').resolve():
+        raise ValueError('screenshot destination must belong to this attempt')

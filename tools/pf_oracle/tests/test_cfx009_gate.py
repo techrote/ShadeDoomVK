@@ -65,10 +65,36 @@ class QueuedScope(unittest.TestCase):
         with self.assertRaises(ValueError): gate.require_control(self.root, self.state, protocol="cfx-009")
     def test_arguments_cannot_change_scope_or_drop_address_capture(self):
         attempt = self.root / 'control'
+        (attempt / 'inputs').mkdir(parents=True)
+        script = attempt / 'inputs/capture.cfg'
+        script.write_text('screenshot '+chr(34)+(attempt / 'scene.png').as_posix()+chr(34)+'; quit')
         args = ['--exe', str(self.exe), '--run-root', str(attempt / 'runs'), '--cfx009-lane-plan', str(self.path),
-                '--mode', 'capture', '--timeout', '60', '--approved-cfx009', '--resource-trace', '--address-bindings', '--launch']
+                '--mode', 'capture', '--timeout', '60', '--approved-cfx009', '--resource-trace', '--address-bindings', '--launch', '--arg=+exec', '--arg='+str(script)]
         plan = dict(schema='cfx-009-attempt-v1', exe=str(self.exe), renderer_source=self.lane['renderer_source'], run_arguments=args)
         gate.validate_plan(plan, self.lane, attempt, protocol="cfx009")
         for bad in ([s for s in args if s != '--address-bindings'], args + ['--skip-dump-on-timeout'], args + ['--mode', 'sync'], args + ['--approved-cfx007']):
             with self.assertRaises(ValueError): gate.validate_plan({**plan, 'run_arguments': bad}, self.lane, attempt, protocol='cfx009')
 
+
+    def test_actual_script_destination_and_slash_forms(self):
+        attempt=self.root/'control'; (attempt/'inputs').mkdir(parents=True)
+        script=attempt/'inputs/capture.cfg'
+        arguments=['--arg=+exec','--arg='+str(script)]
+        for destination in (str(attempt/'scene.png'),(attempt/'scene.png').as_posix()):
+            script.write_text('screenshot '+chr(34)+destination+chr(34)+'; quit')
+            gate.validate_output(arguments,attempt)
+        for destination in ((self.root/'old/scene.png').as_posix(),(self.root/'scene.png').as_posix()):
+            script.write_text('screenshot '+chr(34)+destination+chr(34)+'; quit')
+            with self.assertRaises(ValueError):gate.validate_output(arguments,attempt)
+        with self.assertRaises(ValueError):gate.validate_output(arguments+arguments,attempt)
+        with self.assertRaises(ValueError):gate.validate_output(['--arg=+exec'],attempt)
+
+    def test_stopped_prior_phase_counts_cannot_reset(self):
+        old=self.root/'previous.json'; stop=self.root/'previous-stop.txt'
+        old.write_text(json.dumps(dict(status='STOPPED',launches=1,loss_episodes=0)));stop.write_text('preserved')
+        self.lane['prior_phase']={'state':{'path':str(old),'sha256':capture.digest(old)},'stop':{'path':str(stop),'sha256':capture.digest(stop)}}
+        self.save()
+        with self.assertRaises(ValueError):self.check()
+        self.state['launches']=1;self.save();self.check()
+        stop.write_text('changed')
+        with self.assertRaises(ValueError):self.check()
