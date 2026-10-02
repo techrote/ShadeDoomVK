@@ -4,10 +4,10 @@
   "parent_issue": 75,
   "selected_incident": "CFX-DBP37-MAP01-20260924",
   "substrate_merge": "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373",
-  "status": "IN_PROGRESS_CRASH_UNRESOLVED",
+  "status": "STOPPED_BUDGET_CRASH_UNRESOLVED",
   "counts": {
-    "launches": 13,
-    "loss_episodes": 3,
+    "launches": 16,
+    "loss_episodes": 6,
     "max_launches": 16,
     "max_loss_episodes": 6
   },
@@ -665,6 +665,164 @@
         "bytes": 7258,
         "sha256": "3d4e5e8bfc7eda04fe3ea915139c702b1080ce3ac95fbb48c5ba3e3858ff906c"
       }
+    },
+    {
+      "attempt_id": "CFX7-TARGET-004",
+      "run_id": "cfx-20261002T105500Z-7915c899d7fd",
+      "risky": true,
+      "discriminator": "Candidate fixes safe LevelMesh IndexBuffer hazard but capture target still loses at same world-stage read. Add only synchronization validation on original DBP37 to identify map-specific upload/image/descriptor dependency violation before loss; no repeated characterization.",
+      "renderer_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "runner_source": "97ff8a7da8af5137443030eaf11905e6407b3ae9",
+      "mode": "sync",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-004\\runs\\cfx-20261002T105500Z-7915c899d7fd\\manifest.json",
+        "bytes": 12745,
+        "sha256": "b74e400f34b250ab2f4aae223f0901151334af2524c30af515d28bb23b196f4a"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T10:56:05.003185+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": true,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 14,
+          "loss_episodes": 4
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-004\\plan.json",
+        "bytes": 5117,
+        "sha256": "7719be94552c9b14fd94c94cd7a20ffbc34aa741f1c060780eb471f3de2c416c"
+      },
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-004\\analysis.json",
+        "bytes": 1126,
+        "sha256": "701d953da846b5af5c2dd6b5f7aff3a1c455d9cddc4f9cd8c84c3af0ed6aa47a"
+      },
+      "validation": {
+        "verified": true,
+        "errors": 0,
+        "warnings": 0
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-004\\artifact-index.json",
+        "bytes": 7845,
+        "sha256": "fe109cfab08bc1881ad391bb28d7a3b258f7cfcb77c469ce594e5f6162e1e108"
+      }
+    },
+    {
+      "attempt_id": "CFX7-TARGET-005",
+      "run_id": "cfx-20261002T105849Z-fd01e127d2b2",
+      "risky": true,
+      "discriminator": "one-factor gl_ubershaders=false selects synchronous specialized full pipelines instead of asynchronous/generalized library fallback; test key/state plumbing vs persistent fault. Not production fix. Source ApplyLevelMeshPipeline initializes push.shaderKey=0 while ordinary ApplyPushConstants writes AsQWORD; generalized path relies on push bits, specialized uses constants. No causal claim until discriminated.",
+      "renderer_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "runner_source": "97ff8a7da8af5137443030eaf11905e6407b3ae9",
+      "mode": "capture",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-005\\runs\\cfx-20261002T105849Z-fd01e127d2b2\\manifest.json",
+        "bytes": 11534,
+        "sha256": "f6307f0e844e331b9e4749640d00b1b85779dd7199d962dbfdf944632846683e"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T10:59:53.596380+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": true,
+        "recovery_pass": true,
+        "stop_reasons": [],
+        "counts": {
+          "launches": 15,
+          "loss_episodes": 5
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-005\\plan.json",
+        "bytes": 4969,
+        "sha256": "7364fb798144cb7e2b2302d3e3dc29c237329590f71be6762e299b4785706c5c"
+      },
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-005\\analysis.json",
+        "bytes": 1172,
+        "sha256": "a8920da8692e4c8421ed0a57f3d69c059a104b926799938fd3dfd5c24e43cece"
+      },
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-005\\artifact-index.json",
+        "bytes": 7258,
+        "sha256": "1a6378aa5f218a64148863fae95a19ed18437deee10350be11eb8b6eb57f9717"
+      }
+    },
+    {
+      "attempt_id": "CFX7-TARGET-006",
+      "run_id": "cfx-20261002T110150Z-930f17e2687c",
+      "risky": true,
+      "discriminator": "last permitted one-factor experiment: gl_levelmesh=false vs original true, generalized backend restored. Distinguish direct LevelMesh draw/index/SSBO consumption necessity from common classic/shadow/texture path. Mesh building can remain active, so do not equate toggle with absence of all mesh resources. DBP50 contrary evidence was a different historical case.",
+      "renderer_source": "c24ecede105a2a3c073ac67b075d6f3cc4a2b5fb",
+      "runner_source": "97ff8a7da8af5137443030eaf11905e6407b3ae9",
+      "mode": "capture",
+      "manifest": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-006\\runs\\cfx-20261002T110150Z-930f17e2687c\\manifest.json",
+        "bytes": 11729,
+        "sha256": "b42b7a28897c83b81357f462951e70f9038c64a7d5d21fade44a5960bbfc95e1"
+      },
+      "result": {
+        "ended_at_utc": "2026-10-02T11:02:55.593115+00:00",
+        "runner_exit_code": 1,
+        "global_cache_restored": {
+          "pipelinecache.zdpc": true,
+          "shadercache.zdsc": true
+        },
+        "loss_episode": true,
+        "recovery_pass": true,
+        "stop_reasons": [
+          "finite campaign ceiling reached"
+        ],
+        "counts": {
+          "launches": 16,
+          "loss_episodes": 6
+        }
+      },
+      "plan": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-006\\plan.json",
+        "bytes": 4925,
+        "sha256": "0565c5752ce90ba94dba71c47358f0240e9a626a381a226b7fc991fa52694b6e"
+      },
+      "application_observation": "VK_ERROR_DEVICE_LOST",
+      "exit_status": 1,
+      "status": "TIMEOUT",
+      "analysis": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-006\\analysis.json",
+        "bytes": 1992,
+        "sha256": "fe027d0f87ceb1313d3356aceed92a46fcd71ed75cff2af127ba2f035cfbda90"
+      },
+      "validation": {
+        "verified": true,
+        "errors": null,
+        "warnings": null
+      },
+      "artifact_index": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-006\\artifact-index.json",
+        "bytes": 7258,
+        "sha256": "03597a61978f8af7a3b29130074fd1bbb92486a4ed59b6eddf2df12ee7993dac"
+      }
     }
   ],
   "limitations": [
@@ -684,5 +842,32 @@
     "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\control-010\\analysis.json",
     "bytes": 511,
     "sha256": "4d1a96ba2985e6b6904b74d27be750aac63ee33c4dab57ef36f443ef3d99a200"
+  },
+  "final_disposition": "UNRESOLVED: common classic/shadow/texture GPU invalid read; safe upload dependency independently fixed, but original loss persists. New address-binding capture is next source discriminator, no more physical launches.",
+  "stop_guard": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\STOP-LAUNCHES.txt",
+    "bytes": 50,
+    "sha256": "49d3a04a18bd6779472f2aa4d4729acfa6701e900e99a309a92654a3ffad09e6"
+  },
+  "final_state": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\state.json",
+    "bytes": 12526,
+    "sha256": "50934ab54e5ab4969fb5152c729a52163b4ad868a4ea650bf359db6785364190"
+  },
+  "address_binding_capability": {
+    "extension": "VK_EXT_device_address_binding_report",
+    "revision": 1,
+    "reportAddressBinding": true,
+    "query": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\vulkan-full-post-campaign.txt",
+      "bytes": 97139,
+      "sha256": "5c79a5923da52b62cee8ff0599ee786178824a4677eccbbcfe82e5eb938165cd"
+    },
+    "not_enabled_in_target_build": true
+  },
+  "msvc_asan": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\asan-tests.log",
+    "bytes": 1894,
+    "sha256": "9301bab3241fc8b379674017f771b90979d9875e211b13d6f53615e03ce2a52b"
   }
 }
