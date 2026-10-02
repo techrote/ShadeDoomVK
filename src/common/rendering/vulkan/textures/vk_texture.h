@@ -76,6 +76,9 @@ public:
 		VkTextureImage Probe;
 	};
 
+	VulkanImageView* GetLightmapFallbackView() { return LightmapFallback.Light.View.get(); }
+	VulkanImageView* GetProbemapFallbackView() { return LightmapFallback.Probe.View.get(); }
+
 	VkTextureImage Shadowmap;
 	std::vector<Lightmap> Lightmaps;
 	std::vector<VkTextureImage> Irradiancemaps;
@@ -209,6 +212,8 @@ private:
 	bool CheckUploadID(int id);
 
 	VulkanRenderDevice* fb = nullptr;
+	// Typed, initialized 1x1 descriptors for removed atlas pages. Never baked or retired with an atlas.
+	Lightmap LightmapFallback;
 	// CFX-009 causal probe only. Never enabled by renderer settings/defaults.
 	bool DiagnosticRetainReplacedLightmaps = false;
 	std::vector<Lightmap> DiagnosticRetainedLightmaps;

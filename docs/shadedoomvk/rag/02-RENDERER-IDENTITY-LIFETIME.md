@@ -105,6 +105,8 @@ PF-004 makes this boundary explicit without turning hot elements into heap objec
 
 ## Lightmap/probe identity
 
+CFX-009's removed-page descriptor candidate tracks `Bindless.PublishedLightmapPages` and plans the checked union of current/previous pages through `VkPlanLightmapDescriptorPublication`. Before normal submission, current pages retain their real views and removed pages receive persistent typed neutral fallback views; the count advances after descriptor execution. Existing frame fences continue to govern old atlas destruction. `VkTextureManager::LightmapFallback` reuses the constructor1×1 pair, initialized RGBA16F0/R16_UINT0, outside active atlas/bake ownership. This closes the stale reserved-view state without keeping old atlas allocations. Causal physical acceptance remains pending in [CFX-009](../CFX-009-CAUSAL-REPAIR.md); an unused undefined descriptor is not itself proof of a Vulkan violation.
+
 Lightmap atlas pages and probe maps become adjacent bindless texture entries in the reserved lightmap range. Environment probes instead obtain dynamic two-slot bindless blocks (irradiance + prefiltered map) on demand.
 
 PF-012 makes the three probe-index domains explicit instead of treating them as interchangeable integers:

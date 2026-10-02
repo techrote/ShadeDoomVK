@@ -404,6 +404,29 @@ void VkTextureManager::CreateLightmap()
 	data.Push(0);
 	data.Push(0);
 	CreateLightmap(1, 1, std::move(data));
+
+	// Reuse the constructor's small pair; atlas replacement must not own its lifetime.
+	LightmapFallback = std::move(Lightmaps.front());
+	Lightmaps.clear();
+	LightmapFallback.Light.Image->SetDebugName("VkTextureManager.LightmapFallback");
+	LightmapFallback.Light.View->SetDebugName("VkTextureManager.LightmapFallbackView");
+	LightmapFallback.Probe.Image->SetDebugName("VkTextureManager.ProbemapFallback");
+	LightmapFallback.Probe.View->SetDebugName("VkTextureManager.ProbemapFallbackView");
+
+	auto commands = fb->GetCommands()->GetTransferCommands();
+	VkImageTransition()
+		.AddImage(&LightmapFallback.Light, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, false)
+		.AddImage(&LightmapFallback.Probe, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, false)
+		.Execute(commands);
+	VkClearColorValue zero = {}; // float RGBA0: no baked/sun light; uint0: no authored probe.
+	VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	commands->clearColorImage(LightmapFallback.Light.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &range);
+	commands->clearColorImage(LightmapFallback.Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &range);
+	VkImageTransition()
+		.AddImage(&LightmapFallback.Light, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false)
+		.AddImage(&LightmapFallback.Probe, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false)
+		.Execute(commands);
+	CfxTrace::ResourceMark("lightmap-fallback-initialized", "RGBA16F=0,0,0,0 R16_UINT=0; transfer-write to fragment-read; texture-manager lifetime");
 }
 
 void VkTextureManager::CreateIrradiancemap()

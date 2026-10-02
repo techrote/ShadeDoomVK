@@ -449,22 +449,38 @@ void VkDescriptorSetManager::UpdateBindlessDescriptorSet()
 			VkBindlessLayout::MaxLightmapPages * VkBindlessLayout::LightmapDescriptorsPerPage);
 	}
 
-	const int lightmapEnd = VkBindlessLayout::LightmapStart + (int)lightmaps.size() * VkBindlessLayout::LightmapDescriptorsPerPage;
-	if (lightmapEnd > VkBindlessLayout::DynamicStart || lightmapEnd > Bindless.Plan.Effective)
+	const auto publication = VkPlanLightmapDescriptorPublication(Bindless.PublishedLightmapPages, (int)lightmaps.size(), Bindless.Plan.Effective);
+	if (!publication.IsValid())
 	{
 		I_FatalError("Lightmap/probe bindless reservation overflow: end %d, dynamic start %d, capacity %d.",
-			lightmapEnd, VkBindlessLayout::DynamicStart, Bindless.Plan.Effective);
+			publication.EndDescriptor, VkBindlessLayout::DynamicStart, Bindless.Plan.Effective);
 	}
 
 	int index = VkBindlessLayout::LightmapStart;
-	for (auto& lightmap : lightmaps)
+	for (int page = 0; page < publication.WritePages; page++)
 	{
-		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, lightmap.Light.View.get(), sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index + 1, lightmap.Probe.View.get(), sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		// Removed reserved slots must stop naming retired views. Publish before submission;
+		// the existing frame fences still govern destruction of the old atlas owners.
+		const bool fallback = publication.UsesFallback(page);
+		auto lightView = fallback ? fb->GetTextureManager()->GetLightmapFallbackView() : lightmaps[page].Light.View.get();
+		auto probeView = fallback ? fb->GetTextureManager()->GetProbemapFallbackView() : lightmaps[page].Probe.View.get();
+		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, lightView, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index + 1, probeView, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		index += VkBindlessLayout::LightmapDescriptorsPerPage;
 	}
 
 	Bindless.Writer.Execute(fb->GetDevice());
+	if (publication.WritePages > publication.ActivePages)
+	{
+		char detail[200];
+		std::snprintf(detail, sizeof(detail), "previous=%d active=%d removed=%d set_id=%llu light_view=0x%llx probe_view=0x%llx",
+			Bindless.PublishedLightmapPages, publication.ActivePages, publication.WritePages - publication.ActivePages,
+			(unsigned long long)Bindless.Set->diagnosticId,
+			(unsigned long long)fb->GetTextureManager()->GetLightmapFallbackView()->view,
+			(unsigned long long)fb->GetTextureManager()->GetProbemapFallbackView()->view);
+		CfxTrace::ResourceMark("lightmap-removed-slots-published", detail);
+	}
+	Bindless.PublishedLightmapPages = publication.NextPublishedPages;
 	Bindless.Writer = WriteDescriptors();
 }
 
