@@ -61,11 +61,43 @@ int main(int argc, char** argv)
 		CfxAddress::State().records.store(CfxAddress::RecordLimit); emit();
 		assert(CfxAddress::State().records.load() == CfxAddress::RecordLimit);
 		assert(CfxAddress::State().omitted.load() == 18);
-		// Concurrent driver callback must not deadlock behind diagnostic output.
-		std::unique_lock<std::mutex> lock(CfxAddress::State().mutex);
-		std::thread worker(emit); worker.join(); lock.unlock();
-		assert(CfxAddress::State().contended.load() == 16);
+		// Capacity exhaustion is explicit and never waits on the file writer.
+		std::thread worker(emit); worker.join();
 		CfxAddress::Snapshot("device-lost");
+	}
+	else if (mode == "concurrent")
+	{
+		std::thread workers[8];
+		for (auto& worker : workers) worker = std::thread([&] { for (unsigned n = 0; n < 1000; ++n) emit(); });
+		for (auto& worker : workers) worker.join();
+		// Callback-owned name memory can disappear before the queued file drain.
+		objects[0].pObjectName = nullptr;
+		CfxAddress::Snapshot("device-lost");
+		assert(CfxAddress::State().records.load() == 8001);
+		assert(CfxAddress::State().flushed.load() == 8001);
+		assert(CfxAddress::State().omitted.load() == 0);
+	}
+	else if (mode == "unpublished")
+	{
+		// Model a preempted producer at slot0: drain cannot pass it. Another
+		// callback still completes and snapshot returns within its fixed budget.
+		auto& s = CfxAddress::State(); s.records.store(1);
+		char transientName[] = "owned-before-callback";
+		objects[0].pObjectName = transientName;
+		std::thread worker(emit); worker.join();
+		// Drain is held behind slot0, so it cannot read this queued record until
+		// after the callback-owned name bytes have been overwritten.
+		std::memset(transientName, 'X', std::strlen(transientName));
+		const auto start = std::chrono::steady_clock::now();
+		CfxAddress::Snapshot("device-lost");
+		assert(std::chrono::steady_clock::now() - start < std::chrono::seconds(1));
+		assert(s.flushed.load() == 0 && s.records.load() == 3);
+		// Resume and publish the reserved immutable payload; draining recovers.
+		auto& r = s.slots[0]; std::strcpy(r.event, "bind");
+		r.base = binding.baseAddress; r.bytes = binding.size; r.type = VK_OBJECT_TYPE_BUFFER; r.handle = 0xab;
+		r.ready.store(true, std::memory_order_release);
+		CfxAddress::Snapshot("device-teardown");
+		assert(s.flushed.load() == 4);
 	}
 	else if (mode == "malformed")
 	{

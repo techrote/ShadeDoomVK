@@ -55,7 +55,9 @@ def correlate(bindings, timeline, address, precision):
     if timeline.stat().st_size > 128 * 1024 * 1024:
         raise ValueError('CPU timeline exceeds bounded trace capacity')
     cpu = timeline.read_text(encoding='utf-8')
-    if not cpu.splitlines() or f'run={run}' not in cpu.splitlines()[0]:
+    header = cpu.splitlines()[0] if cpu.splitlines() else ''
+    cpu_run = header.removeprefix('# CFX-002 trace v1 run=').removesuffix(' (rotated tail)')
+    if not header.startswith('# CFX-002 trace v1 run=') or cpu_run != run:
         raise ValueError('binding/CPU run identities differ')
     reasons = []
     cutoff = next((int(r['seq']) for r in rows if r['event'] == 'snapshot' and r['name'] == 'device-lost'), None)
@@ -70,8 +72,14 @@ def correlate(bindings, timeline, address, precision):
         summary = dict(re.findall(r'(\w+)=(\d+)', summaries[0]))
         if any(int(summary.get(k, '-1')) != v for k, v in (('omitted', 0), ('contended', 0), ('writer_ok', 1))):
             reasons.append('callback omission, contention or writer failure')
-        if cutoff is not None and int(summary.get('records', '-1')) != cutoff:
-            reasons.append('loss summary/cutoff record disagreement')
+        if cutoff is not None:
+            if 'flushed' in summary:
+                if int(summary.get('cutoff', '-1')) != cutoff or int(summary.get('records', '-1')) < cutoff:
+                    reasons.append('loss summary/cutoff record disagreement')
+                if int(summary['flushed']) < cutoff:
+                    reasons.append('queued binding records not flushed through loss cutoff')
+            elif int(summary.get('records', '-1')) != cutoff:
+                reasons.append('loss summary/cutoff record disagreement')
     before_loss = [r for r in rows if cutoff is None or int(r['seq']) <= cutoff]
     if any(r['event'] in ('binding-no-object', 'binding-payload-missing', 'unknown-binding') for r in before_loss):
         reasons.append('missing or malformed callback association')
