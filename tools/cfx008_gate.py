@@ -42,7 +42,7 @@ def mesh_state(path):
             'normals': sum(s.startswith('vn ') for s in lines)}
 
 
-def accept_control(attempt, opening):
+def accept_control(attempt, opening, protocol='cfx-008'):
     from PIL import Image
     manifests = list((attempt / 'runs').glob('*/manifest.json'))
     if len(manifests) != 1:
@@ -59,6 +59,8 @@ def accept_control(attempt, opening):
         if not json.loads((attempt / name).read_text(encoding='utf-8'))['pass']:
             raise ValueError('control recovery failed')
     report = activation(run / 'address-bindings.tsv', run / 'timeline.tsv', manifest['run_id'])
+    if protocol == 'cfx-009' and not {'flushed', 'cutoff'} <= report['teardown'].keys():
+        raise ValueError('CFX-009 requires the repaired queued collector flush proof')
     reference = opening['control_reference']
     for name in ('image', 'mesh'):
         if digest(pathlib.Path(reference[name]['path'])) != reference[name]['sha256']:
@@ -73,39 +75,39 @@ def accept_control(attempt, opening):
     files = [mp, run / 'address-bindings.tsv', run / 'timeline.tsv', image, mesh,
              attempt / 'health-before.json', attempt / 'health-after.json', attempt / 'plan.json',
              pathlib.Path(reference['image']['path']), pathlib.Path(reference['mesh']['path'])]
-    return {'schema': 'cfx-008-control-proof-v1', 'accepted': True, 'run_id': manifest['run_id'],
+    return {'schema': protocol+'-control-proof-v1', 'accepted': True, 'run_id': manifest['run_id'],
             'activation': report, 'identical_pixels': True, 'dimensions': dimensions,
             'protected_mesh_equal': True, 'full_obj_bytes_asserted': False,
             'files': [{'path': str(p), 'sha256': digest(p)} for p in files]}
 
 
-def require_control(lane, state):
+def require_control(lane, state, protocol='cfx-008'):
     path = lane / 'control-proof.json'
     if not state.get('control_proof_sha256') or digest(path) != state['control_proof_sha256']:
         raise ValueError('accepted safe-control proof missing/changed')
     proof = json.loads(path.read_text(encoding='utf-8'))
-    if proof.get('schema') != 'cfx-008-control-proof-v1' or not proof.get('accepted') or not proof.get('files'):
+    if proof.get('schema') != protocol+'-control-proof-v1' or not proof.get('accepted') or not proof.get('files'):
         raise ValueError('invalid safe-control proof')
     for record in proof['files']:
         if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
             raise ValueError('safe-control evidence changed')
 
 
-def validate_plan(plan, opening, attempt):
+def validate_plan(plan, opening, attempt, protocol='cfx008'):
     """Fix the entry point and scopes; neither arbitrary argv nor a boolean unlocks risk."""
     import argparse
     ap = argparse.ArgumentParser(add_help=False, allow_abbrev=False)
-    for name in ('exe', 'run-root', 'cfx008-lane-plan', 'mode', 'timeout'):
+    for name in ('exe', 'run-root', protocol+'-lane-plan', 'mode', 'timeout'):
         ap.add_argument('--' + name)
-    for name in ('approved-cfx008', 'resource-trace', 'address-bindings', 'skip-dump-on-timeout', 'launch'):
+    for name in ('approved-'+protocol, 'resource-trace', 'address-bindings', 'skip-dump-on-timeout', 'launch'):
         ap.add_argument('--' + name, action='store_true')
     a, rest = ap.parse_known_args(plan['run_arguments'])
-    if (a.mode != 'capture' or a.timeout != '60' or not a.approved_cfx008 or
+    if (a.mode != 'capture' or a.timeout != '60' or not getattr(a, 'approved_'+protocol) or
             not a.resource_trace or not a.address_bindings or not a.launch or a.skip_dump_on_timeout or
             pathlib.Path(a.exe or '').resolve() != pathlib.Path(plan['exe']).resolve() or
             pathlib.Path(a.run_root or '').resolve() != attempt / 'runs' or
-            pathlib.Path(a.cfx008_lane_plan or '').resolve() != attempt.parent / 'lane-opening.json' or
+            pathlib.Path(getattr(a, protocol+'_lane_plan') or '').resolve() != attempt.parent / 'lane-opening.json' or
             any(s.startswith(('--approved-cfx00', '--validation-layer-dir')) for s in rest) or
             plan.get('renderer_source') != opening['renderer_source'] or
-            plan.get('schema') != 'cfx-008-attempt-v1'):
+            plan.get('schema') != protocol.replace('cfx', 'cfx-')+'-attempt-v1'):
         raise ValueError('CFX-008 requires exact capture/address arguments and merged renderer')

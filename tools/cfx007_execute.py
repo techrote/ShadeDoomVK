@@ -2,7 +2,7 @@
 No loops, driver/policy changes or automatic reboot. Large evidence stays local.
 """
 import argparse,datetime as dt,hashlib,json,pathlib,shutil,subprocess,sys
-from cfx_capture import check_cfx007_lane,check_cfx008_lane,digest
+from cfx_capture import check_cfx007_lane,check_cfx008_lane,check_cfx009_lane,digest
 from cfx007_health import collect
 ROOT=pathlib.Path(__file__).resolve().parents[1]
 CACHE=pathlib.Path.home()/"AppData/Local/zdoom/cache"
@@ -22,7 +22,8 @@ def stop(lane,state,reasons,protocol='CFX-007'):
 
 def main(protocol='CFX-007'):
     cfx008=protocol=='CFX-008'
-    issue,max_launches,max_losses=(99,2,1) if cfx008 else (97,16,6)
+    cfx009=protocol=='CFX-009'
+    issue,max_launches,max_losses=(102,6,2) if cfx009 else (99,2,1) if cfx008 else (97,16,6)
     ap=argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--plan',type=pathlib.Path,required=True);ap.add_argument('--launch',action='store_true')
     a=ap.parse_args();pp=a.plan.resolve();attempt=pp.parent;lane=attempt.parent
@@ -33,12 +34,12 @@ def main(protocol='CFX-007'):
     if (attempt/'execution-start.json').exists():ap.error('attempt ID already used')
     if any((parent/'STOP-LAUNCHES.txt').exists() for parent in (attempt,*attempt.parents)):ap.error('active new-scope STOP guard')
     exe=pathlib.Path(plan['exe'])
-    (check_cfx008_lane if cfx008 else check_cfx007_lane)(lane/'lane-opening.json',attempt/'runs',exe)
-    if cfx008:
+    (check_cfx009_lane if cfx009 else check_cfx008_lane if cfx008 else check_cfx007_lane)(lane/'lane-opening.json',attempt/'runs',exe)
+    if cfx008 or cfx009:
         from cfx008_gate import validate_plan,require_control,accept_control
-        validate_plan(plan,opening,attempt)
-        if (not plan.get('risky') and state['launches']!=0) or (plan.get('risky') and state['launches']!=1):ap.error('CFX-008 requires one control then one target')
-        if plan.get('risky'):require_control(lane,state)
+        validate_plan(plan,opening,attempt,'cfx009' if cfx009 else 'cfx008')
+        if (not plan.get('risky') and state['launches']!=0) or (plan.get('risky') and state['launches']!=1):ap.error(protocol+' initial phase requires one control then one target; subsequent experiments need source analysis')
+        if plan.get('risky'):require_control(lane,state,protocol.lower())
     for path,expected in plan['inputs'].items():
         if digest(pathlib.Path(path))!=expected:ap.error('input identity changed: '+path)
     for name,identity in opening['runtime_files'].items():
@@ -102,9 +103,9 @@ def main(protocol='CFX-007'):
         for artifact in manifest.get('artifact_files',[]):
             path=pathlib.Path(artifact['path'])
             if not path.is_file() or path.stat().st_size!=artifact['size']:faults.append('artifact missing/changed')
-    if cfx008 and not plan.get('risky') and not faults:
+    if (cfx008 or cfx009) and not plan.get('risky') and not faults:
         try:
-            proof=accept_control(attempt,opening);save(lane/'control-proof.json',proof)
+            proof=accept_control(attempt,opening,protocol.lower());save(lane/'control-proof.json',proof)
             state['control_proof_sha256']=digest(lane/'control-proof.json');state['safe_controls_passed']=True
         except (OSError,ValueError,KeyError,TypeError) as e:faults.append('safe activation/equivalence gate: '+str(e))
     state['pending_attempt']=None
@@ -118,7 +119,7 @@ def main(protocol='CFX-007'):
     files=[]
     for path in attempt.rglob('*'):
         if path.is_file() and path.name!='artifact-index.json':files.append({'path':str(path),'bytes':path.stat().st_size,'sha256':digest(path)})
-    save(attempt/'artifact-index.json',{'schema':'cfx-008-artifacts-v1' if cfx008 else 'cfx-007-artifacts-v1','files':files})
+    save(attempt/'artifact-index.json',{'schema':protocol.lower()+'-artifacts-v1','files':files})
     print(json.dumps({'attempt':plan['attempt_id'],'loss':loss,'state':state['status'],'stop_reasons':faults,'counts':[state['launches'],state['loss_episodes']]}),flush=True)
     return 1 if faults else 0
 

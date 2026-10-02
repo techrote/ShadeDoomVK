@@ -150,36 +150,44 @@ def check_cfx007_lane(path, run_root, exe):
     return lane
 
 
-def check_cfx008_lane(path, run_root, exe):
+def check_cfx008_lane(path, run_root, exe, *, protocol='CFX-008', issue=99,
+                      merge='c6a7197ae48b8d163df9f72783c177ca427505f5', guards_required=11,
+                      max_launches=2, max_losses=1):
     """Separate #99 two-launch/one-loss scope; old budgets and guards stay closed."""
     if not path or not path.is_file():
-        raise ValueError('CFX-008 requires an existing lane-opening JSON')
+        raise ValueError(protocol+' requires an existing lane-opening JSON')
     lane = json.loads(path.read_text(encoding='utf-8'))
     if (lane.get('schema'), lane.get('issue'), lane.get('status'), lane.get('substrate_merge')) != (
-            'cfx-008-lane-v1', 99, 'OPEN', 'c6a7197ae48b8d163df9f72783c177ca427505f5'):
-        raise ValueError('CFX-008 requires the new #99 merged-PR98 scope')
+            protocol.lower()+'-lane-v1', issue, 'OPEN', merge):
+        raise ValueError(protocol+' requires its exact issue and accepted substrate')
     if lane.get('renderer_source') != lane['substrate_merge']:
-        raise ValueError('CFX-008 renderer must be the accepted PR98 merge')
+        raise ValueError(protocol+' renderer must equal the accepted substrate')
     if not run_root.resolve().is_relative_to(path.parent.resolve()):
-        raise ValueError('CFX-008 run root must be inside its lane')
+        raise ValueError(protocol+' run root must be inside its lane')
     if any((p / 'STOP-LAUNCHES.txt').exists() for p in (run_root.resolve(), *run_root.resolve().parents)):
-        raise ValueError('CFX-008 active stop guard')
+        raise ValueError(protocol+' active stop guard')
     for binary, key in ((exe, 'exe_sha256'), (exe.with_suffix('.pdb'), 'pdb_sha256')):
         if not lane.get(key) or digest(binary) != lane[key]:
-            raise ValueError('CFX-008 binary/PDB identity changed')
+            raise ValueError(protocol+' binary/PDB identity changed')
     guards = lane.get('historical_guards', [])
-    if len(guards) != 11 or len({g['path'] for g in guards}) != 11:
-        raise ValueError('CFX-008 requires all eleven distinct historical guards')
+    if len(guards) != guards_required or len({g['path'] for g in guards}) != guards_required:
+        raise ValueError(protocol+' requires all distinct historical guards')
     for guard in guards:
         if not guard.get('sha256') or digest(pathlib.Path(guard['path'])) != guard['sha256']:
-            raise ValueError('CFX-008 historical guard changed')
+            raise ValueError(protocol+' historical guard changed')
     state = json.loads((path.parent / 'state.json').read_text(encoding='utf-8'))
-    if (state.get('status') != 'OPEN' or not 0 <= state.get('launches', -1) <= 2 or
-            (state.get('launches') == 2 and not state.get('pending_attempt')) or
-            not 0 <= state.get('loss_episodes', -1) < 1 or
-            lane.get('max_launches') != 2 or lane.get('max_loss_episodes') != 1):
-        raise ValueError('CFX-008 stopped or budget exhausted')
+    if (state.get('status') != 'OPEN' or not 0 <= state.get('launches', -1) <= max_launches or
+            (state.get('launches') == max_launches and not state.get('pending_attempt')) or
+            not 0 <= state.get('loss_episodes', -1) < max_losses or
+            lane.get('max_launches') != max_launches or lane.get('max_loss_episodes') != max_losses):
+        raise ValueError(protocol+' stopped or budget exhausted')
     return lane
+
+
+def check_cfx009_lane(path, run_root, exe):
+    return check_cfx008_lane(path, run_root, exe, protocol='CFX-009', issue=102,
+                            merge='d7ebce43449e9f347dccf399999832e11ea7c105',
+                            guards_required=12, max_launches=6, max_losses=2)
 
 
 def main():
@@ -223,12 +231,14 @@ def main():
     ap.add_argument("--cfx007-lane-plan", type=pathlib.Path)
     ap.add_argument("--approved-cfx008", action="store_true", help="#99 address localization, two launches/one loss")
     ap.add_argument("--cfx008-lane-plan", type=pathlib.Path)
+    ap.add_argument('--approved-cfx009', action='store_true', help='#102 causal repair, six launches/two losses')
+    ap.add_argument('--cfx009-lane-plan', type=pathlib.Path)
     args = ap.parse_args()
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
     if args.address_bindings and not args.resource_trace:
         ap.error("--address-bindings requires --resource-trace")
-    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007, args.approved_cfx008)) > 1:
+    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007, args.approved_cfx008, args.approved_cfx009)) > 1:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
         ap.error("--cfx005-lane-plan requires --approved-cfx005")
@@ -266,7 +276,23 @@ def main():
                     raise ValueError('CFX-008 launch requires the executor durable reservation')
         except (OSError, ValueError, KeyError, TypeError) as exc:
             ap.error(str(exc))
+    if args.cfx009_lane_plan and not args.approved_cfx009:
+        ap.error('--cfx009-lane-plan requires --approved-cfx009')
+    if args.approved_cfx009:
+        try:
+            check_cfx009_lane(args.cfx009_lane_plan, args.run_root, args.exe)
+            if args.mode != 'capture' or not args.address_bindings or not args.resource_trace or args.validation_layer_dir:
+                raise ValueError('CFX-009 initial localization requires capture/resource/address only')
+            if args.launch:
+                state = json.loads((args.cfx009_lane_plan.parent / 'state.json').read_text(encoding='utf-8'))
+                reservation = json.loads((args.run_root.parent / 'execution-start.json').read_text(encoding='utf-8'))
+                if state.get('pending_attempt') != reservation['attempt_id']:
+                    raise ValueError('CFX-009 requires the executor durable reservation')
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            ap.error(str(exc))
     files = [args.exe, args.iwad, *args.pwad, *args.addon]
+    if args.cfx009_lane_plan:
+        files.append(args.cfx009_lane_plan)
     if args.cfx008_lane_plan:
         files.append(args.cfx008_lane_plan)
     if args.cfx007_lane_plan:
@@ -282,8 +308,8 @@ def main():
         ap.error("STOP-LAUNCHES.txt guard applies to an input")
     risky = args.map.upper() in ("MAP01", "MAP24", "MAP08") and any(
         key in p.name.lower() for p in args.pwad + args.addon for key in KNOWN_CRASH)
-    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007 or args.approved_cfx008
-    campaign = "CFX-008" if args.approved_cfx008 else "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
+    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007 or args.approved_cfx008 or args.approved_cfx009
+    campaign = 'CFX-009' if args.approved_cfx009 else "CFX-008" if args.approved_cfx008 else "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
     if args.launch and risky and not crash_approved:
         ap.error("known crash route requires a separately approved CFX-003, CFX-005 or CFX-007 campaign")
     if crash_approved and args.skip_dump_on_timeout:
@@ -371,8 +397,9 @@ def main():
                 "working_directory": str(work_dir),
                 "crash_campaign_approval": campaign if crash_approved else None,
                 "cfx008_lane_plan": identity(args.cfx008_lane_plan) if args.cfx008_lane_plan else None,
-                "renderer_source": (json.loads(args.cfx008_lane_plan.read_text(encoding='utf-8'))['renderer_source']
-                                    if args.cfx008_lane_plan else None),
+                "cfx009_lane_plan": identity(args.cfx009_lane_plan) if args.cfx009_lane_plan else None,
+                "renderer_source": (json.loads(p.read_text(encoding='utf-8'))['renderer_source']
+                                    if (p := args.cfx009_lane_plan or args.cfx008_lane_plan) else None),
                 "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None,
                 "cfx007_lane_plan": identity(args.cfx007_lane_plan) if args.cfx007_lane_plan else None},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
