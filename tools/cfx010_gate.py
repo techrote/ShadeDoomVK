@@ -21,10 +21,45 @@ def settings_key(settings):
 
 def script_hash(script):
     """Only per-attempt screenshot paths vary; all executable commands stay fixed."""
-    text = script.read_text(encoding='utf-8')
+    return script_text_hash(script.read_text(encoding='utf-8'))
+
+
+def script_text_hash(text):
     ordinal = iter(range(64))
     text = re.sub(r'(\bscreenshot\s+)"[^"\n]+"', lambda m: m[1] + '"@CFX_OUTPUT_' + str(next(ordinal)) + '@"', text)
     return hashlib.sha256(text.encode()).hexdigest()
+
+
+def approved_script_hash(plan, profile, script):
+    """One reviewed diagnostic drain prevents a deferred screenshot/map collision."""
+    adjustment = plan.get('capture_adjustment')
+    if adjustment is None:
+        return script_hash(script)
+    if (plan.get('case') != 'sunlust-champions' or plan.get('risky') is not True or
+            not isinstance(adjustment, dict) or adjustment.get('kind') != 'deferred-screenshot-before-map-v1' or
+            type(adjustment.get('diagnostic_wait_tics')) is not int or adjustment['diagnostic_wait_tics'] != 2 or
+            adjustment.get('placement') != 'after-third-screenshot-before-phase4-map'):
+        raise ValueError('CFX010 only the reviewed Sunlust target screenshot drain is allowed')
+    record = adjustment.get('analysis')
+    explanation = verified_analysis(record)
+    if (explanation.get('case') != 'sunlust-champions' or explanation.get('attempt_id') != 'CFX10-TARGET-SUNLUST-001' or
+            explanation.get('missing_phase3_explained') is not True or explanation.get('repair_unchanged') is not True or
+            explanation.get('original_target_script_sha256') != profile['target_script_sha256']):
+        raise ValueError('CFX010 screenshot drain requires its complete original missing-phase3 explanation')
+    prerequisite = plan.get('analysis_prerequisite')
+    previous = verified_analysis(prerequisite)
+    if prerequisite != record and previous.get('capture_adjustment_authorization') != record:
+        raise ValueError('CFX010 drain authorization must match the registered analysis prerequisite')
+    text = script.read_text(encoding='utf-8')
+    screenshots = list(re.finditer(r'\bscreenshot\s+"[^"\n]+"', text))
+    suffix = '; wait 2; echo CFX010_PHASE4; map MAP24'
+    if len(screenshots) != 4 or not text[screenshots[2].end():].startswith(suffix):
+        raise ValueError('CFX010 exact two-tic drain must follow the third screenshot immediately before phase4/map')
+    end = screenshots[2].end()
+    restored = text[:end] + text[end:].replace('; wait 2;', ';', 1)
+    if script_text_hash(restored) != profile['target_script_sha256']:
+        raise ValueError('CFX010 screenshot drain may not change another historical command')
+    return script_text_hash(restored)
 
 
 def verify_files(data, description):
@@ -180,7 +215,7 @@ def validate_plan(plan, opening, attempt, *, reservation=False):
     expected_pre = [s.replace('@ATTEMPT@', str(attempt)) for s in profile['pre_arguments']]
     if a.pre_arg != expected_pre:
         raise ValueError('CFX010 process arguments differ from approved case')
-    if script_hash(script) != profile['target_script_sha256' if plan['risky'] else 'control_script_sha256']:
+    if approved_script_hash(plan, profile, script) != profile['target_script_sha256' if plan['risky'] else 'control_script_sha256']:
         raise ValueError('CFX010 executable console script differs from approved route')
     images = [pathlib.Path(p).resolve() for p in re.findall(r'\bscreenshot\s+"([^"\n]+)"', script.read_text(encoding='utf-8'))]
     expected_images = [pathlib.Path(p).resolve() for p in plan.get('completion_artifacts', [])]

@@ -294,5 +294,52 @@ class CrossCase(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'missing/out of order'):
                     gate.verify_completion(manifest, plan, run, self.opening)
 
+    def drain_fixture(self):
+        attempt, plan = self.plan(True)
+        script = attempt / 'inputs/capture.cfg'
+        original = 'echo CFX010_ROUTE_BEGIN; screenshot "phase1.png"; screenshot "phase2.png"; screenshot "phase3.png"; echo CFX010_PHASE4; map MAP24; screenshot "phase4.png"; wait 2; echo CFX010_ROUTE_COMPLETE; quit'
+        profile = self.profile | {'map': 'MAP24', 'target_script_sha256': gate.script_text_hash(original)}
+        p = self.lane / 'manual-missing-phase3-analysis.json'
+        p.write_text(json.dumps({'analysis_complete': True, 'source_analysis_pending': False,
+            'case': 'sunlust-champions', 'attempt_id': 'CFX10-TARGET-SUNLUST-001', 'conclusion': 'Deferred screenshot overwritten by immediate map action.',
+            'missing_phase3_explained': True, 'repair_unchanged': True, 'original_target_script_sha256': profile['target_script_sha256'],
+            'files': [self.record(self.evidence)]}))
+        record = self.record(p)
+        plan.update(case='sunlust-champions', analysis_prerequisite=record,
+            capture_adjustment={'kind': 'deferred-screenshot-before-map-v1', 'diagnostic_wait_tics': 2,
+                                'placement': 'after-third-screenshot-before-phase4-map', 'analysis': record})
+        adjusted = original.replace('; echo CFX010_PHASE4;', '; wait 2; echo CFX010_PHASE4;')
+        script.write_text(adjusted)
+        return plan, profile, script, original, adjusted
+
+    def test_reviewed_sunlust_drain_preserves_every_other_command_and_advances_proof(self):
+        plan, profile, script, original, adjusted = self.drain_fixture()
+        self.assertEqual(gate.approved_script_hash(plan, profile, script), profile['target_script_sha256'])
+        next_analysis = self.lane / 'adjusted-success-analysis.json'
+        next_analysis.write_text(json.dumps({'analysis_complete': True, 'source_analysis_pending': False,
+            'attempt_id': 'CFX10-TARGET-SUNLUST-002', 'conclusion': 'Adjusted route completed; unchanged renderer.',
+            'capture_adjustment_authorization': plan['capture_adjustment']['analysis'], 'files': [self.record(self.evidence)]}))
+        self.assertEqual(gate.approved_script_hash(plan | {'analysis_prerequisite': self.record(next_analysis)}, profile, script), profile['target_script_sha256'])
+        for changed in (adjusted.replace('wait 2; echo CFX010_PHASE4', 'wait 3; echo CFX010_PHASE4'),
+                        adjusted.replace('wait 2; echo CFX010_PHASE4', 'wait 2; wait 2; echo CFX010_PHASE4'),
+                        adjusted.replace('map MAP24', 'map MAP30'), adjusted.replace('wait 2; echo CFX010_ROUTE_COMPLETE', 'wait 3; echo CFX010_ROUTE_COMPLETE')):
+            script.write_text(changed)
+            with self.assertRaises(ValueError): gate.approved_script_hash(plan, profile, script)
+
+    def test_drain_cannot_be_used_without_exact_manual_explanation_or_on_another_case(self):
+        plan, profile, script, original, adjusted = self.drain_fixture()
+        for changed in ({'case': 'dbp50-original'}, {'risky': False}, {'analysis_prerequisite': self.opening['previous_epoch']['analysis']},
+                        {'capture_adjustment': plan['capture_adjustment'] | {'diagnostic_wait_tics': 3}},
+                        {'capture_adjustment': plan['capture_adjustment'] | {'placement': 'after-phase1'}}):
+            with self.assertRaises(ValueError): gate.approved_script_hash(plan | changed, profile, script)
+        self.assertNotEqual(gate.approved_script_hash(plan | {'capture_adjustment': None}, profile, script), profile['target_script_sha256'])
+        p = pathlib.Path(plan['capture_adjustment']['analysis']['path'])
+        original_proof = json.loads(p.read_text())
+        for changed in ({'missing_phase3_explained': False}, {'repair_unchanged': False}, {'original_target_script_sha256': '0' * 64}, {'analysis_complete': False}):
+            p.write_text(json.dumps(original_proof | changed))
+            record = self.record(p)
+            with self.assertRaises(ValueError): gate.approved_script_hash(plan | {'analysis_prerequisite': record,
+                'capture_adjustment': plan['capture_adjustment'] | {'analysis': record}}, profile, script)
+
 
 if __name__ == '__main__': unittest.main()
