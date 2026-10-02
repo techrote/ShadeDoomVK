@@ -1,0 +1,385 @@
+{
+  "schema": "cfx-009-retention-target-review-v1",
+  "issue": 102,
+  "parent": 75,
+  "attempt_id": "CFX9-TARGET-RETENTION-WINDOW-CONFIG",
+  "run_id": "cfx-20261002T151147Z-8a0cfc137caa",
+  "renderer_source": "fcaabc0239367ae6194b2d051d55a615d1d1925a",
+  "runner_source": "42cb29509e4d4af2d80845f32cc9302201beecb7",
+  "analysis_at_utc": "2026-10-02T15:22:31.543478+00:00",
+  "analysis_complete": true,
+  "source_analysis_pending": false,
+  "conclusion": "One retention-enabled target completed the preserved DBP37 startup route without device loss, while the old startup atlas remained bound through the former failure window. This strengthens a retirement/descriptor interaction lead but does not isolate it from corrected archived window geometry and current display/timing. The smallest next discriminator is one matching retention-OFF target with the same instrumented binary, corrected window configuration, actual client size, content and cache baseline; analyze before implementing or validating a production candidate.",
+  "hypothesis": "Retirement of startup light/probe images referenced by removed reserved slots is necessary for the DBP37 fault.",
+  "single_intended_change": "Opt-in retention of replaced lightmap/probe image/view ownership through texture-manager teardown; no descriptor/shader/geometry/settings/upload/submission change.",
+  "observed": {
+    "status": "EXITED",
+    "exit_status": 0,
+    "application_observation": null,
+    "device_loss_or_tdr": false,
+    "recovery_pass": true,
+    "end_frame": 1491,
+    "end_tic": 241,
+    "end_submission": 2980,
+    "actual_resolution": [
+      1902,
+      993
+    ],
+    "screenshot_captured": true,
+    "screenshot_visual_inspection": "The decoded screenshot depicts the expected DBP37 MAP01 balcony/city startup view, weapon and HUD. No obvious graphical corruption observed in this single captured frame; no baseline pixel equivalence for DBP37 is asserted.",
+    "retention_activation": true,
+    "retention_marks": [
+      "1790953909376\t8788918875201778853\t1\t0\t0\tresource-mesh-upload\tlightmap-retained\tlight_image=0x161aec82ad0 light_view=0x161aec963d0 probe_image=0x161aec830d0 probe_view=0x161aec96550 retained_page=0 replacement_count=1\t0",
+      "1790953911003\t8788918875201778853\t6\t0\t7\tresource-mesh-upload\tlightmap-retained\tlight_image=0x161b08c4ed0 light_view=0x161b08d2350 probe_image=0x161b08c54d0 probe_view=0x161b08d2650 retained_page=1 replacement_count=0\t0"
+    ],
+    "startup_light_image": "0x161b08c4ed0",
+    "startup_light_view": "0x161b08d2350",
+    "startup_probe_image": "0x161b08c54d0",
+    "startup_probe_view": "0x161b08d2650",
+    "allocation_base": "0x1da00000",
+    "allocation_bytes": 8388608,
+    "address_capture": {
+      "records": 32768,
+      "flushed": 32768,
+      "cutoff": 0,
+      "omitted": 14686,
+      "contended": 0,
+      "writer_ok": 1,
+      "sequence_contiguous": true,
+      "first_seq": 1,
+      "last_seq": 32768,
+      "maximum_record_frame": 1013,
+      "frame6_prefix_records": 4534,
+      "frame7_prefix_records": 4568,
+      "counts_by_event": {
+        "name": 17351,
+        "bind": 8329,
+        "unbind": 7088
+      },
+      "summary": "1790953920969\t8788918875201778853\t1491\t241\t2980\tstartup\taddress-binding-summary\treason=device-teardown records=32768 omitted=14686 contended=0 writer_ok=1 limit=32768 flushed=32768 cutoff=0\t0",
+      "interval_events": [
+        {
+          "seq": "302",
+          "ms_utc": "1790953909376",
+          "thread": "8788918875201778853",
+          "frame": "1",
+          "tic": "0",
+          "submission": "0",
+          "event": "bind",
+          "base": "0x1da00000",
+          "bytes": "8388608",
+          "flags": "0",
+          "object_type": "8",
+          "handle": "0x161af52c050",
+          "object_index": "0",
+          "object_count": "1",
+          "name": ""
+        },
+        {
+          "seq": "303",
+          "ms_utc": "1790953909376",
+          "thread": "8788918875201778853",
+          "frame": "1",
+          "tic": "0",
+          "submission": "0",
+          "event": "bind",
+          "base": "0x1da00000",
+          "bytes": "8388608",
+          "flags": "0",
+          "object_type": "10",
+          "handle": "0x161b08c4ed0",
+          "object_index": "0",
+          "object_count": "1",
+          "name": ""
+        }
+      ],
+      "image_events": [
+        {
+          "seq": "303",
+          "ms_utc": "1790953909376",
+          "thread": "8788918875201778853",
+          "frame": "1",
+          "tic": "0",
+          "submission": "0",
+          "event": "bind",
+          "base": "0x1da00000",
+          "bytes": "8388608",
+          "flags": "0",
+          "object_type": "10",
+          "handle": "0x161b08c4ed0",
+          "object_index": "0",
+          "object_count": "1",
+          "name": ""
+        },
+        {
+          "seq": "304",
+          "ms_utc": "1790953909376",
+          "thread": "8788918875201778853",
+          "frame": "1",
+          "tic": "0",
+          "submission": "0",
+          "event": "name",
+          "base": "0x0",
+          "bytes": "0",
+          "flags": "0",
+          "object_type": "10",
+          "handle": "0x161b08c4ed0",
+          "object_index": "0",
+          "object_count": "0",
+          "name": "VkTextureManager.Lightmap"
+        }
+      ]
+    },
+    "config_changes_against_former_failure": [
+      "-win_h=1040",
+      "+win_h=1032",
+      "-win_w=1920",
+      "+win_w=1918"
+    ],
+    "expected_benchmark_output": {
+      "classification": "Mutable output of the preserved bench command, not an immutable runtime resource. Original lane opening is preserved without rewriting its earlier mistaken runtime classification.",
+      "before_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-client1902x993\\bin\\benchmarks.txt",
+      "before_bytes": 705,
+      "before_sha256": "b16fcea20b3350f0fde1952407df4095f599be1e115c18c39ac9e3d18c44fbe7",
+      "after_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\benchmarks.txt",
+      "after_bytes": 1393,
+      "after_sha256": "957bd33264052686e9d5c9b3c4a554b646b0b0f2fc0b2ae0ff233486b9028d01",
+      "append_only_original_prefix_preserved": true
+    }
+  },
+  "prefix_interpretation": [
+    "All admitted sequence slots 1..32768 are present, ordered and flushed. Frame7 records end at4568, far before the capacity ceiling; reported intervals contain only the startup memory/image binds, with no image or memory unbind in this prefix.",
+    "The collector reserves immutable slots in admission order, rejects new records once RecordLimit32768 is reached, and flushes only ready contiguous slots. The retained whole-page owner corroborates the prefix absence of retirement at frame6. No truncated multi-object payload or writer failure is visible in admitted records.",
+    "The total omissions and cutoff0 make whole-run binding capture incomplete. No claim about later frame1013..1491 or teardown unbinding is made. The experiment interprets the former frame7 startup failure window only, not full-run address completeness or unique fault cause.",
+    "A successful route is directly observed; the absence of a later recorded fault address cannot identify an executing shader or prove all descriptor/GPU bytes correct."
+  ],
+  "causal_limits": [
+    "The original failing target used accepted PR100 source; this target uses the reviewed opt-in retention source and a separately pinned build.",
+    "The archived configuration changes only win_h1040->1032 and win_w1920->1918. Startup width/height arguments change nominal1904x1001->1902x993; actual viewport is1902x993 in both. Current display is2560x1440. These restorations preserve target viewport but can change window/session timing and were not tested by a matching retention-OFF target yet.",
+    "Retained old atlas overlaps the former reported read interval, but overlap alone is not a unique root cause. Invalid unused descriptors under PARTIALLY_BOUND do not alone prove an application Vulkan violation.",
+    "One successful experimental run is neither a production repair nor the three independent exact-reproducer successes required for acceptance.",
+    "CFX resource capture and address capture are bounded; later long-run resource/address omissions do not become unqualified completeness claims.",
+    "No driver/TDR/power/clock policy changes, renderer feature disablement or blanket synchronization were introduced by this review."
+  ],
+  "next_experiment": {
+    "priority": 1,
+    "hypothesis": "The changed window/display startup context alone might explain this success; retaining the old atlas must be isolated from that confound.",
+    "single_change": "Disable CFX_RETAIN_REPLACED_LIGHTMAPS only, with identical fcaabc source binary/PDB, corrected archived window geometry, actual1902x993 viewport, production renderer settings/content/cache baseline and capture modes.",
+    "prerequisites": [
+      "New retained-ledger epoch with immutable prior STOPs/results and completed analysis",
+      "Matching retention-OFF safe activation/equivalence control",
+      "Full existing GPU/driver/process/session/OS/storage recovery and source/input identity gates",
+      "Durable one-shot plan; no retry loop"
+    ],
+    "predictions": {
+      "same_frame7_retired_interval_loss": "Window configuration does not explain the outcome alone; retirement/descriptor ownership interaction is strongly supported. Analyze new fault/binding/upload/descriptor evidence before smallest neutral-descriptor candidate.",
+      "success": "Retention is not demonstrated necessary in the corrected context. Investigate window/timing and source/upload state without calling ownership a crash repair or repeating the same observation.",
+      "different_loss": "Correlate actual new interval/submission and preserve the failed discriminator; revise hypotheses.",
+      "hard_hang_or_recovery_or_uninterpretable_capture_failure": "Stop physical testing, preserve artifacts and continue offline."
+    }
+  },
+  "prospective_candidate_requirements": [
+    "A bounded permanent float light fallback and unsigned-integer probe fallback must be format-compatible with sampler2D/usampler2D and explicitly initialized before shader-visible use.",
+    "Removed reserved light/probe pairs must be overwritten before retiring their views; new and retained current atlas pages keep their exact descriptor identities and contents. No dynamic material descriptors are touched.",
+    "Track actual previously-published page count rather than assuming current vector size covers removed slots. Shrink N->M rewrites exactly the removed interval [M,N); growth and equal-count replacement update current pairs.",
+    "Only overwrite a removed descriptor after pending submissions that could dynamically sample its old page generation have completed, or use a new descriptor-set generation retaining the previous set and images until their own fences retire. UPDATE_AFTER_BIND is not evidence that changing an actively-used page is semantically safe.",
+    "For the demonstrated startup transition, prior frames have completed their ordinary frame fence wait before BeginFrame map activation; prove this exact ordering in timeline/source and add no blanket device wait.",
+    "After descriptor writes are published, old view/image ownership follows the existing draw retirement list and completed-fence path; permanent fallback images outlive descriptor-set use.",
+    "An actual-owner/planner fixture must cover1->0,N->M,N->N replacement, growth, repeated shrink/grow,128-page boundary, invalid page count/capacity, stale-old-view rejection, and untouched dynamic range. It must pin initialization/publication/retirement order rather than merely mirror expected counts.",
+    "Classify any resulting default behavior as a renderer compatibility correction unless dynamic illegal access is demonstrated; do not claim PARTIALLY_BOUND unused descriptors were intrinsically invalid."
+  ],
+  "files": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\execution-result.json",
+      "sha256": "3e03d5a0cf8287710aefcb61e89ed219cc6702810115316ec0dd045ff40fd3fc",
+      "size": 325
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\execution-start.json",
+      "sha256": "e3ef4a5815e873a25416c31a4760551a91612762076175de8551115cfe7f476c",
+      "size": 444
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\health-after.json",
+      "sha256": "abcfb052ea393a04d5a6105d1dd7a41f95dd52b26e29a480c310029f9b60bfb8",
+      "size": 6498
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\health-before.json",
+      "sha256": "9e3f109f858c1c9cfc91ca2e2c5aa954ac2b3e2027ad511132ec761ed1eb8a96",
+      "size": 6496
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\plan.json",
+      "sha256": "16a0d61a74673b128510393f44a83c9a715f77ec6d42f3bf3fd383b6f6ed5434",
+      "size": 9625
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runner.stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runner.stdout.txt",
+      "sha256": "dcd13f7b39c5073be76fbda3b40315f7adb89625db4c6aacfab4655d75f36520",
+      "size": 154
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\scene.png",
+      "sha256": "cc06be8cc02eb64fb0611c4602092c599d4bb66d2dd162598084dc3c1a580b7b",
+      "size": 672565
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\cache-after\\pipelinecache.zdpc",
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+      "size": 9701371
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\cache-after\\shadercache.zdsc",
+      "sha256": "aea83aa8c88ad987eca6f34d02d93ba86230082ceeda29f55305e9d17a66f527",
+      "size": 11323798
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\cache-backup\\pipelinecache.zdpc",
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+      "size": 9701371
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\cache-backup\\shadercache.zdsc",
+      "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da",
+      "size": 11323798
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\inputs\\capture.cfg",
+      "sha256": "12d5b2787687f4536fe55190bea2f18c2c4471d5c99d5091541181ed7a937c48",
+      "size": 218
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\inputs\\vkdoom.ini",
+      "sha256": "6583327213f804c99837d402fabd392dbd1edd8479d3f0a9db5fcd11c00f3f2e",
+      "size": 17635
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\address-bindings.tsv",
+      "sha256": "37274e56857ae4d7dc89fbd8c68cfadc690234c0c71430146b38b45254dc31b9",
+      "size": 3524486
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\application-events.xml",
+      "sha256": "07bcec16068dcbfce47b5c1f649c39575d3333936afc834281c44a13fc7bce12",
+      "size": 116463
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\config-before.ini",
+      "sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+      "size": 18531
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\loader-layers.log",
+      "sha256": "7dc4d64ab88839c41d0491d61fa68e7934e025baa45cc9ee06db59c12c502b76",
+      "size": 11451
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\manifest.json",
+      "sha256": "750b3485c23ebc542514022da88db52f1dd4dfa4848d815c18082a878af19c01",
+      "size": 13346
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\pipelinecache-before.zdpc",
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+      "size": 9701371
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\shadercache-before.zdsc",
+      "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd",
+      "size": 11323798
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\stderr.log",
+      "sha256": "322dadaad122f466be345c8401ca3613960a502787229b9f73be3a25f6f7a7f5",
+      "size": 11863
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\stdout.log",
+      "sha256": "160d347a0478d3271ddce99e18507f94076644b80de6c929886f28bb214cfc8b",
+      "size": 2148
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\system-events.xml",
+      "sha256": "a96ed50d0c3f5d1b44aad07da9d22ff638faceb9911ddeeee807a65b4b123735",
+      "size": 85504
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\timeline.tsv",
+      "sha256": "e94ac2c8bc9f15a28d9b12df9f48b0d20c6d5e848ed9c4353d1f31c6bfea3f52",
+      "size": 9546814
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\runs\\cfx-20261002T151147Z-8a0cfc137caa\\vulkaninfo-summary.txt",
+      "sha256": "4a44d5d3b7cbeb69a8d333df217f478f48a1088940c9e1b89f8c5000b264d8bd",
+      "size": 2493
+    }
+  ],
+  "runtime_resource_verification": [
+    {
+      "name": "brightmaps.pk3",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\brightmaps.pk3",
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e",
+      "size": 246181
+    },
+    {
+      "name": "game_support.pk3",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\game_support.pk3",
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de",
+      "size": 2381991
+    },
+    {
+      "name": "game_widescreen_gfx.pk3",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\game_widescreen_gfx.pk3",
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9",
+      "size": 5565936
+    },
+    {
+      "name": "lights.pk3",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\lights.pk3",
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952",
+      "size": 24059
+    },
+    {
+      "name": "vkdoom.exe",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\vkdoom.exe",
+      "sha256": "5a48343557910a86cd5a6e93727c25f26c43394b2f023e319ac65c91c67823d2",
+      "size": 12088832
+    },
+    {
+      "name": "vkdoom.pdb",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\vkdoom.pdb",
+      "sha256": "ea37f2d4a7d310caabd34355ec865a6d65773eacb47263394cdefa2ba1b79972",
+      "size": 77656064
+    },
+    {
+      "name": "vkdoom.pk3",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\vkdoom.pk3",
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78",
+      "size": 4237850
+    },
+    {
+      "name": "zmusic.dll",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\bin\\zmusic.dll",
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a",
+      "size": 2469888
+    }
+  ],
+  "artifact_verification": {
+    "indexed_files": 26,
+    "changed_files": 0,
+    "verified_before_new_supplemental_analysis": true,
+    "runtime_resources_excluding_expected_benchmark_output": 8,
+    "runtime_hash_mismatches": 0
+  },
+  "private_analysis_identity": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\independent-analysis.json",
+    "sha256": "d8466fed298e140824dfe0d076fb352df08f08ea7571d407d80d81f71cf53da3",
+    "size": 22621
+  }
+}

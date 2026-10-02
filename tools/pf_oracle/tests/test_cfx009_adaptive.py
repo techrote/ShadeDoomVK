@@ -1,9 +1,10 @@
 """CPU-only supervised continuation: preserve evidence, scope and causal gates."""
 import json
+from contextlib import nullcontext
 from pathlib import Path
 import sys
 import tempfile
-from types import SimpleNamespace
+from types import ModuleType, SimpleNamespace
 import unittest
 from unittest import mock
 
@@ -198,7 +199,6 @@ class AdaptiveScope(unittest.TestCase):
             with self.assertRaises(ValueError): gate.require_control(self.root, self.state, 'cfx-009', opening, retention)
 
     def test_control_requires_actual_retention_activation_and_replacement(self):
-        from PIL import Image
         attempt = self.root / 'safe-control'
         run = attempt / 'runs/fixture'
         (run / 'work').mkdir(parents=True)
@@ -214,12 +214,19 @@ class AdaptiveScope(unittest.TestCase):
         (attempt / 'plan.json').write_text('{}')
         (run / 'address-bindings.tsv').write_text('already tested by activation gate')
         image = attempt / 'scene.png'
-        Image.new('RGBA', (1, 1), (12, 34, 56, 255)).save(image)
+        image.write_bytes(b'image decoding is outside this retention activation test')
         mesh = run / 'work/levelmesh.obj'
         mesh.write_text('v 0 0 0\nf 1 1 1\n')
         opening = self.lane | {'control_reference': {'image': self.record(image), 'mesh': self.record(mesh)}}
         timeline = run / 'timeline.tsv'
-        with mock.patch.object(gate, 'activation', return_value={'teardown': {'flushed': 1, 'cutoff': 1}}):
+        # CI needs no optional imaging dependency to test the actual retention
+        # marker gate. Image equivalence has its separate hardware acceptance.
+        decoded = SimpleNamespace(size=(1, 1), convert=lambda mode:
+                                  SimpleNamespace(tobytes=lambda: b'fixed fixture pixels'))
+        pillow = ModuleType('PIL')
+        pillow.Image = SimpleNamespace(open=lambda path: nullcontext(decoded))
+        with mock.patch.dict(sys.modules, {'PIL': pillow}), \
+                mock.patch.object(gate, 'activation', return_value={'teardown': {'flushed': 1, 'cutoff': 1}}):
             for cpu in ('', '1\tlightmap-retention-enabled\t1\n'):
                 timeline.write_text(cpu)
                 with self.assertRaisesRegex(ValueError, 'activation/replacement'):
