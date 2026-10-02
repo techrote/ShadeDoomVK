@@ -1,0 +1,519 @@
+{
+  "schema": "cfx-009-retirement-comparison-v1",
+  "issue": 102,
+  "parent": 75,
+  "analysis_complete": true,
+  "source_analysis_pending": false,
+  "conclusion": "The matched retention-OFF target restores frame-7 VK_ERROR_DEVICE_LOST and the same 4KiB read interval overlapping the frame-6 retired startup lightmap, while retention-ON succeeds. Exact archived startup config, binary, settings, cache and content match. This strongly localizes the next source experiment to reserved descriptor target retirement. It does not prove illegal dynamic descriptor use, a unique offending shader or an established production repair.",
+  "cases": {
+    "original_off": {
+      "run_id": "cfx-20261002T133554Z-0457f18b9f15",
+      "renderer_source": "d7ebce43449e9f347dccf399999832e11ea7c105",
+      "outcome": "frame7 VK_ERROR_DEVICE_LOST",
+      "lightmap_unbound_frame": 6,
+      "read_address": "0x1da00000",
+      "read_precision_bytes": 4096,
+      "reference": "cfx009-localization.json",
+      "index_reverification": {
+        "count": 27,
+        "all_match": true,
+        "index": {
+          "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\artifact-index.json",
+          "sha256": "8cc8cc70fdb7e99923cb2d8ddd43f29b733f619535cf829fab21ec12021dc719",
+          "bytes": 7554
+        }
+      }
+    },
+    "retention_on": {
+      "attempt_id": "CFX9-TARGET-RETENTION-WINDOW-CONFIG",
+      "run_id": "cfx-20261002T151147Z-8a0cfc137caa",
+      "renderer_source": "fcaabc0239367ae6194b2d051d55a615d1d1925a",
+      "outcome": "EXITED0/no device loss",
+      "last_frame": 1491,
+      "last_tic": 241,
+      "last_submission": 2980,
+      "actual_resolution": [
+        1902,
+        993
+      ],
+      "old_atlas_retained_frame": 6,
+      "old_atlas_base": "0x1da00000",
+      "old_atlas_bytes": 8388608,
+      "prefix_records": 32768,
+      "later_omitted": 14686,
+      "former_fault_window_in_complete_prefix": true,
+      "reference": "cfx009-retention-target-review.json",
+      "index_reverification": {
+        "count": 26,
+        "all_match": true,
+        "index": {
+          "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention-window-config\\target-retention\\artifact-index.json",
+          "sha256": "d7e75c5fff1543bc31a8763418eec2c97645dace7fd58502ce069f87d5713335",
+          "bytes": 7812
+        }
+      }
+    },
+    "matched_retention_off": {
+      "attempt_id": "CFX9-TARGET-RETIREMENT",
+      "run_id": "cfx-20261002T152843Z-08d50524fcb9",
+      "renderer_source": "fcaabc0239367ae6194b2d051d55a615d1d1925a",
+      "runner_source": "6daedc35115eac6925d7ab70a11684c4ad547980",
+      "device_loss": "vkWaitForFences/frame returned -4",
+      "frame": 7,
+      "tic": 18,
+      "cpu_submission": 11,
+      "actual_resolution": [
+        1902,
+        993
+      ],
+      "read_address": "0x1da00000",
+      "read_precision_bytes": 4096,
+      "instruction_address": "0x20011bd90",
+      "instruction_precision_bytes": 16,
+      "fault_binary_bytes": 547644,
+      "image": "0x2c201ed4ed0",
+      "memory": "0x2c200b3c050",
+      "allocation_base": "0x1da00000",
+      "allocation_bytes": 8388608,
+      "bind_frame": 1,
+      "bind_seq": [
+        302,
+        303
+      ],
+      "unbind_frame": 6,
+      "unbind_tic": 1,
+      "unbind_cpu_submission": 9,
+      "unbind_seq": [
+        4528,
+        4529
+      ],
+      "unbind_ms_utc": 1790954931021,
+      "prior_frame_fence_return_ms_utc": 1790954931019,
+      "prior_frame_fence_result": 0,
+      "loss_cutoff": 4568,
+      "loss_records": 4568,
+      "loss_flushed": 4568,
+      "loss_omitted": 0,
+      "loss_contended": 0,
+      "writer_ok": 1,
+      "complete_to_loss_cutoff": true,
+      "teardown_records": 5794,
+      "teardown_flushed": 5794,
+      "teardown_cutoff": 5794,
+      "teardown_omitted": 0,
+      "interval_rebind_before_loss": false,
+      "instruction_overlap_events": 0,
+      "submissions": [
+        {
+          "id": 10,
+          "cmd_ids": [
+            185,
+            186
+          ],
+          "slot": 0,
+          "fence": "0x2c200062a10",
+          "queue": "0x2c200380fd0",
+          "submit_return": 0
+        },
+        {
+          "id": 11,
+          "cmd_ids": [
+            195,
+            192
+          ],
+          "slot": 1,
+          "fence": "0x2c200062c90",
+          "queue": "0x2c200380fd0",
+          "submit_return": 0
+        }
+      ],
+      "gpu_top": "STARTUP cmd186 actualsubmit10",
+      "gpu_bottom": "WORLD cmd186 actualsubmit10",
+      "dump_main": "Fatal-error modal GetMessage after returned loss; not a pre-loss fence wait",
+      "runner_status": "TIMEOUT/exit1: modal fatal UI remained; full process dump captured before termination",
+      "matching_private_pdb": true,
+      "process_dump_bytes": 765880799,
+      "recovery_pass": true,
+      "stop_reasons": [],
+      "expected_driver_events": [
+        6194,
+        6195
+      ],
+      "new_hardware_health_anomalies": [],
+      "nvidia_smi": {
+        "driver": "616.92",
+        "temperature_c": 31,
+        "pstate": "P8",
+        "graphics_clock_mhz": 405,
+        "memory_clock_mhz": 405,
+        "power_w": 9.23,
+        "power_limit_w": 90,
+        "memory_total_mib": 4096,
+        "memory_used_mib": 936
+      },
+      "desktop_wm_null_responded": true,
+      "games_remaining": 0,
+      "boot_utc": "2026-10-01T22:33:23.5000000Z",
+      "storage_free_bytes": 159923396608,
+      "caches_restored": {
+        "pipeline": true,
+        "shader": true
+      },
+      "safe_control_accepted": true,
+      "indexed_artifacts_verified": 27,
+      "runtime_files_verified": 8
+    }
+  },
+  "matching_pair_invariants": {
+    "renderer_source_equal": true,
+    "exe_equal": true,
+    "pdb_equal": true,
+    "config_bytes_equal": false,
+    "capture_config_bytes_equal": false,
+    "renderer_settings_equal": true,
+    "actual_resolution_equal": true,
+    "cache_start_equal": true,
+    "gpu_driver_os_equal": true,
+    "active_layer_set_equal": true,
+    "intended_change": "CFX_RETAIN_REPLACED_LIGHTMAPS enabled ON versus disabled OFF, retaining old replaced image/view ownership only.",
+    "config_before_bytes_equal": true,
+    "config_before_sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+    "config_bytes_equal_explanation": "The mutable ON inputs/vkdoom.ini was rewritten on clean exit (timestamp, vid_defwidth/height). The immutable archived config-before.ini bytes are identical in ON/OFF. Comparing post-launch inputs alone is incorrect.",
+    "capture_config_bytes_equal_explanation": "Only the run-local screenshot destination differs. Commands and waits are identical."
+  },
+  "early_frame_comparison": {
+    "pipelines_equal_through_frame7": true,
+    "off_pipeline_count": 42,
+    "on_pipeline_count": 42,
+    "pipeline_only_off": [],
+    "pipeline_only_on": [],
+    "upload_records_through_frame7_equal": false,
+    "upload_only_off_count": 519,
+    "upload_only_on_count": 522,
+    "upload_only_off_sample": [
+      {
+        "bytes": "168840",
+        "coverage": "complete",
+        "dst_id": "69",
+        "dst_offset": "0",
+        "fnv1a64": "0x833338c522e888c2",
+        "src_id": "70",
+        "src_offset": "0"
+      },
+      {
+        "bytes": "16",
+        "coverage": "complete",
+        "dst_id": "83",
+        "dst_offset": "0",
+        "fnv1a64": "0xed626a9fcbf4c93d",
+        "src_id": "92",
+        "src_offset": "0"
+      },
+      {
+        "bytes": "528",
+        "coverage": "complete",
+        "dst_id": "83",
+        "dst_offset": "16",
+        "fnv1a64": "0xc1f39e012fa01395",
+        "src_id": "92",
+        "src_offset": "16"
+      },
+      {
+        "bytes": "48",
+        "coverage": "complete",
+        "dst_id": "82",
+        "dst_offset": "0",
+        "fnv1a64": "0x5840ff58421fd71a",
+        "src_id": "92",
+        "src_offset": "928"
+      },
+      {
+        "bytes": "16",
+        "coverage": "complete",
+        "dst_id": "159",
+        "dst_offset": "0",
+        "fnv1a64": "0x8c3c802b808189fa",
+        "src_id": "164",
+        "src_offset": "0"
+      },
+      {
+        "bytes": "10698768",
+        "coverage": "complete",
+        "dst_id": "159",
+        "dst_offset": "16",
+        "fnv1a64": "0xf47edb08f9f01170",
+        "src_id": "164",
+        "src_offset": "16"
+      },
+      {
+        "bytes": "5868992",
+        "coverage": "complete",
+        "dst_id": "156",
+        "dst_offset": "0",
+        "fnv1a64": "0xa5845b5cfbdf705c",
+        "src_id": "164",
+        "src_offset": "10698784"
+      },
+      {
+        "bytes": "733624",
+        "coverage": "complete",
+        "dst_id": "158",
+        "dst_offset": "0",
+        "fnv1a64": "0x9e01344a41e9138c",
+        "src_id": "164",
+        "src_offset": "16567776"
+      }
+    ],
+    "upload_only_on_sample": [
+      {
+        "bytes": "168840",
+        "coverage": "complete",
+        "dst_id": "69",
+        "dst_offset": "0",
+        "fnv1a64": "0x17bb30dd272505de",
+        "src_id": "70",
+        "src_offset": "0"
+      },
+      {
+        "bytes": "16",
+        "coverage": "complete",
+        "dst_id": "83",
+        "dst_offset": "0",
+        "fnv1a64": "0xbc54f8afdfcc2e8b",
+        "src_id": "92",
+        "src_offset": "0"
+      },
+      {
+        "bytes": "528",
+        "coverage": "complete",
+        "dst_id": "83",
+        "dst_offset": "16",
+        "fnv1a64": "0x451e46de2a56a007",
+        "src_id": "92",
+        "src_offset": "16"
+      },
+      {
+        "bytes": "48",
+        "coverage": "complete",
+        "dst_id": "82",
+        "dst_offset": "0",
+        "fnv1a64": "0xa09d945a1cd8d6e5",
+        "src_id": "92",
+        "src_offset": "928"
+      },
+      {
+        "bytes": "16",
+        "coverage": "complete",
+        "dst_id": "159",
+        "dst_offset": "0",
+        "fnv1a64": "0x3f8afd72a0371fec",
+        "src_id": "164",
+        "src_offset": "0"
+      },
+      {
+        "bytes": "10698672",
+        "coverage": "complete",
+        "dst_id": "159",
+        "dst_offset": "16",
+        "fnv1a64": "0xf1e077f2bbdb939a",
+        "src_id": "164",
+        "src_offset": "16"
+      },
+      {
+        "bytes": "5868992",
+        "coverage": "complete",
+        "dst_id": "156",
+        "dst_offset": "0",
+        "fnv1a64": "0xf3fc0a5ecc8f0938",
+        "src_id": "164",
+        "src_offset": "10698688"
+      },
+      {
+        "bytes": "733624",
+        "coverage": "complete",
+        "dst_id": "158",
+        "dst_offset": "0",
+        "fnv1a64": "0x9e01344a41e9138c",
+        "src_id": "164",
+        "src_offset": "16567680"
+      }
+    ],
+    "descriptor_buffer_writes_normalized_equal": true,
+    "interpretation": "Normalized resource IDs and handle-free descriptor fields compared, not whole renderer equivalence. CPU tics and dynamic uniform/upload bytes may differ between independent uncapped launches."
+  },
+  "safe_control": {
+    "run_id": "cfx-20261002T152733Z-11eed6c8aaa5",
+    "retention": false,
+    "accepted": true,
+    "identical_pixels": true,
+    "dimensions": [
+      1902,
+      993
+    ],
+    "protected_mesh_equal": true,
+    "full_obj_byte_equality_asserted": false,
+    "proof": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\control-proof.json",
+      "sha256": "5b92b5be36b0656d356a564aa610a2182e89510c2a5142237b4a1d1bba4aaa00",
+      "bytes": 3262
+    }
+  },
+  "cpu_geometry_negative_evidence": {
+    "reference": "cfx009-cpu-mesh.json",
+    "indexed_prefix_lindex_minus_one": true,
+    "zero_lindex_only_unused_tail": true,
+    "GPU_consumed_bytes_proven": false,
+    "CPU_uniform_indices_resolved_in_place": true
+  },
+  "range_audit": {
+    "counts": {
+      "descriptor-buffer-write-enter": 245,
+      "upload-packed": 563,
+      "coverage_complete": 563,
+      "buffer-copy-recorded": 564
+    },
+    "range_or_dead_cpu_record_violations": [],
+    "unknown_resources": [],
+    "limits": "CPU recorded allocation/range and destroy order only. No GPU byte readback, GPU descriptor consumption, synchronization or final shader access proof."
+  },
+  "ci": {
+    "identity": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-ci-37026850620.json",
+      "sha256": "cf5b30b2138faeeabb2bd4d76a995124a9d0c245f1e99ce3b580d72d117a58b5",
+      "bytes": 11831
+    },
+    "run": 37026850620,
+    "head_sha": "6daedc35115eac6925d7ab70a11684c4ad547980",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "PF renderer contract oracle",
+        "conclusion": "success"
+      },
+      {
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success"
+      },
+      {
+        "name": "macOS | Debug",
+        "conclusion": "success"
+      },
+      {
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success"
+      },
+      {
+        "name": "macOS | Release",
+        "conclusion": "success"
+      },
+      {
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "identities": {
+    "exe_sha256": "5a48343557910a86cd5a6e93727c25f26c43394b2f023e319ac65c91c67823d2",
+    "pdb_sha256": "ea37f2d4a7d310caabd34355ec865a6d65773eacb47263394cdefa2ba1b79972",
+    "config_before_sha256": "81c08cf2468c71b06fdc74596511a1d360b6f724db483a39f1f46d9e80b12f06",
+    "off_index": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\target-retirement\\artifact-index.json",
+      "bytes": 7770,
+      "sha256": "7d416f1822fcc700c011b873310e17490543c025e451ea593d1256d05f3fe55d"
+    },
+    "off_manifest": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\target-retirement\\runs\\cfx-20261002T152843Z-08d50524fcb9\\manifest.json",
+      "bytes": 17589,
+      "sha256": "b915cead58828ce9c1aae5ed9f1b2d662d02b6117bb2603db85804432c47bdc1",
+      "matches_index": true
+    },
+    "off_timeline": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\target-retirement\\runs\\cfx-20261002T152843Z-08d50524fcb9\\timeline.tsv",
+      "bytes": 930961,
+      "sha256": "a1b652b3933e0fd82259ab3b0ce9a726cb642fec5533ae2e58fa062723f56b1b",
+      "matches_index": true
+    },
+    "off_bindings": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\target-retirement\\runs\\cfx-20261002T152843Z-08d50524fcb9\\address-bindings.tsv",
+      "bytes": 629928,
+      "sha256": "f2e0cea62617a1876029f9c6e3bf542036e554cb9847c44db5e5c8867e7233ca",
+      "matches_index": true
+    },
+    "off_dump": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\target-retirement\\runs\\cfx-20261002T152843Z-08d50524fcb9\\process.dmp",
+      "bytes": 765880799,
+      "sha256": "96839b9d2489f15b2ad3310e6124166090e12ce0085f440c77b77133a7e953cb",
+      "matches_index": true
+    },
+    "off_fault_binary": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-matched-retirement\\target-retirement\\runs\\cfx-20261002T152843Z-08d50524fcb9\\device-fault.bin",
+      "bytes": 547644,
+      "sha256": "5afaf29c94a744bfdd304be6cd9a24bcc17afe35fb276487af76bbfd0fc41dee",
+      "matches_index": true
+    }
+  },
+  "causal_interpretation": {
+    "supported": "Retention ON/OFF strengthens the retired reserved-target compatibility mechanism after matching prior config/binary confounds. Retention is a diagnostic experiment.",
+    "not_established": [
+      "dynamic illegal stale descriptor use",
+      "unique executing shader or resource generation",
+      "unused undefined descriptor API violation",
+      "NVIDIA driver bug",
+      "production repair or three-success saturation"
+    ]
+  },
+  "next_candidate": {
+    "status": "Prospective source correctness/compatibility experiment; not yet a proven crash repair",
+    "single_change": "Rewrite removed previously published reserved light/probe descriptor pairs to permanent initialized typed neutral views while allowing normal old-atlas retirement.",
+    "neutral_images": {
+      "lightmap": "1x1 RGBA16_SFLOAT, RGBA zero (no extra light/sunlight)",
+      "probe": "1x1 R16_UINT zero"
+    },
+    "requirements": [
+      "Initialize images and establish transfer-write to fragment sampled-read visibility/layout before publishing views.",
+      "Fallback image/view ownership lasts at least as long as descriptor set ownership.",
+      "Descriptor owner tracks previously published page count; shrink N->M rewrites removed [M,N), current [0,M) keeps actual pages.",
+      "Descriptor updates complete before old views/images are released by DrawDeleteList.",
+      "Prior submissions that may use old descriptor contents must be complete or content/set generations versioned; UPDATE_AFTER_BIND alone is insufficient. Demonstrated startup prior frame fence already completes, so add no global wait.",
+      "Recreated descriptor set resets previous publication count.",
+      "Do not change shaders, caps, features, quality, draw state or production submission synchronization."
+    ],
+    "focused_regressions": [
+      "1->0 both typed pairs",
+      "N->M removed suffix",
+      "N->N replacement",
+      "growth/repeated shrink",
+      "128-page bound and invalid capacity",
+      "no dynamic material range writes",
+      "initialized neutral publication before retirement",
+      "set recreation publication count reset"
+    ],
+    "interpretation": {
+      "success_with_old_unbind": "Supports stale reserved contents independently of keeping the atlas alive; still requires controls and three exact successful reproducer runs plus focused regressions/CI.",
+      "same_fault": "Weakens removed-slot hypothesis; return to source/captured GPU state analysis.",
+      "different_fault": "Correlate new interval/state before attribution."
+    }
+  },
+  "limitations": [
+    "One successful ON and one matched failing OFF observation. Independent uncapped launches retain timing, ASLR and dynamic upload variation; not a three-success repair qualification.",
+    "PARTIALLY_BOUND permits undefined descriptors when not dynamically used. Stale unused reserved entries alone do not establish a Vulkan violation.",
+    "Original post-loss CPU indexed geometry excludes nonnegative lightmap indices in the captured prefix; no actual dynamically used stale reserved descriptor is established. CPU arrays/fingerprints are not GPU readback.",
+    "OFF capture is complete through loss cutoff 4568; full teardown has 5794 records. Teardown must not be treated as evidence of execution before loss.",
+    "ON prefix is contiguous through record32768, including the former frame7 window; later events omitted14686. No complete ON teardown/binding-history claim.",
+    "Confirmed TOP STARTUP / BOTTOM WORLD belong to command186 in actual submission10. Query-time CPU submission11 is not the executing marker submission, and neither identifies a unique failing draw.",
+    "No instruction interval overlap does not establish an unbound application instruction allocation. Instruction addresses differ across runs and do not identify a shader.",
+    "563 packed uploads,564 buffer copies,245 buffer descriptor writes fit live recorded CPU allocation ranges. This does not prove uploaded GPU bytes, final index arithmetic or synchronization.",
+    "Matching PDB dump was taken after returned loss and renderer teardown during fatal modal UI. Three thread contexts are invalid and ntdll symbols unavailable; no pre-loss thread stack proof.",
+    "Recovery passes with expected driver events only; physical pixel integrity after recovery was not observed under owner's waived visual checkpoint. No NVIDIA-driver-defect conclusion.",
+    "ON and OFF pipeline first-use keys through frame7 and normalized buffer descriptor writes match, but upload records/bytes differ. The pair does not prove exact whole-state identity."
+  ],
+  "mutable_output_note": "benchmarks.txt is mutable runtime output, not one of the eight immutable EXE/PDB/PK3/DLL resources. The ON config input was normally rewritten on successful exit; archived startup config-before.ini is identical in ON/OFF. Historical records stay unchanged."
+}
