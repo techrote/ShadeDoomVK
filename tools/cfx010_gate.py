@@ -79,6 +79,42 @@ def content_identity(content):
     return [{'role': c['role'], 'sha256': c['sha256']} for c in content]
 
 
+def verify_host_startup_abort(old, analysis, index):
+    required = ('host_startup_abort_verified', 'no_render_frame_or_submission_verified',
+                'hardware_recovery_verified', 'stop_not_renderer_hang', 'readback_only_settle_justified')
+    if any(analysis.get(k) is not True for k in required): return False
+    attempt = next((a for a in old.get('attempts', []) if a.get('attempt_id') == analysis.get('attempt_id')), None)
+    if not attempt or attempt.get('classification') != 'invalid-host-activation':
+        # Older immutable executor recorded the deliberately terminated child as application-error.
+        if not attempt or attempt.get('classification') != 'application-error':
+            raise ValueError('CFX010 prior host-abort attempt record missing')
+    if attempt.get('loss_episode') is not False or attempt.get('correlated_nv153'):
+        raise ValueError('CFX010 host-startup continuation may not reopen a GPU/driver fault')
+    manifest_path = pathlib.Path(attempt['manifest']).resolve()
+    evidence = {str(pathlib.Path(f['path']).resolve()): f['sha256'] for f in index['files']}
+    def indexed(path):
+        if evidence.get(str(path.resolve())) != digest(path):
+            raise ValueError('CFX010 host-abort evidence not pinned by prior index')
+    timeline = manifest_path.parent / 'timeline.tsv'
+    health_path = manifest_path.parents[2] / 'health-after.json'
+    for path in (manifest_path, timeline, health_path): indexed(path)
+    manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+    focus = manifest.get('environment', {}).get('foreground', {})
+    failure = manifest.get('failure', {})
+    rows = [line.split('\t') for line in timeline.read_text(encoding='utf-8').splitlines()[2:]]
+    health = json.loads(health_path.read_text(encoding='utf-8'))
+    if (manifest.get('status') != 'HOST_ABORT' or failure.get('watchdog_action') or
+            failure.get('application_observation') == 'VK_ERROR_DEVICE_LOST' or
+            failure.get('host_abort', {}).get('bounded_child_stop') is not True or
+            focus.get('verified') is not False or focus.get('focus_requests') != 1 or
+            not focus.get('event_hooks_installed') or not focus.get('event_hooks_removed') or
+            not focus.get('monitor_stopped') or not rows or health.get('pass') is not True or
+            any(len(r) != 9 or int(r[2]) != 0 or int(r[4]) != 0 or int(r[8]) < 0 or
+                r[6] in ('frame', 'device-lost-observed', 'vk-error') for r in rows)):
+        raise ValueError('CFX010 prior abort is not verified healthy pre-frame host startup failure')
+    return True
+
+
 def check_prior_phase(lane, state, guard_map):
     prior = lane.get('prior_phase')
     if not prior: return
@@ -88,10 +124,13 @@ def check_prior_phase(lane, state, guard_map):
             lane.get('foreground_policy') != 'one-shot-verified-monitored-v1'):
         raise ValueError('CFX010 continuation requires frozen stopped phase and foreground policy')
     analysis = verified_analysis(prior.get('analysis'))
-    if (analysis.get('attempt_id') != old.get('last_informative_attempt') or any(analysis.get(k) is not True for k in (
-            'operator_focus_confounded', 'normal_exit_verified', 'hardware_recovery_verified', 'stop_not_renderer_hang'))):
-        raise ValueError('CFX010 stopped phase needs complete operator-focus/recovery explanation')
-    verify_files(verified_record(prior.get('artifact_index'), 'CFX010 prior usable index'), 'CFX010 prior usable index')
+    index = verified_record(prior.get('artifact_index'), 'CFX010 prior usable index')
+    verify_files(index, 'CFX010 prior usable index')
+    operator_focus = all(analysis.get(k) is True for k in (
+        'operator_focus_confounded', 'normal_exit_verified', 'hardware_recovery_verified', 'stop_not_renderer_hang'))
+    if (analysis.get('attempt_id') != old.get('last_informative_attempt') or
+            not (operator_focus or verify_host_startup_abort(old, analysis, index))):
+        raise ValueError('CFX010 stopped phase needs complete operator-focus or host-startup/recovery explanation')
     preserved = list(old_opening.get('historical_guards', []))
     stop = pathlib.Path(prior['state']['path']).resolve().parent / 'STOP-LAUNCHES.txt'
     preserved.append({'path': str(stop), 'sha256': digest(stop)})
@@ -392,6 +431,7 @@ def classify(manifest, loss_episode, completion_paths, driver_fault=False):
     if not manifest: return 'invalid-incomplete-capture'
     if observation == 'VK_ERROR_DEVICE_LOST': return 'application-device-loss'
     if loss_episode: return 'correlated-TDR'
+    if manifest.get('status') == 'HOST_ABORT': return 'invalid-host-activation'
     if manifest.get('status') == 'TIMEOUT': return 'watchdog-no-return'
     if observation and 'CPU exception' in observation: return 'CPU-exception'
     if observation or manifest.get('exit_status') != 0: return 'application-error'

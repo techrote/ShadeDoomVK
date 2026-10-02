@@ -460,5 +460,75 @@ class CrossCase(unittest.TestCase):
         report['events'][0]['ms'] = 160
         foreground.verify(report, timeline)
 
+    def test_single_foreground_request_settles_transient_zero_without_retry_or_input(self):
+        def fake_thread(target, daemon):
+            def start():
+                target.__self__.report['event_hooks_installed'] = True; target.__self__.ready.set()
+            return SimpleNamespace(start=start, join=lambda timeout: None, is_alive=lambda: False)
+        proc = SimpleNamespace(pid=42, poll=lambda: None)
+        normal = {'alive': True, 'visible': True, 'minimized': False, 'thread_info_ok': True, 'in_move_size': False}
+        api = SimpleNamespace(windows=lambda pid: [7], activate=mock.Mock(return_value=False),
+            foreground=mock.Mock(side_effect=[0, 7]), owner=lambda window: (42 if window else 0, 1), inspect=lambda window: normal)
+        with mock.patch.object(foreground.threading, 'Thread', side_effect=fake_thread):
+            session = foreground.ForegroundSession(proc, api=api)
+        self.assertTrue(session.report['verified']); self.assertFalse(session.report['set_foreground_returned'])
+        self.assertEqual(len(session.report['readback_observations']), 2); api.activate.assert_called_once_with(7)
+        for changed in ({'foreground': lambda: 0}, {'owner': lambda window: (43, 1)},
+                        {'inspect': lambda window: normal | {'in_move_size': True}},
+                        {'inspect': lambda window: normal | {'minimized': True}}):
+            api.foreground = lambda: 7; api.owner = lambda window: (42, 1); api.inspect = lambda window: normal
+            for name, value in changed.items(): setattr(api, name, value)
+            with mock.patch.object(foreground.threading, 'Thread', side_effect=fake_thread):
+                failed = foreground.ForegroundSession(proc, api=api)
+            self.assertFalse(failed.report['verified']); self.assertLessEqual(len(failed.report['readback_observations']), 26)
+            self.assertEqual(failed.report['focus_requests'], 1)
+
+    def test_host_abort_is_typed_invalid_qualification_not_game_crash(self):
+        aborted = {'status': 'HOST_ABORT', 'exit_status': 1, 'failure': {'application_observation': None}}
+        self.assertEqual(gate.classify(aborted, False, []), 'invalid-host-activation')
+        self.assertEqual(gate.classify(aborted, True, []), 'correlated-TDR')
+
+    def test_stopped_startup_host_abort_requires_indexed_pre_frame_healthy_proof(self):
+        prior = self.stopped_phase(); phase = pathlib.Path(prior['state']['path']).parent
+        attempt = phase / 'aborted'; run = attempt / 'runs' / 'run'; run.mkdir(parents=True)
+        manifest_path = run / 'manifest.json'; timeline = run / 'timeline.tsv'; health = attempt / 'health-after.json'
+        manifest = {'status': 'HOST_ABORT', 'failure': {'watchdog_action': None, 'host_abort': {'bounded_child_stop': True}},
+            'environment': {'foreground': {'verified': False, 'focus_requests': 1, 'event_hooks_installed': True,
+                'event_hooks_removed': True, 'monitor_stopped': True}}}
+        manifest_path.write_text(json.dumps(manifest)); health.write_text(json.dumps({'pass': True}))
+        timeline.write_text('# fixture\ncolumns\n100\t1\t0\t0\t0\tstartup\tcapability\tdebug-utils-enabled\t0\n')
+        oldpath = pathlib.Path(prior['state']['path']); old = json.loads(oldpath.read_text())
+        old['attempts'][0].update(classification='application-error', manifest=str(manifest_path),
+                                  loss_episode=False, correlated_nv153=[]); oldpath.write_text(json.dumps(old))
+        self.state['attempts'] = old['attempts']; prior['state'] = self.record(oldpath)
+        analysis_path = pathlib.Path(prior['analysis']['path']); analysis = json.loads(analysis_path.read_text())
+        analysis.pop('operator_focus_confounded'); analysis.pop('normal_exit_verified')
+        analysis.update(host_startup_abort_verified=True, no_render_frame_or_submission_verified=True, readback_only_settle_justified=True)
+        analysis_path.write_text(json.dumps(analysis)); prior['analysis'] = self.record(analysis_path)
+        index_path = pathlib.Path(prior['artifact_index']['path'])
+        def refresh():
+            index_path.write_text(json.dumps({'files': [self.record(p) for p in (manifest_path, timeline, health)]}))
+            prior['artifact_index'] = self.record(index_path); self.save()
+        refresh(); self.check()
+        for change in ({'loss_episode': True}, {'correlated_nv153': [{'Id': 153}]}):
+            changed = dict(old['attempts'][0]); old['attempts'][0].update(change)
+            oldpath.write_text(json.dumps(old)); prior['state'] = self.record(oldpath); self.state['attempts'] = old['attempts']; self.save()
+            with self.assertRaisesRegex(ValueError, 'GPU/driver fault'): self.check()
+            old['attempts'][0] = changed
+        oldpath.write_text(json.dumps(old)); prior['state'] = self.record(oldpath); self.state['attempts'] = old['attempts']; self.save()
+        manifest['failure']['application_observation'] = 'VK_ERROR_DEVICE_LOST'; manifest_path.write_text(json.dumps(manifest)); refresh()
+        with self.assertRaisesRegex(ValueError, 'pre-frame'): self.check()
+        manifest['failure']['application_observation'] = None; manifest_path.write_text(json.dumps(manifest))
+        for event in ('device-lost-observed', 'vk-error'):
+            timeline.write_text('# fixture\ncolumns\n100\t1\t0\t0\t0\tstartup\t' + event + '\tobserved\t0\n'); refresh()
+            with self.assertRaisesRegex(ValueError, 'pre-frame'): self.check()
+        timeline.write_text('# fixture\ncolumns\n100\t1\t0\t0\t0\tstartup\tresult\tvkCreateDevice\t-4\n'); refresh()
+        with self.assertRaisesRegex(ValueError, 'pre-frame'): self.check()
+        timeline.write_text('# fixture\ncolumns\n100\t1\t1\t0\t0\tstartup\tframe\tbegin\t0\n'); refresh()
+        with self.assertRaisesRegex(ValueError, 'pre-frame'): self.check()
+        timeline.write_text('# fixture\ncolumns\n100\t1\t0\t0\t0\tstartup\tcapability\tdebug-utils-enabled\t0\n')
+        health.write_text(json.dumps({'pass': False})); refresh()
+        with self.assertRaisesRegex(ValueError, 'pre-frame'): self.check()
+
 
 if __name__ == '__main__': unittest.main()

@@ -105,6 +105,8 @@ def main():
     if manifest and manifest['status'] == 'TIMEOUT':
         if not loss: faults.append('hard/no-return renderer hang')
         if manifest['failure'].get('watchdog_action', {}).get('status') != 'captured': faults.append('required pre-kill process dump not captured')
+    if manifest and manifest['status'] == 'HOST_ABORT':
+        faults.append('host foreground activation failed; child intentionally stopped before qualification')
     if health['windows'].get('boot') != opening['baseline_boot_utc']: faults.append('unexpected machine reboot')
     if not health['pass']: faults.extend(health['stop_reasons'])
     coverage = None
@@ -112,9 +114,14 @@ def main():
         for artifact in manifest.get('artifact_files', []):
             p = pathlib.Path(artifact['path'])
             if not p.is_file() or p.stat().st_size != artifact['size']: faults.append('artifact missing/changed')
-        try:
-            coverage = capture_coverage(manifests[0].parent, manifest['run_id'])
-        except (OSError, ValueError, KeyError, TypeError) as e: faults.append('capture integrity failed: ' + str(e))
+        if manifest['status'] == 'HOST_ABORT':
+            coverage = {'run_id': manifest['run_id'], 'kind': 'intentional-host-abort-prefix',
+                        'complete_capture': False, 'route_success_eligible': False,
+                        'limitations': ['intentional host startup stop; complete renderer flush/teardown not expected']}
+        else:
+            try:
+                coverage = capture_coverage(manifests[0].parent, manifest['run_id'])
+            except (OSError, ValueError, KeyError, TypeError) as e: faults.append('capture integrity failed: ' + str(e))
     classification = classify(manifest, episode, [pathlib.Path(p) for p in plan['completion_artifacts']], bool(driver_faults))
     if classification == 'route-completed':
         try:

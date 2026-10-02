@@ -111,13 +111,31 @@ class ForegroundSession:
                     self.report['reason'] = 'bounded foreground event-hook startup failed'; return
                 self.report.update(hwnd=hex(self.window), focus_requests=1,
                                    set_foreground_returned=self.api.activate(self.window))
-                foreground = self.api.foreground(); owner = self.api.owner(foreground)[0]
-                self.report.update(foreground_hwnd=hex(foreground), foreground_pid=owner,
-                                   verified_at_ms=int(time.time()*1000), verified=foreground == self.window and owner == proc.pid)
-                if not self.report['verified']: self.report['reason'] = 'one foreground request/readback failed'; return
+                self.settle_readback(deadline)
+                if not self.report['verified']: self.report['reason'] = 'one foreground request/readback did not settle within 250ms'; return
                 return
             self.stop.wait(.05)
         self.report['reason'] = 'child MainWindow not ready within bounded startup interval'
+
+    def settle_readback(self, startup_deadline):
+        """Observe a single request; never repeat activation or synthesize input."""
+        deadline = min(startup_deadline, time.monotonic() + .25)
+        self.report.update(readback_limit_ms=250, readback_observations=[])
+        for unused in range(26):
+            if self.proc.poll() is not None: return
+            foreground = self.api.foreground(); owner = self.api.owner(foreground)[0]
+            state = self.api.inspect(self.window); window_owner = self.api.owner(self.window)[0]
+            observation = {'ms': int(time.time()*1000), 'foreground_hwnd': hex(foreground), 'foreground_pid': owner,
+                           'window_pid': window_owner, **state}
+            self.report['readback_observations'].append(observation)
+            self.report.update(foreground_hwnd=hex(foreground), foreground_pid=owner)
+            if (foreground == self.window and owner == self.proc.pid and window_owner == self.proc.pid and
+                    state['alive'] and state['visible'] and state['thread_info_ok'] and
+                    not state['minimized'] and not state['in_move_size']):
+                self.report.update(verified_at_ms=observation['ms'], verified=True); return
+            remaining = deadline - time.monotonic()
+            if remaining <= 0: return
+            self.stop.wait(min(.01, remaining))
 
     def record(self, event):
         if len(self.report['events']) < 16: self.report['events'].append(event)
