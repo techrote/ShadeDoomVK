@@ -126,46 +126,52 @@
         "bytes": 2308
       },
       {
-        "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.exe",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\bin-repair-unlaunched\\vkdoom.exe",
         "sha256": "7c4b90b27800bedf85cc7023a783c57f7eda4f762e50529255f943b92f7dd35b",
         "bytes": 12086784
       },
       {
-        "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.pdb",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\bin-repair-unlaunched\\vkdoom.pdb",
         "sha256": "d4c528fe7b0beac0e7bb113ca7caace0adbe5c63de6b207f21173f6ed80a820b",
         "bytes": 77656064
       }
     ],
     "source_files": [
       {
-        "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\include\\zvulkan\\cfxaddress.h",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\libraries\\ZVulkan\\include\\zvulkan\\cfxaddress.h",
         "sha256": "119e9a580b59e0007bcbf68691fa6492078e94850f7b3a92662b3bc00d5d8c83",
-        "bytes": 8303
+        "bytes": 8303,
+        "repository_path": "libraries/ZVulkan/include/zvulkan/cfxaddress.h"
       },
       {
-        "path": "C:\\ShadeDoomVK\\source\\tools\\cfx008_gate.py",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\cfx008_gate.py",
         "sha256": "5a6faafeb16ae11c4493a9d9bec7e440a2737865adee3cff505c26923c1a0c03",
-        "bytes": 7109
+        "bytes": 7109,
+        "repository_path": "tools/cfx008_gate.py"
       },
       {
-        "path": "C:\\ShadeDoomVK\\source\\tools\\cfx_address_correlate.py",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\cfx_address_correlate.py",
         "sha256": "ec0ae4b092f6998e9cbdf17f3a5fcde8a15012eeba2f8c5800463a0b8e91772a",
-        "bytes": 7566
+        "bytes": 7566,
+        "repository_path": "tools/cfx_address_correlate.py"
       },
       {
-        "path": "C:\\ShadeDoomVK\\source\\tools\\pf_oracle\\tests\\cfx_address_fixture.cpp",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\pf_oracle\\tests\\cfx_address_fixture.cpp",
         "sha256": "4beac5f51778f80514acd25e59771d5004b43d88940a40dfabff03d2488a18e4",
-        "bytes": 4816
+        "bytes": 4816,
+        "repository_path": "tools/pf_oracle/tests/cfx_address_fixture.cpp"
       },
       {
-        "path": "C:\\ShadeDoomVK\\source\\tools\\pf_oracle\\tests\\test_cfx_address_bindings.py",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\pf_oracle\\tests\\test_cfx_address_bindings.py",
         "sha256": "a73b9de377515972e9ad02c9f03b8f1d26d3370c85b90bb3813407d024d6070c",
-        "bytes": 10247
+        "bytes": 10247,
+        "repository_path": "tools/pf_oracle/tests/test_cfx_address_bindings.py"
       },
       {
-        "path": "C:\\ShadeDoomVK\\source\\tools\\pf_oracle\\tests\\test_cfx008_gate.py",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\pf_oracle\\tests\\test_cfx008_gate.py",
         "sha256": "ec40e4cb07d82dbc76fffec99c0b09dbc5e7cad3b4546196c0d7b1390eb74490",
-        "bytes": 7652
+        "bytes": 7652,
+        "repository_path": "tools/pf_oracle/tests/test_cfx008_gate.py"
       }
     ],
     "limitations": "Repaired hardware callback emission/overhead/equivalence still unverified. No DBP37 target was launched under#99. No causal repair."
