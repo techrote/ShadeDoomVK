@@ -107,6 +107,12 @@ def artifact_inventory(run_dir, names):
             for name in names if name != "manifest.json" and (run_dir / name).is_file()]
 
 
+def crash_mode_allowed(mode, cfx007):
+    # #97 explicitly permits one-factor validation experiments after analysis.
+    # Historical campaign approvals retain their capture-only restriction.
+    return mode == "capture" or (cfx007 and mode in VALIDATION_SETTINGS)
+
+
 def check_cfx007_lane(path, run_root, exe):
     """New scope only: merged CFX-006 binary, intact historical guards, finite ledger."""
     if not path or not path.is_file():
@@ -227,8 +233,8 @@ def main():
         ap.error(f"{campaign} requires a pre-kill process dump")
     if crash_approved and (not args.pipeline_cache or not args.shader_cache):
         ap.error(f"{campaign} requires explicit pipeline and shader cache paths")
-    if crash_approved and (args.mode != "capture" or not args.config or args.timeout > 60):
-        ap.error(f"{campaign} requires capture mode, an exact config, and a watchdog of at most 60 seconds")
+    if crash_approved and (not crash_mode_allowed(args.mode, args.approved_cfx007) or not args.config or args.timeout > 60):
+        ap.error(f"{campaign} requires an allowed diagnostic mode, an exact config, and a watchdog of at most 60 seconds")
     probe_env = os.environ.copy()
     layer_dir = args.validation_layer_dir.resolve() if args.validation_layer_dir else None
     if layer_dir:

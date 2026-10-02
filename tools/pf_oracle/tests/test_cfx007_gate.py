@@ -20,6 +20,12 @@ class Gate(unittest.TestCase):
         self.plan.write_text(json.dumps(self.lane));(self.root/'state.json').write_text(json.dumps(self.state))
     def run_gate(self):return m.check_cfx007_lane(self.plan,self.root/'runs',self.exe)
     def test_valid_cpu_plan(self):self.assertEqual(self.run_gate()['issue'],97)
+    def test_validation_scope_preserves_old_campaigns(self):
+        for mode in ('core','sync','gpu-assisted'):
+            self.assertTrue(m.crash_mode_allowed(mode,True))
+            self.assertFalse(m.crash_mode_allowed(mode,False))
+        self.assertFalse(m.crash_mode_allowed('off',True))
+        self.assertTrue(m.crash_mode_allowed('capture',False))
     def test_budget_or_status_stops(self):
         for changes in ({'launches':16},{'loss_episodes':6},{'status':'STOPPED'},{'launches':-1}):
             self.state={'status':'OPEN','launches':0,'loss_episodes':0,**changes};self.save()
