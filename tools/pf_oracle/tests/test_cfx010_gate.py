@@ -488,6 +488,24 @@ class CrossCase(unittest.TestCase):
         self.assertEqual(gate.classify(aborted, False, []), 'invalid-host-activation')
         self.assertEqual(gate.classify(aborted, True, []), 'correlated-TDR')
 
+    def test_host_abort_metadata_explains_forced_exit_and_preserves_real_errors(self):
+        trace, out, err = (self.root / name for name in ('trace.tsv', 'stdout.log', 'stderr.log'))
+        for path in (trace, out, err): path.write_text('')
+        abort = ('owned foreground startup proof failed', 1)
+        data = capture.failure_metadata(trace, out, err, False, 1, host_abort=abort)
+        self.assertEqual(data, {'application_observation': None, 'first_observed_failure': abort[0]})
+        self.assertEqual(capture.failure_metadata(trace, out, err, False, 1)['application_observation'],
+                         'nonzero application exit; inspect stdout/stderr')
+        for text, code, expected in (('1\t1\t0\t0\t0\tstartup\tvk-error\tvkCreateDevice\t-4\n', 1, 'VK_ERROR_DEVICE_LOST'),
+                                     ('vk-error other failure', 1, 'other Vulkan error'),
+                                     ('', 0xC0000005, 'application CPU exception status; inspect Windows Application event')):
+            trace.write_text(text)
+            data = capture.failure_metadata(trace, out, err, False, code, host_abort=abort)
+            self.assertEqual(data['application_observation'], expected); self.assertEqual(data['first_observed_failure'], expected)
+        trace.write_text('')
+        self.assertEqual(capture.failure_metadata(trace, out, err, True, 1, safe_stop=True),
+                         {'application_observation': 'controlled safe stop', 'first_observed_failure': None})
+
     def test_stopped_startup_host_abort_requires_indexed_pre_frame_healthy_proof(self):
         prior = self.stopped_phase(); phase = pathlib.Path(prior['state']['path']).parent
         attempt = phase / 'aborted'; run = attempt / 'runs' / 'run'; run.mkdir(parents=True)

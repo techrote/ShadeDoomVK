@@ -65,6 +65,16 @@ def scan_failure(trace, stdout, stderr, timed_out, returncode):
     return None
 
 
+def failure_metadata(trace, stdout, stderr, timed_out, returncode, *, safe_stop=False, host_abort=None):
+    observation = 'controlled safe stop' if safe_stop else scan_failure(trace, stdout, stderr, timed_out, returncode)
+    # Killing a child after failed host activation explains its generic exit status.
+    # Explicit Vulkan/device-loss/CPU-exception observations must still survive.
+    if host_abort and observation == 'nonzero application exit; inspect stdout/stderr':
+        observation = None
+    first = None if safe_stop else observation or (host_abort[0] if host_abort else None)
+    return {'application_observation': observation, 'first_observed_failure': first}
+
+
 def capture_dump(pid, target):
     if platform.system() != "Windows":
         return {"status": "unavailable", "reason": "Windows comsvcs only"}
@@ -709,12 +719,8 @@ def main():
     manifest["run"]["actual_resolution"] = actual.group(1).strip() if actual else None
     ray = re.search(r"ray-query-enabled=(yes|no)", console)
     manifest["environment"]["ray_query_enabled"] = ray.group(1) if ray else None
-    manifest["failure"]["application_observation"] = (
-        "controlled safe stop" if timed_out and args.skip_dump_on_timeout
-        else scan_failure(trace, out, err, timed_out, code))
-    manifest["failure"]["first_observed_failure"] = (
-        None if timed_out and args.skip_dump_on_timeout
-        else manifest["failure"]["application_observation"])
+    manifest['failure'].update(failure_metadata(trace, out, err, timed_out, code,
+        safe_stop=timed_out and args.skip_dump_on_timeout, host_abort=host_abort))
     manifest["status"] = ("HOST_ABORT" if host_abort else "SAFE_STOP" if timed_out and args.skip_dump_on_timeout
                           else "TIMEOUT" if timed_out else
                           "EXITED" if code == 0 else "FAILED")
