@@ -36,7 +36,7 @@ class CfxInstrumentationTests(unittest.TestCase):
     def run_fixture(self, scenario, traced=True, resources=True):
         path = self.directory / (scenario + ".tsv")
         env = os.environ.copy()
-        for key in ("CFX_TRACE_FILE", "CFX_RUN_ID", "CFX_RESOURCE_TRACE"):
+        for key in ("CFX_TRACE_FILE", "CFX_RUN_ID", "CFX_RESOURCE_TRACE", "CFX_ADDRESS_TRACE", "CFX_ADDRESS_FILE"):
             env.pop(key, None)
         if traced:
             env.update(CFX_TRACE_FILE=str(path), CFX_RUN_ID="synthetic-cfx006", CFX_RESOURCE_TRACE="1" if resources else "0")
@@ -125,7 +125,7 @@ class CfxManifestTests(unittest.TestCase):
             exe, iwad = root / "synthetic.exe", root / "synthetic.wad"
             exe.write_bytes(b"CPU fixture")
             iwad.write_bytes(b"legal synthetic input")
-            args = ["cfx_capture.py", "--exe", str(exe), "--iwad", str(iwad), "--run-root", str(root), "--map", "MAP02", "--resource-trace"]
+            args = ["cfx_capture.py", "--exe", str(exe), "--iwad", str(iwad), "--run-root", str(root), "--map", "MAP02", "--resource-trace", "--address-bindings"]
             def fake_run(command, **kwargs):
                 if command == ["git", "diff", "HEAD", "--binary"]:
                     return subprocess.CompletedProcess(command, 0, b"", b"")
@@ -138,6 +138,9 @@ class CfxManifestTests(unittest.TestCase):
             self.assertTrue(manifest["environment"]["resource_trace"]["enabled"])
             self.assertEqual(manifest["environment"]["resource_trace"]["record_limit"], 8192)
             self.assertEqual(manifest["schema"], "cfx-002-run-v1")
+            self.assertTrue(manifest["environment"]["address_bindings"]["requested"])
+            self.assertFalse(manifest["environment"]["address_bindings"]["hardware_activation_verified"])
+            self.assertIn("address-bindings.tsv", manifest["artifacts"])
 
     def test_off_mode_rejects_resource_trace_before_probe(self):
         command = ["python", str(ROOT / "tools/cfx_capture.py"), "--exe", "fake", "--iwad", "fake", "--run-root", "fake", "--map", "MAP02", "--mode", "off", "--resource-trace"]

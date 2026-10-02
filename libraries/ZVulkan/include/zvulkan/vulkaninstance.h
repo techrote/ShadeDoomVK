@@ -29,6 +29,7 @@ public:
 	VkPhysicalDeviceRayQueryFeaturesKHR RayQuery = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_RAY_QUERY_FEATURES_KHR };
 	VkPhysicalDeviceDescriptorIndexingFeatures DescriptorIndexing = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES_EXT };
 	VkPhysicalDeviceFaultFeaturesEXT Fault = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FAULT_FEATURES_EXT };
+	VkPhysicalDeviceAddressBindingReportFeaturesEXT AddressBinding = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ADDRESS_BINDING_REPORT_FEATURES_EXT };
 	VkPhysicalDeviceGraphicsPipelineLibraryFeaturesEXT GraphicsPipelineLibrary = { VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_GRAPHICS_PIPELINE_LIBRARY_FEATURES_EXT };
 };
 
@@ -76,6 +77,7 @@ public:
 	VkInstance Instance = VK_NULL_HANDLE;
 
 	bool DebugLayerActive = false;
+	bool AddressBindingMessengerActive = false;
 
 	static void CheckVulkanError(VkResult result, const char* text)
 	{
@@ -86,6 +88,7 @@ public:
 private:
 	bool WantDebugLayer = false;
 	VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
+	VkDebugUtilsMessengerEXT addressMessenger = VK_NULL_HANDLE;
 
 	void CreateInstance();
 	void ReleaseResources();

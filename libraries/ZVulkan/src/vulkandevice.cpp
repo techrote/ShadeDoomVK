@@ -141,6 +141,11 @@ void VulkanDevice::CreateDevice()
 		*next = &EnabledFeatures.Fault;
 		next = &EnabledFeatures.Fault.pNext;
 	}
+	if (SupportsExtension(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME))
+	{
+		*next = &EnabledFeatures.AddressBinding;
+		next = &EnabledFeatures.AddressBinding.pNext;
+	}
 	if (SupportsExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME))
 	{
 		*next = &EnabledFeatures.GraphicsPipelineLibrary;
@@ -168,11 +173,15 @@ void VulkanDevice::ReleaseResources()
 
 	if (device)
 		vkDestroyDevice(device, nullptr);
+	CfxAddress::Snapshot("device-teardown");
 	device = nullptr;
 }
 
 void VulkanDevice::SetObjectName(const char* name, uint64_t handle, VkObjectType type)
 {
+	// Names may arrive after creation/binding callbacks. They are correlation
+	// hints, not allocation generations or evidence of an executed access.
+	CfxAddress::Write("name", 0, 0, 0, type, handle, 0, 0, name);
 	if (!Instance->EnabledExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) || !vkSetDebugUtilsObjectNameEXT) return;
 
 	VkDebugUtilsObjectNameInfoEXT info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };

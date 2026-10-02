@@ -89,15 +89,65 @@ def capture_dump(pid, target):
         return {"status": "dump timeout", "command": cmd, "path": str(target)}
 
 
-def capture_environment(base, mode, run_id, trace, fault, resource_trace):
+def capture_environment(base, mode, run_id, trace, fault, resource_trace, address_file=None):
     env = base.copy()
     # A parent shell cannot accidentally enable CFX in an off/control run.
-    for key in ("CFX_RUN_ID", "CFX_TRACE_FILE", "CFX_FAULT_BIN", "CFX_RESOURCE_TRACE"):
+    for key in ("CFX_RUN_ID", "CFX_TRACE_FILE", "CFX_FAULT_BIN", "CFX_RESOURCE_TRACE",
+                "CFX_ADDRESS_TRACE", "CFX_ADDRESS_FILE"):
         env.pop(key, None)
     if mode != "off":
         env.update(CFX_RUN_ID=run_id, CFX_TRACE_FILE=str(trace), CFX_FAULT_BIN=str(fault),
                    VK_LOADER_DEBUG="layer", CFX_RESOURCE_TRACE="1" if resource_trace else "0")
+        if resource_trace and address_file:
+            env.update(CFX_ADDRESS_TRACE="1", CFX_ADDRESS_FILE=str(address_file))
     return env
+
+
+def artifact_inventory(run_dir, names):
+    # manifest.json changes when this inventory is saved. Its final identity is
+    # recorded externally by the campaign artifact index, not self-referentially.
+    return [{"path": str(run_dir / name), "size": (run_dir / name).stat().st_size}
+            for name in names if name != "manifest.json" and (run_dir / name).is_file()]
+
+
+def crash_mode_allowed(mode, cfx007):
+    # #97 explicitly permits one-factor validation experiments after analysis.
+    # Historical campaign approvals retain their capture-only restriction.
+    return mode == "capture" or (cfx007 and mode in VALIDATION_SETTINGS)
+
+
+def check_cfx007_lane(path, run_root, exe):
+    """New scope only: merged CFX-006 binary, intact historical guards, finite ledger."""
+    if not path or not path.is_file():
+        raise ValueError("CFX-007 requires an existing lane-opening JSON")
+    lane = json.loads(path.read_text(encoding="utf-8"))
+    if (lane.get("schema") != "cfx-007-lane-v1" or lane.get("issue") != 97 or
+            lane.get("status") != "OPEN" or lane.get("substrate_merge") !=
+            "a6880fdb22e2f3d9ee85f3a86384b48ad7af9373"):
+        raise ValueError("CFX-007 requires the new #97 merged-substrate lane")
+    if not run_root.resolve().is_relative_to(path.parent.resolve()):
+        raise ValueError("CFX-007 run root must be inside its lane")
+    for parent in (run_root.resolve(), *run_root.resolve().parents):
+        if (parent / "STOP-LAUNCHES.txt").exists():
+            raise ValueError("CFX-007 run-root stop guard")
+    if digest(exe) != lane.get("exe_sha256") or digest(exe.with_suffix(".pdb")) != lane.get("pdb_sha256"):
+        raise ValueError("CFX-007 binary/PDB identity changed")
+    if lane["exe_sha256"] == "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd":
+        raise ValueError("CFX-007 rejects pre-CFX-006 binary")
+    guards = lane.get("historical_guards", []) + lane.get("prior_phase_guards", [])
+    if lane.get("preflight_stop_guard"): guards = guards + [lane["preflight_stop_guard"]]
+    for guard in guards:
+        if digest(pathlib.Path(guard["path"])) != guard["sha256"]:
+            raise ValueError("CFX-007 historical guard changed")
+    if len(lane.get("historical_guards", [])) != 6:
+        raise ValueError("CFX-007 requires all six historical guards")
+    state = json.loads((path.parent / "state.json").read_text(encoding="utf-8"))
+    if (state.get("status") != "OPEN" or not 0 <= state.get("launches", -1) <= 16 or
+            (state.get("launches") == 16 and not state.get("pending_attempt")) or
+            not 0 <= state.get("loss_episodes", -1) < 6 or
+            lane.get("max_launches") != 16 or lane.get("max_loss_episodes") != 6):
+        raise ValueError("CFX-007 stopped or budget exhausted")
+    return lane
 
 
 def main():
@@ -119,6 +169,8 @@ def main():
     ap.add_argument("--mode", choices=MODES, default="capture")
     ap.add_argument("--resource-trace", action="store_true",
                     help="CFX-006 bounded resource/range/fingerprint evidence (changes CPU overhead)")
+    ap.add_argument("--address-bindings", action="store_true",
+                    help="opt-in driver address binding reports; requires --resource-trace (hardware smoke pending)")
     ap.add_argument("--validation-layer-dir", type=pathlib.Path,
                     help="directory containing local Khronos validation JSON and DLL; process-scoped")
     ap.add_argument("--isolate-workdir", action="store_true",
@@ -135,10 +187,14 @@ def main():
                     help="deliberate CFX-005 replay under a separate lane plan")
     ap.add_argument("--cfx005-lane-plan", type=pathlib.Path,
                     help="immutable CFX-005 per-GPU lane-opening JSON")
+    ap.add_argument("--approved-cfx007", action="store_true", help="new #97 bounded causal continuation")
+    ap.add_argument("--cfx007-lane-plan", type=pathlib.Path)
     args = ap.parse_args()
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
-    if args.approved_cfx003 and args.approved_cfx005:
+    if args.address_bindings and not args.resource_trace:
+        ap.error("--address-bindings requires --resource-trace")
+    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007)) > 1:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
         ap.error("--cfx005-lane-plan requires --approved-cfx005")
@@ -155,7 +211,16 @@ def main():
             ap.error("CFX-005 lane-opening JSON must name open issue #92")
         if not args.run_root.resolve().is_relative_to(args.cfx005_lane_plan.parent.resolve()):
             ap.error("CFX-005 run root must be inside its lane directory")
+    if args.cfx007_lane_plan and not args.approved_cfx007:
+        ap.error("--cfx007-lane-plan requires --approved-cfx007")
+    if args.approved_cfx007:
+        try:
+            check_cfx007_lane(args.cfx007_lane_plan, args.run_root, args.exe)
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            ap.error(str(exc))
     files = [args.exe, args.iwad, *args.pwad, *args.addon]
+    if args.cfx007_lane_plan:
+        files.append(args.cfx007_lane_plan)
     if args.cfx005_lane_plan:
         files.append(args.cfx005_lane_plan)
     if args.config:
@@ -167,16 +232,16 @@ def main():
         ap.error("STOP-LAUNCHES.txt guard applies to an input")
     risky = args.map.upper() in ("MAP01", "MAP24", "MAP08") and any(
         key in p.name.lower() for p in args.pwad + args.addon for key in KNOWN_CRASH)
-    crash_approved = args.approved_cfx003 or args.approved_cfx005
-    campaign = "CFX-005" if args.approved_cfx005 else "CFX-003"
+    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007
+    campaign = "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
     if args.launch and risky and not crash_approved:
-        ap.error("known crash route requires a separately approved CFX-003 or CFX-005 campaign")
+        ap.error("known crash route requires a separately approved CFX-003, CFX-005 or CFX-007 campaign")
     if crash_approved and args.skip_dump_on_timeout:
         ap.error(f"{campaign} requires a pre-kill process dump")
     if crash_approved and (not args.pipeline_cache or not args.shader_cache):
         ap.error(f"{campaign} requires explicit pipeline and shader cache paths")
-    if crash_approved and (args.mode != "capture" or not args.config or args.timeout > 60):
-        ap.error(f"{campaign} requires capture mode, an exact config, and a watchdog of at most 60 seconds")
+    if crash_approved and (not crash_mode_allowed(args.mode, args.approved_cfx007) or not args.config or args.timeout > 60):
+        ap.error(f"{campaign} requires an allowed diagnostic mode, an exact config, and a watchdog of at most 60 seconds")
     probe_env = os.environ.copy()
     layer_dir = args.validation_layer_dir.resolve() if args.validation_layer_dir else None
     if layer_dir:
@@ -206,6 +271,7 @@ def main():
     out = run_dir / "stdout.log"
     err = run_dir / "stderr.log"
     fault = run_dir / "device-fault.bin"
+    addresses = run_dir / "address-bindings.tsv" if args.address_bindings else None
     dump = run_dir / "process.dmp"
     runtime = []
     for p in sorted(args.exe.parent.iterdir()):
@@ -254,7 +320,8 @@ def main():
                 "shader_cache_identity": identity(args.shader_cache) if args.shader_cache else None,
                 "working_directory": str(work_dir),
                 "crash_campaign_approval": campaign if crash_approved else None,
-                "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None},
+                "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None,
+                "cfx007_lane_plan": identity(args.cfx007_lane_plan) if args.cfx007_lane_plan else None},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
                         "vulkan_runtime": None, "active_vulkan_layers": None,
                         "validation_or_capture_mode": args.mode,
@@ -264,6 +331,10 @@ def main():
                                            "hash_per_upload_bytes": 16777216,
                                            "hash_per_run_bytes": 67108864,
                                            "fingerprint_algorithm": "fnv1a64"},
+                        "address_bindings": {"requested": args.address_bindings,
+                                             "schema": "cfx-address-bindings-v1",
+                                             "record_limit": 32768,
+                                             "hardware_activation_verified": False},
                         "validation_layer_dir": str(layer_dir) if layer_dir else None,
                         "validation_layer_json": identity(layer_dir / "VkLayer_khronos_validation.json") if layer_dir else None,
                         "validation_layer_dll": identity(layer_dir / "VkLayer_khronos_validation.dll") if layer_dir else None,
@@ -278,6 +349,8 @@ def main():
                                          "device-fault.bin", "process.dmp"],
         "unknowns": ["actual loaded layers and enabled device features require launch evidence"]
     }
+    if addresses:
+        manifest["artifacts"].append(addresses.name)
     probe = subprocess.run(["vulkaninfo", "--summary"], capture_output=True, text=True,
                            env=probe_env)
     (run_dir / "vulkaninfo-summary.txt").write_text(probe.stdout + probe.stderr)
@@ -303,7 +376,7 @@ def main():
     print(run_dir)
     if not args.launch:
         return 0
-    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace)
+    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace, addresses)
     if args.mode in VALIDATION_SETTINGS:
         env["VK_INSTANCE_LAYERS"] = "VK_LAYER_KHRONOS_validation"
     if args.mode in VALIDATION_SETTINGS:
@@ -380,6 +453,10 @@ def main():
         rows = [l.split("\t") for l in trace.read_text(errors="replace").splitlines()[2:]]
         manifest["environment"]["capability_state"] = [
             r[7] for r in rows if len(r) > 7 and r[6] == "capability"]
+        manifest["environment"]["address_bindings"]["hardware_activation_verified"] = (
+            args.address_bindings and
+            "address-binding-report-enabled" in manifest["environment"]["capability_state"] and
+            addresses.is_file() and bool(re.search(r"\t(?:bind|unbind)\t", addresses.read_text(errors="replace"))))
         stages = [r[5] for r in rows if len(r) > 6 and r[6] == "stage-complete"]
         manifest["failure"]["last_known_cpu_stage"] = stages[-1] if stages else None
         confirmed = [r[7] for r in rows if len(r) > 7 and r[6] == "gpu-checkpoint-confirmed"]
@@ -390,9 +467,7 @@ def main():
         identity(args.shader_cache) if args.shader_cache else None)
     if args.isolate_workdir:
         manifest["artifacts"].extend(("work/levelmesh.obj", "work/levelmesh.mtl"))
-    manifest["artifact_files"] = [
-        {"path": str(run_dir / name), "size": (run_dir / name).stat().st_size}
-        for name in manifest["artifacts"] if (run_dir / name).is_file()]
+    manifest["artifact_files"] = artifact_inventory(run_dir, manifest["artifacts"])
     save()
     return 0 if timed_out and args.skip_dump_on_timeout else code if code >= 0 else 1
 

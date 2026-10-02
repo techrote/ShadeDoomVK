@@ -8,19 +8,19 @@ This ledger records significant programme-level planning changes and later gate 
 
 ## Ledger entries
 
-### 2026-09-17 — founding programme created
+### 2026-09-17 â€” founding programme created
 
 - Established baseline `VKDoom@09634479ab5bf9adf691074fffe85a006a398cd0`.
 - Created founding documents `00` through `07` and autonomous issues SDVK-001..017 (#1..#17).
 - Initial plan placed observability, upstream policy, descriptors and material semantics before headline sprite effects.
 
-### 2026-09-17 — fork/donor audit reconciled
+### 2026-09-17 â€” fork/donor audit reconciled
 
 - Confirmed several apparent VKDoom donor forks are ancestral to the ShadeDoomVK baseline.
 - Retained non-ancestral donor concepts from jalovisko and MAD-VKDoom as explicit provenance/hypotheses.
 - Recorded GriddleVK per-layer sampling as an initially attractive donor concept.
 
-### 2026-09-17 — deep baseline source audit
+### 2026-09-17 â€” deep baseline source audit
 
 Key corrections:
 
@@ -33,7 +33,7 @@ Key corrections:
 
 Decision: do not begin SDVK-001 yet.
 
-### 2026-09-17 — pre-foundation hardening programme inserted
+### 2026-09-17 â€” pre-foundation hardening programme inserted
 
 - Added `08-PREFOUNDATION-HARDENING-PROGRAMME.md`.
 - Added `09-PLANNING-RECONCILIATION.md`.
@@ -43,7 +43,7 @@ Decision: do not begin SDVK-001 yet.
 - Stable SDVK-001..017 IDs and issue numbers remain preserved.
 - New PF issue set uses the expanded autonomous issue contract: objective; scope; non-goals; dependencies; concurrency; canonical context; implementation prompt; acceptance criteria; verification; expected artifacts; blockers/stopping conditions.
 
-### 2026-09-17 — PF/SDVK tracker reconciliation completed
+### 2026-09-17 â€” PF/SDVK tracker reconciliation completed
 
 - Created PF-001..PF-020 as GitHub issues #18..#37 and canonical issue-body files.
 - Reconciled every SDVK-001..017 live/canonical issue to the same autonomous contract.
@@ -53,7 +53,7 @@ Decision: do not begin SDVK-001 yet.
   - SDVK-009 evaluates higher-order many-light architecture after PF exact-equivalence CPU optimization.
 - Updated README, AGENTS, revised roadmap, issue graph, validation contract and donor provenance.
 
-### 2026-09-17 — independent second review completed
+### 2026-09-17 â€” independent second review completed
 
 - Added `11-INDEPENDENT-PLAN-REVIEW.md`.
 - Verified requested refactor/bug/performance coverage.
@@ -63,7 +63,7 @@ Decision: do not begin SDVK-001 yet.
   - PF-017 now depends on PF-013 so material-cache optimization consumes corrected material behavior.
 - Rechecked the corrected graph as acyclic.
 
-### 2026-09-17 — final repository consistency pass completed
+### 2026-09-17 â€” final repository consistency pass completed
 
 Verification snapshot before the final consistency-report/ledger commits: `master@9e3d016fff290dfbe3b78490cbc5a1d7f60af2e6`.
 
@@ -92,7 +92,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - [x] Perform final repository-wide consistency pass.
 - [x] Record final GitHub issue mapping and implementation gate state.
 
-### 2026-09-17 — PF-001 accepted and merged
+### 2026-09-17 â€” PF-001 accepted and merged
 
 - PF-001 / #18 completed through PR #38.
 - Required CI passed: deterministic PF renderer oracle plus the inherited Windows, macOS and Linux build matrix.
@@ -100,7 +100,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `069d25a156c6341de448abf98a99b7ebf059f948`.
 - PF-002, PF-006, PF-007, PF-009 and PF-011 became dependency-ready.
 
-### 2026-09-18 — PF-002 accepted and merged
+### 2026-09-18 â€” PF-002 accepted and merged
 
 - PF-002 / #19 completed through PR #39.
 - Required current-head CI passed: deterministic PF oracle, compiled stale-resource identity fixture, Windows/macOS/Linux build matrix.
@@ -109,7 +109,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - The post-merge `master` run also passed the full matrix.
 - PF-003 and PF-004 became dependency-ready.
 
-### 2026-09-19 — PF-003 accepted and merged
+### 2026-09-19 â€” PF-003 accepted and merged
 
 - PF-003 / #20 completed through PR #40.
 - Required deterministic PF oracle and Windows/macOS/Linux build matrix passed before merge; the post-merge `master` run also passed.
@@ -117,7 +117,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `8ee205b6476446bc4552aaa92a47a7450453516c`.
 - PF-005 and PF-008 became dependency-ready. PF-012 remained blocked on PF-004, PF-010 and PF-011.
 
-### 2026-09-19 — PF-004 accepted and merged
+### 2026-09-19 â€” PF-004 accepted and merged
 
 - PF-004 / #21 completed through PR #41.
 - Required current-head CI passed: deterministic PF oracle, compiled LevelMesh allocator/mutation fixture, and the inherited Windows/macOS/Linux build matrix.
@@ -126,18 +126,18 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-012 no longer waits on PF-004 but remains blocked on PF-010 and PF-011. PF-015 now waits on PF-010 and PF-011; PF-018 remains downstream of PF-015.
 - Residual note: `OnMidTex3DHeightChanged()` remains intentionally unclaimed pending source-proven ownership; PF-004 does not mask that uncertainty with a broad full refresh.
 
-### 2026-09-19 — PF-005 accepted and merged
+### 2026-09-19 â€” PF-005 accepted and merged
 
 - PF-005 / #22 completed through PR #43.
 - Required current-head CI passed: deterministic PF renderer oracle, compiled staging boundary/stress fixture, and the inherited Windows/macOS/Linux build matrix.
 - Hardened async texture-upload lifetime with manager and per-target PF-002 epochs plus all-owner cancellation, and replaced ordinary per-texture staging allocations with a bounded 64 MiB persistent upload arena.
 - Arena wrap waits for transfer retirement before reused bytes are mapped; oversize fallback buffers are waited and retired immediately. Texture source processing, formats, filtering, mip policy, material meaning, gameplay/tic, sprite, portal, audio and provenance semantics remain unchanged.
-- Deterministic allocation evidence: 1024 × 64 KiB qualified uploads fit one persistent allocation with zero wrap waits through the exact 64 MiB boundary; upload 1025 requires one upload-only wait before byte-zero reuse.
+- Deterministic allocation evidence: 1024 Ã— 64 KiB qualified uploads fit one persistent allocation with zero wrap waits through the exact 64 MiB boundary; upload 1025 requires one upload-only wait before byte-zero reuse.
 - Merge commit: `5e88be8ab6565fdc079bca6003d57be44ed11096`; `master` was verified at that merge commit.
 - PF-019 now has its PF-005 prerequisite satisfied but remains blocked on PF-006, PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-005.
 - Residual scope: unrelated lightmap/probe staging and download/readback staging remain outside PF-005 under their existing ownership.
 
-### 2026-09-19 — PF-006 accepted and merged
+### 2026-09-19 â€” PF-006 accepted and merged
 
 - PF-006 / #23 completed through PR #45.
 - Required exact-head CI passed: deterministic PF renderer oracle, compiled old/new key-partition and boundary fixture, and the inherited Windows/macOS/Linux build matrix.
@@ -149,7 +149,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-019 now has its PF-006 prerequisite satisfied but remains blocked on PF-007, PF-017 and PF-018; no new issue becomes dependency-ready solely from PF-006.
 - Shader behavior, material meaning, blend/depth/stencil/cull policy, portal behavior, palette/translation behavior, sprite conventions, gameplay/tic state, audio and donor/source provenance remain unchanged.
 
-### 2026-09-19 — PF-007 accepted and merged
+### 2026-09-19 â€” PF-007 accepted and merged
 
 - PF-007 / #24 completed through PR #49.
 - Required exact-head CI passed: deterministic PF renderer oracle, compiled capability/driver-quirk adversarial fixture, source-routing contract tests, and the inherited Windows/macOS/Linux build matrix.
@@ -161,7 +161,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-010 / #27 became dependency-ready. PF-019 now has its PF-007 prerequisite satisfied but remains blocked on PF-017 and PF-018.
 - Gameplay/tic, shader/material meaning, palette/translation, sprite, portal, audio, demo-determinism, source-ownership and donor/provenance semantics remain unchanged.
 
-### 2026-09-19 — PF-008 accepted and merged
+### 2026-09-19 â€” PF-008 accepted and merged
 
 - PF-008 / #25 completed through PR #51.
 - Required exact-head CI passed: deterministic PF renderer oracle, PF-008 semantic source/compiled boundary coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -172,7 +172,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-013 / #30 became dependency-ready. PF-017 still waits on PF-013 and PF-016.
 - Gameplay/tic, shader/material meaning, palette/translation, sprite, portal, audio, source-ownership and donor/provenance semantics remain unchanged.
 
-### 2026-09-19 — PF-009 accepted and merged
+### 2026-09-19 â€” PF-009 accepted and merged
 
 - PF-009 / #26 completed through PR #53.
 - Exact implementation head `8f78d5a10fe502d144b09b51f786b97e6e6bb54e` passed Continuous Integration run 65: deterministic PF renderer oracle, adversarial sprite-surface policy/source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -181,7 +181,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `b58f03decfedca12df039c68a5e36d709120bba1`; `master` was verified at that merge commit and post-merge Continuous Integration run 66 passed on the exact merge head.
 - PF-014 retains PF-010 as its remaining extraction prerequisite; PF-016 retains PF-011 and PF-015. No issue becomes newly dependency-ready solely from PF-009 because those remaining prerequisites are still open.
 
-### 2026-09-19 — PF-010 accepted and merged
+### 2026-09-19 â€” PF-010 accepted and merged
 
 - PF-010 / #27 completed through PR #55.
 - Exact implementation head `9116f9f5dff601a9c31bc97c63da39c1116f4739` passed Continuous Integration run 70: deterministic PF renderer oracle, compiled/adversarial render-context fixture and source-routing contract coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -190,7 +190,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-014 / #31 became dependency-ready. PF-012 / #29 and PF-015 / #32 now retain PF-011 / #28 as their remaining readiness prerequisite.
 - Gameplay/tic, material/shader, palette/translation, sprite, portal-transform, audio, source-ownership and donor/provenance semantics remain unchanged.
 
-### 2026-09-19 — PF-011 accepted and merged
+### 2026-09-19 â€” PF-011 accepted and merged
 
 - PF-011 / #28 completed through PR #57.
 - Exact implementation head `6c977abec0a9f957d9bc5e0f24d46bb87990950e` passed Continuous Integration run 76: deterministic PF renderer oracle, adversarial/numerical lighting compatibility fixtures, source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -200,7 +200,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-012 / #29 and PF-015 / #32 became dependency-ready. PF-016 / #33 now retains PF-015 as its remaining prerequisite.
 - No physical-lighting calibration, quality/default policy, light selection, shadow/probe policy, gameplay/tic, material/palette/sprite/portal, audio, source-ownership or donor/provenance semantic change was introduced.
 
-### 2026-09-19 — PF-012 accepted and merged
+### 2026-09-19 â€” PF-012 accepted and merged
 
 - PF-012 / #29 completed through PR #59.
 - Exact implementation head `a31852b7a7dd6d9cbc0133b07906ca70544e80b8` passed Continuous Integration run 90: deterministic PF renderer oracle, compiled probe-selection adversarial/boundary fixture, source-contract coverage, and the inherited Windows/macOS/Linux build matrix; post-merge `master` run 91 passed at the exact merge head.
@@ -210,7 +210,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-013 / #30, PF-014 / #31 and PF-015 / #32 remain dependency-ready; no new PF issue becomes dependency-ready solely from PF-012.
 - Gameplay/tic, material/PBR calibration, palette/translation, sprite, portal-transform, audio, source-ownership and donor/provenance semantics remain unchanged.
 
-### 2026-09-20 — PF-013 accepted and merged
+### 2026-09-20 â€” PF-013 accepted and merged
 
 - PF-013 / #30 completed through implementation PR #61; the acceptance reconciliation is recorded separately after post-merge verification.
 - Exact implementation head `cb0e7e6c03d8ffa52de3fd6aa877f7eac9bec4b2` passed Continuous Integration run 98 with the deterministic PF renderer oracle, PF-013 adversarial/source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -219,7 +219,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - Merge commit: `b5437e22c4da23bef95651f17ec013a0fe52cb1a`; post-merge `master` Continuous Integration run 99 passed on that exact merge head.
 - PF-017 now has its PF-013 prerequisite satisfied and remains blocked only on PF-016. PF-014 / #31 and PF-015 / #32 remain dependency-ready.
 
-### 2026-09-20 — PF-014 accepted and merged
+### 2026-09-20 â€” PF-014 accepted and merged
 
 - PF-014 / #31 completed through implementation PR #63; this acceptance reconciliation records the final gate transition after post-merge verification.
 - Exact implementation head `3350461964f5ee97e63eb84257b514c171459a1a` passed Continuous Integration run 102 with the deterministic PF renderer oracle, compiled PF-014 adversarial fixture, source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -228,7 +228,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-015 / #32 remains the highest-priority dependency-ready corrective issue. PF-014 does not newly unblock another PF issue by itself.
 - Gameplay/tic, material/palette/translation meaning, sprite frame/UV selection, portal transforms/recursion, audio, source ownership and donor/provenance semantics remain unchanged.
 
-### 2026-09-20 — PF-015 accepted and merged
+### 2026-09-20 â€” PF-015 accepted and merged
 
 - PF-015 / #32 completed through implementation PR #65; this acceptance reconciliation records the final gate transition after post-merge verification.
 - Exact implementation head `e3a4e69a0976ba74b13e299cc3035d866209ea42` passed Continuous Integration run 106 with the deterministic PF renderer oracle, compiled shadow/visibility adversarial boundary fixture, source-contract coverage, and the inherited Windows/macOS/Linux build matrix.
@@ -238,7 +238,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-016 / #33 and PF-018 / #35 become dependency-ready. PF-017 / #34 remains blocked on PF-016; PF-019 / #36 remains blocked on PF-017 and PF-018; PF-020 / #37 remains blocked on all unfinished PF issues.
 - Gameplay/tic, PF-011 lighting calibration, shadow-map capacity/resolution/filtering, ray-query capability/fallback routing, actor-light gathering policy, portal transforms, sprite/material/palette/translation meaning, audio, source ownership and donor/provenance semantics remain unchanged.
 
-### 2026-09-24 — PF-016 accepted and merged
+### 2026-09-24 â€” PF-016 accepted and merged
 
 - PF-016 / #33 completed through implementation PR #67; this reconciliation follows successful post-merge verification.
 - Tested renderer implementation: `c2684881a5b0c1b74cb361eced0c35b2ac17b90e`; submitted head: `4c753f92b155ad72aa7e017001bfc4d9f7fd1bb0`. Renderer/test source is identical across those revisions and the merge.
@@ -251,19 +251,19 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - PF-017 / #34 is now dependency-ready after PF-003/PF-008/PF-013/PF-016; no PF-017 implementation was started. PF-018 status and remaining PF-019/PF-020/SDVK gates are unchanged.
 - Residual scope: one Windows/NVIDIA runtime configuration and bounded deterministic checkpoints; retained fallback qualification allocation cost. No shader/light-math/quality, gameplay, palette/material, audio or donor-source ownership change.
 
-### 2026-09-24 — PF-018 runtime qualified; final-head gate pending
+### 2026-09-24 â€” PF-018 runtime qualified; final-head gate pending
 
 - PF-018 / #35 implementation PR #68 was reconciled with PF-016 on current `master@4f6df9843e742c59defcf4ce1a5686271b2b5c75`; tested candidate `7d390a3fb2dbda65688933ab5f868092afec5a41` has only the nine PF-018 implementation files as a delta.
-- Five alternating production DBP37 MAP04 pairs on one GTX 1650 SUPER/driver/build configuration all launched and rendered. Identical read-only capacity instrumentation in four complete pairs measured 11,702,876 baseline versus 8,635,124 candidate logical bytes across the ten LevelMesh arrays (−26.21%); production exports independently repeat the vertex/surface reductions. MAP04 exercises setup allocation/growth, not moving AABB lines or a steady-state CPU gain.
-- The targeted GLDEFS-light derivative exercises moving AABB lines. Direct fixed-tic RayTest input/fraction records match 1,630/1,630, production paused world pixels and oriented faces match, and five warm AABB pairs give 310.378 versus 159.175 ns per moved line median (−48.72%). Whole BeginFrame diagnostic medians are 20.129 versus 20.082 ms/frame (−0.23%, mixed pairs), so no material whole-path speedup is claimed.
+- Five alternating production DBP37 MAP04 pairs on one GTX 1650 SUPER/driver/build configuration all launched and rendered. Identical read-only capacity instrumentation in four complete pairs measured 11,702,876 baseline versus 8,635,124 candidate logical bytes across the ten LevelMesh arrays (âˆ’26.21%); production exports independently repeat the vertex/surface reductions. MAP04 exercises setup allocation/growth, not moving AABB lines or a steady-state CPU gain.
+- The targeted GLDEFS-light derivative exercises moving AABB lines. Direct fixed-tic RayTest input/fraction records match 1,630/1,630, production paused world pixels and oriented faces match, and five warm AABB pairs give 310.378 versus 159.175 ns per moved line median (âˆ’48.72%). Whole BeginFrame diagnostic medians are 20.129 versus 20.082 ms/frame (âˆ’0.23%, mixed pairs), so no material whole-path speedup is claimed.
 - The original fixture, PF-004 ownership/generation/span and PF-018 fragmentation/best-fit/bounded-growth stress are covered by the compiled deterministic oracle. All eight checks passed on reconciled source head in CI run 36000665523. Doom2-only MAP01 launched on both revisions; an uncapped DBP37 MAP01 startup hang/TDR occurred on baseline and is a separate compatibility issue. One mouse-overlapped test-only capacity timeout is preserved/excluded and a later pair is clean. DBP50 was not retested.
 - `PF-018-RUNTIME-EVIDENCE.md` records exact hashes, commands, raw logs and limitations. This is **not** the completed issue gate: final documentation-head CI, merge and post-merge `master` verification are still required. PF-019 remains blocked on PF-017 and PF-018.
 
-### 2026-09-24 — PF-018 accepted and merged
+### 2026-09-24 â€” PF-018 accepted and merged
 
 - PF-018 / #35 implementation and evidence PR #68 passed the unchanged acceptance gate. Runtime-tested implementation `7d390a3fb2dbda65688933ab5f868092afec5a41` compared with PF-016-accepted `master@4f6df9843e742c59defcf4ce1a5686271b2b5c75`; final documentation head `84fc7b527e9bcb94dd01a1b9041ee8f02f5548cf` changed only canonical evidence. All eight exact-head checks passed in CI run 36005308547.
 - Merge commit `8ad883ada35b80dbf750462dbb4c36b5edf38893` has the exact final PR tree and was verified as local and remote `master`. All eight post-merge checks passed on that exact merge head in CI run 36006321198.
-- Frozen contract: PF-004 ownership/generation/span checks and stationary live ranges remain authoritative; best-fit lookup and bounded growth reduce main LevelMesh array capacity on representative DBP37 MAP04; cached immutable leaf→parent AABB traversal preserves direct fixed-tic queries, production geometry and paused world pixels on the moving GLDEFS-light fixture. No dirty-upload batching or whole-frame CPU speedup is claimed. `PF-018-RUNTIME-EVIDENCE.md` retains measurements, raw-log paths and exclusions.
+- Frozen contract: PF-004 ownership/generation/span checks and stationary live ranges remain authoritative; best-fit lookup and bounded growth reduce main LevelMesh array capacity on representative DBP37 MAP04; cached immutable leafâ†’parent AABB traversal preserves direct fixed-tic queries, production geometry and paused world pixels on the moving GLDEFS-light fixture. No dirty-upload batching or whole-frame CPU speedup is claimed. `PF-018-RUNTIME-EVIDENCE.md` retains measurements, raw-log paths and exclusions.
 - PF-018 is complete. PF-019 / #36 now waits only on PF-017 / #34; PF-020 / #37 still waits on unfinished PF issues. The baseline DBP37 MAP01 startup TDR, prior DBP50 crashes and one excluded mouse-overlapped diagnostic timeout do not enter the PF-018 benefit claim. DBP37 MAP01/DBP50 compatibility remains separate work.
 
 ### 2026-09-24 - PF-017 baseline profiled; candidate rejected
@@ -315,3 +315,13 @@ Do not record an issue as complete merely because a PR exists or CI ran; accepta
 - CFX-004 / #79's precise-blocker disposition is reviewed in PR #94, with six post-error CPU collision snapshots and 19 focused adversarial tests. Its master integration preserves both CFX-004 and CFX-005 forensic appendices; this entry does not predeclare the PR merged.
 - No renderer repair, semantic change, workaround or new GPU launch is retained. #75 remains open on mapping the captured fault to the consuming shader/resource/submission and exact uploaded bytes/descriptor lifetime. Both physical lane budgets remain exhausted with STOP guards active.
 - PF-020 / #37 remains blocked; no PF/SDVK release gate is lifted. The evidence acceptance does not establish application correctness or a driver defect.
+
+### 2026-10-01 â€” CFX-006 accepted; bounded CFX-007 continuation authorized
+
+- #95/PR #96 reviewed, 8/8 CI green at head `3b530c5cd28c78e76ffcac487b963f4886646509`, merged and verified on master `a6880fdb22e2f3d9ee85f3a86384b48ad7af9373`. Bounded query/resource identities accepted; initiating crash unresolved and PF-020/#75 remain blocked.
+- #97/CFX-007 is a separately authorized causal continuation: at most 16 targeted launches and 6 correlated loss/TDR episodes, automatic recovery gate replaces routine human visual checkpoints. Historical six guards remain immutable; no old binary/old lane reopening. See issues/CFX-007.md.
+### CFX-007 / #97 bounded causal result â€” 2026-10-02
+
+PR96 accepted/merged mastera6880fdb precedes the separate owner-authorized GTX1650 SUPER protocol. All old STOP guards remain. Six source-led targets/ten controls consume16 launches and6 loss episodes; automatic recoveries pass, finite STOP active. Safe sync localizes independent LevelMesh INDEX_READ publication defect; candidate corrects both traversal paths and removes hazard with identical safe pixels/protected state, but selected DBP37 still crashes. Further one-factor GPUAV/sync, specialized pipeline and direct-LevelMesh-off tests do not yield sufficient repair. No three-success crash validation; #97/#75/PF020 remain unresolved. PR98 contains bounded tools, partial correctness repair and honest blocker/evidence, not crash closure. Next dependency-ready offline work is supported GPU address-to-resource/executed-pipeline attribution, followed by a separately authorized physical protocol if needed. See CFX-007-INVESTIGATION-NOTES.md and evidence/cfx007-attempts.json.
+
+Subsequent offline continuation implements the opt-in address-binding callback/correlation discriminator. Windows build and52 focused CFX tests pass (compiled callback/query fixtures under MSVC ASan). Actual driver callback activation and newer-binary physical equivalence remain pending; no new launch, budget reset, closure or release-gate change. See CFX-007-ADDRESS-BINDINGS.md and evidence/cfx007-address-offline.json.

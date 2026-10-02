@@ -2,6 +2,7 @@
 #include "vulkaninstance.h"
 #include "vulkanbuilders.h"
 #include "cfxtrace.h"
+#include "cfxaddress.h"
 #include <mutex>
 #include <set>
 #include <string>
@@ -30,6 +31,9 @@ VulkanInstance::~VulkanInstance()
 
 void VulkanInstance::ReleaseResources()
 {
+	if (addressMessenger)
+		vkDestroyDebugUtilsMessengerEXT(Instance, addressMessenger, nullptr);
+	addressMessenger = VK_NULL_HANDLE;
 	if (debugMessenger)
 		vkDestroyDebugUtilsMessengerEXT(Instance, debugMessenger, nullptr);
 	debugMessenger = VK_NULL_HANDLE;
@@ -212,6 +216,18 @@ void VulkanInstance::CreateInstance()
 		DebugLayerActive = true;
 	}
 
+	// INFO/address messages are a distinct stream, independent of validation and
+	// its warning/error deduplication. Register before any device allocations.
+	if (CfxAddress::Enabled() && EnabledExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) && vkCreateDebugUtilsMessengerEXT)
+	{
+		VkDebugUtilsMessengerCreateInfoEXT addressInfo = { VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT };
+		addressInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+		addressInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_DEVICE_ADDRESS_BINDING_BIT_EXT;
+		addressInfo.pfnUserCallback = CfxAddress::Callback;
+		result = vkCreateDebugUtilsMessengerEXT(Instance, &addressInfo, nullptr, &addressMessenger);
+		AddressBindingMessengerActive = result == VK_SUCCESS;
+		CfxTrace::Mark("address-binding-messenger", AddressBindingMessengerActive ? "registered" : "unavailable", static_cast<int>(result));
+	}
 	PhysicalDevices = GetPhysicalDevices(Instance, ApiVersion);
 }
 
@@ -318,6 +334,11 @@ std::vector<VulkanPhysicalDevice> VulkanInstance::GetPhysicalDevices(VkInstance 
 				*next = &dev.Features.Fault;
 				next = &dev.Features.Fault.pNext;
 			}
+			if (checkForExtension(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME))
+			{
+				*next = &dev.Features.AddressBinding;
+				next = &dev.Features.AddressBinding.pNext;
+			}
 			if (checkForExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME))
 			{
 				*next = &dev.Features.GraphicsPipelineLibrary;
@@ -331,6 +352,7 @@ std::vector<VulkanPhysicalDevice> VulkanInstance::GetPhysicalDevices(VkInstance 
 			dev.Features.RayQuery.pNext = nullptr;
 			dev.Features.DescriptorIndexing.pNext = nullptr;
 			dev.Features.Fault.pNext = nullptr;
+			dev.Features.AddressBinding.pNext = nullptr;
 			dev.Features.GraphicsPipelineLibrary.pNext = nullptr;
 		}
 		else
