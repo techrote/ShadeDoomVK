@@ -28,3 +28,17 @@ Address callback events are reported driver virtual bindings, not queried BDA, G
 ## Working status
 
 Fresh merged renderer build succeeded. Nine new CPU-only gate tests and all61 CFX tests in MSVC ASan passed. Physical activation/result is pending. No CFX-008 application launch has occurred at this entry. Record subsequent facts here and in the machine-readable evidence index before any scope disposition.
+
+## Safe control outcome — 2026-10-02T12:22:48Z
+
+CFX8-CONTROL-001 run `cfx-20261002T122239Z-d30a63684fb3` exited0, no application failure/device loss/TDR. Automatic recovery passed, both global caches restored. Address messenger registered, EXT feature enabled,1714 bind/1718 unbind callbacks captured. All1902×993 decoded pixels and protected mesh state match CFX7-CONTROL-006 exactly.7313 rows contain3880 name hints plus callbacks/snapshot, omitted0, writer_ok1, but **contended237**: shared try_lock drops rows when compile/driver/name writers overlap. The counter cannot distinguish dropped callback from dropped hint. The complete-capture gate correctly stopped before target; scope frozen1 launch/0 losses. No target/fault-overlap evidence exists for CFX-008.
+
+Offline repair plan: immutable preallocated bounded callback slots, copied payload/name, atomic publication, separate bounded file drain; callbacks neither wait on file output nor drop merely because another writer runs. Retain capacity/writer/unpublished coverage counters and cutoff semantics; add concurrent producer/blocked output fixtures. Hardware activation/equivalence of repaired collector remains pending a separately authorized continuation, not silently retried under this STOP. Raw/indexed artifacts are in `evidence/cfx008-address-localization.json`.
+
+## Offline contention repair
+
+Producer owns one preallocated immutable slot (<=32768/10MiB), copies all payload/name/host metadata, publishes ready with release semantics; sole background drain reads acquire-ready slots in sequence and owns stdio. No callback mutex, wait, per-record allocation, Vulkan call or retained pointer. A preempted producer cannot expose partial payload, and a blocked file cannot block another callback. Capacity remains finite with explicit omissions; process-lifetime storage prevents driver teardown dangling references. Snapshot waits at most100ms outside callbacks and reports admitted records, cutoff and confirmed flushed prefix. Readers reject incomplete flush even with writer_ok1. Disabled mode allocates no queue/thread.
+
+All65 CFX tests pass in MSVC ASan, including8000 copied callbacks from8 concurrent producers, exact sequence, cap omissions, and an unpublished earlier producer: later callback returns, snapshot times out honestly, resuming producer drains ordered payload. An initial capacity-snapshot test exposed asynchronous tail flushing when the cap prevented the snapshot itself; bounded snapshot now attempts draining admitted records even with cutoff0, while retaining missing-cutoff coverage failure. Required CI/build and repaired hardware activation are tracked separately. No further physical application launch under the preserved CFX-008 STOP.
+
+Windows RelWithDebInfo queued-collector build passed after removing duplicate inherited Path/PATH key casing in the build process environment (initial MSBuild MSB6001 was an environment error, not compiler/source failure). Final build/test/source/executable/PDB hashes are recorded in the evidence index. These built repair binaries were not launched; the historical safe run used the preserved accepted-master binary.

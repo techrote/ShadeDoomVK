@@ -97,6 +97,13 @@ class Activation(unittest.TestCase):
                 with self.assertRaises(ValueError): gate.activation(b, c, 'fixture')
             c.write_text(original); b.write_text(b.read_text().replace('\tbind\t', '\tbinding-no-object\t'))
             with self.assertRaises(ValueError): gate.activation(b, c, 'fixture')
+    def test_unflushed_queue_is_not_complete_capture(self):
+        with tempfile.TemporaryDirectory() as temp:
+            b, c = self.fixture(Path(temp)); original = c.read_text()
+            c.write_text(original.replace('limit=32768', 'limit=32768 flushed=2 cutoff=3'))
+            with self.assertRaises(ValueError): gate.activation(b, c, 'fixture')
+            c.write_text(original.replace('limit=32768', 'limit=32768 flushed=3 cutoff=3'))
+            gate.activation(b, c, 'fixture')
     def test_prefix_run_id_is_not_same_run(self):
         with tempfile.TemporaryDirectory() as temp:
             b, c = self.fixture(Path(temp)); c.write_text(c.read_text().replace('run=fixture', 'run=fixture-other'))

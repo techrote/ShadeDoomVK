@@ -61,7 +61,22 @@ class AddressCallbackTests(unittest.TestCase):
     def test_caps_and_concurrent_callback_never_deadlock(self):
         trace, bindings = self.fixture('bounded')
         self.assertEqual(len(bindings.splitlines()[2:]), 16)
-        self.assertIn('records=32768 omitted=20 contended=16 writer_ok=1', trace)
+        self.assertIn('records=32768 omitted=36 contended=0 writer_ok=1', trace)
+        self.assertIn('flushed=16 cutoff=0', trace)
+
+    def test_concurrent_producers_preserve_every_copied_payload(self):
+        trace, bindings = self.fixture('concurrent')
+        rows = bindings.splitlines()[2:]
+        self.assertEqual(len(rows), 8001)
+        self.assertEqual([int(r.split('\t')[0]) for r in rows], list(range(1, 8002)))
+        self.assertEqual(sum('temporary name ' in r for r in rows), 8000)
+        self.assertIn('records=8001 omitted=0 contended=0 writer_ok=1 limit=32768 flushed=8001 cutoff=8001', trace)
+
+    def test_unpublished_producer_does_not_block_callback_or_claim_flushed(self):
+        trace, bindings = self.fixture('unpublished')
+        self.assertIn('flushed=0 cutoff=3', trace)
+        self.assertIn('flushed=4 cutoff=4', trace)
+        self.assertEqual(len(bindings.splitlines()[2:]), 4)
 
     def test_malformed_chain_is_bounded_and_missing_object_is_explicit(self):
         trace, bindings = self.fixture('malformed')
@@ -144,3 +159,13 @@ class AddressOverlapTests(unittest.TestCase):
             with self.assertRaises(ValueError): self.module.correlate(bindings, trace, 0, 1)
             bindings.write_text(bindings.read_text().rstrip())
             with self.assertRaises(ValueError): self.module.read_bindings(bindings)
+
+    def test_queued_loss_cutoff_requires_confirmed_flush(self):
+        with tempfile.TemporaryDirectory() as temp:
+            bindings, trace = self.files(Path(temp))
+            original = trace.read_text()
+            trace.write_text(original.replace('limit=32768', 'limit=32768 flushed=3 cutoff=4'))
+            result = self.module.correlate(bindings, trace, 0x1DA00000, 4096)
+            self.assertIn('queued binding records not flushed through loss cutoff', result['capture_gaps'])
+            trace.write_text(original.replace('limit=32768', 'limit=32768 flushed=4 cutoff=4'))
+            self.assertTrue(self.module.correlate(bindings, trace, 0x1DA00000, 4096)['reported_binding_capture_complete_to_cutoff'])

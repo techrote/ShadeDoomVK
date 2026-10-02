@@ -27,6 +27,8 @@ def activation(bindings, timeline, run_id):
         raise ValueError('callback omissions/contention/writer failure')
     if summary.get('records') != int(snapshots[0]['seq']):
         raise ValueError('teardown summary/snapshot disagreement')
+    if 'flushed' in summary and (summary.get('cutoff') != int(snapshots[0]['seq']) or summary['flushed'] < summary['cutoff']):
+        raise ValueError('queued address records not flushed through teardown cutoff')
     return {'run_id': run, 'records': len(rows), 'teardown': summary,
             'binds': sum(r['event'] == 'bind' for r in rows),
             'unbinds': sum(r['event'] == 'unbind' for r in rows)}
