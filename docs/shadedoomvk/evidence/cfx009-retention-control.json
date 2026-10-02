@@ -1,0 +1,72 @@
+{
+  "schema": "cfx-009-retention-control-v1",
+  "attempt_id": "CFX9-CONTROL-RETENTION",
+  "run_id": "cfx-20261002T145552Z-501cb800cbe0",
+  "renderer_source": "fcaabc0239367ae6194b2d051d55a615d1d1925a",
+  "exit_status": 0,
+  "device_loss": false,
+  "recovery_pass": true,
+  "retention_actual_activation": true,
+  "retained_pages": 2,
+  "queued_records": 7550,
+  "omitted": 0,
+  "contended": 0,
+  "flushed": 7550,
+  "cutoff": 7550,
+  "protected_mesh_equal": true,
+  "image_dimensions": [
+    1904,
+    1001
+  ],
+  "reference_dimensions": [
+    1902,
+    993
+  ],
+  "current_primary_display": [
+    2560,
+    1440
+  ],
+  "equivalence_accepted": false,
+  "stop_preserved": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\STOP-LAUNCHES.txt",
+    "sha256": "5b4e8f81ad8f3d3bfece85b75ed5e981147bae0a87de1debae344f93a27c4d01",
+    "size": 97
+  },
+  "counts": {
+    "launches": 3,
+    "loss_episodes": 1
+  },
+  "conclusion": "Safe run interpretable; pixel equivalence not assessed across different image dimensions. New phase explicitly restores prior actual client dimensions1902x993, retaining identical renderer experiment.",
+  "files": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\control-retention\\execution-result.json",
+      "sha256": "61a82c3b852a4a2c14d9d7222114884dadff9ca2e3af4f3059e0442293e0e8cd",
+      "size": 415
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\control-retention\\health-after.json",
+      "sha256": "37d6d309d00b59b7cfee6268bdc8d3a8f07ff658dc3c176cd7ea6d89543504a7",
+      "size": 93566
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\control-retention\\scene.png",
+      "sha256": "a8825946bc2b791cd6745e86e8e9cff2f4e10fc471e16c583e9df75b34e701ad",
+      "size": 342855
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\control-retention\\runs\\cfx-20261002T145552Z-501cb800cbe0\\timeline.tsv",
+      "sha256": "9f9d9d1a58e4c5fbdb18694bcffbdb7941589570369ff944f7b7b2feb38109bf",
+      "size": 2201543
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\control-retention\\runs\\cfx-20261002T145552Z-501cb800cbe0\\address-bindings.tsv",
+      "sha256": "7b7db31b428e85d388900a2d63eb10cbb9a6b2c22c9cb7a590a09f772fecac4f",
+      "size": 808734
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-supervised-retention\\control-retention\\complete-analysis.json",
+      "sha256": "ed790339893ed1e213361ae38ba0390ce572cf92bf535818adf8fbb3782ad385",
+      "size": 17220
+    }
+  ]
+}

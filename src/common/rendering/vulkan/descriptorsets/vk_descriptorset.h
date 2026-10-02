@@ -113,6 +113,7 @@ private:
 		WriteDescriptors Writer;
 		VkBindlessCapacityPlan Plan;
 		VkBindlessSlotAllocator Allocator;
+		int PublishedLightmapPages = 0;
 	} Bindless;
 
 	struct

@@ -89,17 +89,20 @@ def capture_dump(pid, target):
         return {"status": "dump timeout", "command": cmd, "path": str(target)}
 
 
-def capture_environment(base, mode, run_id, trace, fault, resource_trace, address_file=None):
+def capture_environment(base, mode, run_id, trace, fault, resource_trace, address_file=None,
+                        retain_replaced_lightmaps=False):
     env = base.copy()
     # A parent shell cannot accidentally enable CFX in an off/control run.
     for key in ("CFX_RUN_ID", "CFX_TRACE_FILE", "CFX_FAULT_BIN", "CFX_RESOURCE_TRACE",
-                "CFX_ADDRESS_TRACE", "CFX_ADDRESS_FILE"):
+                "CFX_ADDRESS_TRACE", "CFX_ADDRESS_FILE", "CFX_RETAIN_REPLACED_LIGHTMAPS"):
         env.pop(key, None)
     if mode != "off":
         env.update(CFX_RUN_ID=run_id, CFX_TRACE_FILE=str(trace), CFX_FAULT_BIN=str(fault),
                    VK_LOADER_DEBUG="layer", CFX_RESOURCE_TRACE="1" if resource_trace else "0")
         if resource_trace and address_file:
             env.update(CFX_ADDRESS_TRACE="1", CFX_ADDRESS_FILE=str(address_file))
+        if mode == 'capture' and resource_trace and address_file and retain_replaced_lightmaps:
+            env['CFX_RETAIN_REPLACED_LIGHTMAPS'] = '1'
     return env
 
 
@@ -150,35 +153,159 @@ def check_cfx007_lane(path, run_root, exe):
     return lane
 
 
-def check_cfx008_lane(path, run_root, exe):
+def check_cfx008_lane(path, run_root, exe, *, protocol='CFX-008', issue=99,
+                      merge='c6a7197ae48b8d163df9f72783c177ca427505f5', guards_required=11,
+                      max_launches=2, max_losses=1):
     """Separate #99 two-launch/one-loss scope; old budgets and guards stay closed."""
     if not path or not path.is_file():
-        raise ValueError('CFX-008 requires an existing lane-opening JSON')
+        raise ValueError(protocol+' requires an existing lane-opening JSON')
     lane = json.loads(path.read_text(encoding='utf-8'))
     if (lane.get('schema'), lane.get('issue'), lane.get('status'), lane.get('substrate_merge')) != (
-            'cfx-008-lane-v1', 99, 'OPEN', 'c6a7197ae48b8d163df9f72783c177ca427505f5'):
-        raise ValueError('CFX-008 requires the new #99 merged-PR98 scope')
+            protocol.lower()+'-lane-v1', issue, 'OPEN', merge):
+        raise ValueError(protocol+' requires its exact issue and accepted substrate')
     if lane.get('renderer_source') != lane['substrate_merge']:
-        raise ValueError('CFX-008 renderer must be the accepted PR98 merge')
+        raise ValueError(protocol+' renderer must equal the accepted substrate')
     if not run_root.resolve().is_relative_to(path.parent.resolve()):
-        raise ValueError('CFX-008 run root must be inside its lane')
+        raise ValueError(protocol+' run root must be inside its lane')
     if any((p / 'STOP-LAUNCHES.txt').exists() for p in (run_root.resolve(), *run_root.resolve().parents)):
-        raise ValueError('CFX-008 active stop guard')
+        raise ValueError(protocol+' active stop guard')
     for binary, key in ((exe, 'exe_sha256'), (exe.with_suffix('.pdb'), 'pdb_sha256')):
         if not lane.get(key) or digest(binary) != lane[key]:
-            raise ValueError('CFX-008 binary/PDB identity changed')
+            raise ValueError(protocol+' binary/PDB identity changed')
     guards = lane.get('historical_guards', [])
-    if len(guards) != 11 or len({g['path'] for g in guards}) != 11:
-        raise ValueError('CFX-008 requires all eleven distinct historical guards')
+    if len(guards) != guards_required or len({g['path'] for g in guards}) != guards_required:
+        raise ValueError(protocol+' requires all distinct historical guards')
     for guard in guards:
         if not guard.get('sha256') or digest(pathlib.Path(guard['path'])) != guard['sha256']:
-            raise ValueError('CFX-008 historical guard changed')
+            raise ValueError(protocol+' historical guard changed')
     state = json.loads((path.parent / 'state.json').read_text(encoding='utf-8'))
-    if (state.get('status') != 'OPEN' or not 0 <= state.get('launches', -1) <= 2 or
-            (state.get('launches') == 2 and not state.get('pending_attempt')) or
-            not 0 <= state.get('loss_episodes', -1) < 1 or
-            lane.get('max_launches') != 2 or lane.get('max_loss_episodes') != 1):
-        raise ValueError('CFX-008 stopped or budget exhausted')
+    if (state.get('status') != 'OPEN' or not 0 <= state.get('launches', -1) <= max_launches or
+            (state.get('launches') == max_launches and not state.get('pending_attempt')) or
+            not 0 <= state.get('loss_episodes', -1) < max_losses or
+            lane.get('max_launches') != max_launches or lane.get('max_loss_episodes') != max_losses):
+        raise ValueError(protocol+' stopped or budget exhausted')
+    return lane
+
+
+def check_cfx009_lane(path, run_root, exe):
+    if path and path.is_file():
+        opening = json.loads(path.read_text(encoding='utf-8'))
+        if opening.get('schema') == 'cfx-009-lane-v2':
+            return check_cfx009_adaptive_lane(path, run_root, exe, opening)
+    lane = check_cfx008_lane(path, run_root, exe, protocol='CFX-009', issue=102,
+                            merge='d7ebce43449e9f347dccf399999832e11ea7c105',
+                            guards_required=12, max_launches=6, max_losses=2)
+    if lane.get('prior_phase'):
+        prior = lane['prior_phase']
+        for key in ('state', 'stop'):
+            record = prior[key]
+            if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
+                raise ValueError('CFX-009 prior stopped phase changed')
+        old = json.loads(pathlib.Path(prior['state']['path']).read_text(encoding='utf-8'))
+        state = json.loads((path.parent / 'state.json').read_text(encoding='utf-8'))
+        if old.get('status') != 'STOPPED' or state['launches'] < old['launches'] or state['loss_episodes'] < old['loss_episodes']:
+            raise ValueError('CFX-009 prior counts must carry forward')
+    return lane
+
+
+def verified_record(record, description):
+    """Read evidence only after checking its immutable identity."""
+    if not isinstance(record, dict) or not record.get('path') or not record.get('sha256'):
+        raise ValueError(description + ' identity missing')
+    path = pathlib.Path(record['path'])
+    if digest(path) != record['sha256']:
+        raise ValueError(description + ' changed')
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
+def verified_analysis(record):
+    analysis = verified_record(record, 'CFX-009 source analysis')
+    if (analysis.get('analysis_complete') is not True or
+            analysis.get('source_analysis_pending') is not False or
+            not isinstance(analysis.get('conclusion'), str) or not analysis['conclusion'].strip()):
+        raise ValueError('CFX-009 complete source analysis required')
+    if not analysis.get('files'):
+        raise ValueError('CFX-009 source analysis evidence missing')
+    for evidence in analysis.get('files', []):
+        if not evidence.get('sha256') or digest(pathlib.Path(evidence['path'])) != evidence['sha256']:
+            raise ValueError('CFX-009 analysis evidence changed')
+    return analysis
+
+
+def check_cfx009_adaptive_lane(path, run_root, exe, lane):
+    """A new supervised epoch preserves old ceilings/results without reusing them."""
+    merge = 'd7ebce43449e9f347dccf399999832e11ea7c105'
+    if (lane.get('issue'), lane.get('status'), lane.get('substrate_merge'), lane.get('testing_policy')) != (
+            102, 'OPEN', merge, 'supervised-adaptive-20261002'):
+        raise ValueError('CFX-009 requires its supervised-adaptive #102 epoch')
+    if 'max_launches' in lane or 'max_loss_episodes' in lane:
+        raise ValueError('CFX-009 adaptive epoch must preserve finite ceilings in the previous epoch')
+    source = lane.get('renderer_source')
+    if not isinstance(source, str) or not re.fullmatch('[0-9a-f]{40}', source):
+        raise ValueError('CFX-009 exact renderer source missing')
+    ancestry = subprocess.run(['git', 'merge-base', '--is-ancestor', merge, source],
+                              cwd=ROOT, capture_output=True)
+    if ancestry.returncode != 0:
+        raise ValueError('CFX-009 renderer must descend from the accepted queued substrate')
+    if not run_root.resolve().is_relative_to(path.parent.resolve()):
+        raise ValueError('CFX-009 run root must be inside its epoch')
+    if any((p / 'STOP-LAUNCHES.txt').exists() for p in (run_root.resolve(), *run_root.resolve().parents)):
+        raise ValueError('CFX-009 active stop guard')
+    guards = lane.get('historical_guards', [])
+    if len(guards) < 13 or len({g['path'] for g in guards}) != len(guards):
+        raise ValueError('CFX-009 requires all distinct historical guards')
+    for record in guards:
+        if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
+            raise ValueError('CFX-009 historical guard changed')
+    prior = lane.get('previous_epoch', {})
+    old_opening = verified_record(prior.get('opening'), 'CFX-009 previous opening')
+    old_state = verified_record(prior.get('state'), 'CFX-009 previous state')
+    if old_opening.get('issue') != 102 or old_state.get('pending_attempt'):
+        raise ValueError('CFX-009 previous epoch is incomplete or belongs to another issue')
+    old_guards = list(old_opening.get('historical_guards', []))
+    if old_opening.get('prior_phase', {}).get('stop'):
+        old_guards.append(old_opening['prior_phase']['stop'])
+    current_guards = {str(pathlib.Path(g['path']).resolve()): g['sha256'] for g in guards}
+    if any(current_guards.get(str(pathlib.Path(g['path']).resolve())) != g['sha256'] for g in old_guards):
+        raise ValueError('CFX-009 previous guard set must remain preserved')
+    if old_state.get('status') == 'STOPPED':
+        old_stop = pathlib.Path(prior['state']['path']).resolve().parent / 'STOP-LAUNCHES.txt'
+        expected = current_guards.get(str(old_stop))
+        if not expected or digest(old_stop) != expected:
+            raise ValueError('CFX-009 previous stopped epoch STOP guard missing/changed')
+    verified_analysis(prior.get('analysis'))
+    index = verified_record(prior.get('artifact_index'), 'CFX-009 previous artifact index')
+    if not index.get('files'):
+        raise ValueError('CFX-009 previous artifact index empty')
+    for record in index['files']:
+        if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
+            raise ValueError('CFX-009 previous artifact changed')
+    proof = verified_record(prior.get('control_proof'), 'CFX-009 previous control proof')
+    if proof.get('accepted') is not True or not proof.get('files'):
+        raise ValueError('CFX-009 previous safe control proof invalid')
+    for record in proof['files']:
+        if not record.get('sha256') or digest(pathlib.Path(record['path'])) != record['sha256']:
+            raise ValueError('CFX-009 previous control evidence changed')
+    build = verified_record(lane.get('build_proof'), 'CFX-009 build proof')
+    if (build.get('source_sha') != source or build.get('exe_sha256') != lane.get('exe_sha256') or
+            build.get('pdb_sha256') != lane.get('pdb_sha256') or
+            not lane.get('runtime_files') or build.get('runtime_files') != lane['runtime_files']):
+        raise ValueError('CFX-009 build/source/runtime proof mismatch')
+    for binary, key in ((exe, 'exe_sha256'), (exe.with_suffix('.pdb'), 'pdb_sha256')):
+        if not lane.get(key) or digest(binary) != lane[key]:
+            raise ValueError('CFX-009 binary/PDB identity changed')
+    for name, record in lane['runtime_files'].items():
+        if pathlib.Path(name).name != name or not record.get('sha256') or digest(exe.parent / name) != record['sha256']:
+            raise ValueError('CFX-009 runtime identity changed')
+    state = json.loads((path.parent / 'state.json').read_text(encoding='utf-8'))
+    for counts in (state, old_state):
+        if any(type(counts.get(k)) is not int or counts[k] < 0 for k in ('launches', 'loss_episodes')):
+            raise ValueError('CFX-009 counts must be nonnegative cumulative integers')
+        if counts['loss_episodes'] > counts['launches']:
+            raise ValueError('CFX-009 loss count exceeds launches')
+    if (state.get('status') != 'OPEN' or state['launches'] < old_state['launches'] or
+            state['loss_episodes'] < old_state['loss_episodes']):
+        raise ValueError('CFX-009 prior counts must carry forward')
     return lane
 
 
@@ -203,6 +330,8 @@ def main():
                     help="CFX-006 bounded resource/range/fingerprint evidence (changes CPU overhead)")
     ap.add_argument("--address-bindings", action="store_true",
                     help="opt-in driver address binding reports; requires --resource-trace (hardware smoke pending)")
+    ap.add_argument('--retain-replaced-lightmaps', action='store_true',
+                    help='opt-in lifetime discriminator; not a production crash repair')
     ap.add_argument("--validation-layer-dir", type=pathlib.Path,
                     help="directory containing local Khronos validation JSON and DLL; process-scoped")
     ap.add_argument("--isolate-workdir", action="store_true",
@@ -223,12 +352,16 @@ def main():
     ap.add_argument("--cfx007-lane-plan", type=pathlib.Path)
     ap.add_argument("--approved-cfx008", action="store_true", help="#99 address localization, two launches/one loss")
     ap.add_argument("--cfx008-lane-plan", type=pathlib.Path)
+    ap.add_argument('--approved-cfx009', action='store_true', help='#102 finite v1 or supervised-adaptive v2 epoch')
+    ap.add_argument('--cfx009-lane-plan', type=pathlib.Path)
     args = ap.parse_args()
     if args.resource_trace and args.mode == "off":
         ap.error("--resource-trace requires an enabled diagnostic mode")
     if args.address_bindings and not args.resource_trace:
         ap.error("--address-bindings requires --resource-trace")
-    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007, args.approved_cfx008)) > 1:
+    if args.retain_replaced_lightmaps and (args.mode != 'capture' or not args.resource_trace or not args.address_bindings):
+        ap.error('--retain-replaced-lightmaps requires capture/resource/address diagnostics')
+    if sum((args.approved_cfx003, args.approved_cfx005, args.approved_cfx007, args.approved_cfx008, args.approved_cfx009)) > 1:
         ap.error("choose one crash campaign approval scope")
     if args.cfx005_lane_plan and not args.approved_cfx005:
         ap.error("--cfx005-lane-plan requires --approved-cfx005")
@@ -266,7 +399,25 @@ def main():
                     raise ValueError('CFX-008 launch requires the executor durable reservation')
         except (OSError, ValueError, KeyError, TypeError) as exc:
             ap.error(str(exc))
+    if args.cfx009_lane_plan and not args.approved_cfx009:
+        ap.error('--cfx009-lane-plan requires --approved-cfx009')
+    if args.approved_cfx009:
+        try:
+            lane = check_cfx009_lane(args.cfx009_lane_plan, args.run_root, args.exe)
+            if args.mode != 'capture' or not args.address_bindings or not args.resource_trace or args.validation_layer_dir:
+                raise ValueError('CFX-009 localization requires capture/resource/address only')
+            if args.retain_replaced_lightmaps and lane.get('schema') != 'cfx-009-lane-v2':
+                raise ValueError('CFX-009 retention experiment requires its new supervised epoch')
+            if args.launch:
+                state = json.loads((args.cfx009_lane_plan.parent / 'state.json').read_text(encoding='utf-8'))
+                reservation = json.loads((args.run_root.parent / 'execution-start.json').read_text(encoding='utf-8'))
+                if state.get('pending_attempt') != reservation['attempt_id']:
+                    raise ValueError('CFX-009 requires the executor durable reservation')
+        except (OSError, ValueError, KeyError, TypeError) as exc:
+            ap.error(str(exc))
     files = [args.exe, args.iwad, *args.pwad, *args.addon]
+    if args.cfx009_lane_plan:
+        files.append(args.cfx009_lane_plan)
     if args.cfx008_lane_plan:
         files.append(args.cfx008_lane_plan)
     if args.cfx007_lane_plan:
@@ -282,8 +433,8 @@ def main():
         ap.error("STOP-LAUNCHES.txt guard applies to an input")
     risky = args.map.upper() in ("MAP01", "MAP24", "MAP08") and any(
         key in p.name.lower() for p in args.pwad + args.addon for key in KNOWN_CRASH)
-    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007 or args.approved_cfx008
-    campaign = "CFX-008" if args.approved_cfx008 else "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
+    crash_approved = args.approved_cfx003 or args.approved_cfx005 or args.approved_cfx007 or args.approved_cfx008 or args.approved_cfx009
+    campaign = 'CFX-009' if args.approved_cfx009 else "CFX-008" if args.approved_cfx008 else "CFX-007" if args.approved_cfx007 else "CFX-005" if args.approved_cfx005 else "CFX-003"
     if args.launch and risky and not crash_approved:
         ap.error("known crash route requires a separately approved CFX-003, CFX-005 or CFX-007 campaign")
     if crash_approved and args.skip_dump_on_timeout:
@@ -371,13 +522,17 @@ def main():
                 "working_directory": str(work_dir),
                 "crash_campaign_approval": campaign if crash_approved else None,
                 "cfx008_lane_plan": identity(args.cfx008_lane_plan) if args.cfx008_lane_plan else None,
-                "renderer_source": (json.loads(args.cfx008_lane_plan.read_text(encoding='utf-8'))['renderer_source']
-                                    if args.cfx008_lane_plan else None),
+                "cfx009_lane_plan": identity(args.cfx009_lane_plan) if args.cfx009_lane_plan else None,
+                "renderer_source": (json.loads(p.read_text(encoding='utf-8'))['renderer_source']
+                                    if (p := args.cfx009_lane_plan or args.cfx008_lane_plan) else None),
                 "cfx005_lane_plan": identity(args.cfx005_lane_plan) if args.cfx005_lane_plan else None,
                 "cfx007_lane_plan": identity(args.cfx007_lane_plan) if args.cfx007_lane_plan else None},
         "environment": {"os": platform.platform(), "gpu": None, "driver": None,
                         "vulkan_runtime": None, "active_vulkan_layers": None,
                         "validation_or_capture_mode": args.mode,
+                        "retain_replaced_lightmaps": {"requested": args.retain_replaced_lightmaps,
+                                                      "experimental": True,
+                                                      "purpose": "old atlas lifetime discriminator"},
                         "resource_trace": {"enabled": args.resource_trace,
                                            "schema": "cfx-006-resource-v1",
                                            "record_limit": 8192,
@@ -429,7 +584,8 @@ def main():
     print(run_dir)
     if not args.launch:
         return 0
-    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace, addresses)
+    env = capture_environment(probe_env, args.mode, run_id, trace, fault, args.resource_trace, addresses,
+                              args.retain_replaced_lightmaps)
     if args.mode in VALIDATION_SETTINGS:
         env["VK_INSTANCE_LAYERS"] = "VK_LAYER_KHRONOS_validation"
     if args.mode in VALIDATION_SETTINGS:
