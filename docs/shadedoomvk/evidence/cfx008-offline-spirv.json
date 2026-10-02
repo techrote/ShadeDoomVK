@@ -1,0 +1,1136 @@
+{
+  "schema": "cfx-008-offline-spirv-v1",
+  "cache": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\inputs\\shadercache-baseline.zdsc",
+    "sha256": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd",
+    "bytes": 11323798
+  },
+  "historical_target_timeline": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\target-003\\runs\\cfx-20261002T102203Z-e3c017b04823\\timeline.tsv",
+    "sha256": "172e7979f6056967a3a85521bb540d5af195720465e41a46c0b20bc6a2a7be66",
+    "bytes": 914712
+  },
+  "validator": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-tools\\vulkan-sdk-1.4.357.0\\Bin\\spirv-val.exe",
+    "sha256": "55b0bde93c20d427a95d6deb95181ab6621d9bb18e6f1519d30ceba8d3f1de17",
+    "bytes": 2713016
+  },
+  "version": "SPIRV-Tools v2026.3 v2026.3.rc1-0-gb707790a",
+  "command": [
+    "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-tools\\vulkan-sdk-1.4.357.0\\Bin\\spirv-val.exe",
+    "--target-env",
+    "vulkan1.2",
+    "-"
+  ],
+  "cache_entries": 230,
+  "historical_unique_cache_hits": 138,
+  "validated": 138,
+  "failures": 0,
+  "records": [
+    {
+      "key": "0-0271b6fd3547ad154a50cc6d0e225b28eb2e7700-6956",
+      "words": 3759,
+      "spirv_version": "0x10400",
+      "sha256": "22e5612b638047f994a0a8191948211f57f1e2a17d2ce20d42b5efef54515eaf",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-03accab571b7be63351aa11d14ad5498c3eefd36-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-0af1154e3867c0ce60c0f6d00d33bef7fbe9c95e-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-0f6aa72d5456a7f3cbbb285c25f06146e550acd2-6956",
+      "words": 6373,
+      "spirv_version": "0x10400",
+      "sha256": "209d3b1abc6eaa7d504c431b87730a2c6de682f5f5f83660c70580f674dee74f",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-10961e89149de0f1afe454c383741b129c2be06b-6956",
+      "words": 6370,
+      "spirv_version": "0x10400",
+      "sha256": "044772fbe185600ed5a6aaa63facced2c2f3150196b81947e0203360e2b1e6ad",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-1b51ddefd06a08981a5eb6aa076b2d989386c082-255",
+      "words": 304,
+      "spirv_version": "0x10400",
+      "sha256": "d957f18e1793166a9000d34e52d68a6120fbd76479b1e3712f726b4cc47749c5",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-29f65aed8f4a1c3f4ba0bf24e9f09b8a2b542057-269",
+      "words": 1522,
+      "spirv_version": "0x10400",
+      "sha256": "ab5eca31b79934314ad7b3555d00e7b3b69c0f7e00dae97f9247278b6e3d1b6e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-2a1ea143f8909c800ece604e6b6c7dcf8050478f-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-2b29e416ebd399f04719a04353b4c966eef7ca0c-6956",
+      "words": 6374,
+      "spirv_version": "0x10400",
+      "sha256": "cbda03eb794f79e854fad3686bfaf318e739b62395cc3e8e3da4076167a43e69",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-2b31d2c74f11bfe07f98a5950611d4de3ff4b180-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-2c3167e5c57c7c35c899da465aec20a25ff6ce35-6956",
+      "words": 6380,
+      "spirv_version": "0x10400",
+      "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-326e02cb84e4a95836e862f9045ae7f2e50e01ae-6956",
+      "words": 6380,
+      "spirv_version": "0x10400",
+      "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-32d0340857b07029cb98c691c647fd2d33b34fa4-6956",
+      "words": 6397,
+      "spirv_version": "0x10400",
+      "sha256": "e54febf79f5ce39f0f0a89b0cac4d8a56177c0b2e91dbfc24ca8b1e19eba131d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-33a2ba53283fa11147be2096298a794aa3dd8b1b-333",
+      "words": 362,
+      "spirv_version": "0x10400",
+      "sha256": "bab2f71f0b0b0c3289e8ac5bea0c84d1cdd34cb191f1d17c625f589b9546ce3a",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-37ea6667c4a8eeda59dcb75f4cb15c2efeaa086a-6956",
+      "words": 13708,
+      "spirv_version": "0x10400",
+      "sha256": "13e05c4da7f810ae047efe353eab8e87d7ba844b4e4f88a456254def96837c13",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-39503d74bb03c12a3d9360b6c979a428d2041523-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-3f57a36a11c6d34d265e50e015fe43bdb49c475e-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-44f84f41c87316e96aabe1bf4789d9bcb4258030-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-4e5eb52c4ddbb12db9c146dc1648ed0205995c6c-6956",
+      "words": 6360,
+      "spirv_version": "0x10400",
+      "sha256": "e45e3d1b827e7540bf71066b83838f8b711565451d0492f1bdad045da8a5c8de",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-52027ce3d460351261e959fcb410f57bbd5c6050-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-536b388b88077c327bfc20030786c7d9f9d39f1a-6956",
+      "words": 6384,
+      "spirv_version": "0x10400",
+      "sha256": "2026f25c89515c7e708e4becbe3abcd5f32f281bc75ff7c9bf8dfcf1a913c52c",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-547691583dde1615892d690bd8e9146ded616e7f-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-56c0633ab24182d48f5b4f11da952e8a3fee9515-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-5cc898e09a6b1e85528d58908ea8bc28d2fb563b-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-6d4db9d02dcd21bdc6120ca6990804ecc4f287ec-6956",
+      "words": 6360,
+      "spirv_version": "0x10400",
+      "sha256": "e45e3d1b827e7540bf71066b83838f8b711565451d0492f1bdad045da8a5c8de",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-6fff4def9a5fbec507602a19559e23a2aa185e12-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-70d4a291664700e368746a401b0f830c1ee9fa1e-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-808601efb2d059ce1866a83d7720974fabcda594-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-84173e8abbe7b1385d89549457bab9ef1adfbd02-6956",
+      "words": 6397,
+      "spirv_version": "0x10400",
+      "sha256": "e54febf79f5ce39f0f0a89b0cac4d8a56177c0b2e91dbfc24ca8b1e19eba131d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-8507ad2fefc3606ebf52a46a45ecdcbfa87ab914-6956",
+      "words": 6398,
+      "spirv_version": "0x10400",
+      "sha256": "22d0809b27f6204f9a84f6e51d24c2485f47589f8dc54ac6aa732fe351376a58",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-8584a5dfef937e7d96841d374cb6416e729aa043-6956",
+      "words": 6370,
+      "spirv_version": "0x10400",
+      "sha256": "044772fbe185600ed5a6aaa63facced2c2f3150196b81947e0203360e2b1e6ad",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-8d950bea642c067cab51ce5cd10be031f25a2319-6956",
+      "words": 6384,
+      "spirv_version": "0x10400",
+      "sha256": "2026f25c89515c7e708e4becbe3abcd5f32f281bc75ff7c9bf8dfcf1a913c52c",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-8ec4b3e33e8107486ce9ffcb1a5db79e03570030-6956",
+      "words": 3783,
+      "spirv_version": "0x10400",
+      "sha256": "fc0f4b1f4b785afe901d29a23825c0535771dffad89b147bdb600c2866041f19",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-91101c6f9cb3f4bfac0f4bcb95959816f6d7d9c0-6956",
+      "words": 6398,
+      "spirv_version": "0x10400",
+      "sha256": "22d0809b27f6204f9a84f6e51d24c2485f47589f8dc54ac6aa732fe351376a58",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-91b5e1bee7529be2f7f841353d8a770e1001c454-6956",
+      "words": 6370,
+      "spirv_version": "0x10400",
+      "sha256": "044772fbe185600ed5a6aaa63facced2c2f3150196b81947e0203360e2b1e6ad",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-92225834b4b3fb617f5858aea4b8eec98060fc2e-6956",
+      "words": 6374,
+      "spirv_version": "0x10400",
+      "sha256": "cbda03eb794f79e854fad3686bfaf318e739b62395cc3e8e3da4076167a43e69",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-9242a68e37d215a9ec7d0f3b5a5117580e38d99e-6956",
+      "words": 6373,
+      "spirv_version": "0x10400",
+      "sha256": "209d3b1abc6eaa7d504c431b87730a2c6de682f5f5f83660c70580f674dee74f",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-929878c9454e2953ed88ca3c9a7b5460cff2446a-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-9532e2c3561da62690d0f792d2ae86d9aa910ef6-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-954a045080af5ce8d28325a3089d29b9ef1d5b16-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-9734cd74f4db1fad9314d50bc3e6ae8804242030-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-a18acc4002c0a25b10dfc18e0471f94719781446-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-a68ee5205657420b882726fda34a845e4699974c-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-a714d5f45e52941c2e41df37db053f7b8074da1c-6956",
+      "words": 6370,
+      "spirv_version": "0x10400",
+      "sha256": "044772fbe185600ed5a6aaa63facced2c2f3150196b81947e0203360e2b1e6ad",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-b23c2cca1a66e4beaa34ec5458b7dcd99a5258a8-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-b583f610e9b290c2d71651c9f005e18d1408faec-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-bba26c1a5e474b34bd041101769b8a8f44c17c47-1291",
+      "words": 1706,
+      "spirv_version": "0x10400",
+      "sha256": "b458a4155af90bb31dfef55c40d189fb3c6f219fb31de65c0042bf11c020c697",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-c4f2875e4f7872af4fe44e882248f3683ecace68-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-d66c5c78089552f5056c728053889a591808400f-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-da3a1fce305f5e815400e2938afa67c4240db047-1026",
+      "words": 1026,
+      "spirv_version": "0x10400",
+      "sha256": "037003ab50bfff091af558b60b82e86e9dc36bb8c06c37813f24609c83c3cfed",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-dc40c79ed30e9efbd3971f7b2a4b27bed2d22887-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-e79c1f1831360e3d0b080978a6c76c1626f651fc-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-eebaeb152355af9475e12f1aecdd9a1cec473e49-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-ef9ac8888802ad601593ebf09dd3a14b979bb946-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-f080700aa94d079cb9cca44dd538625c2d04e7c8-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-fc08582764507cb397a75df5a3e77fcb3defb6a8-6956",
+      "words": 6356,
+      "spirv_version": "0x10400",
+      "sha256": "20c6e048ddfd451c295380a1a5a82f7c43d9deedbb31f2c013127a5999d7b7d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-fc1951712c685830564c353828bd1b8e2e964ec4-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-fcf59c5fbe4f75662610703aef5ffa15afd30864-6956",
+      "words": 13732,
+      "spirv_version": "0x10400",
+      "sha256": "3d062487d0dd72912ac9126a01b5ffa2aee0934632240b74328716f08d79893b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "0-fde4ad0132849e4087c4f3de3cb80877e276190b-6956",
+      "words": 6380,
+      "spirv_version": "0x10400",
+      "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-023d217ecbb19af0f4851b5232a981a06ace47e0-1387",
+      "words": 10296,
+      "spirv_version": "0x10400",
+      "sha256": "f6879d9e0134877b049acc3a927bc11cb8f778a3f2ba977a3d4e8f916e72cc91",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-030dce1c0575855df50b3de76a4d0fd01dec8836-3130",
+      "words": 12295,
+      "spirv_version": "0x10400",
+      "sha256": "be11406a2cbd5ffd84fd3572098d1791b05f64324309ddad2f06934735d03529",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-07f461dce69295a1e7aada6e58015bcf650b8dc9-3130",
+      "words": 16288,
+      "spirv_version": "0x10400",
+      "sha256": "a204941b419a0a6a92459173ac8e617b890c65f34265f3f214e4b2d9efbced3e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-0ae9ef56294a0189a8cda22df32f7db5db0af994-3130",
+      "words": 16223,
+      "spirv_version": "0x10400",
+      "sha256": "eb9f7167d455a857c63adac17b849747f8801ca8149f9c7f11d8f5f63a89fd84",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-0cd467f348d3972c6b4cc4c7c32d7bfc89e47e2c-3130",
+      "words": 27989,
+      "spirv_version": "0x10400",
+      "sha256": "17387242eeffbc8ba25f315111b269bbbbb0e9f1517db40a51dac2d73050b614",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-1159d3a9af61b6661d3d0e9e4e56532dfc4d9890-3130",
+      "words": 15750,
+      "spirv_version": "0x10400",
+      "sha256": "286ed29e243d407ea6013e0639f300bce1ea2f636889fc16f1faf9e4bcba6ba4",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-13fcb80a05c6810846bead9c0d2280674b406d18-1387",
+      "words": 9278,
+      "spirv_version": "0x10400",
+      "sha256": "6f2259a98c74bd767e92cc5615629867d1692d38fe0b0c5deeca8a1607bf059d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-1994794017ebdb03dbc4d23aab507c52c2a149bb-3130",
+      "words": 19494,
+      "spirv_version": "0x10400",
+      "sha256": "5d37bc7e3ba9c36970c732441107faf3b06975930bb750385affcd479f293817",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-1bbd21df488080f2608590f9aff2f4b009a55f30-3130",
+      "words": 15069,
+      "spirv_version": "0x10400",
+      "sha256": "3b02a8a1f0d7fbe14851a1c59d4836e96da1a875138fc3cac7db7e87974e5884",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-1f0f615194120bf755cbf56edb7b110d66d90154-3130",
+      "words": 15815,
+      "spirv_version": "0x10400",
+      "sha256": "3d7f9c6da42431b9ec13aee84a50338c97614b445b866cfa4bb747c86d9e312b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-2301fa9f0eae535aef153071f6e155cdde8ac024-3130",
+      "words": 16274,
+      "spirv_version": "0x10400",
+      "sha256": "efcdaab2eeee9914f933bb4e6ebf9b85babef389885d0155b8497317f77b718e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-24ba762fc0856e094b071ef25c714e4b4d1e41e0-3130",
+      "words": 16044,
+      "spirv_version": "0x10400",
+      "sha256": "116b2423d9eec426dda2fd67661062d7c4900f59276d8e1af008d3a08ff34d9e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-26c0829a7fe959a4cb0e448aa860a5127a17e23a-3130",
+      "words": 19480,
+      "spirv_version": "0x10400",
+      "sha256": "4bfe22c63fbd28fa6daedf83b95e6c09f8670c321434e02a81b6b9b4ee9f1ccc",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-26db58692db9739f7de79d7473910f850e89473c-3130",
+      "words": 27888,
+      "spirv_version": "0x10400",
+      "sha256": "afc1819f3dbfa81842f9fc7dae44f1b98d9e9e26e0c6ffdaebbd9033d7967df0",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-298b0331f333b3569e247fa255ba115785737818-3130",
+      "words": 15995,
+      "spirv_version": "0x10400",
+      "sha256": "c0c0581f3292604ed78ee69fb594cb60a85953941a1dca818de4b9e265dadd08",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-2a18d9639383ab4043e7cfd9e3f7e8e9dbf6b795-3130",
+      "words": 12281,
+      "spirv_version": "0x10400",
+      "sha256": "732a4b19be8f1a7d14568656fc0eff5d3691e5386e406b2ba24967a83f3bfa3d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-35ee74e76bed5a4073f304ece7da3100d789aa88-3130",
+      "words": 16406,
+      "spirv_version": "0x10400",
+      "sha256": "9548e89865ad23f168cba34c8037f4c323f43b7ec5ccc86f48fafcefd8f1dee2",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-3a352be9fa32d2952c005a42cad4a660869dbcae-3130",
+      "words": 16000,
+      "spirv_version": "0x10400",
+      "sha256": "c3c300698ec9f6ab8a23c6943bc701a35e95ee385afb13e18348b8b9c2d7e6d6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-3db2b11daa70961e5b8164305b38e1672ede1c8d-3130",
+      "words": 17451,
+      "spirv_version": "0x10400",
+      "sha256": "aa591ece618a85f2734f5623ac8c33349c23f9601d6bce5f7bf77cf5ebb120cf",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-3e8b6eb096720239c4b8da7d769594fa65925f42-1217",
+      "words": 840,
+      "spirv_version": "0x10400",
+      "sha256": "4e0f3baeaa0e1d25e4a2e20cb1cb0a5a3de59b53f7140fc3189700ae7e6219a5",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-3f82543b1f1307363447f4ed969af75b1823ce39-915",
+      "words": 520,
+      "spirv_version": "0x10400",
+      "sha256": "d8bbe1bbbe1119667b448db62a1aca7241379cd62ec1076af73b86a5658cad8b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-40b95032463b6750aaeab669129527c7a9f299e4-682",
+      "words": 642,
+      "spirv_version": "0x10400",
+      "sha256": "17cd982283a512666d02a4b45ce6e7d764a05f7f8d165866102cb1c6c2fb86d7",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-414415df9cc3b07929aa076c669230f890aa87ed-1217",
+      "words": 839,
+      "spirv_version": "0x10400",
+      "sha256": "9dcc172ab963cf2b583defeda5a1226b1ba8fcd69b6ccd855e17cc1a8ef5d7e6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-428397777c61aacdd29c923a0c32a84ef533a857-3130",
+      "words": 16337,
+      "spirv_version": "0x10400",
+      "sha256": "a86dee556172f72c5be4ada1fa8ac9629e9a5cfdb8c596d86db1f59534cd7ed7",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-4a43ae911e3318a2fd7fd9637688d1198feae423-1387",
+      "words": 7765,
+      "spirv_version": "0x10400",
+      "sha256": "cd7feee3cb07991bfaf022472754168fd04436cb3bbd3a25b749f213aed989c4",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-55428f44b76426e108bbb827a63d7759cc32d6ca-3130",
+      "words": 28040,
+      "spirv_version": "0x10400",
+      "sha256": "dc6edfebc3c5c2c61b173afe72f56a4948787bfa94753cf400212bea0580b126",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-6229e47e93b8bc1d5292fcff32f397ff5a275699-1387",
+      "words": 7959,
+      "spirv_version": "0x10400",
+      "sha256": "eaadf56b99bee94b72316008874605f129a8cbec73534a1055a3075c1265d44c",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-626098914aedbaae91f34127638daf14bad2a066-1387",
+      "words": 9503,
+      "spirv_version": "0x10400",
+      "sha256": "b66404388e723eb3cec6baf324b3fa6964b3dc77270761e41d6f855fdb18f226",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-62fc17850059a71ee623d5100e4271cf1b29ecd3-3130",
+      "words": 15954,
+      "spirv_version": "0x10400",
+      "sha256": "716803dd12c32a5bf8bad48abae1693000f6186346f62baab72406e62f8cd012",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-645cb0de7c867c8923873d496cf81c09ff1bdbfc-3130",
+      "words": 16384,
+      "spirv_version": "0x10400",
+      "sha256": "bae0498fec57c5a1193e54e1df22b341bf5d6898ea4d88c39a77275d1d4f938e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-6a59522adee2ad8095be08ba70d396777dfe4779-1387",
+      "words": 8538,
+      "spirv_version": "0x10400",
+      "sha256": "9d61bdf26310dd7f1ea0265521369ed8705ea918f249ad7c13eacfb874cdfa6d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-6e941a95ce7987a1913189bad64430e421a7746f-3130",
+      "words": 19531,
+      "spirv_version": "0x10400",
+      "sha256": "259b48e6282163fc70ef44a28fec225a201037e479f176c731f73e1d9459f9a6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-6f936e7c6178f24ef23e5789fe6d74eaf4e3df2a-3130",
+      "words": 27989,
+      "spirv_version": "0x10400",
+      "sha256": "17387242eeffbc8ba25f315111b269bbbbb0e9f1517db40a51dac2d73050b614",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-73bde48dfce950c1c65db0effefa090fdedb6633-3130",
+      "words": 15801,
+      "spirv_version": "0x10400",
+      "sha256": "90f4ad8ea6415f01a64ada11f9add6f832eb33f6e125c9fd39c991a210f236c5",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-7661a31ba58e141f637c9feb8d9adc62c595f138-3130",
+      "words": 27934,
+      "spirv_version": "0x10400",
+      "sha256": "ca3ad4457599a4fd3b096812dcebbb1b8290362238a3b2031419139bc8d440b7",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-795cef0506a054e2d38dc0c7aa7937f03e993837-3130",
+      "words": 17437,
+      "spirv_version": "0x10400",
+      "sha256": "58ded14f088fdad300d114b4b983985225cbee0821954b01c8065607dffda72a",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-7bc638bbb4beba3d65f184e7a3704b4e59ace687-3130",
+      "words": 16392,
+      "spirv_version": "0x10400",
+      "sha256": "e7c8f1b0b565efc196875177ef72ab3d94dd1abd22d533e0aa969c9943600743",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-8a1234411de406522d91fd8bc7e7b084567c4a56-3130",
+      "words": 17502,
+      "spirv_version": "0x10400",
+      "sha256": "4a807b1beed22b8f96e9dadd14c711b6f92ed9b9b0ec279cb96974444b4fc854",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-8a537350710f64afd75ef7d4795a7f33eda40f82-1387",
+      "words": 9556,
+      "spirv_version": "0x10400",
+      "sha256": "46a228b665d8eb1b09268bbb4cad62b9a667eef1fae9730bfbbc56705f1d715c",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-8c35fcc9e755ce7aef5b8f1e51966866ad5bddb4-3130",
+      "words": 16457,
+      "spirv_version": "0x10400",
+      "sha256": "b221a5bdf67aa931809de5dc01db74495de4441a1a3fbafc2cfdab99d76f9240",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-8f2dfd91afcf221c8097ff6d89bebe437ddb12f6-3130",
+      "words": 15134,
+      "spirv_version": "0x10400",
+      "sha256": "9f9b20ced4ae78c0ec33a1458e39b5ecef3cabf8a72c46a6b211a46a34919438",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-96155981ac929309e36565ca01eab0949fc0c345-3130",
+      "words": 16058,
+      "spirv_version": "0x10400",
+      "sha256": "ec8d5fbd8c6f168dfe4fda613495f4cbe558b5ddfde1d73bf91a6921a554f1d7",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-98d27e8cb5810bd3c05899b9262abdf94f8bc6b7-1387",
+      "words": 6982,
+      "spirv_version": "0x10400",
+      "sha256": "c30e730bf541c825d9735ce24fd82da488a2d25bd6e12cd89ae23210c7532107",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-9ad33f80bbf9b6514c83d5496efb50dd9ee03903-3130",
+      "words": 17488,
+      "spirv_version": "0x10400",
+      "sha256": "685fcb52fccdf51a20974b813d48b6aeee68404c5c401f06103a2c25aef6b0b7",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-a30315dc840a08eaa5f1fedb6ef5598cab6fced6-3130",
+      "words": 12230,
+      "spirv_version": "0x10400",
+      "sha256": "8ec75934037c3a4552f48ff68a8eb20d066efb9b82af0e2c1f4beca6f5ae9bd4",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-a71b3d535ead924e140ac43b7c8a2c13c107aa96-3130",
+      "words": 12281,
+      "spirv_version": "0x10400",
+      "sha256": "732a4b19be8f1a7d14568656fc0eff5d3691e5386e406b2ba24967a83f3bfa3d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-a87347154276c90d4c3471871115c7fa4d9daabc-1167",
+      "words": 1067,
+      "spirv_version": "0x10400",
+      "sha256": "27b46c1d4c8135eda5a7320b846ab3010918891b268c75bb4762262f5540f930",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-af58a94f03548bad889f036a8429dafa616ea2d7-3130",
+      "words": 24307,
+      "spirv_version": "0x10400",
+      "sha256": "3f9abf2f47193c8a5ee04e180bb31a819630259090897fb7380f11f3d2224b10",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-b2049779bb4fa4d4990203f1daac00a5b5ad8e30-3130",
+      "words": 12230,
+      "spirv_version": "0x10400",
+      "sha256": "8ec75934037c3a4552f48ff68a8eb20d066efb9b82af0e2c1f4beca6f5ae9bd4",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-b2e725ad718d0264768148f41c735ca6cfd179d8-3130",
+      "words": 16095,
+      "spirv_version": "0x10400",
+      "sha256": "ba8465df62aec96d0ce48f182c56300b79699c811aaf2ef29f46b83963c6c53d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-b34775b76716fc823f298e082976ddb0bd63bec0-3130",
+      "words": 16095,
+      "spirv_version": "0x10400",
+      "sha256": "ba8465df62aec96d0ce48f182c56300b79699c811aaf2ef29f46b83963c6c53d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-b4127827785f16915a21aa3ac7877d79d51048a9-178",
+      "words": 2742,
+      "spirv_version": "0x10400",
+      "sha256": "4626e126ceca46c91d383db71a4a68b4f612fae66d314f401ed802b9f442dd72",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-b5acd46e30e68516e546dc0e000b1c0a7d8a3779-1387",
+      "words": 11417,
+      "spirv_version": "0x10400",
+      "sha256": "af8561288ddbe458a2b5fcd2c83b8b8543d6c4973db56e8a1ba7fb96d5a31d89",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-b6299f77ed882486e1f8d694678cb7b1c17b13cd-1387",
+      "words": 11894,
+      "spirv_version": "0x10400",
+      "sha256": "b9142b94e88e246d1da2b471652ecaa433647b71354862eedd3e9ff78b7ed2ea",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-bdd373f4de8fec90088863d0183f6196b2778ac4-3130",
+      "words": 16044,
+      "spirv_version": "0x10400",
+      "sha256": "116b2423d9eec426dda2fd67661062d7c4900f59276d8e1af008d3a08ff34d9e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-c0e18c67f5491c29a6e4f7d8a4387ad1bea1463c-1387",
+      "words": 10272,
+      "spirv_version": "0x10400",
+      "sha256": "25b90e7a91941e577bc703efa45d5e51ae0b07b8790205fd43866246deba7b6d",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-c1c90ec47904b938fe75fb6468729302dd1d5b0d-3130",
+      "words": 15083,
+      "spirv_version": "0x10400",
+      "sha256": "e9a0cfb2999c09b75104e8d78dd61c3dbf359983270961ca620c2a13a46718e0",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-c2695b2974ba830d7a60dcbf1297a2515fbad340-3130",
+      "words": 16398,
+      "spirv_version": "0x10400",
+      "sha256": "cdb2a21c33cf47e41fca54bf5a93b86d14af42e0732ead23c5ef687e8cedcbb5",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-c38e8c7cf8c35cc2c6e73df05b845e4658c20a8b-1387",
+      "words": 13035,
+      "spirv_version": "0x10400",
+      "sha256": "848edd53cfdfd50f4a87234edc40f412e86441b7de97fc0514ff7ed8bb01bf9b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-c9a89d12d012e5e59b084399462e948a0db05cbb-1387",
+      "words": 9182,
+      "spirv_version": "0x10400",
+      "sha256": "2ecce4fe7f3598def8a37254786b747fe5cc7a67a3192408649b3f885f811e5b",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-cb6fd7901b5ddf30ffccbead6eb75cca7b0be4ac-3130",
+      "words": 16109,
+      "spirv_version": "0x10400",
+      "sha256": "c842f7ef2431b1f7c37b30799e6cf0b729610e5439bcde8a67e3504027a7178a",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-d95d70097830a040d434afb78798df0863a549b1-3130",
+      "words": 12244,
+      "spirv_version": "0x10400",
+      "sha256": "db208ab4ceefca0112fb8b8369a4288e1b8ba7e2be604927ee6d8ca58d413edf",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-da221a624cf4507a88328c524f51a52db26a2e17-6040",
+      "words": 8755,
+      "spirv_version": "0x10400",
+      "sha256": "77e082a636acbf917f43b6115fa418f45d551387c83c122bbda458930e074958",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-dab5fbc989f94f08067ffde47515bc2d247c09c3-1387",
+      "words": 8399,
+      "spirv_version": "0x10400",
+      "sha256": "45d315e188b012c775a9f544002807257752718e5252d7559794f6fa9b37ed9e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-df5b2029013f23af626f42b385c17c5e7acc3393-1529",
+      "words": 939,
+      "spirv_version": "0x10400",
+      "sha256": "bf9516d6bb32aab8315b5005b025f4099e58e0a3e86e8f1958f983b5856315e6",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-e6fb7fd4127d43d8df7f8034e386aab5b1dd4989-3130",
+      "words": 16443,
+      "spirv_version": "0x10400",
+      "sha256": "a662aefac6fb873bfde7e2bcabbd74105e25f134697975891ebc03b33220da48",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-e79d1ad2a79958cf594f056ef4791c45dedcd637-3130",
+      "words": 24307,
+      "spirv_version": "0x10400",
+      "sha256": "3f9abf2f47193c8a5ee04e180bb31a819630259090897fb7380f11f3d2224b10",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-e8ddc13c7239df1642ac899e5e99270973b138c8-3130",
+      "words": 16351,
+      "spirv_version": "0x10400",
+      "sha256": "841a09d5d07283ebf6e8eacda08be9210d3c6e3ae8c2bf1b82bc61d608c92cd3",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-e90ec264d6d2338659bf6c4e501e0b2901e917b7-3130",
+      "words": 16237,
+      "spirv_version": "0x10400",
+      "sha256": "c8953e90a763cbd6c4194dfe012a6134e8423e3763608961882bb2efa65df946",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-ec44c80f61dbef389444ff9db4b97516f11fbee1-1387",
+      "words": 10679,
+      "spirv_version": "0x10400",
+      "sha256": "06eaebf6e5492aa4a722bd8f2e4e636c002ffe0f2203a364f18f7be3455605a4",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-ec5082d82cc213bf76bf34d8dfa8ecb6dc372ff3-178",
+      "words": 2718,
+      "spirv_version": "0x10400",
+      "sha256": "0b7c88cbfb8d537130d0efe521803a15cae67391bd87a896bff339f7b3ab5f41",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-ed8167e401594c23bac116cc492455c295b7cc9e-3130",
+      "words": 24256,
+      "spirv_version": "0x10400",
+      "sha256": "afc7ac966a65976acb1c1be3e53fa0120eb8781706f943702d3bc0199ff8f16e",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-f1673be70e6f3ea629de38b4d827352bd730d404-3130",
+      "words": 15120,
+      "spirv_version": "0x10400",
+      "sha256": "202c15d50e33d2af788aa67eee82c512f733946db9ada74bcc7082d01110e1d5",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-f2fc40f3978a3d22f29d9126a47ef51b8ebb1bc5-3130",
+      "words": 15764,
+      "spirv_version": "0x10400",
+      "sha256": "c1f510cd0c8e89c73e5d8481a0a2b9b525b81c1dcf3738d57c8d09486ad6257c",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-f383afb55334269f08c82a68fcaaf760cd8fdb84-915",
+      "words": 520,
+      "spirv_version": "0x10400",
+      "sha256": "cb33083e116290b0a76fb6766b7c7d4d855b3e755a1cc4de936d644b322f788f",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-f396a1ebfbfd4802888884803513f95ad169ea77-3130",
+      "words": 28040,
+      "spirv_version": "0x10400",
+      "sha256": "dc6edfebc3c5c2c61b173afe72f56a4948787bfa94753cf400212bea0580b126",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-f70beefc08fe7e157b1bd67394bb035479a8f531-3130",
+      "words": 19545,
+      "spirv_version": "0x10400",
+      "sha256": "5bf8391be1163b31358e058501e218a0f59a8e10b1d9787902303d853db7e335",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "4-fc20eec50bc9b2095d095e8201e5ac4c32e2c828-1387",
+      "words": 9139,
+      "spirv_version": "0x10400",
+      "sha256": "38902a8f2a32e354ee298c792cf5a9da6e6cc17204990941e02872fadf811182",
+      "validator_exit": 0,
+      "output": ""
+    },
+    {
+      "key": "5-fa0a092936984bb2621f513da797d6f7fd94c2a0-3871",
+      "words": 2869,
+      "spirv_version": "0x10400",
+      "sha256": "14743b1146b45f469d7f73af03376ef992f4c11ec1985e80e13022e781f0d996",
+      "validator_exit": 0,
+      "output": ""
+    }
+  ],
+  "limits": "Offline structural validation under source compiler target Vulkan1.2. No dynamic index/resource/descriptor correctness, executing shader or cause is inferred. No game/GPU launched. Cache/source dependency identity and opaque driver cache are separate questions."
+}
