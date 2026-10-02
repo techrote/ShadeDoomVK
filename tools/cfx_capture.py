@@ -268,6 +268,11 @@ def check_cfx009_adaptive_lane(path, run_root, exe, lane):
     current_guards = {str(pathlib.Path(g['path']).resolve()): g['sha256'] for g in guards}
     if any(current_guards.get(str(pathlib.Path(g['path']).resolve())) != g['sha256'] for g in old_guards):
         raise ValueError('CFX-009 previous guard set must remain preserved')
+    if old_state.get('status') == 'STOPPED':
+        old_stop = pathlib.Path(prior['state']['path']).resolve().parent / 'STOP-LAUNCHES.txt'
+        expected = current_guards.get(str(old_stop))
+        if not expected or digest(old_stop) != expected:
+            raise ValueError('CFX-009 previous stopped epoch STOP guard missing/changed')
     verified_analysis(prior.get('analysis'))
     index = verified_record(prior.get('artifact_index'), 'CFX-009 previous artifact index')
     if not index.get('files'):

@@ -149,6 +149,23 @@ class AdaptiveScope(unittest.TestCase):
         self.save()
         with self.assertRaisesRegex(ValueError, 'guard set'): self.check()
 
+    def test_stopped_previous_epoch_requires_its_own_sibling_stop(self):
+        prior = self.root / 'stopped-prior'
+        prior.mkdir()
+        old_state = prior / 'state.json'
+        old_state.write_text(json.dumps(dict(status='STOPPED', launches=2, loss_episodes=1,
+                                            pending_attempt=None)))
+        stop = prior / 'STOP-LAUNCHES.txt'
+        stop.write_bytes(b'failed safe equivalence; preserve this stop')
+        self.previous['state'] = self.record(old_state)
+        self.save()
+        with self.assertRaisesRegex(ValueError, 'stopped epoch STOP'): self.check()
+        self.lane['historical_guards'] = [*self.guards, self.record(stop)]
+        self.save()
+        self.check()
+        stop.write_bytes(b'changed')
+        with self.assertRaises(ValueError): self.check()
+
     def test_active_stop_and_outside_root_still_block(self):
         with self.assertRaises(ValueError): capture.check_cfx009_lane(self.path, self.root.parent / 'outside', self.exe)
         (self.root / 'STOP-LAUNCHES.txt').write_text('STOP')
