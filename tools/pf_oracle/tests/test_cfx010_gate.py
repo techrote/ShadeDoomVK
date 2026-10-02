@@ -403,6 +403,9 @@ class CrossCase(unittest.TestCase):
             return original_digest(path)
         with mock.patch.object(execute, 'digest', side_effect=unreadable_empty):
             index = execute.artifact_index(attempt, manifest)
+            timed = dict(manifest, failure={'watchdog_action': {'status': 'dump timeout'}})
+            self.assertEqual(execute.artifact_index(attempt, timed)['excluded_failed_files'][0]['reason'],
+                             'failed-empty-watchdog-dump')
         self.assertEqual(index['excluded_failed_files'][0]['reason'], 'failed-empty-watchdog-dump')
         gate.verify_files(index, 'usable index')
         self.assertEqual(gate.classify(manifest, False, []), 'watchdog-no-return')

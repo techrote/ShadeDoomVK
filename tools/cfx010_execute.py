@@ -20,7 +20,7 @@ def artifact_index(attempt, manifest):
         size = path.stat().st_size
         watchdog = (manifest.get('failure', {}).get('watchdog_action') or {}) if manifest else {}
         if (path.name == 'process.dmp' and size == 0 and manifest and manifest.get('status') == 'TIMEOUT'
-                and watchdog.get('status') in ('failed', 'partial', 'timeout')):
+                and watchdog.get('status') in ('failed', 'partial', 'dump timeout')):
             excluded.append({'path': str(path), 'bytes': 0, 'sha256': None, 'reason': 'failed-empty-watchdog-dump'})
             continue
         files.append({'path': str(path), 'bytes': size, 'sha256': digest(path)})
