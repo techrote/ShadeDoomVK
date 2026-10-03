@@ -63,7 +63,8 @@ void VkRenderBuffers::BeginFrame(int width, int height, int sceneWidth, int scen
 
 	if (width != mWidth || height != mHeight)
 	{
-		CreateSceneZMinMax(width, height);
+		if (fb->IsLightTilesEnabled())
+			CreateSceneZMinMax(width, height);
 		CreateSceneLightTiles(width, height);
 	}
 
@@ -295,16 +296,19 @@ void VkRenderBuffers::CreateSceneZMinMax(int width, int height)
 
 void VkRenderBuffers::CreateSceneLightTiles(int width, int height)
 {
-	width = (width + 63) / 64;
-	height = (height + 63) / 64;
-
-	// Make room for 16 lights plus the lightdata header
-	size_t blockSize = (4 * sizeof(int)) + 16 * sizeof(FDynLightInfo);
+	// Binding 4 remains part of the LevelMesh descriptor ABI even while the
+	// tiled-light consumer is dormant. Keep one valid block instead of the
+	// full screen-sized tile grid; SDVK-009 can re-enable the existing sizing
+	// formula through the central policy seam.
+	const size_t blockSize = (4 * sizeof(int)) + 16 * sizeof(FDynLightInfo);
+	const size_t bufferSize = VkLightTilePolicy::BufferSize(
+		width, height, blockSize, fb->IsLightTilesEnabled());
 
 	SceneLightTiles = BufferBuilder()
 		.Usage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT)
-		.Size(width * height * blockSize)
-		.DebugName("VkRenderBuffers.SceneLightTiles")
+		.Size(bufferSize)
+		.DebugName(fb->IsLightTilesEnabled() ?
+			"VkRenderBuffers.SceneLightTiles" : "VkRenderBuffers.SceneLightTilesDormant")
 		.Create(fb->GetDevice());
 }
 

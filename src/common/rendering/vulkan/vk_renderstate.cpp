@@ -1023,6 +1023,9 @@ void VkRenderState::RunZMinMaxPass()
 
 void VkRenderState::DispatchLightTiles(const VSMatrix& worldToView, float m5)
 {
+	if (!fb->IsLightTilesEnabled())
+		return;
+
 	EndRenderPass();
 	RunZMinMaxPass();
 

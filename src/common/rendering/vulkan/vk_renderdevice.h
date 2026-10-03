@@ -5,6 +5,7 @@
 #include <zvulkan/vulkandevice.h>
 #include <zvulkan/vulkanobjects.h>
 #include "vk_capabilities.h"
+#include "vk_lighttilepolicy.h"
 
 struct FRenderViewpoint;
 class VkSamplerManager;
@@ -36,6 +37,7 @@ public:
 
 	VulkanDevice* GetDevice() { return mDevice.get(); }
 	const VulkanCapabilities& GetCapabilities() const { return mCapabilities; }
+	bool IsLightTilesEnabled() const { return VkLightTilePolicy::Enabled; }
 	VkShaderCache* GetShaderCache() { return mShaderCache.get(); }
 	VkCommandBufferManager* GetCommands() { return mCommands.get(); }
 	VkShaderManager *GetShaderManager() { return mShaderManager.get(); }
