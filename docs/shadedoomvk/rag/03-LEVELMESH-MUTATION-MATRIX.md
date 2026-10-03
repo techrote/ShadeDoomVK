@@ -100,3 +100,9 @@ See `docs/shadedoomvk/PF-018-RUNTIME-EVIDENCE.md` for the paired runtime qualifi
 ## CFX-006 packed-upload observation (#95)
 
 `VkLevelMeshUploader::UploadData` can fingerprint the completed staging bytes under the separate CFX resource switch; `VulkanCommandBuffer::copyBuffer` and `FlushCommands::submit-buffer` join staging/destination ranges to the actual recording allocation and later submission. This accounts for transfer command replacement during texture loading. Dirty ranges, memcpy/copy/barriers, CPU collision ownership and uploaded extents are unchanged. Fingerprints have explicit 16 MiB/upload and 64 MiB/run caps and prove prepared CPU bytes, not GPU-consumed bytes. See [CFX-006](../CFX-006-CAPTURE-IDENTITIES.md).
+
+## CFX final LevelMesh disposition
+
+CFX-007 found a real transfer-publication defect in the LevelMesh uploader: transfer writes needed visibility to vertex attribute and index reads as well as shader reads. That separate correctness defect was repaired and safe synchronization validation became clean, but the DBP37 primary crash remained reproducible afterward. Direct-LevelMesh-off and pipeline discriminators also prevent a universal LevelMesh-required crash explanation.
+
+Later matching-PDB CPU snapshot checks found no invalid logical index, reachable tree cycle, non-finite referenced geometry or traversal-stack overflow (peak pending stack 18/64). Those post-error CPU checks do not prove submitted GPU bytes. The final CFX repair is the separate lightmap/probe descriptor-target publication lifetime fix; do not attach the historical crash causality to LevelMesh. See [CFX final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).

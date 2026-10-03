@@ -162,3 +162,13 @@ Do not simply delete historical traps; their provenance is useful when reviewing
 ## PF-017 integrated physical no-go — 2026-10-03
 
 PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
+
+## CFX descriptor-retirement trap — resolved current-source state
+
+Historical CFX-009 evidence showed that atlas shrink could leave previously published reserved light/probe descriptor slots naming views whose old atlas owner was then retired. PR #104 resolves that current-source state by publishing persistent initialized correctly typed neutral views into removed reserved slots before submission while preserving ordinary fence-controlled atlas retirement.
+
+The matched retention experiment is not the production behavior: normal repaired runs use retention OFF. Three exact formerly failing DBP37 processes succeed on the repair, followed by 3/3 qualification for each selected original DBP50, v1.2 and Sunlust/Champions route. Live reconciliation after PF-019 / PR #107 confirms the publication path remains present on `master@44864d9d27495d3992d3a7314f4cb7de6c029b7b`.
+
+The executing shader/SASS, illegal dynamic access, shared historical cause and repaired P400 behavior remain unknown and must not be inferred from the successful qualification.
+
+Owner: completed CFX-009/#102 repair and CFX-000/#75 synthesis; PF-020 must preserve the invariant in the final freeze.

@@ -212,3 +212,11 @@ For recyclable resource classes expose, where practical:
 Opt-in `CFX_RESOURCE_TRACE=1` with a valid CFX run/trace adds allocation IDs to ZVulkan buffers/descriptor sets/commands and frame retirement lists. The existing PF allocator tokens remain authoritative; logging does not validate or alter lifetime. `WriteDescriptors::Execute` records buffer binding/range targets; bindless allocation/free/queued writes expose existing PF generations. Resource records cap at 8192 with explicit omission. See [CFX-006](../CFX-006-CAPTURE-IDENTITIES.md) for seams, joins and partial coverage. GPU visibility/consumption and image handle generations remain unproven.
 
 The CFX logger retains one process-lifetime state so renderer atexit/resource-destruction callbacks cannot outlive its file/mutex. File availability during tail rotation uses an atomic flag and the writer mutex. CPU-only teardown/rotation fixtures verify this diagnostic lifetime boundary; renderer ownership/retirement is unchanged.
+
+## CFX-000 final disposition
+
+The #75 synthesis accepts PR #104's removed-page publication invariant as the current renderer lifetime contract. A previously published reserved light/probe slot may not continue naming a view whose atlas owner is retired; removed pages are republished to persistent initialized typed fallback views before submission, and ordinary fence-controlled destruction of the old atlas remains valid.
+
+The experiment-only `CFX_RETAIN_REPLACED_LIGHTMAPS` path remains diagnostic infrastructure when explicitly enabled with resource tracing; it is not normal production behavior and was OFF for all three accepted former-reproducer successes and all CFX-010 qualifying targets. Do not use that diagnostic path as the correctness model.
+
+The repaired GTX 1650 SUPER primary route succeeds 3/3 and the selected DBP50/v1.2/Sunlust routes each qualify 3/3. This does not identify the executing shader, prove an illegal dynamic descriptor read, or establish repaired P400 behavior. PF-020 should test the publication/lifetime invariant directly rather than encode stronger historical causal assumptions. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).

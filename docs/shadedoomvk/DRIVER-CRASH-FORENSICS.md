@@ -210,3 +210,13 @@ remain unchanged; the final scope is `QUALIFICATION_SATURATED` with its own STOP
 P400 repaired-code coverage remains untested. See the [report](CFX-010-CROSS-CASE-QUALIFICATION.md)
 and [case matrix](evidence/cfx010-cross-case.json) for exact identities, routes,
 attempts, artifact hashes, exclusions and next synthesis action. #75/PF020 remain open.
+
+## CFX-000 final programme synthesis — 2026-10-03
+
+The authoritative programme disposition is [CFX-FINAL-PROGRAMME-SYNTHESIS.md](CFX-FINAL-PROGRAMME-SYNTHESIS.md), with the machine-readable [final incident matrix](evidence/cfx-final-incident-matrix.json).
+
+The accepted primary DBP37 result is a bounded descriptor-target retirement compatibility repair: previously published reserved light/probe slots removed by atlas shrink receive persistent initialized correctly typed neutral views before submission, while ordinary fence-controlled old-atlas retirement remains active. Diagnostic retention is not the production fix and was OFF for the three independent exact former-reproducer successes. Safe capture, separate core and synchronization validation, focused CPU/ASan regressions and the 3/3 physical result support that repair without identifying the executing shader/SASS, proving illegal dynamic descriptor use, proving identical submitted GPU bytes, or assigning a unique NVIDIA defect.
+
+Original DBP50 MAP08, separate DBP50 v1.2 MAP08 and the full reconstructed Sunlust/Champions route each qualify 3/3 on the repaired GTX 1650 SUPER renderer. Historical shared causation remains unproved. The earlier Quadro P400 DBP37 lane remains a documented residual limitation: three historical target losses with materially different reported signatures exhausted that lane, and no repaired-build P400 qualification was performed. No new physical run is authorized or inferred by this synthesis.
+
+All six #75 parent criteria are PASS on the accepted evidence boundary. #75 may close after this synthesis PR itself passes required non-GPU CI, independent review, merge and master verification. CFX no longer constitutes an independent PF-020 blocker, but PF-020 must still verify the final merged descriptor/lightmap/probe lifetime invariant and preserve the repaired-P400/vendor limitations in its freeze manifest. #103 remains downstream; current evidence does not establish an NVIDIA defect or make a vendor-submission decision.

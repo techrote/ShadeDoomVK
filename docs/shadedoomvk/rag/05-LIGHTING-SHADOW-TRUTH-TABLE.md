@@ -143,3 +143,9 @@ See `docs/shadedoomvk/PF-015-SHADOW-VISIBILITY-CONTRACT.md` for the executable P
 ## PF-017 integrated physical no-go — 2026-10-03
 
 PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
+
+## CFX final lighting disposition
+
+CFX-009 changes lifetime safety for reserved lightmap/probe descriptor targets; it does not change dynamic-light selection, shadow selection, light contribution policy or gameplay-visible lighting semantics. Neutral fallback initialization represents zero baked/sunlight contribution and the existing no-probe sentinel while removed reserved slots are no longer backed by a live atlas page.
+
+Safe controls preserve protected scene/output state, and the accepted repaired routes complete without retaining old atlases. No CFX evidence establishes a separate wrong light/shadow selection mechanism for the historical crashes. PF-020 should therefore verify this lifetime invariant alongside, not instead of, the existing lighting/shadow truth-table tests. See [CFX final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
