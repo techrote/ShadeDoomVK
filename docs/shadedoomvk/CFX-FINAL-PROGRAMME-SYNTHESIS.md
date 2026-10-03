@@ -1,7 +1,7 @@
 # CFX-000 final programme synthesis
 
 Parent: #75  
-Synthesis base: `master@844462c3a4ed5f7037ade1b49d1a28f578077213`  
+Synthesis base after live reconciliation: `master@44864d9d27495d3992d3a7314f4cb7de6c029b7b`  
 Accepted primary repair: PR #104 / `d0789c88f88049116022e7b904026cddeaba8ac4`  
 Accepted cross-case qualification: PR #106 / `2399d9455772c570e597a5960c626f3bf771baeb`
 
@@ -20,7 +20,7 @@ The demonstrated primary result is narrower and stronger than the programme's ea
 
 This establishes a bounded renderer compatibility repair and strong practical coverage. It does **not** establish the unique executing shader/SASS instruction, an illegal dynamic descriptor access, identical submitted GPU bytes between historical and repaired runs, a unique NVIDIA defect, isolated PR #104 attribution for every later success, or one shared cause for all historical incidents.
 
-No new physical GPU run was performed for this synthesis. All historical STOP files, loss ceilings, saturation guards and raw classifications remain evidence.
+No new physical GPU run was performed for this synthesis. All historical STOP files, loss ceilings, saturation guards and raw classifications remain evidence. During synthesis, PF-019 / PR #107 merged on `master` as `44864d9d27495d3992d3a7314f4cb7de6c029b7b`; live source review confirms the CFX removed-slot publication path remains present and unchanged in its relevant lifetime contract. #36 was deliberately reopened pending PF-019's own post-merge master verification, so this CFX task does not claim PF-019 acceptance or start PF-020.
 
 ## Final incident matrix
 
@@ -118,7 +118,7 @@ PF-020 should consume the CFX result as follows:
 - **Retained infrastructure:** CFX capture/classifier/address tooling, immutable STOP/saturation guards, reports and evidence remain historical/operational diagnostics. They are not permission to restart saturated physical campaigns.
 - **P400/vendor limitation:** lack of repaired-build P400 qualification and absence of a proven NVIDIA defect are maintenance/evidence limitations, not a currently demonstrated PF correctness failure. Record them in the freeze manifest; do not silently promote them to proof.
 
-PF-020 remains open and is not accepted by this synthesis. PF-019 remains separate.
+PF-020 remains open and is not accepted by this synthesis. PF-019 remains separate: PR #107 is merged into the reconciled synthesis base, while #36 is still open pending its own post-merge master CI/verification receipt at this checkpoint. CFX itself is no longer the independent PF-020 blocker.
 
 ## NVIDIA / #103 disposition
 

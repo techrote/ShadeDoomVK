@@ -26,9 +26,9 @@ Owner: PF-012.
 
 ## 4. Tiled-light path is dormant
 
-Z-min/max textures, light-tile buffer, descriptor/pipeline and compute shader infrastructure exist, but the LevelMesh fragment path disables `uLightIndex` and draw-info dispatch is disabled/commented.
+The LevelMesh fragment path disables `uLightIndex` and draw-info dispatch remains disabled/commented. PF-019 gates the corresponding producer resources behind `VkLightTilePolicy::Enabled`, which defaults false: no Z-min/max pyramid, dedicated tile/Z-min-max descriptor sets, dedicated shaders/pipelines or per-frame descriptor rewrites are created while dormant. One `LightTileBlock` storage buffer remains bound at the unchanged LevelMesh binding 4 so descriptor ABI stays valid.
 
-Do not claim clustered/tiled lighting is active. PF-019 may remove unnecessary active allocations when dormant; SDVK-009 may later research revival.
+The producer implementation is retained rather than deleted. Enabling the single policy seam restores full tile-grid sizing and all gated resource creation; SDVK-009 owns reactivation of the consumer and must validate that path before enabling it. Do not claim clustered/tiled lighting is active.
 
 ## 5. Bindless reuse exists but raw indices remain dangerous
 
@@ -167,6 +167,8 @@ PR #74 restores the original light path after five integrated-source GTX 1650 SU
 
 Historical CFX-009 evidence showed that atlas shrink could leave previously published reserved light/probe descriptor slots naming views whose old atlas owner was then retired. PR #104 resolves that current-source state by publishing persistent initialized correctly typed neutral views into removed reserved slots before submission while preserving ordinary fence-controlled atlas retirement.
 
-The matched retention experiment is not the production behavior: normal repaired runs use retention OFF. Three exact formerly failing DBP37 processes succeed on the repair, followed by 3/3 qualification for each selected original DBP50, v1.2 and Sunlust/Champions route. The executing shader/SASS, illegal dynamic access, shared historical cause and repaired P400 behavior remain unknown and must not be inferred from the successful qualification.
+The matched retention experiment is not the production behavior: normal repaired runs use retention OFF. Three exact formerly failing DBP37 processes succeed on the repair, followed by 3/3 qualification for each selected original DBP50, v1.2 and Sunlust/Champions route. Live reconciliation after PF-019 / PR #107 confirms the publication path remains present on `master@44864d9d27495d3992d3a7314f4cb7de6c029b7b`.
+
+The executing shader/SASS, illegal dynamic access, shared historical cause and repaired P400 behavior remain unknown and must not be inferred from the successful qualification.
 
 Owner: completed CFX-009/#102 repair and CFX-000/#75 synthesis; PF-020 must preserve the invariant in the final freeze.

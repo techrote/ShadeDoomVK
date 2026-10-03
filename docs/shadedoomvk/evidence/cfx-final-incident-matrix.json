@@ -2,7 +2,7 @@
   "schema_version": 1,
   "programme": "CFX-000",
   "parent_issue": 75,
-  "synthesis_base": "844462c3a4ed5f7037ade1b49d1a28f578077213",
+  "synthesis_base": "44864d9d27495d3992d3a7314f4cb7de6c029b7b",
   "physical_testing_performed_by_synthesis": false,
   "accepted_primary_repair": {
     "issue": 102,
@@ -334,7 +334,8 @@
       "CFX capture/classifier/address tooling",
       "historical reports and machine evidence",
       "immutable STOP/saturation guards"
-    ]
+    ],
+    "other_dependency_status": "PF-019 / PR #107 is merged on the synthesis base, but #36 remains open pending its own post-merge verification at this checkpoint; CFX does not close or accept PF-019."
   },
   "nvidia_disposition": {
     "issue": 103,
@@ -342,5 +343,12 @@
     "vendor_package_prepared_by_synthesis": false,
     "vendor_submission_decision_made": false,
     "status": "Downstream entry gate not established by current evidence; preserve for owner/future evidence decision."
+  },
+  "live_reconciliation": {
+    "concurrent_change": "PF-019 / PR #107 merged while the CFX synthesis PR was running",
+    "merge_sha": "44864d9d27495d3992d3a7314f4cb7de6c029b7b",
+    "cfx_publication_invariant_source_review": "preserved",
+    "pf019_issue_36_status_at_reconciliation": "OPEN pending its own post-merge master CI/verification receipt",
+    "pf020_started_by_synthesis": false
   }
 }

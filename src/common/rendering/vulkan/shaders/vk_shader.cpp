@@ -34,36 +34,39 @@
 
 VkShaderManager::VkShaderManager(VulkanRenderDevice* fb) : fb(fb)
 {
-	ZMinMax.vert = CachedGLSLCompiler()
-		.Type(ShaderType::Vertex)
-		.AddSource("VersionBlock", GetVersionBlock().GetChars())
-		.AddSource("shaders/scene/vert_zminmax.glsl", LoadPrivateShaderLump("shaders/scene/vert_zminmax.glsl").GetChars())
-		.Compile(fb);
+	if (fb->IsLightTilesEnabled())
+	{
+		ZMinMax.vert = CachedGLSLCompiler()
+			.Type(ShaderType::Vertex)
+			.AddSource("VersionBlock", GetVersionBlock().GetChars())
+			.AddSource("shaders/scene/vert_zminmax.glsl", LoadPrivateShaderLump("shaders/scene/vert_zminmax.glsl").GetChars())
+			.Compile(fb);
 
-	ZMinMax.frag[0] = CachedGLSLCompiler()
-		.Type(ShaderType::Fragment)
-		.AddSource("VersionBlock", GetVersionBlock().GetChars())
-		.AddSource("shaders/scene/frag_zminmax0.glsl", LoadPrivateShaderLump("shaders/scene/frag_zminmax0.glsl").GetChars())
-		.Compile(fb);
+		ZMinMax.frag[0] = CachedGLSLCompiler()
+			.Type(ShaderType::Fragment)
+			.AddSource("VersionBlock", GetVersionBlock().GetChars())
+			.AddSource("shaders/scene/frag_zminmax0.glsl", LoadPrivateShaderLump("shaders/scene/frag_zminmax0.glsl").GetChars())
+			.Compile(fb);
 
-	ZMinMax.frag[1] = CachedGLSLCompiler()
-		.Type(ShaderType::Fragment)
-		.AddSource("VersionBlock", GetVersionBlock().GetChars())
-		.AddSource("DefinesBlock", "#define MULTISAMPLE\n")
-		.AddSource("shaders/scene/frag_zminmax0.glsl", LoadPrivateShaderLump("shaders/scene/frag_zminmax0.glsl").GetChars())
-		.Compile(fb);
+		ZMinMax.frag[1] = CachedGLSLCompiler()
+			.Type(ShaderType::Fragment)
+			.AddSource("VersionBlock", GetVersionBlock().GetChars())
+			.AddSource("DefinesBlock", "#define MULTISAMPLE\n")
+			.AddSource("shaders/scene/frag_zminmax0.glsl", LoadPrivateShaderLump("shaders/scene/frag_zminmax0.glsl").GetChars())
+			.Compile(fb);
 
-	ZMinMax.frag[2] = CachedGLSLCompiler()
-		.Type(ShaderType::Fragment)
-		.AddSource("VersionBlock", GetVersionBlock().GetChars())
-		.AddSource("shaders/scene/frag_zminmax1.glsl", LoadPrivateShaderLump("shaders/scene/frag_zminmax1.glsl").GetChars())
-		.Compile(fb);
+		ZMinMax.frag[2] = CachedGLSLCompiler()
+			.Type(ShaderType::Fragment)
+			.AddSource("VersionBlock", GetVersionBlock().GetChars())
+			.AddSource("shaders/scene/frag_zminmax1.glsl", LoadPrivateShaderLump("shaders/scene/frag_zminmax1.glsl").GetChars())
+			.Compile(fb);
 
-	LightTiles = CachedGLSLCompiler()
-		.Type(ShaderType::Compute)
-		.AddSource("VersionBlock", GetVersionBlock().GetChars())
-		.AddSource("shaders/scene/comp_lighttiles.glsl", LoadPrivateShaderLump("shaders/scene/comp_lighttiles.glsl").GetChars())
-		.Compile(fb);
+		LightTiles = CachedGLSLCompiler()
+			.Type(ShaderType::Compute)
+			.AddSource("VersionBlock", GetVersionBlock().GetChars())
+			.AddSource("shaders/scene/comp_lighttiles.glsl", LoadPrivateShaderLump("shaders/scene/comp_lighttiles.glsl").GetChars())
+			.Compile(fb);
+	}
 }
 
 VkShaderManager::~VkShaderManager()
