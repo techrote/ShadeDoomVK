@@ -1,0 +1,57 @@
+OS: Windows 11 (or higher) (NT 10.0) Build 26200
+    
+VKDoom version <unknown version>
+D_DoomInit: Static RNGseed 12345 set.
+W_Init: Init WADfiles.
+adding C:/ShadeDoomVK/pf-local-evidence/pf017-final-20261003-measurements/baseline/vkdoom.pk3, 718 lumps
+adding C:/ShadeDoomVK/pf-local-evidence/pf017-final-20261003-measurements/baseline/game_support.pk3, 3308 lumps
+adding C:/ShadeDoomVK/pf-local-evidence/inputs/Doom2.wad, 2956 lumps
+adding C:/ShadeDoomVK/pf-local-evidence/pf017-final-20261003-measurements/baseline/lights.pk3, 7 lumps
+adding C:/ShadeDoomVK/pf-local-evidence/pf017-final-20261003-measurements/baseline/brightmaps.pk3, 499 lumps
+adding C:/ShadeDoomVK/pf-local-evidence/pf017-final-20261003-measurements/baseline/game_widescreen_gfx.pk3, 214 lumps
+adding C:/ShadeDoomVK/pf-local-evidence/pf016/PF016_DenseLights_Interior.wad, 6 lumps
+I_InitInput
+I_StartupMouse
+I_StartupKeyboard
+I_StartupXInput
+I_StartupRawPS2
+I_StartupDirectInputJoystick
+Vulkan device: NVIDIA GeForce GTX 1650 SUPER
+Vulkan device type: discrete gpu
+Vulkan version: 1.4.351 (api) 616.368.0 (driver)
+Resolution: 1904 x 1001
+S_Init: Setting up sound.
+I_Init: Setting up machine state.
+CPU speed: 3600 MHz
+CPU Vendor ID: AuthenticAMD
+  Name: AMD Ryzen 5 2600X Six-Core Processor 
+  Family 23 (23), Model 8, Stepping 2
+  Features: SSE2 SSE3 SSSE3 SSE4.1 SSE4.2 AVX AVX2 F16C FMA3 BMI1 BMI2 HyperThreading
+V_Init: allocate screen.
+ST_Init: Init startup screen.
+Checking cmd-line parameters...
+S_InitData: Load sound definitions.
+G_ParseMapInfo: Load map definitions.
+Texman.Init: Init texture manager.
+ParseTeamInfo: Load team definitions.
+LoadActors: Load actor definitions.
+script parsing took 564.74 ms
+R_Init: Init Doom refresh subsystem.
+DecalLibrary: Load decals.
+M_Init: Init menus.
+P_Init: Init Playloop state.
+ParseSBarInfo: Loading custom status bar definition.
+D_CheckNetGame: Checking network game status.
+player 1 of 1 (1 nodes)
+
+----------------------------------------
+
+PF16TST - PF-016 Dense Dynamic-Light Stress
+
+Benchmark info saved
+Benchmark info saved
+Benchmark info saved
+Benchmark info saved
+Benchmark info saved
+Captured scene.png
+PF017_COMPLETE

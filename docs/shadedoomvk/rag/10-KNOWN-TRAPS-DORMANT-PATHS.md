@@ -159,3 +159,6 @@ When a PF issue resolves an item, replace the warning with:
 - remaining limitation if any.
 
 Do not simply delete historical traps; their provenance is useful when reviewing regressions or donor patches.
+## PF-017 integrated physical no-go — 2026-10-03
+
+PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).

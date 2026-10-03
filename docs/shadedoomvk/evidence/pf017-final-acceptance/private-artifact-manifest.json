@@ -1,0 +1,2568 @@
+{
+  "local_parent": "C:\\ShadeDoomVK\\pf-local-evidence",
+  "note": "Complete preserved private file inventory at final offline seal. Runtime binaries, copyrighted inputs, full PNGs, caches and diagnostic dumps remain local; hashes and raw production timings/health/source identities are committed. No stopped scope or guard removed.",
+  "files": [
+    {
+      "root": "pf017-final-20261003",
+      "path": "assemble-executed.py",
+      "bytes": 1153,
+      "sha256": "036b2071b1770e36e785711f3975bbcc1d34dda5cabe52b0d518d2728ba7afe0"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "assemble.py",
+      "bytes": 2110,
+      "sha256": "99b351ef9017509b57e1df291a3734051cc8b03ce9308680f89abb62b5789b2f"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/identity.json",
+      "bytes": 1149,
+      "sha256": "efd73ae579736d3e1c6f1383db34313cd39d589a8f126997ced60ea179154a61"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/vkdoom.exe",
+      "bytes": 12092416,
+      "sha256": "3997d880b25646d2222ef5dbd27e8c535219016661e91414e3f00028f65d5cbc"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/vkdoom.pdb",
+      "bytes": 77975552,
+      "sha256": "31f30878127a887f11093196d8be4ab767edf5efe6107659f8ab107ed6d92e72"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline-build-native.log",
+      "bytes": 3883,
+      "sha256": "3946af81adfa3403645fe26f42e6c41ae7651a3e28e0a596a0fb4546c32efe4f"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "baseline-build.log",
+      "bytes": 57,
+      "sha256": "136bfb364e42fd28472cc78d6e73b4cf31e42cf3d66cba0ec9ff9bd97fb6a9fd"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "bindless_allocator_fixture.exe",
+      "bytes": 674304,
+      "sha256": "deb06a86e96938c59e7b95662fd3558dcc9214d8fc408a5350164bea5870d8a6"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "bindless_allocator_fixture.obj",
+      "bytes": 469837,
+      "sha256": "0ca9ebe1ee7ed99c7d6a52bde65adb0d02bb576810bfcf3650a4f4ccecee90a3"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "bindless_allocator_fixture.pdb",
+      "bytes": 7131136,
+      "sha256": "6bb036020f8dae5df80b3b78f2e0fc7a37412986c64094be8978178e9c31f0cb"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "915deeb01d397420f73b1776e400aaa1467261199b2dbe5115f21529d834c7cf"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "7faf914fda94256598608a39c2e35cf76706e6c5057728face3e8044f0d445de"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "05a13ed8e532b0656682f21327c9b8a26c4b4d7a915dabefbb3fae61c61355ab"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/lights.pk3",
+      "bytes": 24059,
+      "sha256": "8b482ed6d540dbad4601061f285a1c6f237197065ea5477092339e8da3414296"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/vkdoom.exe",
+      "bytes": 12096512,
+      "sha256": "72159c22fe7cbb6aeeac622c480a579f08ab7853e16c03d448726cd18aa31d21"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/vkdoom.pdb",
+      "bytes": 76001280,
+      "sha256": "affcbd32e05ced7ba94ab6cd500a5b296e8925ba656395ef34a7b9fb13b676d9"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "c4bce606ac7e8b7c1c9d58ba772999fe88cf66d913040b13df171c739cddf2b4"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate-build-native.log",
+      "bytes": 21621,
+      "sha256": "f9fe8fe142d88f4cf2ad72711f9143df14865694c770d1c9945497c88898ec76"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate-build.log",
+      "bytes": 84,
+      "sha256": "93016defefdf2195e6db6db4cd96dd30f77ba9a285b949d73cc1fe573553eec1"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "candidate-exact-head-rebuild.log",
+      "bytes": 2842,
+      "sha256": "cf1f038c209534c0f50a7d0a130028e55a274f23f79cda56143b180bf8eb5d2a"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "historical-guards.json",
+      "bytes": 3190,
+      "sha256": "3f66b9a3c34e4d9b86d61d9cdc5d7394bbc8dcf0121de447c3a4e6878eb1c813"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "inherited-fixtures.cmd",
+      "bytes": 711,
+      "sha256": "1e41a47b7eccc9e9d0aa3854ae175d108a895b0515192e2ae4a7fb07b7623817"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "inherited-fixtures.log",
+      "bytes": 509,
+      "sha256": "56c2c0824c05d4f94231a9079b4f55100328bc1f3e980f63fa33c05aac24bc36"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "inputs/pipelinecache.zdpc",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "inputs/shadercache.zdsc",
+      "bytes": 11323798,
+      "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "inputs.json",
+      "bytes": 1092,
+      "sha256": "5657a2a0ee589f385d38b07f354c3fbf54e07ac6174591148523c6b180c76e7e"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "integration-review.json",
+      "bytes": 2169,
+      "sha256": "3f4f70a304f36fdb8a88e5216acdf59dbd232ef11d0b05c5ebcbeda07000160b"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "levelmesh_contract_fixture.exe",
+      "bytes": 1301504,
+      "sha256": "ba550ec9b39db993c805c5ba75f38d76dcabc9aa94b00b5adc93c6a3c2bc948a"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "levelmesh_contract_fixture.obj",
+      "bytes": 1117763,
+      "sha256": "064b23fd527cd498fe13fca76098638534b454076e415113a0428ac9fd48483d"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "levelmesh_contract_fixture.pdb",
+      "bytes": 11718656,
+      "sha256": "e83069848065ea917e8189b41eb3593bcc1d0559880b3f3b92aa4f2580acd0df"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "light_reuse_fixture.exe",
+      "bytes": 573440,
+      "sha256": "7f4ac2bfb804f9c1d3588670453b6310ab22b6cbe6df2f662f17fd0bdcf5842b"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "light_reuse_fixture.obj",
+      "bytes": 69461,
+      "sha256": "46036b8ef13f06dc0aec834387cb6cd42b9bffa2993326825b0c8eacf44acc3f"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "light_reuse_fixture.pdb",
+      "bytes": 6639616,
+      "sha256": "09250f631774cd6693554a5068fe9e4686073cbc638918abbd31f7f789192f34"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "offline-stop-check.log",
+      "bytes": 344,
+      "sha256": "7c8f7fba03753c987e277f5d1b2cb6c25b4c95b301fc9f9bdbdb2afb3d7d0d63"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "opening.json",
+      "bytes": 1362,
+      "sha256": "cb6e1b2ff07535ca5721bfc79824cf97d48d17b020995cb8f4ab4dc9a8c28091"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "oracle-a.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "oracle-b.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "prepare.py",
+      "bytes": 3762,
+      "sha256": "96fab8e4037433064b2b89117c4cc2ccdf0334a4fb25b9d7a97613500a60564f"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "prepare_exclusive.py",
+      "bytes": 4013,
+      "sha256": "788784437e74bdfb28b2cc2a77deb215de24d36a6eb2e43482132137113f5cb5"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "probe_selection_fixture.exe",
+      "bytes": 562688,
+      "sha256": "5239a397d486ff11590b8e5a74b378ba4c179a6aa0e69a5ac395487dc9ab4161"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "probe_selection_fixture.obj",
+      "bytes": 46396,
+      "sha256": "1ddb41a93c98ba99fc22576b1e5149c748721065f5d829ea2350f4179e462170"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "probe_selection_fixture.pdb",
+      "bytes": 6656000,
+      "sha256": "4c66b8fde88cdaee6e5302d2921372d30af24c82906865afbe6d102078cc013b"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "resource_generation_fixture.exe",
+      "bytes": 603648,
+      "sha256": "7c9288ffc0dc424a62721318b02432724baab5e808b7abdac5ad9da694f5c9c1"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "resource_generation_fixture.obj",
+      "bytes": 216160,
+      "sha256": "682687498cb1db6d7707568d3c1ed3f897094dbfce02a2dda6fc2761e9241ec8"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "resource_generation_fixture.pdb",
+      "bytes": 7008256,
+      "sha256": "b6ad8779ea9fec0502e4af17279c2fee27121e6bf76418c70f5cebf68c1b67f7"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "run-executed.py",
+      "bytes": 7248,
+      "sha256": "097e5938a3b03a567b7288bbc30053469943fcf97a349ab6a7f890e3886d7f34"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "run.py",
+      "bytes": 7796,
+      "sha256": "e6cd2ac5bfb2aae107e72fffd612d4b5b8e0fc04cce630ddde99e940c181d33e"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "run_tests.py",
+      "bytes": 1490,
+      "sha256": "1bb6d78f98dce5a4e6ce2020604a451fb670cf9dbb63f646dc3ac4fc9204447c"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/artifact-index.json",
+      "bytes": 1081,
+      "sha256": "1fdfb42f0e5024d1c979eec063b4addb6230ea01a7c88ee7ca78f93996994e45"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/capture.cfg",
+      "bytes": 664,
+      "sha256": "69e13c9dd79ef88278beba8b04b32da85a96e8faa0d528853a8d04685837d48b"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/config.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/health-after.json",
+      "bytes": 6498,
+      "sha256": "651d44ddde1b0350916501e5a1c5ec9b29b092ae005569a7d7b0377fa28b5699"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/health-before.json",
+      "bytes": 6496,
+      "sha256": "4a6c9659f4cf3465c5e7d910305b0b65d488185f0f0d24c85b5af205291ff2af"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/preregister.json",
+      "bytes": 3318,
+      "sha256": "e84ba02ce3276b5e2c9e1b5483b1181edb753c8855dfa27b311c55f0570baf7b"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/result.json",
+      "bytes": 6247,
+      "sha256": "5513f09013c1efef4d55adcbc3d60d3a9406bc3aab9d8954f61b08cbecc35011"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/samples.json",
+      "bytes": 68,
+      "sha256": "6b9cc9739f95ff0d046cf1fb1d8d800690ce8d955205194143778b1947ee0e5f"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "runs/baseline-warmup/stdout.log",
+      "bytes": 1042,
+      "sha256": "6ccb562d865d4f51d09c396126a44c7b98864a61bf37b45d2580895d138096b5"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "STOP-LAUNCHES.txt",
+      "bytes": 189,
+      "sha256": "f70f348605c12b2f1d1e260c27dd0eca24b13e7e36281cef8230199a33d66f97"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "test-result.json",
+      "bytes": 9447,
+      "sha256": "91651ab04f486acdaac4c568d9b5b69e21122e9c0270af1040af3ecfdc58b401"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "tests-native.log",
+      "bytes": 46767,
+      "sha256": "dd428789e89cd64bc877476bbc65a4c2ea954d7029694648a992c9d099757af4"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "tests.cmd",
+      "bytes": 244,
+      "sha256": "d04cfb599556e4bdf24c8f830ed2d40dc9ca6e8dd10786c092707cfa43d4152f"
+    },
+    {
+      "root": "pf017-final-20261003",
+      "path": "tests.log",
+      "bytes": 373706,
+      "sha256": "c5ae545f1c5c032ef12d666cce65301bc349c40922e0878216cde5f540be782c"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/identity.json",
+      "bytes": 1021,
+      "sha256": "549bc43eea6db89210dc66531294f09d43e590309b0525d47615fae296da553c"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/vkdoom.exe",
+      "bytes": 12092416,
+      "sha256": "3997d880b25646d2222ef5dbd27e8c535219016661e91414e3f00028f65d5cbc"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/vkdoom.pdb",
+      "bytes": 77975552,
+      "sha256": "31f30878127a887f11093196d8be4ab767edf5efe6107659f8ab107ed6d92e72"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "baseline/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/identity.json",
+      "bytes": 1021,
+      "sha256": "59d3ed9804a9645f8a32425e94d689d3226ca17b38a763161e0bf153ef4a4653"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/vkdoom.exe",
+      "bytes": 12096512,
+      "sha256": "72159c22fe7cbb6aeeac622c480a579f08ab7853e16c03d448726cd18aa31d21"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/vkdoom.pdb",
+      "bytes": 76001280,
+      "sha256": "affcbd32e05ced7ba94ab6cd500a5b296e8925ba656395ef34a7b9fb13b676d9"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "candidate/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "exclusive_focus.py",
+      "bytes": 1815,
+      "sha256": "57083f134f9242d718c96549909c7ed3d66d01f1480b06337998f89a855db27e"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "historical-guards.json",
+      "bytes": 3340,
+      "sha256": "e6b8da7586cb1f9563d9448997a8c075532a7cc7cb76df239ca19da26f346508"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "host-focused-tests.log",
+      "bytes": 601,
+      "sha256": "d85a26733d930c267155af974e5a4957ee0654c106a91b593fab9bd5536d4199"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "inputs/pipelinecache.zdpc",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "inputs/shadercache.zdsc",
+      "bytes": 11323798,
+      "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "inputs.json",
+      "bytes": 1112,
+      "sha256": "2b9543a0b307c1f85a06719b9ab58ee547de9d2884f02c083512feeab4e45e2b"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "integration-review.json",
+      "bytes": 2169,
+      "sha256": "3f4f70a304f36fdb8a88e5216acdf59dbd232ef11d0b05c5ebcbeda07000160b"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "opening.json",
+      "bytes": 2364,
+      "sha256": "978f3be403fd45bf7c725587333aa87310e4faf2454eb0e1537bd2298eb3ee16"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "oracle-a.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "oracle-b.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "package-review.json",
+      "bytes": 1821,
+      "sha256": "e867d9df29ed5526b722c58e6d69608605e527c43a0a16d079a83596f7db4580"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "prepare_measurements.py",
+      "bytes": 3308,
+      "sha256": "29461b52e95a36e288fa9695cc7f650ad8cab40921d97362cd1ec2c6a5771722"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "run.py",
+      "bytes": 7964,
+      "sha256": "94fdefe16a3f64e7bb27d8bba2e88b3be84481a6d9d5a5402e755af54c8fb475"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "6c65aeff9430ca3845bd4d1079227c5f7f629423c4741cf3d9a01e5e19ac8d8c"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/capture.cfg",
+      "bytes": 674,
+      "sha256": "9bad099a66bb7ff8bdf5805ff615c08587cff87159da2d649466e5819d45fc6c"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/config.ini",
+      "bytes": 15860,
+      "sha256": "18a7de9efebe16fb9de657ebe8c4fd07b932940c4eb268d404210f1c78e7aea4"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/health-after.json",
+      "bytes": 6497,
+      "sha256": "6578381047232450e49706a97160b008a9895096cfafd74e4bf558a7431e13f8"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/health-before.json",
+      "bytes": 6494,
+      "sha256": "fbf9be4591a5683297c4329cfc52d17c604df97e6983750ca68f2507bef12013"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/preregister.json",
+      "bytes": 3242,
+      "sha256": "589891d29537c932b0c17b4d53310e212dbb275c3b292878fd4bb274b8637ee1"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/result.json",
+      "bytes": 1884,
+      "sha256": "cfeefee20e367a8361997d3ab7e1961ee49fb273c6633e8ed420299ea9800e77"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/samples.json",
+      "bytes": 331,
+      "sha256": "176cc4d8b20968531ddd35cfb32254ad73aac4e5eead45b06085c0a1370c8563"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/scene.png",
+      "bytes": 1279729,
+      "sha256": "c79bcd8e3aab8bbda65af3fc49387b4dabc154af89d5066e277e488332cb8c15"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "6e0272814b9166f28a273bdcf9cd427fcd907364fcd7e1f898ca0acee75d4cbb"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/stdout.log",
+      "bytes": 2049,
+      "sha256": "70ed17b4790717bd5410d60d47a0006672235070137b20cf72aa6e209ebda8dc"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "runs/baseline-warmup/work/benchmarks.txt",
+      "bytes": 715,
+      "sha256": "15af26955fd01b29b42dda235a1b28ed8c6c99a9b6275871dee37519cc3144b2"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "STOP-LAUNCHES.txt",
+      "bytes": 180,
+      "sha256": "b22e97d27c6f3f2ec6ced3f149989e6ebca2c2572dd4ffc6e0b593913da7dddc"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "test-result.json",
+      "bytes": 11306,
+      "sha256": "395db2212881cd9a7ed077a95f400906c5eacb031a149d82c6874c6a83c38475"
+    },
+    {
+      "root": "pf017-final-20261003-exclusive",
+      "path": "test_exclusive_focus.py",
+      "bytes": 1934,
+      "sha256": "154d51093ce5437980fa4b6b1a11dcd06bf8dccb48d98b82b1efee1001730912"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "analyze.py",
+      "bytes": 5278,
+      "sha256": "cf746066bc739d0e93abf7d8731f33f805c16a3756d8878c0e877f491639d3b8"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "assemble_diagnostics.py",
+      "bytes": 979,
+      "sha256": "c9a9c2e0d56cf054fcf064ef62acc9ab3d7a3eb73db83558f5954a335e62b77b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/identity.json",
+      "bytes": 1021,
+      "sha256": "549bc43eea6db89210dc66531294f09d43e590309b0525d47615fae296da553c"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/vkdoom.exe",
+      "bytes": 12092416,
+      "sha256": "3997d880b25646d2222ef5dbd27e8c535219016661e91414e3f00028f65d5cbc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/vkdoom.pdb",
+      "bytes": 77975552,
+      "sha256": "31f30878127a887f11093196d8be4ab767edf5efe6107659f8ab107ed6d92e72"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/identity.json",
+      "bytes": 1845,
+      "sha256": "0a6cace81fe3c4e83f28e5603451d7aaa5ecc21479c1ae701a51418ba9c81bc6"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/vkdoom.exe",
+      "bytes": 12099072,
+      "sha256": "bed0ce9ee7534883a9c072f2000048a774030afac9f84b00df3aaff960d4f4c6"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/vkdoom.pdb",
+      "bytes": 78114816,
+      "sha256": "048b3780357f35edf2c8c011f53a982e466951c6249bc12ce5518aa39670116a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diag/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-attempt1-originals/src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+      "bytes": 3021,
+      "sha256": "1497d88ca7a5e5ef09936f7600d7f5ca6dbc305c7722238f64b81f40cede81fd"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-attempt1-originals/src/common/rendering/vulkan/vk_renderstate.cpp",
+      "bytes": 40399,
+      "sha256": "9d6c0581787dcaf6f211296110042345a8f9b1e69b0b48c10ac9921a94930e4a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-attempt1-originals/src/playsim/a_dynlight.cpp",
+      "bytes": 32189,
+      "sha256": "11912a2a0d1125dba149d05f69cdde26b821fee9b125cc0edcfdf914327ff211"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-attempt1-originals/src/rendering/hwrenderer/hw_dynlightdata.cpp",
+      "bytes": 5943,
+      "sha256": "9d8a52976db7bc43c1326d51d17ba077a922409b72d72aa63385555789438bb9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-attempt1-originals/src/rendering/hwrenderer/hw_entrypoint.cpp",
+      "bytes": 17405,
+      "sha256": "773918c6ef19ce078adb0d8d7993739344a4d4ddaecb230b6b3d07d57690ea74"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-build.log",
+      "bytes": 7026,
+      "sha256": "d7ab49efb0c593101f66edc3814a6146b5aa6938b5854e9e887a2833f98d55f6"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic-originals.json",
+      "bytes": 577,
+      "sha256": "680857e1f7e2d7f07a00bdb2af2d2c94f72cc481d8fb4ccf041400c951083296"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-diagnostic.patch",
+      "bytes": 4031,
+      "sha256": "37969f4541d55d2e28571e9de2f820dae07e311906bbc3e48876a6f0e65dbcbf"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-originals/src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+      "bytes": 3021,
+      "sha256": "1497d88ca7a5e5ef09936f7600d7f5ca6dbc305c7722238f64b81f40cede81fd"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-originals/src/common/rendering/vulkan/vk_renderstate.cpp",
+      "bytes": 40399,
+      "sha256": "9d6c0581787dcaf6f211296110042345a8f9b1e69b0b48c10ac9921a94930e4a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-originals/src/d_main.cpp",
+      "bytes": 118835,
+      "sha256": "d99bca3d3a93bca78c2ee0e524650ec643ffb5558619b5a9539250f8840f8ef4"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-originals/src/playsim/a_dynlight.cpp",
+      "bytes": 32189,
+      "sha256": "11912a2a0d1125dba149d05f69cdde26b821fee9b125cc0edcfdf914327ff211"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "baseline-originals/src/rendering/hwrenderer/hw_dynlightdata.cpp",
+      "bytes": 5943,
+      "sha256": "9d8a52976db7bc43c1326d51d17ba077a922409b72d72aa63385555789438bb9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "build_receipt.py",
+      "bytes": 1323,
+      "sha256": "3621fd6f88415773cb764a02af8915b540aa31b67778b92fc2281407d81a892f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "bytecode-index-cleanup.log",
+      "bytes": 2334,
+      "sha256": "49fcc18422d120384942e6d57fcc624cfa652dc9e57745bc963bced9ea20e05e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/identity.json",
+      "bytes": 1021,
+      "sha256": "59d3ed9804a9645f8a32425e94d689d3226ca17b38a763161e0bf153ef4a4653"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/vkdoom.exe",
+      "bytes": 12096512,
+      "sha256": "72159c22fe7cbb6aeeac622c480a579f08ab7853e16c03d448726cd18aa31d21"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/vkdoom.pdb",
+      "bytes": 76001280,
+      "sha256": "affcbd32e05ced7ba94ab6cd500a5b296e8925ba656395ef34a7b9fb13b676d9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/brightmaps.pk3",
+      "bytes": 246181,
+      "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/game_support.pk3",
+      "bytes": 2381991,
+      "sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/game_widescreen_gfx.pk3",
+      "bytes": 5565936,
+      "sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/identity.json",
+      "bytes": 1845,
+      "sha256": "6ceeb54d104c38f77f1143051797beabbac68210d80b40a29d3bd7f0523633d0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/lights.pk3",
+      "bytes": 24059,
+      "sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/vkdoom.exe",
+      "bytes": 12104192,
+      "sha256": "b8748cd54420ed064aa0df22556a4dfdbc85aeae1afa155652cddf4a00c0094b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/vkdoom.pdb",
+      "bytes": 77877248,
+      "sha256": "6c777414e131200a2e6fc04071ea972921435d655c2b32bfa2ab970935cdeb29"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/vkdoom.pk3",
+      "bytes": 4237850,
+      "sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diag/zmusic.dll",
+      "bytes": 2469888,
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-attempt1-originals/src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+      "bytes": 3967,
+      "sha256": "4615d6fab0f1fc407e884d28a74960c474ad6bf746fd9dfb456d117043b8f386"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-attempt1-originals/src/common/rendering/vulkan/vk_renderstate.cpp",
+      "bytes": 41284,
+      "sha256": "59e33a71f26fd767476872200221f4808fd34a42aa30a68fb1258daaf24c8096"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-attempt1-originals/src/playsim/a_dynlight.cpp",
+      "bytes": 32189,
+      "sha256": "11912a2a0d1125dba149d05f69cdde26b821fee9b125cc0edcfdf914327ff211"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-attempt1-originals/src/rendering/hwrenderer/hw_dynlightdata.cpp",
+      "bytes": 8989,
+      "sha256": "d01fea2cd49f74eb35b04a068a20d040da47d09bc8985e56073b74e41a9f084f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-attempt1-originals/src/rendering/hwrenderer/hw_entrypoint.cpp",
+      "bytes": 17690,
+      "sha256": "99b5c2cf2d6b36c6ff7cb88f8500846368293429548636e339686cf4a77b1abb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-build.log",
+      "bytes": 7416,
+      "sha256": "d7d3dfefaf97a32791b72ee1de92674de7b1be968305f92aefc6e4fcb6fdacfc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic-originals.json",
+      "bytes": 577,
+      "sha256": "ede8be44c20bd35b40363b1352eb379d621a54d44bf370f4a2491664be49a45e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-diagnostic.patch",
+      "bytes": 5102,
+      "sha256": "6024f499d22b43efc58458587c893e8d7c2f35c04ac43f0ae22f104d8c63b94d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-originals/src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+      "bytes": 3967,
+      "sha256": "4615d6fab0f1fc407e884d28a74960c474ad6bf746fd9dfb456d117043b8f386"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-originals/src/common/rendering/vulkan/vk_renderstate.cpp",
+      "bytes": 41284,
+      "sha256": "59e33a71f26fd767476872200221f4808fd34a42aa30a68fb1258daaf24c8096"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-originals/src/d_main.cpp",
+      "bytes": 118835,
+      "sha256": "d99bca3d3a93bca78c2ee0e524650ec643ffb5558619b5a9539250f8840f8ef4"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-originals/src/playsim/a_dynlight.cpp",
+      "bytes": 32189,
+      "sha256": "11912a2a0d1125dba149d05f69cdde26b821fee9b125cc0edcfdf914327ff211"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "candidate-originals/src/rendering/hwrenderer/hw_dynlightdata.cpp",
+      "bytes": 8989,
+      "sha256": "d01fea2cd49f74eb35b04a068a20d040da47d09bc8985e56073b74e41a9f084f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic-metadata-compile-attempt1.log",
+      "bytes": 758,
+      "sha256": "aac6c66f095841b54e7eb8c97f6fdbb0fe5186a6586da52969d1ca3be8f95577"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic-metadata-cpu-proof.log",
+      "bytes": 461,
+      "sha256": "188b86d94848cc11b8505507bdbebbf395665b5f896e55d05ef8bf03b130a5c0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic_metadata_fixture.cmd",
+      "bytes": 722,
+      "sha256": "6982d7b8790f89125a4dd942f4cbe96609d385c223d3b856ae640db1d0c0b4a9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic_metadata_fixture.cpp",
+      "bytes": 1936,
+      "sha256": "ccb61c21eedfcb5f628790673662e64ae1f650ff512722c73a21e535cabd91d2"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic_metadata_fixture.exe",
+      "bytes": 1167360,
+      "sha256": "d9e3222310f747b8dbd7d15073b0e39552b848768bcf38e8ad9d5d66992e8a99"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic_metadata_fixture.obj",
+      "bytes": 692256,
+      "sha256": "c551a646f00138222f0d1986ddaa37c88c65649663f58f3c1cff977ce80adca3"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "diagnostic_metadata_fixture.pdb",
+      "bytes": 11653120,
+      "sha256": "0992fe584c5626cc53ca662c49332832d7ccf40bbd2ef483b0e0df8a5632f988"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "exclusive_focus.py",
+      "bytes": 1815,
+      "sha256": "57083f134f9242d718c96549909c7ed3d66d01f1480b06337998f89a855db27e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "finalize_evidence.py",
+      "bytes": 5228,
+      "sha256": "df47cb3718322223e0d28bb4a53c6e3f076ce8276275b2a5d26b26fb55f4183f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "historical-guards.json",
+      "bytes": 3500,
+      "sha256": "3b88632e7f41abf7f6e5388cfd2cfbbb36b071321e0f723975e78a0e5a52da7f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "host-focused-tests.log",
+      "bytes": 601,
+      "sha256": "d85a26733d930c267155af974e5a4957ee0654c106a91b593fab9bd5536d4199"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "hw_pf17acceptance.h",
+      "bytes": 4440,
+      "sha256": "c3121bcff4a40daf58485b963aef8da46a088a69977669b13e14194924212567"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "inputs/pipelinecache.zdpc",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "inputs/shadercache.zdsc",
+      "bytes": 11323798,
+      "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "inputs.json",
+      "bytes": 1118,
+      "sha256": "160c0843950181eb3d75402c18c4ba6845d00d14d5b623d84304170ebeea74c9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "instrument.py",
+      "bytes": 4852,
+      "sha256": "7c78650759db60c28ec65a5ccf0f8eab0ab770b6cd1a9eee841c7083cd7b408e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "integrated-ci.json",
+      "bytes": 11822,
+      "sha256": "eddf8349dc8455fc087b8df0e1c66529c7cd924cb791c18aa3538b5a64d27c3a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "integration-review.json",
+      "bytes": 2169,
+      "sha256": "3f4f70a304f36fdb8a88e5216acdf59dbd232ef11d0b05c5ebcbeda07000160b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "opening.json",
+      "bytes": 3055,
+      "sha256": "fd2448630705da79c63354744691685772e2c930bc4675bcef19ce9de1711ae1"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "oracle-a.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "oracle-b.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "package-review.json",
+      "bytes": 1821,
+      "sha256": "e867d9df29ed5526b722c58e6d69608605e527c43a0a16d079a83596f7db4580"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "pr-body.md",
+      "bytes": 2875,
+      "sha256": "f90b7cd918ef4e06488967dfce608f6ad1e786c6d45a1431ac95c7a8dcdc9615"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "production-analysis.json",
+      "bytes": 13676,
+      "sha256": "e4da5c0daac7a9cad009ece1112e0247608a5c5eab261278cef07e4827275dee"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "raw_benchmark_audit.py",
+      "bytes": 1288,
+      "sha256": "a991b2f8860d9c4eddc1a3c47b6745210db4c09a5f002b0a7abf0ab8d2a23dfa"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "reconcile_docs.py",
+      "bytes": 16119,
+      "sha256": "ae34693f3d92b4ebb68858f221501cb5e25bba16b61e935fc478a2a00aa416cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restore_diagnostic.py",
+      "bytes": 610,
+      "sha256": "f7b50f50ccf9691c9add18ee90cbf97661bdb1fab15c3c0507eb6e3b553330ab"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-baseline-build.log",
+      "bytes": 7026,
+      "sha256": "91a9b8f4b08c465b3ce22c22959a25ace587cd63fc141e66fdbdac0cb739840f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-final-build.log",
+      "bytes": 7416,
+      "sha256": "4db1cf04c9dc2354af465a722fe06ec58b10b2534c271fcdbb30e628e3e3c46a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-oracle-a.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-oracle-b.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-test-result.json",
+      "bytes": 9447,
+      "sha256": "91651ab04f486acdaac4c568d9b5b69e21122e9c0270af1040af3ecfdc58b401"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-tests-isolated.log",
+      "bytes": 44894,
+      "sha256": "456d6f93597c6fbf2ffd56a88fd5c5de7563ba4a02d1bbd9ad72de5482e833a3"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-tests.log",
+      "bytes": 71576,
+      "sha256": "46c1dbd793f40731d920e35f21f1abca408a3de89ad0b1fa652f984eba2ef02f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "run.py",
+      "bytes": 8625,
+      "sha256": "6ed36940b047e4385bee9f0e004bea539a0f02f3af8cfb4503c73b545008210b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/artifact-index.json",
+      "bytes": 1917,
+      "sha256": "d53a33fed326002df9c887e482f6d53161f6d51819d1413b24009e2b802e6378"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/buffer-tic-045.bin",
+      "bytes": 3971288,
+      "sha256": "6e273052f80d9b179fd069ec0c5532cf0193b08eec2674f323736b65465df5c0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/buffer-tic-105.bin",
+      "bytes": 3971288,
+      "sha256": "6e273052f80d9b179fd069ec0c5532cf0193b08eec2674f323736b65465df5c0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/buffer-tic-165.bin",
+      "bytes": 3971288,
+      "sha256": "6e273052f80d9b179fd069ec0c5532cf0193b08eec2674f323736b65465df5c0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/capture.cfg",
+      "bytes": 464,
+      "sha256": "5fd20453854a129819e86e62fcba2cb502a44d249c11919b504116883d8c0776"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/config.ini",
+      "bytes": 15861,
+      "sha256": "f6d29ca04735845895412c571f4886e2fdc28d29aa90c50ea7040d8304bc3f7d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/counters.csv",
+      "bytes": 72856,
+      "sha256": "32fcf27ab5b9beeaaa9d2676659a5f411e08e80aef0b2e389b27461fd4d08ebe"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/health-after.json",
+      "bytes": 6497,
+      "sha256": "44a4ba8d9a0ec50d9cdbee980c111483c615b00ba058ae20625a2b2ee75bd578"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/health-before.json",
+      "bytes": 6494,
+      "sha256": "75ad67e8af03a5ceac800cae0ab5f656cf453c8085964729a1f486d5251bf2a7"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/identities-tic-045.bin",
+      "bytes": 16800,
+      "sha256": "141284f1975cfccf7a0ef93f963704a2a5e0da78ed1a17e197204e06ead43a96"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/identities-tic-105.bin",
+      "bytes": 16800,
+      "sha256": "141284f1975cfccf7a0ef93f963704a2a5e0da78ed1a17e197204e06ead43a96"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/identities-tic-165.bin",
+      "bytes": 16800,
+      "sha256": "141284f1975cfccf7a0ef93f963704a2a5e0da78ed1a17e197204e06ead43a96"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/preregister.json",
+      "bytes": 4274,
+      "sha256": "98ac0d03debb43e1a6a746c3e4a1a67f052ebee3f87671ed1dc22ff8b09cce21"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/result.json",
+      "bytes": 2210,
+      "sha256": "eba51153c899eee7598da2a0ffee6ecb314024746b56d23088867b1b9a1fc944"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/samples.json",
+      "bytes": 1371,
+      "sha256": "0132dd67cc6b91199a8a4fba55fbd6dc8ab6cfa1b610ceee9104fb2230e6cbc7"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "5f204c704841215f98d9fb4ebcb5d00bedac06d6f4dfc9853c35a00e6cfd8da2"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/stdout.log",
+      "bytes": 2173,
+      "sha256": "5f3283d0ae440c6e9cbc163a4d63bb72add91b669464720d59c91584a4d5a8b3"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-diag-checkpoints/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "22bc0c65b6d8d6f9c8c22a2a33e05822968d10458b9f68abf6c845ad2f9542c5"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "05b548edf5c47329dc8fde06247936c48b39199ba8fb83354118c66a42e04a0d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/capture.cfg",
+      "bytes": 454,
+      "sha256": "5b67a8e85d348c561911733badd1f9911146dd232ad1b9fff81a3962d2893776"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/config.ini",
+      "bytes": 15861,
+      "sha256": "9c15d615b8acfd9ef405452b49fb310a25f2eb30deddd206383d8aad0d08b29d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/health-after.json",
+      "bytes": 6497,
+      "sha256": "025351245f8b6307abd233e8cb121a4bd2af9d6d0bd49e4206b09ff406efd384"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/health-before.json",
+      "bytes": 6494,
+      "sha256": "ae4c92bcfa9102fd24f84b62cfd94b7e7fd648d560f67b64fdfc0fc5a5168cf9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/preregister.json",
+      "bytes": 3260,
+      "sha256": "7c98643165025629427963fbae2487b1d0c1e1a93a798d8d3a93757d91d8c5b4"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/result.json",
+      "bytes": 2145,
+      "sha256": "620449439a2996b414b7c55de89e0466987b3707166a395c4eff2ee2ada59dfe"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/samples.json",
+      "bytes": 1369,
+      "sha256": "229b628034ff3c7bbd359d7f38acea64c32037b07ee0db67c61ea8cc5c0e2225"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "5c61898f0425c0a215489eea984caba7450cc7e63be0da86ca1bc588c57984cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/stdout.log",
+      "bytes": 2148,
+      "sha256": "9e8dd3221c7432abd3389211ad9a75b77155438e64060fc2b8b1c29e01adf5fc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair01/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "a65790d858d4e8638d78314b769bc5a9d1c1ebce4b1488eec60d649d34c7d2f0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "9f2dbace9c0b9f82dbe316eed306a1bdabeb2bc7df1332b25a029166e81cb437"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/capture.cfg",
+      "bytes": 454,
+      "sha256": "b0c45cb03242549bc5cb40e1cda01af2f61d6268f3e02a4a36bda8985806e06f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/config.ini",
+      "bytes": 15861,
+      "sha256": "621879655f81f025064989521c50cbfe76992e7e49d87068e5dbe72216cae5ac"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/health-after.json",
+      "bytes": 6497,
+      "sha256": "cb5c95221d211b8a9958d92c9ba575e03693923438da076a18dea048beba4ee9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/health-before.json",
+      "bytes": 6494,
+      "sha256": "fe4276a32b241ceacafa67dafedea02ab541beb9b0a6c6e8878697318daaceb2"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/preregister.json",
+      "bytes": 3260,
+      "sha256": "612e7f60edbfa19114186503b94a35dbe1d4deb454368c57f10bf48e9e4cc220"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/result.json",
+      "bytes": 2145,
+      "sha256": "eace1330393f19279f41dc75123134d0940ba53f1e1cd5f91039c77e00852075"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/samples.json",
+      "bytes": 1372,
+      "sha256": "26adbb67eda2f820f5b111ea00f7f9947c7d390c67c3a105ec5e3bf60e7424e6"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "95883ce8a48a13308591a0c2fa44016e7b4645ada4c4ec3f23c26422a0e5b8ee"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/stdout.log",
+      "bytes": 2148,
+      "sha256": "1fe5ece27a5f16afcadf15bab3cd8bfeffe8760f0221931b3d0d4cd8acf0549d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair02/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "4625cd72e824f72ccbb1d46b196b4bf3b085af2c86310220a8e056b5a86ed9db"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "9b93b2c9af195c223ae3fd619955802ece0bf6147219669ccd39784e576cd723"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/capture.cfg",
+      "bytes": 454,
+      "sha256": "463351514cc1a58b90b6ef7e90c753b44b5d61915015f94f44938fa829ae671e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/config.ini",
+      "bytes": 15861,
+      "sha256": "b94b06653781117798e43a515b050fc64216fe5c40f161dfd4392152ec220194"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/health-after.json",
+      "bytes": 6497,
+      "sha256": "d215bcf1654bc58d0a10a3cee16e6f5227990b9f10a0dab00808afafc4c46c38"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/health-before.json",
+      "bytes": 6494,
+      "sha256": "b04fcb774072a09b7bb684cf71542b033ee76108973e18c7dd6d2a0cf511b3a0"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/preregister.json",
+      "bytes": 3260,
+      "sha256": "99c988aa6263d19489104659748ab57c83c7ef7075c6686361e68f0d460d3309"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/result.json",
+      "bytes": 2144,
+      "sha256": "bf22b284335d8430c6e3b632450926c5a1ce4d13aad1cab7bd59f55195415b52"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/samples.json",
+      "bytes": 1370,
+      "sha256": "ebcb998478581bb3fd2169401a5bf75a39ca01e7268159d720b66a9cdcdf8b81"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "54813c8422296240f16c385a4e6f1dce94026974c917be5f7fcaf3822235040f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/stdout.log",
+      "bytes": 2148,
+      "sha256": "8c53c1f2e9f852132e8881d52d3ba03245b3daac18bd82f20d805b861a3d6028"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair03/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "0b7a4b31a1a28b34b6c80c7b6de246d7b5426754edc2d5f1197a1ebf764e18c1"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "bab3e41f3ce095a39460d7572a0b932016c23142a8c547a37f87b27b9b65a5eb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/capture.cfg",
+      "bytes": 454,
+      "sha256": "04562da00b7dd0e9f8dddc9dbd53773d46802ce49cdd87516d102a9aae82174b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/config.ini",
+      "bytes": 15861,
+      "sha256": "68b7fc8da4a9c70265a8fd5373e2afd568070b4b1207b8f4c7fbe9a42a16ebe5"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/health-after.json",
+      "bytes": 6497,
+      "sha256": "4ce62e9658e2f16196dd5f0d09606dd9bd57b0628b4d774d740ad3a3aaaf9352"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/health-before.json",
+      "bytes": 6494,
+      "sha256": "49c94115e72acea709aad44ce6754ab430260f20ecf7513b6e56d7b250a1940a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/preregister.json",
+      "bytes": 3260,
+      "sha256": "b398485c9f1eaec5697e80671e8cb944dec207f94b689885fcff63902e971419"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/result.json",
+      "bytes": 1856,
+      "sha256": "d298d87f7100ad9d7477f11f23e965263477b67f745aaaf508f1ca91b0b66207"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/samples.json",
+      "bytes": 1372,
+      "sha256": "7f10f601351f88bb7007d74bda42b00cb6a82f5bf0abf330f673279acd137ff2"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "b109eabfb0ac979d508b4dad41120a02b978a488c3eb40c9875b957d7747c460"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/stdout.log",
+      "bytes": 2148,
+      "sha256": "1193c033262d513420af3e113e5b36f2a4d223356e6ceaaf019bb345e87674b9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair04/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "1cf0f73ef38653340067328277aea9fe7efe0018d8d277c0f6d0b1734408e2e9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "64d3978fbaf7eb8dd37dd8e00bd98bd8efd2cc506c1401855417c49548704267"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/capture.cfg",
+      "bytes": 454,
+      "sha256": "1dc301e44afea51b21fd6ba3f388524aff71a96e06497ba90266e65797689a75"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/config.ini",
+      "bytes": 15861,
+      "sha256": "2d91d9022ced97d8dc242cadedd7a79d8672e01e651126c098658434f036320c"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/health-after.json",
+      "bytes": 6497,
+      "sha256": "0c334a6f11006360eafc734875757fb677e69c0c281bf7b2323983cf835ca84c"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/health-before.json",
+      "bytes": 6494,
+      "sha256": "72377cd174f2c6d9455275f4925009ca4cb593ab5165082a8314e317b211f962"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/preregister.json",
+      "bytes": 3260,
+      "sha256": "fdb30f28bc0bdb09632535f4b049ea5dd903dd2311beb690b4c135a4d151322f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/result.json",
+      "bytes": 2149,
+      "sha256": "41665c57edfd22cd37f6f49c417f0c18a4b0d23016cec72bb8f83bd651fe4ebe"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/samples.json",
+      "bytes": 1372,
+      "sha256": "2e29b5f18cc784d234a92afe87c1a71dd710472613c19939d65e465e964e62e3"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "1b1482ce09f5697a98be985096cd9d647a3d5b35dd329a7181ccd2f3f1efc9b8"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/stdout.log",
+      "bytes": 2148,
+      "sha256": "5ecb49d47e28e750d953d8ca4b86c91a995545e051e99cfd7dfc9961da059b62"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-pair05/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "94935c7ea6fbf83c4a60f9c30e928eb49b5731933e81999018541bf98e3b630e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "4ae7902379748f8c2106b17cad8b60189159d847ece11707ec391f692a257f6b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/capture.cfg",
+      "bytes": 454,
+      "sha256": "75b7f5092add969622388a916e6fc1206162763de3de30faaeddb647d913252d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/config.ini",
+      "bytes": 15861,
+      "sha256": "02cc411cf8d5e16f4152ec448e39b7410549594749506eda660809d981d2a7d7"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/health-after.json",
+      "bytes": 6497,
+      "sha256": "364f3f8e5ff39cb5f79aee7f21948ae0428540dde5d3080760a9d74d54d99775"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/health-before.json",
+      "bytes": 6494,
+      "sha256": "9ee59e3115a8012b2f38c2ed2241022698eee9d19cbb2929cb94d4c2e9996626"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/preregister.json",
+      "bytes": 3260,
+      "sha256": "8cdc2e2e5d409ef8071f856cd4af2f382ceebb2931de1ab0292ae9316ece34f1"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/result.json",
+      "bytes": 2150,
+      "sha256": "049bd316e84fc673e514c92a5cd5968b544958060119025ba0d94f9b17e7e16f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/samples.json",
+      "bytes": 1371,
+      "sha256": "617cd9d1bef99dc36a658bf34925ed1f12fbfea135c01f9c0e8a32323734dfc1"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "d8a3ae4c604e69764433cd17fcaf70e28e864185f72da8516de26450664dfc9d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/stdout.log",
+      "bytes": 2148,
+      "sha256": "948eeec93df0d6ce6d3d952723050f831d8f708ced5adf686791a294bcee4a5a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/baseline-warmup/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "05d91c668fe595733f9e6578d870d16d66d08fb1de6d3f99967520d4b762e4bc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "cfb0d1ea87e56d939818d98bbd6689616638798e29306b82baf12e484c2bac95"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/capture.cfg",
+      "bytes": 455,
+      "sha256": "5d00f11d063c8d36d201a3181552c0024790c7b5ca8064c121061c766f8ab501"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/config.ini",
+      "bytes": 15861,
+      "sha256": "948885be659d33bc5e4c2e910ce628dded131c4a7f2ef3a842499ad7cd3b22ee"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/health-after.json",
+      "bytes": 6497,
+      "sha256": "95f8ea1de0c28ef936b534e61e6216abbca3d361b6766afb3855b246e4b2e55b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/health-before.json",
+      "bytes": 6494,
+      "sha256": "4a3b9fe2d1f7024b8d8f418f2d69d1037a2763aa283edfc82f0cdcd1217b0cbd"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/preregister.json",
+      "bytes": 3264,
+      "sha256": "a4d49ba851efce1e5b2365706027f2575d68a05e59a3ea4ada16b48944ea95ab"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/result.json",
+      "bytes": 1857,
+      "sha256": "289d598696c648368105dba97db6164958e1864618af32da97ccf7249f6fb8f8"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/samples.json",
+      "bytes": 1371,
+      "sha256": "9c7157029ee279703e2dd2c57e3440c0ac1a2341f09c4836bfcf84fc0b6a42ba"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "03b581d51784c466c79498d443815bebdc3cbdc3cc4e60b3a919c5dddce21505"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/stdout.log",
+      "bytes": 2153,
+      "sha256": "115d83aa04a23e33662d1d3a12f2c4f4c5448768216789812910e4e4e0b7d0bf"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair01/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "4bd61ba66c6c8e99a72dbb592dc8c71b4410ac58680dfe49117c0d985a40d7b7"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "44bd84bd77a1448565f8ae1d7c9fa285c94117a7aced628162ff498ebf42d0b4"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/capture.cfg",
+      "bytes": 455,
+      "sha256": "0cf62cf9a15f6dd59bb47bbab6d10212d9ca4d1f2b89d1a61e5dae02269189a2"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/config.ini",
+      "bytes": 15861,
+      "sha256": "8cc2386d3de0bb555509ee5b94b758a2157ee07032ac97992cc18c7d3bb57e35"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/health-after.json",
+      "bytes": 6497,
+      "sha256": "8a6880ec3f59bf461b881e9722a66bf22c66e8ca3a6a3dde02d3e7154f3b53d9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/health-before.json",
+      "bytes": 6494,
+      "sha256": "e8b38931b4862093e66cf875fa4ab88bee28a6e7331bbb5822a24f9e2633d993"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/preregister.json",
+      "bytes": 3264,
+      "sha256": "6bd934fe1d6f48b34fcac74e5d43063978ade1097c5a6638615a462d26a8af4c"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/result.json",
+      "bytes": 2151,
+      "sha256": "995ba694e010c26e8615fc1840329b0ed6ce6ba70b63e5ab6e9378b9b0f8945a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/samples.json",
+      "bytes": 1373,
+      "sha256": "ee84b37ef5edf6a02cc2a0ee73e0d3e2c4dea98335fa53192657f5f43033e145"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "3e159beae7723707950458f11df498ade0c702bbe4d0c0ad451331916ba4df90"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/stdout.log",
+      "bytes": 2153,
+      "sha256": "37fdf63d5fbb467060d7a890ef3fba59a94d3077c84e47a4ef0962dbeb1f340b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair02/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "a5d4958028d862ee4404f8ea2e49eadf04bc4b0e9d6ee6840964fd057a235a61"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "ada8684d4ece83ce863a42a65044e8b540e096ecb7950fb2c5257a27f25f7e59"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/capture.cfg",
+      "bytes": 455,
+      "sha256": "d186942a69bc6ac3cab7d18df0da487a8e9e62890391a43d277bcea78cc1db89"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/config.ini",
+      "bytes": 15861,
+      "sha256": "f83d0219b218a6ae7e99cbcfdf24f1b293b76e51b9bf7ca6b6c6185773b06f6a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/health-after.json",
+      "bytes": 6497,
+      "sha256": "46cb18f2efc0728e0ec9f134a4c730b4f8ef86c3d001c65a415997d34f13356b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/health-before.json",
+      "bytes": 6494,
+      "sha256": "7043f8d3400c6704ad8ffc9d4df6eb718b05f8758c26ff00120efb879571b9a5"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/preregister.json",
+      "bytes": 3264,
+      "sha256": "4d3c1bb445e657478038074caac21d7de42efc64f4d553c56a1d947535bdb0ba"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/result.json",
+      "bytes": 2151,
+      "sha256": "35942bf72e34ad6616c2cedeed02fb9eee98c6543388ed05337efd90190da722"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/samples.json",
+      "bytes": 1373,
+      "sha256": "cf4b544d7da29ce93f8b511e30ea1f65af42e50be8394ee3559553d133d9a4dc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "dadd9ae922bd30de5dc49ec6f360d898c158226ced40d26317b33fe98da48cde"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/stdout.log",
+      "bytes": 2153,
+      "sha256": "2116a9330eb9f7e7f61930bb6030f23b12e05f90238f595da18f7c799992c9c9"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair03/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "a10cf122fcea2248c18a9b3b1fe92ade0ed1333d7b4651528d24c5aff21417cd"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "70dee242fe2bb61e346a6ec092ed7f1f9962f8681464137eb8336631c7f0fa86"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/capture.cfg",
+      "bytes": 455,
+      "sha256": "c4c61c371f97c242191935304f76cdf8c5fb496e0710f001cfff66b04bd2a69e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/config.ini",
+      "bytes": 15861,
+      "sha256": "c3256ce669d949bfadb7fd08b0171df0e98a2bd8f8ddcebcacffe7a0429a875a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/health-after.json",
+      "bytes": 6497,
+      "sha256": "47602cfa3d10cba43c3cd2bc8d938e94b704a49490acb73a7a132e40aa3b2bba"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/health-before.json",
+      "bytes": 6494,
+      "sha256": "6facdc15f27c27a49c785119a61f6a18cea612ed186949e22bf3372261872d1c"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/preregister.json",
+      "bytes": 3264,
+      "sha256": "4c0671b1b28e90d15fb1af54ece0695c66fb2acdafb1d76db1317e13cf748bc3"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/result.json",
+      "bytes": 2150,
+      "sha256": "bcac1ddea4a284fa49f77ac2898fddf1529a1edd28602c5c3395e05a59e62413"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/samples.json",
+      "bytes": 1373,
+      "sha256": "84dae79ca83016e4ce2dd74e5973d7e842bac0825cdb254d24705c973b23fe4a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "b7a5ffdb55812ce48da6171e622ab51c0224ca87d6dda187fd11b460d4423595"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/stdout.log",
+      "bytes": 2153,
+      "sha256": "fde3411e52c386b929a30d81fd5865734674bd9d2446f8196f9c3568c7d76e26"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair04/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "5ffac1f3f9951a596d17945d35895de6ac767656d846da00dffbb0ab75b78759"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "fb8a340409c471d497ff101386e23e28d8386f522acf1c280bf09213f858769b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/capture.cfg",
+      "bytes": 455,
+      "sha256": "11b513ee27d4a6bd560ee67f78bd02cf1d15529cace55582a8a424f2eef15509"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/config.ini",
+      "bytes": 15861,
+      "sha256": "824794c5bb6a2b3a8d36c420a390a345fdd1e39cc004a9126250df0a18515593"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/health-after.json",
+      "bytes": 6497,
+      "sha256": "54ae90351e05de9837390ea630720fe4786ca0a4f37d9267c06b65e989beea63"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/health-before.json",
+      "bytes": 6494,
+      "sha256": "d718b0b61c81ea1fb40ea1de5b5be5791015e7753bee9e88dbecf3c3a6ffd935"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/preregister.json",
+      "bytes": 3264,
+      "sha256": "496ac0588117034a073f9c27bd12af48a6337ed4f27dcb26edfb74f33d08d0bc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/result.json",
+      "bytes": 2151,
+      "sha256": "42d938e09d5bf23e4d42ad831347cd20b2fd376ae08cf9fe90c9d53e5365ac43"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/samples.json",
+      "bytes": 1374,
+      "sha256": "fbb9f59df5c8e17cae73fdcf2aa27c3c72766d64b9c42154c5caaba90202cbc4"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "4e61d3509565f0968d665dd8418618873b8bc7b817e36b2f08db09de0b423782"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/stdout.log",
+      "bytes": 2153,
+      "sha256": "9b1169289bd2c09d992983ae12a798d562e86ce3414ae05355c610857c6f5dfb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-pair05/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "c019e054a42f0c1172b54c2c24adcb5bff67a9ffdad9cf15785f237985cde267"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/artifact-index.json",
+      "bytes": 1260,
+      "sha256": "b3a8b1153fc026dfc90653bd1201b82de344027f74a1d2f7e55ba9a1883e2c4c"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/capture.cfg",
+      "bytes": 455,
+      "sha256": "148cabc87f99f9294d761392140eb982efe4161cb11a168112e03f99bf8cb70e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/config-before.ini",
+      "bytes": 17636,
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/config.ini",
+      "bytes": 15861,
+      "sha256": "fe28d90c53c0be1b877dca379823a28df6de12604b1e6eb116192190f3dfbc5d"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/health-after.json",
+      "bytes": 6497,
+      "sha256": "543ac946843fc0909706a2b4dfb5114935f5c1a2c12b85b468193ad4dc1e3920"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/health-before.json",
+      "bytes": 6494,
+      "sha256": "c6938c70252eb69dad98263e169bae70b99286ea7deb78ed93ac4a3f2152acec"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/pipelinecache.zdpc-after",
+      "bytes": 9701371,
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/preregister.json",
+      "bytes": 3264,
+      "sha256": "ea426e1bf1bbfee26ccb3872dc8591cff5faa420cc0ba3a0ff0f398cdcc3c386"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/result.json",
+      "bytes": 2151,
+      "sha256": "d080b6d4c183ccd3585a71f1364c0ddd915814448e4a6ddba3c37b3caf4e488e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/samples.json",
+      "bytes": 1372,
+      "sha256": "489f1aab12ef41b213d4d254cd2e1979a675e7443239974115a51fe90d985a44"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/scene.png",
+      "bytes": 1280410,
+      "sha256": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/shadercache.zdsc-after",
+      "bytes": 11323798,
+      "sha256": "6483cf7106a6b4366db03eb7978ad40642a8354f6d32683b72c9c2aa5d8d1e0b"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/stdout.log",
+      "bytes": 2153,
+      "sha256": "dada0210f38e1a43769dde3bafe87d9db282b1b79c88799225ba82b690a20af7"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "runs/candidate-warmup/work/benchmarks.txt",
+      "bytes": 3575,
+      "sha256": "135ac9c43e69ea2ff2fbc44c8fd9c8af9e1daa7d42aa62b458bd0ce713dc6f5a"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "STOP-LAUNCHES.txt",
+      "bytes": 193,
+      "sha256": "012c0a51bad7a1d87425440d3a6b358a7d503a9436f5cb44b88b2451c3a2bf31"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "test-result.json",
+      "bytes": 11306,
+      "sha256": "395db2212881cd9a7ed077a95f400906c5eacb031a149d82c6874c6a83c38475"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "test_exclusive_focus.py",
+      "bytes": 1934,
+      "sha256": "154d51093ce5437980fa4b6b1a11dcd06bf8dccb48d98b82b1efee1001730912"
+    }
+  ]
+}

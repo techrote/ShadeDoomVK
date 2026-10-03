@@ -1,0 +1,27 @@
+{
+  "config": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf016\\configs\\pf016-01.ini",
+    "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb",
+    "bytes": 17636
+  },
+  "dense": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf016\\PF016_DenseLights_Interior.wad",
+    "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+    "bytes": 242350
+  },
+  "iwad": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+    "sha256": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c",
+    "bytes": 16087017
+  },
+  "pipelinecache.zdpc": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\inputs\\pipelinecache.zdpc",
+    "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+    "bytes": 9701371
+  },
+  "shadercache.zdsc": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\inputs\\shadercache.zdsc",
+    "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da",
+    "bytes": 11323798
+  }
+}

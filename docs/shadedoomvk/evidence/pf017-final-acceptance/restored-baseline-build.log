@@ -1,0 +1,261 @@
+MSBuild version 17.14.51+25f168cee for .NET Framework
+
+  bz2.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\bzip2\RelWithDebInfo\bz2.lib
+  miniz.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\miniz\RelWithDebInfo\miniz.lib
+  Failed to get commit info: 128
+  src/gitinfo.h is up to date at commit <unknown version>.
+  lzma.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\lzma\RelWithDebInfo\lzma.lib
+  zipdir.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\tools\zipdir\RelWithDebInfo\zipdir.exe
+  Generating ../lights.pk3
+  C:/ShadeDoomVK/source/build-relwithdebinfo/lights.pk3 contains 7 files (updated 0)
+  Generating ../brightmaps.pk3
+  Generating ../game_widescreen_gfx.pk3
+  Generating ../game_support.pk3
+  C:/ShadeDoomVK/source/build-relwithdebinfo/brightmaps.pk3 contains 499 files (updated 0)
+  C:/ShadeDoomVK/source/build-relwithdebinfo/game_widescreen_gfx.pk3 contains 214 files (updated 0)
+  C:/ShadeDoomVK/source/build-relwithdebinfo/game_support.pk3 contains 3308 files (updated 0)
+  Generating ../vkdoom.pk3
+  C:/ShadeDoomVK/source/build-relwithdebinfo/vkdoom.pk3 contains 718 files (updated 0)
+  asmjit.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\asmjit\RelWithDebInfo\asmjit.lib
+  lemon.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\tools\lemon\RelWithDebInfo\lemon.exe
+  re2c.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\tools\re2c\RelWithDebInfo\re2c.exe
+  webp.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\webp\RelWithDebInfo\webp.lib
+  C:/ShadeDoomVK/source/build-relwithdebinfo/tools/lemon/RelWithDebInfo
+  discord-rpc.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\discordrpc\src\RelWithDebInfo\discord-rpc.lib
+  zvulkan.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\ZVulkan\RelWithDebInfo\zvulkan.lib
+  zwidget.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\libraries\ZWidget\RelWithDebInfo\zwidget.lib
+  vk_buffer.cpp
+  vk_hwbuffer.cpp
+  vk_rsbuffers.cpp
+  vk_commandbuffer.cpp
+  vk_descriptorset.cpp
+  vk_framebuffer.cpp
+  vk_pprenderpass.cpp
+  vk_renderpass.cpp
+  vk_ppshader.cpp
+  vk_shader.cpp
+  vk_hwtexture.cpp
+  vk_imagetransition.cpp
+  vk_pptexture.cpp
+  vk_renderbuffers.cpp
+  vk_texture.cpp
+  vk_levelmesh.cpp
+  vk_lightmapper.cpp
+  vk_lightprober.cpp
+  vk_postprocess.cpp
+  vk_pprenderstate.cpp
+  vk_renderdevice.cpp
+  vk_renderstate.cpp
+  hw_dynlightdata.cpp
+  hw_bsp.cpp
+  hw_clipper.cpp
+  hw_decal.cpp
+  hw_drawcontext.cpp
+  hw_drawinfo.cpp
+  hw_drawlist.cpp
+  hw_fakeflat.cpp
+  hw_flats.cpp
+  hw_portal.cpp
+  hw_renderhacks.cpp
+  hw_sky.cpp
+  hw_skyportal.cpp
+  hw_spritelight.cpp
+  hw_sprites.cpp
+  hw_visibleset.cpp
+  hw_walls.cpp
+  hw_walls_vertex.cpp
+  hw_weapon.cpp
+  r_all.cpp
+  r_swscene.cpp
+  am_map.cpp
+  bbannouncer.cpp
+  lightmapcmd.cpp
+  hw_levelmesh.cpp
+  hw_shadowmap.cpp
+  c_cmds.cpp
+  c_functions.cpp
+  ct_chat.cpp
+  d_main.cpp
+  d_net.cpp
+  d_netinfo.cpp
+  doomstat.cpp
+  events.cpp
+  g_cvars.cpp
+  g_dumpinfo.cpp
+  g_game.cpp
+  g_hub.cpp
+  g_level.cpp
+  sbar_mugshot.cpp
+  sbarinfo.cpp
+  shared_hud.cpp
+  shared_sbar.cpp
+  gameconfigfile.cpp
+  a_keys.cpp
+  a_weapons.cpp
+  d_dehacked.cpp
+  decallib.cpp
+  g_doomedmap.cpp
+  g_mapinfo.cpp
+  g_skill.cpp
+  info.cpp
+  keysections.cpp
+  p_terrain.cpp
+  p_xlat.cpp
+  statistics.cpp
+  teaminfo.cpp
+  animations.cpp
+  hu_scores.cpp
+  intermission.cpp
+  levelmeshhelper.cpp
+  m_cheat.cpp
+  compatibility.cpp
+  edata.cpp
+  glnodes.cpp
+  maploader.cpp
+  polyobjects.cpp
+  postprocessor.cpp
+  renderinfo.cpp
+  slopes.cpp
+  specials.cpp
+  strifedialogue.cpp
+  udmf.cpp
+  usdf.cpp
+  doommenu.cpp
+  playermenu.cpp
+  p_conversation.cpp
+  p_openmap.cpp
+  p_saveg.cpp
+  p_setup.cpp
+  p_states.cpp
+  p_tick.cpp
+  a_action.cpp
+  a_decals.cpp
+  a_dynlight.cpp
+  a_flashfader.cpp
+  a_morph.cpp
+  a_pickups.cpp
+  a_specialspot.cpp
+  actorptrselect.cpp
+  b_bot.cpp
+  b_func.cpp
+  b_game.cpp
+  b_move.cpp
+  b_think.cpp
+  dthinker.cpp
+  t_cmd.cpp
+  t_func.cpp
+  t_load.cpp
+  t_oper.cpp
+  t_parse.cpp
+  t_prepro.cpp
+  t_script.cpp
+  t_spec.cpp
+  t_variable.cpp
+  a_ceiling.cpp
+  a_decalfx.cpp
+  a_doors.cpp
+  a_floor.cpp
+  a_lightning.cpp
+  a_lights.cpp
+  a_lighttransfer.cpp
+  a_pillar.cpp
+  a_plats.cpp
+  a_pusher.cpp
+  a_quake.cpp
+  a_scroll.cpp
+  a_thruster.cpp
+  dsectoreffect.cpp
+  p_3dfloors.cpp
+  p_3dmidtex.cpp
+  p_acs.cpp
+  p_actionfunctions.cpp
+  p_destructible.cpp
+  p_effect.cpp
+  p_enemy.cpp
+  p_interaction.cpp
+  p_linkedsectors.cpp
+  p_lnspec.cpp
+  p_map.cpp
+  p_maputl.cpp
+  p_mobj.cpp
+  p_pspr.cpp
+  p_secnodes.cpp
+  p_sectors.cpp
+  p_sight.cpp
+  p_spec.cpp
+  p_switch.cpp
+  p_tags.cpp
+  p_teleport.cpp
+  p_things.cpp
+  p_trace.cpp
+  p_user.cpp
+  po_man.cpp
+  portal.cpp
+  a_dynlightdata.cpp
+  gldefs.cpp
+  models.cpp
+  portalgroups.cpp
+  r_canvastexture.cpp
+  r_interpolate.cpp
+  r_sections.cpp
+  r_translate.cpp
+  sprites.cpp
+  v_palette.cpp
+  v_blend.cpp
+  doom_aabbtree.cpp
+  doom_levelmesh.cpp
+  doom_lightprobes.cpp
+  hw_entrypoint.cpp
+  hw_models.cpp
+  hw_precache.cpp
+  hw_vertexbuilder.cpp
+  hw_drawlistadd.cpp
+  hw_lighting.cpp
+  hw_setcolor.cpp
+  r_sky.cpp
+  r_utility.cpp
+  r_swtexture.cpp
+  swcanvastexture.cpp
+  warptexture.cpp
+  codegen_doom.cpp
+  olddecorations.cpp
+  thingdef_exp.cpp
+  thingdef_parse.cpp
+  thingdef_states.cpp
+  thingdef.cpp
+  thingdef_data.cpp
+  thingdef_properties.cpp
+  vmiterators.cpp
+  vmthunks.cpp
+  vmthunks_actors.cpp
+  zcc_compile_doom.cpp
+  scriptutil.cpp
+  serializer_doom.cpp
+  s_advsound.cpp
+  s_doomsound.cpp
+  s_sndseq.cpp
+  st_stuff.cpp
+  nodebuild_extract.cpp
+  nodebuild_utility.cpp
+  wi_stuff.cpp
+  zengine.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\src\RelWithDebInfo\zengine.lib
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification [C:\ShadeDoomVK\source\build-relwithdebinfo\src\ztool.vcxproj]
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/OPT:ICF' specification [C:\ShadeDoomVK\source\build-relwithdebinfo\src\zdoom.vcxproj]
+     Creating library C:/ShadeDoomVK/source/build-relwithdebinfo/src/RelWithDebInfo/vkdoom.lib and object C:/ShadeDoomVK/source/build-relwithdebinfo/src/RelWithDebInfo/vkdoom.exp
+     Creating library C:/ShadeDoomVK/source/build-relwithdebinfo/src/RelWithDebInfo/vktool.lib and object C:/ShadeDoomVK/source/build-relwithdebinfo/src/RelWithDebInfo/vktool.exp
+  zdoom.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\RelWithDebInfo\vkdoom.exe
+  Adding manifest...	
+  ztool.vcxproj -> C:\ShadeDoomVK\source\build-relwithdebinfo\RelWithDebInfo\vktool.exe
+  Adding manifest...
+  Microsoft (R) Manifest Tool
+  
+  Copyright (c) Microsoft Corporation. 
+  
+  All rights reserved.
+  
+  Microsoft (R) Manifest Tool
+  
+  Copyright (c) Microsoft Corporation. 
+  
+  All rights reserved.
+  

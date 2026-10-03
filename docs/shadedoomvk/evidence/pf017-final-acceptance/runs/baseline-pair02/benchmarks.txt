@@ -1,0 +1,90 @@
+Map PF16TST: "PF-016 Dense Dynamic-Light Stress",
+x = -1850.0000, y = 0.0000, z = 41.0000, angle = 0.0000, pitch = 0.0000
+53 fps
+
+Walls: 5 (0 splits, 0 t-splits, 20 vertices)
+Flats: 2 (2 primitives, 24 vertices)
+Sprites: 832, Decals=0, Portals: 0, Command buffers: 5
+BSP = 0.009, Clip=0.002
+W: Render=0.098, Setup=0.008
+F: Render=0.028, Setup=0.002
+S: Render=0.478, Setup=3.711
+2D: 0.235 Finish3D: 0.004
+Main thread total=3.754, Main thread waiting=3.743 Worker thread total=3.722, Worker thread waiting=0.001
+All=18.377, Render=0.669, Setup=3.796, Portal=0.000, Drawcalls=0.225, Postprocess=0.158, Finish=13.665
+DLight - Walls: 257 processed, 253 rendered - Flats: 432 processed, 432 rendered
+
+
+
+Map PF16TST: "PF-016 Dense Dynamic-Light Stress",
+x = -1850.0000, y = 0.0000, z = 41.0000, angle = 0.0000, pitch = 0.0000
+35 fps
+
+Walls: 5 (0 splits, 0 t-splits, 20 vertices)
+Flats: 2 (2 primitives, 24 vertices)
+Sprites: 832, Decals=0, Portals: 0, Command buffers: 5
+BSP = 0.009, Clip=0.001
+W: Render=0.099, Setup=0.006
+F: Render=0.027, Setup=0.001
+S: Render=0.450, Setup=3.648
+2D: 0.246 Finish3D: 0.004
+Main thread total=3.683, Main thread waiting=3.672 Worker thread total=3.655, Worker thread waiting=0.001
+All=17.906, Render=0.640, Setup=3.725, Portal=0.000, Drawcalls=0.181, Postprocess=0.127, Finish=13.326
+DLight - Walls: 257 processed, 253 rendered - Flats: 432 processed, 432 rendered
+
+
+
+Map PF16TST: "PF-016 Dense Dynamic-Light Stress",
+x = -1850.0000, y = 0.0000, z = 41.0000, angle = 0.0000, pitch = 0.0000
+35 fps
+
+Walls: 5 (0 splits, 0 t-splits, 20 vertices)
+Flats: 2 (2 primitives, 24 vertices)
+Sprites: 832, Decals=0, Portals: 0, Command buffers: 5
+BSP = 0.009, Clip=0.001
+W: Render=0.096, Setup=0.008
+F: Render=0.028, Setup=0.001
+S: Render=0.443, Setup=3.710
+2D: 0.275 Finish3D: 0.004
+Main thread total=3.749, Main thread waiting=3.738 Worker thread total=3.721, Worker thread waiting=0.001
+All=18.515, Render=0.632, Setup=3.790, Portal=0.000, Drawcalls=0.183, Postprocess=0.127, Finish=13.879
+DLight - Walls: 257 processed, 253 rendered - Flats: 432 processed, 432 rendered
+
+
+
+Map PF16TST: "PF-016 Dense Dynamic-Light Stress",
+x = -1850.0000, y = 0.0000, z = 41.0000, angle = 0.0000, pitch = 0.0000
+35 fps
+
+Walls: 5 (0 splits, 0 t-splits, 20 vertices)
+Flats: 2 (2 primitives, 24 vertices)
+Sprites: 832, Decals=0, Portals: 0, Command buffers: 5
+BSP = 0.008, Clip=0.001
+W: Render=0.081, Setup=0.007
+F: Render=0.025, Setup=0.002
+S: Render=0.341, Setup=3.661
+2D: 0.236 Finish3D: 0.004
+Main thread total=3.697, Main thread waiting=3.688 Worker thread total=3.671, Worker thread waiting=0.001
+All=17.752, Render=0.510, Setup=3.718, Portal=0.000, Drawcalls=0.183, Postprocess=0.099, Finish=13.343
+DLight - Walls: 257 processed, 253 rendered - Flats: 432 processed, 432 rendered
+
+
+
+Map PF16TST: "PF-016 Dense Dynamic-Light Stress",
+x = -1850.0000, y = 0.0000, z = 41.0000, angle = 0.0000, pitch = 0.0000
+35 fps
+
+Walls: 5 (0 splits, 0 t-splits, 20 vertices)
+Flats: 2 (2 primitives, 24 vertices)
+Sprites: 832, Decals=0, Portals: 0, Command buffers: 5
+BSP = 0.008, Clip=0.001
+W: Render=0.097, Setup=0.007
+F: Render=0.027, Setup=0.002
+S: Render=0.439, Setup=3.699
+2D: 0.245 Finish3D: 0.004
+Main thread total=3.742, Main thread waiting=3.733 Worker thread total=3.709, Worker thread waiting=0.001
+All=18.285, Render=0.631, Setup=3.783, Portal=0.000, Drawcalls=0.184, Postprocess=0.138, Finish=13.639
+DLight - Walls: 257 processed, 253 rendered - Flats: 432 processed, 432 rendered
+
+
+

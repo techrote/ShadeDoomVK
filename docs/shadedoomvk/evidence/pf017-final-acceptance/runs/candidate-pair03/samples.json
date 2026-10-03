@@ -1,0 +1,76 @@
+{
+  "excluded_warm_snapshot": [
+    {
+      "sprite_setup_ms": 4.022,
+      "all_ms": 18.411,
+      "process_setup_ms": 4.108,
+      "finish_ms": 13.398,
+      "camera": [
+        -1850.0,
+        0.0,
+        41.0,
+        0.0,
+        0.0
+      ],
+      "sprites": 832
+    }
+  ],
+  "warmed_frozen_samples": [
+    {
+      "sprite_setup_ms": 4.084,
+      "all_ms": 18.365,
+      "process_setup_ms": 4.165,
+      "finish_ms": 13.312,
+      "camera": [
+        -1850.0,
+        0.0,
+        41.0,
+        0.0,
+        0.0
+      ],
+      "sprites": 832
+    },
+    {
+      "sprite_setup_ms": 4.083,
+      "all_ms": 18.383,
+      "process_setup_ms": 4.161,
+      "finish_ms": 13.381,
+      "camera": [
+        -1850.0,
+        0.0,
+        41.0,
+        0.0,
+        0.0
+      ],
+      "sprites": 832
+    },
+    {
+      "sprite_setup_ms": 4.073,
+      "all_ms": 18.29,
+      "process_setup_ms": 4.147,
+      "finish_ms": 13.305,
+      "camera": [
+        -1850.0,
+        0.0,
+        41.0,
+        0.0,
+        0.0
+      ],
+      "sprites": 832
+    },
+    {
+      "sprite_setup_ms": 4.086,
+      "all_ms": 18.386,
+      "process_setup_ms": 4.171,
+      "finish_ms": 13.356,
+      "camera": [
+        -1850.0,
+        0.0,
+        41.0,
+        0.0,
+        0.0
+      ],
+      "sprites": 832
+    }
+  ]
+}

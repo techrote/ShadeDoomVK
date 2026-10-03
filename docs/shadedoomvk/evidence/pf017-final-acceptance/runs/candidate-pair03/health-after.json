@@ -1,0 +1,66 @@
+{
+  "schema": "cfx-007-recovery-v1",
+  "at_utc": "2026-10-03T03:10:11.842779+00:00",
+  "since_utc": "2026-10-03T02:59:24.830252+00:00",
+  "pass": true,
+  "stop_reasons": [],
+  "windows": {
+    "adapters": [
+      {
+        "Name": "NVIDIA GeForce GTX 1650 SUPER",
+        "PNPDeviceID": "PCI\\VEN_10DE&DEV_2187&SUBSYS_13573842&REV_A1\\4&1DA95F35&0&0019",
+        "Status": "OK",
+        "ConfigManagerErrorCode": 0,
+        "DriverVersion": "32.0.16.1692"
+      }
+    ],
+    "games": [],
+    "explorer": [
+      {
+        "Id": 7028,
+        "SessionId": 1,
+        "Responding": true
+      }
+    ],
+    "events": [],
+    "wer": [],
+    "boot": "2026-10-01T22:33:23.5000000Z"
+  },
+  "desktop": {
+    "shell_hwnd": "0x10134",
+    "wm_null_responded": true
+  },
+  "gpu_probe": {
+    "command": [
+      "nvidia-smi",
+      "--query-gpu=name,pci.device_id,driver_version,temperature.gpu,pstate,clocks.current.graphics,clocks.current.memory,clocks.max.graphics,power.draw,power.limit,memory.total,memory.used",
+      "--format=csv,noheader,nounits"
+    ],
+    "code": 0,
+    "stdout": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 42, P0, 1935, 6000, 2130, 29.11, 90.00, 4096, 917\n",
+    "stderr": ""
+  },
+  "vulkan_probe": {
+    "command": [
+      "vulkaninfo",
+      "--summary"
+    ],
+    "code": 0,
+    "stdout": "==========\nVULKANINFO\n==========\n\nVulkan Instance Version: 1.4.341\n\n\nInstance Extensions: count = 20\n-------------------------------\nVK_EXT_debug_report                    : extension revision 10\nVK_EXT_debug_utils                     : extension revision 2\nVK_EXT_direct_mode_display             : extension revision 1\nVK_EXT_surface_maintenance1            : extension revision 1\nVK_EXT_swapchain_colorspace            : extension revision 5\nVK_KHR_device_group_creation           : extension revision 1\nVK_KHR_display                         : extension revision 23\nVK_KHR_external_fence_capabilities     : extension revision 1\nVK_KHR_external_memory_capabilities    : extension revision 1\nVK_KHR_external_semaphore_capabilities : extension revision 1\nVK_KHR_get_display_properties2         : extension revision 1\nVK_KHR_get_physical_device_properties2 : extension revision 2\nVK_KHR_get_surface_capabilities2       : extension revision 1\nVK_KHR_portability_enumeration         : extension revision 1\nVK_KHR_surface                         : extension revision 25\nVK_KHR_surface_maintenance1            : extension revision 1\nVK_KHR_surface_protected_capabilities  : extension revision 1\nVK_KHR_win32_surface                   : extension revision 6\nVK_LUNARG_direct_driver_loading        : extension revision 1\nVK_NV_external_memory_capabilities     : extension revision 1\n\nInstance Layers: count = 3\n--------------------------\nVK_LAYER_NV_optimus NVIDIA Optimus layer           1.4.351  version 1\nVK_LAYER_NV_present NVIDIA Presentation Layer      1.4.351  version 1\nVK_LAYER_OBS_HOOK   Open Broadcaster Software hook 1.3.216  version 1\n\nDevices:\n========\nGPU0:\n\tapiVersion         = 1.4.351\n\tdriverVersion      = 616.92.0.0\n\tvendorID           = 0x10de\n\tdeviceID           = 0x2187\n\tdeviceType         = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU\n\tdeviceName         = NVIDIA GeForce GTX 1650 SUPER\n\tdriverID           = DRIVER_ID_NVIDIA_PROPRIETARY\n\tdriverName         = NVIDIA\n\tdriverInfo         = 616.92\n\tconformanceVersion = 1.4.3.3\n\tdeviceUUID         = f2d0eee8-2045-6c99-f33e-4c04636acdf7\n\tdriverUUID         = 16edf611-2967-515e-b44e-a51f39e45424\n",
+    "stderr": "WARNING: [Loader Message] Code 0 : windows_read_data_files_in_registry: Registry lookup failed to get layer manifest files.\nWARNING: [Loader Message] Code 0 : Layer VK_LAYER_OBS_HOOK uses API version 1.3 which is older than the application specified API version of 1.4. May cause issues.\n"
+  },
+  "windows_query": {
+    "command": [
+      "powershell",
+      "-NoProfile",
+      "-NonInteractive",
+      "-Command",
+      "$ErrorActionPreference='Stop'\n$since=[DateTime]::Parse('2026-10-03T02:59:24.830252+00:00').ToUniversalTime()\n$adapters=@(Get-CimInstance Win32_VideoController | Select-Object Name,PNPDeviceID,Status,ConfigManagerErrorCode,DriverVersion)\n$games=@(Get-Process vkdoom,zdoom -ErrorAction SilentlyContinue | Select-Object Id,Name,Responding)\n$explorer=@(Get-Process explorer -ErrorAction SilentlyContinue | Select-Object Id,SessionId,Responding)\n$events=@(Get-WinEvent -FilterHashtable @{LogName='System';StartTime=$since.ToLocalTime()} -ErrorAction SilentlyContinue | Where-Object {$_.ProviderName -match 'WHEA|BugCheck|Display|nvlddmkm|Kernel-Power' -or $_.Id -eq 6008} | ForEach-Object {[PSCustomObject]@{Id=$_.Id;RecordId=$_.RecordId;Provider=$_.ProviderName;Time=$_.TimeCreated.ToUniversalTime().ToString('o');Message=$_.Message;Xml=$_.ToXml()}})\n$wer=@(Get-WinEvent -FilterHashtable @{LogName='Application';ProviderName='Windows Error Reporting';StartTime=$since.ToLocalTime()} -ErrorAction SilentlyContinue | ForEach-Object {[PSCustomObject]@{Id=$_.Id;RecordId=$_.RecordId;Time=$_.TimeCreated.ToUniversalTime().ToString('o');Message=$_.Message;Xml=$_.ToXml()}})\n[PSCustomObject]@{adapters=$adapters;games=$games;explorer=$explorer;events=$events;wer=$wer;boot=(Get-CimInstance Win32_OperatingSystem).LastBootUpTime.ToUniversalTime().ToString('o')} | ConvertTo-Json -Depth 5\n"
+    ],
+    "code": 0,
+    "stdout": "{\n    \"adapters\":  [\n                     {\n                         \"Name\":  \"NVIDIA GeForce GTX 1650 SUPER\",\n                         \"PNPDeviceID\":  \"PCI\\\\VEN_10DE\\u0026DEV_2187\\u0026SUBSYS_13573842\\u0026REV_A1\\\\4\\u00261DA95F35\\u00260\\u00260019\",\n                         \"Status\":  \"OK\",\n                         \"ConfigManagerErrorCode\":  0,\n                         \"DriverVersion\":  \"32.0.16.1692\"\n                     }\n                 ],\n    \"games\":  [\n\n              ],\n    \"explorer\":  [\n                     {\n                         \"Id\":  7028,\n                         \"SessionId\":  1,\n                         \"Responding\":  true\n                     }\n                 ],\n    \"events\":  [\n\n               ],\n    \"wer\":  [\n\n            ],\n    \"boot\":  \"2026-10-01T22:33:23.5000000Z\"\n}\n",
+    "stderr": ""
+  },
+  "storage_free_bytes": 149140815872,
+  "physical_pixel_integrity": "not observed; routine human checkpoint waived by owner"
+}

@@ -1,0 +1,78 @@
+{
+  "variant": "baseline",
+  "label": "pair03",
+  "started_utc": "2026-10-03T03:08:16.983152+00:00",
+  "finished_utc": "2026-10-03T03:08:55.143620+00:00",
+  "exit_code": 0,
+  "watchdog_fired": false,
+  "stop_reason": null,
+  "foreground": {
+    "schema": "cfx-010-foreground-v1",
+    "pid": 2440,
+    "requested": true,
+    "verified": true,
+    "focus_requests": 1,
+    "checks": 579,
+    "events": [
+      {
+        "ms": 1790996933903,
+        "delivered_ms": 1790996933903,
+        "kind": "native-foreground-change",
+        "native_event": 3,
+        "event_hwnd": "0x350a0e",
+        "alive": false,
+        "visible": false,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false
+      },
+      {
+        "ms": 1790996933903,
+        "alive": false,
+        "visible": false,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false,
+        "foreground_hwnd": "0x350a0e",
+        "window_pid": 0,
+        "kind": "window-ended"
+      }
+    ],
+    "omitted_events": 0,
+    "event_hooks_installed": true,
+    "hwnd": "0x2701ec",
+    "set_foreground_returned": true,
+    "readback_limit_ms": 250,
+    "readback_observations": [
+      {
+        "ms": 1790996897481,
+        "foreground_hwnd": "0x2701ec",
+        "foreground_pid": 2440,
+        "window_pid": 2440,
+        "alive": true,
+        "visible": true,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false
+      }
+    ],
+    "foreground_hwnd": "0x2701ec",
+    "foreground_pid": 2440,
+    "verified_at_ms": 1790996897481,
+    "exclusive_activation": {
+      "caller_thread": 15020,
+      "previous_foreground_hwnd": "0x2701ec",
+      "previous_foreground_pid": 2440,
+      "previous_foreground_thread": 7832,
+      "association_attempted": true,
+      "focus_requests": 1,
+      "association_detached": true,
+      "association_attached": true,
+      "set_foreground_returned": true
+    },
+    "event_hooks_removed": true,
+    "monitor_stopped": true
+  },
+  "cache_restored": true,
+  "pass": true
+}

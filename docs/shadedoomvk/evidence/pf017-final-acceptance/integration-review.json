@@ -1,0 +1,35 @@
+{
+  "baseline_commit": "2399d9455772c570e597a5960c626f3bf771baeb",
+  "candidate_commit": "8a9a3dcb654fe197214040088e194981e6c02214",
+  "master_ancestral": true,
+  "renderer_changed_paths": [
+    "src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+    "src/common/rendering/hwrenderer/data/hw_lightreuse.h",
+    "src/common/rendering/vulkan/buffers/vk_rsbuffers.cpp",
+    "src/common/rendering/vulkan/buffers/vk_rsbuffers.h",
+    "src/common/rendering/vulkan/vk_renderstate.cpp",
+    "src/playsim/a_dynlight.h",
+    "src/rendering/hwrenderer/hw_dynlightdata.cpp",
+    "src/rendering/hwrenderer/hw_entrypoint.cpp"
+  ],
+  "every_other_renderer_library_shader_file_exactly_master": true,
+  "candidate_file_sha256": {
+    "src/common/rendering/hwrenderer/data/hw_dynlightdata.h": "4615d6fab0f1fc407e884d28a74960c474ad6bf746fd9dfb456d117043b8f386",
+    "src/common/rendering/hwrenderer/data/hw_lightreuse.h": "04a5a63d52191d0489b432c4927d27f05175e819d3313cc33760cd36fd16cd79",
+    "src/common/rendering/vulkan/buffers/vk_rsbuffers.cpp": "3977365450847ad4ecc85aa96a23350c30033e3f1bd9c3dbc983b1ae769a9f8b",
+    "src/common/rendering/vulkan/buffers/vk_rsbuffers.h": "eb2273ee0c6a7449c2664388f2fc9fbfcb2fb58f9dba00b7f7aed29bc1431717",
+    "src/common/rendering/vulkan/vk_renderstate.cpp": "59e33a71f26fd767476872200221f4808fd34a42aa30a68fb1258daaf24c8096",
+    "src/playsim/a_dynlight.h": "f1492f0eb1028c54af9a15e30e7a206dfc3dbe328ac0a70e58b352a0165742c2",
+    "src/rendering/hwrenderer/hw_dynlightdata.cpp": "d01fea2cd49f74eb35b04a068a20d040da47d09bc8985e56073b74e41a9f084f",
+    "src/rendering/hwrenderer/hw_entrypoint.cpp": "99b5c2cf2d6b36c6ff7cb88f8500846368293429548636e339686cf4a77b1abb"
+  },
+  "original_pr_head": "1e0fe5c8e2cdd25a745b18f210b07b457e1ba124",
+  "overlaps_reviewed": [
+    "docs/shadedoomvk/10-EXECUTION-LEDGER.md",
+    "docs/shadedoomvk/rag/02-RENDERER-IDENTITY-LIFETIME.md",
+    "src/common/rendering/vulkan/vk_renderstate.cpp"
+  ],
+  "cfx009_neutral_publication_and_normal_retirement_preserved": true,
+  "source_identity_class_order_record_layout_portal_and_context_review": "PASS",
+  "historical_guard_count": 19
+}

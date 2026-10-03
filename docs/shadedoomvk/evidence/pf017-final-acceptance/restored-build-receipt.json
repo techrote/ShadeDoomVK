@@ -1,0 +1,37 @@
+{
+  "configuration": "VS2022 x64 RelWithDebInfo /O2 /Ob1 /Zi /DNDEBUG USE_STATIC_CRT=OFF",
+  "physical_launch_after_diagnostic_stop": false,
+  "builds": {
+    "baseline": {
+      "head_at_receipt": "2399d9455772c570e597a5960c626f3bf771baeb",
+      "exit_code": 0,
+      "runtime": {
+        "vkdoom.exe": {
+          "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+          "sha256": "44366852134f54d16f4989fc0cd9c47d8ada22d3c91ab10f262b8c60eb01bd47"
+        },
+        "vkdoom.pdb": {
+          "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.pdb",
+          "sha256": "0fe50609c387772bb0c466568505528505d607acb4fa401d7011e2092a5b4b60"
+        }
+      },
+      "log_sha256": "91a9b8f4b08c465b3ce22c22959a25ace587cd63fc141e66fdbdac0cb739840f"
+    },
+    "final_no_go": {
+      "head_at_receipt": "96aa8584bddf94b38a4b752b67b860709c889322",
+      "exit_code": 0,
+      "runtime": {
+        "vkdoom.exe": {
+          "path": "C:\\ShadeDoomVK\\worktrees\\pf017-final\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+          "sha256": "7d072cb6614e9826b19f7b4bcf0ea4824bb3e630df16d28f460fabb323785e07"
+        },
+        "vkdoom.pdb": {
+          "path": "C:\\ShadeDoomVK\\worktrees\\pf017-final\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.pdb",
+          "sha256": "12f519571504f2d58d1209e69edd043507ee1d7147cc6d1ef9ea3a7d422212b8"
+        }
+      },
+      "log_sha256": "4db1cf04c9dc2354af465a722fe06ec58b10b2534c271fcdbb30e628e3e3c46a"
+    }
+  },
+  "final_source_equals_accepted_master": true
+}

@@ -1,0 +1,134 @@
+diff --git a/src/common/rendering/hwrenderer/data/hw_dynlightdata.h b/src/common/rendering/hwrenderer/data/hw_dynlightdata.h
+index 5e360ea1d..e705b1950 100644
+--- a/src/common/rendering/hwrenderer/data/hw_dynlightdata.h
++++ b/src/common/rendering/hwrenderer/data/hw_dynlightdata.h
+@@ -24,6 +24,7 @@
+ #define __GLC_DYNLIGHT_H
+ 
+ #include "tarray.h"
++#include "hw_pf17acceptance.h"
+ #include "vectors.h"
+ #include "hw_lightreuse.h"
+ #include <cstdint>
+@@ -75,6 +76,7 @@ enum FDynLightDataArrays
+ struct FDynLightData
+ {
+ 	TArray<FDynLightInfo> arrays[3];
++	std::vector<PF17Acceptance::Identity> identities[3];
+ 	TArray<uint64_t> revisions[3];
+ 
+ 	void Clear()
+@@ -82,6 +84,7 @@ struct FDynLightData
+ 		for (int i = 0; i < 3; ++i)
+ 		{
+ 			arrays[i].Clear();
++			identities[i].clear();
+ 			revisions[i].Clear();
+ 		}
+ 	}
+diff --git a/src/common/rendering/vulkan/vk_renderstate.cpp b/src/common/rendering/vulkan/vk_renderstate.cpp
+index 26480fff5..226fe5634 100644
+--- a/src/common/rendering/vulkan/vk_renderstate.cpp
++++ b/src/common/rendering/vulkan/vk_renderstate.cpp
+@@ -671,6 +671,7 @@ int VkRenderState::UploadLights(const FDynLightData& data)
+ 		if (!lightbuffer.RangeShadowValid[indexindex] ||
+ 			lightbuffer.RangeShadow[indexindex] != parmcnt)
+ 		{
++			PF17Acceptance::Write(16);
+ 			memcpy(indexptr, parmcnt.data(), sizeof(int) * 4);
+ 			lightbuffer.RangeShadow[indexindex] = parmcnt;
+ 			lightbuffer.RangeShadowValid[indexindex] = 1;
+@@ -697,8 +698,10 @@ int VkRenderState::UploadLights(const FDynLightData& data)
+ 				revisionsAligned &&
+ 				HWLightUploadClassCanReuse(revisions, previousRevisions, (size_t)count);
+ 
++			PF17Acceptance::Class(canReuse, revisions, count);
+ 			if (!canReuse)
+ 			{
++				PF17Acceptance::Write((size_t)count * 80);
+ 				memcpy(
+ 					dataptr + classOffset,
+ 					data.arrays[lightClass].Data(),
+@@ -711,6 +714,7 @@ int VkRenderState::UploadLights(const FDynLightData& data)
+ 			classOffset += count;
+ 		}
+ 
++		PF17Acceptance::Consumer(data, mRSBuffers->Lightbuffer, indexindex, dataindex);
+ 		return indexindex;
+ 	}
+ 	else
+@@ -837,6 +841,7 @@ void VkRenderState::ResetVertices()
+ 
+ void VkRenderState::BeginFrame()
+ {
++	PF17Acceptance::Frame(mRSBuffers->Lightbuffer, level.maptime);
+ 	mMaterial.Reset();
+ 	mApplyCount = 0;
+ 
+diff --git a/src/d_main.cpp b/src/d_main.cpp
+index 0c863b49d..5e5318d87 100644
+--- a/src/d_main.cpp
++++ b/src/d_main.cpp
+@@ -1040,7 +1040,7 @@ void D_Display ()
+ 			screen->BeginFrame();
+ 
+ 			viewsec = RenderView(&players[consoleplayer]);
+-		}, true);
++		}, false);
+ 
+ 		twod->Begin(screen->GetWidth(), screen->GetHeight());
+ 		if (!hud_toggled)
+diff --git a/src/playsim/a_dynlight.cpp b/src/playsim/a_dynlight.cpp
+index 738e5b101..9a6271e45 100644
+--- a/src/playsim/a_dynlight.cpp
++++ b/src/playsim/a_dynlight.cpp
+@@ -62,6 +62,7 @@
+ #include "serializer.h"
+ #include "g_levellocals.h"
+ #include "a_dynlight.h"
++#include "hw_pf17acceptance.h"
+ #include "actorinlines.h"
+ #include "memarena.h"
+ 
+@@ -107,6 +108,7 @@ static FDynamicLight *GetLight(FLevelLocals *Level)
+ 	}
+ 	else ret = (FDynamicLight*)DynLightArena.Alloc(sizeof(FDynamicLight));
+ 	memset(ret, 0, sizeof(*ret));
++	PF17Acceptance::Born(ret);
+ 	ret->m_cycler.m_increment = true;
+ 	ret->next = Level->lights;
+ 	Level->lights = ret;
+diff --git a/src/rendering/hwrenderer/hw_dynlightdata.cpp b/src/rendering/hwrenderer/hw_dynlightdata.cpp
+index 22d5b0169..7ff9bad25 100644
+--- a/src/rendering/hwrenderer/hw_dynlightdata.cpp
++++ b/src/rendering/hwrenderer/hw_dynlightdata.cpp
+@@ -259,7 +259,11 @@ void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool f
+ 		lightClass,
+ 		revision))
+ 	{
+-		dld.arrays[lightClass].Push(info);
++		FDynLightInfo checked = {};
++		int checkedClass = PackLightInfo(checked, group, light, forceAttenuate, doTrace);
++		PF17Acceptance::Pack(true, false, false, checkedClass != lightClass || memcmp(&checked, &info, 80) != 0);
++		dld.identities[lightClass].push_back(PF17Acceptance::Source(light, light->target ? light->target->tid : 0, light->Sector ? light->Sector->PortalGroup : -1, group, (forceAttenuate ? 1 : 0) | (doTrace ? 2 : 0)));
++	dld.arrays[lightClass].Push(info);
+ 		dld.revisions[lightClass].Push(revision);
+ 		return;
+ 	}
+@@ -277,6 +281,8 @@ void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool f
+ 			DynLightPackingRevisionClock);
+ 	}
+ 
++	PF17Acceptance::Pack(false, !qualified, contextEpoch == 0, false);
++	dld.identities[lightClass].push_back(PF17Acceptance::Source(light, light->target ? light->target->tid : 0, light->Sector ? light->Sector->PortalGroup : -1, group, (forceAttenuate ? 1 : 0) | (doTrace ? 2 : 0)));
+ 	dld.arrays[lightClass].Push(info);
+ 	dld.revisions[lightClass].Push(revision);
+ }
+@@ -298,6 +304,7 @@ void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVec
+ 	info.flags = LIGHTINFO_ATTENUATED | (doTrace ? (LIGHTINFO_TRACE | LIGHTINFO_SUN) : 0);
+ 	info.strength = HWLightCompat::SunProxyStrength;
+ 
++	dld.identities[LIGHTARRAY_NORMAL].push_back({});
+ 	dld.arrays[LIGHTARRAY_NORMAL].Push(info);
+ 	dld.revisions[LIGHTARRAY_NORMAL].Push(0);
+ }

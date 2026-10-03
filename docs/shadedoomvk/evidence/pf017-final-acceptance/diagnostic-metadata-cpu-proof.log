@@ -1,0 +1,7 @@
+**********************************************************************
+** Visual Studio 2022 Developer Command Prompt v17.14.40
+** Copyright (c) 2025 Microsoft Corporation
+**********************************************************************
+[vcvarsall.bat] Environment initialized for: 'x64'
+diagnostic_metadata_fixture.cpp
+PASS: stale diagnostic identities produce 2 mislabeled buffer failures; aligned metadata produces 0 with identical mapped bytes

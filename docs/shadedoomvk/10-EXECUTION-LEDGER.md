@@ -290,11 +290,26 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - No material lookup candidate was implemented. Diagnostic source was archived/restored; accepted source rebuilt, deterministic oracle matched twice, and unchanged PF-003/PF-008/PF-013/generation fixtures passed with MSVC assertions. Evidence-record CI remains separate from renderer acceptance.
 - [PF-017-MATERIAL-QUALIFICATION.md](PF-017-MATERIAL-QUALIFICATION.md) and machine-readable evidence retain the no-go decision, every workload, exact identities, uncertainty and next action. Light work/full acceptance are unchanged; #34 remains open and PF-019 blocked.
 
+### 2026-09-24 - PF-017 off-GPU light-reuse candidate frozen
+
+- GitHub issue #34 was revised from technique-specific requirements to measured outcomes: the slower material hash/index paths are a completed no-go, physical light-record compaction is not mandatory, and a safe documented no-go is valid when an optimization does not pay for itself.
+- Draft PR #74 reconstructs the previously measured source-owned packing-revision/temporal-write design on `master@8c9e92458d1b08d8ff00f7c7874441433e63e5a9` without reviving the rejected frame-local hash/indirection representation.
+- Frozen renderer/test source head `e028fd88b29aa2d0d82e4e04a09ea644bfa56670` passed all eight jobs in CI run 36047117838. The PF oracle ran 110 tests and the inherited deterministic baseline; Windows Visual Studio Debug/RelWithDebInfo, macOS Debug/Release, Linux GCC 12 RelWithDebInfo, Linux Clang 11 Debug and Linux Clang 15 Release all passed.
+- The new deterministic/adversarial contract covers source reincarnation after freelist reuse, distinct equal-byte sources, repeated-source physical positions, packed-state mutation, light-class/group transitions, new PF-010 epochs, inherited portal epochs with foreign-group fallback, unsupported revision-zero fallback, mapped-buffer recreation, range bounds, and epoch/revision wrap/exhaustion fail-closed behavior.
+- No GTX 1650 SUPER workload was launched in this pass. This is **not PF-017 acceptance** and PR #74 remains draft/unmerged. The remaining gate is final-source physical A/B performance plus image/state equivalence on the representative light-rich workload; if the benefit does not survive, the candidate must be restored/rejected rather than merged.
+- PF-019 / #36 remains blocked until PF-017 is accepted or receives a complete no-go disposition.
+
 ## Current implementation gate
 
+### 2026-10-03 — PF-017 current-master integration before physical acceptance
+
+- PR #74 original head `1e0fe5c8` is integrated with repaired master `2399d945`, preserving all 77 intervening commits and accepted CFX-009 neutral removed-slot publication/normal resource retirement. Semantic overlap review retains both PF and CFX evidence; renderer delta against master remains the PF-017 light candidate only.
+- Full off-GPU requalification and a separate finite dense-light physical campaign precede any acceptance. Old source/CI/physical measurements cannot establish final integrated acceptance. See [final acceptance record](PF-017-FINAL-ACCEPTANCE.md).
+- All historical STOP scopes remain sealed. #34 stays open and PF-019/#36 blocked until valid physical disposition, exact-head CI, merge and master verification.
+
 - **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
-- **RESEARCH BLOCKED:** PF-017 / #34 has all dependencies accepted but no qualifying performance implementation. The second attempt found a light-only setup benefit, but both material hash indexes regressed and full light identity/lifetime acceptance is absent; see PF-017-MATERIAL-QUALIFICATION.md, PF-017-REUSE-RESEARCH.md and historical PF-017-PROFILING-NOTES.md.
-- **BLOCKED:** PF-019 / #36 on PF-017 acceptance; PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
+- **FINAL NO-GO DISPOSITION:** PF-017 / #34 rejects/restores integrated light reuse after five physical pairs (+10.79% setup, +2.42% whole-frame); material indexes remain no-go. PR #74 requires exact-head CI/merge/master verification before completion. See PF-017-FINAL-ACCEPTANCE.md.
+- **PF-019 READINESS:** #36 becomes dependency-ready after PR #74 no-go is merged and master verified; no PF-019 implementation begins here. **BLOCKED:** PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 - No planning-level blocker remains.
 
 ## Future implementation ledger rule
@@ -349,3 +364,10 @@ Safe control exits0, no loss/TDR, normal automatic recovery/caches restored. EXT
 - Every qualified target observes neutral removed-slot publication before successful fence/list release/old-atlas unbind, with complete flushed address callbacks through teardown. Generic resource tracing is a bounded startup prefix. Safe host controls verify protected scene state; the final v1.2 readback control has identical pixels. Sunlust's earlier safe comparison retains animated-region variation, not an exact-image claim.
 - All18 previous STOP hashes remain unchanged. Final scope closes `QUALIFICATION_SATURATED`, carried CFX009+CFX010 counts31/2 (two prior losses; not programme-wide counts), with a new saturation STOP and closure proof. Physical testing ends at three successes per case. PR106/#105 report/tooling acceptance still requires final CI, independent review, merge and master verification; CI itself supplies no GPU evidence.
 - Practical current-build coverage is demonstrated without shared-mechanism or isolated PR104 attribution. Historical content/config/cache/layer gaps and untested P400 repair coverage remain explicit. Parent #75/PF020 stay open for comprehensive synthesis/contract freeze; no SDVK feature or NVIDIA submission follows. See [CFX010 report](CFX-010-CROSS-CASE-QUALIFICATION.md) and [matrix](evidence/cfx010-cross-case.json).
+
+### 2026-10-03 — PF-017 integrated candidate rejected; complete no-go proposed
+
+- Exact candidate `8a9a3dcb` integrates repaired master `2399d945` and passes 254 CPU/ASan tests plus CI run37090637554 (8/8) before GPU use. Five complete serial alternating production pairs all regress setup; pooled +10.79% setup and +2.42% whole-frame, above preregistered 2% frame threshold. Five full images match exactly.
+- Complete candidate source/tests restored: final src/libraries/wadsrc/tests/workflows match repaired master byte for byte. CFX neutral removed-slot descriptor publication, normal retirement, diagnostics and validation contracts are preserved. Material lookup remains linear/no-go; optional default sharing not worthwhile.
+- Fifteen total launches across preserved host/protocol/measurement scopes, zero new loss/TDR/health anomaly. Baseline-only diagnostic metadata failure stops all further physical launches; CPU ASan proves added identity vectors were not cleared. Candidate counters/source/range/packed checkpoints remain unmeasured, so full candidate physical correctness is not claimed. No optimization is retained. All old STOPs stay sealed; CFX/PWAD campaigns are not reopened.
+- Restored-source full suite 245/245 passes without skips; deterministic oracle repeat exact. Complete raw timing distributions, source/build/workload/health/image hashes, private inventory and independent offline audit are in [final report](PF-017-FINAL-ACCEPTANCE.md). Final exact-head CI, PR #74 merge and master verification receipts govern #34 closure and PF-019/#36 readiness. PF-019 is not started; #75/PF020/SDVK gates remain unchanged.

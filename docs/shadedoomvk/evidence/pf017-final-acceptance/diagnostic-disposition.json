@@ -1,0 +1,21 @@
+{
+  "status": "STOPPED; NO FURTHER PHYSICAL LAUNCHES",
+  "cause": "Baseline diagnostic identity vectors were not cleared by instrumentation in FDynLightData::Clear; Consumer labeled metadata alignment failures as buffer failures before memcmp. CPU ASan fixture reproduces and isolates this hook defect with identical mapped bytes.",
+  "candidate_diagnostic_launched": false,
+  "candidate_mapped_bytes": null,
+  "candidate_write_counts": null,
+  "candidate_reuse_fallback_counters": null,
+  "candidate_source_range_packed_checkpoint_equivalence": null,
+  "full_candidate_physical_correctness_accepted": false,
+  "baseline_copy_site_observations": {
+    "mapped_bytes": 3971280,
+    "write_counts": 2520,
+    "logical_records": 49473,
+    "normal": 42775,
+    "subtractive": 6698,
+    "additive": 0
+  },
+  "performance_no_go_sufficient": "Five complete clean integrated-source pairs independently reject benefit. No optimization is retained; final renderer, shaders, tests and CI configuration are identical to repaired master.",
+  "cpu_proof": "diagnostic_metadata_fixture.cpp and diagnostic-metadata-cpu-proof.log",
+  "physical_stop_sha256": "012c0a51bad7a1d87425440d3a6b358a7d503a9436f5cb44b88b2451c3a2bf31"
+}
