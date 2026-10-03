@@ -145,7 +145,7 @@ Pointer identity is currently meaningful inside a frame/cache but must not becom
 
 ### PF-017 historical rejected temporal packing candidate
 
-PR #74 keeps shader-visible `FDynLightInfo` arrays and `LightBufferSSO` offsets unchanged while attaching four packing snapshots to each live `FDynamicLight` incarnation, one for each existing force-attenuation/trace combination.
+Historical candidate `8a9a3dcb` in PR #74 kept shader-visible `FDynLightInfo` arrays and `LightBufferSSO` offsets unchanged while attaching four packing snapshots to each live `FDynamicLight` incarnation, one for each existing force-attenuation/trace combination.
 
 - A snapshot is owned by the actual `FDynamicLight` object incarnation, not by packed-byte equality. The existing `GetLight()` allocation/freelist path zeroes the complete object after allocation/reuse, so a recycled address cannot inherit the previous source's snapshot.
 - Each changed packed record/class/group obtains a process-monotonic non-zero packing revision. Revision `0` means unqualified/fallback. Revision exhaustion fails closed instead of wrapping to a stale token.
