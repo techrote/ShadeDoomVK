@@ -114,8 +114,11 @@ VkRenderPassManager::VkRenderPassManager(VulkanRenderDevice* fb) : fb(fb)
 	PipelineCache = builder.Create(fb->GetDevice());
 
 	CreatePipelineWorkThreads();
-	CreateLightTilesPipeline();
-	CreateZMinMaxPipeline();
+	if (fb->IsLightTilesEnabled())
+	{
+		CreateLightTilesPipeline();
+		CreateZMinMaxPipeline();
+	}
 }
 
 VkRenderPassManager::~VkRenderPassManager()

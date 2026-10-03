@@ -48,13 +48,19 @@ VkDescriptorSetManager::VkDescriptorSetManager(VulkanRenderDevice* fb) : fb(fb)
 	CreateLevelMeshLayout();
 	CreateRSBufferLayout();
 	CreateFixedLayout();
-	CreateLightTilesLayout();
-	CreateZMinMaxLayout();
+	if (fb->IsLightTilesEnabled())
+	{
+		CreateLightTilesLayout();
+		CreateZMinMaxLayout();
+	}
 	CreateLevelMeshPool();
 	CreateRSBufferPool();
 	CreateFixedPool();
-	CreateLightTilesPool();
-	CreateZMinMaxPool();
+	if (fb->IsLightTilesEnabled())
+	{
+		CreateLightTilesPool();
+		CreateZMinMaxPool();
+	}
 	CreateBindlessSet();
 }
 
@@ -68,10 +74,13 @@ void VkDescriptorSetManager::Init()
 {
 	RSBuffer.Set = RSBuffer.Pool->allocate(RSBuffer.Layout.get());
 	LevelMesh.Set = LevelMesh.Pool->allocate(LevelMesh.Layout.get());
-	LightTiles.Set = LightTiles.Pool->allocate(LightTiles.Layout.get());
+	if (fb->IsLightTilesEnabled())
+	{
+		LightTiles.Set = LightTiles.Pool->allocate(LightTiles.Layout.get());
 
-	for (auto& set : ZMinMax.Set)
-		set = ZMinMax.Pool->allocate(ZMinMax.Layout.get());
+		for (auto& set : ZMinMax.Set)
+			set = ZMinMax.Pool->allocate(ZMinMax.Layout.get());
+	}
 
 	auto rsbuffers = fb->GetBufferManager()->GetRSBuffers();
 	WriteDescriptors()
@@ -94,8 +103,11 @@ void VkDescriptorSetManager::BeginFrame()
 {
 	UpdateFixedSet();
 	UpdateLevelMeshSet();
-	UpdateLightTilesSet();
-	UpdateZMinMaxSet();
+	if (fb->IsLightTilesEnabled())
+	{
+		UpdateLightTilesSet();
+		UpdateZMinMaxSet();
+	}
 }
 
 void VkDescriptorSetManager::UpdateLevelMeshSet()
