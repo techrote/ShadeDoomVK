@@ -63,6 +63,7 @@ public:
 	VkBuffer buffer;
 	VmaAllocation allocation;
 	size_t size = 0;
+	uint64_t diagnosticId = 0;
 
 	void *Map(size_t offset, size_t size);
 	void Unmap();
@@ -196,6 +197,7 @@ public:
 	VulkanDevice *device;
 	VulkanDescriptorPool *pool;
 	VkDescriptorSet set;
+	uint64_t diagnosticId = 0;
 
 private:
 	VulkanDescriptorSet(const VulkanDescriptorSet &) = delete;
@@ -433,6 +435,7 @@ public:
 	void debugFullPipelineBarrier();
 
 	VkCommandBuffer buffer = nullptr;
+	uint64_t diagnosticId = 0;
 
 private:
 	VulkanCommandPool *pool = nullptr;
@@ -496,10 +499,13 @@ inline VulkanFence::~VulkanFence()
 
 inline VulkanBuffer::VulkanBuffer(VulkanDevice *device, VkBuffer buffer, VmaAllocation allocation, size_t size) : device(device), buffer(buffer), allocation(allocation), size(size)
 {
+	diagnosticId = CfxTrace::NewResourceId();
+	CfxTrace::Object("resource-create", "buffer", diagnosticId, (uint64_t)buffer, size);
 }
 
 inline VulkanBuffer::~VulkanBuffer()
 {
+	CfxTrace::Object("resource-destroy", "buffer", diagnosticId, (uint64_t)buffer, size);
 	vmaDestroyBuffer(device->allocator, buffer, allocation);
 }
 
@@ -628,10 +634,13 @@ inline VulkanCommandBuffer::VulkanCommandBuffer(VulkanCommandPool *pool) : pool(
 
 	VkResult result = vkAllocateCommandBuffers(pool->device->device, &allocInfo, &buffer);
 	pool->device->CheckVulkanError(result, "Could not create command buffer");
+	diagnosticId = CfxTrace::NewResourceId();
+	CfxTrace::Object("resource-create", "command", diagnosticId, (uint64_t)buffer);
 }
 
 inline VulkanCommandBuffer::~VulkanCommandBuffer()
 {
+	CfxTrace::Object("resource-destroy", "command", diagnosticId, (uint64_t)buffer);
 	vkFreeCommandBuffers(pool->device->device, pool->pool, 1, &buffer);
 }
 
@@ -803,6 +812,14 @@ inline void VulkanCommandBuffer::copyBuffer(VulkanBuffer *srcBuffer, VulkanBuffe
 	region.srcOffset = srcOffset;
 	region.dstOffset = dstOffset;
 	region.size = (size == VK_WHOLE_SIZE) ? dstBuffer->size : size;
+	if (CfxTrace::ResourcesEnabled())
+	{
+		char line[240];
+		std::snprintf(line, sizeof(line), "cmd_id=%llu cmd=%p src_id=%llu dst_id=%llu src_offset=%llu dst_offset=%llu bytes=%llu",
+			(unsigned long long)diagnosticId, (void*)buffer, (unsigned long long)srcBuffer->diagnosticId,
+			(unsigned long long)dstBuffer->diagnosticId, (unsigned long long)srcOffset, (unsigned long long)dstOffset, (unsigned long long)region.size);
+		CfxTrace::ResourceMark("buffer-copy-recorded", line);
+	}
 	copyBuffer(srcBuffer->buffer, dstBuffer->buffer, 1, &region);
 }
 
@@ -1012,10 +1029,13 @@ inline VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
 
 inline VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevice *device, VulkanDescriptorPool *pool, VkDescriptorSet set) : device(device), pool(pool), set(set)
 {
+	diagnosticId = CfxTrace::NewResourceId();
+	CfxTrace::Object("resource-create", "descriptor-set", diagnosticId, (uint64_t)set);
 }
 
 inline VulkanDescriptorSet::~VulkanDescriptorSet()
 {
+	CfxTrace::Object("resource-destroy", "descriptor-set", diagnosticId, (uint64_t)set);
 	vkFreeDescriptorSets(device->device, pool->pool, 1, &set);
 }
 

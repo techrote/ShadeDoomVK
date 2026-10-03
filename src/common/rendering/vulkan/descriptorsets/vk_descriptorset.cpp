@@ -449,22 +449,38 @@ void VkDescriptorSetManager::UpdateBindlessDescriptorSet()
 			VkBindlessLayout::MaxLightmapPages * VkBindlessLayout::LightmapDescriptorsPerPage);
 	}
 
-	const int lightmapEnd = VkBindlessLayout::LightmapStart + (int)lightmaps.size() * VkBindlessLayout::LightmapDescriptorsPerPage;
-	if (lightmapEnd > VkBindlessLayout::DynamicStart || lightmapEnd > Bindless.Plan.Effective)
+	const auto publication = VkPlanLightmapDescriptorPublication(Bindless.PublishedLightmapPages, (int)lightmaps.size(), Bindless.Plan.Effective);
+	if (!publication.IsValid())
 	{
 		I_FatalError("Lightmap/probe bindless reservation overflow: end %d, dynamic start %d, capacity %d.",
-			lightmapEnd, VkBindlessLayout::DynamicStart, Bindless.Plan.Effective);
+			publication.EndDescriptor, VkBindlessLayout::DynamicStart, Bindless.Plan.Effective);
 	}
 
 	int index = VkBindlessLayout::LightmapStart;
-	for (auto& lightmap : lightmaps)
+	for (int page = 0; page < publication.WritePages; page++)
 	{
-		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, lightmap.Light.View.get(), sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index + 1, lightmap.Probe.View.get(), sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		// Removed reserved slots must stop naming retired views. Publish before submission;
+		// the existing frame fences still govern destruction of the old atlas owners.
+		const bool fallback = publication.UsesFallback(page);
+		auto lightView = fallback ? fb->GetTextureManager()->GetLightmapFallbackView() : lightmaps[page].Light.View.get();
+		auto probeView = fallback ? fb->GetTextureManager()->GetProbemapFallbackView() : lightmaps[page].Probe.View.get();
+		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, lightView, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index + 1, probeView, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 		index += VkBindlessLayout::LightmapDescriptorsPerPage;
 	}
 
 	Bindless.Writer.Execute(fb->GetDevice());
+	if (publication.WritePages > publication.ActivePages)
+	{
+		char detail[200];
+		std::snprintf(detail, sizeof(detail), "previous=%d active=%d removed=%d set_id=%llu light_view=0x%llx probe_view=0x%llx",
+			Bindless.PublishedLightmapPages, publication.ActivePages, publication.WritePages - publication.ActivePages,
+			(unsigned long long)Bindless.Set->diagnosticId,
+			(unsigned long long)fb->GetTextureManager()->GetLightmapFallbackView()->view,
+			(unsigned long long)fb->GetTextureManager()->GetProbemapFallbackView()->view);
+		CfxTrace::ResourceMark("lightmap-removed-slots-published", detail);
+	}
+	Bindless.PublishedLightmapPages = publication.NextPublishedPages;
 	Bindless.Writer = WriteDescriptors();
 }
 
@@ -489,6 +505,14 @@ int VkDescriptorSetManager::AllocBindlessSlot(int count)
 			Bindless.Plan.DeviceLimit,
 			VkBindlessLimitSourceName(Bindless.Plan.DeviceLimitSource));
 	}
+	if (CfxTrace::ResourcesEnabled())
+	{
+		const auto id = Bindless.Allocator.CurrentIdentity(index);
+		char line[200];
+		std::snprintf(line, sizeof(line), "set_id=%llu index=%d generation=%u epoch=%u span=%u",
+			(unsigned long long)Bindless.Set->diagnosticId, id.Index, id.Generation, id.Epoch, id.Span);
+		CfxTrace::ResourceMark("bindless-allocate", line);
+	}
 	return index;
 }
 
@@ -497,6 +521,14 @@ void VkDescriptorSetManager::FreeBindlessSlot(int index)
 	if (index <= 0)
 		return;
 
+	if (CfxTrace::ResourcesEnabled())
+	{
+		const auto id = Bindless.Allocator.CurrentIdentity(index);
+		char line[200];
+		std::snprintf(line, sizeof(line), "set_id=%llu index=%d generation=%u epoch=%u span=%u",
+			(unsigned long long)Bindless.Set->diagnosticId, id.Index, id.Generation, id.Epoch, id.Span);
+		CfxTrace::ResourceMark("bindless-free-enter", line);
+	}
 	if (!Bindless.Allocator.Free(index))
 		I_FatalError("Invalid or duplicate bindless slot free at index %d.", index);
 }
@@ -506,6 +538,17 @@ void VkDescriptorSetManager::SetBindlessTexture(int index, VulkanImageView* imag
 	if (index < 0 || index >= Bindless.Plan.Effective)
 		I_FatalError("Bindless descriptor write index %d is outside effective capacity %d.", index, Bindless.Plan.Effective);
 
+	if (CfxTrace::ResourcesEnabled())
+	{
+		// Only allocation starts have PF tokens; interior/fixed slots are explicitly
+		// raw slot writes and are correlated with the preceding allocation span.
+		const auto id = Bindless.Allocator.CurrentIdentity(index);
+		char line[260];
+		std::snprintf(line, sizeof(line), "set_id=%llu index=%d generation=%u epoch=%u span=%u view=0x%llx sampler=0x%llx",
+			(unsigned long long)Bindless.Set->diagnosticId, index, id.Generation, id.Epoch, id.Span,
+			(unsigned long long)(uint64_t)imageview->view, (unsigned long long)(uint64_t)sampler->sampler);
+		CfxTrace::ResourceMark("bindless-write-queued", line);
+	}
 	Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, imageview, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 }
 

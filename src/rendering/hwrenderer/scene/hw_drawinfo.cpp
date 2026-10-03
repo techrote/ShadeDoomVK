@@ -26,6 +26,7 @@
 */
 
 #include "a_sharedglobal.h"
+#include <zvulkan/cfxtrace.h>
 #include "a_dynlight.h"
 #include "r_utility.h"
 #include "r_sky.h"
@@ -1436,8 +1437,10 @@ void HWDrawInfo::Set3DViewport(FRenderState &state)
 //
 //-----------------------------------------------------------------------------
 
+extern int gametic;
 void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 {
+	CfxTrace::SetTic(static_cast<uint64_t>(gametic));
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
 	auto& vp = Viewpoint;
@@ -1487,7 +1490,7 @@ void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 
 	state.SetWireframe(gl_wireframe, gl_wireframecolor.get()->asFV4());
 
-	RenderScene(state);
+	{ CfxTrace::Stage cfxStage("world"); RenderScene(state); }
 
 	screen->UpdateLinearDepthTexture();
 
@@ -1500,10 +1503,10 @@ void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 	// Handle all portals after rendering the opaque objects but before
 	// doing all translucent stuff
 	recursion++;
-	drawctx->portalState.EndFrame(this, state);
+	{ CfxTrace::Stage cfxStage("portals"); drawctx->portalState.EndFrame(this, state); }
 	recursion--;
 
-	RenderTranslucent(state);
+	{ CfxTrace::Stage cfxStage("sprites-translucency"); RenderTranslucent(state); }
 
 	if (!outer)
 	{

@@ -1,0 +1,207 @@
+{
+  "schema": "cfx-009-cpu-mesh-v1",
+  "issue": 102,
+  "parent_issue": 75,
+  "observed_at_utc": "2026-10-02T14:45:21.945377+00:00",
+  "run_id": "cfx-20261002T133554Z-0457f18b9f15",
+  "renderer_source": "d7ebce43449e9f347dccf399999832e11ea7c105",
+  "runner_source": "21bfe81283fb9ce08461e29a0853397b4ef3827c",
+  "scope": "Offline inspection of preserved post-device-loss full process dump. No new application or GPU launch.",
+  "inputs": {
+    "dump": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\runs\\cfx-20261002T133554Z-0457f18b9f15\\process.dmp",
+      "sha256": "0c7d54a09a99bbd587984691d2bc2f649b076b428d90ae25f0ee6169958bde4c",
+      "size": 764573803,
+      "identity_origin": "Preserved target analysis/artifact identity; this supplemental analysis does not rewrite the original dump or index."
+    },
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\bin\\vkdoom.exe",
+      "sha256": "7c4b90b27800bedf85cc7023a783c57f7eda4f762e50529255f943b92f7dd35b",
+      "size": 12086784
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\bin\\vkdoom.pdb",
+      "sha256": "d4c528fe7b0beac0e7bb113ca7caace0adbe5c63de6b207f21173f6ed80a820b",
+      "size": 77656064
+    },
+    "raw_analysis": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\target-001\\cdb-cpu-mesh.txt",
+      "sha256": "6be8adb1e806bb052e69a856fc6211cfc88e089256662a81cfd00366d298a096",
+      "size": 16142
+    }
+  },
+  "debugger": {
+    "path": "C:\\Program Files\\WindowsApps\\Microsoft.WinDbg_1.2606.22001.0_x64__8wekyb3d8bbwe\\amd64\\cdb.exe",
+    "version": "10.0.29617.1000 AMD64",
+    "symbol_path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx009-gtx1650super-20261002-repair-reconciled\\bin",
+    "commands": [
+      "lmv m vkdoom; dt vkdoom!FFlatVertex; dx vkdoom!screen; dx vkdoom!level.lightmaps; dx vkdoom!level.orig_lightmapped; dx vkdoom!level.levelMesh->Lightmap; dx vkdoom!sector_vertices; dx vkdoom!level.levelMesh->Mesh.Vertices; dx -r2 vkdoom!level.levelMesh->FreeLists.Vertex.Unused[0]; dx -r2 vkdoom!level.levelMesh->FreeLists.Vertex.Unused[1]; dx -r0 @$sv = ((vkdoom!FFlatVertex (*)[120176])0x23950949040); dx @$sv[0].Where(v => v.lindex != -1.0).Count(); dx -r0 @$live = ((vkdoom!FFlatVertex (*)[183406])0x2395a95f040); dx @$live[0].Where(v => v.lindex != -1.0).Count(); dx -r0 @$unused = ((vkdoom!FFlatVertex (*)[43569])(0x2395a95f040+183406*32)); dx @$unused[0].Where(v => v.lindex != 0.0).Count(); dx vkdoom!level.levelMesh->Mesh.Indexes; dx vkdoom!level.levelMesh->Mesh.IndexCount; dx -r0 @$ix = ((unsigned int (*)[334302])0x23957025040); dx @$ix[0].Where(i => i >= 183406).Count(); dx @$ix[0].Max(); q",
+      "dx vkdoom!level.levelMesh->Mesh.Uniforms; dx vkdoom!level.levelMesh->Mesh.Materials; dx -r0 @$un = ((vkdoom!SurfaceUniforms (*)[27310])0x2395b190040); dx @$un[0].Where(u => u.uTextureIndex > 0 && u.uTextureIndex < 259).Count(); dx @$un[0].Where(u => u.uColormapIndex > 0 && u.uColormapIndex < 259).Count(); dx @$un[0].Where(u => u.uLightProbeIndex > 0 && u.uLightProbeIndex < 259).Count(); dx -r0 @$ma = ((vkdoom!FMaterialState (*)[27310])0x23957c5c040); dx @$ma[0].Where(m => m.mMaterial == 0).Count(); q"
+    ],
+    "symbols": "The preserved matching PDB resolves FFlatVertex, LevelMesh, SurfaceUniforms, FMaterialState and named global fields. The debugger reports the executable PE checksum cannot be verified (CheckSum 0) and ntdll symbols unavailable; neither message is interpreted as a matching-PDB failure."
+  },
+  "observed": {
+    "screen_pointer": "0x0",
+    "level_lightmaps": false,
+    "level_orig_lightmapped": false,
+    "lightmap_texture_count": 0,
+    "lightmap_texture_size": 1024,
+    "lightmap_used_tiles": 0,
+    "vertex_layout": {
+      "sizeof_bytes": 32,
+      "lindex_offset_bytes": 12,
+      "x_offset_bytes": 0,
+      "z_offset_bytes": 4,
+      "y_offset_bytes": 8
+    },
+    "sector_vertices": {
+      "array": "0x23950949040",
+      "count": 120176,
+      "inspected_half_open_range": [
+        0,
+        120176
+      ],
+      "count_lindex_not_minus_one": 0
+    },
+    "levelmesh_vertices": {
+      "array": "0x2395a95f040",
+      "count": 226975,
+      "free_ranges_half_open": [
+        [
+          6073,
+          6074
+        ],
+        [
+          183406,
+          226975
+        ]
+      ],
+      "prefix_inspected_half_open_range": [
+        0,
+        183406
+      ],
+      "prefix_count_lindex_not_minus_one": 0,
+      "free_tail_inspected_half_open_range": [
+        183406,
+        226975
+      ],
+      "free_tail_count": 43569,
+      "free_tail_count_lindex_not_zero": 0,
+      "interpretation": "All nonnegative lindex values found in the complete vertex capacity are the zero-valued unused tail. The inspected prefix includes the one-element interior free span and all allocated CPU vertices."
+    },
+    "levelmesh_indices": {
+      "array": "0x23957025040",
+      "capacity_count": 446805,
+      "index_count": 334302,
+      "inspected_half_open_range": [
+        0,
+        334302
+      ],
+      "count_index_reaching_free_tail": 0,
+      "maximum_index": 183405
+    },
+    "material_metadata": {
+      "uniform_array": "0x2395b190040",
+      "material_array": "0x23957c5c040",
+      "count_each": 27310,
+      "inspected_half_open_range": [
+        0,
+        27310
+      ],
+      "count_cpu_texture_index_in_open_interval_0_259": 0,
+      "count_cpu_colormap_index_in_open_interval_0_259": 0,
+      "count_cpu_probe_index_in_open_interval_0_259": 0,
+      "null_material_count_including_unused": 8230,
+      "limitation": "These counts include unused allocator capacity. VkLevelMeshUploader::UploadUniforms resolves uTextureIndex in the CPU Uniforms element by reference before uploading it. The post-loss fields are still not a proof of bytes consumed by the failing submission, descriptor generations, material layer offsets or pipeline pairing."
+    }
+  },
+  "source_contract": [
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+      "lines": [
+        195,
+        196
+      ],
+      "fact": "Default null LevelMesh starts with one 1024 square atlas page."
+    },
+    {
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "lines": [
+        886,
+        892,
+        893,
+        896
+      ],
+      "fact": "CreateLightmap retires prior light/probe image objects and resizes Lightmaps to the new count."
+    },
+    {
+      "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+      "lines": [
+        433,
+        440,
+        460,
+        467
+      ],
+      "fact": "The bindless binding is PARTIALLY_BOUND. UpdateBindlessDescriptorSet overwrites current page pairs; removed pairs are not rewritten."
+    },
+    {
+      "path": "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp",
+      "lines": [
+        292,
+        309,
+        329
+      ],
+      "fact": "Ordinary draw-list retirement follows the frame fence wait."
+    },
+    {
+      "path": "wadsrc/static/shaders/scene/vert_main.glsl",
+      "lines": [
+        139,
+        140,
+        142
+      ],
+      "fact": "Negative aPosition.w emits vLightmapIndex=-1; nonnegative w resolves the reserved page pair."
+    },
+    {
+      "path": "wadsrc/static/shaders/scene/lightmode.glsl",
+      "lines": [
+        58,
+        60,
+        112,
+        114
+      ],
+      "fact": "Lightmap sampling is guarded by vLightmapIndex!=-1."
+    },
+    {
+      "path": "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+      "lines": [
+        182,
+        184
+      ],
+      "fact": "Lightmap probe gathering is guarded by vLightmapIndex!=-1 and no explicit environment probe."
+    },
+    {
+      "path": "src/common/rendering/vulkan/vk_levelmesh.cpp",
+      "lines": [
+        1000,
+        1007,
+        1012,
+        1016
+      ],
+      "fact": "UploadUniforms resolves material texture identity in the CPU Uniforms array element by reference before UploadData."
+    }
+  ],
+  "inferences": [
+    "Ordinary CPU construction of live lightmap vertex indices is strongly negative for this exact run: no inspected allocated LevelMesh vertex or sector vertex selects a lightmap page.",
+    "The active CPU LevelMesh index extent cannot select the zero-index unused vertex tail.",
+    "The 1-to-0 page transition leaves the previous reserved descriptor pair referring to retired views. This is a source lifetime lead; because the binding is PARTIALLY_BOUND, unused invalid descriptors alone do not demonstrate a Vulkan violation or crash cause.",
+    "Remaining live alternatives include CPU-to-GPU upload/state mismatch or pipeline pairing, other dynamically selected resource paths, and application/driver interaction with the removed unused descriptor."
+  ],
+  "limitations": [
+    "The process dump was captured after vkWaitForFences returned VK_ERROR_DEVICE_LOST and renderer teardown; screen is null. It captures surviving CPU level/sector data, not application thread state before the GPU stall.",
+    "CPU arrays and active index extents do not prove the bytes consumed by the failing GPU submission, historical shader execution, exact descriptor generation or pipeline specialization.",
+    "The retired-image fault interval overlap is corroborating evidence, not unique causality or proof that the shader sampled that image.",
+    "The raw analysis is a new supplemental file. Historical STOP files, original run artifacts and their artifact index remain unchanged.",
+    "No production crash repair is claimed by this offline analysis."
+  ]
+}

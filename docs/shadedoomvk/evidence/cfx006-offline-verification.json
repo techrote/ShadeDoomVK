@@ -1,0 +1,182 @@
+{
+  "schema": "cfx-006-offline-verification-v1",
+  "issue": 95,
+  "parent": 75,
+  "base_master": "83a7ac25ec581a10e72248a39d5d206f248a2d1d",
+  "branch": "cfx006-capture-identities",
+  "observed_at_utc": "2026-10-01T22:06:43.966555+00:00",
+  "status": "IMPLEMENTED_OFFLINE_PR_ACCEPTANCE_PENDING",
+  "gpu_launches": 0,
+  "physical_equivalence": "NOT_RUN_STOPPED_LANES",
+  "capability_inventory": "NOT_REFRESHED_OFFLINE_ONLY",
+  "tests": {
+    "focused": {
+      "count": 11,
+      "passed": 11,
+      "msvc_address_sanitizer": true,
+      "toolchain": "MSVC 19.44.35228 / VS Build Tools 17.14.40",
+      "raw_log": {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-asan-tests.log",
+        "sha256": "3b4ae7f085064989b56e5d4961c4e734782a9750a6e0e9cd7c7ea91942ad33b1",
+        "size": 2193
+      }
+    },
+    "classifier": {
+      "count": 8,
+      "passed": 8
+    },
+    "deterministic_oracle": [
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-oracle-a.json",
+        "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+        "size": 4561
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-oracle-b.json",
+        "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+        "size": 4561
+      }
+    ]
+  },
+  "build": {
+    "configuration": "RelWithDebInfo",
+    "target": "zdoom",
+    "exit_code": 0,
+    "directory": "C:/ShadeDoomVK/build-cfx006",
+    "log": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-final-build.log",
+      "sha256": "5ecbb9fe9f59c23e3bae0e961236cb4f0fb13532cb0f619a7ee01e5af4021e15",
+      "size": 2327
+    },
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "a901a2489718ec674dec1aba2d69e45eef3464e2a2dc6aeabf308545a2ec6734",
+      "size": 12080640
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.pdb",
+      "sha256": "e3f28af0670ee4d763749e546291e108ac4c26a4d28240d0e4206c10939236fc",
+      "size": 77418496
+    },
+    "renderer_code_base": "e53736936dde749ebef211ad41a699df86dacaee",
+    "renderer_code_local_patch_sha256": "ef1fd5c032e95a6b5e3d2a4f39393ff5729b025a66da78c0b0a822cf8e0a238c"
+  },
+  "preserved_forensic_input": {
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+      "size": 12067328
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\source\\build-relwithdebinfo\\RelWithDebInfo\\vkdoom.pdb",
+      "sha256": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+      "size": 77729792
+    },
+    "unchanged": true
+  },
+  "stop_guards": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\STOP-LAUNCHES.txt",
+      "sha256": "d29632b8bc3c2b4a889662395f3791066a357f48cbf83b34c1b8daaabdb2c9f8",
+      "size": 380
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\STOP-LAUNCHES.txt",
+      "sha256": "ba83eec57a874e1ff4c05319c5edbf65482d5e85d3b84285508d5bdce1b5b271",
+      "size": 586
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\STOP-LAUNCHES.txt",
+      "sha256": "c98e4c73ca98387a22aabbfb8bfc9630ac858c7cfd6ae09cefd7e5714946cb8b",
+      "size": 413
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\dbp50-v1.2-map08-20260924\\STOP-LAUNCHES.txt",
+      "sha256": "e3b37e596e5beb24bd59a5556e7cdcf01f8e2f6dbc26118bcb32edbb3202a62d",
+      "size": 194
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\STOP-LAUNCHES.txt",
+      "sha256": "6c2c135e19cca83905cef0903df1a0bdea2f4004615b0e636711511c2adb8dc3",
+      "size": 506
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\STOP-LAUNCHES.txt",
+      "sha256": "6fa4edd54f1bad849167c2d13e8ad57053a86074bf1313dd57d54028ec066f57",
+      "size": 101
+    }
+  ],
+  "remaining_blocker": "No mapping of initiating shader/resource/submission or proof of actual GPU-consumed bytes. Parent/PF-020 remain blocked. Future physical work requires new reviewed protocol and budget.",
+  "ci_first_attempt": {
+    "run": 36929221484,
+    "status": "FAILED_TEST_ISOLATION",
+    "detail": "All renderer/compiled fixture assertions passed; mocked subprocess intercepted Linux platform.platform uname -p. Mock platform identity explicitly; fixture rerun passes on Windows ASan. Fresh full CI required."
+  },
+  "healthy_nv_query_correction": {
+    "vuid": "VUID-vkGetQueueCheckpointDataNV-queue-02025",
+    "spec": "https://docs.vulkan.org/refpages/latest/refpages/source/vkGetQueueCheckpointDataNV.html",
+    "removed_from": "VkCommandBufferManager::WaitForCommands",
+    "historical_capture_audit": [
+      {
+        "run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\attempt-001\\runs\\cfx-20260925T155541Z-0ddb0be3fb9b\\timeline.tsv",
+        "sha256": "0acb34bc4b87d0c9b8892e2a43a91d233f1a6e5f0c93f628a0d1a6f24539c42f",
+        "healthy_query_smoke_records": [
+          "1790351744210\t2814617177520746154\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260925T163802Z-fb7bc5f7a0a2",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-002\\runs\\cfx-20260925T163802Z-fb7bc5f7a0a2\\timeline.tsv",
+        "sha256": "f50395b96199d0972aa61f1b9c1f955e6c4de7ee39b6dc6ebe804587170240be",
+        "healthy_query_smoke_records": [
+          "1790354284933\t15175677215065088276\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260925T165624Z-8d82fb1ce3d1",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260925\\gtx1650super-61692\\attempt-003\\runs\\cfx-20260925T165624Z-8d82fb1ce3d1\\timeline.tsv",
+        "sha256": "ed1205773d7e2188c818e1f366cbc193e7f5f5f718bc78e36b76a7823dc40798",
+        "healthy_query_smoke_records": [
+          "1790355386331\t12424797502719788366\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260930T220331Z-649ffe016f4a",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\attempt-001\\runs\\cfx-20260930T220331Z-649ffe016f4a\\timeline.tsv",
+        "sha256": "8fe76a470e0b47f80c8d5c36df70d1ff92a97cc122f0529cfe46533e98e0985a",
+        "healthy_query_smoke_records": [
+          "1790805814033\t12614780340772456151\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20260930T221229Z-4490fb662ae2",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20260930\\p400-58278\\attempt-002\\runs\\cfx-20260930T221229Z-4490fb662ae2\\timeline.tsv",
+        "sha256": "d61afbd02ac9e523b8f3f1a8160a19b4bb008afa07d2f1ba16172aaadfba01e1",
+        "healthy_query_smoke_records": [
+          "1790806352192\t9481956439438701064\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      },
+      {
+        "run_id": "cfx-20261001T193835Z-c91d81c1724d",
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx005-dbp37-20261001\\p400-58278-native\\attempt-003\\runs\\cfx-20261001T193835Z-c91d81c1724d\\timeline.tsv",
+        "sha256": "ff4badbd2e957c08673c65f3833cf9d663b624245d0ec27a5ab486dfd2f8fa6a",
+        "healthy_query_smoke_records": [
+          "1790883518197\t852755704880262151\t1\t0\t3\tpresent\tgpu-checkpoint-smoke\tqueue-returned-zero\t0"
+        ]
+      }
+    ],
+    "causality": "UNKNOWN_DIAGNOSTIC_CONFOUNDER_NOT_CRASH_REPAIR"
+  },
+  "logger_teardown_regression": {
+    "pre_fix_code": "e53736936dde749ebef211ad41a699df86dacaee",
+    "pre_fix_failure": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx006-teardown-before-fix.log",
+      "sha256": "07992ae4a57a481d8c2e2418d1c4703b0cfdb2605cbfb5183b26454ef0848ae7",
+      "size": 2856
+    },
+    "finding": "atexit callback registered before trace initialization loses late-teardown record",
+    "correction": "one process-lifetime state/file/mutex; atomic enabled flag and serialized FILE access during rotation",
+    "post_fix": "11 tests pass with MSVC ASan; four workers crossing forced rotation retain 127 whole records"
+  }
+}

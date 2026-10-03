@@ -21,6 +21,7 @@
 */
 
 #include "vk_levelmesh.h"
+#include <zvulkan/cfxtrace.h>
 #include "zvulkan/vulkanbuilders.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/commands/vk_commandbuffer.h"
@@ -65,6 +66,7 @@ void VkLevelMesh::ResetAccelStruct()
 
 void VkLevelMesh::BeginFrame()
 {
+	CfxTrace::Stage cfxStage("resource-mesh-upload");
 	bool accelStructNeedsUpdate = false;
 	if (useRayQuery && IndexesPerBLAS != 0)
 	{
@@ -90,8 +92,8 @@ void VkLevelMesh::BeginFrame()
 	{
 		// Wait for uploads to finish
 		PipelineBarrier()
-			.AddMemory(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_SHADER_READ_BIT)
-			.Execute(fb->GetCommands()->GetTransferCommands(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+			.AddMemory(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_ACCELERATION_STRUCTURE_READ_BIT_KHR | VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_INDEX_READ_BIT)
+			.Execute(fb->GetCommands()->GetTransferCommands(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ACCELERATION_STRUCTURE_BUILD_BIT_KHR | VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 
 		if (accelStructNeedsUpdate)
 		{
@@ -134,10 +136,11 @@ void VkLevelMesh::BeginFrame()
 	}
 	else
 	{
-		// Uploads must finish before we can read from the shaders
+		// Mesh uploads feed both shader storage reads and vertex/index input.
+		// Shader visibility alone does not publish copies to vkCmdDrawIndexed.
 		PipelineBarrier()
-			.AddMemory(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT)
-			.Execute(fb->GetCommands()->GetTransferCommands(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+			.AddMemory(VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT | VK_ACCESS_INDEX_READ_BIT)
+			.Execute(fb->GetCommands()->GetTransferCommands(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_VERTEX_INPUT_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
 	}
 
 	WriteDescriptors write;
@@ -923,6 +926,7 @@ void VkLevelMeshUploader::UploadData(VulkanBuffer* dest, size_t destOffset, cons
 	if (src)
 		memcpy(data + datapos, src, size);
 
+	CfxTrace::Upload(transferBuffer->diagnosticId, dest->diagnosticId, datapos, destOffset, data + datapos, size);
 	copyCommands.emplace_back(transferBuffer.get(), dest, datapos, destOffset, size);
 	datapos += size;
 }

@@ -1,0 +1,202 @@
+{
+  "schema": "cfx-003-attempt-ledger-v1",
+  "issue": 78,
+  "parent_issue": 75,
+  "capture_issue": 77,
+  "selected_incident": "CFX-DBP37-MAP01-20260924",
+  "evidence_root": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\attempt-001",
+  "attempts": [
+    {
+      "attempt_id": "CFX003-001",
+      "run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+      "disposition": "SAFETY STOP",
+      "launch_count_this_session": 1,
+      "hypothesis": "The preserved DBP37 MAP01 startup content/config still induces an application hang, device loss, or GPU reset on current instrumented master.",
+      "single_intended_change": "Use current instrumented master executable and CFX capture instead of the historical pre-PF-018 executable; preserve content, initial config, map, uncapped/VSync/MSAA, startup command script and 60-second watchdog.",
+      "predicted_discriminator": {
+        "device_loss_or_reset": "Stop GPU launches after this incident; join returned VkResult or System/WER event to CPU trace, submit/fence, checkpoint and process dump.",
+        "timeout_without_gpu_event": "Inspect process dump and last Vulkan enter/return; do not label a TDR.",
+        "normal_exit": "Historical failure does not reproduce on current source/config; preserve result and choose one evidence-led next comparison.",
+        "cpu_exception_or_validation_error": "Preserve exact exception/validation location as a distinct failure class."
+      },
+      "current_source_sha": "16996e38954b70d0187eecda5a7a0e55a4cc7a49",
+      "historical_source_sha": "4f6df9843e742c59defcf4ce1a5686271b2b5c75",
+      "validated_binary_source_sha": "c6c1a534d8009f56e8c524e86ffad093102753ea",
+      "source_delta_note": "Current master includes merged PF/CFX correctness fixes and CFX-002 instrumentation; code is unchanged since the validated binary source SHA. This is a current-source reproduction of historical content/config, not a bit-identical historical build.",
+      "input_sha256": {
+        "exe": "15bf5c71d955308fb331e320a8b872b4ee573d16cb1ea5b3cfbd8e069d08b7fd",
+        "pdb": "b9b0b4c141318eed46ff73a5af60babd6155965ce9c0fbc422deb5da9f8b6394",
+        "iwad": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c",
+        "pwad": "d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a",
+        "config": "fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b",
+        "script": "c4a608b0dfc3e26c7210bb56b8ed077666c7ba869d910cf8ec8419d5e3d902b1",
+        "pipeline_cache": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+        "shader_cache": "84a1cf4d06c62b487a7771e175e86a7e730ab436e98fbef4db7174b6ccbe8ecd"
+      },
+      "configuration": {
+        "map": "MAP01",
+        "resolution": "1904x1001",
+        "fps_cap": 0,
+        "vsync": false,
+        "msaa": 4,
+        "mode": "capture",
+        "watchdog_seconds": 60,
+        "actual_skill": null,
+        "seed": null,
+        "camera": "initial map startup; no scripted input"
+      },
+      "outcome": {
+        "run_id": "cfx-20260925T155541Z-0ddb0be3fb9b",
+        "launch_count": 1,
+        "stop_rule_triggered": true,
+        "application_observation": "VK_ERROR_DEVICE_LOST",
+        "frame": 7,
+        "tic": 5,
+        "last_submission_ordinal": 11,
+        "last_cpu_stage": "present",
+        "fence_wait": {
+          "enter_ms_utc": 1790351745913,
+          "return_ms_utc": 1790351747816,
+          "duration_ms": 1903,
+          "vk_result": -4
+        },
+        "graphics_submissions": {
+          "10": {
+            "command_buffers": [
+              "000001FF923B70D0",
+              "000001FF923BE0D0"
+            ],
+            "submit_return": 0
+          },
+          "11": {
+            "command_buffers": [
+              "000001FF923F60D0",
+              "000001FF923F28D0"
+            ],
+            "submit_return": 0
+          }
+        },
+        "confirmed_gpu_checkpoints": [
+          {
+            "queue": "graphics",
+            "pipeline_stage_flag": 1,
+            "marker": "0000020048BFE080",
+            "command_buffer": "000001FF923BE0D0",
+            "frame": 7,
+            "stage": "startup",
+            "submission_ordinal": 10
+          },
+          {
+            "queue": "graphics",
+            "pipeline_stage_flag": 8192,
+            "marker": "0000020048BFF3C0",
+            "command_buffer": "000001FF923BE0D0",
+            "frame": 7,
+            "stage": "world",
+            "submission_ordinal": 10
+          }
+        ],
+        "device_fault_addresses": [
+          {
+            "type": 6,
+            "address": "0x200107290",
+            "precision_bytes": 16
+          },
+          {
+            "type": 1,
+            "address": "0x1da00000",
+            "precision_bytes": 4096
+          }
+        ],
+        "driver_events": [
+          {
+            "provider": "nvlddmkm",
+            "event_id": 153,
+            "record_id": 5055,
+            "utc": "2026-09-25T15:55:45.9163465Z"
+          },
+          {
+            "provider": "nvlddmkm",
+            "event_id": 153,
+            "record_id": 5056,
+            "utc": "2026-09-25T15:55:47.7842744Z"
+          }
+        ],
+        "loader_layers": [
+          "VK_LAYER_OBS_HOOK",
+          "VK_LAYER_NV_present",
+          "VK_LAYER_NV_optimus"
+        ],
+        "validation_mode": "capture without validation",
+        "process_dump": {
+          "capture_reason": "60-second watchdog before kill",
+          "main_thread_state": "Win32DisplayWindow::RunLoop -> ErrorWindow::ExecModal -> ShowFatalError -> GameMain catch",
+          "interpretation": "Post-error fatal dialog, not a captured in-flight fence stall."
+        },
+        "limitations": [
+          "Checkpoint stages are execution markers, not the faulting shader.",
+          "The frame wait returned device lost; it does not identify the initiating command.",
+          "Fault addresses lack a resource/shader mapping.",
+          "No validation mode was active in this primary run.",
+          "No new WER 141 record was found at offline recheck."
+        ]
+      },
+      "artifacts_sha256": {
+        "manifest.json": {
+          "bytes": 10833,
+          "sha256": "98a417f0531486dfbe924daa2257278956a864a3604eef875a8f3afff49e6a11"
+        },
+        "timeline.tsv": {
+          "bytes": 46452,
+          "sha256": "0acb34bc4b87d0c9b8892e2a43a91d233f1a6e5f0c93f628a0d1a6f24539c42f"
+        },
+        "stdout.log": {
+          "bytes": 1991,
+          "sha256": "e506c0b5d22ce1c65e122946922e215f0e95ea35acc0e57744b21ea9ecaa8c90"
+        },
+        "stderr.log": {
+          "bytes": 12607,
+          "sha256": "3d0a0c4369cfa33472ca9939304f4bcf80261d67b1a6b55a7da2d799b36a719c"
+        },
+        "loader-layers.log": {
+          "bytes": 12195,
+          "sha256": "2afb10156d8529645c6a931298b3ec8e449a38905e0d92e8e0dbc8571453a7aa"
+        },
+        "device-fault.bin": {
+          "bytes": 488324,
+          "sha256": "a05426ae7e534eb2d01233a4308ce9915fb36d8673bc3a7e55e18bfdb2dc728c"
+        },
+        "process.dmp": {
+          "bytes": 738640578,
+          "sha256": "76e4363c8e2ac4864f53ed825ecea8db705c2a41c92d9deb9f745cf090f0ebcf"
+        },
+        "plan.json": {
+          "bytes": 6118,
+          "sha256": "db0dcf5baaaadcf53c6cc40f696a40ace6b29084dc651e66f0a3ca97916abcd9"
+        },
+        "result.json": {
+          "bytes": 2263,
+          "sha256": "38a8fbbd4ab2b31fa184b764642c8922241d37f5d4cc79eab5f573c363c6333c"
+        },
+        "threads.txt": {
+          "bytes": 35380,
+          "sha256": "af990ec4f484b1c2e8e1241bc558268d85df0c66818f61060e423ef4d5a56ec5"
+        },
+        "system-5055.xml": {
+          "bytes": 673,
+          "sha256": "b7f0b6a08ef2b3d60245880e038b65c30c82a7f150998167a4dd94051cf7d143"
+        },
+        "system-5056.xml": {
+          "bytes": 672,
+          "sha256": "1d93def4f843ab1b05e1b06e9970189bec11c12f90f309efeaca0dfba46471b8"
+        }
+      },
+      "interpretation": "Reproduced application-observed VK_ERROR_DEVICE_LOST with two contemporaneous NVIDIA 153 records. EXT fault reports invalid read and instruction pointer, but no shader/resource mapping. Stop rule triggered.",
+      "confidence": "high for observed device loss and event correlation; low for initiating operation or root cause",
+      "next_action": "CFX-004 offline map-start world-pass resource/range audit and vendor fault mapping if available. No further GTX 1650 SUPER launch in this session."
+    }
+  ],
+  "stop_guard": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx003-dbp37-20260925\\STOP-LAUNCHES.txt",
+  "new_gpu_reset_or_device_loss": true,
+  "unexpected_gpu_reset_or_device_loss": false
+}

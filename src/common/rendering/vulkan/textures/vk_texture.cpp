@@ -27,9 +27,15 @@
 #include "vulkan/vk_postprocess.h"
 #include "hw_cvars.h"
 #include "fcolormap.h"
+#include <zvulkan/cfxtrace.h>
+#include <cstring>
 
 VkTextureManager::VkTextureManager(VulkanRenderDevice* fb) : fb(fb)
 {
+	const char* retain = CfxTrace::ResourcesEnabled() ? std::getenv("CFX_RETAIN_REPLACED_LIGHTMAPS") : nullptr;
+	DiagnosticRetainReplacedLightmaps = retain && std::strcmp(retain, "1") == 0;
+	if (DiagnosticRetainReplacedLightmaps)
+		CfxTrace::Mark("lightmap-retention-enabled", "experiment-only; replaced pages retained until texture-manager teardown; cap=128");
 	CreateNullTexture();
 	CreateBrdfLutTexture();
 	CreateGamePalette();
@@ -398,6 +404,29 @@ void VkTextureManager::CreateLightmap()
 	data.Push(0);
 	data.Push(0);
 	CreateLightmap(1, 1, std::move(data));
+
+	// Reuse the constructor's small pair; atlas replacement must not own its lifetime.
+	LightmapFallback = std::move(Lightmaps.front());
+	Lightmaps.clear();
+	LightmapFallback.Light.Image->SetDebugName("VkTextureManager.LightmapFallback");
+	LightmapFallback.Light.View->SetDebugName("VkTextureManager.LightmapFallbackView");
+	LightmapFallback.Probe.Image->SetDebugName("VkTextureManager.ProbemapFallback");
+	LightmapFallback.Probe.View->SetDebugName("VkTextureManager.ProbemapFallbackView");
+
+	auto commands = fb->GetCommands()->GetTransferCommands();
+	VkImageTransition()
+		.AddImage(&LightmapFallback.Light, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, false)
+		.AddImage(&LightmapFallback.Probe, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, false)
+		.Execute(commands);
+	VkClearColorValue zero = {}; // float RGBA0: no baked/sun light; uint0: no authored probe.
+	VkImageSubresourceRange range = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	commands->clearColorImage(LightmapFallback.Light.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &range);
+	commands->clearColorImage(LightmapFallback.Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &range);
+	VkImageTransition()
+		.AddImage(&LightmapFallback.Light, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false)
+		.AddImage(&LightmapFallback.Probe, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false)
+		.Execute(commands);
+	CfxTrace::ResourceMark("lightmap-fallback-initialized", "RGBA16F=0,0,0,0 R16_UINT=0; transfer-write to fragment-read; texture-manager lifetime");
 }
 
 void VkTextureManager::CreateIrradiancemap()
@@ -887,10 +916,30 @@ void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t
 {
 	LightmapEpoch.Invalidate();
 
+	// Change ownership only for the explicit causal probe. Do not rewrite descriptors,
+	// allocate fallback images, change uploads or add GPU waits. Fail before moving
+	// any page if repeated map changes exceed the diagnostic ownership bound.
+	if (DiagnosticRetainReplacedLightmaps && Lightmaps.size() > 128 - DiagnosticRetainedLightmaps.size())
+		I_FatalError("CFX-009 lightmap retention probe exhausted its 128-page bound");
 	for (auto& tex : Lightmaps)
 	{
-		tex.Light.Reset(fb);
-		tex.Probe.Reset(fb);
+		if (DiagnosticRetainReplacedLightmaps)
+		{
+			char detail[256];
+			std::snprintf(detail, sizeof(detail), "light_image=0x%llx light_view=0x%llx probe_image=0x%llx probe_view=0x%llx retained_page=%llu replacement_count=%d",
+				(unsigned long long)(tex.Light.Image ? tex.Light.Image->image : VK_NULL_HANDLE),
+				(unsigned long long)(tex.Light.View ? tex.Light.View->view : VK_NULL_HANDLE),
+				(unsigned long long)(tex.Probe.Image ? tex.Probe.Image->image : VK_NULL_HANDLE),
+				(unsigned long long)(tex.Probe.View ? tex.Probe.View->view : VK_NULL_HANDLE),
+				(unsigned long long)DiagnosticRetainedLightmaps.size(), count);
+			CfxTrace::Mark("lightmap-retained", detail);
+			DiagnosticRetainedLightmaps.push_back(std::move(tex));
+		}
+		else
+		{
+			tex.Light.Reset(fb);
+			tex.Probe.Reset(fb);
+		}
 	}
 	Lightmaps.clear();
 	Lightmaps.resize(count);

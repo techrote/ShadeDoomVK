@@ -24,6 +24,54 @@ namespace VkBindlessLayout
 	static constexpr uint32_t SceneNonBindlessCombinedSamplersPerStage = 2;
 }
 
+enum class VkLightmapDescriptorPublicationError
+{
+	None,
+	PageCountOutOfRange,
+	ReservationOverflow
+};
+
+struct VkLightmapDescriptorPublicationPlan
+{
+	VkLightmapDescriptorPublicationError Error = VkLightmapDescriptorPublicationError::None;
+	int ActivePages = 0;
+	int WritePages = 0;
+	int NextPublishedPages = 0;
+	int FirstDescriptor = VkBindlessLayout::LightmapStart;
+	int EndDescriptor = VkBindlessLayout::LightmapStart; // exclusive; never reaches a dynamic slot
+
+	bool IsValid() const { return Error == VkLightmapDescriptorPublicationError::None; }
+	bool UsesFallback(int page) const { return IsValid() && page >= ActivePages && page < WritePages; }
+};
+
+// Validate the entire publication before adding any descriptor write. Active
+// pages are republished, and previously published pages removed by atlas shrink
+// are overwritten with persistent, initialized float/uint fallback views. The
+// caller commits NextPublishedPages only after vkUpdateDescriptorSets executes.
+inline VkLightmapDescriptorPublicationPlan VkPlanLightmapDescriptorPublication(
+	int previousPages, int currentPages, int effectiveCapacity)
+{
+	VkLightmapDescriptorPublicationPlan plan;
+	if (previousPages < 0 || previousPages > VkBindlessLayout::MaxLightmapPages ||
+		currentPages < 0 || currentPages > VkBindlessLayout::MaxLightmapPages)
+	{
+		plan.Error = VkLightmapDescriptorPublicationError::PageCountOutOfRange;
+		return plan;
+	}
+	const int writePages = std::max(previousPages, currentPages);
+	const int end = VkBindlessLayout::LightmapStart + writePages * VkBindlessLayout::LightmapDescriptorsPerPage;
+	if (end > VkBindlessLayout::DynamicStart || end > effectiveCapacity)
+	{
+		plan.Error = VkLightmapDescriptorPublicationError::ReservationOverflow;
+		return plan;
+	}
+	plan.ActivePages = currentPages;
+	plan.WritePages = writePages;
+	plan.NextPublishedPages = currentPages;
+	plan.EndDescriptor = end;
+	return plan;
+}
+
 enum class VkBindlessLimitSource
 {
 	None,

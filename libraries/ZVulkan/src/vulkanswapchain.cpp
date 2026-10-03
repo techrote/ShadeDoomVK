@@ -196,6 +196,7 @@ int VulkanSwapChain::AcquireImage(VulkanSemaphore* semaphore, VulkanFence* fence
 
 	uint32_t imageIndex;
 	VkResult result = vkAcquireNextImageKHR(device->device, swapchain, 1'000'000'000, semaphore ? semaphore->semaphore : VK_NULL_HANDLE, fence ? fence->fence : VK_NULL_HANDLE, &imageIndex);
+	CfxTrace::Mark("vk-return", "vkAcquireNextImageKHR", static_cast<int>(result));
 	if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
 	{
 		return imageIndex;
@@ -211,7 +212,7 @@ int VulkanSwapChain::AcquireImage(VulkanSemaphore* semaphore, VulkanFence* fence
 	}
 	else
 	{
-		VulkanError("Failed to acquire next image!");
+		device->CheckVulkanError(result, "vkAcquireNextImageKHR failed");
 		return -1;
 	}
 }
@@ -228,6 +229,7 @@ void VulkanSwapChain::QueuePresent(int imageIndex, VulkanSemaphore* semaphore)
 	presentInfo.pImageIndices = &index;
 	presentInfo.pResults = nullptr;
 	VkResult result = vkQueuePresentKHR(device->PresentQueue, &presentInfo);
+	CfxTrace::Mark("vk-return", "vkQueuePresentKHR", static_cast<int>(result));
 	if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR)
 	{
 		return;
@@ -245,7 +247,7 @@ void VulkanSwapChain::QueuePresent(int imageIndex, VulkanSemaphore* semaphore)
 	}
 	else if (result == VK_ERROR_DEVICE_LOST)
 	{
-		VulkanError("vkQueuePresentKHR failed: device lost");
+		device->CheckVulkanError(result, "vkQueuePresentKHR failed");
 	}
 	else
 	{

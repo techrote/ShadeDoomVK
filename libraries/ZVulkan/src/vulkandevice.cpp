@@ -141,6 +141,11 @@ void VulkanDevice::CreateDevice()
 		*next = &EnabledFeatures.Fault;
 		next = &EnabledFeatures.Fault.pNext;
 	}
+	if (SupportsExtension(VK_EXT_DEVICE_ADDRESS_BINDING_REPORT_EXTENSION_NAME))
+	{
+		*next = &EnabledFeatures.AddressBinding;
+		next = &EnabledFeatures.AddressBinding.pNext;
+	}
 	if (SupportsExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME))
 	{
 		*next = &EnabledFeatures.GraphicsPipelineLibrary;
@@ -168,12 +173,16 @@ void VulkanDevice::ReleaseResources()
 
 	if (device)
 		vkDestroyDevice(device, nullptr);
+	CfxAddress::Snapshot("device-teardown");
 	device = nullptr;
 }
 
 void VulkanDevice::SetObjectName(const char* name, uint64_t handle, VkObjectType type)
 {
-	if (!Instance->DebugLayerActive) return;
+	// Names may arrive after creation/binding callbacks. They are correlation
+	// hints, not allocation generations or evidence of an executed access.
+	CfxAddress::Write("name", 0, 0, 0, type, handle, 0, 0, name);
+	if (!Instance->EnabledExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME) || !vkSetDebugUtilsObjectNameEXT) return;
 
 	VkDebugUtilsObjectNameInfoEXT info = { VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT };
 	info.objectHandle = handle;
@@ -184,40 +193,45 @@ void VulkanDevice::SetObjectName(const char* name, uint64_t handle, VkObjectType
 
 VulkanDeviceFaultInfo VulkanDevice::GetDeviceFaultInfo()
 {
-	if (!SupportsExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME) || !EnabledFeatures.Fault.deviceFault)
-		return {};
-
-	VkDeviceFaultCountsEXT counts = { VK_STRUCTURE_TYPE_DEVICE_FAULT_COUNTS_EXT };
-	VkResult result = vkGetDeviceFaultInfoEXT(device, &counts, nullptr);
-	if (result != VK_INCOMPLETE && result != VK_SUCCESS)
-		return {};
-
-	std::vector<VkDeviceFaultAddressInfoEXT> addressInfos(counts.addressInfoCount);
-	std::vector<VkDeviceFaultVendorInfoEXT> vendorInfos(counts.vendorInfoCount);
-	std::vector<uint8_t> vendorBinaryData(counts.vendorBinarySize);
-
-	VkDeviceFaultInfoEXT info = { VK_STRUCTURE_TYPE_DEVICE_FAULT_INFO_EXT };
-	info.pAddressInfos = addressInfos.data();
-	info.pVendorInfos = vendorInfos.data();
-	info.pVendorBinaryData = vendorBinaryData.data();
-
-	result = vkGetDeviceFaultInfoEXT(device, &counts, &info);
-	if (result != VK_SUCCESS)
-		return {};
+	auto payload = CfxFault::QueryEXT(device, SupportsExtension(VK_EXT_DEVICE_FAULT_EXTENSION_NAME), EnabledFeatures.Fault.deviceFault, vkGetDeviceFaultInfoEXT);
+	if (!payload.available) return {};
+	const auto& info = payload.info;
+	const auto& counts = payload.counts;
+	const auto& addressInfos = payload.addresses;
+	const auto& vendorInfos = payload.vendors;
+	const auto& vendorBinaryData = payload.binary;
+	const auto result = payload.result;
 
 	VulkanDeviceFaultInfo lostinfo;
-	lostinfo.description = info.description;
+	lostinfo.description.assign(info.description, std::find(info.description, info.description + VK_MAX_DESCRIPTION_SIZE, '\0'));
 
-	/*
-	for (const VkDeviceFaultAddressInfoEXT& addressInfo : addressInfos)
+	for (uint32_t i = 0; i < counts.addressInfoCount && i < addressInfos.size(); i++)
 	{
-		// To do: does vk_mem_alloc have anything that helps us map an address to an allocation?
+		const auto& address = addressInfos[i];
+		char line[160];
+		std::snprintf(line, sizeof(line), "type=%u address=0x%llx precision=%llu",
+			static_cast<unsigned>(address.addressType),
+			static_cast<unsigned long long>(address.reportedAddress),
+			static_cast<unsigned long long>(address.addressPrecision));
+		lostinfo.vendorInfos.emplace_back(line);
 	}
-	*/
-
-	for (const VkDeviceFaultVendorInfoEXT& vendorInfo : vendorInfos)
+	const char* binaryPath = std::getenv("CFX_FAULT_BIN");
+	if (binaryPath && *binaryPath && counts.vendorBinarySize && !vendorBinaryData.empty())
 	{
-		lostinfo.vendorInfos.push_back(vendorInfo.description);
+		if (std::FILE* out = std::fopen(binaryPath, "wb"))
+		{
+			const auto written = std::fwrite(vendorBinaryData.data(), 1,
+				static_cast<size_t>(std::min<VkDeviceSize>(counts.vendorBinarySize, vendorBinaryData.size())), out);
+			const int closed = std::fclose(out);
+			CfxTrace::Mark(written == vendorBinaryData.size() && closed == 0 ? "device-fault-binary" : "device-fault-binary-write-error", binaryPath, static_cast<int>(result));
+		}
+		else CfxTrace::Mark("device-fault-binary-open-error", binaryPath);
+	}
+
+	for (uint32_t i = 0; i < counts.vendorInfoCount && i < vendorInfos.size(); i++)
+	{
+		lostinfo.vendorInfos.emplace_back(vendorInfos[i].description,
+			std::find(vendorInfos[i].description, vendorInfos[i].description + VK_MAX_DESCRIPTION_SIZE, '\0'));
 	}
 
 	return lostinfo;

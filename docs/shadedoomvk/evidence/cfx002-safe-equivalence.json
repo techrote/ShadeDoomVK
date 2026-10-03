@@ -1,0 +1,58 @@
+{
+  "schema": "cfx-002-safe-equivalence-v1",
+  "runs": {
+    "off": {
+      "id": "cfx-20260925T052427Z-bcd26d97aaa4",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\cfx-20260925T052427Z-bcd26d97aaa4",
+      "image": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\off.png",
+      "image_sha256": "5a9b1e046c183ef074d056fde1e8f678d1ac1521b448e6c9ef196e8728a2ded2",
+      "mesh_sha256": "65b2393fdf94db2ed0acf68b42fca4b0296d3e48657d99a0653e00508fdb245d"
+    },
+    "capture": {
+      "id": "cfx-20260925T052458Z-476013f230d4",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\cfx-20260925T052458Z-476013f230d4",
+      "image": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\capture.png",
+      "image_sha256": "ecb7ca46ee927217be12c0a3676c069b73879f624d2f7e89c78df3f7fae403ab",
+      "mesh_sha256": "8ac5143feedbc4c23c5ac73adf34665c86adaea4117ef1193832f859d3faefb6"
+    },
+    "repeat": {
+      "id": "cfx-20260925T052708Z-787354dde999",
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\cfx-20260925T052708Z-787354dde999",
+      "image": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx002-equivalence\\off-repeat.png",
+      "image_sha256": "febd55f5703a943029c094fbb66c26f7ee4f19c4e4e8e04741624603252393d5",
+      "mesh_sha256": "2691b25ddbc62d007cd7811fd47b2784bce45bc64dfe2c3dcbd7849be8b33679"
+    }
+  },
+  "state_assertions": {
+    "executable": true,
+    "source_patch": true,
+    "iwad": true,
+    "config": true,
+    "map": true,
+    "resolution": true,
+    "exit_zero": true,
+    "mesh_header": true,
+    "mesh_objects": true,
+    "mesh_faces": true,
+    "mesh_vertex_count": true,
+    "mesh_uv_count": true
+  },
+  "image_off_vs_capture": {
+    "same_dimensions": true,
+    "changed_pixels": 57,
+    "changed_channels": 171,
+    "max_channel_delta": 31,
+    "mean_absolute_channel_delta": 0.00029872088695618107
+  },
+  "image_off_vs_off_repeat": {
+    "same_dimensions": true,
+    "changed_pixels": 1949,
+    "changed_channels": 4971,
+    "max_channel_delta": 231,
+    "mean_absolute_channel_delta": 0.029982797314730088
+  },
+  "within_observed_off_repeat_variance": true,
+  "mesh_payload_limit": "OBJ vertex/UV payload differs within off/off controls; topology, counts, and objects are asserted, full vertex bytes are not.",
+  "scope_limit": "One stationary safe Doom II MAP01 view; this is not proof of all renderer paths.",
+  "pass": true
+}

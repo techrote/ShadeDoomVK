@@ -1,0 +1,185 @@
+{
+  "schema": "cfx-008-safe-result-v1",
+  "issue": 99,
+  "renderer_source": "c6a7197ae48b8d163df9f72783c177ca427505f5",
+  "runner_source": "5a7c9b3a88be67a0c7d6fc109e8ae66785b6ad60",
+  "run_id": "cfx-20261002T122239Z-d30a63684fb3",
+  "scope_counts": {
+    "launches": 1,
+    "loss_episodes": 0
+  },
+  "status": "STOPPED",
+  "target_launched": false,
+  "exit_status": 0,
+  "healthy_recovery": true,
+  "global_caches_restored": true,
+  "address_activation_verified": true,
+  "callbacks": {
+    "bind": 1714,
+    "unbind": 1718,
+    "name": 3880,
+    "records": 7313,
+    "omitted": 0,
+    "contended": 237,
+    "writer_ok": 1
+  },
+  "decoded_pixels_identical": true,
+  "dimensions": [
+    1902,
+    993
+  ],
+  "protected_mesh_equal": true,
+  "full_obj_bytes_asserted": false,
+  "blocker": "Shared try_lock/file writer drops concurrent callbacks or name hints; counts do not distinguish which237. Cannot claim complete bindings. No DBP37 launch allowed by this scope.",
+  "files": [
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\lane-opening.json",
+      "sha256": "9f222dd27c8c59c783da00008021156f350443467f1d3d9b85b2a1df29cae80a",
+      "size": 6960
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\state.json",
+      "sha256": "1d38a22080b0a35deea16fe6be661f4691a524b557e4177f11460a275f0dd109",
+      "size": 889
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\STOP-LAUNCHES.txt",
+      "sha256": "9dca69d3294f1fb4f83e845aa45101e20465c0659d3b680dba3f50803009a2e5",
+      "size": 97
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\runs\\cfx-20261002T122239Z-d30a63684fb3\\manifest.json",
+      "sha256": "8c986b7585254afc374aa7c4f3806362584cff29bc235c04bbf54224957c308d",
+      "size": 12250
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\artifact-index.json",
+      "sha256": "e91d2328e7580ff226e1c90055a790d0437bdfd964f761f9c5baf4cb4503bf09",
+      "size": 7553
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\execution-result.json",
+      "sha256": "237057e842e89398b04a530b71f9a43be5a1c62247d52a93c3dca77a3a1e9a60",
+      "size": 415
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\health-before.json",
+      "sha256": "be2a8ad4dfe099100a63162b25d4e05641bc299e70eccb1e65670ee0ea54b313",
+      "size": 6496
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\health-after.json",
+      "sha256": "94cd6cc3469923a0d0b99470437418d84dbfcfca89d4c3e8075ed4173e5995fb",
+      "size": 6499
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\runs\\cfx-20261002T122239Z-d30a63684fb3\\address-bindings.tsv",
+      "sha256": "f198cdcb2bdf3b6cc7eb8518d25a16ecf7f4ad4fb2dd18b9dfa148f1208b4b1b",
+      "size": 780567
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\runs\\cfx-20261002T122239Z-d30a63684fb3\\timeline.tsv",
+      "sha256": "7ab2eff5d931635efc0ab8d9fe65ef86d865a0b2b76ccd428b9c1b84bff24a81",
+      "size": 2200916
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\scene.png",
+      "sha256": "20b0d4d822c16c2c7a52d7fd9c4cc87170fb95b7d963944410b43f6c4fcda226",
+      "size": 335416
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\runs\\cfx-20261002T122239Z-d30a63684fb3\\work\\levelmesh.obj",
+      "sha256": "0f6271d32ac0ad83fbdf74e4d621c0af8738ce3978672abce493cf642d480a95",
+      "size": 652641
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\cpu-tests-asan.log",
+      "sha256": "89bca051ca271de1c7b01b377f334cb3bc64bd48a9503603d8fcc65ac825862a",
+      "size": 7984
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\build-merged-pr98.log",
+      "sha256": "adf55e7435e9624247694add71568b135d327318f0e5249db94c0100ca7f4728",
+      "size": 2353
+    }
+  ],
+  "historical_guards_verified": true,
+  "analysis_file": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\control-001\\analysis.json",
+    "sha256": "16a61709c2d2e0ef0fb8603bd56fe9aac3fa679a92fc6432d149a6818b10b482",
+    "size": 4560
+  },
+  "offline_queue_repair": {
+    "physical_activation_verified": false,
+    "tests": 65,
+    "msvc_asan": "PASS",
+    "windows_build": "PASS",
+    "artifacts": [
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\cpu-tests-queue-asan.log",
+        "sha256": "897001fdcb89e9c7e5ad3b14e775e944ff95541d787973b0765859d453f2cb89",
+        "bytes": 8626
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\build-queue-repair.log",
+        "sha256": "327489c05014c998771a9115b483de91697a579df00fb50b1e1b17e6fb829da1",
+        "bytes": 2308
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\bin-repair-unlaunched\\vkdoom.exe",
+        "sha256": "7c4b90b27800bedf85cc7023a783c57f7eda4f762e50529255f943b92f7dd35b",
+        "bytes": 12086784
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\bin-repair-unlaunched\\vkdoom.pdb",
+        "sha256": "d4c528fe7b0beac0e7bb113ca7caace0adbe5c63de6b207f21173f6ed80a820b",
+        "bytes": 77656064
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\cpu-tests-queue-lifetime-asan.log",
+        "sha256": "8099edec2be3df5b45428a938ebab25d2037f8690aea448cdea2f4c5d50ef7bf",
+        "bytes": 8626
+      }
+    ],
+    "source_files": [
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\libraries\\ZVulkan\\include\\zvulkan\\cfxaddress.h",
+        "sha256": "119e9a580b59e0007bcbf68691fa6492078e94850f7b3a92662b3bc00d5d8c83",
+        "bytes": 8303,
+        "repository_path": "libraries/ZVulkan/include/zvulkan/cfxaddress.h"
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\cfx008_gate.py",
+        "sha256": "5a6faafeb16ae11c4493a9d9bec7e440a2737865adee3cff505c26923c1a0c03",
+        "bytes": 7109,
+        "repository_path": "tools/cfx008_gate.py"
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\cfx_address_correlate.py",
+        "sha256": "ec0ae4b092f6998e9cbdf17f3a5fcde8a15012eeba2f8c5800463a0b8e91772a",
+        "bytes": 7566,
+        "repository_path": "tools/cfx_address_correlate.py"
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source-lifetime\\tools\\pf_oracle\\tests\\cfx_address_fixture.cpp",
+        "sha256": "0d24b7b7636455b5fe8b848790d82bce706e2ce7d2d26b6808c3e19c54a153fa",
+        "bytes": 5116,
+        "repository_path": "tools/pf_oracle/tests/cfx_address_fixture.cpp"
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source-lifetime\\tools\\pf_oracle\\tests\\test_cfx_address_bindings.py",
+        "sha256": "6eb570637864bc68bd11eecd123c6da6ab3d58a678635e44ecd576e1c931eafc",
+        "bytes": 10366,
+        "repository_path": "tools/pf_oracle/tests/test_cfx_address_bindings.py"
+      },
+      {
+        "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx008-gtx1650super-20261002-address\\queue-repair-source\\tools\\pf_oracle\\tests\\test_cfx008_gate.py",
+        "sha256": "ec40e4cb07d82dbc76fffec99c0b09dbc5e7cad3b4546196c0d7b1390eb74490",
+        "bytes": 7652,
+        "repository_path": "tools/pf_oracle/tests/test_cfx008_gate.py"
+      }
+    ],
+    "limitations": "Repaired hardware callback emission/overhead/equivalence still unverified. No DBP37 target was launched under#99. No causal repair.",
+    "payload_lifetime_test": "Drain held behind unpublished slot; callback-owned name bytes overwritten before drain; original copied name preserved.65 final CFX MSVC-ASan tests pass. Renderer code/binary unchanged by this test strengthening."
+  }
+}

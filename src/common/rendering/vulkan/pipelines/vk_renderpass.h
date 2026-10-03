@@ -114,6 +114,7 @@ public:
 
 private:
 	std::unique_ptr<VulkanRenderPass> CreateRenderPass(int clearTargets);
+	void TracePipelineIdentity(const VkPipelineKey& key, bool isUberShader, const char* path);
 
 	std::unique_ptr<GraphicsPipelineBuilder> CreatePipeline(const VkPipelineKey &key, bool isUberShader, UniformStructHolder &Uniforms);
 	std::unique_ptr<VulkanPipeline> LinkPipeline(const VkPipelineKey& key, bool isUberShader, UniformStructHolder& Uniforms);

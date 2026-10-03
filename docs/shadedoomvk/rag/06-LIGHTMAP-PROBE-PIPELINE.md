@@ -104,3 +104,17 @@ The per-texel selector itself is independent of Vulkan ray-query support; ray-qu
 7. Probe rendering is a non-main render context and must not inherit main-view temporal assumptions.
 8. The dormant AABB tree is not the active GPU probe selector.
 9. SDVK-010 may qualify environment response only on top of this established plumbing/fallback contract.
+
+## CFX-009 lifetime discriminator (#102)
+
+The complete DBP37 read-fault interval joins the startup lightmap, retired on the one-to-zero atlas transition. Exact post-loss CPU indexed vertices do not request a lightmap; submitted GPU bytes remain unproven. `PARTIALLY_BOUND` permits undefined descriptors when dynamically unused, so the removed reserved views alone do not demonstrate a Vulkan violation.
+
+`VkTextureManager::CreateLightmap` has an explicit experimental `CFX_RETAIN_REPLACED_LIGHTMAPS=1` ownership branch, enabled only with resource diagnostics. It keeps complete replaced light/probe objects until texture-manager teardown, bounded to128 pages with diagnostic failure before overflow. Defaults retain the existing frame-delete path. It changes neither descriptors nor shaders/uploads/waits/quality. The capture runner records the request; actual `lightmap-retention-enabled` / `lightmap-retained` events plus address history must prove activation. This is a causal probe, not a production crash repair. See [notebook](../CFX-009-CAUSAL-REPAIR.md).
+
+## CFX-009 removed-page publication repair (#102 / PR104)
+
+`VkDescriptorSetManager::UpdateBindlessDescriptorSet` now replaces previously published pages removed by atlas shrink with persistent correctly typed views, before submission and normal fence-controlled owner release. `VkPlanLightmapDescriptorPublication` checks the union of previous/current page ranges against the128-page reservation and actual descriptor capacity before writes; `PublishedLightmapPages` advances only after the writer executes. Current atlas views and dynamic descriptors beginning259 keep their existing ownership.
+
+The constructor1×1 pair becomes private `VkTextureManager::LightmapFallback`, outside atlas resizing/baking/retirement. Explicit transfer clears initialize light RGBA16F to zero (no added baked/sunlight) and probe R16_UINT to0 (the existing PF-012 no-probe sentinel), followed by tracked transfer-write→fragment-read publication. This removes references to destroyed reserved views while preserving ordinary atlas retirement. It adds no waits or feature/quality changes. Sentinel0 does not prove arbitrary downstream PBR cube accesses safe; that inherited contract remains outside the demonstrated DBP37 path.
+
+The original and matched retention-OFF runs fail at frame7 after the startup atlas unbind; retention ON succeeds. The source repair then passes three independent exact former reproducer runs with retention OFF, including the same old8MiB interval retiring normally at frame6, and exact safe pixels/protected state plus separate core/sync controls. This supports the descriptor-target retirement compatibility repair without assigning a unique executing shader, illegal dynamic access or NVIDIA driver defect. [Compact validation evidence](../evidence/cfx009-neutral-descriptor-validation.json).

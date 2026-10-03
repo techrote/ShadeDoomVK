@@ -1,0 +1,212 @@
+# CFX-001: incident reconstruction and failure taxonomy
+
+Status: review record for #76, 2026-09-25 (Europe/London). Parent: #75. No renderer or crash-prone GPU workload was launched for this investigation. Raw evidence remains under `C:\ShadeDoomVK\pf-local-evidence\`; the historical root `README.md`, `report.md`, `assessment.json`, and `MANIFEST.sha256` were left intact. `driver-crash-forensics/` is a later supplement. All times below are local BST (UTC+01:00) unless stated otherwise. A filename, driver event, or watchdog kill is not a causal diagnosis.
+
+## Evidence boundary and common environment
+
+The local and remote `master` at investigation start were `8c9e92458d1b08d8ff00f7c7874441433e63e5a9`; PR #74 was concurrent PF-017 light work, later than these incidents. The main checkout's untracked `build-relwithdebinfo/` was preserved. The cases below use historical binaries and content, not a build of current master.
+
+Recorded runtime GPU was GTX 1650 SUPER, NVIDIA 616.92, Vulkan driver string 616.368.0, API 1.4.351, Windows build 26200. This is supported by the per-run console records; the supplementary `dxdiag.txt`, `nvidia-smi-q.txt`, driver inventory and `vulkaninfo-summary.txt` describe **collection-time** state only. Historical loader/layer state is not recorded. The supplementary HKLM registry snapshot places `obs-vulkan64.json` at `SOFTWARE\Khronos\Vulkan\ImplicitLayers` with DWORD 0 (and a 32-bit counterpart); `vulkaninfo` enumerated `VK_LAYER_OBS_HOOK` API 1.3.216 and warned that it is older than the requested 1.4 API. This is a potential confounder. There is no per-process layer enumeration proving it was loaded into any historical `vkdoom.exe`, and no evidence that OBS caused a fault. No layer was changed.
+
+The older `pf-local-evidence\inputs\Doom2.wad` is SHA-256 `8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c`. Its filename is **not** proof of stock Doom II. Separate PF-017 evidence found a file named `Doom2.wad` with a PWAD header; a later verified KEX Doom II IWAD is `31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab` and was not used in the failing Sunlust run. These identities must not be collapsed.
+
+## Independent incidents
+
+| ID | Confirmed observation | Application observation | OS/dump correlation | Disposition |
+|---|---|---|---|---|
+| CFX-DBP50-20260920-MAP08 | Original DBP50 MAP08 baseline warmup, 14:51, three driver 153 records and LiveKernelEvent 141 | `Could not wait for commands: device lost` is recorded in `dbp50/MAP08-device-lost.json`; no completed screenshot | WER names vanished `WATCHDOG-20260920-1451.dmp` | CONFIRMED OBSERVATION; mechanism unknown |
+| CFX-DBP50-20260923-1824 | Original DBP50 MAP08, baseline, LevelMesh off, low resolution/60 FPS; three driver 153 records, no screenshot | `postreboot/MAP08-retry.json` labels device lost, but retained console ends at map warnings; exact application error text/stack absent | WER names surviving `WATCHDOG-20260923-1824.dmp`; WinDbg identifies 0x141, `vkdoom.exe` and `LKD_0x141_IMAGE_nvlddmkm.sys` | CONFIRMED OBSERVATION; dump ownership strongly correlated, initiating command unknown |
+| CFX-DBP50-20260923-2259 | Original DBP50 MAP08, baseline LevelMesh off; 25 s watchdog, driver records 4766–4768, no screenshot | No device-loss string in retained console | WER record 5698 names vanished `WATCHDOG-20260923-2259.dmp` | CONFIRMED OBSERVATION |
+| CFX-DBP50-V12-20260924-1309 | Changed v1.2 DBP50 MAP08, baseline LevelMesh off; 25 s watchdog, driver records 4826–4828 | No device-loss string; user reported a transient one/two-frame image, no captured checkpoint | WER records 5792/5796 name vanished `WATCHDOG-20260924-1309.dmp`; intervening WER replays older reports | DISTINCT INCIDENT from original WAD runs; possibly related mechanism |
+| CFX-DBP37-MAP01-20260924 | Uncapped baseline MAP01 startup, three driver records 4829–4831, 60 s watchdog, no screenshot | Console reaches `MAP01 - Glass Messiah`; no captured device-loss/CPU exception/allocation/validation text | WER record 5799 names vanished `WATCHDOG-20260924-1333.dmp` and LiveKernelEvent 141 | DISTINCT INCIDENT; mechanism unknown |
+| CFX-MAP04-CAPDIAG-20260924 | Test-only candidate MAP04 capacity run 04, first readout, 60 s watchdog | No application fault text recovered | No new driver event recorded; later paired run 05 clean | DISTINCT INCIDENT / timeout control, not automatically a GPU reset |
+| CFX-SUNLUST-MAP24-20260924 | Diagnostic MAP24 arena + Champions, driver records 4850–4851, 60 s watchdog | Console reaches `Captured phase1.png`; no captured device-loss/CPU exception/allocation/validation text | No matching new WER LiveKernel dump identified in retained Application export; do not infer none occurred | DISTINCT INCIDENT; mechanism unknown |
+
+### DBP37 MAP01: `MAP01-baseline-smoke`
+
+Primary raw record: `pf-local-evidence\pf018\dbp37-20260924\runs\MAP01-baseline-smoke\{run.json,vkdoom.ini,capture.cfg,stdout.log,stderr.log}`. `run.json` starts `2026-09-24T13:33:05.6092237+01:00`, ends 13:34:05.8399124; timeout 60.231 s, exit -1. Source `4f6df9843e742c59defcf4ce1a5686271b2b5c75`, production EXE `8ecd7865bc225846cd73b05fbdc807d8cdf3ef6a148dd35a5082da3eee31d9f3`; historical EXE PDB and complete runtime PK3/DLL hashes are not in the run record. IWAD-slot file is the `8ac958e2...` file above; DBP37 `DBP37_AUGZEN.wad` is `d356de75acdb9c969175bdc3910839fb805415b7244fd7e65d05a9110f53c95a`. Console load order is engine PK3, game-support PK3, IWAD, lights/brightmaps/widescreen PK3s, DBP37. Run arguments are preserved verbatim in `run.json`; they set `-stdout -noautoload -nosound -nojoy -width 1904 -height 1001`, isolated `-config`/`-savedir`, `-iwad`, `-file`, `+map MAP01`, `+exec capture.cfg`. The script sets `gl_levelmesh true; lm_dynlights false; bench; wait 120; wait 120; screenshot ...; wait 2; quit`. Its copied configuration matches initial SHA-256 `fa45c62718a6448c511f7908c7b2b6b7e3dce9f3030b903938cc0d2b45200b1b`: `cl_capfps=false`, `vid_maxfps=0`, `vid_vsync=false`, `gl_multisample=4`, `vk_rayquery=true`, `vk_device=0`. Ray-query policy is present, but per-run enabled-feature evidence is absent. Skill, seed, in-map camera, pipeline-cache state and validation-layer state are unknown; no scripted warp/input after map selection was reached in the log. Working directory is not explicitly captured in `run.json`.
+
+Exported System EVTX record IDs 4829, 4830, 4831 occurred at 13:33:08.708, :10.581, :10.887. Each has provider `nvlddmkm`, ID 153, `\Device\Video3`, `Error occurred on GPUID: 700`, and binary payload `00000000020030000000000099000000000000000000000000000000000000000000000000000000`. WER 5799 at 13:33:15 reports 141 and `WATCHDOG-20260924-1333.dmp`; later WER reports for older filenames are replays. The dump file is absent from the new collection. No thread stack identifies a fence wait. Matched Doom2-only MAP01 baseline run at 13:40:31 exited 0 with screenshot/no driver event; DBP37 MAP09 baseline smoke and MAP04 production pairs also completed. These controls used different map/content and some had capped conditions; they do not prove a cap fixes MAP01. The failure predates PF-018 implementation `7d390a3...`, so a PF-018 regression label is CONTRADICTED.
+
+### Sunlust MAP24: `sunlust24-arena-profile`
+
+Raw record: `pf-local-evidence\pf017\material-qualification-20260924\runs\sunlust24-arena-profile\` (`run.json`, `config.ini`, `sequence.cfg`, logs, `lookup.bin`, `lookup.bin.events.csv`, `phase1.png`, benchmark). Start 18:55:29.737293, end 18:56:30.362721, exit -1. Source base `84bbbacbc2cea8568e78ac2f0e059ffc5608a897`; archived diagnostic EXE SHA-256 `54bef07801c0b2a69c7ec46c04fb108259c2f5cee834e912bd8e7007da0335ec`, diagnostic patch `bd110fb2aa16367a821e08f7ec1c2cc7adddc85288501e2d645bbfeb015701e28`, probe header `707152a1da247851c7c7110799d002f507f23eda7474cc74927a4544e07da952`. The separate fresh production EXE is `402296ee1d439f2973bb040d3de87e500786497da2de8461d66f9703e64403c6` and was **not** used for this failure. Archived diagnostic `vkdoom.pdb` SHA-256 is `8ab04cc3d8336fcc2e0326894387b818f703d2a60f1843f528e5348e2878000c`; CodeView/PDB GUID `43bfc543-3656-4d78-ac05-9b180ce4da2a` and age `14` match between the archived EXE RSDS record and PDB info stream. Diagnostic `vkdoom.pk3` is `7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78`; game-support/lights/brightmaps/widescreen PK3 hashes are `32e14d99...`, `fee8a542...`, `574b6b1e...`, `459c12ff...` respectively (full values can be recomputed from the archived files). No retained material-lookup candidate was loaded.
+
+Load order: archived engine PK3/game-support, Freedoom2 `a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b`, support PK3s, Sunlust `6a90becf56040896fd2876a29f60a7a528d9802b081e0a1cc7d7cc65d546a964`, Champions `08da7bdc92dae1378b84cf28d21ecba533a0f007b7de28cb46336399d251737f`. Exact arguments in `run.json` set no autoload/sound/joystick, 1904×1001, isolated config/save, `-rngseed 12345`, mouse off, `+unbindall +skill 3 +map MAP24 +exec sequence.cfg`. `configuration-audit.json` proves `+skill 3` is **Ultra-Violence**, contradicting the protocol's intended HMP. Script warps to `-4800 8400`, enables god mode/background activity, uncaps (`cl_capfps false`, `vid_maxfps 0`, VSync false), waits 70 tics, captures phase 1, then enters forward/right movement. Initial config hash `b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb`; post-run copied config hash `3c7979d4f9c8a905f7eb63d337273b4d1a525a31a5d21ccf22f52c1ee7990edd`, with MSAA 4 and `vk_rayquery=true` policy. Effective enabled ray-query feature, pipeline cache, validation state and precise working directory are not captured.
+
+The benchmark records camera `(-4800,8400,121)`, angle/pitch 0 and about 11 FPS at its sample. Phase-1 PNG is 31,431 bytes, SHA-256 `14b7a8817aae1e330889ed3f003d86916b95dccdbba95af06f9deeed2b24d269`, last-written 18:55:42. The 8,843,264-byte binary trace contains 110,540 complete 80-byte records plus **64 trailing bytes**; last complete record has frame field 76 and phase bits 2. This is a partial write, not proof frame 76 completed; tic and exact CPU/GPU blocking point are not encoded. `lookup.bin.frames.csv` is empty. Console ends after `Captured phase1.png`. System EVTX 4850/4851 at 18:55:42.136/43.941 has the same Video3/GPUID 700/payload shape as DBP37; no matching WER dump was identified. Same-campaign successful controls include MAP24 starting view, MAP30 starting view/arena, and DBP37 MAP04 + Champions. No no-Champions MAP24, verified stock-IWAD MAP24 or production-EXE MAP24 control was run. Material **resource lifetime/pressure** remains open; a material **lookup regression** is CONTRADICTED because no lookup candidate was retained and PF-017 hashing/indexing was measured no-go.
+
+### DBP50 MAP08 variants and controls
+
+Original WAD SHA-256 `da722cb243d39e2c3736742df4b69fa9d5c3b4d5e0de53f4a5404dae770e0fd2`; v1.2 WAD `ffe4fdcf0566e91e9d2e6db7b6e5eb576ce5a341e8b55dcb739b9d5b0239f097`. `dbp50-v1.2-map08-20260924/map08-lump-comparison.json` finds nine of ten MAP08 lumps changed and both missing-first-side linedefs persisted. The v1.2 label is supported by supplied content provenance, but does not imply identical failure mechanics.
+
+The September 20 original MAP08 baseline warmup has `dbp50/MAP08-device-lost.json`, `raw/MAP08-baseline-warmup.log`, config SHA-256 `a7920a97220269e2f23b82b2d2be9209d10b0f1c741711b77c595ebd80c30ff0`. The JSON reports the application text `Could not wait for commands: device lost`, three driver 153 events and 141; the preserved stdout ends at malformed-sidedef warnings, so the application text's original capture medium/stack is missing. The September 23 18:24 retry has `dbp50/postreboot/MAP08-retry.json`, config `c76d5b39cabbf8037236938206e943f85dd9573ce8475f8108d901125ebf9c28`, 1264×681 actual output, 60 FPS cap/VSync off, LevelMesh false, records 4750–4752 at 18:24:25/27/32 and WER 141 at 18:24:53. Source baseline `31cf32b3995dbeabaeaaad02058b4c5de966410d`; production EXE `7385754e18ac7a5bf7e043f610d8f7aae2ae1cb148396f4fb8fd0bc0c4af8ace`. Its preserved exact `pf016/repair-20260924/baseline-exact/vkdoom.pdb` is SHA-256 `6d25bf0ad8d66d35f2e91b641a78f405213408b506257fdbb84ffaa37500bb56`; EXE RSDS and PDB both carry GUID `4fd26c5b-d21c-4fa5-86f7-151e5982d88e`, age `1`. The 22:59 retry `crash-review/full-map08-baseline-off-20260923/run.json` pins the same EXE/content/config, explicit command line, 25-second watchdog, LevelMesh false, 60 FPS cap, 1280×720 requested; actual output and skill/seed are not separately established. Its console stops at the same two missing-first-side warnings and unconnected edge. `crash-review/00-START-HERE.md` and `windbg-141-20260923-full.txt` preserve dump analysis. Full MAP08 was never a PF-018 discriminator: two original-WAD retries failed with LevelMesh off.
+
+The 10,081,247,705-byte `C:\ShadeDoomVK\WATCHDOG-20260923-1824.dmp` (SHA-256 `56358ac8b1497ad4dba7a68cb20b021472ed56fddc8e4e8f922ffb5d81725a5d`) was created 18:24:32 and completed 18:24:47. Kernel-LiveDump exported records 13–37 cover capture/write in that interval, System 4750–4752 precede/overlap it, WER metadata names that exact file, and WinDbg names `vkdoom.exe`, 0x141 and the NVIDIA driver bucket. This is a **strong incident correlation**, not proof of initiating application command or ownership of a particular submitted buffer. The staged 2.4 MB WER dump in `crash-review/` is a different artifact. The other WATCHDOG filenames are now event metadata only; `driver-crash-forensics/readme.md` reports the live WATCHDOG directory empty at collection.
+
+The v1.2 run is fully indexed by `dbp50-v1.2-map08-20260924/baseline-off/{launch.json,input-hashes.json,config-before.ini,run.cfg,stdout.log,result.json}`. It used source `f7d531026de5bd33181946cd91040d5f54438103` (tree-equivalent to older baseline), the same EXE hash, IWAD-slot `8ac958e2...`, v1.2 WAD, config SHA-256 `cf9c52a6cd7c21648306403d867152a7747ed75db32df3fb1212de0e6582defe`, 60 FPS/VSync off, MSAA 4, `vk_rayquery=true` policy, LevelMesh false, locked input, no autoload/sound/joystick, actual 1264×681 output. It started 13:09:11.010, driver records 4826–4828 at 13:09:14–16, WER 5792/5796 refers to `WATCHDOG-20260924-1309.dmp`, and watchdog ended it at 13:09:36.101 without a captured image or application device-loss string. WER 5793–5795 replay older dump names and are not new 13:09 incidents.
+
+Controls: DBP50 MAP15 baseline/PF-016/PF-018 warmup plus five runs each finished (`dbp50/MAP15-run-manifest.csv`). Both minimal malformed-linedef and repaired-control MAP08 fixtures exited 0 with screenshots, per `crash-review/00-START-HERE.md` and `MAP08-isolation-2026-09-23.json`. The tiny malformed fixture is **not** a GPU reproducer; malformed-line warnings preceding full-map failures do not prove causation. Original and v1.2 full MAP08 timeouts are POSSIBLY RELATED, not one proven failure family. No original-WAD candidate run was attempted after baseline faults.
+
+## Signature comparison and revision boundaries
+
+| Signature | DBP37 MAP01 | Sunlust arena | DBP50 original/v1.2 | MAP04 control |
+|---|---|---|---|---|
+| Phase | map startup | arena after phase-1 image, partial phase-2 trace | MAP08 startup; v1.2 transient image only by user report | after first capacity readout |
+| OS display event | three 153 | two 153 | three 153 each recorded run | none new |
+| LiveKernel 141 evidence | WER `1333` | no matching retained WER | `1451`, `1824`, `2259`, `1309` | none recorded |
+| Application device-loss text | absent | absent | September 20 secondary record says yes; later logs absent | absent |
+| Dump/process stack | dump vanished | none found | September 23 18:24 kernel TDR stack; no app thread stack | none |
+| Cap | uncapped | uncapped | 60 cap on later failures | run-specific diagnostic |
+
+DBP37's source `4f6df984...` predates PF-018 candidate `7d390a3...` and accepted PF-018 merge `66b09a8...`. Sunlust's `84bbbac...` had the accepted renderer plus a temporary probe; no retained PF-017 lookup candidate existed. PR #73's later merge `8c9e924...` was evidence-only for these paths; concurrent #74 did not cause historical observations. Matching event payloads indicate similar Windows/NVIDIA reporting, **not** common root cause.
+
+## Hypothesis ledger (unproven)
+
+| Hypothesis | Support | Counterevidence | Missing discriminator / next safe step | Confidence |
+|---|---|---|---|---|
+| Resource lifetime/synchronization | map-dependent GPU stalls; submitted-buffer retirement uses delete lists | accepted generation contracts; no stale handle captured | offline owner/retirement audit; CFX-002 sync validation and pre-kill process stack | low |
+| LevelMesh upload/AS/shader-visible range | DBP37 fails at map startup | DBP50 repeats with LevelMesh off; uploader has byte bounds checks | offline semantic index/range assertions before submit; actual ray-query enabled state | low for DBP37, lower as universal cause |
+| Descriptor/texture/material lifetime or pressure | Sunlust+Champions drives translated materials | Champions controls succeed; lookup candidate absent | off-GPU descriptor accounting, then bounded no-Champions/stock-IWAD control after capture gate | low |
+| Pipeline/shader/cache/worker | first-use/map-start timing | no worker/cache signature captured; Sunlust passes phase 1 | archive pipeline cache/SPIR-V/key/worker markers before a later run | low |
+| Valid but excessive GPU work/TDR | uncapped DBP37/Sunlust; Sunlust sample ~11 FPS | DBP50 times out capped at 60/low resolution; invalid usage can be timing-sensitive | GPU checkpoints/fault tooling and matched capped control, only after CFX-002 gate | low; insufficient as universal explanation |
+| Host-side corruption/data-dependent state | map specificity, DBP50 malformed lines | minimal malformed fixture and repaired control both succeed; no CPU exception captured | ASan/parser and pre-submit semantic validators off GPU | low |
+| Driver implementation defect | repeated NVIDIA 153/141; WinDbg driver bucket | application validity unproven; kernel reset stack is downstream | validation-clean minimized case and cross-driver/device comparison, later only | low |
+
+Current source triage: `vk_commandbuffer.cpp::WaitForCommands` can wait in `vkWaitForFences(..., UINT64_MAX)`; the September 20 secondary device-loss text names command waiting, but no retained application thread stack establishes where the later watchdog-terminated processes blocked. `vk_hwbuffer.cpp` deliberately defers old GPU/staging buffers through draw/transfer delete lists. `vk_levelmesh.cpp` has destination/transfer byte bounds checks but semantic index/AS/lifetime questions remain. No source defect is established by these static seams. `vk_rayquery=true` in configs is policy, not proof the optional feature was supported and enabled. Its fallback is shader-side traversal.
+
+## Primary case and minimum later protocol
+
+Select **CFX-DBP37-MAP01-20260924** as the primary CFX-003 case: the exact failed source/EXE/content/config/script and a short startup path survive, while Doom2-only MAP01 and DBP37 MAP04/MAP09 provide safe matched context. It carries a 141 WER reference but its dump is gone. Sunlust has a richer partial trace, yet reaches an expensive arena and lacks production/no-Champions/verified-IWAD controls. DBP50 original MAP08 is more repeatedly observed and has a kernel dump, but it already reset the desktop multiple times even at 60 FPS with LevelMesh disabled, making it a poorer first unattended physical target. This is a selection for **future human-reviewed work**, not authorization to launch it now.
+
+CFX-002 should first pin a run manifest with source/patch/EXE/PDB/PK3/DLL/content/config/cache hashes, effective enabled Vulkan features/layers, load order, command line, working directory, skill/seed/camera, timestamped CPU stage and GPU submit/checkpoint IDs, per-process validation settings, dump/ETW/WER collection and a pre-kill process-stack capture. CFX-003 may then run **one** guarded target from an isolated config/save/cache, after inspecting `STOP-LAUNCHES.txt` and explicit human review. Record predicted outcomes before changing one variable; keep the Doom2-only and map controls; stop launches after any new reset/device loss or stop marker. Do not alter TDR/driver/clocks or treat a capped pass as a fix. #78 deliberate reproduction has not begun.
+
+## Unresolved questions and missing evidence
+
+- What application thread/fence/worker stage was active at each watchdog termination? No pre-kill user-process dump or thread stack survives. The kernel 0x141 dump is a reset-path stack.
+- Were ray query, acceleration structures, graphics pipeline libraries, validation, OBS hook and other layers **actually enabled/loaded** in each historical process? Config policy and collection-time capability data cannot answer this.
+- What exact historical pipeline-cache contents and shader/SPIR-V hashes were used? PDB GUID/age and full runtime-bundle hashes are incomplete outside the archived Sunlust diagnostic and v1.2 bundle.
+- Did DBP37/Sunlust observe `VK_ERROR_DEVICE_LOST` before watchdog termination? Captured logs do not show it. No CPU exception, allocation failure or validation diagnostic was captured either.
+- Did DBP50's September 20 `device lost` message originate in retained stdout, a dialog or a separate observer? The secondary JSON records it, while raw stdout ends at map warnings.
+- Are absent Sunlust WER records a lack of live dump or rotation/capture failure? Mark MISSING EVIDENCE.
+- Exact camera/skill/seed/working directory for several DBP50/DBP37 runs, historical OBS layer state, and historical per-process capture mode remain unknown.
+
+No causal repair or grouping is proposed. The next highest-value action is CFX-002 off-GPU capture instrumentation, especially a bounded pre-kill user-process stack and submit/checkpoint timeline, before any physical reproduction.
+
+The preceding selection and unknowns describe the CFX-001 handoff. Dated CFX
+continuations below preserve subsequent demonstrated results separately.
+
+### Archived Sunlust diagnostic runtime bundle hashes
+
+The diagnostic load log names these archived resources; the hashes below were read from the preserved files during CFX-001. Their presence does not establish that the same files were used in other incidents.
+
+| File | SHA-256 |
+|---|---|
+| `vkdoom.pk3` | `7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78` |
+| `game_support.pk3` | `32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de` |
+| `lights.pk3` | `fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952` |
+| `brightmaps.pk3` | `574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e` |
+| `game_widescreen_gfx.pk3` | `459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9` |
+
+## CFX-003 / #78 observed continuation (2026-09-25)
+
+The selected DBP37 MAP01 case was launched once on current instrumented master. It reached frame 7/tic 5 and returned VK_ERROR_DEVICE_LOST from a frame-fence wait after graphics submissions 10 and 11. Two new nvlddmkm event 153 records correlate in time. NV checkpoints locate a confirmed world-stage marker in submission 10; EXT device fault reports an invalid read plus instruction-pointer address without a shader/resource mapping. The watchdog dump caught the fatal-error dialog after the wait returned, not an in-flight fence stall. The #78 one-loss stop guard is active; no further GPU launch occurred. See CFX-003-DBP37-REPRODUCTION.md and evidence/cfx003-dbp37-attempts.json for exact identities, timestamps, hashes, limitations and next offline task. Earlier statements above that #78 had not begun describe the CFX-001 handoff date.
+
+## CFX-005 / #92 controlled repeat observations (2026-09-25)
+
+A separately authorized #92 primary lane made three preregistered DBP37 MAP01 capture-only launches on the GTX 1650 SUPER with the same executable, PDB, WADs, config and restored prelaunch cache snapshot. All three returned VK_ERROR_DEVICE_LOST at frame 7/tic 4 after graphics submissions 10 and 11. Each confirmed a graphics world-stage checkpoint in submission 10 and an EXT device-fault type-1 invalid read at 0x1da00000 with 4096-byte precision. The type-6 instruction-pointer address varied. The unique 20 pipeline first-use keys and 138 shader-cache-hit keys matched across the three runs and the #78 capture. Capture mode loaded the OBS implicit hook and NVIDIA layers; their presence does not establish causality.
+
+The first replay produced new nvlddmkm event 153 records without a new WER 141 at first check. The second and third each produced one new WER LiveKernelEvent 141 report; WER also replayed older reports, so record counts are not crash counts. Both new same-minute WATCHDOG dump filenames were absent by collection. Full application process dumps survived attempts 2 and 3. Matching-PDB cdb stacks put the main thread in the fatal-error dialog after the Vulkan fence wait returned, not in a never-returning wait. The third run's vkQueuePresentKHR took about 2.449 seconds and returned success; its subsequent frame-fence wait returned -4 in 13 ms. The call where loss is observed does not identify the initiating GPU command.
+
+The owner confirmed normal display after each attempt; post-run device checks still enumerated the GTX 1650 SUPER on driver 616.92, and no new WHEA, Display or Kernel-Power instability event was found. The primary lane reached its three-loss cap and now has its own STOP-LAUNCHES.txt. The prior #78 marker remains intact. See CFX-005-REPEATED-CRASH-CAPTURE.md and evidence/cfx005-primary-attempts.json for run IDs, exact hashes, event-record IDs, artifact paths and limitations. No secondary GPU comparison had been made at that September 25 handoff; see the dated continuation below.
+
+
+## CFX-005 / #92 P400 continuation (2026-09-30)
+
+The owner installed Quadro P400 driver 582.78. Actual Vulkan inventory passed the required bindless and MSAA-4 entry gate; NV checkpoints and EXT device fault were enabled, KHR device fault absent, and ray query effectively disabled as on the primary. A preserved IWAD-slot-only MAP01 control completed normally. Two preregistered DBP37 MAP01 capture-only replays then returned VK_ERROR_DEVICE_LOST at frame 7 in graphics submission 11 (`vkQueueSubmit`, CPU stage postprocess). Their EXT reports identify type-2 invalid write at 0x1de00000 with 4096-byte precision plus type-4 invalid-execute addresses with 8-byte precision. This differs from the primary type-1 invalid-read/type-6 instruction-pointer signature. Neither P400 capture emitted a confirmed GPU checkpoint or vendor fault binary despite enabled support; the reason is unproven. Both retain full application dumps, and matching-PDB stacks show the fatal-error dialog after submit returned, not a blocked submit.
+
+New nvlddmkm 153 records 5844 and 5850 (Video4/GPUID 600) belong to one loss episode per replay; no new WER 141 episode was found at first collection. Both raw manifests retain a scanner misclassification (`other Vulkan error`): explicit -4 error/loss timeline events prove device loss, and derived analyses record that distinction. The scanner now recognizes those events with focused regression tests; historical raw files remain unchanged.
+
+The monitor was still connected to the GTX 1650 SUPER through Microsoft Basic Display Driver (Code31), while P400 was the healthy render adapter. DxDiag, a written route amendment and the safe control preserve this comparison limitation. The owner confirmed normal display after both attempts; P400 recovered and enumerated at 24 C. The P400 lane is now HOLD_NATIVE_DISPLAY, with its STOP marker and two of three loss episodes used. A native-output sibling phase needs a fresh topology/health baseline and safe control; it does not reset the cumulative budget. No further physical launch was made. See CFX-005-REPEATED-CRASH-CAPTURE.md and evidence/cfx005-p400-attempts.json for exact run IDs, hashes and paths. #92 remains in progress; cross-GPU causal attribution is inconclusive.
+
+
+## CFX-005 / #92 verified native P400 output (2026-10-01)
+
+The owner connected monitor 2 to P400 and made it primary. Actual monitor-to-adapter inventory and bounded read-only window observations confirm both native launches on P400 DISPLAY2 at 1904x1001; BasicDisplay remains secondary. The pinned historical IWAD-slot-only safe control completed normally with a screenshot and no new reset/instability event. DBP37 CFX5-S01 then returned VK_ERROR_DEVICE_LOST at frame 8/tic 7, graphics submission 12 (`vkQueueSubmit`, CPU postprocess), 20 ms after call entry. Frame-7 submissions 10/11, present and a frame-fence wait had succeeded. New NVIDIA 153 record 5915 (GPUID 600) precedes the observing submit; no new WER 141 was found at first collection.
+
+The 688667655-byte application dump survives and cdb loads matching private PDB symbols; the main thread is in post-error fatal-dialog UI. The corrected manifest recognizes returned device loss. Unlike the first two P400 captures, this native run emits no device-fault addresses or vendor binary; no confirmed post-loss GPU checkpoint is returned, despite enabled capabilities. Its detailed GPU fault cluster is therefore unknown. The same 20 pipeline/138 shader-cache-hit key sets and runtime identity sets survive. P400 native presentation does not prevent broad device-loss reproduction; this does not prove common root cause or exclude the other adapter's continued presence.
+
+The owner confirms both displays normal; P400 recovered at 24 C/Code0, global caches restored, and no new WHEA/Display/Kernel-Power event found. Three cumulative P400 losses exhaust its cap; the native STOP marker and all prior guards remain intact. Counts are now primary 3/3 loss, P400 3/3 loss (two cross-adapter, one native) and two passing P400 controls. Different reported GPU fault signatures remain causally inconclusive. Capture deliverables are ready for review in PR #93; #92 remains open pending review/merge. See CFX-005-REPEATED-CRASH-CAPTURE.md and evidence/cfx005-p400-native-attempt.json. Next work is #79 offline resource/range/shader investigation, with the missing post-loss query result/count logging identified before any newly reviewed physical campaign.
+
+## CFX-004 / #79 offline continuation (2026-10-01)
+
+Six preserved #78/#92 application dumps with the exact age-28 PDB passed focused post-error CPU LevelMesh collision checks: logical index bounds, reachable tree structure, finite geometry and a maximum pending traversal stack of 18 against GLSL capacity 64. Recomputed live CPU upload extents were checked separately from unused backing storage. These results do not establish GPU-consumed bytes, descriptor validity or the initiating shader/resource. Native P400 output in the merged [PR #93](https://github.com/techrote/ShadeDoomVK/pull/93) handoff also observed device loss, with no retained post-loss fault/checkpoint payload; no common cross-case mechanism is proven.
+
+[CFX-004-OFFLINE-DISPOSITION.md](CFX-004-OFFLINE-DISPOSITION.md) and [machine-readable disposition](evidence/cfx004-offline-disposition.json) preserve the read-only procedure, all seven historical incident dispositions and precise remaining discriminator. No GPU launch or renderer repair occurred in #79. #75 and PF-020/#37 remain open/blocked on causal mapping; all existing STOP guards remain active.
+
+## CFX-006 / #95 offline capture revision (2026-10-01)
+
+[CFX-006-CAPTURE-IDENTITIES.md](CFX-006-CAPTURE-IDENTITIES.md) documents explicit EXT/NV query outcomes, the separate bounded resource switch, staging fingerprints, command/submission joins and descriptor/buffer lifetime observations. Injected CPU-only callbacks and MSVC AddressSanitizer verify empty/error/cap/exception and disabled-mode behavior without a GPU launch. Historical native P400 missing payload remains missing evidence; no initiating shader/resource or repair is established. Existing run files and dump-before-kill procedure are retained. All six STOP guards and exhausted physical budgets remain active; #75 and PF-020/#37 remain blocked. This is capture plumbing for review, not authorization for another crash run.
+
+CFX-006 specification/source review also identifies and removes an invalid healthy-device NV checkpoint query in the inherited diagnostics. All six matching-dump timelines show that smoke at frame 1/tic 0/submission 3 before loss; the new verification index preserves their hashes/records. Its causal contribution is unknown, and the historical pre-CFX DBP37 failure predates it. This is a diagnostic confounder and API correction, not a proven crash repair. No physical recheck was performed.
+
+## CFX-007 / #97 bounded causal continuation (2026-10-02)
+
+PR96 merged as a6880fdb before the new owner-authorized16-launch/6-loss lane. All historical STOP guards/binaries remain preserved. Six preregistered current DBP37 targets returned explicit device loss; all automatic GPU/driver/session/storage recovery checks passed. The finite ceiling is reached and the new STOP is active. Removing the healthy NV query did not remove the loss. GPUAV activated/instrumented but yielded no recovered access violation; candidate sync reports zero errors on DBP37 while loss persists. Direct LevelMesh drawing and generalized/library pipelines are separately unnecessary for reproduction. This does not establish a common cause for historical DBP50/Sunlust/P400 incidents.
+
+Safe sync exposed a separate LevelMesh upload INDEX_READ dependency hole. The small publication correction removes that hazard and preserves safe pixels/protected mesh state, but DBP37 still faults at0x1da00000, so it is not a sufficient crash repair. Exact runtime also exposes device-address binding reports (rev1, featuretrue), currently **not enabled** in the target build: next offline source work should map the GPU fault address to resource bind/unbind ranges. [Detailed notebook](CFX-007-INVESTIGATION-NOTES.md) and [attempt ledger](evidence/cfx007-attempts.json) retain hypotheses, failures, paths, hashes, actual1902x993 viewport limitation and next discriminator. #97/#75/PF020 remain unresolved; no further physical launch under the exhausted protocol.
+
+## CFX-008 / #99 address control, 2026-10-02
+
+Accepted PR98 merged/master c6a7197ae48b8d163df9f72783c177ca427505f5. New separately approved2-launch/1-loss scope ran only the preserved safe control: exit0, no device loss/TDR, healthy automatic recovery/cache restoration, INFO messenger and EXT address feature enabled,1714 bind/1718 unbind records. Decoded1902×993 pixels and protected mesh match previous safe control. Shared try_lock drops237 writes, so scope stops1/0 before DBP37; no new fault-to-resource join is available. Offline queued collector repair and coverage regressions follow, with repaired hardware verification still pending. See [notebook](CFX-008-ADDRESS-LOCALIZATION.md) and [hashed safe result](evidence/cfx008-address-localization.json). Existing guards/budgets remain immutable and the original crash is unresolved.
+
+## CFX-009 / #102 complete capture and resource localization, 2026-10-02
+
+PR100's queued collector now has safe hardware proof: normal exit/recovery, zero omissions and complete flush/cutoff7578, exact pixels/protected mesh. The original DBP37 target returns device loss from frame7 fence wait. Its complete loss snapshot (4568 records) joins the read interval `0x1da00000`/4096 to the startup 8MiB lightmap, retired frame6. Matching-PDB dump shows post-error UI, not an unreturned Vulkan call. CPU mesh indices exclude the unused zero-lightmap-index tail; dynamic GPU use remains unresolved. Removed reserved descriptors alone are not proof of misuse with PARTIALLY_BOUND. See [causal notebook](CFX-009-CAUSAL-REPAIR.md) and [hashed target evidence](evidence/cfx009-localization.json). Old guards/counts stay immutable; the owner's newer supervised adaptive policy requires a causal discriminator and full recovery per launch. No crash repair is established.
+
+### CFX-009 removed-slot publication result (2026-10-02)
+
+The matched lifetime comparison uses the same retention-capable binary, corrected archived window config, content/cache/settings/environment: retention ON exits normally; OFF restores the frame7 read fault after startup atlas retirement. Complete loss capture and matching-symbol post-error process evidence are preserved. This strongly supports a descriptor-target retirement interaction without establishing the executing shader or an illegal dynamically used descriptor. [Exact comparison](evidence/cfx009-retirement-comparison.json).
+
+PR104's source repair republishes only previously published, removed lightmap/probe slots to permanent initialized correctly typed neutral views before submission and ordinary fence-controlled owner release. Three independent exact former reproducer runs pass with retention OFF, normal same8MiB startup atlas retirement at frame6 and successful frame7 fences. Safe capture/core/sync controls preserve exact1902×993 images/protected mesh, actually activate the separate validation modes and report zero diagnostics;106 focused CFX tests pass under MSVC ASan. All pre/post health and cache gates pass. Physical validation stops at3/3, with zero candidate losses. [Validation identities/proofs/limits](evidence/cfx009-neutral-descriptor-validation.json).
+
+Healthy targets preserve complete startup binding prefixes but later reach the fixed callback cap; whole-run binding completeness is not claimed. Loss-only fault/checkpoint/dump collection is correctly absent on those normal exits; old failing evidence remains immutable. This validates the bounded primary DBP37 repair scope. It does not establish a shared cause or repaired status for DBP50 or Sunlust/Champions, nor a uniquely identified NVIDIA defect. #75/PF-020 remain open pending their separate dispositions and synthesis.
+
+## CFX-010 / #105 practical cross-case qualification, 2026-10-02
+
+The unchanged accepted PR104 renderer, source-equivalent to merge
+`d0789c88f88049116022e7b904026cddeaba8ac4`, completed three independent comparable
+processes for **each** selected original DBP50 MAP08, separately hashed DBP50 v1.2
+MAP08, and Sunlust MAP24 + Champions route. Retention was OFF; all nine qualified
+targets observed initialized neutral removed-slot publication before the successful
+frame fence, ordinary delete-list release and old-atlas address unbind. No native
+device loss, new correlated driver/reset event, watchdog termination or health
+anomaly occurred in those targets. Current practical coverage is demonstrated;
+identical historical causes and attribution solely to PR104 remain unproven.
+
+DBP50 retains the selected 1264×681, tic-paced, MSAA4, VSync-OFF, LevelMesh-OFF
+configuration. Its IWAD-slot input has a PWAD header, so it is not described as
+verified stock Doom II. Sunlust retains Freedoom2, Champions, seed12345, actual UV
+skill3, 1904×1001, uncapped/MSAA4, forward/right-turn movement after phase1, filter
+0/6 and MAP24 reload. All four phase images and completion milestones were checked.
+The historical diagnostic EXE/PDB and unknown cache/layer state differ from this
+accepted production baseline; missing historical fields remain unknown.
+
+Three unqualified observations remain separate: a normally exited Sunlust route
+with its deferred phase3 screenshot cancelled by the next map action; a focus-pause
+run whose watchdog raced normal closure and produced only a failed empty dump;
+and a DBP50 v1.2 pre-frame foreground startup abort. The narrowly reviewed capture
+adjustment waits two tics after phase3 screenshot before reload. Opt-in host tooling
+uses one focus request, at most250ms readback settling and bounded focus/modal
+monitoring; it neither changes renderer code nor silently counts interrupted runs.
+The empty failed dump supplies no application-thread evidence.
+
+CFX010 used17 processes: five safe controls and12 target attempts (nine qualified,
+three excluded), with **zero new device-loss/TDR events**. All valid targets fully
+flushed address callbacks through teardown. Generic resource tracing reached its
+8192-event startup cap, so whole-run descriptor/resource/pipeline history is not
+claimed. Capture mode is not a core/sync/GPUAV validation result. Historical STOPs
+remain unchanged; the final scope is `QUALIFICATION_SATURATED` with its own STOP.
+P400 repaired-code coverage remains untested. See the [report](CFX-010-CROSS-CASE-QUALIFICATION.md)
+and [case matrix](evidence/cfx010-cross-case.json) for exact identities, routes,
+attempts, artifact hashes, exclusions and next synthesis action. #75/PF020 remain open.

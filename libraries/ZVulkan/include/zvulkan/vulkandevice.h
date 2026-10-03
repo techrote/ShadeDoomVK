@@ -1,6 +1,9 @@
 #pragma once
 
 #include "vulkaninstance.h"
+#include "cfxtrace.h"
+#include "cfxfault.h"
+#include "cfxaddress.h"
 
 #include <functional>
 #include <mutex>
@@ -57,13 +60,25 @@ public:
 	inline void CheckVulkanError(VkResult result, const char* text)
 	{
 		if (result >= VK_SUCCESS) return;
+		CfxTrace::Mark("vk-error", text, static_cast<int>(result));
 		if (result == VK_ERROR_DEVICE_LOST)
 		{
-			VulkanDeviceFaultInfo info = GetDeviceFaultInfo();
-			if (!info.description.empty())
-				VulkanPrintLog("fault", info.description);
-			for (const std::string& vendorInfo : info.vendorInfos)
-				VulkanPrintLog("fault", vendorInfo);
+			if (CfxTrace::Enabled()) { CfxTrace::State().deviceLost.store(true); CfxTrace::Mark("device-lost-observed", text, static_cast<int>(result)); }
+			try
+			{
+				CfxAddress::Snapshot("device-lost");
+				CfxFault::QueryNV(GraphicsQueue, "graphics", SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME), vkGetQueueCheckpointDataNV);
+				if (PresentQueue != GraphicsQueue)
+					CfxFault::QueryNV(PresentQueue, "present", SupportsExtension(VK_NV_DEVICE_DIAGNOSTIC_CHECKPOINTS_EXTENSION_NAME), vkGetQueueCheckpointDataNV);
+				VulkanDeviceFaultInfo info = GetDeviceFaultInfo();
+				if (!info.description.empty()) VulkanPrintLog("fault", info.description);
+				for (const auto& vendorInfo : info.vendorInfos) VulkanPrintLog("fault", vendorInfo);
+			}
+			catch (...)
+			{
+				// Never replace the original device-loss exception with allocation/IO failure.
+				CfxTrace::Mark("fault-collection-exception", "bounded collection abandoned; original VkResult retained", static_cast<int>(result));
+			}
 		}
 		VulkanError((text + std::string(": ") + VkResultToString(result)).c_str());
 	}

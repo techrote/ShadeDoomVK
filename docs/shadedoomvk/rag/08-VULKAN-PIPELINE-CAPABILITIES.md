@@ -126,3 +126,15 @@ Adversarial/boundary verification lives in `tools/pf_oracle/tests/vulkan_capabil
 4. Runtime descriptor capacity must respect physical-device limits.
 5. Optional Vulkan features need explicit non-feature/fallback behavior rather than unexplained failure.
 6. PF-007 does not alter gameplay/tic, material, palette/translation, sprite, portal, audio, demo-determinism, source-ownership or provenance semantics.
+
+## CFX-006 error/creation capture (#95)
+
+EXT fault count/data query spans record actual returned status/counts, unavailable paths and bounded truncation. NV void queries record queue/count/capacity separately from GPU-confirmed checkpoint markers. Collection exceptions preserve the original Vulkan error; no retry/recovery or renderer work is added. `VkRenderPassSetup::TracePipelineIdentity` observes full pipeline creation and graphics-library link inputs, including shader layout/effect/vertex and render-pass keys. Creation inputs do not identify a faulting instruction. See [CFX-006](../CFX-006-CAPTURE-IDENTITIES.md); historical support inventories are not refreshed by these offline tests.
+
+CFX-006 specification review removes the inherited healthy-frame NV retrieval smoke from `WaitForCommands`: both NV checkpoint retrieval and EXT fault query require a lost device. Safe tests use recorded markers/capability and injected callbacks; no hardware loss is induced.
+
+## CFX-007/008 optional address-binding evidence
+
+`--address-bindings --resource-trace` creates a separate INFO/device-address debug-utils stream before device allocations. The advertised EXT feature is enabled only with a working requested writer/messenger. Default behavior leaves it disabled. CFX-008 safe control on accepted PR98 demonstrates enabled messenger/feature and real bind/unbind callbacks with identical pixels/protected mesh and normal recovery, but237 shared-try-lock drops prevent a complete capture; the target was not launched.
+
+The accepted PR100 repair copies each payload into one immutable preallocated bounded slot, publishes it with release/acquire atomics, and gives stdio to one drain thread. Callback path does not wait for another producer/file, allocate per record, call Vulkan or retain callback pointers. <=32768 slots/10MiB; capacity loss and unavailable/failed/unflushed output remain explicit. Snapshot waits <=100ms outside callbacks; complete coverage requires flushed output through its cutoff, not just writer_ok1. CFX-009 safe hardware capture proves zero omission and flush/cutoff7578 with image/protected-state equivalence; original target loss capture flushes4568 records without omissions. Reported precision-interval bind/unbind histories are not a unique live allocation map, GPU checkpoint, executed shader or causal proof. See [CFX-009 notebook](../CFX-009-CAUSAL-REPAIR.md) and [address interpretation](../CFX-007-ADDRESS-BINDINGS.md).

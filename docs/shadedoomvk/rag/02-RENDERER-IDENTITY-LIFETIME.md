@@ -105,6 +105,8 @@ PF-004 makes this boundary explicit without turning hot elements into heap objec
 
 ## Lightmap/probe identity
 
+CFX-009 / #102 / PR104 tracks `Bindless.PublishedLightmapPages` and plans the checked union of current/previous pages through `VkPlanLightmapDescriptorPublication`. Before normal submission, current pages retain their real views and removed pages receive persistent typed neutral fallback views; the count advances after descriptor execution. Existing frame fences continue to govern old atlas destruction. `VkTextureManager::LightmapFallback` reuses the constructor1×1 pair, initialized RGBA16F0/R16_UINT0, outside active atlas/bake ownership. This closes the stale reserved-view state without keeping old atlas allocations. Three independent exact DBP37 reproducer runs now pass with diagnostic retention OFF and ordinary atlas retirement, alongside equivalent safe image/state, separately activated core/sync validation and focused regressions. See [CFX-009](../CFX-009-CAUSAL-REPAIR.md) for identities and acceptance status. An unused undefined descriptor is not itself proof of a Vulkan violation; the executing shader and driver instruction remain unidentified.
+
 Lightmap atlas pages and probe maps become adjacent bindless texture entries in the reserved lightmap range. Environment probes instead obtain dynamic two-slot bindless blocks (irradiance + prefiltered map) on demand.
 
 PF-012 makes the three probe-index domains explicit instead of treating them as interchangeable integers:
@@ -120,6 +122,20 @@ The active lightmap-copy path reads the live probe set only when its current `Vk
 Environment-probe reset remains owned by `VkTextureManager`'s PF-002 environment-probe epoch. `LightProbeIncrementalBuilder` now also resets those resources when the probe count changes or falls to zero. Existing descriptor pairs continue to point at their probe image objects across image clears; probe-set changes invalidate per-lightmap selection so obsolete authored candidates are not retained merely because an old descriptor remains addressable.
 
 The experimental `LightProbeAABBTree` is not part of this live identity path; its `Update()`/`Upload()` remain dormant.
+
+## Swapchain presentation semaphore lifetime
+
+Issue #82 closes an inherited binary-semaphore lifetime hole in the presentation path. `VkFramebufferManager` owns one render-finished semaphore per live swapchain image, and both the present-bound graphics submit and `QueuePresent` select the semaphore by the current acquired image index. Steady-state reuse is therefore gated by reacquisition of that same image, which proves the preceding presentation wait for that image has retired; a graphics submission fence alone is not treated as presentation completion.
+
+Swapchain recreation is a separate lifetime boundary. The old image-owned semaphore set is retained while a new set is built to the actual `SwapChain->ImageCount()`. After the first new-swapchain image has been presented, reacquiring that same image and waiting for the graphics submit fence that consumed its acquire semaphore proves the earlier presentation completed; only then are retired semaphore sets destroyed. Repeated recreations before that proof retain earlier sets. `vkQueueWaitIdle` is not a presentation-completion proof. The inherited `VulkanSwapChain` old-swapchain handle destruction remains outside #82; this change does not claim to repair its WSI lifetime. See the [Vulkan swapchain semaphore reuse guide](https://docs.vulkan.org/guide/latest/swapchain_semaphore_reuse.html).
+
+Primary source paths are `src/common/rendering/vulkan/framebuffers/vk_framebuffer.*` and `src/common/rendering/vulkan/commands/vk_commandbuffer.cpp`. The PF oracle owns a source-contract regression that forbids the former singleton render-finished semaphore design. This correctness fix does not establish a causal link to the historical driver resets tracked by CFX.
+
+## Transfer uploads and buffer consumers
+
+Transfer copies into `VkHardwareBuffer` GPU-only buffers are published by `PublishTransferWrite` in `vk_hwbuffer.cpp`, using a buffer/range-scoped dependency from transfer write to index, vertex, shader or later-transfer consumer access. The separate `Flatbuffer.IndexBuffer` copy in `VkRenderState::SetShadowData` has a buffer-scoped transfer-write to index-read dependency before draw use. Same-queue submission order alone did not make these writes visible to `INDEX_READ` in synchronization validation. See `CFX-002-BUFFER-UPLOAD-SYNC.md` for #87 hardware evidence and the independent #86 swapchain-clear finding.
+
+CFX-007/#97 identifies a separate LevelMesh uploader path: `VkLevelMesh::BeginFrame` must publish transfer writes to **vertex attribute and index reads at vertex input**, in addition to shader reads, in both software-traversal and ray-query branches. These buffers are directly bound by `VkRenderState::ApplyLevelMesh`. Safe GTX1650 SUPER synchronization validation reported a `READ_AFTER_WRITE` on `IndexBuffer` at `vkCmdDrawIndexed` with the old shader-only scope. The focused contract pins both branches; corrected safe validation is clean with identical protected output, but DBP37 still crashes. This is an independent correctness fix, not a sufficient causal crash repair. No quality or resource ownership change is implied.
 
 ## Dynamic-light identity
 
@@ -162,6 +178,7 @@ The planner records requests, arena slices, reuses, wrap waits, oversize/invalid
 - BLAS/TLAS rebuild/update;
 - canvas/dynamic texture resize/recreate;
 - Vulkan device/render-buffer reset;
+- swapchain recreation/image-count changes and outstanding presentation waits;
 - asynchronous upload completion after logical resource destruction.
 
 ## Required diagnostics after PF
@@ -188,3 +205,10 @@ For recyclable resource classes expose, where practical:
 7. Staging bytes may not be reused until all transfer commands that reference those bytes are retired.
 8. PF refactors must preserve content-visible texture/material meaning unless a correctness issue explicitly owns the change.
 9. Single-byte texture storage format alone is not material identity: palette-index and RedIsAlpha/luminance variants must remain distinct through resident-image and descriptor caching.
+10. A render-finished binary semaphore may not be reused merely because its graphics signal fence completed; steady-state reuse is gated by reacquiring the owning swapchain image, and old image-owned semaphores remain alive across recreation until a new presentation is proved complete by reacquisition and its acquire-wait submit fence.
+
+## CFX-006 diagnostic identities (#95)
+
+Opt-in `CFX_RESOURCE_TRACE=1` with a valid CFX run/trace adds allocation IDs to ZVulkan buffers/descriptor sets/commands and frame retirement lists. The existing PF allocator tokens remain authoritative; logging does not validate or alter lifetime. `WriteDescriptors::Execute` records buffer binding/range targets; bindless allocation/free/queued writes expose existing PF generations. Resource records cap at 8192 with explicit omission. See [CFX-006](../CFX-006-CAPTURE-IDENTITIES.md) for seams, joins and partial coverage. GPU visibility/consumption and image handle generations remain unproven.
+
+The CFX logger retains one process-lifetime state so renderer atexit/resource-destruction callbacks cannot outlive its file/mutex. File availability during tail rotation uses an atomic flag and the writer mutex. CPU-only teardown/rotation fixtures verify this diagnostic lifetime boundary; renderer ownership/retirement is unchanged.

@@ -1,0 +1,119 @@
+{
+  "schema": "cfx-007-address-offline-v1",
+  "observed_at_utc": "2026-10-02T11:44:21.246287+00:00",
+  "parent_head": "229c5bf383ce83ac65130d67cb1062a0c7a27acd",
+  "source_files": [
+    {
+      "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\include\\zvulkan\\cfxaddress.h",
+      "bytes": 5023,
+      "sha256": "523fa358ef33fcb09867eb1a34c65554806031a7c86c94858eac9485cff9a15c"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\include\\zvulkan\\vulkandevice.h",
+      "bytes": 2818,
+      "sha256": "c4e37fd12331a34f6a518abdb1bd7cd7789ae877eae158820e3104e8d9cae136"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\include\\zvulkan\\vulkaninstance.h",
+      "bytes": 4187,
+      "sha256": "8c5c150c6081b340e4a957717a8c99e75186d779297ef06a29d2b977b0e157e4"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\src\\vulkanbuilders.cpp",
+      "bytes": 72504,
+      "sha256": "784aac959a96d1a177567d6ccade29cabc1430e63d573f86220b1dd31d727c82"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\src\\vulkandevice.cpp",
+      "bytes": 8958,
+      "sha256": "7424ba31da0c1f42fea281dd94273ae7e9f3451ed6eff8482ef09af10a88ae48"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\libraries\\ZVulkan\\src\\vulkaninstance.cpp",
+      "bytes": 19273,
+      "sha256": "e8196723a33e4882f87bb8348abd489462792e09a9661660eb50e00d68b580a9"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\src\\common\\rendering\\vulkan\\vk_renderdevice.cpp",
+      "bytes": 36798,
+      "sha256": "7c461bb6c43dc6c2cb523be2190dc5765ccfe3301e3e9a948be65a6e13a013be"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\tools\\cfx_capture.py",
+      "bytes": 27985,
+      "sha256": "bba386a41782fe08ae072415fbdf3d96ff641f81fb2a39f9f7637ad5d83d3189"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\tools\\cfx_address_correlate.py",
+      "bytes": 6878,
+      "sha256": "779cb5b85a1f2e8b215a209e5630029197bc0aef83b184775dcbd928c358e41e"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\tools\\pf_oracle\\tests\\cfx_address_fixture.cpp",
+      "bytes": 3447,
+      "sha256": "74e087d8fe3da29a43d6613f12f92d41061d8a54e28bd8fb8209440ac630d9de"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\tools\\pf_oracle\\tests\\test_cfx_address_bindings.py",
+      "bytes": 8520,
+      "sha256": "bdd5c654f5e70fe7453dce18c750cd05e9a9b7e6e3038f548b286c50c56b8e16"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\source\\tools\\pf_oracle\\tests\\test_cfx_instrumentation.py",
+      "bytes": 10262,
+      "sha256": "090e3f580c4eaac2dda1a4167341975aab04babfc1bfc70b88e342195ac7f2d6"
+    }
+  ],
+  "renderer_build": {
+    "exit_status": 0,
+    "config": "MSVC RelWithDebInfo",
+    "log": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\offline-address-build.log",
+      "bytes": 2308,
+      "sha256": "19bddb049b6470e9c787eceb1b33d0c2f3f918cac1398a32bfef41414c7cfc7e"
+    },
+    "exe": {
+      "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.exe",
+      "bytes": 12085760,
+      "sha256": "fc24d08b71af9a874426d1200b90066a6e17f431fbd36887632de1e12e5fae09"
+    },
+    "pdb": {
+      "path": "C:\\ShadeDoomVK\\build-cfx006\\RelWithDebInfo\\vkdoom.pdb",
+      "bytes": 77590528,
+      "sha256": "d85ac25277b294d6c36bc5a6f981e8de178df9ca183b8e0809d973ef291ec122"
+    },
+    "embedded_version_warning": "gitinfo helper reports git exit128 / unknown version; external source hashes and EXE/PDB identity remain authoritative"
+  },
+  "focused_tests": {
+    "count": 52,
+    "status": "PASS",
+    "compiled_cfx_callback_query_fixtures": "MSVC AddressSanitizer",
+    "log": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\offline-address-tests.log",
+      "bytes": 7042,
+      "sha256": "e08ab303e55fb88e5ad11c4b1e4258216f668979caf82f8cd6f0ca3183e6e877"
+    }
+  },
+  "physical_launches_added": 0,
+  "hardware_activation_verified": false,
+  "counts_unchanged": {
+    "launches": 16,
+    "loss_episodes": 6
+  },
+  "preserved_stop": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\STOP-LAUNCHES.txt",
+    "bytes": 50,
+    "sha256": "49d3a04a18bd6779472f2aa4d4729acfa6701e900e99a309a92654a3ffad09e6"
+  },
+  "preserved_state": {
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\cfx007-gtx1650super-20261002-mesh-input-repair\\state.json",
+    "bytes": 12526,
+    "sha256": "50934ab54e5ab4969fb5152c729a52163b4ad868a4ea650bf359db6785364190"
+  },
+  "limitations": [
+    "Offline collector only; no causal crash repair",
+    "Physical output evidence belongs to earlier c24ecede candidate",
+    "No retroactive address mapping for the six targets",
+    "Fresh hardware smoke requires a separately authorized finite protocol"
+  ]
+}
