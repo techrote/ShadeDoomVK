@@ -1,0 +1,346 @@
+{
+  "schema_version": 1,
+  "programme": "CFX-000",
+  "parent_issue": 75,
+  "synthesis_base": "844462c3a4ed5f7037ade1b49d1a28f578077213",
+  "physical_testing_performed_by_synthesis": false,
+  "accepted_primary_repair": {
+    "issue": 102,
+    "pr": 104,
+    "merge_sha": "d0789c88f88049116022e7b904026cddeaba8ac4",
+    "mechanism": "Republish persistent initialized correctly typed neutral light/probe views into previously published reserved atlas slots removed by shrink before submission, while preserving ordinary fence-controlled old-atlas retirement.",
+    "diagnostic_retention_is_production_fix": false,
+    "exact_former_reproducer_successes": {
+      "route": "DBP37 MAP01",
+      "hardware": "GTX 1650 SUPER",
+      "successes": 3,
+      "attempts": 3,
+      "retention": false
+    },
+    "not_established": [
+      "unique executing shader or SASS instruction",
+      "illegal dynamic descriptor access",
+      "identical submitted GPU bytes across historical and repaired executions",
+      "unique NVIDIA driver defect",
+      "one shared mechanism for every historical incident"
+    ]
+  },
+  "cross_case_qualification": {
+    "issue": 105,
+    "pr": 106,
+    "merge_sha": "2399d9455772c570e597a5960c626f3bf771baeb",
+    "processes": 17,
+    "safe_controls": 5,
+    "target_attempts": 12,
+    "new_device_loss_or_tdr_events": 0,
+    "routes": [
+      {
+        "route": "original DBP50 MAP08",
+        "qualified_successes": 3,
+        "target_attempts": 3
+      },
+      {
+        "route": "DBP50 v1.2 MAP08",
+        "qualified_successes": 3,
+        "target_attempts": 4
+      },
+      {
+        "route": "Sunlust MAP24 + Champions full movement/filter/reload",
+        "qualified_successes": 3,
+        "target_attempts": 5
+      }
+    ],
+    "excluded_observations": [
+      "Sunlust deferred phase-3 screenshot missing before reload",
+      "Sunlust focus/pause/watchdog race with unreadable empty dump",
+      "DBP50 v1.2 pre-frame foreground host abort"
+    ]
+  },
+  "allowed_categories": [
+    "demonstrated repaired primary reproducer",
+    "repaired-build qualified historical route",
+    "historical cause unresolved",
+    "distinct/non-equivalent incident",
+    "unavailable/insufficient historical identity",
+    "superseded diagnostic hypothesis",
+    "non-driver timeout/control",
+    "documented residual limitation"
+  ],
+  "incidents": [
+    {
+      "incident_id": "CFX-DBP50-20260920-MAP08",
+      "historical_route": "Original DBP50 MAP08",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "Secondary record reports device lost; NVIDIA 153 records and WER LiveKernelEvent 141; dump no longer survives.",
+      "identity_strength": "moderate",
+      "key_discriminating_evidence": "Original route reconstructed from retained content/config/source records; initiating command unknown.",
+      "repair_relationship": "Repaired route exhibits neutral removed-slot publication before ordinary atlas retirement; shared historical cause not proven.",
+      "repaired_build_physical_coverage": "Original DBP50 selected route qualified 3/3 in CFX-010.",
+      "negative_or_conflicting_evidence": "Historical skill/seed/cache/layer fields are incomplete; successful current build differs from historical binary.",
+      "categories": [
+        "repaired-build qualified historical route",
+        "historical cause unresolved",
+        "unavailable/insufficient historical identity"
+      ],
+      "current_disposition": "Practical repaired-build route coverage established; historical mechanism unassigned.",
+      "residual_uncertainty": "No unique initiating command or shared DBP37 cause.",
+      "pf020_impact": "No current CFX blocker from this reconstructed route; preserve historical gaps."
+    },
+    {
+      "incident_id": "CFX-DBP50-20260923-1824",
+      "historical_route": "Original DBP50 MAP08",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "NVIDIA 153 + WER 141; surviving WATCHDOG dump strongly correlates 0x141/nvlddmkm/vkdoom.exe; secondary record labels device loss.",
+      "identity_strength": "strong historical incident identity; initiating GPU work unknown",
+      "key_discriminating_evidence": "Surviving kernel dump and exact source/content/config identity; no initiating command.",
+      "repair_relationship": "Route-level repaired coverage exists; dump does not prove descriptor-retirement causation.",
+      "repaired_build_physical_coverage": "Covered by original DBP50 route 3/3 in CFX-010.",
+      "negative_or_conflicting_evidence": "Kernel TDR bucket is downstream evidence, not application-cause proof.",
+      "categories": [
+        "repaired-build qualified historical route",
+        "historical cause unresolved"
+      ],
+      "current_disposition": "Historical crash preserved; repaired route qualifies; original cause remains unresolved.",
+      "residual_uncertainty": "Exact GPU command/resource that initiated the historical event.",
+      "pf020_impact": "No demonstrated repaired-path failure."
+    },
+    {
+      "incident_id": "CFX-DBP50-20260923-2259",
+      "historical_route": "Original DBP50 MAP08",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "Watchdog termination with NVIDIA 153 and WER 141; no retained application device-loss string.",
+      "identity_strength": "moderate",
+      "key_discriminating_evidence": "Pinned original content/config/source family, but weaker application-side failure record.",
+      "repair_relationship": "Route-level repaired qualification only; no unique causal assignment.",
+      "repaired_build_physical_coverage": "Covered by original DBP50 route 3/3 in CFX-010.",
+      "negative_or_conflicting_evidence": "Missing original application error text and surviving dump.",
+      "categories": [
+        "repaired-build qualified historical route",
+        "historical cause unresolved",
+        "unavailable/insufficient historical identity"
+      ],
+      "current_disposition": "Repaired historical route qualified; historical cause unresolved.",
+      "residual_uncertainty": "Application-side failure classification and initiating GPU work.",
+      "pf020_impact": "No demonstrated repaired-path failure."
+    },
+    {
+      "incident_id": "CFX-DBP50-V12-20260924-1309",
+      "historical_route": "Separate hashed DBP50 v1.2 MAP08",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "Watchdog termination, NVIDIA 153 and WER 141; no retained application device-loss string; transient image reported.",
+      "identity_strength": "strong content/config identity; incomplete runtime-state identity",
+      "key_discriminating_evidence": "v1.2 content hash is distinct from original DBP50 and must remain separate.",
+      "repair_relationship": "Repaired runs show neutral removed-slot publication and normal retirement; common cause is not proven.",
+      "repaired_build_physical_coverage": "3/3 qualified in CFX-010 from four attempts; one pre-frame host abort excluded.",
+      "negative_or_conflicting_evidence": "Historical skill/seed/cache/layer state unavailable.",
+      "categories": [
+        "repaired-build qualified historical route",
+        "historical cause unresolved",
+        "unavailable/insufficient historical identity"
+      ],
+      "current_disposition": "Separate repaired route qualified; historical cause unresolved.",
+      "residual_uncertainty": "Historical runtime state and commonality with original DBP50/DBP37.",
+      "pf020_impact": "No demonstrated repaired-path failure; preserve reconstruction limits."
+    },
+    {
+      "incident_id": "CFX-DBP37-MAP01-20260924",
+      "historical_route": "DBP37 MAP01 startup",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "Historical NVIDIA 153/141; later exact captures repeatedly return VK_ERROR_DEVICE_LOST around frame 7 with read-fault interval overlapping the retired startup 8 MiB lightmap.",
+      "identity_strength": "strong primary reconstruction",
+      "key_discriminating_evidence": "Complete CFX-009 address localization; matched retention ON success/OFF failure; removed reserved descriptor targets survived beyond old owner lifetime; production neutral republish repair passes exact former reproducer 3/3.",
+      "repair_relationship": "Direct demonstrated compatibility repair for the primary reproducer.",
+      "repaired_build_physical_coverage": "3/3 exact former reproducer successes; safe capture/core/sync controls; retention OFF and normal retirement.",
+      "negative_or_conflicting_evidence": "CPU geometry requests no ordinary lightmap slot; PARTIALLY_BOUND permits dynamically unused undefined descriptors; executing shader/SASS and submitted GPU bytes remain unknown.",
+      "categories": [
+        "demonstrated repaired primary reproducer"
+      ],
+      "current_disposition": "Primary bounded renderer compatibility repair accepted.",
+      "residual_uncertainty": "Unique executing access/instruction and vendor attribution.",
+      "pf020_impact": "Current stale removed-slot target state is repaired; retain invariant/regressions in PF freeze."
+    },
+    {
+      "incident_id": "CFX-MAP04-CAPDIAG-20260924",
+      "historical_route": "Test-only DBP37 MAP04 capacity diagnostic",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "Watchdog timeout with no new driver event; later paired run clean.",
+      "identity_strength": "sufficient for control classification",
+      "key_discriminating_evidence": "Absence of new NVIDIA/reset evidence and later clean paired run.",
+      "repair_relationship": "No demonstrated relationship to descriptor retirement.",
+      "repaired_build_physical_coverage": "Not required for programme closure.",
+      "negative_or_conflicting_evidence": "Timeout alone cannot be promoted to device loss.",
+      "categories": [
+        "non-driver timeout/control",
+        "distinct/non-equivalent incident"
+      ],
+      "current_disposition": "Negative timeout control, not part of the repaired crash family.",
+      "residual_uncertainty": "Exact host reason for the isolated timeout is unnecessary for CFX closure.",
+      "pf020_impact": "None as a crash blocker."
+    },
+    {
+      "incident_id": "CFX-SUNLUST-MAP24-20260924",
+      "historical_route": "Freedoom2 + Sunlust MAP24 + Champions",
+      "hardware": "GTX 1650 SUPER / NVIDIA 616.92",
+      "original_failure": "NVIDIA 153 after phase-1 capture; partial CPU trace reaches phase 2; no retained application device-loss text or matching dump.",
+      "identity_strength": "moderate-to-strong route/content identity; incomplete historical activation identity",
+      "key_discriminating_evidence": "Historical UV skill 3, seed 12345, warp and content hashes preserved; later full reconstructed route exercises movement/turn/filter/reload.",
+      "repair_relationship": "Repaired runs show neutral publication and ordinary retirement, but historical unique activation/shared cause unproven.",
+      "repaired_build_physical_coverage": "Full route 3/3 qualified in CFX-010; two confounded observations excluded.",
+      "negative_or_conflicting_evidence": "Historical diagnostic executable/patch and cache/layer state differ; historical trace did not prove completed post-phase-1 activation.",
+      "categories": [
+        "repaired-build qualified historical route",
+        "historical cause unresolved",
+        "unavailable/insufficient historical identity"
+      ],
+      "current_disposition": "Strong practical current-route coverage; historical cause unresolved.",
+      "residual_uncertainty": "Exact historical activation and whether the same mechanism caused the old event.",
+      "pf020_impact": "No demonstrated repaired-path failure; preserve historical differences."
+    },
+    {
+      "incident_id": "CFX-DBP37-P400-CFX005",
+      "historical_route": "DBP37 MAP01 cross-GPU replay",
+      "hardware": "Quadro P400 / NVIDIA 582.78",
+      "original_failure": "Three target device losses: two cross-adapter and one verified native-output. First two report invalid-write/invalid-execute signatures; native run has no retained fault payload.",
+      "identity_strength": "strong replay identity with declared cross-GPU differences",
+      "key_discriminating_evidence": "Compatible path and safe controls established; material fault signature differs from GTX primary and causal attribution remains inconclusive.",
+      "repair_relationship": "Historical P400 failures occurred before repaired-build qualification; cannot be assigned to PR104 mechanism.",
+      "repaired_build_physical_coverage": "none",
+      "negative_or_conflicting_evidence": "Different architecture/driver/VRAM/cache/timing; no repaired P400 run; three-loss P400 budget exhausted.",
+      "categories": [
+        "distinct/non-equivalent incident",
+        "historical cause unresolved",
+        "documented residual limitation"
+      ],
+      "current_disposition": "Preserved cross-GPU historical failure with no repaired-build P400 claim; no further launch authorized by CFX.",
+      "residual_uncertainty": "Whether accepted repair changes P400 behavior and whether P400 failures share any GTX mechanism.",
+      "pf020_impact": "Documented limitation, not a currently demonstrated repaired-path correctness failure; freeze manifest must not claim P400 proof."
+    }
+  ],
+  "hypothesis_dispositions": [
+    {
+      "hypothesis": "present semaphore reuse",
+      "status": "separate correctness defect",
+      "crash_relation": "not established"
+    },
+    {
+      "hypothesis": "mipmap transfer synchronization",
+      "status": "separate correctness defect",
+      "crash_relation": "not established"
+    },
+    {
+      "hypothesis": "swapchain clear dependency",
+      "status": "separate correctness defect",
+      "crash_relation": "not established"
+    },
+    {
+      "hypothesis": "hardware-buffer transfer dependency",
+      "status": "separate correctness defect",
+      "crash_relation": "not established"
+    },
+    {
+      "hypothesis": "LevelMesh upload INDEX_READ dependency",
+      "status": "separate correctness defect",
+      "crash_relation": "not sufficient; DBP37 persisted after correction"
+    },
+    {
+      "hypothesis": "LevelMesh/index/tree corruption",
+      "status": "unsupported",
+      "crash_relation": "post-error CPU checks clean; GPU bytes not proven"
+    },
+    {
+      "hypothesis": "zero-index unused-capacity interpretation",
+      "status": "disproven for active CPU geometry",
+      "crash_relation": "tail is unused capacity"
+    },
+    {
+      "hypothesis": "malformed cached SPIR-V structural defect",
+      "status": "unsupported",
+      "crash_relation": "138 logged modules pass spirv-val; dynamic execution not proven"
+    },
+    {
+      "hypothesis": "retained atlas lifetime",
+      "status": "superseded diagnostic hypothesis",
+      "crash_relation": "informative ON/OFF discriminator; not production repair"
+    },
+    {
+      "hypothesis": "synchronous address logger completeness",
+      "status": "contributory diagnostic defect",
+      "crash_relation": "CFX-008 stopped safely; PR100 repaired capture infrastructure"
+    },
+    {
+      "hypothesis": "healthy-frame NV checkpoint retrieval",
+      "status": "contributory diagnostic defect",
+      "crash_relation": "removed; historical failure predates it and later failures persisted"
+    },
+    {
+      "hypothesis": "fault-address overlap alone",
+      "status": "insufficient causal proof",
+      "crash_relation": "resource interval localized without executed shader identity"
+    },
+    {
+      "hypothesis": "valid but excessive GPU workload / TDR",
+      "status": "unsupported as universal explanation",
+      "crash_relation": "capped/low-resolution historical DBP50 failures and uncapped repaired DBP37 success contradict a universal cap explanation"
+    },
+    {
+      "hypothesis": "unique NVIDIA driver defect",
+      "status": "not established",
+      "crash_relation": "application lifetime repair and cross-GPU signature differences prevent vendor attribution"
+    }
+  ],
+  "parent_acceptance": [
+    {
+      "criterion": 1,
+      "result": "PASS",
+      "basis": "All known incident families, controls and material P400 comparison have explicit evidence-backed dispositions."
+    },
+    {
+      "criterion": 2,
+      "result": "PASS",
+      "basis": "DBP37 reaches the strongest supported causal/repair boundary: repeatable primary failure, resource localization, matched lifetime discriminator, source repair and 3/3 exact repaired success."
+    },
+    {
+      "criterion": 3,
+      "result": "PASS",
+      "basis": "Publication planner/source-contract regressions cover the pre-submit invariant; safe validation and exact repaired targets cover success."
+    },
+    {
+      "criterion": 4,
+      "result": "PASS",
+      "basis": "Primary DBP37 physical failure is rechecked 3/3; selected DBP50/Sunlust routes are 3/3. Repaired P400 is explicitly untested and its historical loss lane is saturated."
+    },
+    {
+      "criterion": 5,
+      "result": "PASS",
+      "basis": "Negative hypotheses, excluded observations, diagnostic defects, stopped lanes and historical STOP identities remain preserved."
+    },
+    {
+      "criterion": 6,
+      "result": "PASS",
+      "basis": "Final synthesis and PF-020 contract define the exact CFX handoff and remaining limitations."
+    }
+  ],
+  "pf020_handoff": {
+    "cfx_blocks_pf020_independently": false,
+    "reason": "Accepted current source removes the demonstrated stale removed-slot target state and no accepted CFX evidence demonstrates a reproducible failing repaired GTX supported path. PF-020 must still independently verify final-source resource/identity contracts.",
+    "retained_limitations": [
+      "shared historical causation unproven",
+      "executing shader/SASS unproven",
+      "illegal dynamic descriptor access unproven",
+      "repaired P400 behavior untested",
+      "unique NVIDIA defect unproven"
+    ],
+    "retained_infrastructure": [
+      "CFX capture/classifier/address tooling",
+      "historical reports and machine evidence",
+      "immutable STOP/saturation guards"
+    ]
+  },
+  "nvidia_disposition": {
+    "issue": 103,
+    "confirmed_nvidia_defect": false,
+    "vendor_package_prepared_by_synthesis": false,
+    "vendor_submission_decision_made": false,
+    "status": "Downstream entry gate not established by current evidence; preserve for owner/future evidence decision."
+  }
+}
