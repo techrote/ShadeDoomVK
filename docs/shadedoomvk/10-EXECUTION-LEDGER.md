@@ -390,3 +390,13 @@ Safe control exits0, no loss/TDR, normal automatic recovery/caches restored. EXT
 - P400 repaired-build qualification was not performed. The historical P400 lane is saturated at three target losses and materially different reported signatures; this is a residual limitation, not a repaired claim and not a reason to reopen physical testing.
 - [Final human synthesis](CFX-FINAL-PROGRAMME-SYNTHESIS.md) and [machine matrix](evidence/cfx-final-incident-matrix.json) audit all six #75 criteria as PASS. Closure still requires the synthesis change's own fresh post-reconciliation non-GPU CI, independent review, merge and master verification.
 - CFX is not an independent PF-020 blocker after synthesis acceptance. PF-020 remains subject to PF-019's separate completion receipt and then its own full freeze contract. #103 remains a downstream owner/vendor decision because no NVIDIA defect is established.
+
+
+### 2026-10-03 — PF-019 accepted and merged
+
+- PF-019 / #36 implementation/evidence head `e496977a47ebb7a4235dba28a7df11128780b0eb` passed required CI run `37108111799` 8/8 and merged through PR #107 as `44864d9d27495d3992d3a7314f4cb7de6c029b7b`.
+- The exact merge commit passed post-merge push CI run `37108571879` 8/8. Later current `master@41daecc2a2cf62d674163a0bb3dc5481c8be37b1`, after CFX final synthesis, also passed push CI run `37109278147` 8/8; the intervening synthesis changed documentation/tests, not PF-019 implementation source.
+- Accepted change: the source-proven dormant Z-min/max/light-tile producer is gated behind `VkLightTilePolicy::Enabled`, false by default, while LevelMesh descriptor binding 4 remains valid through one 1,296-byte block and the complete producer path remains available for SDVK-009 reactivation.
+- At 1904x1001 the source formulas avoid 5,862,384 bytes of Z-min/max/tile payload before allocator overhead, plus five dormant shader compilations, four dedicated pipeline creations, seven dedicated descriptor-set allocations and nine per-frame dedicated descriptor writes.
+- PF-006 ordered maps, scene-shader math, worker queues and ambiguous resources are unchanged because no representative evidence justified speculative changes. No quality policy changed and no physical GPU campaign was required or opened.
+- PF-019 is complete. CFX-000 / #75 is also accepted/closed through PR #108 on current master. After #36 tracker closure, PF-020 / #37 has no remaining external PF/CFX prerequisite; it becomes dependency-ready for its own fail-closed freeze synthesis. SDVK-001 remains blocked until PF-020 itself passes and explicitly unblocks it.
