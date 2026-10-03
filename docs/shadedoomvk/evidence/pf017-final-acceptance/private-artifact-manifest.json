@@ -928,6 +928,18 @@
     },
     {
       "root": "pf017-final-20261003-measurements",
+      "path": "build_receipt.py",
+      "bytes": 1323,
+      "sha256": "3621fd6f88415773cb764a02af8915b540aa31b67778b92fc2281407d81a892f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "bytecode-index-cleanup.log",
+      "bytes": 2334,
+      "sha256": "49fcc18422d120384942e6d57fcc624cfa652dc9e57745bc963bced9ea20e05e"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
       "path": "candidate/brightmaps.pk3",
       "bytes": 246181,
       "sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e"
@@ -1246,6 +1258,12 @@
     },
     {
       "root": "pf017-final-20261003-measurements",
+      "path": "pr-body.md",
+      "bytes": 2875,
+      "sha256": "f90b7cd918ef4e06488967dfce608f6ad1e786c6d45a1431ac95c7a8dcdc9615"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
       "path": "production-analysis.json",
       "bytes": 13676,
       "sha256": "e4da5c0daac7a9cad009ece1112e0247608a5c5eab261278cef07e4827275dee"
@@ -1261,6 +1279,18 @@
       "path": "restore_diagnostic.py",
       "bytes": 610,
       "sha256": "f7b50f50ccf9691c9add18ee90cbf97661bdb1fab15c3c0507eb6e3b553330ab"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-baseline-build.log",
+      "bytes": 7026,
+      "sha256": "91a9b8f4b08c465b3ce22c22959a25ace587cd63fc141e66fdbdac0cb739840f"
+    },
+    {
+      "root": "pf017-final-20261003-measurements",
+      "path": "restored-final-build.log",
+      "bytes": 7416,
+      "sha256": "4db1cf04c9dc2354af465a722fe06ec58b10b2534c271fcdbb30e628e3e3c46a"
     },
     {
       "root": "pf017-final-20261003-measurements",
