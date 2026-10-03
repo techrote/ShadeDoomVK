@@ -1,7 +1,7 @@
 # Renderer identity and lifetime map
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active; PF-017 source-owned light-packing candidate off-GPU-qualified, physical acceptance pending  
+Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active; PF-017 source-owned candidate rejected/restored after integrated physical no-go
 Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, PF-013, PF-017, SDVK-004
 
 ## Core rule
@@ -143,7 +143,7 @@ Doom `FDynamicLight` objects are translated into `FDynLightInfo` lists and/or Le
 
 Pointer identity is currently meaningful inside a frame/cache but must not become a persistent serialized identity.
 
-### PF-017 source-owned temporal packing candidate
+### PF-017 historical rejected temporal packing candidate
 
 PR #74 keeps shader-visible `FDynLightInfo` arrays and `LightBufferSSO` offsets unchanged while attaching four packing snapshots to each live `FDynamicLight` incarnation, one for each existing force-attenuation/trace combination.
 
@@ -155,7 +155,7 @@ PR #74 keeps shader-visible `FDynLightInfo` arrays and `LightBufferSSO` offsets 
 - Recreating `VkRSBuffers` recreates the mapped buffer and initializes revision/range shadows together. Ordinary `BeginFrame` resets write cursors but intentionally retains shadows describing the still-resident mapped bytes.
 - Epoch rollback/reuse and revision wrap/exhaustion permanently disable the corresponding reuse mechanism for safety rather than accepting ambiguous identity.
 
-This is renderer-local transient identity only; it is never a gameplay or serialized identity. Source head `e028fd88b29aa2d0d82e4e04a09ea644bfa56670` passed the complete off-GPU eight-job CI matrix in run 36047117838. Final PF-017 acceptance still requires the physical GTX 1650 SUPER performance/equivalence gate; until then this contract is a candidate on PR #74, not accepted `master` architecture.
+This is renderer-local transient identity only; it is never a gameplay or serialized identity. Source head `e028fd88b29aa2d0d82e4e04a09ea644bfa56670` passed the complete off-GPU eight-job CI matrix in run 36047117838. The 2026-10-03 integrated physical campaign rejects this contract: +10.79% setup, +2.42% whole-frame, zero winning pairs. All candidate source is restored to repaired master. These bullets describe historical rejected source only; accepted packing uses the original path. See [final no-go](../PF-017-FINAL-ACCEPTANCE.md).
 
 ## Async texture lifetime and staging
 

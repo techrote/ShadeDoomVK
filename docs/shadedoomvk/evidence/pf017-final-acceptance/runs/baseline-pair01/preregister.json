@@ -1,0 +1,74 @@
+{
+  "args": [
+    "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\baseline\\vkdoom.exe",
+    "-stdout",
+    "-noautoload",
+    "-nosound",
+    "-nojoy",
+    "-rngseed",
+    "12345",
+    "-width",
+    "1904",
+    "-height",
+    "1001",
+    "-config",
+    "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\runs\\baseline-pair01\\config.ini",
+    "-savedir",
+    "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\runs\\baseline-pair01\\save",
+    "-iwad",
+    "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+    "-file",
+    "C:\\ShadeDoomVK\\pf-local-evidence\\pf016\\PF016_DenseLights_Interior.wad",
+    "+map",
+    "PF16TST",
+    "+exec",
+    "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\runs\\baseline-pair01\\capture.cfg"
+  ],
+  "runtime": {
+    "source_sha": "2399d9455772c570e597a5960c626f3bf771baeb",
+    "configuration": "Visual Studio 17 2022 x64 RelWithDebInfo /O2 /Ob1 /Zi /DNDEBUG USE_STATIC_CRT=OFF",
+    "runtime_sha256": {
+      "vkdoom.exe": "3997d880b25646d2222ef5dbd27e8c535219016661e91414e3f00028f65d5cbc",
+      "vkdoom.pdb": "31f30878127a887f11093196d8be4ab767edf5efe6107659f8ab107ed6d92e72",
+      "vkdoom.pk3": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78",
+      "brightmaps.pk3": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e",
+      "game_support.pk3": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de",
+      "game_widescreen_gfx.pk3": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9",
+      "lights.pk3": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952",
+      "zmusic.dll": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    },
+    "production": true,
+    "no_diagnostic_patch": true,
+    "resource_container_equivalence_proved": true
+  },
+  "input_identities": {
+    "config": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf016\\configs\\pf016-01.ini",
+      "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb",
+      "bytes": 17636
+    },
+    "dense": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf016\\PF016_DenseLights_Interior.wad",
+      "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+      "bytes": 242350
+    },
+    "iwad": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\inputs\\Doom2.wad",
+      "sha256": "8ac958e284f85ba1ebdd56030ff1c7eadefc0993bf21a8ef72d6fab959d51a4c",
+      "bytes": 16087017
+    },
+    "pipelinecache.zdpc": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\inputs\\pipelinecache.zdpc",
+      "sha256": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+      "bytes": 9701371
+    },
+    "shadercache.zdsc": {
+      "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-measurements\\inputs\\shadercache.zdsc",
+      "sha256": "13a8596e425b91acdc5c88ddc2f57911de9d63efd5623e3695a33de24e4ef2da",
+      "bytes": 11323798
+    }
+  },
+  "script_sha256": "5b67a8e85d348c561911733badd1f9911146dd232ad1b9fff81a3962d2893776",
+  "environment": {},
+  "watchdog_seconds": 45
+}

@@ -139,3 +139,7 @@ These are renderer compatibility units, not lumens/lux/candela. PF-011 deliberat
 9. PF-010 transient pass identity must not be used as a cache-busting surrogate when stable spatial/query inputs prove equivalence.
 
 See `docs/shadedoomvk/PF-015-SHADOW-VISIBILITY-CONTRACT.md` for the executable PF-015 selection/cache contract.
+
+## PF-017 integrated physical no-go — 2026-10-03
+
+PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).

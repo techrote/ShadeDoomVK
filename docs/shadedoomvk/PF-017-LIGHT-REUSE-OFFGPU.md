@@ -1,6 +1,6 @@
 # PF-017 light reuse off-GPU qualification — 2026-09-24
 
-Status: **OFF-GPU GATE COMPLETE; PHYSICAL ACCEPTANCE PENDING.** PF-017 / #34 is not accepted, PR #74 remains draft/unmerged, and PF-019 / #36 remains blocked.
+Status: **HISTORICAL OFF-GPU QUALIFICATION; CANDIDATE REJECTED/RESTORED.** The final integrated physical campaign establishes a light-path no-go. See [final disposition](PF-017-FINAL-ACCEPTANCE.md); this file preserves the earlier candidate evidence and limitations.
 
 2026-10-03 integration: PR #74 is reconciled onto repaired `master@2399d9455772c570e597a5960c626f3bf771baeb` before any new physical test. The old frozen head below is historical evidence only. Semantic review of the three overlapping paths preserves all intervening CFX evidence and renderer fixes, including CFX-009 neutral removed-slot descriptor publication and normal resource retirement. Current integration/physical evidence is recorded in `PF-017-FINAL-ACCEPTANCE.md`.
 

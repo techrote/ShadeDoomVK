@@ -1,0 +1,104 @@
+diff --git a/src/common/rendering/hwrenderer/data/hw_dynlightdata.h b/src/common/rendering/hwrenderer/data/hw_dynlightdata.h
+index 62a3ffca0..e58476688 100644
+--- a/src/common/rendering/hwrenderer/data/hw_dynlightdata.h
++++ b/src/common/rendering/hwrenderer/data/hw_dynlightdata.h
+@@ -24,6 +24,7 @@
+ #define __GLC_DYNLIGHT_H
+ 
+ #include "tarray.h"
++#include "hw_pf17acceptance.h"
+ #include "vectors.h"
+ #include <cstdint>
+ 
+@@ -72,6 +73,7 @@ enum FDynLightDataArrays
+ struct FDynLightData
+ {
+ 	TArray<FDynLightInfo> arrays[3];
++	std::vector<PF17Acceptance::Identity> identities[3];
+ 
+ 	void Clear()
+ 	{
+diff --git a/src/common/rendering/vulkan/vk_renderstate.cpp b/src/common/rendering/vulkan/vk_renderstate.cpp
+index 6c7ae7308..9f93ae311 100644
+--- a/src/common/rendering/vulkan/vk_renderstate.cpp
++++ b/src/common/rendering/vulkan/vk_renderstate.cpp
+@@ -659,6 +659,10 @@ int VkRenderState::UploadLights(const FDynLightData& data)
+ 		int parmcnt[] = { dataindex, dataindex + size0, dataindex + size0 + size1, dataindex + size0 + size1 + size2 };
+ 
+ 		int* indexptr = ((int*)mRSBuffers->Lightbuffer.Data) + (indexindex * 4);
++		PF17Acceptance::Write(16);
++		PF17Acceptance::Write(size0 * 80);
++		PF17Acceptance::Write(size1 * 80);
++		PF17Acceptance::Write(size2 * 80);
+ 		memcpy(indexptr, parmcnt, sizeof(int) * 4);
+ 
+ 		FDynLightInfo* dataptr = ((FDynLightInfo*)(((int*)mRSBuffers->Lightbuffer.Data) + (mRSBuffers->Lightbuffer.Count * 4))) + dataindex;
+@@ -666,6 +670,7 @@ int VkRenderState::UploadLights(const FDynLightData& data)
+ 		memcpy(dataptr + size0, &data.arrays[1][0], size1 * sizeof(FDynLightInfo));
+ 		memcpy(dataptr + (size0 + size1), &data.arrays[2][0], size2 * sizeof(FDynLightInfo));
+ 
++		PF17Acceptance::Consumer(data, mRSBuffers->Lightbuffer, indexindex, dataindex);
+ 		return indexindex;
+ 	}
+ 	else
+@@ -792,6 +797,7 @@ void VkRenderState::ResetVertices()
+ 
+ void VkRenderState::BeginFrame()
+ {
++	PF17Acceptance::Frame(mRSBuffers->Lightbuffer, level.maptime);
+ 	mMaterial.Reset();
+ 	mApplyCount = 0;
+ 
+diff --git a/src/d_main.cpp b/src/d_main.cpp
+index 0c863b49d..5e5318d87 100644
+--- a/src/d_main.cpp
++++ b/src/d_main.cpp
+@@ -1040,7 +1040,7 @@ void D_Display ()
+ 			screen->BeginFrame();
+ 
+ 			viewsec = RenderView(&players[consoleplayer]);
+-		}, true);
++		}, false);
+ 
+ 		twod->Begin(screen->GetWidth(), screen->GetHeight());
+ 		if (!hud_toggled)
+diff --git a/src/playsim/a_dynlight.cpp b/src/playsim/a_dynlight.cpp
+index 738e5b101..9a6271e45 100644
+--- a/src/playsim/a_dynlight.cpp
++++ b/src/playsim/a_dynlight.cpp
+@@ -62,6 +62,7 @@
+ #include "serializer.h"
+ #include "g_levellocals.h"
+ #include "a_dynlight.h"
++#include "hw_pf17acceptance.h"
+ #include "actorinlines.h"
+ #include "memarena.h"
+ 
+@@ -107,6 +108,7 @@ static FDynamicLight *GetLight(FLevelLocals *Level)
+ 	}
+ 	else ret = (FDynamicLight*)DynLightArena.Alloc(sizeof(FDynamicLight));
+ 	memset(ret, 0, sizeof(*ret));
++	PF17Acceptance::Born(ret);
+ 	ret->m_cycler.m_increment = true;
+ 	ret->next = Level->lights;
+ 	Level->lights = ret;
+diff --git a/src/rendering/hwrenderer/hw_dynlightdata.cpp b/src/rendering/hwrenderer/hw_dynlightdata.cpp
+index 782e9ca9d..5e91657ed 100644
+--- a/src/rendering/hwrenderer/hw_dynlightdata.cpp
++++ b/src/rendering/hwrenderer/hw_dynlightdata.cpp
+@@ -166,6 +166,8 @@ void AddLightToList(FDynLightData &dld, int group, FDynamicLight * light, bool f
+ 
+ 	info.strength = light->GetStrength();
+ 
++	PF17Acceptance::Pack(false, false, false, false);
++	dld.identities[i].push_back(PF17Acceptance::Source(light, light->target ? light->target->tid : 0, light->Sector ? light->Sector->PortalGroup : -1, group, (forceAttenuate ? 1 : 0) | (doTrace ? 2 : 0)));
+ 	dld.arrays[i].Push(info);
+ }
+ 
+@@ -186,5 +188,6 @@ void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVec
+ 	info.flags = LIGHTINFO_ATTENUATED | (doTrace ? (LIGHTINFO_TRACE | LIGHTINFO_SUN) : 0);
+ 	info.strength = HWLightCompat::SunProxyStrength;
+ 
++	dld.identities[LIGHTARRAY_NORMAL].push_back({});
+ 	dld.arrays[LIGHTARRAY_NORMAL].Push(info);
+ }

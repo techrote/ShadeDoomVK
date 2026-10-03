@@ -1,0 +1,25 @@
+{
+  "method": "Second CPU-only audit independent of analyze.py: raw samples, direct RGB byte equality, all indexed artifacts and health receipts, chronological non-overlap, exact source diff and immutable guards.",
+  "production_runs": 10,
+  "serial": true,
+  "full_rgb_exact_pairs": 5,
+  "medians": {
+    "baseline": {
+      "sprite_setup_ms": 3.697,
+      "all_ms": 17.924500000000002
+    },
+    "candidate": {
+      "sprite_setup_ms": 4.096,
+      "all_ms": 18.359
+    }
+  },
+  "immutable_stop_guards": 22,
+  "restored_source_diff_empty": [
+    "src",
+    "libraries",
+    "wadsrc",
+    "tools/pf_oracle/tests",
+    ".github"
+  ],
+  "restored_deterministic_oracle_exact": true
+}

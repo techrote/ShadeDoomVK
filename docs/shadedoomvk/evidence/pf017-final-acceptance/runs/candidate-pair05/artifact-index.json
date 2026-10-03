@@ -1,0 +1,16 @@
+{
+  "capture.cfg": "11b513ee27d4a6bd560ee67f78bd02cf1d15529cace55582a8a424f2eef15509",
+  "config-before.ini": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb",
+  "config.ini": "824794c5bb6a2b3a8d36c420a390a345fdd1e39cc004a9126250df0a18515593",
+  "health-after.json": "54ae90351e05de9837390ea630720fe4786ca0a4f37d9267c06b65e989beea63",
+  "health-before.json": "d718b0b61c81ea1fb40ea1de5b5be5791015e7753bee9e88dbecf3c3a6ffd935",
+  "pipelinecache.zdpc-after": "0eca9dc6a59ff04ea2d60c2c63ccd4971c7d63bd3298c622162270e24988d6cc",
+  "preregister.json": "496ac0588117034a073f9c27bd12af48a6337ed4f27dcb26edfb74f33d08d0bc",
+  "result.json": "42d938e09d5bf23e4d42ad831347cd20b2fd376ae08cf9fe90c9d53e5365ac43",
+  "samples.json": "fbb9f59df5c8e17cae73fdcf2aa27c3c72766d64b9c42154c5caaba90202cbc4",
+  "scene.png": "5591733b488b5a402feca7cbd48d8b7b79d649cd9b57499ebffc63cece265e32",
+  "shadercache.zdsc-after": "4e61d3509565f0968d665dd8418618873b8bc7b817e36b2f08db09de0b423782",
+  "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout.log": "9b1169289bd2c09d992983ae12a798d562e86ce3414ae05355c610857c6f5dfb",
+  "work\\benchmarks.txt": "c019e054a42f0c1172b54c2c24adcb5bff67a9ffdad9cf15785f237985cde267"
+}

@@ -1,0 +1,36 @@
+{
+  "vkdoom.pk3": {
+    "baseline_container_sha256": "7b81bdbbce65b3cd128c0e1f13aa879d6ba43915b765ae053ec8972d35a7dc78",
+    "candidate_container_sha256": "c4bce606ac7e8b7c1c9d58ba772999fe88cf66d913040b13df171c739cddf2b4",
+    "uncompressed_entries_exact": true,
+    "loaded_matched_container": "baseline"
+  },
+  "brightmaps.pk3": {
+    "baseline_container_sha256": "574b6b1e4c5cab81b1521c8eab914789c62ee45cb149555689c4cf231238cc3e",
+    "candidate_container_sha256": "915deeb01d397420f73b1776e400aaa1467261199b2dbe5115f21529d834c7cf",
+    "uncompressed_entries_exact": true,
+    "loaded_matched_container": "baseline"
+  },
+  "game_support.pk3": {
+    "baseline_container_sha256": "32e14d99786eb0d9d79c50c000d20b9299d63848a0337bb8296dce47fe3005de",
+    "candidate_container_sha256": "7faf914fda94256598608a39c2e35cf76706e6c5057728face3e8044f0d445de",
+    "uncompressed_entries_exact": true,
+    "loaded_matched_container": "baseline"
+  },
+  "game_widescreen_gfx.pk3": {
+    "baseline_container_sha256": "459c12ffc6581b025f8fc4c01e847f1f7619bd04acb632faaedb1d41122363a9",
+    "candidate_container_sha256": "05a13ed8e532b0656682f21327c9b8a26c4b4d7a915dabefbb3fae61c61355ab",
+    "uncompressed_entries_exact": true,
+    "loaded_matched_container": "baseline"
+  },
+  "lights.pk3": {
+    "baseline_container_sha256": "fee8a542f82c13c7ac88ea1d241032acc72c88e878233663fda4b79e4599e952",
+    "candidate_container_sha256": "8b482ed6d540dbad4601061f285a1c6f237197065ea5477092339e8da3414296",
+    "uncompressed_entries_exact": true,
+    "loaded_matched_container": "baseline"
+  },
+  "zmusic.dll": {
+    "canonical_dependency_sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a",
+    "baseline_sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+  }
+}

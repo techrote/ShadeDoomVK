@@ -1,0 +1,65 @@
+{
+  "schema": "pf017-final-opening-v1",
+  "opened_utc": "2026-10-03T02:59:24.830252+00:00",
+  "baseline_sha": "2399d9455772c570e597a5960c626f3bf771baeb",
+  "candidate_sha": "8a9a3dcb654fe197214040088e194981e6c02214",
+  "gpu": "GTX 1650 SUPER",
+  "configuration": "VS2022 x64 RelWithDebInfo; static CRT OFF",
+  "scope": "Independent PF-017 dense-light acceptance only; historical CFX and PWAD routes remain closed",
+  "pairs": [
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "candidate"
+    ],
+    [
+      "candidate",
+      "baseline"
+    ],
+    [
+      "baseline",
+      "candidate"
+    ]
+  ],
+  "warmups": [
+    "baseline",
+    "candidate"
+  ],
+  "sample_policy": "Four existing bench snapshots separated by 190 tics (>5 seconds) after 350-tic warmup, pause and 60-tic settle; first warm snapshot excluded",
+  "watchdog_seconds": 45,
+  "production_launch_ceiling": 12,
+  "no_gpu_retry": true,
+  "relevant_suite": 254,
+  "local_non_gpu_pass": true,
+  "material_frame_regression_threshold_percent": 2.0,
+  "setup_gate": "candidate median improves in all five paired distributions and pooled median; report individual samples and tails",
+  "equivalence_gate": "exact full RGB pixels, exact ordered source/class state and packed range/buffer checkpoints; no tolerance widening",
+  "prior_scope": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003-exclusive",
+  "prior_stop_sha256": "b22e97d27c6f3f2ec6ced3f149989e6ebca2c2572dd4ffc6e0b593913da7dddc",
+  "user_reauthorization": "Try again, I'm going to bed now so the computer is all yours.",
+  "host_startup_review": {
+    "earlier_outcome": "HOST_ABORT; Chrome retained foreground; no GPU loss or health anomaly",
+    "foreground_lock_timeout_ms": 2147483647,
+    "change": "One temporary AttachThreadInput association with the existing foreground thread around the same single SetForegroundWindow request, always detached in finally; no synthesized input, repeated focus request, setting change, or renderer/pause-policy change. Actual owned foreground/event/GUI proof remains mandatory.",
+    "documentation": [
+      "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow",
+      "https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-attachthreadinput"
+    ]
+  },
+  "measurement_review": {
+    "healthy_warmup_result_sha256": "cfeefee20e367a8361997d3ab7e1961ee49fb273c6633e8ed420299ea9800e77",
+    "cause": "CheckBench waits 5000 ms; each hidden-console bench resets waitstart. Rapid 14-tic requests coalesce.",
+    "source": "src/common/rendering/hwrenderer/data/hw_clock.cpp CheckBench and CCMD(bench)",
+    "change": "190-tic spacing, four warmed samples per run, vid_fps kept true through sampling and disabled before exact final image; same 45-second watchdog",
+    "script_wait_tics": 1212,
+    "script_seconds_at_35hz": 34.628571428571426,
+    "new_gpu_loss_or_health_failure": false
+  }
+}

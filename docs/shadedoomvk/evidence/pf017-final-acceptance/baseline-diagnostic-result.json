@@ -1,0 +1,78 @@
+{
+  "variant": "baseline-diag",
+  "label": "checkpoints",
+  "started_utc": "2026-10-03T03:24:48.150384+00:00",
+  "finished_utc": "2026-10-03T03:25:26.479225+00:00",
+  "exit_code": 0,
+  "watchdog_fired": false,
+  "stop_reason": "Unexpected diagnostic packing/buffer oracle failure",
+  "foreground": {
+    "schema": "cfx-010-foreground-v1",
+    "pid": 21696,
+    "requested": true,
+    "verified": true,
+    "focus_requests": 1,
+    "checks": 585,
+    "events": [
+      {
+        "ms": 1790997925209,
+        "delivered_ms": 1790997925225,
+        "kind": "native-foreground-change",
+        "native_event": 3,
+        "event_hwnd": "0x350a0e",
+        "alive": false,
+        "visible": false,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false
+      },
+      {
+        "ms": 1790997925225,
+        "alive": false,
+        "visible": false,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false,
+        "foreground_hwnd": "0x350a0e",
+        "window_pid": 0,
+        "kind": "window-ended"
+      }
+    ],
+    "omitted_events": 0,
+    "event_hooks_installed": true,
+    "hwnd": "0x4604c6",
+    "set_foreground_returned": true,
+    "readback_limit_ms": 250,
+    "readback_observations": [
+      {
+        "ms": 1790997888673,
+        "foreground_hwnd": "0x4604c6",
+        "foreground_pid": 21696,
+        "window_pid": 21696,
+        "alive": true,
+        "visible": true,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false
+      }
+    ],
+    "foreground_hwnd": "0x4604c6",
+    "foreground_pid": 21696,
+    "verified_at_ms": 1790997888673,
+    "exclusive_activation": {
+      "caller_thread": 13760,
+      "previous_foreground_hwnd": "0x4604c6",
+      "previous_foreground_pid": 21696,
+      "previous_foreground_thread": 23236,
+      "association_attempted": true,
+      "focus_requests": 1,
+      "association_detached": true,
+      "association_attached": true,
+      "set_foreground_returned": true
+    },
+    "event_hooks_removed": true,
+    "monitor_stopped": true
+  },
+  "cache_restored": true,
+  "pass": false
+}

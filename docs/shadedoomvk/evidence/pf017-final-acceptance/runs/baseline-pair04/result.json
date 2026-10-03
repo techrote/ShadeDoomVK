@@ -1,0 +1,67 @@
+{
+  "variant": "baseline",
+  "label": "pair04",
+  "started_utc": "2026-10-03T03:11:39.339365+00:00",
+  "finished_utc": "2026-10-03T03:12:17.553509+00:00",
+  "exit_code": 0,
+  "watchdog_fired": false,
+  "stop_reason": null,
+  "foreground": {
+    "schema": "cfx-010-foreground-v1",
+    "pid": 22800,
+    "requested": true,
+    "verified": true,
+    "focus_requests": 1,
+    "checks": 583,
+    "events": [
+      {
+        "ms": 1790997136290,
+        "delivered_ms": 1790997136321,
+        "kind": "native-foreground-change",
+        "native_event": 3,
+        "event_hwnd": "0x350a0e",
+        "alive": false,
+        "visible": false,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false
+      }
+    ],
+    "omitted_events": 0,
+    "event_hooks_installed": true,
+    "hwnd": "0x2c0c8e",
+    "set_foreground_returned": true,
+    "readback_limit_ms": 250,
+    "readback_observations": [
+      {
+        "ms": 1790997099837,
+        "foreground_hwnd": "0x2c0c8e",
+        "foreground_pid": 22800,
+        "window_pid": 22800,
+        "alive": true,
+        "visible": true,
+        "minimized": false,
+        "thread_info_ok": true,
+        "in_move_size": false
+      }
+    ],
+    "foreground_hwnd": "0x2c0c8e",
+    "foreground_pid": 22800,
+    "verified_at_ms": 1790997099837,
+    "exclusive_activation": {
+      "caller_thread": 24004,
+      "previous_foreground_hwnd": "0x2c0c8e",
+      "previous_foreground_pid": 22800,
+      "previous_foreground_thread": 8408,
+      "association_attempted": true,
+      "focus_requests": 1,
+      "association_detached": true,
+      "association_attached": true,
+      "set_foreground_returned": true
+    },
+    "event_hooks_removed": true,
+    "monitor_stopped": true
+  },
+  "cache_restored": true,
+  "pass": true
+}

@@ -1,0 +1,320 @@
+{
+  "tests": 254,
+  "failures": 0,
+  "errors": 0,
+  "skipped": [],
+  "compiler_adaptations": [
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/light_query_correctness_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp5a9wg2dy\\light-query-correctness-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/light_query_correctness_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp5a9wg2dy\\light-query-correctness-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp5a9wg2dy\\light-query-correctness-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/light_reuse_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmplfb9d8gh\\light-reuse-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/light_reuse_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmplfb9d8gh\\light-reuse-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmplfb9d8gh\\light-reuse-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpajbc3t36\\lighting-compat-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpajbc3t36\\lighting-compat-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpajbc3t36\\lighting-compat-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/material_correctness_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpx6im2872\\material-correctness-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/material_correctness_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpx6im2872\\material-correctness-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpx6im2872\\material-correctness-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/textures",
+        "tools/pf_oracle/tests/material_layer_semantics_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpocth03fo\\material-layer-semantics-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/textures",
+        "tools/pf_oracle/tests/material_layer_semantics_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpocth03fo\\material-layer-semantics-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpocth03fo\\material-layer-semantics-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering",
+        "tools/pf_oracle/tests/pipeline_key_contract_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp1jyk2dbo\\pipeline-key-contract-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering",
+        "tools/pf_oracle/tests/pipeline_key_contract_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp1jyk2dbo\\pipeline-key-contract-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp1jyk2dbo\\pipeline-key-contract-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/rendering/hwrenderer/scene",
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpwfqmkm3q\\render-context-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/rendering/hwrenderer/scene",
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpwfqmkm3q\\render-context-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpwfqmkm3q\\render-context-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/shadow_visibility_correctness_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpsilvcu4q\\shadow-visibility-correctness-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/shadow_visibility_correctness_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpsilvcu4q\\shadow-visibility-correctness-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpsilvcu4q\\shadow-visibility-correctness-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "tools/pf_oracle/tests/sprite_portal_correctness_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpc6ubhen9\\sprite-portal-correctness-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "tools/pf_oracle/tests/sprite_portal_correctness_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpc6ubhen9\\sprite-portal-correctness-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpc6ubhen9\\sprite-portal-correctness-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/rendering/hwrenderer/scene",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpzglkzdnk\\sprite-surface-policy-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/rendering/hwrenderer/scene",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpzglkzdnk\\sprite-surface-policy-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpzglkzdnk\\sprite-surface-policy-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/upload_staging_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp7sadjm26\\upload-staging-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Isrc/common/rendering/hwrenderer/data",
+        "tools/pf_oracle/tests/upload_staging_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp7sadjm26\\upload-staging-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmp7sadjm26\\upload-staging-fixture.obj"
+      ]
+    },
+    {
+      "original": [
+        "c++",
+        "-std=c++17",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-Ilibraries/ZVulkan/include",
+        "-Isrc/common/rendering",
+        "tools/pf_oracle/tests/vulkan_capabilities_fixture.cpp",
+        "-o",
+        "C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpif1j217_\\vulkan-capabilities-fixture"
+      ],
+      "msvc": [
+        "cl",
+        "/nologo",
+        "/std:c++17",
+        "/EHsc",
+        "/W4",
+        "/UNDEBUG",
+        "/fsanitize=address",
+        "/Ilibraries/ZVulkan/include",
+        "/Isrc/common/rendering",
+        "tools/pf_oracle/tests/vulkan_capabilities_fixture.cpp",
+        "/Fe:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpif1j217_\\vulkan-capabilities-fixture.exe",
+        "/Fo:C:\\ShadeDoomVK\\pf-local-evidence\\pf017-final-20261003\\test-temp\\tmpif1j217_\\vulkan-capabilities-fixture.obj"
+      ]
+    }
+  ]
+}
