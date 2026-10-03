@@ -1,0 +1,16 @@
+{
+  "all_10_raw_benchmark_files_match_sample_extraction": true,
+  "excluded_initial_snapshot_each_run": true,
+  "runs": [
+    "baseline-pair01",
+    "candidate-pair01",
+    "baseline-pair02",
+    "candidate-pair02",
+    "baseline-pair03",
+    "candidate-pair03",
+    "baseline-pair04",
+    "candidate-pair04",
+    "baseline-pair05",
+    "candidate-pair05"
+  ]
+}
