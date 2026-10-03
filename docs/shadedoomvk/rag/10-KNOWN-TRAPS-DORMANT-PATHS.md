@@ -26,9 +26,9 @@ Owner: PF-012.
 
 ## 4. Tiled-light path is dormant
 
-Z-min/max textures, light-tile buffer, descriptor/pipeline and compute shader infrastructure exist, but the LevelMesh fragment path disables `uLightIndex` and draw-info dispatch is disabled/commented.
+The LevelMesh fragment path disables `uLightIndex` and draw-info dispatch remains disabled/commented. PF-019 gates the corresponding producer resources behind `VkLightTilePolicy::Enabled`, which defaults false: no Z-min/max pyramid, dedicated tile/Z-min-max descriptor sets, dedicated shaders/pipelines or per-frame descriptor rewrites are created while dormant. One `LightTileBlock` storage buffer remains bound at the unchanged LevelMesh binding 4 so descriptor ABI stays valid.
 
-Do not claim clustered/tiled lighting is active. PF-019 may remove unnecessary active allocations when dormant; SDVK-009 may later research revival.
+The producer implementation is retained rather than deleted. Enabling the single policy seam restores full tile-grid sizing and all gated resource creation; SDVK-009 owns reactivation of the consumer and must validate that path before enabling it. Do not claim clustered/tiled lighting is active.
 
 ## 5. Bindless reuse exists but raw indices remain dangerous
 

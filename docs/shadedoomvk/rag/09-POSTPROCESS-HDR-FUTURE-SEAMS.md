@@ -105,7 +105,9 @@ Potentially useful for expensive shadow/volumetric effects, but must follow the 
 
 ## PF-019 dormant resource rule
 
-Z-min/max/light-tile render resources currently exist even though the scene tiled-light path is dormant. PF-019 may avoid allocating work proven unused in the active configuration, but only after PF-007 capability state and PF-006 pipeline identity make the active path explicit.
+The accepted scene tiled-light consumer remains dormant: draw-info dispatch is disabled and the LevelMesh fragment path forces `uLightIndex = -1`. PF-019 therefore centralizes ownership in `VkLightTilePolicy::Enabled`, currently false. The dormant configuration does not create the six-level Z-min/max images, dedicated Z-min/max/light-tile descriptor resources, dedicated shaders or dedicated pipelines, and it skips their per-frame descriptor rewrites. LevelMesh descriptor binding 4 is intentionally preserved with one valid light-tile block so shader/descriptor ABI does not change.
+
+Changing the central policy seam back to enabled restores the existing full tile-buffer sizing and preserved producer path; SDVK-009 owns any future activation/research and must revive/validate the consumer at the same time. Do not infer that tiled lighting became active merely because its source remains present.
 
 ## Swapchain postprocess clear synchronization
 
