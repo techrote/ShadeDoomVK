@@ -32,7 +32,7 @@ PF-006 replaces whole-object `memcmp`/padding identity for `VkPipelineKey`, `VkR
 
 `VkShaderKey::AsQWORD` remains the packed specialization-constant ABI used by the shaders; PF-006 does not reorder or reinterpret its meaningful bits. The generalized shader cache preserves the inherited narrower partition through explicit layout/effect/user-shader/vertex-format serialization rather than raw `Layout.AsDWORD` object representation.
 
-PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. PF-019 may optimize cache/worker overhead only after this semantic identity is frozen. See `PF-006-PIPELINE-KEY-CONTRACT.md`.
+PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. PF-019 audited the live topology after identity was frozen and retained the ordered maps: no representative engine workload demonstrated a benefit sufficient to justify a hash conversion. See `PF-006-PIPELINE-KEY-CONTRACT.md` and `PF-019-PERFORMANCE-REVIEW.md`.
 
 ## Pipeline compilation/caching
 
@@ -44,7 +44,7 @@ PF-007 records graphics-pipeline-library extension and enabled-feature state in 
 
 The on-disk `pipelinecache.zdpc` contains the Vulkan driver cache blob returned by `VulkanPipelineCache::GetCacheData()` and restored through `PipelineCacheBuilder::InitialData()`. Renderer C++ key objects are not serialized into that file, so PF-006 introduces no renderer-key disk-cache migration.
 
-PF-019 may optimize lookup/worker overhead only after key identity is frozen.
+PF-019 leaves generalized/specialized lookup topology and worker ordering unchanged. Its retained change gates only the source-proven dormant tiled-light producer; the ordinary pipeline cache/worker paths remain the PF-006 behavior.
 
 ## Descriptor sets
 
@@ -90,9 +90,9 @@ Vulkan scene resources include:
 - normal buffer;
 - fog buffer;
 - linear depth;
-- postprocess HDR pipeline images;
-- Z-min/max pyramid images;
-- light-tile storage buffer.
+- postprocess HDR pipeline images.
+
+The inherited Z-min/max pyramid and full screen-sized light-tile grid are now conditional PF-019 resources. `VkLightTilePolicy::Enabled` defaults false because the accepted renderer has no tiled-light consumer; in that state the Z-min/max images, dedicated descriptors/shaders/pipelines and their per-frame descriptor rewrites are absent. LevelMesh binding 4 remains unchanged and is backed by one valid `LightTileBlock` buffer. Enabling the single policy seam restores the inherited full-grid producer sizing/path for future SDVK-009 work.
 
 PF-007 records the intersection of sampled color/depth/stencil sample-count support and routes the existing `gl_multisample` request through `VulkanCapabilities::BestSceneSampleCount()`. The clamping and best-supported-count algorithm are unchanged.
 

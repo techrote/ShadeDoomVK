@@ -1,8 +1,9 @@
 # PF-019 performance and dormant-resource review
 
-Status: candidate evidence for PF-019 / #36  
+Status: **accepted evidence for PF-019 / #36**  
 Baseline: `master@844462c3a4ed5f7037ade1b49d1a28f578077213`  
-Implementation branch: `pf-019/dormant-resource-cleanup`
+Reviewed head: `e496977a47ebb7a4235dba28a7df11128780b0eb`  
+Implementation merge: `44864d9d27495d3992d3a7314f4cb7de6c029b7b`
 
 ## Decision summary
 
@@ -88,6 +89,13 @@ Deterministic verification:
 
 No physical GTX 1650 SUPER run is required for this candidate because no active rendering consumer or shader output changes. This does not reopen any CFX/PWAD saturation lane and makes no GPU frame-time claim.
 
-## Acceptance boundary
+## Acceptance receipt
 
-PF-019 is acceptable only after exact-head CI, PR review/merge and resulting `master` verification. If CI exposes an active dependency on any gated resource, the dormant proof is false and the gate must be revised or rejected rather than papered over.
+The acceptance boundary was satisfied:
+
+- PR #107 exact final head `e496977a47ebb7a4235dba28a7df11128780b0eb` passed all 8 required jobs in CI run `37108111799`;
+- the reviewed PR merged as `44864d9d27495d3992d3a7314f4cb7de6c029b7b`;
+- `master` was verified at that exact merge;
+- post-merge CI run `37108571879` passed all 8 required jobs on that exact merge.
+
+No CI/build result exposed an active dependency on the gated producer resources. The deterministic resource benefit and preserved one-block descriptor ABI are therefore the accepted PF-019 result. No GPU timing, VRAM-residency or whole-frame speedup is claimed.

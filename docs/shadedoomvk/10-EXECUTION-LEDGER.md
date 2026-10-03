@@ -301,16 +301,14 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 
 ## Current implementation gate
 
-### 2026-10-03 — PF-017 current-master integration before physical acceptance
+### 2026-10-03 — PF-019 accepted; PF-001..PF-019 chain complete
 
-- PR #74 original head `1e0fe5c8` is integrated with repaired master `2399d945`, preserving all 77 intervening commits and accepted CFX-009 neutral removed-slot publication/normal resource retirement. Semantic overlap review retains both PF and CFX evidence; renderer delta against master remains the PF-017 light candidate only.
-- Full off-GPU requalification and a separate finite dense-light physical campaign precede any acceptance. Old source/CI/physical measurements cannot establish final integrated acceptance. See [final acceptance record](PF-017-FINAL-ACCEPTANCE.md).
-- All historical STOP scopes remain sealed. #34 stays open and PF-019/#36 blocked until valid physical disposition, exact-head CI, merge and master verification.
-
-- **COMPLETED:** PF-001 / #18, PF-002 / #19, PF-003 / #20, PF-004 / #21, PF-005 / #22, PF-006 / #23, PF-007 / #24, PF-008 / #25, PF-009 / #26, PF-010 / #27, PF-011 / #28, PF-012 / #29, PF-013 / #30, PF-014 / #31, PF-015 / #32, PF-016 / #33, PF-018 / #35.
-- **FINAL NO-GO DISPOSITION:** PF-017 / #34 rejects/restores integrated light reuse after five physical pairs (+10.79% setup, +2.42% whole-frame); material indexes remain no-go. PR #74 requires exact-head CI/merge/master verification before completion. See PF-017-FINAL-ACCEPTANCE.md.
-- **PF-019 READINESS:** #36 becomes dependency-ready after PR #74 no-go is merged and master verified; no PF-019 implementation begins here. **BLOCKED:** PF-020 / #37 on all unfinished PF issues; SDVK-001 / #1 until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
-- No planning-level blocker remains.
+- PF-019 / #36 implementation/evidence head `e496977a47ebb7a4235dba28a7df11128780b0eb` passed all 8 required jobs in CI run `37108111799`, was reviewed and merged through PR #107 as `44864d9d27495d3992d3a7314f4cb7de6c029b7b`, and all 8 post-merge jobs passed on that exact merge in run `37108571879`.
+- Accepted PF-019 change: the source-proven dormant Z-min/max/light-tile producer is gated behind `VkLightTilePolicy::Enabled=false`; LevelMesh descriptor binding 4 remains valid through one 1,296-byte block. At the representative 1904x1001 extent this avoids 5,862,384 bytes of source-modelled payload before allocator overhead, plus five dormant shader compilations, four dormant pipeline creations, seven dormant descriptor-set allocations and nine per-frame descriptor writes. No GPU wall-time/VRAM-residency claim is made.
+- PF-006 ordered pipeline/shader cache maps, shader arithmetic and worker queue semantics remain unchanged because no representative evidence justified those candidates. No physical PF-019 launch occurred and all CFX/PWAD STOP scopes remained sealed.
+- **COMPLETED:** PF-001 / #18 through PF-019 / #36, including PF-017 / #34 as a measured no-go/restoration. The PF dependency chain required by PF-020 is complete.
+- **PF-020 / #37:** do not begin the freeze gate while CFX parent #75 remains open. The latest accepted CFX-009/010 evidence leaves #75 requiring comprehensive incident-family synthesis/contract freeze; that is the only concrete blocker recorded at this checkpoint outside PF-020's own synthesis work.
+- **SDVK-001 / #1 remains blocked** until PF-020 is accepted, merged, verified on `master` and explicitly records `SDVK-001: UNBLOCKED`.
 
 ## Future implementation ledger rule
 
