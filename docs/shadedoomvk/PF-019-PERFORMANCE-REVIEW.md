@@ -1,6 +1,6 @@
 # PF-019 performance and dormant-resource review
 
-Status: candidate evidence for PF-019 / #36  
+Status: **accepted evidence for PF-019 / #36**  
 Baseline: `master@844462c3a4ed5f7037ade1b49d1a28f578077213`  
 Implementation branch: `pf-019/dormant-resource-cleanup`
 
@@ -88,6 +88,13 @@ Deterministic verification:
 
 No physical GTX 1650 SUPER run is required for this candidate because no active rendering consumer or shader output changes. This does not reopen any CFX/PWAD saturation lane and makes no GPU frame-time claim.
 
-## Acceptance boundary
+## Final acceptance
 
-PF-019 is acceptable only after exact-head CI, PR review/merge and resulting `master` verification. If CI exposes an active dependency on any gated resource, the dormant proof is false and the gate must be revised or rejected rather than papered over.
+The acceptance gates are complete:
+
+- implementation/evidence head `e496977a47ebb7a4235dba28a7df11128780b0eb`: CI `37108111799`, 8/8;
+- PR #107 merge: `44864d9d27495d3992d3a7314f4cb7de6c029b7b`;
+- exact merge push CI: `37108571879`, 8/8;
+- later current `master@41daecc2a2cf62d674163a0bb3dc5481c8be37b1`: push CI `37109278147`, 8/8, with no intervening change to PF-019 implementation source paths.
+
+No active dependency on the gated resource surfaced. The measured allocation/work reduction is retained; speculative lookup, shader and worker changes remain rejected/omitted. No physical GPU timing claim is made.
