@@ -190,8 +190,13 @@ class IndexedRestartRunnerTests(unittest.TestCase):
         self.assertIn("restart++;", main)
         self.assertIn("static bool first = true;", renderer)
         self.assertIn('Printf("Vulkan device: ', renderer)
-        self.assertIn('Args->TakeValue("+exec");', seam)
-        self.assertIn('Args->TakeValue("+map");', seam)
+        for option in ("-iwad", "-file", "+exec", "+map"):
+            self.assertIn(f'values.TakeValue("{option}")', seam)
+        before = seam[seam.index("CCMD(pf_indexedmaterial_restart_before)"):seam.index("CCMD(pf_indexedmaterial_restart_after)")]
+        sequence = ("TakeRestartPairs(remaining, arguments);", "run.Execute(true);", "RequireSameRestartArgv(original, *Args);",
+                    "TakeRestartPairs(*Args, arguments);", "RequireSameRestartArgv(remaining, *Args);",
+                    'WriteRestartReceipt(prefix, "before", true', "RestartState.phase = RestartPhase::Armed;", "AddCommandString(command.c_str());")
+        self.assertEqual([before.index(marker) for marker in sequence], sorted(before.index(marker) for marker in sequence))
         self.assertIn('"debug_restart -iwad "', seam)
         self.assertIn("oldTokensCheckedBeforeProducer", seam)
 

@@ -32,6 +32,70 @@ def body(source, marker):
     raise AssertionError(f"Unclosed source body: {marker}")
 
 
+def take_pair(values, flag):
+    """Bounded Python projection of TakeValue, not native FArgs execution."""
+    if flag not in values[1:]:
+        return ""
+    index = values.index(flag, 1)
+    if index < len(values) - 1 and not values[index + 1].startswith(("+", "-")):
+        value = values[index + 1]
+        del values[index:index + 2]
+        return value
+    del values[index]
+    return ""
+
+
+def collect_option_block(values, flag):
+    """CollectFiles steps 2/3 for these no-bare-prefix, single-file inputs."""
+    values = list(values)
+    if len(values) > 1 and not values[1].startswith(("+", "-")):
+        raise AssertionError("The minimized source projection forbids bare prefixes")
+    work = []
+    index = 1
+    while flag in values[index:]:
+        index = values.index(flag, index)
+        del values[index]
+        while index < len(values) and not values[index].startswith(("+", "-")):
+            work.append(values.pop(index))
+    if work:
+        values.extend([flag, *work])
+    return values
+
+
+def inherited_remove(values, flag):
+    """Bounded Python projection of the actual RemoveArgs do/while loop."""
+    values = list(values)
+    if flag not in values[1:]:
+        return values
+    index = values.index(flag, 1)
+    if index < len(values) - 1:
+        while True:
+            values.pop(index)
+            if values[index].startswith(("+", "-")) or index >= len(values) - 1:
+                break
+    return values
+
+
+def launch_orderings():
+    options = ["-stdout", "-noautoload", "-noautoexec", "-nosound", "-nojoy"]
+    packages = ["-iwad", "C:/pinned/doom2.wad", "-file", "C:/pinned/pf110.pk3"]
+    retained = ["-config", "C:/out/fixture-live.ini", "-width", "640", "-height", "480"]
+    commands = ["+map", "PF110", "+exec", "C:/out/before/execute.cfg"]
+    return (["exe", *options, *packages, *retained, *commands],
+            ["exe", *packages, *options, *retained, *commands])
+
+
+def startup_arguments(values):
+    # D_DoomInit's actual call order. For these inputs only -file has a match;
+    # +exec is distinct from -exec. Startup consumes +map via TakeValue while
+    # -config/-width/-height use nonmutating CheckValue.
+    for flag in ("-deh", "-bex", "-exec", "-playdemo", "-file"):
+        values = collect_option_block(values, flag)
+    if take_pair(values, "+map") != "PF110":
+        raise AssertionError("Expected the actual startup +map consumption")
+    return values
+
+
 class IndexedRestartContract(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -131,41 +195,101 @@ class IndexedRestartContract(unittest.TestCase):
         self.assertIn('flag == "-iwad" || flag == "-file"', arguments)
         self.assertIn('"unknown or unpinned restart fixture option"', arguments)
         before = body(self.source, "CCMD(pf_indexedmaterial_restart_before)")
-        for option in ("+exec", "+map"):
-            self.assertIn(f'remaining.TakeValue("{option}")', before)
-            self.assertIn(f'Args->TakeValue("{option}");', before)
+        removal = body(self.source, "void TakeRestartPairs")
+        self.assertEqual(re.findall(r'values\.TakeValue\("([^"]+)"\)', removal), ["-iwad", "-file", "+exec", "+map"])
+        for field in ("iwad", "mod", "exec", "map"):
+            self.assertIn("== pinned." + field, removal)
+        self.assertIn('values.CheckParm("-iwad") == 0 && values.CheckParm("-file") == 0', removal)
+        self.assertIn("values.GetArg(i)[0] != '+'", removal)
         self.assertNotIn("Args->RemoveArgs(", before)
-        self.assertIn('dispatched.RemoveArgs("-iwad"); dispatched.RemoveArgs("-file");', before)
-        self.assertIn("dispatched.NumArgs() == desired.NumArgs()", before)
-        self.assertIn("std::strcmp(dispatched.GetArg(i), desired.GetArg(i)) == 0", before)
-        self.assertLess(before.index('dispatched.RemoveArgs("-iwad")'), before.index("run.Execute(true);"))
+        self.assertIn("const FArgs original(*Args);", before)
+        self.assertIn("FArgs remaining(original);", before)
+        self.assertLess(before.index("TakeRestartPairs(remaining, arguments);"), before.index("run.Execute(true);"))
+        self.assertLess(before.index("Require(nativePass, nativeError.c_str());"), before.index("RequireSameRestartArgv(original, *Args);"))
+        self.assertLess(before.index("RequireSameRestartArgv(original, *Args);"), before.index("TakeRestartPairs(*Args, arguments);"))
+        self.assertLess(before.index("TakeRestartPairs(*Args, arguments);"), before.index("RequireSameRestartArgv(remaining, *Args);"))
+        compare = body(self.source, "void RequireSameRestartArgv")
+        self.assertIn("actual.NumArgs() == expected.NumArgs()", compare)
+        self.assertIn("std::strcmp(actual.GetArg(i), expected.GetArg(i)) == 0", compare)
         argv = (ROOT / "src/common/utility/m_argv.cpp").read_text()
         take = body(argv, "FString FArgs::TakeValue")
+        self.assertIn("Argv[i+1][0] != '+' && Argv[i+1][0] != '-'", take)
         self.assertIn("Argv.Delete(i, 2);", take)
         self.assertIn("Argv.Delete(i);", take)
         self.assertIn("i < (int)Argv.Size() - 1", body(argv, "void FArgs::RemoveArgs"))
 
-    def test_terminal_package_orphan_is_rejected_by_exact_preflight(self):
-        # A minimized model of the source-linked RemoveArgs loop, not an
-        # execution of debug_restart or a claim about native/GPU behavior.
-        def inherited_remove(values, flag):
-            values = list(values)
-            index = values.index(flag)
-            if index > 0 and index < len(values) - 1:
-                while True:
-                    values.pop(index)
-                    if values[index].startswith(("+", "-")) or index >= len(values) - 1:
-                        break
-            return values
+    def test_terminal_package_orphan_is_the_original_negative(self):
         terminal = ["exe", "-stdout", "-file", "pinned.pk3"]
         self.assertEqual(inherited_remove(terminal, "-file"), ["exe", "-stdout", "pinned.pk3"])
         desired = ["exe", "-stdout"]
         self.assertNotEqual(inherited_remove(terminal, "-file"), desired)
         interior = ["exe", "-file", "pinned.pk3", "-stdout"]
         self.assertEqual(inherited_remove(interior, "-file"), desired)
-        before = body(self.source, "CCMD(pf_indexedmaterial_restart_before)")
-        self.assertIn('desired.TakeValue("-file")', before)
-        self.assertIn("inherited debug_restart would retain a terminal orphan package argument", before)
+        # TakeValue removes the exact terminal pair, without requiring a
+        # following flag or changing any otherwise retained option.
+        guarded = list(terminal)
+        self.assertEqual(take_pair(guarded, "-file"), "pinned.pk3")
+        self.assertEqual(guarded, desired)
+
+    def test_collectfiles_defeats_both_launch_orderings_before_inherited_restart(self):
+        main = (ROOT / "src/d_main.cpp").read_text()
+        initialize = body(main, "static void D_DoomInit()")
+        calls = re.findall(r'Args->CollectFiles\("([^"]+)",\s*("[^"]+"|NULL)\);', initialize)
+        self.assertEqual(calls, [("-deh", '".deh"'), ("-bex", '".bex"'), ("-exec", '".cfg"'), ("-playdemo", '".lmp"'), ("-file", "NULL")])
+        argv = (ROOT / "src/common/utility/m_argv.cpp").read_text()
+        collect = body(argv, "void FArgs::CollectFiles(const char *finalname, const char **param, const char *extension)")
+        self.assertIn("while ((i = CheckParm(param, i)) > 0)", collect)
+        self.assertIn("while (i < Argv.Size() && Argv[i][0] != '-' && Argv[i][0] != '+')", collect)
+        self.assertIn("work.Push(Argv[i]);", collect)
+        self.assertIn("Argv.Delete(i);", collect)
+        self.assertLess(collect.index("Argv.Push(finalname);"), collect.index("AppendArgs(work.Size(), &work[0]);"))
+        self.assertIn('FString mapvalue = Args->TakeValue("+map");', main)
+        for path, flags in (("src/gameconfigfile.cpp", ("-config",)), ("src/common/rendering/v_video.cpp", ("-width", "-height"))):
+            source = (ROOT / path).read_text()
+            for flag in flags:
+                self.assertRegex(source, r'Args->CheckValue\s*\("' + re.escape(flag) + r'"\)')
+                self.assertNotRegex(source, r'Args->TakeValue\s*\("' + re.escape(flag) + r'"\)')
+        restart_command = body(main, "UNSAFE_CCMD(debug_restart)")
+        self.assertIn('Args->RemoveArgs("-iwad");', restart_command)
+        self.assertIn('Args->RemoveArgs("-file");', restart_command)
+        self.assertIn("Args->AppendArg(argv[i]);", restart_command)
+        self.assertIn("wantToRestart = true;", restart_command)
+        for launch in launch_orderings():
+            with self.subTest(launch=launch):
+                startup = startup_arguments(launch)
+                self.assertEqual(startup[-2:], ["-file", "C:/pinned/pf110.pk3"])
+                old_before = list(startup)
+                self.assertEqual(take_pair(old_before, "+exec"), "C:/out/before/execute.cfg")
+                self.assertEqual(take_pair(old_before, "+map"), "")
+                old_restart = inherited_remove(inherited_remove(old_before, "-iwad"), "-file")
+                self.assertEqual(old_restart[-1], "C:/pinned/pf110.pk3")
+                self.assertNotIn("-file", old_restart)
+
+    def test_guarded_takevalue_pairs_preserve_options_after_collectfiles(self):
+        pairs = (("-iwad", "C:/pinned/doom2.wad"), ("-file", "C:/pinned/pf110.pk3"), ("+exec", "C:/out/before/execute.cfg"), ("+map", ""))
+        for launch in launch_orderings():
+            with self.subTest(launch=launch):
+                original = startup_arguments(launch)
+                preflight = list(original)
+                for flag, expected in pairs:
+                    self.assertEqual(take_pair(preflight, flag), expected)
+                self.assertEqual(original[-2:], ["-file", "C:/pinned/pf110.pk3"])
+                retained = ["exe", "-stdout", "-noautoload", "-noautoexec", "-nosound", "-nojoy", "-config", "C:/out/fixture-live.ini", "-width", "640", "-height", "480"]
+                self.assertEqual(preflight, retained)
+                committed = list(original)
+                for flag, expected in pairs:
+                    self.assertEqual(take_pair(committed, flag), expected)
+                self.assertEqual(committed, preflight)
+                # The real debug_restart removals now have no old package
+                # flags to find. It can append precisely the pinned new pairs.
+                dispatched = inherited_remove(inherited_remove(committed, "-iwad"), "-file")
+                self.assertEqual(dispatched, retained)
+                dispatched.extend(["-iwad", "C:/pinned/doom2.wad", "-file", "C:/pinned/pf110.pk3", "+exec", "C:/out/after/execute.cfg"])
+                for flag in ("-iwad", "-file", "+exec"):
+                    self.assertEqual(dispatched.count(flag), 1)
+                self.assertNotIn("C:/out/before/execute.cfg", dispatched)
+                self.assertNotIn("+map", dispatched)
+                self.assertEqual(dispatched[:len(retained)], retained)
 
     def test_before_atomic_restart_has_no_old_exec_or_clear_queue_hazard(self):
         scripts = body(self.source, "void GuardRestartScripts")
@@ -173,7 +297,8 @@ class IndexedRestartContract(unittest.TestCase):
         self.assertIn("before.size() >= 2", scripts)
         self.assertIn('"BEFORE contains an extra exec, restart or uncontrolled command"', scripts)
         before = body(self.source, "CCMD(pf_indexedmaterial_restart_before)")
-        self.assertLess(before.index('WriteRestartReceipt(prefix, "before", true'), before.index('Args->TakeValue("+exec");'))
+        self.assertLess(before.index("RequireSameRestartArgv(remaining, *Args);"), before.index('WriteRestartReceipt(prefix, "before", true'))
+        self.assertLess(before.index('WriteRestartReceipt(prefix, "before", true'), before.index("RestartState.phase = RestartPhase::Armed;"))
         self.assertLess(before.index("RestartPhase::Armed"), before.index("AddCommandString(command.c_str());"))
         self.assertIn('"debug_restart -iwad " + RestartQuoted(arguments.iwad)', before)
         self.assertIn('" -file " + RestartQuoted(arguments.mod)', before)
@@ -206,7 +331,7 @@ class IndexedRestartContract(unittest.TestCase):
         self.assertIn("FreshRestartPrefix(prefix);", before)
         self.assertIn("FreshRestartPrefix(afterPrefix);", before)
         self.assertLess(before.index("FreshRestartPrefix(afterPrefix);"), before.index("run.Execute(true);"))
-        self.assertLess(before.index("FreshRestartPrefix(afterPrefix);"), before.index('Args->TakeValue("+exec");'))
+        self.assertLess(before.index("FreshRestartPrefix(afterPrefix);"), before.index("TakeRestartPairs(*Args, arguments);"))
         fresh = body(self.source, "void FreshRestartPrefix")
         self.assertIn("DirExists(", fresh)
         for suffix in (".json", ".restart-before.json", ".restart-after.json"):

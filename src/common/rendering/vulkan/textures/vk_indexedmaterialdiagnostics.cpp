@@ -1064,6 +1064,23 @@ RestartArguments ReadRestartArguments()
 	return result;
 }
 
+void TakeRestartPairs(FArgs& values, const RestartArguments& pinned)
+{
+	Require(RestartPath(values.TakeValue("-iwad").GetChars()) == pinned.iwad, "original -iwad pair did not remove exactly");
+	Require(RestartPath(values.TakeValue("-file").GetChars()) == pinned.mod, "original -file pair did not remove exactly");
+	Require(RestartPath(values.TakeValue("+exec").GetChars()) == pinned.exec, "original +exec pair did not remove exactly");
+	Require(std::string(values.TakeValue("+map").GetChars()) == pinned.map, "original +map pair did not remove exactly");
+	Require(values.CheckParm("-iwad") == 0 && values.CheckParm("-file") == 0, "pinned package option remains across restart");
+	for (int i = 1; i < values.NumArgs(); i++) Require(values.GetArg(i)[0] != '+', "unexpected command remains across restart");
+}
+
+void RequireSameRestartArgv(const FArgs& expected, const FArgs& actual)
+{
+	Require(actual.NumArgs() == expected.NumArgs(), "restart fixture argv count changed outside the guarded pair removal");
+	for (int i = 0; i < expected.NumArgs(); i++)
+		Require(std::strcmp(actual.GetArg(i), expected.GetArg(i)) == 0, "restart fixture argv differs from the exact guarded copy");
+}
+
 void GuardRestartScripts(const RestartArguments& arguments, const std::string& beforePrefix, const std::string& afterPrefix, const std::string& afterExec)
 {
 	Require(arguments.exec != afterExec, "BEFORE and AFTER exec inputs must be independent");
@@ -1170,19 +1187,12 @@ CCMD(pf_indexedmaterial_restart_before)
 		FreshRestartPrefix(prefix);
 		FreshRestartPrefix(afterPrefix);
 		GuardRestartScripts(arguments, prefix, afterPrefix, afterExec);
-		// Preflight the exact public pair-removal semantics without mutating Args.
-		FArgs remaining(*Args);
-		Require(RestartPath(remaining.TakeValue("+exec").GetChars()) == arguments.exec, "original +exec pair did not remove exactly");
-		Require(std::string(remaining.TakeValue("+map").GetChars()) == arguments.map, "original +map pair did not remove exactly");
-		for (int i = 1; i < remaining.NumArgs(); i++) Require(remaining.GetArg(i)[0] != '+', "unexpected command remains across restart");
-		// Preflight the inherited debug_restart removal exactly. Its terminal
-		// RemoveArgs bug must fail BEFORE, never strand an orphan after restart.
-		FArgs dispatched(remaining), desired(remaining);
-		dispatched.RemoveArgs("-iwad"); dispatched.RemoveArgs("-file");
-		Require(RestartPath(desired.TakeValue("-iwad").GetChars()) == arguments.iwad && RestartPath(desired.TakeValue("-file").GetChars()) == arguments.mod,
-			"pinned package pairs did not remove exactly in restart preflight");
-		Require(dispatched.NumArgs() == desired.NumArgs(), "inherited debug_restart would retain a terminal orphan package argument");
-		for (int i = 0; i < desired.NumArgs(); i++) Require(std::strcmp(dispatched.GetArg(i), desired.GetArg(i)) == 0, "inherited debug_restart removal differs from the exact desired argv");
+		// D_DoomInit's CollectFiles appends -file last regardless of launch order.
+		// Preflight the terminal-safe public pair removal without mutating Args;
+		// the same helper later commits it before genuine debug_restart dispatch.
+		const FArgs original(*Args);
+		FArgs remaining(original);
+		TakeRestartPairs(remaining, arguments);
 		DiagnosticRun run{ fb, prefix, {}, {}, 0, "[]", "{\"required\":false,\"observed\":false}" };
 		nativeReceipt = run.prefix + ".json";
 		bool nativePass = false;
@@ -1208,12 +1218,16 @@ CCMD(pf_indexedmaterial_restart_before)
 		catch (const std::exception& e) { nativeError = e.what(); }
 		WriteNativeRestartReceipt(run, nativePass, nativeError);
 		Require(nativePass, nativeError.c_str());
+		RequireSameRestartArgv(original, *Args);
+		const auto command = "debug_restart -iwad " + RestartQuoted(arguments.iwad) + " -file " + RestartQuoted(arguments.mod) + " +exec " + RestartQuoted(afterExec);
+		// Commit only after the native proof succeeds and Args is still the exact
+		// preflight input. Preserve every other option; inherited RemoveArgs now
+		// finds no old package flags, then debug_restart appends the pinned pairs.
+		TakeRestartPairs(*Args, arguments);
+		RequireSameRestartArgv(remaining, *Args);
 		WriteRestartReceipt(prefix, "before", true, {}, live, nativeReceipt);
 		RestartState.phase = RestartPhase::Armed;
 		// Only this PASS path can invoke the real engine cleanup/reinitialization.
-		Args->TakeValue("+exec");
-		Args->TakeValue("+map");
-		const auto command = "debug_restart -iwad " + RestartQuoted(arguments.iwad) + " -file " + RestartQuoted(arguments.mod) + " +exec " + RestartQuoted(afterExec);
 		Printf("PF110_RESTART_BEFORE PASS counter=%d blocks=2; %s\n", restart, (prefix + ".restart-before.json").c_str());
 		AddCommandString(command.c_str());
 		return;

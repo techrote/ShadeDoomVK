@@ -5,7 +5,7 @@ Status: **TESTED BUT UNACCEPTED**; focused source candidate, not accepted `maste
 Issue: [#112](https://github.com/techrote/ShadeDoomVK/issues/112), required by PF-020/#37
 
 Accepted starting source: `4df7dea1338f063c6417e024f967bfa4aa23edd4`
-Evidence checkpoint: 2026-10-04; actual warm SWCanvas/native acceptance remains pending
+Evidence checkpoint: 2026-10-04; four real paletted SWCanvas packets now pass independent review. Release gates remain pending. Earlier preparation and partial observations below are retained as history; see the latest normal matrix result.
 
 ## Requirement and source-established defect
 
@@ -76,6 +76,33 @@ Complete the strict PF oracle/compiled fixtures and clean final native build, sc
 - `src/common/rendering/vulkan/textures/vk_hwtexture.cpp`: mapped producer, existing-image selection and four material publication sites.
 - `src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h/.cpp`: explicit layout/default and guarded descriptor declaration.
 - `src/rendering/swrenderer/r_swscene.cpp`: actual SWCanvas framebuffer and separately provisioned palette producers.
-- `src/common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp`: gated per-invocation native allocation observation; actual SWCanvas controls pending.
+- `src/common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp`: gated per-invocation native allocation and actual existing SWCanvas observations.
 - [PF-005 upload contract](PF-005-TEXTURE-UPLOAD-CONTRACT.md), [PF-008 material semantics](PF-008-MATERIAL-SEMANTICS-CONTRACT.md), [material RAG](rag/04-MATERIAL-SHADER-CONTRACT.md), [trap 27](rag/10-KNOWN-TRAPS-DORMANT-PATHS.md#27-mapped-software-framebuffer-declares-an-uploaded-image-layout).
 - [#110 candidate notes](PF-110-IMPLEMENTATION-NOTES.md) and [provisional freeze matrix](PF-FREEZE-EVIDENCE-MATRIX.md) retain their separate blockers and limitations.
+
+## Latest actual SWCanvas result — candidate4 normal matrix
+
+Four actual mode0 packets pass: nearest and linear under separately proved
+core and synchronization validation. Each packet observes two distinct existing
+rotating SWCanvas owners/materials at640x480 with two resources: host-written R8
+in tracked/declared GENERAL, and its existing palette in tracked/declared READ.
+Actual mapped-memory offset0 and row pitch640 agree with the producer. The
+observer does not manufacture an owner, create a replacement image/palette,
+write mapped bytes or copy the sampled-only framebuffer. Descriptor registry
+and selected keys remain unchanged. All four packets pass407 assertions/27
+cases,21 decoded presentation ROIs, actual overlay acknowledgement, normal
+exit and zero requested-validation errors/warnings. See [compact matrix](PF-110-NATIVE-MATRIX-VERIFICATION.json).
+
+Retirement is preserved by unchanged owner rotation/reset, destructor and
+normal fence paths, inherited extracted fixtures and clean actual process
+exits. The CPU reset service is stubbed: neither it nor these observations
+measures a direct post-retirement SWCanvas token query. The genuine restart
+uses separate indexed-material tokens and must not be relabelled as that
+measurement. Mapped memory contains CPU-written pixels, not GPU readback.
+
+Actual mode1 truecolour BGRA host-write/sample/presentation is unexecuted.
+Both formats have production-extracted layout tests and the retained private
+native allocation geometry check; only mode0 R8 has the real software frame
+proof above. No broader compatibility, performance or human acceptance is
+inferred. Required exact-head CI, independent review, verified merge/master
+and post-merge checks remain pending before #112 closure.

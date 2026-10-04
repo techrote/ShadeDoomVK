@@ -89,3 +89,17 @@ Historical private artifact references are kept as reproducibility paths, not fa
 Independent light read-only checks on2026-10-04 recompute PF017's retained20samples pervariant directly from the ten `runs/*-pair*/samples.json` files (one excluded warm snapshot/four retained perrun, fixed camera and832sprites): setup3.697→4.096ms(+10.792534%), All17.9245→18.359ms(+2.424056%). This corroborates the no-go; it adds no physical measurement. Read-only `git diff --name-only 2399d945..4df7dea -- src libraries wadsrc tools/pf_oracle/tests .github` identifies only the seven PF019 Vulkan source files, its fixture/tests and CFX final-synthesis consistency test; no retained PF017 renderer/shader/worker optimization is present.
 
 Local post-parser receipts supplied by the coordinator are `build/pf020-native/oracle-parser-repair-tests.log` (272tests30.333s/zeroerrors/skips), `gldefs-postrepair-regression.log` (two tests1.710s/current1119checks31expectederrors/original15checks) and `build-parser-repair.log` (fresh incremental native build PASS). The final freeze manifest owns exact source/toolchain/log identities. These local receipts do not accept the branch or close #110; no GPU process or physical CFX launch was used in this repair/review.
+
+## Current accepted partial repair and normal matrix checkpoint
+
+GLDEFS B1 is accepted through #114/PR115, merge `3f37b63a`, with all eight
+exact-head and all eight post-merge jobs passing and master verified. Historical
+B1 preparation rows below retain their original chronology. This does not
+accept the overall freeze or its independent material/probe gates.
+
+Candidate4 normal native validation passes all twelve mode/filter cases,
+including four actual mode0 SWCanvas packets. [Compact matrix proof](PF-110-NATIVE-MATRIX-VERIFICATION.json)
+records independent raw/presentation/source-closure review and explicit limits.
+[The first restart packet](PF-110-RESTART-RETAINED-ATTEMPTS.json) fails safely at
+the inherited terminal-file guard; no genuine restart is proved yet. #110/#112
+release gates and #113 remain open. PF-020 and SDVK-001 remain blocked.

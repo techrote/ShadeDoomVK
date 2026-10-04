@@ -1,11 +1,20 @@
 # PF-020 — PBR missing-probe fallback blocker
 
-Status: **OPEN — source-established release blocker; contribution decision unresolved**
+Status: **OPEN — source-established release blocker; implementation decision adopted, repair/proof pending**
 
 Authority: [#113](https://github.com/techrote/ShadeDoomVK/issues/113), required by [PF-020 / #37](https://github.com/techrote/ShadeDoomVK/issues/37)
 
 Accepted source inspected: `4df7dea1338f063c6417e024f967bfa4aa23edd4`
 Audit date: 2026-10-04
+
+## Current decision checkpoint
+
+[#113's delegated contribution decision](PF-113-MISSING-IBL-DECISION.md) is now
+recorded: zero IBL for missing token zero, with original mixed-tap weights and
+sum order retained. No renormalization or environment substitution is adopted.
+This does not accept a repair or the freeze. The original unresolved-decision
+audit below remains historical evidence; source-extracted negatives and current
+guards, native unavailable-to-published proof and release gates remain required.
 
 ## Finding and evidence boundary
 

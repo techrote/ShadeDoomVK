@@ -466,3 +466,21 @@ or increasing indexed tolerance. No earlier receipt was rewritten.
 The independent GLDEFS repair is isolated in[#114/PR115](https://github.com/techrote/ShadeDoomVK/pull/115);
 the blocked synthesis draft remains separate. #110/#112/#113 and PF-020/SDVK-001
 are unaccepted at this checkpoint. No GPU timing or human approval is claimed.
+
+## PF-020 independent GL acceptance and normal material matrix — 2026-10-04
+
+GLDEFS repair #114 is accepted and closed through PR115, merge
+`3f37b63a4fdfb4c95421db951cf81682b5eb92c9`, verified on remote master. All eight
+actual final-head jobs and all eight exact merge-SHA post-merge push jobs pass.
+The focused272-test strict native PF gate, protected fixtures, CFX8/8 and
+matching source oracles pass. This acceptance is independent of the freeze.
+
+The candidate4 normal material matrix passes all12 cases with4,828 raw
+assertions/316 cases,252 presentation ROIs and737,280 independently recomputed
+indexed pixels/zero mismatch. Four packets inspect actual existing paletted
+SWCanvas owners. See [matrix receipt](PF-110-NATIVE-MATRIX-VERIFICATION.json).
+The first guarded restart fails before the raw diagnostic/restart because of
+inherited terminal package removal; [its immutable packet](PF-110-RESTART-RETAINED-ATTEMPTS.json)
+is retained. A source-linked seam correction and fresh genuine proof follow.
+#110/#112 remain unaccepted pending release gates; #113, PF-020 and SDVK-001
+remain blocked. No performance, human approval or P400 qualification is added.

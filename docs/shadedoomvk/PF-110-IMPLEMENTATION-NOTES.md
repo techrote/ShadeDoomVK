@@ -1,6 +1,6 @@
 # #110 — indexed material candidate and acceptance plan
 
-Status: **source candidate / unaccepted**. This records the focused implementation, prepared route and explicitly bounded native partial evidence. Issue: [#110](https://github.com/techrote/ShadeDoomVK/issues/110). The source chain and ancestral defect are recorded in [the blocker notebook](PF-020-INDEXED-MATERIAL-BLOCKER.md). PF-020 and SDVK-001 remain blocked until the repaired path has complete production-linked state, image, lifetime and exact-head gate evidence.
+Status: **native normal matrix verified / unaccepted**. The twelve candidate4 normal packets pass independent review; genuine restart and release gates remain separate. Issue: [#110](https://github.com/techrote/ShadeDoomVK/issues/110). The source chain and ancestral defect are recorded in [the blocker notebook](PF-020-INDEXED-MATERIAL-BLOCKER.md). PF-020 and SDVK-001 remain blocked until their full acceptance gates pass. Earlier sections retain the preparation and historical evidence boundary; the current result follows below.
 
 The audit uses the focused ShadeDoomVK checkout based on `4df7dea1338f063c6417e024f967bfa4aa23edd4`. Numbered source references below identify the audited pre-#110 bodies; candidate code moves them. Current candidate entrypoints are identified by symbol. The separate GLDEFS parser repair is not acceptance evidence for #110.
 
@@ -136,3 +136,34 @@ global-linear interpolation; equality/pairing to discrete indexed output is a
 nearest-only check, while diversity/vertical/presence remain required. Indexed
 repeat/inverse/color/alpha gates remain strict at1 presented-RGB byte. All21
 decoded ROIs and the actual two-enabled-callback acknowledgement are mandatory.
+
+## Current normal native matrix — candidate4, 2026-10-04
+
+All twelve fixed mode/filter cases pass: mode4 hardware truecolour, mode2
+hardware palette and mode0 real paletted SWCanvas, each under global nearest0
+and linear2, with separate proved core and synchronization validation. Every
+process exits normally with zero requested-validation errors/warnings and
+unchanged source/build/input closure. Hardware packets contain400 assertions
+across26 cases; software packets contain407 across27. Total:4,828 assertions
+across316 cases. All252 presentation ROIs and actual overlay acknowledgements
+pass; the independent audit recomputes737,280 indexed pixels with zero mismatch.
+See [compact matrix verification](PF-110-NATIVE-MATRIX-VERIFICATION.json).
+
+The inverse reference's presented indexed difference is0 in all twelve packets.
+Ordinary linear controls retain actual configured filtering; their comparison
+with discrete indexed output is observational. No tolerance was broadened.
+
+The first genuine-restart attempt fails safely before its raw diagnostic or
+restart: startup's `CollectFiles("-file", nullptr)` moves the package pair to the
+end, and inherited `RemoveArgs` leaves the terminal filename behind. The exact
+preflight rejects that state. Engine exit0, one archive startup and no BEFORE
+raw output do not constitute restart acceptance. The packet is retained in
+[the restart attempts receipt](PF-110-RESTART-RETAINED-ATTEMPTS.json). A narrow
+source-linked diagnostic seam repair must use exact `TakeValue` pair removal
+before dispatching the existing `debug_restart`; fresh build/core/sync restart
+proof is required. No original packet is overwritten.
+
+These are bounded correctness results, not GPU timing, global frame budget,
+human approval, historical CFX/PF-017 requalification or repaired P400 evidence.
+Independent focused release CI, merge/master and post-merge checks are pending;
+PF-020 remains blocked separately by #113.
