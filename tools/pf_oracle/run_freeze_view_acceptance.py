@@ -667,8 +667,10 @@ def main_presentation_evidence(data, out, variant):
 def cache_evidence(data, child, cache_before):
     out, cache = Path(child["directory"]), Path(child["cache"])
     path = out / "native.cache-events.jsonl"
-    require(data.get("cacheShutdownEvents") == str(path) and path.stat().st_size <= 2 * 1024 * 1024, "Cache event path/bound differs")
-    rows = [json.loads(line, object_pairs_hook=base.no_duplicates) for line in path.read_text().splitlines()]
+    # The launch prefix uses forward slashes; compare the exact private Path,
+    # not Windows separator spelling. Preserve the same artifact/link/bound gate.
+    raw, event_pin = artifact(data.get("cacheShutdownEvents", ""), path, 2 * 1024 * 1024)
+    rows = [json.loads(line, object_pairs_hook=base.no_duplicates) for line in raw.decode("utf-8").splitlines()]
     require(0 < len(rows) <= 64 and [r.get("sequence") for r in rows] == list(range(1, len(rows) + 1)), "Cache event order incomplete")
     require(rows[:len(data.get("cacheEventsAtDump", []))] == data.get("cacheEventsAtDump"), "Dump/normal-exit cache observations differ")
     after = cache_inventory(cache)
@@ -686,7 +688,7 @@ def cache_evidence(data, child, cache_before):
             require(events[1].get("count", 0) > 0, "Warm cache lacked actual loaded entries/initial data")
     if child["cacheState"] == "warm":
         require(any(r["observation"].get("kind") == "shader-binary-cache" and r["observation"].get("hit") is True for r in data.get("keyLookups", [])), "Warm real shader cache did not supply a binary hit")
-    return {"before": cache_before, "after": after, "events": rows, "actualWarmLoad": child["cacheState"] == "warm"}
+    return {"before": cache_before, "after": after, "eventArtifact": event_pin, "events": rows, "actualWarmLoad": child["cacheState"] == "warm"}
 
 
 def unarchived_settings():

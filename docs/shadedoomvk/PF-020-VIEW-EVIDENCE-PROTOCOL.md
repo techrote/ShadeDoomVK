@@ -189,6 +189,17 @@ discarding an outlier or relabeling a missing capture. Intended structural conte
 IDs and legacy unavailable metadata must be explicitly mapped to the same actual
 semantic view. This packet measures correctness/equivalence, not GPU performance.
 
+Core attempt03 uses clean tool4997491 and both repaired0791911 builds04.
+The first child passes strict scene/key/private-image/main RGB validation and
+reports zero core validation findings, then fails cache-event path comparison:
+the observer retains the forward-slash launch prefix while Windows `str(Path)`
+uses backslashes. Its normal-exit event file exists with six ordered load/save
+records. The packet remains failed and unchanged, with no later child launched.
+The corrected tool uses the same exact-private-path, no-link, positive-size and
+byte-bound artifact guard as sampled images, and pins the event file. Cache
+lifecycle, independent file hashes, actual warm loads/hits and all prior source,
+device/state/image gates remain mandatory. Retry only in a new registered packet.
+
 ## Current verification boundary
 
 CPU source-derivation, fixture-authoring and actual production observer-TU guard

@@ -328,6 +328,56 @@ class ViewAcceptanceControls(unittest.TestCase):
             (path/"shared-cache.bin").write_bytes(b"wrong")
             with self.assertRaisesRegex(ValueError, "Only the two"): runner.cache_inventory(path)
 
+    def test_source_style_event_path_requires_exact_private_cache_lifecycle_and_hashes(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(runner, "ROOT", Path(temporary)):
+            root = Path(temporary)
+            out = root/"build/child"; out.mkdir(parents=True)
+            cache = root/"build/cache"; cache.mkdir()
+            for leaf in runner.CACHE_FILES: (cache/leaf).write_bytes(leaf.encode())
+            after = runner.cache_inventory(cache)
+            event_path = out/"native.cache-events.jsonl"
+            for thermal in ("cold", "warm"):
+                expected = {} if thermal == "cold" else after
+                rows = []
+                for kind, leaf, loaded in (("shader", runner.CACHE_FILES[0], "after-load-return"),
+                                           ("pipeline", runner.CACHE_FILES[1], "after-create")):
+                    initial = {"exists": False, "bytes": 0, "sha1": None} if thermal == "cold" else {
+                        "exists": True, "bytes": after[leaf]["bytes"], "sha1": after[leaf]["sha1"]}
+                    meaning = "in-memory-compiled-shader-entries" if kind == "shader" else "driver-initial-data-bytes"
+                    for stage, completed in (("before-load", False), (loaded, True), ("after-save-close", True)):
+                        file = {"exists": True, "bytes": after[leaf]["bytes"], "sha1": after[leaf]["sha1"]} if stage == "after-save-close" else initial
+                        rows.append({"cache": kind, "stage": stage, "operationCompleted": completed,
+                                     "count": int(thermal == "warm"), "countMeaning": meaning,
+                                     "path": str(cache/leaf), "file": file})
+                rows = [rows[i] for i in (0, 1, 3, 4, 5, 2)]  # Actual normal-exit ordering.
+                for sequence, row in enumerate(rows, 1): row["sequence"] = sequence
+                data = key_packet()
+                # The actual C++ prefix retains this spelling even on Windows.
+                data.update(cacheShutdownEvents=event_path.as_posix(), cacheEventsAtDump=copy.deepcopy(rows[:4]))
+                child = {"directory": str(out), "cache": str(cache), "cacheState": thermal}
+                def write(events): event_path.write_text("".join(json.dumps(row)+"\n" for row in events), encoding="utf-8")
+                write(rows)
+                result = runner.cache_evidence(data, child, expected)
+                self.assertEqual(result["actualWarmLoad"], thermal == "warm")
+                self.assertEqual(result["eventArtifact"]["sha256"], hashlib.sha256(event_path.read_bytes()).hexdigest())
+                escaped = copy.deepcopy(data); escaped["cacheShutdownEvents"] = str(cache/event_path.name)
+                with self.assertRaisesRegex(ValueError, "exact private output"):
+                    runner.cache_evidence(escaped, child, expected)
+                corrupted = copy.deepcopy(rows); corrupted[0]["sequence"] = 99; write(corrupted)
+                with self.assertRaisesRegex(ValueError, "order incomplete"):
+                    runner.cache_evidence(data, child, expected)
+                corrupted = copy.deepcopy(rows); corrupted[-1]["operationCompleted"] = False; write(corrupted)
+                with self.assertRaisesRegex(ValueError, "operation incomplete"):
+                    runner.cache_evidence(data, child, expected)
+                corrupted = copy.deepcopy(rows); corrupted[-1]["file"]["sha1"] = "0"*40; write(corrupted)
+                with self.assertRaisesRegex(ValueError, "post-exit hash"):
+                    runner.cache_evidence(data, child, expected)
+                write(rows)
+                if thermal == "warm":
+                    data["keyLookups"][-1]["observation"]["hit"] = False
+                    with self.assertRaisesRegex(ValueError, "binary hit"):
+                        runner.cache_evidence(data, child, expected)
+
     def image_service(self, out, variant="current"):
         data = key_packet(variant); data["images"] = []
         for number, semantic in enumerate([f"probe-face-{i}" for i in range(6)] + ["camera-PFVCAM-demanded"]):

@@ -108,6 +108,15 @@ A later tool guard additionally compares complete actual production binary-key
 sets including null-scene/worker records. Its qualification remains separate;
 no actual paired core/synchronization or generalized acceptance is inferred.
 
+Tool4997491 passes clean PF613/613, CFX8/8, four standalone fixtures and
+identical oracles in checks10. Core packet03's first repaired GTX child exits0
+and passes strict scene/key/camera/probe/main RGB gates, with zero core errors/
+warnings. It remains failed at a cache-event forward/backslash string comparison;
+the six actual normal-exit load/save records are retained unchanged. Exact
+private Path/artifact validation replaces separator-sensitive string comparison,
+with lifecycle/hash/warm-hit gates preserved. No later child or paired/sync/
+generalized acceptance is claimed; a fresh packet must qualify the tool repair.
+
 The explicitly requested [targeted Dense recheck](PF-020-DENSE-TARGETED-RECHECK.json)
 retains both members of original pairs3/4/5, selected before rerun because each
 had a scored sprite Setup snapshot at least5.0ms. Two unscored warmups and six

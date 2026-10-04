@@ -611,3 +611,12 @@ compares nonempty full production shader-binary key sets including all actual
 null-scene/worker lookups, independently of access counts and hit outcomes.
 This supplements native semantic shader/pipeline partitions. Fresh paired
 core/synchronization and supported generalized proof remain pending.
+
+Clean tool4997491 passes PF613/613, CFX8/8, four standalone fixtures and
+identical oracles. Core packet03 reaches strict scene/key/image acceptance for
+its first unelevated GTX child, with zero core validation errors/warnings and
+normal exit, but rejects the event file's forward-slash prefix versus Windows
+Path string spelling. All six actual load/save records and failed outputs stay
+unchanged; no later child launches. The tool now uses exact private artifact
+Path/link/size validation and event-file identity, preserving cache lifecycle,
+hashes and positive warm evidence. New native qualification remains required.
