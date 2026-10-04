@@ -66,22 +66,25 @@ No accepted performance result authorizes fewer eligible lights, approximate sel
 | B1 | GLDEFS authored-slot sampling isolation | **ACCEPTED** #114/PR #115 at `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`. [Historical compiled verification](PF-GLDEFS-SAMPLING-VERIFICATION.json) preserves original/current producer negatives; [final release acceptance](https://github.com/techrote/ShadeDoomVK/issues/114#issuecomment-5977683648) records eight exact-head/post-merge jobs and independent review. |
 | B6/B7 | Public indexed palette provisioning and mapped software layout | **ACCEPTED** #110/#112 / PR #116 at `1524686e77f1e89dabfb044bf757a2d19566c31c`.12 normal and2 genuine restart processes,294 ROIs and983,040 independently recomputed indexed pixels/zero mismatches; both release check sets pass. [Receipt](PF-110-RELEASE-ACCEPTANCE.json). Mode1 BGRA and direct SW post-retirement token measurements remain unclaimed. |
 | B8 | Missing PBR pair/typed consumer | **ACCEPTED** #113/PR #117 at current master7d29; adopted policy, exact off-GPU original negatives, two core/sync processes, actual three publication-window draws and12 private controls each; strict corpus/build/source closure, independent reviews and both eight-job check sets pass. [Receipt](PF-113-RELEASE-ACCEPTANCE.json). Immediate-specialized scope only; no unsafe original GPU, LevelMesh/uber parity, whole-frame/P400/GPUAV/full-bake claim. |
-| B2 | Clean complete final-source corpus/build | Source-equivalent204c runs strict PF440/440; clean6af00e847 runs PF478/478. Notification-repair head `ef79361822199112ee2179414ce21b812178bca7` runs strict PF480/480, four standalone stress fixtures, CFX8/8 and identical oracles, with clean unchanged Git status. Candidate2's build bridges all2,535 engine inputs. [Current CPU/runtime identities](PF-020-DENSE-MEASUREMENT.json). Final integration/source check remains required after any further program/tool changes. |
+| B2 | Clean complete final-source corpus/build | Clean unchanged tool `df667e20573cf016c404d2204c09e00f992aac72` passes checks15: PF644/644, CFX8/8, four compiled contracts and identical oracles; all eight exact-head hosted jobs pass. Runtime569 separately passes PF618/618 and all eight jobs. Both qualified source-derived builds07 pass. [Exact native/check pins](PF-020-VIEW-MEASUREMENT.json). Smaller earlier corpora are historical. Final documentation/integration head still requires its own checks. |
 | B3 | All canonical/RAG docs match source |24-document audit confirms current implementation paths and identifies stale disposition/reset/fallback prose; narrow corrections are being independently checked. Planning/matrix/manifest and final all-links/source-symbol audit remain required. |
-| B4 | Applicable runtime/state/image equivalence and current aggregate review | Historical PF016/PF018/CFX and accepted correctness receipts retain exact bounded scope; unchanged-source bridges do not invent measurements. Fresh ordinary Dense:12 processes,40 scored CPU snapshots and five exact image/state pairs;9,529,520 pixels/zero mismatches. Candidate sprite Setup median paired+3.91%, All+1.15%; all samples retained, cause/performance pass unproved. [Packet](PF-020-DENSE-MEASUREMENT.json). Named capture and bounded v4 decoding are complete; exact steady-phase attribution and performance disposition remain unproved. PF010 still lacks its applicable actual main/portal/mirror/camera/six-probe context/matrix/state/paired-image packet; PF006 native key/cache and PF009 emitted frame/UV/vertices require evidence. These are locally implementable prerequisites, not CLOSED-status waivers. |
+| B4 | Applicable runtime/state/image equivalence and current aggregate review | [Bounded supported-view proof](PF-020-VIEW-MEASUREMENT.json) passes default Core06/SYNC01 and Uber/library Core01/SYNC01:16 actual medium, unelevated children; exact cold/warm260-row state/sprite comparisons,eight camera/probe images and main RGB;37 specialized/115 Uber binary keys and455 Uber family identities; zero requested validation findings. Independent raw/pixel/source/build/family reviews pass within recorded limits. Original Dense40 scores/selected24 rechecks/zero-loss traces remain unchanged. [Final-source attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) both FAIL prelaunch quiet gates31.51%/28.61% versus15%; both fresh warmups and one baseline scored child validate, but only4 unpaired scores and0 complete scored pairs exist. No final aggregate/performance acceptance or timing cause follows. |
 | B5 | Final freeze review/CI/merge/master | **PENDING**. Draft PR #111 is ineligible to merge as a passing freeze. No SDVK001 permission follows until the complete gate is genuinely accepted and verified. |
 
 ## Final-source coverage boundaries
 
-The [view evidence protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) defines the
-currently prepared fixture/observer/private sampling/key/cache prerequisite.
-Core attempt02 reaches the fixture and completes camera/probe/main captures on
-one unelevated GTX child with zero core validation errors/warnings. It remains
-**FAIL** on raw byte-frame JSON serialization, with no paired/sync acceptance.
-The engine fix and source-correct key parser require fresh build/runtime proof;
-the failed packet and all original bytes are retained.
-CPU source derivation and observer controls do not prove runtime traversal,
-API correctness, cache reuse or images. Named diagnostic CPU captures complete
+The [view protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) and
+[exact verification record](PF-020-VIEW-MEASUREMENT.json) qualify runtime569,
+export07/builds07 and fixturesv8/v9 in actual default and supported Uber/library
+Core/Sync packets. Main/linked/mirror/nested/camera/six-probe contexts, matrices,
+restoration and emitted frame/UV/quad state compare exactly in the bounded healthy
+fixture. Every actual producer capture retains its completed view and native main
+RGB agrees with independently decoded PNG. Actual cache/library/program and
+completed worker evidence supplements source/CPU contracts. Earlier Core01–05
+remain immutable failures; they are not current missing-proof claims. Direct
+VI/FO map-hit, LevelMesh/stereo/plane mirrors/SavePicture/software, full bake,
+repaired P400, human approval and GPU performance remain unqualified.
+CPU controls alone do not establish this native proof. Named CPU captures complete
 with owned cleanup. [Bounded offline decoding](PF-020-CPU-PROFILE.json) passes
 zero loss/truncation, exact PID/module/PDB and sampled-stack/scheduler coverage;
 whole-lifetime observations establish no phase cause or performance acceptance.

@@ -1,7 +1,7 @@
 # PF-020 bounded view, sprite and native key evidence
 
-Status: **PREPARATION ONLY / NATIVE ACCEPTANCE PENDING**, 2026-10-04.
-This protocol fills the missing applicable PF-006/PF-009/PF-010 evidence in
+Status: **BOUNDED DEFAULT AND UBER CORE/SYNC PASS / FULL FREEZE UNACCEPTED**, 2026-10-04.
+This protocol defines the bounded PF-006/PF-009/PF-010 evidence recorded in
 [the freeze matrix](PF-FREEZE-EVIDENCE-MATRIX.md). It does not accept PF-020,
 unblock SDVK-001, qualify P400, or change the [equivalence contract](PF-EQUIVALENCE-PROTOCOL.md).
 
@@ -274,8 +274,12 @@ positive priority/precache queues and exact completed publications/workers with
 zero pending/failed work. Pair complete whole-process cache-family identities,
 including worker/null-scene records. Retain scheduling/hit/thread/scene observations
 without treating them as global map identity; changed family/key/pass still fails.
-Native Uber/library qualification remains pending until fresh Core/Sync packets
-pass. Direct VI/FO key-hit observation, LevelMesh, stereo, plane mirrors,
+Fresh Uber/library Core01 and SYNC01 now pass all four children and exact cold/
+warm pairs each:115 production binary keys,455 whole-process family identities,
+304+37=341 completed workers/publications and all state/producer/main RGB gates,
+with zero requested validation findings. Independent raw math/program/family/image
+review passes; see [exact closed receipt pins](PF-020-VIEW-MEASUREMENT.json).
+Direct VI/FO key-hit observation, LevelMesh, stereo, plane mirrors,
 SavePicture and software are outside this bounded packet. CPU tests, capability
 lines or zero generic observations never substitute for actual execution.
 

@@ -85,7 +85,8 @@ no fixture scenes/sprites and rejects unequal launch/dump prefix strings.
 The complete failed packet is retained. A launcher revision uses early `+map`
 and one path representation, validates real queries independently of unarchived
 CVar persistence, and captures startup capabilities. It reauthenticates the
-sealed complete source/build closures; actual native acceptance remains pending.
+sealed complete source/build closures; native acceptance was still pending at
+that historical checkpoint. Current bounded results are recorded below.
 
 Launcher/tool head1be5127 passes clean PF609/609, CFX8/8, four standalone
 fixtures, identical oracles and all eight exact-head jobs in run37214800451.
@@ -137,8 +138,8 @@ interpolation. A guarded fixture-only fraction now enters before actual view
 position/angle consumers, independently of prior observer roots. Ordinary,
 foreign-map, rejected-observer and probe inputs remain inherited. This source
 repair requires fresh exports/builds/inputs and another exact core packet.
-Failed packet05 and build06 identities remain sealed; synchronization has not
-yet run and no warm-image or whole-packet acceptance is inferred.
+Failed packet05 and build06 identities remain sealed. At that historical
+checkpoint synchronization had not run; no partial finding accepts packet05.
 
 Tool4997491 passes clean PF613/613, CFX8/8, four standalone fixtures and
 identical oracles in checks10. Core packet03's first repaired GTX child exits0
@@ -162,12 +163,60 @@ are retained, including the separately reused unscored baseline warmup.
 Owner-supplied reset-interval monitoring is retained locally as unaligned host
 context; its PresentMon section identifies dwm.exe, not the renderer.
 
+## Current bounded native checkpoint — 4 October 2026
+
+[Exact native verification](PF-020-VIEW-MEASUREMENT.json) records qualified
+runtime `569bdb118c709dac00dc6543570d6840c88dad12`, source export07 SHA256
+`05cf864b23ab6c5745c0c9d619ddab7d5b164ffae0278f3b4933f116b2684493`,
+both source-derived builds07 and fixturev8/v9 identities. Current EXE SHA256 is
+`44ac4b9f8e744462fe88b0a31c28e691741ecc935a711647f4d7464af765f736`;
+original-seams is
+`1b5a466fe03cdf44bc21489b4c9b73c83d0845f2ea4ba564f7adbb92b791ebd5`.
+Full exports, native/build counterparts and all recorded default output/input pins
+are independently rehashed. Original seams retain later accepted fixes.
+
+Default Core06/SYNC01 and supported Uber/library Core01/SYNC01 pass16 actual
+medium, unelevated children. Every cold/warm pair exactly matches260 semantic
+scene/sprite/restoration rows,eight completed camera/probe images and native main
+RGB versus independent PNG decoding. Actual clocks span0..559; camera demand
+is actualtic2/fraction0.5/position `[1328,-48,48]`. Main RGB SHA256 is
+`e5b00e57e4f8d6c6c17e9acf75416c3739f0551c55af368b460ef628cd725c9e`.
+Specialized production binary-key sets contain37 keys; Uber115, with455 complete
+family identities and304+37=341 completed workers/publications per child. Actual
+ready generic/user/library witnesses, cache lifecycle and independent raw program/
+integer/family/image review pass; requested Core-only/Sync-only findings are zero.
+Source/setup/capture/native failures remain immutable history. This qualifies the
+bounded healthy immediate BSP paths, not every mode, direct VI/FO map-hit, GPU
+timings, full bake, repaired P400 or human approval.
+
+Clean tooldf667 checks15 pass PF644/644, CFX8/8, four compiled contracts and
+identical oracles. [All eight exact tool-head hosted jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/37224556801)
+pass; runtime569's separate eight jobs also pass. Later documentation and final
+integration still require their own focused review/checks.
+
+[Final-source Dense checkpoint](PF-020-FINAL-DENSE-CHECKPOINT.json) preserves
+two failed attempts under the [fixed protocol](PF-020-FINAL-DENSE-PROTOCOL.md).
+Attempt01 validates one unscored baseline warmup, then stops before the current
+warmup on final10 prelaunch CPU maximum31.5104% versus15%. A later bounded
+readiness observation passes at7.9427%, explicitly authorizing one fresh complete
+attempt02 without changing tool/protocol/gates or replacing data. Both fresh
+warmups validate and root inspects their actual healthy/no-query/no-benchmark
+images, with equal ordinary RGB `ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151`.
+One baseline scored child then validates; its four scores remain unpaired.
+The next current child never launches because its final10 CPU maximum28.6086%
+fails the same gate. There are0 complete scored pairs and no final-source
+aggregate or performance result. Cause of these intermittent CPU bursts is
+unproved. No additional campaign runs this session. All five packages have
+4,746 authenticated source members:4,196 raw-identical and550 exact text newline
+projections, with raw archive/member/source hashes retained. This is not a strict
+one-variable byte-identical comparison; no arbitrary binary normalization occurs.
+
 ## Remaining freeze gates
 
 The [evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md) maps every PF disposition, CFX prerequisite, retained measurement and limitation. The owning [PF-020 issue](https://github.com/techrote/ShadeDoomVK/issues/37), [canonical issue](issues/PF-020.md), [validation contract](06-VALIDATION-PERFORMANCE-CONTRACT.md) and [equivalence protocol](PF-EQUIVALENCE-PROTOCOL.md) govern acceptance.
 
-1. **B4: missing applicable view-equivalence packet.** [PF-010 verification](issues/PF-010.md) requires actual main, portal/mirror, camera texture and six probe-face contexts with matrices/portal state and before/after images. Its accepted record supplies compiled context/source fixtures and CI, but no corresponding Layer-B/C packet is cited. Unchanged source can transfer an existing measured result; it cannot invent an absent one. PF016 linked-group lighting images and PF113 immediate-specialized readbacks do not cover these view comparisons. The required bounded packet must pin source/build/content/time/settings, record actual context type/identity/parent/parity, matrices and postprocess eligibility, pair images with a declared metric/tolerance and map deliberate structural-ID differences. Availability of safe before/after fixtures and capture seams is being checked. PF006/PF009 also require explicit applicable evidence mapping.
-2. **B4: current aggregate/runtime review.** The [revised Dense protocol](PF-020-ORDINARY-DENSE-PROTOCOL.md) completes12 processes with production diagnostics/validation off,40 scored CPU snapshots and five exact image/state pairs. All12 RGB hashes agree;9,529,520 scored pixels have zero mismatches. However, candidate sprite Setup is higher in every pair, median paired+3.91% (range0.86–13.73%); CPU All including Finish/wait median+1.15% (range0.003–7.98%). The large pair3 and drifting baselinepair5 are retained. Requested targeted reruns and bounded zero-loss CPU profiling complete the old concerns investigation, without proving cause or performance acceptance. Those binaries predate the new observer callbacks, so a fresh ordinary diagnostics-OFF final-source comparison remains required before aggregate disposition. [Compact raw measurement](PF-020-DENSE-MEASUREMENT.json). The earlier notification-bearing warmup remains separately [rejected/unscored](PF-020-DENSE-RETAINED-ATTEMPTS.json), with original receipt/pixels unchanged.
+1. **B4: bounded view packet completed; scope remains explicit.** [Actual verification](PF-020-VIEW-MEASUREMENT.json) supplies healthy main/linked/mirror/nested/camera/six-probe state/matrix/sprite/key/cache and paired images, including independent review. Direct VI/FO map-hit and broader renderer modes/performance remain unclaimed. This replaces the earlier missing bounded prerequisite; it does not waive the final aggregate or integration gates.
+2. **B4: final aggregate blocked by host preparation.** The retained [original Dense40 scores](PF-020-DENSE-MEASUREMENT.json), selected24 quiet recheck scores and zero-loss trace decodes remain unchanged. They do not prove timing cause or accept callbacks added later. [Both final-source attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) stop at unchanged quiet gates31.51%/28.61%; only4 unpaired baseline scores and0 complete scored pairs exist. Resolve intermittent prelaunch CPU bursts before a fresh complete diagnostics-OFF comparison and aggregate disposition. No warmup ratio or original replacement is scored.
 3. **B2/B3: final focused head.** Complete the clean strict corpus/tool tests, source closure and independent canonical/RAG/all-links audit on the frozen documentation/tool head. Correctly describe dormant light-tile storage as allocated/valid, not initialized payload; `uLightIndex=-1` prevents consumption. No engine initialization requirement is added for that inactive consumer.
 4. **B5: final integration.** Only after all applicable proof passes: exact-head independent review and all eight actual required jobs, eligible PR merge, verified master and required merge checks, then issue closure. No passing freeze merge exists; SDVK001 remains blocked.
 
@@ -183,4 +232,4 @@ The [initial checkpoint54e9a1b3](https://github.com/techrote/ShadeDoomVK/blob/54
 
 ## Next action
 
-Execute the corrected bounded supported-view/sprite/key launcher against both qualified source variants, then separately qualify synchronization and applicable generalized/library routes. The existing Dense/rerun/profile investigation is complete within its recorded limits, with steady-phase cause unknown. Those binaries predate the new disabled observer callbacks, so final-source performance still requires one finite preregistered normal diagnostics-OFF Dense comparison against a qualified accepted-master build. Retain all samples and earlier evidence separately; no win tolerance or causal/significance/GPU-timing claim is introduced. No missing source or physical hardware has been identified. Keep PR111 draft and the freeze blocked until its own full contract passes. Local artifacts hold evidence only; current remote humagent remains the human-task inbox. No human action is currently required.
+Resolve the intermittent host CPU quiet prerequisite, then preregister a fresh complete normal diagnostics-OFF final-source comparison against the qualified accepted-master build. Existing builds, fixture, launcher and actual healthy warmup acceptance material are prepared and tested; failed packets cannot be relaunched. Retain every unpaired/original score and full failure history. Finish aggregate and final focused canonical/check/review/integration gates before accepting PF020. PR111 remains draft/ineligible and SDVK001 blocked. No missing source/hardware or proven timing cause is identified. Current remote humagent holds the agent-owned handoff; no human action or automatic continuation is promised.

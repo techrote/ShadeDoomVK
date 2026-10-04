@@ -1,0 +1,1571 @@
+{
+  "schema": "pf020-final-source-dense-blocked-checkpoint/v1",
+  "dateUtc": "2026-10-04",
+  "disposition": "FAIL: intermittent prelaunch CPU quiet prerequisite; no final paired performance result",
+  "nativeRuntimeHead": "569bdb118c709dac00dc6543570d6840c88dad12",
+  "toolHead": "df667e20573cf016c404d2204c09e00f992aac72",
+  "attempts": [
+    {
+      "name": "FinalDense01",
+      "status": "FAIL",
+      "receipt": {
+        "path": "build/pf020-native/pf020-final-dense-01/receipt.json",
+        "bytes": 11886677,
+        "sha256": "5a55521aa39c775f8a86076ab504c0b833e5f82097c9b018f1c5695b9a6ada91"
+      },
+      "toolHead": "df667e20573cf016c404d2204c09e00f992aac72",
+      "coordinatorToken": {
+        "pid": 22052,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "beforeEqualsAfter": true,
+      "error": "ValueError: Prelaunch CPU quiet window failed; no timing retry or exclusion",
+      "finishedUtc": "2026-10-04T18:44:24.706416+00:00",
+      "normalPolicy": {
+        "gl_ubershaders": "true",
+        "gl_light_shadows": "1",
+        "gl_levelmesh": "false"
+      },
+      "clock": "ordinary-adaptive",
+      "diagnostics": false,
+      "validation": false,
+      "declaredWarmups": 2,
+      "declaredScoredChildren": 10,
+      "declaredScoredSnapshots": 40,
+      "completedChildren": [
+        {
+          "ordinal": 0,
+          "variant": "accepted-master",
+          "pair": 0,
+          "scored": false,
+          "pid": 23436,
+          "exit": 0,
+          "nativeToken": {
+            "pid": 23436,
+            "elevated": false,
+            "integrityRid": 8192,
+            "queryOnly": true
+          },
+          "device": {
+            "name": "NVIDIA GeForce GTX 1650 SUPER",
+            "type": "discrete gpu",
+            "apiVersion": "1.4.351",
+            "encodedDriver": "616.368.0"
+          },
+          "actualRuntimeSettings": {
+            "vid_rendermode": "4",
+            "gl_multithread": "true",
+            "gl_spritelight": "2",
+            "gl_lights": "true",
+            "gl_texture_filter": "6",
+            "gl_texture_filter_anisotropic": "0",
+            "gl_texture_hqresizemode": "0",
+            "vid_scalefactor": "1",
+            "vid_scalemode": "0",
+            "cl_capfps": "false",
+            "vid_maxfps": "0",
+            "vid_vsync": "false",
+            "vid_fullscreen": "false",
+            "vk_debug": "false",
+            "vk_device": "0",
+            "use_mouse": "false",
+            "m_use_mouse": "0",
+            "vid_activeinbackground": "true",
+            "vid_lowerinbackground": "false",
+            "show_messages": "false",
+            "lm_dynlights": "false",
+            "gl_lightmode": "1",
+            "con_notifytime": "0",
+            "gl_levelmesh": "false",
+            "gl_ubershaders": "true",
+            "gl_light_shadows": "1"
+          },
+          "quietHost": {
+            "cpuPercent": [
+              6.103896103896104,
+              5.111402359108781,
+              5.729166666666667,
+              7.802340702210663,
+              8.538163001293661,
+              11.71875,
+              7.552083333333333,
+              7.421875,
+              5.078125,
+              7.421875,
+              6.770833333333333,
+              18.098958333333332,
+              6.510416666666667,
+              6.770833333333333,
+              7.682291666666667,
+              6.640625,
+              5.729166666666667,
+              10.026041666666666,
+              4.947916666666667,
+              4.557291666666667,
+              8.203125,
+              7.682291666666667,
+              5.989583333333333,
+              5.331599479843953,
+              5.283505154639175,
+              6.363636363636363,
+              5.851755526657997,
+              4.69361147327249,
+              5.46875,
+              6.7620286085825745
+            ],
+            "lastWindowMaximum": 8.203125,
+            "accepted": true,
+            "observedUtc": "2026-10-04T18:41:50.282315+00:00",
+            "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"
+          },
+          "cpuBenchmarks": {
+            "snapshots": [
+              {
+                "index": 0,
+                "excludedWarmSnapshot": true,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 51,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 19.368,
+                  "render": 0.681,
+                  "setup": 4.35,
+                  "portal": 0.0,
+                  "drawcalls": 0.2,
+                  "postprocess": 0.156,
+                  "finish": 14.097,
+                  "spriteRender": 0.486,
+                  "spriteSetup": 4.287
+                }
+              },
+              {
+                "index": 1,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.526,
+                  "render": 0.499,
+                  "setup": 3.762,
+                  "portal": 0.0,
+                  "drawcalls": 0.191,
+                  "postprocess": 0.108,
+                  "finish": 14.087,
+                  "spriteRender": 0.352,
+                  "spriteSetup": 3.713
+                }
+              },
+              {
+                "index": 2,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 19.03,
+                  "render": 0.576,
+                  "setup": 4.277,
+                  "portal": 0.0,
+                  "drawcalls": 0.19,
+                  "postprocess": 0.108,
+                  "finish": 13.988,
+                  "spriteRender": 0.404,
+                  "spriteSetup": 4.215
+                }
+              },
+              {
+                "index": 3,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.616,
+                  "render": 0.564,
+                  "setup": 3.871,
+                  "portal": 0.0,
+                  "drawcalls": 0.193,
+                  "postprocess": 0.121,
+                  "finish": 13.981,
+                  "spriteRender": 0.397,
+                  "spriteSetup": 3.82
+                }
+              },
+              {
+                "index": 4,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.801,
+                  "render": 0.714,
+                  "setup": 3.895,
+                  "portal": 0.0,
+                  "drawcalls": 0.202,
+                  "postprocess": 0.114,
+                  "finish": 13.961,
+                  "spriteRender": 0.504,
+                  "spriteSetup": 3.82
+                }
+              }
+            ],
+            "retainedIndices": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "gpuTimestampClaimed": false,
+            "units": "Inherited CPU glcycle_t TimeMS snapshots; All includes Finish/wait, not per-frame GPU duration"
+          },
+          "startedUtc": "2026-10-04T18:42:17.730819+00:00",
+          "completedUtc": "2026-10-04T18:43:25.975499+00:00",
+          "scenePng": {
+            "path": "build/pf020-native/pf020-final-dense-01/01-accepted-master-warmup/scene.png",
+            "bytes": 1224472,
+            "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+          }
+        }
+      ],
+      "blockedBeforeLaunch": [
+        {
+          "ordinal": 1,
+          "variant": "final-current",
+          "pair": 0,
+          "status": "PREPARED",
+          "rendererStarted": false,
+          "quietHost": {
+            "cpuPercent": [
+              30.729166666666668,
+              17.317708333333332,
+              21.875,
+              10.416666666666666,
+              9.635416666666666,
+              10.546875,
+              12.109375,
+              9.765625,
+              18.619791666666668,
+              15.364583333333334,
+              14.973958333333334,
+              13.671875,
+              9.635416666666666,
+              18.880208333333332,
+              13.28125,
+              14.192708333333334,
+              18.229166666666668,
+              10.677083333333334,
+              10.807291666666666,
+              9.505208333333334,
+              10.807291666666666,
+              19.401041666666668,
+              31.510416666666668,
+              14.35897435897436,
+              12.089356110381077,
+              28.2184655396619,
+              4.954367666232073,
+              6.072351421188631,
+              18.855656697009103,
+              12.924281984334204
+            ],
+            "lastWindowMaximum": 31.510416666666668,
+            "accepted": false,
+            "observedUtc": "2026-10-04T18:44:24.549966+00:00",
+            "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"
+          }
+        }
+      ],
+      "packageEquivalence": {
+        "relation": "authenticated-source-text-newline-projection",
+        "memberCount": 4746,
+        "rawIdenticalMembers": 4196,
+        "projectedTextMembers": 550,
+        "strictOneVariableComparison": false,
+        "rawMemberByteIdentical": false,
+        "packages": {
+          "vkdoom.pk3": {
+            "memberCount": 718,
+            "rawIdenticalMembers": 222,
+            "projectedTextMembers": 496,
+            "baselineRawArchive": {
+              "bytes": 4238062,
+              "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+            },
+            "currentRawArchive": {
+              "bytes": 4227594,
+              "sha256": "b940406bd4579a9f293a82c8197a2b96776610e951b2415591778fa4a8fdbb2b"
+            }
+          },
+          "brightmaps.pk3": {
+            "memberCount": 499,
+            "rawIdenticalMembers": 495,
+            "projectedTextMembers": 4,
+            "baselineRawArchive": {
+              "bytes": 246181,
+              "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+            },
+            "currentRawArchive": {
+              "bytes": 246072,
+              "sha256": "daa9eae27829f55ae89cb71ae1f7083d0da0ddf81058d4a9fba3a2a9350aa3b2"
+            }
+          },
+          "lights.pk3": {
+            "memberCount": 7,
+            "rawIdenticalMembers": 0,
+            "projectedTextMembers": 7,
+            "baselineRawArchive": {
+              "bytes": 24059,
+              "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+            },
+            "currentRawArchive": {
+              "bytes": 23760,
+              "sha256": "44ffd41164393ea50c0b3bd0c49c9ba067072b34fac75c3fe29de2e754ecdb2a"
+            }
+          },
+          "game_support.pk3": {
+            "memberCount": 3308,
+            "rawIdenticalMembers": 3270,
+            "projectedTextMembers": 38,
+            "baselineRawArchive": {
+              "bytes": 2381991,
+              "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+            },
+            "currentRawArchive": {
+              "bytes": 2378144,
+              "sha256": "7de8788dc85ec9c156422ca6e3ac3582269ef0ab6b647ce73a8cf78154e1b169"
+            }
+          },
+          "game_widescreen_gfx.pk3": {
+            "memberCount": 214,
+            "rawIdenticalMembers": 209,
+            "projectedTextMembers": 5,
+            "baselineRawArchive": {
+              "bytes": 5565936,
+              "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+            },
+            "currentRawArchive": {
+              "bytes": 5565898,
+              "sha256": "0c8c5a5605e3fbd6c57bcf352f88e232b179333360388b492e58327ace648ede"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "FinalDense02",
+      "status": "FAIL",
+      "receipt": {
+        "path": "build/pf020-native/pf020-final-dense-02/receipt.json",
+        "bytes": 12863557,
+        "sha256": "3dc46c75122146344d7eee8d3d38550a9e6750c786e342c6d2611a43afa5c00b"
+      },
+      "toolHead": "df667e20573cf016c404d2204c09e00f992aac72",
+      "coordinatorToken": {
+        "pid": 11244,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "beforeEqualsAfter": true,
+      "error": "ValueError: Prelaunch CPU quiet window failed; no timing retry or exclusion",
+      "finishedUtc": "2026-10-04T19:02:33.734956+00:00",
+      "normalPolicy": {
+        "gl_ubershaders": "true",
+        "gl_light_shadows": "1",
+        "gl_levelmesh": "false"
+      },
+      "clock": "ordinary-adaptive",
+      "diagnostics": false,
+      "validation": false,
+      "declaredWarmups": 2,
+      "declaredScoredChildren": 10,
+      "declaredScoredSnapshots": 40,
+      "completedChildren": [
+        {
+          "ordinal": 0,
+          "variant": "accepted-master",
+          "pair": 0,
+          "scored": false,
+          "pid": 26552,
+          "exit": 0,
+          "nativeToken": {
+            "pid": 26552,
+            "elevated": false,
+            "integrityRid": 8192,
+            "queryOnly": true
+          },
+          "device": {
+            "name": "NVIDIA GeForce GTX 1650 SUPER",
+            "type": "discrete gpu",
+            "apiVersion": "1.4.351",
+            "encodedDriver": "616.368.0"
+          },
+          "actualRuntimeSettings": {
+            "vid_rendermode": "4",
+            "gl_multithread": "true",
+            "gl_spritelight": "2",
+            "gl_lights": "true",
+            "gl_texture_filter": "6",
+            "gl_texture_filter_anisotropic": "0",
+            "gl_texture_hqresizemode": "0",
+            "vid_scalefactor": "1",
+            "vid_scalemode": "0",
+            "cl_capfps": "false",
+            "vid_maxfps": "0",
+            "vid_vsync": "false",
+            "vid_fullscreen": "false",
+            "vk_debug": "false",
+            "vk_device": "0",
+            "use_mouse": "false",
+            "m_use_mouse": "0",
+            "vid_activeinbackground": "true",
+            "vid_lowerinbackground": "false",
+            "show_messages": "false",
+            "lm_dynlights": "false",
+            "gl_lightmode": "1",
+            "con_notifytime": "0",
+            "gl_levelmesh": "false",
+            "gl_ubershaders": "true",
+            "gl_light_shadows": "1"
+          },
+          "quietHost": {
+            "cpuPercent": [
+              4.681404421326398,
+              5.475880052151239,
+              13.689700130378096,
+              4.805194805194805,
+              3.6458333333333335,
+              6.666666666666667,
+              4.823989569752282,
+              2.849740932642487,
+              4.166666666666667,
+              4.427083333333333,
+              3.6458333333333335,
+              4.296875,
+              3.1290743155149934,
+              3.250975292587776,
+              3.90625,
+              6.901041666666667,
+              5.078125,
+              6.510416666666667,
+              4.427083333333333,
+              15.494791666666666,
+              5.598958333333333,
+              4.296875,
+              3.90625,
+              3.2552083333333335,
+              7.291666666666667,
+              5.859375,
+              4.166666666666667,
+              3.7760416666666665,
+              4.166666666666667,
+              4.427083333333333
+            ],
+            "lastWindowMaximum": 7.291666666666667,
+            "accepted": true,
+            "observedUtc": "2026-10-04T18:52:40.367078+00:00",
+            "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"
+          },
+          "cpuBenchmarks": {
+            "snapshots": [
+              {
+                "index": 0,
+                "excludedWarmSnapshot": true,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 52,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.169,
+                  "render": 0.528,
+                  "setup": 3.686,
+                  "portal": 0.0,
+                  "drawcalls": 0.199,
+                  "postprocess": 0.129,
+                  "finish": 13.764,
+                  "spriteRender": 0.387,
+                  "spriteSetup": 3.641
+                }
+              },
+              {
+                "index": 1,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.573,
+                  "render": 0.585,
+                  "setup": 3.89,
+                  "portal": 0.0,
+                  "drawcalls": 0.193,
+                  "postprocess": 0.116,
+                  "finish": 13.889,
+                  "spriteRender": 0.407,
+                  "spriteSetup": 3.824
+                }
+              },
+              {
+                "index": 2,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.47,
+                  "render": 0.527,
+                  "setup": 3.899,
+                  "portal": 0.0,
+                  "drawcalls": 0.191,
+                  "postprocess": 0.117,
+                  "finish": 13.847,
+                  "spriteRender": 0.372,
+                  "spriteSetup": 3.842
+                }
+              },
+              {
+                "index": 3,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 34,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.524,
+                  "render": 0.586,
+                  "setup": 3.93,
+                  "portal": 0.0,
+                  "drawcalls": 0.189,
+                  "postprocess": 0.124,
+                  "finish": 13.784,
+                  "spriteRender": 0.391,
+                  "spriteSetup": 3.866
+                }
+              },
+              {
+                "index": 4,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.975,
+                  "render": 0.667,
+                  "setup": 4.107,
+                  "portal": 0.0,
+                  "drawcalls": 0.237,
+                  "postprocess": 0.18,
+                  "finish": 13.932,
+                  "spriteRender": 0.475,
+                  "spriteSetup": 4.049
+                }
+              }
+            ],
+            "retainedIndices": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "gpuTimestampClaimed": false,
+            "units": "Inherited CPU glcycle_t TimeMS snapshots; All includes Finish/wait, not per-frame GPU duration"
+          },
+          "startedUtc": "2026-10-04T18:53:06.290116+00:00",
+          "completedUtc": "2026-10-04T18:54:14.823625+00:00",
+          "scenePng": {
+            "path": "build/pf020-native/pf020-final-dense-02/01-accepted-master-warmup/scene.png",
+            "bytes": 1224472,
+            "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+          }
+        },
+        {
+          "ordinal": 1,
+          "variant": "final-current",
+          "pair": 0,
+          "scored": false,
+          "pid": 22048,
+          "exit": 0,
+          "nativeToken": {
+            "pid": 22048,
+            "elevated": false,
+            "integrityRid": 8192,
+            "queryOnly": true
+          },
+          "device": {
+            "name": "NVIDIA GeForce GTX 1650 SUPER",
+            "type": "discrete gpu",
+            "apiVersion": "1.4.351",
+            "encodedDriver": "616.368.0"
+          },
+          "actualRuntimeSettings": {
+            "vid_rendermode": "4",
+            "gl_multithread": "true",
+            "gl_spritelight": "2",
+            "gl_lights": "true",
+            "gl_texture_filter": "6",
+            "gl_texture_filter_anisotropic": "0",
+            "gl_texture_hqresizemode": "0",
+            "vid_scalefactor": "1",
+            "vid_scalemode": "0",
+            "cl_capfps": "false",
+            "vid_maxfps": "0",
+            "vid_vsync": "false",
+            "vid_fullscreen": "false",
+            "vk_debug": "false",
+            "vk_device": "0",
+            "use_mouse": "false",
+            "m_use_mouse": "0",
+            "vid_activeinbackground": "true",
+            "vid_lowerinbackground": "false",
+            "show_messages": "false",
+            "lm_dynlights": "false",
+            "gl_lightmode": "1",
+            "con_notifytime": "0",
+            "gl_levelmesh": "false",
+            "gl_ubershaders": "true",
+            "gl_light_shadows": "1"
+          },
+          "quietHost": {
+            "cpuPercent": [
+              5.60625814863103,
+              13.195342820181112,
+              3.7760416666666665,
+              2.7522935779816513,
+              6.426735218508997,
+              4.6875,
+              3.2981530343007917,
+              4.884318766066838,
+              4.563233376792699,
+              4.291287386215865,
+              3.5202086049543677,
+              5.338541666666667,
+              2.860858257477243,
+              3.91644908616188,
+              14.675324675324676,
+              3.3942558746736293,
+              5.064935064935065,
+              4.166666666666667,
+              2.9986962190352022,
+              4.9414824447334205,
+              4.557291666666667,
+              5.338541666666667,
+              3.7760416666666665,
+              3.515625,
+              2.734375,
+              5.859375,
+              2.9947916666666665,
+              2.9947916666666665,
+              3.7760416666666665,
+              7.552083333333333
+            ],
+            "lastWindowMaximum": 7.552083333333333,
+            "accepted": true,
+            "observedUtc": "2026-10-04T18:55:11.651358+00:00",
+            "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"
+          },
+          "cpuBenchmarks": {
+            "snapshots": [
+              {
+                "index": 0,
+                "excludedWarmSnapshot": true,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 51,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.505,
+                  "render": 0.646,
+                  "setup": 3.717,
+                  "portal": 0.0,
+                  "drawcalls": 0.243,
+                  "postprocess": 0.144,
+                  "finish": 13.928,
+                  "spriteRender": 0.494,
+                  "spriteSetup": 3.67
+                }
+              },
+              {
+                "index": 1,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.253,
+                  "render": 0.499,
+                  "setup": 3.715,
+                  "portal": 0.0,
+                  "drawcalls": 0.187,
+                  "postprocess": 0.101,
+                  "finish": 13.866,
+                  "spriteRender": 0.352,
+                  "spriteSetup": 3.668
+                }
+              },
+              {
+                "index": 2,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.51,
+                  "render": 0.545,
+                  "setup": 3.904,
+                  "portal": 0.0,
+                  "drawcalls": 0.192,
+                  "postprocess": 0.119,
+                  "finish": 13.855,
+                  "spriteRender": 0.373,
+                  "spriteSetup": 3.84
+                }
+              },
+              {
+                "index": 3,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.351,
+                  "render": 0.511,
+                  "setup": 3.742,
+                  "portal": 0.0,
+                  "drawcalls": 0.188,
+                  "postprocess": 0.102,
+                  "finish": 13.924,
+                  "spriteRender": 0.361,
+                  "spriteSetup": 3.698
+                }
+              },
+              {
+                "index": 4,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 19.724,
+                  "render": 0.689,
+                  "setup": 4.284,
+                  "portal": 0.0,
+                  "drawcalls": 0.199,
+                  "postprocess": 0.107,
+                  "finish": 14.56,
+                  "spriteRender": 0.482,
+                  "spriteSetup": 4.201
+                }
+              }
+            ],
+            "retainedIndices": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "gpuTimestampClaimed": false,
+            "units": "Inherited CPU glcycle_t TimeMS snapshots; All includes Finish/wait, not per-frame GPU duration"
+          },
+          "startedUtc": "2026-10-04T18:55:38.084478+00:00",
+          "completedUtc": "2026-10-04T18:56:46.855242+00:00",
+          "scenePng": {
+            "path": "build/pf020-native/pf020-final-dense-02/02-final-current-warmup/scene.png",
+            "bytes": 1224472,
+            "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+          }
+        },
+        {
+          "ordinal": 2,
+          "variant": "accepted-master",
+          "pair": 1,
+          "scored": true,
+          "pid": 316,
+          "exit": 0,
+          "nativeToken": {
+            "pid": 316,
+            "elevated": false,
+            "integrityRid": 8192,
+            "queryOnly": true
+          },
+          "device": {
+            "name": "NVIDIA GeForce GTX 1650 SUPER",
+            "type": "discrete gpu",
+            "apiVersion": "1.4.351",
+            "encodedDriver": "616.368.0"
+          },
+          "actualRuntimeSettings": {
+            "vid_rendermode": "4",
+            "gl_multithread": "true",
+            "gl_spritelight": "2",
+            "gl_lights": "true",
+            "gl_texture_filter": "6",
+            "gl_texture_filter_anisotropic": "0",
+            "gl_texture_hqresizemode": "0",
+            "vid_scalefactor": "1",
+            "vid_scalemode": "0",
+            "cl_capfps": "false",
+            "vid_maxfps": "0",
+            "vid_vsync": "false",
+            "vid_fullscreen": "false",
+            "vk_debug": "false",
+            "vk_device": "0",
+            "use_mouse": "false",
+            "m_use_mouse": "0",
+            "vid_activeinbackground": "true",
+            "vid_lowerinbackground": "false",
+            "show_messages": "false",
+            "lm_dynlights": "false",
+            "gl_lightmode": "1",
+            "con_notifytime": "0",
+            "gl_levelmesh": "false",
+            "gl_ubershaders": "true",
+            "gl_light_shadows": "1"
+          },
+          "quietHost": {
+            "cpuPercent": [
+              3.90625,
+              3.125,
+              4.025974025974026,
+              5.821474773609315,
+              3.6316472114137484,
+              2.236842105263158,
+              9.511568123393316,
+              5.208333333333333,
+              8.387942332896461,
+              4.527813712807244,
+              21.080368906455863,
+              4.805194805194805,
+              5.46875,
+              9.548387096774194,
+              8.781127129750983,
+              6.282722513089006,
+              7.850707850707851,
+              11.973684210526315,
+              8.59375,
+              5.798969072164948,
+              4.427083333333333,
+              13.541666666666666,
+              5.098039215686274,
+              7.652399481193256,
+              5.078125,
+              5.208333333333333,
+              5.46875,
+              6.901041666666667,
+              6.770833333333333,
+              3.7760416666666665
+            ],
+            "lastWindowMaximum": 13.541666666666666,
+            "accepted": true,
+            "observedUtc": "2026-10-04T19:00:02.729003+00:00",
+            "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"
+          },
+          "cpuBenchmarks": {
+            "snapshots": [
+              {
+                "index": 0,
+                "excludedWarmSnapshot": true,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 50,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 20.746,
+                  "render": 0.582,
+                  "setup": 6.264,
+                  "portal": 0.0,
+                  "drawcalls": 0.192,
+                  "postprocess": 0.117,
+                  "finish": 13.668,
+                  "spriteRender": 0.41,
+                  "spriteSetup": 6.186
+                }
+              },
+              {
+                "index": 1,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 20.694,
+                  "render": 1.012,
+                  "setup": 4.729,
+                  "portal": 0.0,
+                  "drawcalls": 0.305,
+                  "postprocess": 0.142,
+                  "finish": 14.717,
+                  "spriteRender": 0.737,
+                  "spriteSetup": 4.633
+                }
+              },
+              {
+                "index": 2,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 35,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 20.165,
+                  "render": 0.961,
+                  "setup": 4.821,
+                  "portal": 0.0,
+                  "drawcalls": 0.271,
+                  "postprocess": 0.209,
+                  "finish": 14.072,
+                  "spriteRender": 0.707,
+                  "spriteSetup": 4.711
+                }
+              },
+              {
+                "index": 3,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 34,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.411,
+                  "render": 0.501,
+                  "setup": 3.823,
+                  "portal": 0.0,
+                  "drawcalls": 0.189,
+                  "postprocess": 0.093,
+                  "finish": 13.921,
+                  "spriteRender": 0.35,
+                  "spriteSetup": 3.779
+                }
+              },
+              {
+                "index": 4,
+                "excludedWarmSnapshot": false,
+                "camera": [
+                  -1850,
+                  0,
+                  41,
+                  0,
+                  0
+                ],
+                "counts": {
+                  "walls": 5,
+                  "splits": 0,
+                  "tSplits": 0,
+                  "wallVertices": 20,
+                  "flats": 2,
+                  "flatPrimitives": 2,
+                  "flatVertices": 24,
+                  "sprites": 832,
+                  "decals": 0,
+                  "portals": 0,
+                  "commandBuffers": 5,
+                  "wallLightsProcessed": 257,
+                  "wallLightsRendered": 253,
+                  "flatLightsProcessed": 432,
+                  "flatLightsRendered": 432
+                },
+                "fpsContext": 34,
+                "cpuMilliseconds": {
+                  "allIncludingFinish": 18.631,
+                  "render": 0.503,
+                  "setup": 3.814,
+                  "portal": 0.0,
+                  "drawcalls": 0.192,
+                  "postprocess": 0.108,
+                  "finish": 14.134,
+                  "spriteRender": 0.355,
+                  "spriteSetup": 3.764
+                }
+              }
+            ],
+            "retainedIndices": [
+              1,
+              2,
+              3,
+              4
+            ],
+            "gpuTimestampClaimed": false,
+            "units": "Inherited CPU glcycle_t TimeMS snapshots; All includes Finish/wait, not per-frame GPU duration"
+          },
+          "startedUtc": "2026-10-04T19:00:29.740308+00:00",
+          "completedUtc": "2026-10-04T19:01:37.088972+00:00",
+          "scenePng": {
+            "path": "build/pf020-native/pf020-final-dense-02/03-accepted-master-pair-1/scene.png",
+            "bytes": 1224472,
+            "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+          }
+        }
+      ],
+      "blockedBeforeLaunch": [
+        {
+          "ordinal": 3,
+          "variant": "final-current",
+          "pair": 1,
+          "status": "PREPARED",
+          "rendererStarted": false,
+          "quietHost": {
+            "cpuPercent": [
+              6.25,
+              6.901041666666667,
+              4.817708333333333,
+              4.817708333333333,
+              8.072916666666666,
+              6.770833333333333,
+              6.25,
+              5.598958333333333,
+              7.552083333333333,
+              6.24187256176853,
+              5.447470817120623,
+              5.064935064935065,
+              5.051813471502591,
+              9.411764705882353,
+              4.409857328145266,
+              3.91644908616188,
+              4.922279792746114,
+              6.119791666666667,
+              15.575916230366492,
+              5.620915032679738,
+              4.645161290322581,
+              5.504587155963303,
+              4.269081500646831,
+              5.208333333333333,
+              14.471968709256846,
+              28.60858257477243,
+              20.442708333333332,
+              8.072916666666666,
+              23.989569752281618,
+              6.770833333333333
+            ],
+            "lastWindowMaximum": 28.60858257477243,
+            "accepted": false,
+            "observedUtc": "2026-10-04T19:02:33.416177+00:00",
+            "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"
+          }
+        }
+      ],
+      "packageEquivalence": {
+        "relation": "authenticated-source-text-newline-projection",
+        "memberCount": 4746,
+        "rawIdenticalMembers": 4196,
+        "projectedTextMembers": 550,
+        "strictOneVariableComparison": false,
+        "rawMemberByteIdentical": false,
+        "packages": {
+          "vkdoom.pk3": {
+            "memberCount": 718,
+            "rawIdenticalMembers": 222,
+            "projectedTextMembers": 496,
+            "baselineRawArchive": {
+              "bytes": 4238062,
+              "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+            },
+            "currentRawArchive": {
+              "bytes": 4227594,
+              "sha256": "b940406bd4579a9f293a82c8197a2b96776610e951b2415591778fa4a8fdbb2b"
+            }
+          },
+          "brightmaps.pk3": {
+            "memberCount": 499,
+            "rawIdenticalMembers": 495,
+            "projectedTextMembers": 4,
+            "baselineRawArchive": {
+              "bytes": 246181,
+              "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+            },
+            "currentRawArchive": {
+              "bytes": 246072,
+              "sha256": "daa9eae27829f55ae89cb71ae1f7083d0da0ddf81058d4a9fba3a2a9350aa3b2"
+            }
+          },
+          "lights.pk3": {
+            "memberCount": 7,
+            "rawIdenticalMembers": 0,
+            "projectedTextMembers": 7,
+            "baselineRawArchive": {
+              "bytes": 24059,
+              "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+            },
+            "currentRawArchive": {
+              "bytes": 23760,
+              "sha256": "44ffd41164393ea50c0b3bd0c49c9ba067072b34fac75c3fe29de2e754ecdb2a"
+            }
+          },
+          "game_support.pk3": {
+            "memberCount": 3308,
+            "rawIdenticalMembers": 3270,
+            "projectedTextMembers": 38,
+            "baselineRawArchive": {
+              "bytes": 2381991,
+              "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+            },
+            "currentRawArchive": {
+              "bytes": 2378144,
+              "sha256": "7de8788dc85ec9c156422ca6e3ac3582269ef0ab6b647ce73a8cf78154e1b169"
+            }
+          },
+          "game_widescreen_gfx.pk3": {
+            "memberCount": 214,
+            "rawIdenticalMembers": 209,
+            "projectedTextMembers": 5,
+            "baselineRawArchive": {
+              "bytes": 5565936,
+              "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+            },
+            "currentRawArchive": {
+              "bytes": 5565898,
+              "sha256": "0c8c5a5605e3fbd6c57bcf352f88e232b179333360388b492e58327ace648ede"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "actualScoredSnapshots": 4,
+  "actualCompleteScoredPairs": 0,
+  "unpairedBaselineScoresRetained": true,
+  "warmupScoresExcludedAsPreregistered": true,
+  "freshAttemptDecision": {
+    "path": "build/pf020-native/pf020-session-2026-10-04-evening/final-dense-02-preregistration.json",
+    "bytes": 1469,
+    "sha256": "78822a50d3e8d9de0d0f76a1771ef86a744e33dffc22d41162d042688548a767"
+  },
+  "changedHostReadiness": {
+    "path": "build/pf020-native/pf020-session-2026-10-04-evening/host-quiet-readiness-01.json",
+    "bytes": 874,
+    "sha256": "f7569f49d508e529058a35a1b4a3aa19810c6708fad6a2283e550f3a6716a64d"
+  },
+  "agentWarmupPictureReview": {
+    "path": "build/pf020-native/pf020-final-dense-02/warmup-image-review.json",
+    "bytes": 1414,
+    "sha256": "6ab0e41fd33b64e1a32a69906662ded5d9c23a16458250bca9b95d8f728a51cc"
+  },
+  "normalWarmupRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+  "rootInspectedBothFreshWarmups": true,
+  "humanApprovalClaimed": false,
+  "performanceAccepted": false,
+  "freezeAccepted": false,
+  "causeClaimed": false,
+  "gpuTimestampClaimed": false,
+  "nextAction": "Resolve intermittent prelaunch host CPU bursts, then preregister a fresh complete diagnostics-off final-source comparison under unchanged gates. No further campaign this session.",
+  "limits": [
+    "Original Dense40 scores, selected24 recheck scores and zero-loss CPU trace decodes remain unchanged.",
+    "Warmup images are actual healthy ordinary-mode proof, not a scored performance comparison.",
+    "Quiet30-second preparation checks last10 maximum below15%; it does not continuously measure in-run load.",
+    "Two-second later process CPU deltas do not identify the cause of earlier spikes; private host context is not published.",
+    "All five packages use exact authenticated source text newline projection; no arbitrary binary normalization or strict one-variable causal claim."
+  ]
+}

@@ -1,6 +1,7 @@
 # PF-020 final-source ordinary Dense comparison
 
-Status: tested preparation contract; native comparison not yet executed. This
+Status: tested preparation contract; [two native attempts](PF-020-FINAL-DENSE-CHECKPOINT.json)
+stop at unchanged prelaunch quiet gates, with no complete scored pair. This
 finite packet supplements the retained [ordinary Dense investigation](PF-020-ORDINARY-DENSE-PROTOCOL.md),
 [targeted rechecks](PF-020-DENSE-TARGETED-RECHECK.json) and
 [CPU profile](PF-020-CPU-PROFILE.json). It does not replace samples, prove a CPU

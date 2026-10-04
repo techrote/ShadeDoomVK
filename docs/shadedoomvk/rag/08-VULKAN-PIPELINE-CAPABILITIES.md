@@ -122,6 +122,16 @@ Adversarial/boundary verification lives in `tools/pf_oracle/tests/vulkan_capabil
 
 ## Invariants
 
+PF-020's [bounded native record](../PF-020-VIEW-MEASUREMENT.json) separately
+qualifies default specialized and supported immediate BSP Uber/library paths on
+the actual GTX. The actual startup capability reports pipeline-library support;
+Uber Core/Sync pairs match115 complete binary keys and455 whole-process family
+identities. Ready generic/user programs, vertex/fragment-library reuse and
+304+37=341 completed workers/publications are actual positive witnesses, rather
+than a capability-only inference. Scheduling counts remain observations, not map
+identity. Direct VI/FO map-hit, broader modes, GPU timing and full freeze acceptance
+are outside that proof; source invariants and quality policy remain unchanged.
+
 1. Capability queries are descriptive; quality policy remains separate.
 2. Vendor/driver workaround extraction may not silently remove old workarounds.
 3. Pipeline/shader/render-pass key equality/order depends only on explicitly named renderer state; packed shader specialization ABI remains separate from C++ cache identity.

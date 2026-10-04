@@ -619,4 +619,28 @@ normal exit, but rejects the event file's forward-slash prefix versus Windows
 Path string spelling. All six actual load/save records and failed outputs stay
 unchanged; no later child launches. The tool now uses exact private artifact
 Path/link/size validation and event-file identity, preserving cache lifecycle,
-hashes and positive warm evidence. New native qualification remains required.
+hashes and positive warm evidence. New native qualification was required at that
+historical checkpoint.
+
+### 4 October 2026 — bounded native proof and final-source host blocker
+
+Runtime569/source export07/builds07 qualify fresh default Core06/SYNC01 and
+supported Uber/library Core01/SYNC01, with16 actual medium/unelevated exits0,
+zero requested validation findings, exact cold/warm260 semantic rows,eight actual
+producer images/main RGB,37 specialized/115 Uber binary keys and455 Uber family
+identities. Every Uber child completes304+37=341 workers/publications. Independent
+raw/image/source/build and generic-program/family review passes within bounded
+scope. [Exact successful and retained failed identities](PF-020-VIEW-MEASUREMENT.json).
+Clean tooldf667 checks15 pass PF644/644, CFX8/8, four compiled contracts, identical
+oracles and all eight exact-head hosted jobs.
+
+[Final Dense attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) retain FAIL prelaunch
+quiet maxima31.51% and28.61% against15%. After a separately recorded readiness
+PASS, one explicitly fresh attempt runs two actual healthy/no-overlay warmups;
+both images are agent-inspected and exact. One baseline scored child validates
+four retained scores, but no current scored child or complete pair exists. Source/
+input/package/STOP closures remain exact; all5 packages authenticate4,746 source
+members with550 exact text newline projections and no arbitrary binary transform.
+No final performance/aggregate acceptance, cause, GPU time or human approval is
+inferred. No further physical campaign this session. Finish final focused docs/
+checks and durable stop record; PF020/SDVK001 remain blocked and PR111 draft.

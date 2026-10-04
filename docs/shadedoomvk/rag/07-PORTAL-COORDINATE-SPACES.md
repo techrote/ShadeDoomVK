@@ -152,5 +152,10 @@ their inherited fraction1. Default-off, foreign-map and rejected observer
 states preserve the inherited value. This is bounded diagnostic interpolation,
 not a production portal transform, gameplay-time change, software-renderer
 qualification or performance result. Native packet05 retains the reproduced
-warm camera mismatch; fresh source/build/input identities must qualify the fix
-without rounding actual positions or widening the exact comparison.
+warm camera mismatch unchanged. Fresh source569/export07/builds07 with fixturesv8/v9
+qualify the repair in default Core06/SYNC01 and supported Uber Core01/SYNC01:
+actual demanded camera tic2/fraction0.5/position `[1328,-48,48]`, exact completed
+producer/main images and paired260-row semantics, with zero requested validation
+findings. No position is rounded or comparison tolerance widened. See the
+[bounded native record](../PF-020-VIEW-MEASUREMENT.json) for immutable identities,
+independent review and explicitly unqualified renderer modes/performance.
