@@ -113,7 +113,7 @@ def validate(sources):
     assert "COLLECTED_PENDING_VALIDATION" in native
     assert 'Quote(state.Prefix + ".cache-events.jsonl")' in native
     assert "argv.argc() == 2" in native
-    assert 'FindGameTexture("PFVCAM", ETextureType::MiscPatch, TEXMAN_TryAny | TEXMAN_DontCreate)' in native
+    assert 'FindGameTexture("PFVCAM", ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_DontCreate)' in native
     assert "allObservedTasksCompleted" in native
     assert '<< FIRST_USER_SHADER <<' in native and '<< NUM_BUILTIN_SHADERS' in native
     assert "WorkerScheduled(precache)" in pipeline

@@ -508,7 +508,7 @@ void ProbeCompleted(VulkanRenderDevice* fb, VulkanImage* image, VulkanImageView*
 void CameraCompleted(VulkanRenderDevice* fb, VkTextureImage* image, FCanvasTexture* texture)
 {
 	if (!Enabled() || !Pf020ViewDiagnostics::FixtureActive() || !texture) return;
-	auto owner = TexMan.FindGameTexture("PFVCAM", ETextureType::MiscPatch, TEXMAN_TryAny | TEXMAN_DontCreate);
+	auto owner = TexMan.FindGameTexture("PFVCAM", ETextureType::MiscPatch, FTextureManager::TEXMAN_TryAny | FTextureManager::TEXMAN_DontCreate);
 	if (!owner || owner->GetTexture() != texture) return;
 	if (!image || image->Layout != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) { Fail("Camera producer did not complete its sampled layout"); return; }
 	const bool first = texture->bFirstUpdate;
