@@ -229,7 +229,7 @@ struct FPbrProbeDiagnosticAccess
 		const std::string name = material->Source()->GetName().GetChars();
 		if (name != "PF113W" && name != "PF113FL") return;
 		Require(!gl_ubershaders && !gl_levelmesh, "Startup fixture must explicitly use immediate specialized scene shaders");
-		Require(level.MapName == "PF113" && level.lightProbes.Size() == 2, "Observer requires the exact fresh two-probe PF113 fixture");
+		Require(!level.MapName.CompareNoCase("PF113") && level.lightProbes.Size() == 2, "Observer requires the exact fresh two-probe PF113 fixture");
 		const int authored = state->mLightProbeIndex;
 		const unsigned token = state->mSurfaceUniforms.uLightProbeIndex;
 		const char* kind = nullptr;
@@ -319,7 +319,7 @@ void DrawEmitted(VkRenderState* state, int count, bool indexed)
 }
 void Publication(VulkanRenderDevice* fb, bool completed)
 {
-	if (level.MapName != "PF113" || level.lightProbes.Size() != 2) return;
+	if (level.MapName.CompareNoCase("PF113") != 0 || level.lightProbes.Size() != 2) return;
 	try
 	{
 		if (completed) ++Observer.CompletedPublications;
