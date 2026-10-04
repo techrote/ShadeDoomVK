@@ -1,0 +1,1374 @@
+{
+  "schema": "shadedoomvk-pf113-final-native-qualification/v1",
+  "status": "NATIVE_QUALIFIED_RELEASE_PENDING",
+  "issue": "https://github.com/techrote/ShadeDoomVK/issues/113",
+  "pr": "https://github.com/techrote/ShadeDoomVK/pull/117",
+  "runtime_source_head": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+  "accepted_base": "1524686e77f1e89dabfb044bf757a2d19566c31c",
+  "adopted_decision": "PF-113-MISSING-IBL-DECISION.md",
+  "original_negative": {
+    "local_artifact": "docs/shadedoomvk/PF-113-ORIGINAL-NEGATIVE-VERIFICATION.json",
+    "sha256": "ff64575bdbc3767f4fa28a194774b517ba21d0f151775bfb7d52d7fd2211865a",
+    "bytes": 13893
+  },
+  "build": {
+    "receipt": {
+      "local_artifact": "build/pf020-native/pf113-build-02/receipt.json",
+      "sha256": "755cb59680617c447b875209a44a487e29c20ddfd1b346ab3ee9a4f96e9975f1",
+      "bytes": 613838
+    },
+    "candidate": {
+      "local_artifact": "build/pf020-acceptance/pbr-probe-candidate-2/candidate.json",
+      "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352",
+      "bytes": 617072
+    },
+    "source_git_closure": {
+      "local_artifact": "build/pf020-native/pf113-build-02/source-git-closure.json",
+      "sha256": "31092be96f29c8eda02fd48a748778ec41b3be01fdd79f0a374254bd34e42804",
+      "bytes": 869
+    },
+    "frozen_inputs": 2535,
+    "raw_git_equal": 231,
+    "exact_crlf_to_git_lf_equal": 2304,
+    "staged_build_counterparts": [
+      {
+        "name": "vkdoom.exe",
+        "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813",
+        "bytes": 12298752
+      },
+      {
+        "name": "vkdoom.pdb",
+        "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00",
+        "bytes": 77377536
+      },
+      {
+        "name": "vkdoom.pk3",
+        "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+        "bytes": 4238062
+      },
+      {
+        "name": "brightmaps.pk3",
+        "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+        "bytes": 246181
+      },
+      {
+        "name": "game_support.pk3",
+        "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+        "bytes": 2381991
+      },
+      {
+        "name": "game_widescreen_gfx.pk3",
+        "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+        "bytes": 5565936
+      },
+      {
+        "name": "lights.pk3",
+        "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+        "bytes": 24059
+      },
+      {
+        "name": "ZMusic.dll",
+        "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a",
+        "bytes": 2469888
+      }
+    ],
+    "configuration": "Visual Studio 17 2022 x64 RelWithDebInfo HAVE_VULKAN=ON; clean fresh build parallel3",
+    "staging_time_accepted_and_gpuExecuted_fields_remain_false": true
+  },
+  "cpu": {
+    "receipt": {
+      "local_artifact": "build/pf020-native/pf113-checks-02/receipt.json",
+      "sha256": "be6c0819a76017a394db0e976e5071aff0e2c0f13f5809507eece5ed0c9030d6",
+      "bytes": 4118
+    },
+    "strict_pf_tests": 440,
+    "cfx_tests": 8,
+    "standalone_contracts": 4,
+    "assertions_enabled": true,
+    "warnings_as_errors": true,
+    "oracles_byte_equal": true,
+    "oracle_a": {
+      "local_artifact": "build/pf020-native/pf113-checks-02/oracle-a.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "bytes": 4561
+    },
+    "oracle_b": {
+      "local_artifact": "build/pf020-native/pf113-checks-02/oracle-b.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "bytes": 4561
+    },
+    "focused_producer_shader_tests": 17,
+    "focused_current_source_service_checks": 323,
+    "input_runner_tests": 30,
+    "focused_receipt": {
+      "local_artifact": "build/pf020-native/pf113-cpu-candidate/frozen-02/receipt.json",
+      "sha256": "fbb7e7e725cc107a113f952d4391f5abe0731bf652d1592be4d278c17c0bfb45",
+      "bytes": 3517
+    }
+  },
+  "runs": [
+    {
+      "mode": "core",
+      "receipt": {
+        "local_artifact": "build/pf020-native/pf113-runs/core-v1/receipt.json",
+        "sha256": "48fd4ce08da35e2b74552b9783525f80e51e9dbfcb8d6cfd8c3fac541cc39de3",
+        "bytes": 122998
+      },
+      "started_utc": "2026-10-04T09:28:18.976936+00:00",
+      "finished_utc": "2026-10-04T09:28:30.917640+00:00",
+      "exit_code": 0,
+      "watchdog_seconds": 90,
+      "gpu_executed": true,
+      "immutable_inputs_unchanged": true,
+      "actual_device_stdout": [
+        "Vulkan device: NVIDIA GeForce GTX 1650 SUPER",
+        "Vulkan device type: discrete gpu",
+        "Vulkan version: 1.4.351 (api) 616.368.0 (driver)"
+      ],
+      "stdout": {
+        "local_artifact": "build/pf020-native/pf113-runs/core-v1/stdout.log",
+        "sha256": "73f11bdb42c7b1d1be4511a80006abfe10c7fb8c475b959234ec0577c6ba9ab4",
+        "bytes": 2616
+      },
+      "stderr": {
+        "local_artifact": "build/pf020-native/pf113-runs/core-v1/stderr.log",
+        "sha256": "ab971f2da6f58934ff6e9d74d0a8d1583dfd51b818320a1b25ab547ed29d1cf9",
+        "bytes": 19367
+      },
+      "requested_validation_enabled": {
+        "core": true,
+        "sync": false,
+        "gpu-assisted": false
+      },
+      "validation_errors": 0,
+      "validation_warnings": 0,
+      "loader_notices": 5,
+      "implicit_instance_layers": [
+        {
+          "name": "VK_LAYER_OBS_HOOK",
+          "path": "C:\\ProgramData\\obs-studio-hook\\graphics-hook64.dll"
+        },
+        {
+          "name": "VK_LAYER_NV_present",
+          "path": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_b8459fc8f905f657\\nvoglv64.dll"
+        },
+        {
+          "name": "VK_LAYER_NV_optimus",
+          "path": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_b8459fc8f905f657\\nvoglv64.dll"
+        }
+      ],
+      "actual_loaded_archives": 7,
+      "settings": {
+        "rendererMode": 4,
+        "globalTextureFilter": 0,
+        "lightProbeEnabled": true,
+        "levelMesh": false,
+        "uberShaders": false,
+        "lightShadows": 0,
+        "clientExtent": [
+          640,
+          480
+        ],
+        "renderExtent": [
+          640,
+          480
+        ]
+      },
+      "checks": 23603,
+      "native_receipt": {
+        "local_artifact": "build/pf020-native/pf113-runs/core-v1/native.json",
+        "sha256": "94a51ed3d45b7567a8a0364a45306286b6df1310bcc81ba0a02186331d7a28ab",
+        "bytes": 9564
+      },
+      "early_receipt": {
+        "local_artifact": "build/pf020-native/pf113-runs/core-v1/early.json",
+        "sha256": "fe25f9d4c262bca33c816bebae7ba55182a53c001f5eea2c02b599d4941021cf",
+        "bytes": 7367
+      },
+      "early_draws": [
+        {
+          "kind": "initial-missing-probe1",
+          "state": {
+            "authoredProbe": 1,
+            "runtimeProbe": 0,
+            "publishedPairs": 1,
+            "publicationCount": 0,
+            "uniformProbe": 0,
+            "uniformTexture": 269,
+            "uniformSize": 400,
+            "probeOffset": 380,
+            "textureOffset": 372,
+            "targetWidth": 622,
+            "targetHeight": 433,
+            "targetFormat": 97,
+            "targetSamples": 1,
+            "viewOwnerOrdinal": 0
+          },
+          "uniform_bytes": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-initial-missing-probe1.uniforms.bin",
+            "sha256": "b4224e65c5153d81b44a33ff5abd980fada0df77eda20a8819f1ccfa1f253f7e",
+            "bytes": 400
+          },
+          "vertex_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-initial-missing-probe1.vert.spv",
+            "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+            "bytes": 25520
+          },
+          "fragment_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-initial-missing-probe1.frag.spv",
+            "sha256": "8ddf420b810107aac8f8da319925d833948976fab25fa8c48c0426287774f078",
+            "bytes": 111924
+          }
+        },
+        {
+          "kind": "initial-live-authored0",
+          "state": {
+            "authoredProbe": 0,
+            "runtimeProbe": 259,
+            "publishedPairs": 1,
+            "publicationCount": 0,
+            "uniformProbe": 259,
+            "uniformTexture": 269,
+            "uniformSize": 400,
+            "probeOffset": 380,
+            "textureOffset": 372,
+            "targetWidth": 622,
+            "targetHeight": 433,
+            "targetFormat": 97,
+            "targetSamples": 1,
+            "viewOwnerOrdinal": 0
+          },
+          "uniform_bytes": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-initial-live-authored0.uniforms.bin",
+            "sha256": "f63414bb8372523e82ca96239973f40faaacec90dcefc223afcd61f67cf5f2db",
+            "bytes": 400
+          },
+          "vertex_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-initial-live-authored0.vert.spv",
+            "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+            "bytes": 25520
+          },
+          "fragment_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-initial-live-authored0.frag.spv",
+            "sha256": "8ddf420b810107aac8f8da319925d833948976fab25fa8c48c0426287774f078",
+            "bytes": 111924
+          }
+        },
+        {
+          "kind": "published-live-probe1",
+          "state": {
+            "authoredProbe": 1,
+            "runtimeProbe": 289,
+            "publishedPairs": 2,
+            "publicationCount": 1,
+            "uniformProbe": 289,
+            "uniformTexture": 269,
+            "uniformSize": 400,
+            "probeOffset": 380,
+            "textureOffset": 372,
+            "targetWidth": 622,
+            "targetHeight": 433,
+            "targetFormat": 97,
+            "targetSamples": 1,
+            "viewOwnerOrdinal": 1
+          },
+          "uniform_bytes": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-published-live-probe1.uniforms.bin",
+            "sha256": "c6afc6a0e3aa5d377b728be24a6a7e9cf4e7869b92fc4adc16e4653b61a83315",
+            "bytes": 400
+          },
+          "vertex_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-published-live-probe1.vert.spv",
+            "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+            "bytes": 25520
+          },
+          "fragment_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/early-published-live-probe1.frag.spv",
+            "sha256": "8ddf420b810107aac8f8da319925d833948976fab25fa8c48c0426287774f078",
+            "bytes": 111924
+          }
+        }
+      ],
+      "actual_publication_events": [
+        {
+          "kind": "before-completed-publication",
+          "sequence": 0,
+          "irradiancePairs": 1,
+          "prefilterPairs": 1,
+          "authoredCount": 2,
+          "authoredPositions": [
+            {
+              "ordinal": 0,
+              "position": [
+                -112,
+                -112,
+                64
+              ]
+            },
+            {
+              "ordinal": 1,
+              "position": [
+                64,
+                0,
+                64
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "completed-publication",
+          "sequence": 1,
+          "irradiancePairs": 2,
+          "prefilterPairs": 2,
+          "authoredCount": 2,
+          "authoredPositions": [
+            {
+              "ordinal": 0,
+              "position": [
+                -112,
+                -112,
+                64
+              ]
+            },
+            {
+              "ordinal": 1,
+              "position": [
+                64,
+                0,
+                64
+              ]
+            }
+          ]
+        }
+      ],
+      "fixed_2d_owner_views": {
+        "nullSlot": 0,
+        "brdfSlot": 1,
+        "null": {
+          "type": 1,
+          "format": 37,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        },
+        "brdf": {
+          "type": 1,
+          "format": 83,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        }
+      },
+      "private_resources": {
+        "pairA": 291,
+        "pairB": 296,
+        "unusedGap": 293,
+        "probeMap": 298,
+        "ownedCubeViews": [
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 1,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          },
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 5,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          },
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 1,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          },
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 5,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          }
+        ],
+        "irradianceSampler": {
+          "minFilter": 1,
+          "magFilter": 1,
+          "mipmapMode": 1,
+          "bias": 0,
+          "minLod": 0,
+          "maxLod": 100,
+          "anisotropy": false,
+          "maxAnisotropy": 1,
+          "address": [
+            2,
+            2,
+            2
+          ],
+          "basis": "captured-successful-vkCreateSampler-arguments"
+        },
+        "prefilterSampler": {
+          "minFilter": 1,
+          "magFilter": 1,
+          "mipmapMode": 1,
+          "bias": 0,
+          "minLod": 0,
+          "maxLod": 100,
+          "anisotropy": false,
+          "maxAnisotropy": 1,
+          "address": [
+            2,
+            2,
+            2
+          ],
+          "basis": "captured-successful-vkCreateSampler-arguments"
+        },
+        "mapView": {
+          "type": 1,
+          "format": 74,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        },
+        "mapSampler": {
+          "minFilter": 0,
+          "magFilter": 0,
+          "mipmapMode": 0,
+          "bias": 0,
+          "minLod": 0,
+          "maxLod": 0.25,
+          "anisotropy": false,
+          "maxAnisotropy": 1,
+          "address": [
+            2,
+            2,
+            0
+          ],
+          "basis": "captured-successful-vkCreateSampler-arguments"
+        },
+        "target": {
+          "type": 1,
+          "format": 109,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        },
+        "depth": {
+          "type": 1,
+          "format": 129,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 6,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        }
+      },
+      "controls": 12,
+      "control_extent": [
+        32,
+        10
+      ],
+      "raw_relationships_independently_recomputed": {
+        "maximumErrors": {
+          "live": 0.0,
+          "mixed": 7.450580596923828e-08,
+          "quad": 0.0,
+          "LoAnalytic": 1.945838237760178e-08,
+          "finalAnalytic": 5.6155609717833954e-08,
+          "diffuseAnalytic": 2.9802322387695312e-08,
+          "N": 8.146236729622558e-08,
+          "R": 2.2835277158073097e-07
+        },
+        "zeroComponents": 768,
+        "lodDelta": 0.19921875,
+        "spatialDelta": 0.121337890625,
+        "pairDelta": 0.250244140625,
+        "controls": 12,
+        "pixelsPerControl": 320
+      },
+      "runner_raw_relationships": {
+        "maximumLiveParityError": 0.0,
+        "maximumGatherError": 7.450580596923828e-08,
+        "maximumQuadError": 0.0,
+        "lodDelta": 0.19921875,
+        "spatialDelta": 0.121337890625,
+        "pairDelta": 0.250244140625,
+        "tolerance": 0.0003,
+        "controls": 12,
+        "pixelsPerControl": 320,
+        "scope": "Independent numerical relationships recomputed from actual retained GPU RGBA32F outputs."
+      },
+      "raw_float_readbacks": [
+        {
+          "name": "uniform-zero",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-uniform-zero.rgba32f",
+            "sha256": "6150d590cc18db6f4b2f0e6efed0c06f30fb666e318063fd92b41960e23ae537",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-uniform-zero.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "gather-allzero",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-gather-allzero.rgba32f",
+            "sha256": "8e17e75c5b949723c7752a011a906cca2946e0e9d87b5aa5a638c6ab78d67aed",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-gather-allzero.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "gather-mixed",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-gather-mixed.rgba32f",
+            "sha256": "b30ee9d6d37c180177a9c8accc3e1ea7c2baa35b511b80d1245409d4b3939418",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-gather-mixed.probe-map-r16",
+            "sha256": "51058c77cecbae8588924b962ef70353ff8884d6e19a23d8e9bf5ff7eb453de9",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "gather-live",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-gather-live.rgba32f",
+            "sha256": "8940bb607a9c8ca8eb698ffc315a49f22966b8674e121c9bf463a5ab9d976d84",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-gather-live.probe-map-r16",
+            "sha256": "4cc35464c394a0684c17e23a6ca7d4e0b0f716788a5ee0e4fb8be799fbf7c356",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "uniform-live-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-uniform-live-a.rgba32f",
+            "sha256": "d9985d5cf67386b1c85e94252c27c363f39f1d6c8664d1623f90e6727275f0b1",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-uniform-live-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "uniform-live-b",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-uniform-live-b.rgba32f",
+            "sha256": "fde1480579c9be84b1fbe11694a608579a75c47bb8c20424873f5e72a2c2d1c8",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-uniform-live-b.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "quad-zero-live",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-quad-zero-live.rgba32f",
+            "sha256": "8149ab4f85f309858151ed2e75fb8be43fafaaf8d7626a617a2e8dc522b5263f",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-quad-zero-live.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "quad-live-live",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-quad-live-live.rgba32f",
+            "sha256": "94c70f0c434ad1174f79c7b3632aea91e9c2a7ab82869bdee8a5dfd3ad2ed987",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-quad-live-live.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "roughness-zero-live-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-roughness-zero-live-a.rgba32f",
+            "sha256": "bccccad0df301dda8d678e07b72c5b30f27493604f09f015cbcd86c1c6c482d2",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-roughness-zero-live-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "roughness-one-live-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-roughness-one-live-a.rgba32f",
+            "sha256": "c56d3143d82d3380ae68a6ff265f0ed0321a39e4c21a24e67f7ba6c658b81da4",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-roughness-one-live-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "original-uniform-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-original-uniform-a.rgba32f",
+            "sha256": "d9985d5cf67386b1c85e94252c27c363f39f1d6c8664d1623f90e6727275f0b1",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-original-uniform-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "original-uniform-b",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-original-uniform-b.rgba32f",
+            "sha256": "fde1480579c9be84b1fbe11694a608579a75c47bb8c20424873f5e72a2c2d1c8",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/core-v1/native-original-uniform-b.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        }
+      ],
+      "normal_private_retirement": true,
+      "retirement_fence_completed": true,
+      "presentation_context": {
+        "identity": {
+          "local_artifact": "build/pf020-native/pf113-runs/core-v1/presentation.png",
+          "sha256": "1b5ac319cda0a25b48aa60ff5fbeaff7027fe5b34d2c1722fcb9a0414957fee3",
+          "bytes": 50686
+        },
+        "decoded_rgb_sha256": "a46949f47fd4a5a62332c2ab5e79a002044f80ca725a11c9bc159a5f0914107f",
+        "roi": [
+          80,
+          80,
+          480,
+          280
+        ],
+        "positive_samples": 8397,
+        "scope": "Fixed scene context only; no parity/human approval."
+      }
+    },
+    {
+      "mode": "sync",
+      "receipt": {
+        "local_artifact": "build/pf020-native/pf113-runs/sync-v1/receipt.json",
+        "sha256": "403df47a67ee7fca75590835890ef09a76896c82e96b208d8e357652939df5c4",
+        "bytes": 123001
+      },
+      "started_utc": "2026-10-04T09:30:11.806441+00:00",
+      "finished_utc": "2026-10-04T09:30:20.081079+00:00",
+      "exit_code": 0,
+      "watchdog_seconds": 90,
+      "gpu_executed": true,
+      "immutable_inputs_unchanged": true,
+      "actual_device_stdout": [
+        "Vulkan device: NVIDIA GeForce GTX 1650 SUPER",
+        "Vulkan device type: discrete gpu",
+        "Vulkan version: 1.4.351 (api) 616.368.0 (driver)"
+      ],
+      "stdout": {
+        "local_artifact": "build/pf020-native/pf113-runs/sync-v1/stdout.log",
+        "sha256": "52e814c5dfed178903e22015a465f47a151abbd6c0014d3a7df906e26b054b64",
+        "bytes": 2616
+      },
+      "stderr": {
+        "local_artifact": "build/pf020-native/pf113-runs/sync-v1/stderr.log",
+        "sha256": "ab971f2da6f58934ff6e9d74d0a8d1583dfd51b818320a1b25ab547ed29d1cf9",
+        "bytes": 19367
+      },
+      "requested_validation_enabled": {
+        "core": false,
+        "sync": true,
+        "gpu-assisted": false
+      },
+      "validation_errors": 0,
+      "validation_warnings": 0,
+      "loader_notices": 5,
+      "implicit_instance_layers": [
+        {
+          "name": "VK_LAYER_OBS_HOOK",
+          "path": "C:\\ProgramData\\obs-studio-hook\\graphics-hook64.dll"
+        },
+        {
+          "name": "VK_LAYER_NV_present",
+          "path": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_b8459fc8f905f657\\nvoglv64.dll"
+        },
+        {
+          "name": "VK_LAYER_NV_optimus",
+          "path": "C:\\WINDOWS\\System32\\DriverStore\\FileRepository\\nv_dispsi.inf_amd64_b8459fc8f905f657\\nvoglv64.dll"
+        }
+      ],
+      "actual_loaded_archives": 7,
+      "settings": {
+        "rendererMode": 4,
+        "globalTextureFilter": 0,
+        "lightProbeEnabled": true,
+        "levelMesh": false,
+        "uberShaders": false,
+        "lightShadows": 0,
+        "clientExtent": [
+          640,
+          480
+        ],
+        "renderExtent": [
+          640,
+          480
+        ]
+      },
+      "checks": 23603,
+      "native_receipt": {
+        "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native.json",
+        "sha256": "ebe5e61a19220bbad5e916710411c88b5f5285cc97d6bc5d23ea31c8b049274a",
+        "bytes": 9564
+      },
+      "early_receipt": {
+        "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early.json",
+        "sha256": "d88a155f0d0fa6983e0f8a43db99edcd510d5d23931db62b1a8a7987ffee4dc6",
+        "bytes": 7367
+      },
+      "early_draws": [
+        {
+          "kind": "initial-missing-probe1",
+          "state": {
+            "authoredProbe": 1,
+            "runtimeProbe": 0,
+            "publishedPairs": 1,
+            "publicationCount": 0,
+            "uniformProbe": 0,
+            "uniformTexture": 269,
+            "uniformSize": 400,
+            "probeOffset": 380,
+            "textureOffset": 372,
+            "targetWidth": 622,
+            "targetHeight": 433,
+            "targetFormat": 97,
+            "targetSamples": 1,
+            "viewOwnerOrdinal": 0
+          },
+          "uniform_bytes": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-initial-missing-probe1.uniforms.bin",
+            "sha256": "b4224e65c5153d81b44a33ff5abd980fada0df77eda20a8819f1ccfa1f253f7e",
+            "bytes": 400
+          },
+          "vertex_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-initial-missing-probe1.vert.spv",
+            "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+            "bytes": 25520
+          },
+          "fragment_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-initial-missing-probe1.frag.spv",
+            "sha256": "8ddf420b810107aac8f8da319925d833948976fab25fa8c48c0426287774f078",
+            "bytes": 111924
+          }
+        },
+        {
+          "kind": "initial-live-authored0",
+          "state": {
+            "authoredProbe": 0,
+            "runtimeProbe": 259,
+            "publishedPairs": 1,
+            "publicationCount": 0,
+            "uniformProbe": 259,
+            "uniformTexture": 269,
+            "uniformSize": 400,
+            "probeOffset": 380,
+            "textureOffset": 372,
+            "targetWidth": 622,
+            "targetHeight": 433,
+            "targetFormat": 97,
+            "targetSamples": 1,
+            "viewOwnerOrdinal": 0
+          },
+          "uniform_bytes": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-initial-live-authored0.uniforms.bin",
+            "sha256": "f63414bb8372523e82ca96239973f40faaacec90dcefc223afcd61f67cf5f2db",
+            "bytes": 400
+          },
+          "vertex_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-initial-live-authored0.vert.spv",
+            "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+            "bytes": 25520
+          },
+          "fragment_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-initial-live-authored0.frag.spv",
+            "sha256": "8ddf420b810107aac8f8da319925d833948976fab25fa8c48c0426287774f078",
+            "bytes": 111924
+          }
+        },
+        {
+          "kind": "published-live-probe1",
+          "state": {
+            "authoredProbe": 1,
+            "runtimeProbe": 289,
+            "publishedPairs": 2,
+            "publicationCount": 1,
+            "uniformProbe": 289,
+            "uniformTexture": 269,
+            "uniformSize": 400,
+            "probeOffset": 380,
+            "textureOffset": 372,
+            "targetWidth": 622,
+            "targetHeight": 433,
+            "targetFormat": 97,
+            "targetSamples": 1,
+            "viewOwnerOrdinal": 1
+          },
+          "uniform_bytes": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-published-live-probe1.uniforms.bin",
+            "sha256": "bf0fbd15ddb34e22a6b22dfd2231bec8dbac076d058c82e1195eccedeb43aa81",
+            "bytes": 400
+          },
+          "vertex_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-published-live-probe1.vert.spv",
+            "sha256": "59d419e94be917797e5a551098acb4d8e27fb93100aaf930abd0c4212602b767",
+            "bytes": 25520
+          },
+          "fragment_spirv": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/early-published-live-probe1.frag.spv",
+            "sha256": "8ddf420b810107aac8f8da319925d833948976fab25fa8c48c0426287774f078",
+            "bytes": 111924
+          }
+        }
+      ],
+      "actual_publication_events": [
+        {
+          "kind": "before-completed-publication",
+          "sequence": 0,
+          "irradiancePairs": 1,
+          "prefilterPairs": 1,
+          "authoredCount": 2,
+          "authoredPositions": [
+            {
+              "ordinal": 0,
+              "position": [
+                -112,
+                -112,
+                64
+              ]
+            },
+            {
+              "ordinal": 1,
+              "position": [
+                64,
+                0,
+                64
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "completed-publication",
+          "sequence": 1,
+          "irradiancePairs": 2,
+          "prefilterPairs": 2,
+          "authoredCount": 2,
+          "authoredPositions": [
+            {
+              "ordinal": 0,
+              "position": [
+                -112,
+                -112,
+                64
+              ]
+            },
+            {
+              "ordinal": 1,
+              "position": [
+                64,
+                0,
+                64
+              ]
+            }
+          ]
+        }
+      ],
+      "fixed_2d_owner_views": {
+        "nullSlot": 0,
+        "brdfSlot": 1,
+        "null": {
+          "type": 1,
+          "format": 37,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        },
+        "brdf": {
+          "type": 1,
+          "format": 83,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        }
+      },
+      "private_resources": {
+        "pairA": 291,
+        "pairB": 296,
+        "unusedGap": 293,
+        "probeMap": 298,
+        "ownedCubeViews": [
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 1,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          },
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 5,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          },
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 1,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          },
+          {
+            "type": 3,
+            "format": 97,
+            "baseMip": 0,
+            "mips": 5,
+            "baseLayer": 0,
+            "layers": 6,
+            "aspect": 1,
+            "basis": "captured-successful-vkCreateImageView-arguments"
+          }
+        ],
+        "irradianceSampler": {
+          "minFilter": 1,
+          "magFilter": 1,
+          "mipmapMode": 1,
+          "bias": 0,
+          "minLod": 0,
+          "maxLod": 100,
+          "anisotropy": false,
+          "maxAnisotropy": 1,
+          "address": [
+            2,
+            2,
+            2
+          ],
+          "basis": "captured-successful-vkCreateSampler-arguments"
+        },
+        "prefilterSampler": {
+          "minFilter": 1,
+          "magFilter": 1,
+          "mipmapMode": 1,
+          "bias": 0,
+          "minLod": 0,
+          "maxLod": 100,
+          "anisotropy": false,
+          "maxAnisotropy": 1,
+          "address": [
+            2,
+            2,
+            2
+          ],
+          "basis": "captured-successful-vkCreateSampler-arguments"
+        },
+        "mapView": {
+          "type": 1,
+          "format": 74,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        },
+        "mapSampler": {
+          "minFilter": 0,
+          "magFilter": 0,
+          "mipmapMode": 0,
+          "bias": 0,
+          "minLod": 0,
+          "maxLod": 0.25,
+          "anisotropy": false,
+          "maxAnisotropy": 1,
+          "address": [
+            2,
+            2,
+            0
+          ],
+          "basis": "captured-successful-vkCreateSampler-arguments"
+        },
+        "target": {
+          "type": 1,
+          "format": 109,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 1,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        },
+        "depth": {
+          "type": 1,
+          "format": 129,
+          "baseMip": 0,
+          "mips": 1,
+          "baseLayer": 0,
+          "layers": 1,
+          "aspect": 6,
+          "basis": "captured-successful-vkCreateImageView-arguments"
+        }
+      },
+      "controls": 12,
+      "control_extent": [
+        32,
+        10
+      ],
+      "raw_relationships_independently_recomputed": {
+        "maximumErrors": {
+          "live": 0.0,
+          "mixed": 7.450580596923828e-08,
+          "quad": 0.0,
+          "LoAnalytic": 1.945838237760178e-08,
+          "finalAnalytic": 5.6155609717833954e-08,
+          "diffuseAnalytic": 2.9802322387695312e-08,
+          "N": 8.146236729622558e-08,
+          "R": 2.2835277158073097e-07
+        },
+        "zeroComponents": 768,
+        "lodDelta": 0.19921875,
+        "spatialDelta": 0.121337890625,
+        "pairDelta": 0.250244140625,
+        "controls": 12,
+        "pixelsPerControl": 320
+      },
+      "runner_raw_relationships": {
+        "maximumLiveParityError": 0.0,
+        "maximumGatherError": 7.450580596923828e-08,
+        "maximumQuadError": 0.0,
+        "lodDelta": 0.19921875,
+        "spatialDelta": 0.121337890625,
+        "pairDelta": 0.250244140625,
+        "tolerance": 0.0003,
+        "controls": 12,
+        "pixelsPerControl": 320,
+        "scope": "Independent numerical relationships recomputed from actual retained GPU RGBA32F outputs."
+      },
+      "raw_float_readbacks": [
+        {
+          "name": "uniform-zero",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-uniform-zero.rgba32f",
+            "sha256": "6150d590cc18db6f4b2f0e6efed0c06f30fb666e318063fd92b41960e23ae537",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-uniform-zero.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "gather-allzero",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-gather-allzero.rgba32f",
+            "sha256": "8e17e75c5b949723c7752a011a906cca2946e0e9d87b5aa5a638c6ab78d67aed",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-gather-allzero.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "gather-mixed",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-gather-mixed.rgba32f",
+            "sha256": "b30ee9d6d37c180177a9c8accc3e1ea7c2baa35b511b80d1245409d4b3939418",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-gather-mixed.probe-map-r16",
+            "sha256": "51058c77cecbae8588924b962ef70353ff8884d6e19a23d8e9bf5ff7eb453de9",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "gather-live",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-gather-live.rgba32f",
+            "sha256": "8940bb607a9c8ca8eb698ffc315a49f22966b8674e121c9bf463a5ab9d976d84",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-gather-live.probe-map-r16",
+            "sha256": "4cc35464c394a0684c17e23a6ca7d4e0b0f716788a5ee0e4fb8be799fbf7c356",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "uniform-live-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-uniform-live-a.rgba32f",
+            "sha256": "d9985d5cf67386b1c85e94252c27c363f39f1d6c8664d1623f90e6727275f0b1",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-uniform-live-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "uniform-live-b",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-uniform-live-b.rgba32f",
+            "sha256": "fde1480579c9be84b1fbe11694a608579a75c47bb8c20424873f5e72a2c2d1c8",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-uniform-live-b.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "quad-zero-live",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-quad-zero-live.rgba32f",
+            "sha256": "8149ab4f85f309858151ed2e75fb8be43fafaaf8d7626a617a2e8dc522b5263f",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-quad-zero-live.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "quad-live-live",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-quad-live-live.rgba32f",
+            "sha256": "94c70f0c434ad1174f79c7b3632aea91e9c2a7ab82869bdee8a5dfd3ad2ed987",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-quad-live-live.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "roughness-zero-live-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-roughness-zero-live-a.rgba32f",
+            "sha256": "bccccad0df301dda8d678e07b72c5b30f27493604f09f015cbcd86c1c6c482d2",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-roughness-zero-live-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "roughness-one-live-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-roughness-one-live-a.rgba32f",
+            "sha256": "c56d3143d82d3380ae68a6ff265f0ed0321a39e4c21a24e67f7ba6c658b81da4",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-roughness-one-live-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "original-uniform-a",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-original-uniform-a.rgba32f",
+            "sha256": "d9985d5cf67386b1c85e94252c27c363f39f1d6c8664d1623f90e6727275f0b1",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-original-uniform-a.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        },
+        {
+          "name": "original-uniform-b",
+          "readback": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-original-uniform-b.rgba32f",
+            "sha256": "fde1480579c9be84b1fbe11694a608579a75c47bb8c20424873f5e72a2c2d1c8",
+            "bytes": 5120
+          },
+          "map": {
+            "local_artifact": "build/pf020-native/pf113-runs/sync-v1/native-original-uniform-b.probe-map-r16",
+            "sha256": "af5570f5a1810b7af78caf4bc70a660f0df51e42baf91d4de5b2328de0e83dfc",
+            "bytes": 8
+          }
+        }
+      ],
+      "normal_private_retirement": true,
+      "retirement_fence_completed": true,
+      "presentation_context": {
+        "identity": {
+          "local_artifact": "build/pf020-native/pf113-runs/sync-v1/presentation.png",
+          "sha256": "b342e5d1313132db6a46d33b07718c8764ec0483db81789f369f9b12d4dbd457",
+          "bytes": 50710
+        },
+        "decoded_rgb_sha256": "a3e67e8a0b03e7419556a3c091ac03ab6d0498c7baf881a2dbcced8bb30363a2",
+        "roi": [
+          80,
+          80,
+          480,
+          280
+        ],
+        "positive_samples": 8397,
+        "scope": "Fixed scene context only; no parity/human approval."
+      }
+    }
+  ],
+  "independent_review": {
+    "native_math": {
+      "local_artifact": "build/pf020-native/pf113-review/report-03.json",
+      "sha256": "325fe9fe5ac0a9ba6fbc0d3d209aea7847ca3061ca7c97327b78758eab046ab0",
+      "bytes": 22399
+    },
+    "positive_live_supplement": {
+      "local_artifact": "build/pf020-native/pf113-review/positive-supplement.json",
+      "sha256": "0ef4d776a08efe538bc6b59f9414ba37ef7e1e8b2c2af7670a4c629dcd132048",
+      "bytes": 406
+    },
+    "closure": {
+      "local_artifact": "build/pf020-native/pf113-review/independent-closure-review.json",
+      "sha256": "a630e23cc5f7e4535ac831506a3b14f136af8c7b95f69d06fd5e39bf0edd8f47",
+      "bytes": 11025
+    },
+    "unique_identity_files_rehashed": 2686,
+    "identity_references_rehashed": 576,
+    "spirv_tools": {
+      "report": {
+        "local_artifact": "build/pf020-native/pf113-review/spirv-val-review-02/report.json",
+        "sha256": "0a9c6ec9913622b43f02708bc34c9f2a9abda1eedc371e903e2c9beba16606d3",
+        "bytes": 55129
+      },
+      "files": 18,
+      "unique_modules": 5,
+      "passed": 18,
+      "target_env": "vulkan1.2",
+      "additional_flags": [],
+      "validator_sha256": "55b0bde93c20d427a95d6deb95181ab6621d9bb18e6f1519d30ceba8d3f1de17",
+      "input_identity_stable": true
+    }
+  },
+  "retained_attempts": [
+    {
+      "receipt": {
+        "local_artifact": "build/pf020-native/pf113-build-01/receipt.json",
+        "sha256": "93853669da0633ed90aa1c3e8b3dac5e9ae959b50b542cda9a3e5e3b3d921294",
+        "bytes": 613775
+      },
+      "status": "BUILD_FAILED",
+      "cause": "Two FString char-pointer comparison compile errors in opt-in diagnostics; repaired with CompareNoCase before clean candidate2 build."
+    },
+    {
+      "receipt": {
+        "local_artifact": "build/pf020-native/pf113-checks-01/receipt.json",
+        "sha256": "03b73eaaf25e022d077e13b2ad8c5fceb0165a8e6d9076045e00a51fc70401eb",
+        "bytes": 4212
+      },
+      "status": "FAIL",
+      "disposition": {
+        "local_artifact": "build/pf020-native/pf113-checks-01/disposition.json",
+        "sha256": "169790b35418fdfe0ca77d78636f4c31b6e4aeb98c60b7773964a3dd8c7105c6",
+        "bytes": 18706
+      },
+      "cause": "All CPU subprocesses passed; wrapper detected untracked Python bytecode outputs. Caches retained; rerun02 disables bytecode and passes clean."
+    }
+  ],
+  "limits": [
+    "No GPU timings, performance improvement or full-frame budget claim.",
+    "Only immediate specialized PBR is exercised; LevelMesh/ubershaders are explicitly disabled.",
+    "Early three actual emitted draw extents are622x433; later client/render presentation is640x480 and private controls32x10.",
+    "Actual command/uniform/shader publication evidence plus legal private readbacks; no initial-main-frame pixel capture or whole-frame parity claim.",
+    "Private controls exclude per-light loops; positive precomputed dynamic/ambient Lo is measured, sunlight preservation is source equality, not sunlight GPU sampling.",
+    "View/sampler metadata captures immutable successful Vulkan creation arguments, not driver introspection.",
+    "Original GPU comparison is limited to legal uniform live probes; unsafe original zero/divergent accesses are never launched.",
+    "No GPU-assisted validation, human visual acceptance, probe calibration, full bake robustness or P400 qualification.",
+    "Five loader notices per run and active OBS/NVIDIA implicit layers remain recorded; zero errors/warnings refers specifically to Khronos validation diagnostics.",
+    "Raw game/palette/pixel content and unrestricted logs remain local.",
+    "PF020/#37 and SDVK001 require their separate full freeze acceptance; this qualification does not close them."
+  ]
+}

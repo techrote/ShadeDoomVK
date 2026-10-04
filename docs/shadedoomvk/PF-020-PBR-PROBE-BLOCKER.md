@@ -1,6 +1,6 @@
-# PF-020 — PBR missing-probe fallback blocker
+# PF-020 â€” PBR missing-probe fallback blocker
 
-Status: **OPEN — source-established release blocker; implementation decision adopted, repair/proof pending**
+Status: **OPEN â€” source-established release blocker; implementation decision adopted, repair/proof pending**
 
 Authority: [#113](https://github.com/techrote/ShadeDoomVK/issues/113), required by [PF-020 / #37](https://github.com/techrote/ShadeDoomVK/issues/37)
 
@@ -12,9 +12,11 @@ Audit date: 2026-10-04
 [#113's delegated contribution decision](PF-113-MISSING-IBL-DECISION.md) is now
 recorded: zero IBL for missing token zero, with original mixed-tap weights and
 sum order retained. No renormalization or environment substitution is adopted.
-This does not accept a repair or the freeze. The original unresolved-decision
-audit below remains historical evidence; source-extracted negatives and current
-guards, native unavailable-to-published proof and release gates remain required.
+[Guarded implementation and native qualification](PF-113-IMPLEMENTATION-NOTES.md)
+and [compact measured receipt](PF-113-FINAL-NATIVE-VERIFICATION.json) now pass.
+Final exact-head CI/review and merge/master/post-merge gates remain required.
+The original unresolved-decision audit below remains historical evidence;
+PF-020 still requires its separate full freeze acceptance.
 
 ## Finding and evidence boundary
 
@@ -28,17 +30,17 @@ The following are Git **blob SHA-1** identities returned through authenticated G
 
 | Accepted source and relevant lines | Git blob SHA-1 |
 |---|---|
-| [UDMF authored indices, 919–924](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/maploader/udmf.cpp#L919) | `2cf9ccfbf64cbdb29e7e0b5c5b05e89cbb8761bd` |
-| [Closest sector/side targets, 726–771](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/g_levellocals.h#L726) | `ce93f115eebc837903a1adcf08bb88c3e078f314` |
-| [Incremental render/publication order, 33–40](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/hwrenderer/data/hw_lightprobe.cpp#L33) | `73c20dc1eb0f9a083e036267ea17cdf4d3e900e0` |
-| [Initial cube pair, 432–450; sampled collection growth, 507–509; 2D fixed views, 180–218](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/textures/vk_texture.cpp#L432) | `976edcf98f3ba076504212253d79dc2561883014` |
-| [Completed-pass publication, 486–489](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/vk_lightprober.cpp#L486) | `eafeecafe4e90c29f4b7c67ef0122f014a25069f` |
-| [Fixed descriptors, 202–203; missing-map lookup, 578–602](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp#L578) | `47c9e8b5c7225d9437b0d39d6dc64a16fa810d21` |
+| [UDMF authored indices, 919â€“924](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/maploader/udmf.cpp#L919) | `2cf9ccfbf64cbdb29e7e0b5c5b05e89cbb8761bd` |
+| [Closest sector/side targets, 726â€“771](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/g_levellocals.h#L726) | `ce93f115eebc837903a1adcf08bb88c3e078f314` |
+| [Incremental render/publication order, 33â€“40](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/hwrenderer/data/hw_lightprobe.cpp#L33) | `73c20dc1eb0f9a083e036267ea17cdf4d3e900e0` |
+| [Initial cube pair, 432â€“450; sampled collection growth, 507â€“509; 2D fixed views, 180â€“218](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/textures/vk_texture.cpp#L432) | `976edcf98f3ba076504212253d79dc2561883014` |
+| [Completed-pass publication, 486â€“489](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/vk_lightprober.cpp#L486) | `eafeecafe4e90c29f4b7c67ef0122f014a25069f` |
+| [Fixed descriptors, 202â€“203; missing-map lookup, 578â€“602](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp#L578) | `47c9e8b5c7225d9437b0d39d6dc64a16fa810d21` |
 | [Uniform lookup, 461](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/common/rendering/vulkan/vk_renderstate.cpp#L461) | `0d42691aef22429e979acbdfbeef2217d856b3cc` |
-| [Enabled incremental probe rendering, 450–472](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/rendering/hwrenderer/hw_entrypoint.cpp#L450) | `b6c1eacef1df735c295a847c8f59af5c3eb2becc` |
-| [PBR zero/live sampling branches, 182–209](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/wadsrc/static/shaders/scene/lightmodel_pbr.glsl#L182) | `d43b6e66af7b5644aec3dc0b0cd24d829891667d` |
+| [Enabled incremental probe rendering, 450â€“472](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/src/rendering/hwrenderer/hw_entrypoint.cpp#L450) | `b6c1eacef1df735c295a847c8f59af5c3eb2becc` |
+| [PBR zero/live sampling branches, 182â€“209](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/wadsrc/static/shaders/scene/lightmodel_pbr.glsl#L182) | `d43b6e66af7b5644aec3dc0b0cd24d829891667d` |
 | [Cube-sampler declaration, 3](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/wadsrc/static/shaders/scene/binding_textures.glsl#L3) | `95e976ae0cd5aa3a9ee39ee422ede51610c11eed` |
-| [Default 2D image-view type, 384–390](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/libraries/ZVulkan/src/vulkanbuilders.cpp#L384) | `7e9223a1ddd57d91e6f005a78aeb5204c2996314` |
+| [Default 2D image-view type, 384â€“390](https://github.com/techrote/ShadeDoomVK/blob/4df7dea1338f063c6417e024f967bfa4aa23edd4/libraries/ZVulkan/src/vulkanbuilders.cpp#L384) | `7e9223a1ddd57d91e6f005a78aeb5204c2996314` |
 
 ## Reachable initial multi-probe chain
 
