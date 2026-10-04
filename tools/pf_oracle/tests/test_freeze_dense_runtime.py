@@ -56,10 +56,11 @@ def bench_block(all_ms="18.167", sprite_setup="3.854"):
 
 def seed_ini():
     values = dict(dense.GLOBAL)
-    values.update(use_mouse="true", m_use_mouse="1", vid_activeinbackground="false", vid_lowerinbackground="true")
+    values.update(use_mouse="true", m_use_mouse="1", vid_activeinbackground="false", vid_lowerinbackground="true", show_messages="true")
+    game = {**dense.GAME, "con_notifytime": "3"}
     return ('[IWADSearch.Directories]\nPath=old\nPath=older\n[GlobalSettings]\n'
             + "\n".join(k + "=" + v for k, v in values.items())
-            + '\n[Doom.ConsoleVariables]\n' + "\n".join(k + "=" + v for k, v in dense.GAME.items())
+            + '\n[Doom.ConsoleVariables]\n' + "\n".join(k + "=" + v for k, v in game.items())
             + '\n[Doom.Bindings]\nw=+forward\n[Doom.DoubleBindings]\nmouse1=+attack\n'
             '[Doom.ConsoleAliases]\nbench=quit\n[Doom.AutoExec]\nPath=unsafe.cfg\n'
             '[Global.Autoload]\nPath=unknown.wad\n')
@@ -181,6 +182,36 @@ class DenseRuntimeTests(unittest.TestCase):
     def test_seed_quality_change_rejected(self):
         with self.assertRaisesRegex(ValueError, "quality"):
             dense.configuration(seed_ini().replace("gl_texture_filter=6", "gl_texture_filter=0"))
+
+    def test_notifications_are_explicit_ui_overrides_without_renderer_quality_change(self):
+        source = dense.ini_sections(seed_ini())
+        result = dense.ini_sections(dense.configuration(seed_ini()))
+        self.assertEqual(dense.section_values(source, "GlobalSettings", dense.UI_GLOBAL), {"show_messages": "true"})
+        self.assertEqual(dense.section_values(source, "Doom.ConsoleVariables", dense.UI_GAME), {"con_notifytime": "3"})
+        self.assertEqual(dense.section_values(result, "GlobalSettings", dense.UI_GLOBAL), {"show_messages": "false"})
+        self.assertEqual(dense.section_values(result, "Doom.ConsoleVariables", dense.UI_GAME), {"con_notifytime": "0"})
+        self.assertEqual(dense.section_values(result, "GlobalSettings", {"gl_texture_filter": "6", "gl_spritelight": "2"}),
+                         {"gl_texture_filter": "6", "gl_spritelight": "2"})
+        # Captured absence is paired with actual runtime queries and saved state,
+        # not inferred from requested commands or a seed alone.
+        self.assertEqual(dense.QUERIES["show_messages"], "false")
+        self.assertEqual(dense.QUERIES["con_notifytime"], "0")
+        script = dense.execution_script(self.out)
+        self.assertTrue(script.startswith("show_messages false; con_notifytime 0; "))
+        self.assertLess(script.index("show_messages false"), script.index("; show_messages;"))
+
+    def test_source_linked_notification_gate_preserves_stdout_query_proof(self):
+        notify = (ROOT / "src/console/c_notifybuffer.cpp").read_text()
+        start = notify.index("void FNotifyBuffer::AddString")
+        guard = notify[start:notify.index("// [MK]", start)]
+        self.assertRegex(guard, r"(?s)\{\s*if \(!show_messages \|\|.*?\)\s*return;")
+        self.assertIn("CVAR(Float, con_notifytime, 3.f, CVAR_ARCHIVE)", notify)
+        commands = (ROOT / "src/console/c_cmds.cpp").read_text()
+        self.assertIn("CVARD(Bool, show_messages, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG", commands)
+        console = (ROOT / "src/common/console/c_console.cpp").read_text()
+        print_body = console[console.index("int PrintString ("):]
+        self.assertLess(print_body.index("I_PrintStr(outline);"), print_body.index("NotifyStrings->AddString"))
+        self.assertNotIn("show_messages", print_body[:print_body.index("I_PrintStr(outline);")])
 
     def test_runtime_queries_all_required_and_unique(self):
         text = "\n".join(f'"{k}" is "{v}" (default: "other")' for k, v in dense.QUERIES.items()) + "\n"

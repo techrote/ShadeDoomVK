@@ -1,0 +1,55 @@
+{
+  "schema": "pf020-ordinary-dense-retained-attempts/v1",
+  "freezeStatus": "BLOCKED",
+  "attempts": [
+    {
+      "id": "warm-baseline-01",
+      "toolSourceHead": "6af00e847d2c7cb6d6b21ce8425e993eb65d0712",
+      "originalRunnerStatus": "PASS",
+      "rootPresentationDisposition": "REJECTED",
+      "scored": false,
+      "reason": "Actual warmup capture retains pre-capture CVar query notification text. Valid decoded nonblank PNG is insufficient proof that those notifications are absent. Root inspected the image before any candidate warmup/scored pairs.",
+      "nativeExit": 0,
+      "durationSeconds": 38.82560400001239,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "sourceBuildInputStopUnchanged": true,
+      "extent": [
+        1904,
+        1001
+      ],
+      "decodedRgbSha256": "d9bd3ae629940017c00050337d5d15894739766e99ee47d2ca5693f021cfdfe8",
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-baseline-01/receipt.json",
+        "bytes": 1518466,
+        "sha256": "5908162b0c660bdbc2ca0a44dc01fe2bc16ce56825c01ec499ba7ec6ccf5478a"
+      },
+      "rawImage": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-baseline-01/scene.png",
+        "bytes": 1222938,
+        "sha256": "5173a39fab3a9b900fed9ab45a5fe388578bd381774fbe1bc05e7c21e90ffd0b"
+      },
+      "stdout": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-baseline-01/stdout.log",
+        "bytes": 3785,
+        "sha256": "1933cfe6844f7e47063bc054165469b9e1d62ca3a265c35244cbd197e1703634"
+      },
+      "stderr": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-baseline-01/stderr.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "cpuBenchSnapshotsRetained": 5,
+      "cpuBenchSnapshotsScored": 0,
+      "gpuTimestampClaimed": false,
+      "nextAction": "Source-backed UI notification suppression and guard tests at a new committed tool head, then explicitly revised fresh two-warmup/five-pair packet. Do not retry this output or relabel its picture as clean."
+    }
+  ],
+  "limits": [
+    "Raw native/state/timer observations remain real within their recorded scope. No picture parity, scored performance conclusion, PF020 acceptance or human approval follows. Original receipt and outputs are immutable."
+  ]
+}

@@ -1,6 +1,6 @@
 # PF-020 ordinary Dense qualification protocol
 
-Status: preregistered bounded qualification; **no runtime result yet**. This
+Status: revised preregistered bounded qualification; **no scored result yet**. This
 packet contributes current production CPU-overhead and main-image evidence to
 [PF-020](issues/PF-020.md), without accepting its remaining view/sprite/key
 equivalence gates. The historical PF017/CFX STOP scopes remain sealed.
@@ -36,7 +36,19 @@ inventory. Presentation must decode as RGB8 at1904×1001.
 
 ## Physical run order and failure disposition
 
-Exactly two unscored warmup processes followed by five pairs:
+The first baseline warmup at tool head `6af00e847d2c7cb6d6b21ce8425e993eb65d0712`
+completed all native/device/settings/count/input gates, but root rejected its
+image because CVar query notifications remained across the top. The original
+runner PASS receipt and pixels remain immutable in
+[retained attempt disposition](PF-020-DENSE-RETAINED-ATTEMPTS.json). None of its
+CPU snapshots is scored. No candidate or scored process ran under that head.
+
+Revision: suppress UI notifications through the existing `show_messages=false`
+and `con_notifytime=0` controls before startup/query output, while retaining stdout and actual CVar
+proof. Re-run relevant guards from a new recorded tool head, then use fresh
+`warm-baseline-02` / `warm-candidate-02` directories and pair directories.
+This explicitly revised packet has exactly two unscored warmup processes
+followed by five pairs:
 
 ```text
 01 warm baseline
@@ -65,7 +77,9 @@ Windows event metadata occur outside the measured child interval.
 
 Renderer mode4; ordinary BSP with LevelMesh off; sprite lights2; multithreading
 on; filter6; anisotropy0; scale1; uncapped/vsync off; windowed1904×1001. Input is
-locked and autoload/autoexec/audio/joystick are disabled. Production diagnostics
+locked and autoload/autoexec/audio/joystick are disabled. UI query notifications
+are disabled through `show_messages=false` and `con_notifytime=0`; stdout remains available.
+Production diagnostics
 and Vulkan validation are off. Environment sanitization and actual pre-capture
 CVar queries are recorded, rather than inferred from a seed alone.
 

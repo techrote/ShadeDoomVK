@@ -44,13 +44,17 @@ SEED = Path("C:/ShadeDoomVK/pf-local-evidence/pf016/configs/pf016-01.ini")
 SEED_SHA = "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
 STOP_FILE = ROOT / "docs/shadedoomvk/evidence/pf017-final-acceptance/stop-guards.json"
 STOP_SHA = "379e529d1a76e5a313ee71f36a88833cd603c8a3a7cbecbdd32717266da6c16a"
+# Capture-only UI overrides. These are deliberately excluded from the preserved
+# authoring/renderer quality predicate; the historical seed enables messages.
+UI_GLOBAL = {"show_messages": "false"}
+UI_GAME = {"con_notifytime": "0"}
 GLOBAL = {"vid_rendermode": "4", "gl_multithread": "true", "gl_spritelight": "2", "gl_lights": "true",
           "gl_texture_filter": "6", "gl_texture_filter_anisotropic": "0", "gl_texture_hqresizemode": "0",
           "vid_scalefactor": "1", "vid_scalemode": "0", "cl_capfps": "false", "vid_maxfps": "0",
           "vid_vsync": "false", "vid_fullscreen": "false", "vk_debug": "false", "vk_device": "0",
           "use_mouse": "false", "m_use_mouse": "0", "vid_activeinbackground": "true",
-          "vid_lowerinbackground": "false"}
-GAME = {"lm_dynlights": "false", "gl_lightmode": "1"}
+          "vid_lowerinbackground": "false", **UI_GLOBAL}
+GAME = {"lm_dynlights": "false", "gl_lightmode": "1", **UI_GAME}
 QUERIES = {**GLOBAL, **GAME, "gl_levelmesh": "false"}
 COUNTS = {"walls": 5, "splits": 0, "tSplits": 0, "wallVertices": 20, "flats": 2,
           "flatPrimitives": 2, "flatVertices": 24, "sprites": 832, "decals": 0, "portals": 0,
@@ -264,9 +268,10 @@ def section_values(sections, section, wanted):
 def configuration(seed):
     sections = ini_sections(seed)
     seed_globals = {k: v for k, v in GLOBAL.items() if k not in (
-        "use_mouse", "m_use_mouse", "vid_activeinbackground", "vid_lowerinbackground")}
+        "use_mouse", "m_use_mouse", "vid_activeinbackground", "vid_lowerinbackground") and k not in UI_GLOBAL}
+    seed_game = {k: v for k, v in GAME.items() if k not in UI_GAME}
     actual = section_values(sections, "GlobalSettings", seed_globals)
-    require(actual == seed_globals and section_values(sections, "Doom.ConsoleVariables", GAME) == GAME,
+    require(actual == seed_globals and section_values(sections, "Doom.ConsoleVariables", seed_game) == seed_game,
             "Seed quality settings differ from preserved Dense controls")
     for section in sections:
         if section.endswith((".Bindings", ".DoubleBindings", ".AutomapBindings", ".ConsoleAliases", ".AutoExec", ".Autoload")):
@@ -290,7 +295,7 @@ def console_path(path):
 
 
 def execution_script(out):
-    commands = ["use_mouse false", "m_use_mouse 0", "unbindall", "vid_activeinbackground true",
+    commands = ["show_messages false", "con_notifytime 0", "use_mouse false", "m_use_mouse 0", "unbindall", "vid_activeinbackground true",
                 "vid_lowerinbackground false", "gl_levelmesh false", "lm_dynlights false",
                 "vid_setsize 1904 1001", "wait 35", "vid_fps true", "stat rendertimes", "bench",
                 "wait 350", "pause", "wait 60"]
@@ -602,6 +607,8 @@ def prepare(args, out, receipt):
     checked(args.config_seed, SEED_SHA); checked(args.iwad, IWAD_SHA)
     require(len(wad_members(args.iwad, b"IWAD")) == 2928, "Wrong isolated stock IWAD")
     receipt["fixtureContract"] = fixture_evidence(args.fixture)
+    receipt["uiOnlyOverrides"] = {"GlobalSettings": UI_GLOBAL, "Doom.ConsoleVariables": UI_GAME,
+                                   "scope": "Suppress capture notifications; actual CVar queries remain in stdout"}
     config = configuration(Path(args.config_seed).read_text())
     (out / "configuration-input.ini").write_text(config, encoding="utf-8", newline="\n")
     (out / "fixture-live.ini").write_text(config, encoding="utf-8", newline="\n")
