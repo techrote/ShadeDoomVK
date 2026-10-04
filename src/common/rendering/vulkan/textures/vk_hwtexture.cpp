@@ -70,6 +70,10 @@ void VkHardwareTexture::Reset()
 		mImage.Reset(fb);
 		mPaletteImage.Reset(fb);
 		mAlphaImage.Reset(fb);
+		for (auto& image : IndexedPaletteImages) image.second->Reset(fb);
+		for (auto& image : IndexedAlphaImages) image.second->Reset(fb);
+		IndexedPaletteImages.clear();
+		IndexedAlphaImages.clear();
 		mDepthStencil.Reset(fb);
 	}
 }
@@ -97,6 +101,40 @@ VkTextureImage *VkHardwareTexture::GetImage(FTexture *tex, int translation, int 
 			CreateImage(&mImage, tex, translation, flags);
 		return &mImage;
 	}
+}
+
+static const FRemapTable* ResolveIndexedTranslation(int translation)
+{
+	auto remap = translation <= 0 || IsLuminosityTranslation(translation) ? nullptr : GPalette.TranslationToTable(translation);
+	return remap && !remap->Inactive ? remap : nullptr;
+}
+
+VkTextureImage *VkHardwareTexture::GetIndexedMaterialImage(FTexture *tex, int translation, int flags)
+{
+	const auto* remap = ResolveIndexedTranslation(translation);
+	const bool redIsAlpha = (flags & CTF_IndexedRedIsAlpha) != 0;
+	VkTextureImage* image;
+	if (remap)
+	{
+		auto& variants = redIsAlpha ? IndexedAlphaImages : IndexedPaletteImages;
+		auto& variant = variants[remap];
+		if (!variant) variant = std::make_unique<VkTextureImage>();
+		image = variant.get();
+	}
+	else
+	{
+		image = redIsAlpha ? &mAlphaImage : &mPaletteImage;
+		translation = 0;
+	}
+	if (!image->Image)
+	{
+		// Indexed CTF_CheckOnly already produces all R8 bytes. Resolve/upload
+		// once now: a deferred repeat could resolve a replaced numeric ID into
+		// different bytes under the immutable remap key. Keep remapping before
+		// getTexel's inverse/tint operations, rather than translating a palette.
+		CreateImage(image, tex, translation, flags, false);
+	}
+	return image;
 }
 
 VkTextureImage *VkHardwareTexture::GetDepthStencil(FTexture *tex)
@@ -200,11 +238,11 @@ void VkTextureManager::FinishTextureUpload(const FUploadStagingAllocation& alloc
 	}
 }
 
-void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags)
+void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags, bool allowAsync)
 {
 	if (!tex->isHardwareCanvas())
 	{
-		if (gl_async_textures && tex->GetImage())
+		if (allowAsync && gl_async_textures && tex->GetImage())
 		{
 			// Create the texture now as that's easier to deal with elsewhere.
 
@@ -309,6 +347,7 @@ void VkHardwareTexture::CreateTexture(VkTextureImage* image, int w, int h, int p
 	cmdbuffer->copyBufferToImage(staging.Buffer->buffer, image->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	if (mipmap) image->GenerateMipmaps(cmdbuffer);
+	else VkImageTransition().AddImage(image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false).Execute(cmdbuffer);
 	fb->GetTextureManager()->FinishTextureUpload(staging);
 }
 
@@ -339,6 +378,7 @@ void VkHardwareTexture::UploadTexture(VkTextureImage* image, int w, int h, int p
 	cmdbuffer->copyBufferToImage(staging.Buffer->buffer, image->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 
 	if (mipmap) image->GenerateMipmaps(cmdbuffer);
+	else VkImageTransition().AddImage(image, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false).Execute(cmdbuffer);
 	fb->GetTextureManager()->FinishTextureUpload(staging);
 }
 
@@ -475,8 +515,44 @@ void VkMaterial::DeleteDescriptors()
 	for (auto& set : mDescriptorSets)
 	{
 		descriptors->FreeBindlessSlot(set.bindlessIndex);
+		if (set.IndexedPalette) set.IndexedPalette->Reset(fb);
 	}
 	mDescriptorSets.clear();
+}
+
+std::unique_ptr<VkTextureImage> VkMaterial::CreateIndexedPalette()
+{
+	PalEntry colors[256];
+	for (int i = 0; i < 256; i++)
+	{
+		colors[i] = GPalette.BaseColors[i];
+		colors[i].a = 255; // material_paletted.glsl preserves opaque palette alpha.
+	}
+	auto palette = std::make_unique<VkTextureImage>();
+	palette->Image = ImageBuilder()
+		.Format(VK_FORMAT_B8G8R8A8_UNORM)
+		.Size(256, 1)
+		.Usage(VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
+		.DebugName("VkMaterial.IndexedPalette")
+		.Create(fb->GetDevice());
+	palette->View = ImageViewBuilder()
+		.Image(palette->Image.get(), VK_FORMAT_B8G8R8A8_UNORM)
+		.DebugName("VkMaterial.IndexedPaletteView")
+		.Create(fb->GetDevice());
+
+	auto manager = fb->GetTextureManager();
+	auto staging = manager->StageTextureUpload(colors, sizeof(colors));
+	auto commands = fb->GetCommands()->GetTransferCommands();
+	VkImageTransition().AddImage(palette.get(), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true).Execute(commands);
+	VkBufferImageCopy region = {};
+	region.bufferOffset = staging.Offset;
+	region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+	region.imageSubresource.layerCount = 1;
+	region.imageExtent = { 256, 1, 1 };
+	commands->copyBufferToImage(staging.Buffer->buffer, palette->Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+	VkImageTransition().AddImage(palette.get(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, false).Execute(commands);
+	manager->FinishTextureUpload(staging);
+	return palette;
 }
 
 int VkMaterial::GetBindlessIndex(const FMaterialState& state)
@@ -491,6 +567,8 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	int translation = state.mTranslation;
 	GlobalShaderAddr globalShaderAddr = state.globalShaderAddr;
 	auto translationp = IsLuminosityTranslation(translation)? translation : intptr_t(GPalette.GetTranslation(GetTranslationType(translation), GetTranslationIndex(translation)));
+	const bool indexedMaterial = (GetScaleFlags() & CTF_Indexed) != 0;
+	if (indexedMaterial) translationp = intptr_t(ResolveIndexedTranslation(translation));
 
 	clampmode = base->GetClampMode(clampmode);
 
@@ -499,10 +577,14 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	if (state.mPaletteMode)
 	{
 		paletteFlags |= indexedRedIsAlpha ? CTF_IndexedRedIsAlpha : CTF_Indexed;
-
-		// We can't do linear filtering for indexed textures
-		if (clampmode < CLAMP_NOFILTER)
-			clampmode += CLAMP_NOFILTER;
+	}
+	// An index must never interpolate into a different palette entry. Preserve
+	// wrap/clamp axes; XY_NOMIP + NOFILTER would otherwise become CAMTEX.
+	if (state.mPaletteMode || indexedMaterial)
+	{
+		if (clampmode == CLAMP_XY_NOMIP) clampmode = CLAMP_NOFILTER_XY;
+		else if (clampmode == CLAMP_CAMTEX) clampmode = CLAMP_NOFILTER;
+		else if (clampmode < CLAMP_NOFILTER) clampmode += CLAMP_NOFILTER;
 	}
 
 	for (auto& set : mDescriptorSets)
@@ -513,7 +595,6 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	const GlobalShaderDesc& globalshader = *GetGlobalShader(globalShaderAddr);
 	int numLayersMat = globalshader ? NumNonMaterialLayers() : NumLayers();
 	auto descriptors = fb->GetDescriptorSetManager();
-	auto* sampler = fb->GetSamplerManager()->Get(clampmode);
 
 	MaterialLayerInfo *layer = nullptr;
 	auto systex = static_cast<VkHardwareTexture*>(GetLayer(0, state.mTranslation, &layer));
@@ -534,22 +615,25 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	}
 	else
 	{
-		textureCount = 3;
+		textureCount = 2; // R8 indices followed by the actual base-palette row.
 	}
 
 	int bindlessIndex = descriptors->AllocBindlessSlot(textureCount);
 	int texIndex = bindlessIndex;
 
-	auto systeximage = systex->GetImage(layer->layerTexture, state.mTranslation, layer->scaleFlags | paletteFlags);
-	descriptors->SetBindlessTexture(texIndex++, systeximage->View.get(), fb->GetSamplerManager()->Get(GetLayerFilter(0), clampmode));
+	auto systeximage = indexedMaterial
+		? systex->GetIndexedMaterialImage(layer->layerTexture, state.mTranslation, layer->scaleFlags | paletteFlags)
+		: systex->GetImage(layer->layerTexture, state.mTranslation, layer->scaleFlags | paletteFlags);
+	descriptors->SetBindlessTexture(texIndex++, systeximage->View.get(), fb->GetSamplerManager()->Get(GetLayerFilter(0), clampmode), systeximage->Layout);
 
+	std::unique_ptr<VkTextureImage> indexedPalette;
 	if (!(layer->scaleFlags & CTF_Indexed))
 	{
 		for (int i = 1; i < numLayersMat; i++)
 		{
 			auto syslayer = static_cast<VkHardwareTexture*>(GetLayer(i, 0, &layer));
 			auto syslayerimage = syslayer->GetImage(layer->layerTexture, 0, layer->scaleFlags | paletteFlags);
-			descriptors->SetBindlessTexture(texIndex++, syslayerimage->View.get(), fb->GetSamplerManager()->Get(GetLayerFilter(i), clampmode));
+			descriptors->SetBindlessTexture(texIndex++, syslayerimage->View.get(), fb->GetSamplerManager()->Get(GetLayerFilter(i), clampmode), syslayerimage->Layout);
 		}
 
 		if(globalshader)
@@ -561,7 +645,7 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 				{
 					VkHardwareTexture *tex = static_cast<VkHardwareTexture*>(texture.get()->GetHardwareTexture(0, 0));
 					VkTextureImage *img = tex->GetImage(texture.get(), 0, paletteFlags);
-					descriptors->SetBindlessTexture(texIndex++, img->View.get(), fb->GetSamplerManager()->Get(globalshader.CustomShaderTextureSampling[i], clampmode));
+					descriptors->SetBindlessTexture(texIndex++, img->View.get(), fb->GetSamplerManager()->Get(globalshader.CustomShaderTextureSampling[i], clampmode), img->Layout);
 				}
 				i++;
 			}
@@ -569,17 +653,14 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	}
 	else
 	{
-		for (int i = 1; i < 3; i++)
-		{
-			auto syslayer = static_cast<VkHardwareTexture*>(GetLayer(i, translation, &layer));
-			auto syslayerimage = syslayer->GetImage(layer->layerTexture, 0, layer->scaleFlags | paletteFlags);
-			descriptors->SetBindlessTexture(texIndex++, syslayerimage->View.get(), fb->GetSamplerManager()->Get(GetLayerFilter(i), clampmode));
-		}
+		indexedPalette = CreateIndexedPalette();
+		descriptors->SetBindlessTexture(texIndex++, indexedPalette->View.get(), fb->GetSamplerManager()->Get(CLAMP_NOFILTER_XY), indexedPalette->Layout);
 	}
 
 	if (texIndex != bindlessIndex + textureCount)
 		I_FatalError("VkMaterial.GetDescriptorEntry: texIndex != bindlessIndex + textureCount");
 
 	mDescriptorSets.emplace_back(clampmode, translationp, bindlessIndex, globalShaderAddr, state.mPaletteMode, indexedRedIsAlpha);
+	mDescriptorSets.back().IndexedPalette = std::move(indexedPalette);
 	return mDescriptorSets.back();
 }

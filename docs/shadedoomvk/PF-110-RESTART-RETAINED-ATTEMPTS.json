@@ -1,0 +1,200 @@
+{
+  "schema": "pf110-restart-retained-attempts/v1",
+  "recorded_utc": "2026-10-04T07:31:59.069363+00:00",
+  "status": "BLOCKED",
+  "scope": "Immutable retained failed restart attempt; no successful diagnostic or genuine restart acceptance.",
+  "attempts": [
+    {
+      "case": "hardware-truecolour-nearest",
+      "validation_mode": "core",
+      "runner_status": "FAIL",
+      "engine_exit": 0,
+      "receipt": {
+        "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/receipt.json",
+        "sha256": "e899ecb48d37229ff95954499d970e05144658ff25134f2216e19bec94017ccc",
+        "bytes": 68235
+      },
+      "guard_phase": {
+        "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/before/native.restart-before.json",
+        "sha256": "32665900a10876f561ad64093fd038208aab8876e021196a66280f9011a5ed22",
+        "bytes": 1493
+      },
+      "guard_error": "inherited debug_restart would retain a terminal orphan package argument",
+      "runner_error": "ValueError: Restart acceptance evidence is incomplete",
+      "one_child_launch_observed": true,
+      "application_launched": true,
+      "gpu_initialization_observed": true,
+      "runner_gpu_executed_field": null,
+      "diagnostic_raw_before_present": false,
+      "diagnostic_raw_after_present": false,
+      "actual_restart_observed": false,
+      "actual_w_init_startup_blocks": 1,
+      "after_restart_phase_present": false,
+      "source_build_inputs_unchanged": true,
+      "candidate": {
+        "local_artifact": "build/pf020-acceptance/indexed-candidate-4/candidate.json",
+        "sha256": "9a76f0ad4bb65bf0a1e42b1fa369cf5d5162236097eda0712b02903fa5a7eec4",
+        "bytes": 616816
+      },
+      "published_source_checkpoint": "890f91080381ae4581e286b7ac55fa6e7648fab0",
+      "later_unmeasured_source_drift_observed_during_summary_generation": {
+        "src/common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp": {
+          "measured_raw_sha256": "66f16023e9bd1b14ca611f420842cf5a6d7e2a3d190e42f3d248b895e6153c2f",
+          "observed_later_raw_sha256": "a3172641582b56cdbe7b4347dad46613dcd17a809b0cec89ac94e2d969ce0912"
+        }
+      },
+      "full_candidate_source_files": 2528,
+      "interface_source_files": 60,
+      "interface_source_pin_set_sha256": "d16da2705e5c58ec3258d76faf478b2af97b8d2c16ec3f3235b1d68894e82e58",
+      "interface_source_pins": {
+        "tools/pf_oracle/prepare_indexed_material_runtime.py": "68115f155af09a11a55787dfd69946d0c6eed4a56944156a6d14d7a365e9b9a5",
+        "src/d_main.cpp": "d99bca3d3a93bca78c2ee0e524650ec643ffb5558619b5a9539250f8840f8ef4",
+        "src/d_main.h": "d16334e22c58bf1a35923eeef312b71acdfe4cb917289642b61edc8c6b7d3e6b",
+        "wadsrc/static/zscript/events.zs": "fac67c54fee267b43d1b494ac2cb74ecd552fe4209dddca749e27ea39a99ddd0",
+        "wadsrc/static/zscript/engine/base.zs": "640efbf2f365cac4994e10a622924a20a646b10f39607877bdafe5db38e93264",
+        "wadsrc/static/zscript/doombase.zs": "2a8358cf31921779d1c744d73da70f773421a4888641c1325747e6ac4c17d36b",
+        "src/common/rendering/v_video.cpp": "cd2e2c5de9e8c0d01f48bf5a8267e86d0dd70b3be9a3a4a0cbfb58730577cb9e",
+        "src/common/platform/win32/base_sysfb.cpp": "fb64be272b120bd1c7bdd0c21c1b5b8b5db837f1ef2e8ec6b18509af7d8da4c1",
+        "src/common/console/c_dispatch.cpp": "cb13e2c83b2bbd627528b9230b8cd6fbf0697551c4b0a0e8b90537cbd1139544",
+        "src/common/console/c_cvars.cpp": "9ba99146e4a64f51b79b81151a8298265a6a5e9c740536e6188d498d6d76f76c",
+        "src/common/scripting/interface/vmnatives.cpp": "20fe2b289076e7c26c09316dca19024eb1f04883d9a20ff1eedf15484a6ad9cc",
+        "src/common/engine/i_net.h": "5ec0a78a34e91e5aadcbe53404ad9a5e114c0cee33f47398cef451647f819ebe",
+        "src/d_net.cpp": "9e18a98bbcbde8d6aa8d9e67884aa320239fcf6cff26046098481aad24ff72f8",
+        "src/g_game.cpp": "83ca4dd5c6ea175d823f6dfcfd5cdceed437c0724723655715a6474f360c5702",
+        "src/events.cpp": "1b074ae7e11f6892bd77ccf115a52e19048bd9457a75e37ef93ae4bcdb307fef",
+        "src/g_statusbar/shared_sbar.cpp": "38a19d38af71a95ca07037aa50cbe02f57e4cfdde366a918c3c6502360a9b926",
+        "src/gamedata/gi.cpp": "b1ba61e2dbdceb58e019973fa169ad814e5243c0d4773b3be7166f8314ed6ecb",
+        "src/maploader/udmf.cpp": "3680c138eb335b666c504593f0db61007ef0241ac26f27f2275233e41808e283",
+        "src/common/2d/v_draw.cpp": "69282f68bb7fa40b916689d84de11f8b0d42ffa63ea84026284686b81f1dc42f",
+        "src/common/2d/v_2ddrawer.cpp": "7f3e4f7d4335bb9acd873b474a7ba607c5baff12c40d5f391537ade4101ddd22",
+        "src/common/engine/renderstyle.h": "d9cef664a252f25fc61704665e7dad9bde968dd377bf019c449b8204833673f0",
+        "src/common/engine/renderstyle.cpp": "58e569d18aae441e30fb9d2760300e4798f5af71f4fda10c1a37ac9ba35101d3",
+        "src/common/engine/palettecontainer.cpp": "2bb780d973a0ad8c90e075834b7dacfd911d116946ae60fc5c7e5f6c7738c53c",
+        "src/r_data/r_translate.cpp": "3e31ccfc0778f925766f5f059f3b91c6ef99c1920cdb799e48f403aeeaf457a1",
+        "src/common/textures/formats/patchtexture.cpp": "e216364178ae8e03d61582a58198991cce551cff9a99738154bb874fc5134281",
+        "src/common/textures/formats/flattexture.cpp": "74fb009eceadcb053a69d13e41f10b71f2627b196d2b3e24c2dc20fd6ec7e211",
+        "src/common/textures/imagehelpers.h": "c4dd66e35ffe20d6d363fbe6bd2168442b8703b59d31b921c974fc46fb326763",
+        "src/common/textures/texture.cpp": "bf2129343803ac3adf84c6b185bc6307beaf09d3155b29de9fd9d111dbfc4a93",
+        "src/common/textures/hw_material.cpp": "40814249f700e10b15c66e17dd45fe30ca4eba476976a8a98ca9a389d125732c",
+        "src/common/rendering/hwrenderer/hw_draw2d.cpp": "d2485317a92801290afd4a615d3235a97b910cd45acf13342ccad9f85d3745bc",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.cpp": "63df3a389899f482bdc8b8df9653ce1a9bef415427906ffab6f38b3cf36f6a41",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.h": "802f6279265009c9ed3b5e40910364a9dd17a630f3c7b038f622e4322bfa5bb9",
+        "src/common/rendering/vulkan/samplers/vk_samplers.cpp": "2d29a34c819950e112ed23a1e4d8ac1948ab7e6999c764931b2592d3affd7d0c",
+        "wadsrc/static/shaders/scene/material_paletted.glsl": "1e0a6370c872d50f0cfb6524785f86f55c115ac07705b7bc15d94556959e0e97",
+        "wadsrc/static/shaders/scene/material_gettexel.glsl": "030aecaf995d6f2ee67b280d07c0c92ff0064bbb34cb7985567858597d5b291d",
+        "wadsrc/static/shaders/scene/vert_main.glsl": "fa333f6f241c6f3fa6c8e944437df81bb3ac46789c38a936b83c3fa023bc1e87",
+        "wadsrc/static/shaders/scene/frag_main.glsl": "a5e184774fe02a14a3a09b4e6b5658daa14635a60f91cf6d542a85f182fe454b",
+        "wadsrc/static/shaders/scene/lightmode.glsl": "6cac89d64620767251ff0689a69bf86257348ddd9ce2d8f14ec086664427d20b",
+        "tools/pf_oracle/run_indexed_material_runtime.py": "73bd0c040199c3a6eab362929113de173357a6be8a43fb05ef38d6e6ddfef3db",
+        "tools/cfx_capture.py": "3679c6fd3e3ffb9ab78560df16cb06922c414801b6cc394f995da9d966d557cb",
+        "src/common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp": "66f16023e9bd1b14ca611f420842cf5a6d7e2a3d190e42f3d248b895e6153c2f",
+        "src/common/rendering/vulkan/textures/vk_imagetransition.h": "759578485162f1f6c35fac7b1c7fecd08dc185cf6031fea6a7a8f6780e8d40b2",
+        "src/common/rendering/vulkan/textures/vk_imagetransition.cpp": "47a0a35fc25cdee59638061d266382c9f9a8727b16085f93d372e77002632de2",
+        "src/common/rendering/vulkan/textures/vk_texture.cpp": "7fb191bbfd7ee8dd965e50574d89e9982493dc0a2b08a598b34be358faf31b90",
+        "src/common/rendering/vulkan/vk_renderstate.cpp": "ce59a33dd8847ade015ae87c7e0ecae70d075613a72382ffdff86eecf8dd1a4c",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp": "a4ec93e24c4925dc13035c10841595012104bb301b7741baed82f674877bb393",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp": "0aeb3166aa6d72288c5b2475934f8cc70b35cfe5d78ae4491b504f12ab2b78fe",
+        "src/m_misc.cpp": "0e1dcfe66fc5d03495d17812a79f1ee5a4db0cb20e687ddf10a8b7d905ae9c43",
+        "src/common/textures/m_png.cpp": "c453c7ea68e02906404964dae5e0293f7039cc62fb3bf797d731dcc262084e33",
+        "src/common/rendering/vulkan/vk_renderdevice.cpp": "7c461bb6c43dc6c2cb523be2190dc5765ccfe3301e3e9a948be65a6e13a013be",
+        "src/common/rendering/vulkan/vk_postprocess.cpp": "9bce396fcb3a93774ce66ef1106845c30a1efce70cbc3a1d3a8c7f4f1388d614",
+        "wadsrc/static/shaders/pp/present.fp": "c4c878fa608dd93bb93cb92d98f22536a3bb68af04189ec9ffb13223a79fb51b",
+        "src/CMakeLists.txt": "2d2717a2a7e3a98165f17103aed7a56e080f819002eecbb605366de02a7fce65",
+        "CMakeLists.txt": "3da12c5fd62408d6021ecb26bd5abf12fb34c83ccb87a179fde10286d8ab483f",
+        "tools/pf_oracle/run_indexed_material_restart.py": "ed70b8b590ee94898f5fdee2015d8718b32040fe475bb902f62bd3324d7d303d",
+        "tools/pf_oracle/tests/test_indexed_restart_runner.py": "869a4744c321a64671ea3c3b3f9de588ebfdb2443cafac71fe8d9ef7f1ff6ec7",
+        "src/common/utility/m_argv.cpp": "c105b09b897bdeda5d582bbdf441bfa1e6b622fb8c9ab5f1c6f849ec51111ac0",
+        "src/common/utility/m_argv.h": "87d1f2b08deb2daaf3a8a885c46c48029315423aa37c4c21931c4099f63b8768",
+        "src/r_data/v_palette.cpp": "1eb1db517514f9932182c62fa3c3cf0b6ca05fe29ed8da347e396368499d8dee",
+        "src/g_level.cpp": "d7502434f0330f9b7a8da7cf714a398661e5ee4668f5099d26de18e417c9c70d"
+      },
+      "actual_input_identities": {
+        "manifest": {
+          "sha256": "f3d927260190c23584c69658cff8f238d4f662201c2bdef837945d8c66559923",
+          "bytes": 47560
+        },
+        "mod": {
+          "sha256": "f96c5963dd3ba9aa91b90b77fee6ca42c9c38fdb596058ef100eec100d1a8241",
+          "bytes": 13404
+        },
+        "iwad": {
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "bytes": 14951361
+        },
+        "configuration": {
+          "sha256": "ca8d7361925fb4969e366d184879404f4044864bf1c9118a3de8ad3ace856a4a",
+          "bytes": 339
+        },
+        "captureScript": {
+          "sha256": "a90f58d61982ef3ce13edb5d2799bfbaba3495e34d7eb3963fbbba316c7c9cfe",
+          "bytes": 230
+        }
+      },
+      "actual_validation": {
+        "requested_mode_verified": true,
+        "enabled": {
+          "core": true,
+          "sync": false,
+          "gpu-assisted": false
+        },
+        "errors": 0,
+        "warnings": 0,
+        "scope": "Initialization/guard path only; not restart or material diagnostic validation."
+      },
+      "retained_outputs": {
+        "after/execute.cfg": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/after/execute.cfg",
+          "sha256": "6461970e009ef6a8c9a7873178cdba148720e9ddd2f54666c016ed1df7a3b8c4",
+          "bytes": 453
+        },
+        "before/execute.cfg": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/before/execute.cfg",
+          "sha256": "5e52a83016c623c5c32152f25169e116d30aa4eb21e11cbeed578b0775cd1e34",
+          "bytes": 509
+        },
+        "before/native.restart-before.json": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/before/native.restart-before.json",
+          "sha256": "32665900a10876f561ad64093fd038208aab8876e021196a66280f9011a5ed22",
+          "bytes": 1493
+        },
+        "fixture-input.ini": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/fixture-input.ini",
+          "sha256": "ca8d7361925fb4969e366d184879404f4044864bf1c9118a3de8ad3ace856a4a",
+          "bytes": 339
+        },
+        "fixture-live.ini": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/fixture-live.ini",
+          "sha256": "38897e9da42639d62c56f9e4f1ae7aa19feffb2325e938b460540994e3949343",
+          "bytes": 17779
+        },
+        "stderr.log": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/stderr.log",
+          "sha256": "ab971f2da6f58934ff6e9d74d0a8d1583dfd51b818320a1b25ab547ed29d1cf9",
+          "bytes": 19367
+        },
+        "stdout.log": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/stdout.log",
+          "sha256": "13907fc04eecee5a30f8a1b121259547fd4e38e7777dcd1757c86e6196084e17",
+          "bytes": 2573
+        },
+        "validation.log": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/validation.log",
+          "sha256": "89a204055c2822f6669258908b7a40f8af1748526858cfec615be952fe2c6ee6",
+          "bytes": 283
+        },
+        "vk_layer_settings.txt": {
+          "local_artifact": "build/pf020-native/pf110-runs/restart-v6-core-hardware-truecolour-nearest/vk_layer_settings.txt",
+          "sha256": "b6f5205e587c7935920fe931fa6f6072845dbf18d7898417afe9a7abc70aa8c6",
+          "bytes": 410
+        }
+      }
+    }
+  ],
+  "limits": [
+    "The native guard rejected the inherited terminal -file RemoveArgs orphan before diagnostic execution or argv mutation.",
+    "Engine exit0 and clean core initialization do not override runnerFAIL, absent raw diagnostic or absent second startup.",
+    "GPU initialization occurred; gpuExecuted=null is preserved rather than inventing false. No diagnostic GPU execution is proved.",
+    "Original failed receipt/phase/logs/configurations remain untouched. No raw log text, palette/RGB values, screenshots, absolute private paths or input game bytes are copied into this public summary.",
+    "A repaired-source clean build/candidate and fresh complete core/sync genuine restart receipts remain required; no failure is retroactively accepted."
+  ]
+}

@@ -1,5 +1,6 @@
 # Renderer identity and lifetime map
 
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active; PF-017 source-owned candidate rejected/restored after integrated physical no-go
 Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, PF-013, PF-017, SDVK-004
@@ -38,6 +39,13 @@ The renderer has two semantically different single-byte texture producers: ordin
 PF-013 therefore gives a `VkHardwareTexture` separate normal/palette-index/RedIsAlpha resident-image variants and records `mRedIsAlpha` in `FMaterialState` when palette mode consumes `TM_ALPHATEXTURE`. `VkMaterial::DescriptorEntry` includes that bit in its variant identity so a bindless slot prepared for palette indices cannot be silently reused for luminance-as-alpha, or vice versa. Ordinary translation identity remains part of the existing descriptor key.
 
 Material destruction still calls `FreeBindlessSlot()` for every descriptor variant and clears the cache. Texture reset still advances the PF-005 upload epoch and now resets all three image interpretations. The PF-003 generation allocator remains the authority for recycled dynamic descriptor slots; PF-013 does not introduce a second lifetime system.
+
+
+### #110/#112 material ownership — repair contract
+
+The [#110 indexed candidate](../PF-110-IMPLEMENTATION-NOTES.md) keys translated resident R8 variants by canonical remap identity inside the existing hardware owner. Each descriptor entry owns its unchanged base-palette row. These pointer keys are process-local identities: owner destruction precedes palette-arena reinitialization, and no old resource or remap pointer may survive the guarded restart checkpoint. Hardware reset retires every variant; entry deletion invalidates its PF-003 range and retires the row through normal draw fences. Selected old descriptor tokens must be checked before fresh diagnostic production after ordinary map warm-up, not described as a guard before every engine producer.
+
+The [#112 declaration](../PF-112-IMPLEMENTATION-NOTES.md) copies each stable selected owner's sampled layout into its descriptor; it is neither an image transition nor a replacement lifetime mechanism. Existing SWCanvas owner rotation and palette resources remain intact. Candidate4 observations do not measure a direct post-retirement SWCanvas token query. Candidate5 native qualification is verified below; release integration is tracked in the source issues.
 
 ## PF-002 generation substrate
 
@@ -220,3 +228,16 @@ The #75 synthesis accepts PR #104's removed-page publication invariant as the cu
 The experiment-only `CFX_RETAIN_REPLACED_LIGHTMAPS` path remains diagnostic infrastructure when explicitly enabled with resource tracing; it is not normal production behavior and was OFF for all three accepted former-reproducer successes and all CFX-010 qualifying targets. Do not use that diagnostic path as the correctness model.
 
 The repaired GTX 1650 SUPER primary route succeeds 3/3 and the selected DBP50/v1.2/Sunlust routes each qualify 3/3. This does not identify the executing shader, prove an illegal dynamic descriptor read, or establish repaired P400 behavior. PF-020 should test the publication/lifetime invariant directly rather than encode stronger historical causal assumptions. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

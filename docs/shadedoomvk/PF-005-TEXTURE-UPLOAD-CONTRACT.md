@@ -1,5 +1,6 @@
 # PF-005 asynchronous texture upload and staging contract
 
+
 Status: implementation candidate for PF-005  
 Date: 2026-09-19
 
@@ -50,7 +51,7 @@ The persistent buffer is renderer-owned. `VulkanRenderDevice` already waits for 
 
 ## Transfer and image semantics
 
-Both `VkHardwareTexture::CreateTexture()` and `UploadTexture()` retain the inherited image transition and copy ordering. The only copy-source change is from `bufferOffset = 0` in a per-upload buffer to the planner-provided offset in the persistent buffer.
+Within the accepted PF-005 staging change, both `VkHardwareTexture::CreateTexture()` and `UploadTexture()` retained the inherited image transition and copy ordering. Its only copy-source change was from `bufferOffset = 0` in a per-upload buffer to the planner-provided offset in the persistent buffer. The separately scoped #110 candidate below corrects the inherited missing final sampled-layout transition for non-mip uploads.
 
 The following remain unchanged:
 
@@ -100,3 +101,26 @@ PF-005 is renderer-resource work only. It does not alter gameplay/tic semantics,
 ## Residual scope
 
 PF-005 does not convert unrelated lightmap/probe staging allocations, download/readback staging, or general command-buffer deferred destruction into this arena. Those paths have different ownership/data-shape requirements and remain owned by their recorded later issues. The raw integer upload-ID helpers remain private implementation details beneath generation-aware tickets; callers cannot bypass the ticket contract.
+
+## Focused #110/#112 correctness candidates — repair contract
+
+The [#110 material repair](PF-110-IMPLEMENTATION-NOTES.md) gives the supported public indexed material a canonical-remap-specific R8 image and an entry-owned unchanged base-palette row. Its indexed producer runs synchronously on the owner thread so a deferred numerical translation-ID replacement cannot change an earlier canonical variant's bytes. The row uses this staging arena, its actual buffer offset and normal draw-fence retirement. Ordinary asynchronous uploads, RedIsAlpha interpretation and mip/filter policy remain protected.
+
+Both non-mip create and completion uploads explicitly finish in `SHADER_READ_ONLY_OPTIMAL`; the existing mipmapped path remains unchanged. This repairs an inherited incomplete transition and is not a quality trade or a new PF-005 performance result.
+
+The [#112 layout declaration](PF-112-IMPLEMENTATION-NOTES.md) carries the selected material image's tracked layout into its bindless descriptor. Audited uploaded callers retain the default READ declaration; mapped software images declare GENERAL. The writer accepts READ/GENERAL and rejects other states before publication. It does not transition images or change software bytes, staging, cache identity or fence ownership.
+
+These repair contracts are introduced by the focused #110/#112 change. Candidate4 normal results are retained history; candidate5 native qualification is verified below and release integration is tracked in the source issues. Their focused acceptance does not accept PF-020 or unblock SDVK-001.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

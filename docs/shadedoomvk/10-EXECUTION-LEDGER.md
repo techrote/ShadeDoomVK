@@ -1,5 +1,6 @@
 # ShadeDoomVK execution ledger
 
+
 Status: planning workflow complete; implementation begins at PF-001  
 Started: 2026-09-17  
 Planning closure: 2026-09-17
@@ -412,3 +413,28 @@ CFX8/8 and deterministic oracle equality. No GPU/visual/performance claim or
 PF-020/SDVK-001 acceptance follows. See [repair](PF-GLDEFS-SAMPLING-REPAIR.md) and
 [compact verification](PF-GLDEFS-SAMPLING-VERIFICATION.json); required exact-head
 CI, merge/master and post-merge verification govern independent acceptance.
+
+## Independent #110/#112 material correctness candidates — 2026-10-04
+
+This focused preparation is based on accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`. It preserves the accepted GLDEFS repair and does not publish a PF-020 freeze, probe contribution decision, optimization or gameplay/quality change.
+
+The candidates provision public indexed materials with canonical-remap R8 plus an owned real base-palette row, complete non-mip sampled transitions, and declare the actual READ/GENERAL layout at material descriptor publication. Ordinary materials, async uploads, palette/RedIsAlpha and existing SWCanvas ownership remain protected. See [#110 source and acceptance notes](PF-110-IMPLEMENTATION-NOTES.md) and [#112 layout notes](PF-112-IMPLEMENTATION-NOTES.md).
+
+Historical candidate4/source890 retains twelve normal mode/filter packets: 4,828 assertions across 316 cases, 252 decoded presentation ROIs, separately proved core/synchronization validation with zero errors/warnings, and independent 737,280 indexed-pixel recomputation with zero mismatch. [Compact normal verification](PF-110-NATIVE-MATRIX-VERIFICATION.json) preserves exact source/build/input identities and the mode1/SW-retirement/performance limits.
+
+The original genuine-restart attempt remains FAIL: GPU initialization occurred, the terminal package guard rejected startup argv before its raw BEFORE command or actual restart, and engine exit 0 did not pass the enclosing runner. [Retained attempt](PF-110-RESTART-RETAINED-ATTEMPTS.json) is unchanged. Frozen newer source `bd2586f51c456fcdb9d04e616a6facf30d47a5ec` repairs only the guarded diagnostic pair-removal seam; historical candidate4 success is not reattributed to it.
+
+Status: **native verified repair; integration tracked in the source issues**. Candidate5 clean build, normal/restart and strict CPU qualification pass below; exact-head CI, review, merge/master and post-merge integration are tracked in the source issues. The coordinator will append those final receipts separately; PF-020/#37 and SDVK-001 remain outside this focused acceptance.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

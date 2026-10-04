@@ -1,5 +1,6 @@
 # Material and shader contract
 
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 node/flat hash lookups rejected after physical profiling
 Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
@@ -49,7 +50,7 @@ partial repair does not accept PF-020 or the separate indexed-material path.
 
 ## PF-008 semantic identity and binding adapter
 
-The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical shader-binding order consumed by Vulkan.
+The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical binding order for authored layers consumed by Vulkan; a shader-required auxiliary palette row is not an authored layer.
 
 Representative layouts remain:
 
@@ -68,7 +69,7 @@ Sparse custom authoring slots still compact into the historical binding array. `
 
 Shader logic still relies materially on known layer ordering/defines. PBR layer presence is all-or-nothing for the normal/metallic/roughness/AO group in `FMaterial` construction. Placeholder textures are inserted for absent bright/detail/glow layers so shader texture units remain valid.
 
-PF-008 contains rather than removes this compatibility coupling: semantic lookup is explicit, while descriptor construction still consumes the inherited array order. Later work may use semantic lookup where safe, but may not silently reorder legacy bindings.
+PF-008 contains rather than removes this compatibility coupling: semantic lookup is explicit, while ordinary material descriptor construction still consumes the inherited array order. Later work may use semantic lookup where safe, but may not silently reorder legacy bindings.
 
 ## PF-008 semantic refactor boundary
 
@@ -163,3 +164,24 @@ The material-only qualification on master `84bbbac` found a sustained expensive 
 The CFX programme does not establish a material-identity or malformed-shader root cause. All 138 logged historical DBP37 cache-hit SPIR-V modules passed structural validation for the source target, and the recognized ordinary lightmap loads in cached fragment modules remained under their immediate lightmap-index guard. Neither result proves the executed shader/SASS or dynamic descriptor correctness.
 
 Sunlust + Champions nevertheless supplies a material-heavy repaired-build route: the reconstructed movement/filter/reload path qualifies 3/3 in CFX-010. That is practical compatibility coverage, not proof that the historical Sunlust event shared the DBP37 descriptor-retirement mechanism. PF material identity, palette/translation, sampler and shader-key contracts remain unchanged by the final CFX synthesis. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+
+## #110/#112 material correctness candidates — repair contract
+
+Public `DTA_Indexed` reaches one authored albedo layer but the inherited Vulkan consumer attempts missing additional layers. The #110 candidate provisions exactly two real resources: canonical-remap-specific R8 indices followed by an entry-owned unchanged base-palette row. Remap remains before the existing inverse/additive/object operations and palette lookup. Nearest/no-mip index sampling and normal fenced retirement are explicit; ordinary layer order, state-driven palette/RedIsAlpha and real SWCanvas remain protected. See [source and acceptance boundaries](../PF-110-IMPLEMENTATION-NOTES.md).
+
+Mapped software framebuffer images stay GENERAL through the existing nullable upload path. The #112 candidate carries that actual owner layout into material descriptors, retaining default READ for audited uploaded callers and a READ/GENERAL writer guard. Real paletted SWCanvas retains both original resources; no forced transition, substitute producer or cache flush is added. See [layout contract and native limits](../PF-112-IMPLEMENTATION-NOTES.md).
+
+Candidate4's normal packets are retained history. Candidate5 native qualification is verified below; exact-head release integration is tracked in the source issues. Neither repair accepts the independent PF-020 freeze or changes gameplay, filtering or quality policy.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

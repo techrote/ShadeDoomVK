@@ -15,6 +15,7 @@ struct FSWColormap;
 
 class VkDescriptorSetManager
 {
+	friend struct FIndexedMaterialDiagnosticAccess;
 public:
 	VkDescriptorSetManager(VulkanRenderDevice* fb);
 	~VkDescriptorSetManager();
@@ -44,7 +45,7 @@ public:
 	void RemoveMaterial(VkMaterial* texture);
 
 	void UpdateBindlessDescriptorSet();
-	void SetBindlessTexture(int index, VulkanImageView* imageview, VulkanSampler* sampler);
+	void SetBindlessTexture(int index, VulkanImageView* imageview, VulkanSampler* sampler, VkImageLayout imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
 	int GetSWColormapTextureIndex(FSWColormap* colormap);
 	int GetLightProbeTextureIndex(int probeIndex);

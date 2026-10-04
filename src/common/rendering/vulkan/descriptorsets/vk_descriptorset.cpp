@@ -545,10 +545,12 @@ void VkDescriptorSetManager::FreeBindlessSlot(int index)
 		I_FatalError("Invalid or duplicate bindless slot free at index %d.", index);
 }
 
-void VkDescriptorSetManager::SetBindlessTexture(int index, VulkanImageView* imageview, VulkanSampler* sampler)
+void VkDescriptorSetManager::SetBindlessTexture(int index, VulkanImageView* imageview, VulkanSampler* sampler, VkImageLayout imageLayout)
 {
 	if (index < 0 || index >= Bindless.Plan.Effective)
 		I_FatalError("Bindless descriptor write index %d is outside effective capacity %d.", index, Bindless.Plan.Effective);
+	if (imageLayout != VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && imageLayout != VK_IMAGE_LAYOUT_GENERAL)
+		I_FatalError("Bindless descriptor write index %d has unsupported sampled image layout %d.", index, int(imageLayout));
 
 	if (CfxTrace::ResourcesEnabled())
 	{
@@ -561,7 +563,7 @@ void VkDescriptorSetManager::SetBindlessTexture(int index, VulkanImageView* imag
 			(unsigned long long)(uint64_t)imageview->view, (unsigned long long)(uint64_t)sampler->sampler);
 		CfxTrace::ResourceMark("bindless-write-queued", line);
 	}
-	Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, imageview, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+	Bindless.Writer.AddCombinedImageSampler(Bindless.Set.get(), 0, index, imageview, sampler, imageLayout);
 }
 
 int VkDescriptorSetManager::GetSWColormapTextureIndex(FSWColormap* colormap)
