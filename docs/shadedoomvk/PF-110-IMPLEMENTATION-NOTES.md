@@ -1,7 +1,7 @@
 # #110 — indexed material candidate and acceptance plan
 
 
-Status: **native qualification verified; release integration tracked in the source issues**.
+Status: **accepted through PR #116; verified master and exact post-merge checks passed**.
 Issue: [#110](https://github.com/techrote/ShadeDoomVK/issues/110). The source contract and ancestral supported-path defect are recorded in that issue. Candidate4's twelve normal packets and failed original restart are retained history below; they do not attest the newer restart seam.
 
 The focused proposed integration base is accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`; renderer negative bodies were audited at `4df7dea1338f063c6417e024f967bfa4aa23edd4` and are unchanged by that GL repair. Numbered source references identify historical pre-#110 bodies; current entrypoints are identified by symbol. This focused material repair is separate from PF-020 freeze acceptance and SDVK-001 unblock.
@@ -23,7 +23,7 @@ For `n=5`, `Remap[5]=10`, `Remap[250]=20`, those indices are 245 and 20. Select 
 
 ## Small coherent resource repair
 
-The focused source candidate implements the audited direction: preserve the actual translated R8 producer, partition its resident images by resolved translation within the existing hardware-texture owner, and publish a real unchanged base-palette row beside each indexed descriptor entry. These are candidate resource rules pending native and release evidence.
+The focused source candidate implements the audited direction: preserve the actual translated R8 producer, partition its resident images by resolved translation within the existing hardware-texture owner, and publish a real unchanged base-palette row beside each indexed descriptor entry. Native qualification and release acceptance are recorded below; historical preparation and failed packets remain preserved.
 
 1. Keep `FMaterial`'s one actual albedo layer and its public `CTF_Indexed` variant identity. Its current `GetLayer`/`FTexture::GetHardwareTexture` forced `translation=-1` owner is not permission to fabricate layer 1 or 2.
 2. Within that owner, select a palette-index image by the effective canonical remap identity. Nonpositive ID, luminosity ID or an inactive resolved table follows the existing unremapped byte policy. A positive invalid ID resolves through `TranslationToTable` to the canonical identity table: preserve that table's actual `Remap` bytes and inactive state rather than assuming invalid input always means a null remap. Any active canonical table selects a distinct translated image. Keep palette-index and RedIsAlpha image interpretation separate, as required by PF-013. A same-source A/B/A sequence must retain both image contents and revisit A correctly regardless of first-use order.
@@ -175,3 +175,19 @@ inferred. Focused review/CI/merge/master/post-merge acceptance is tracked in
 [#110](https://github.com/techrote/ShadeDoomVK/issues/110) and
 [#112](https://github.com/techrote/ShadeDoomVK/issues/112). PF-020 and SDVK-001
 remain separate blocked gates.
+
+
+## Focused release acceptance — 2026-10-04
+
+[PR #116](https://github.com/techrote/ShadeDoomVK/pull/116) merged as
+`1524686e77f1e89dabfb044bf757a2d19566c31c` after independent exact-head review
+and all eight actual PR jobs passed at `9df93b6d`. Remote master and ancestry
+were verified, with unchanged engine/tool inputs. All eight actual push jobs
+then passed at the exact merge SHA, and #110/#112 were closed as complete.
+See [compact release acceptance](PF-110-RELEASE-ACCEPTANCE.json).
+
+The qualification and failed-attempt receipts above retain their original
+measurement-time statuses. Earlier pending-gate statements describe those
+preparations; this receipt records their eventual completion. Software,
+performance, human-review and historical-campaign limits remain unchanged.
+PF-020/SDVK-001 stay blocked by the separate #113 repair.

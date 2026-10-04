@@ -438,3 +438,18 @@ See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
 retained failures and unmeasured mode1/SW-retirement/performance limits.
 Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
 separate blocked gates.
+
+
+## #110/#112 accepted material/layout repair — 2026-10-04
+
+PR #116 passed independent review and all eight exact-head jobs at `9df93b6d`,
+merged as `1524686e77f1e89dabfb044bf757a2d19566c31c`, and passed all eight
+post-merge push jobs after remote master/ancestry verification. #110/#112 are
+closed. [Release receipt](PF-110-RELEASE-ACCEPTANCE.json) links the retained
+source/native qualification and immutable original failures.
+
+The separate #113 repair continues from this master with a reviewed explicit
+zero-IBL/LOD0/NonUniform decision and independently verified strict CPU original
+negative. Guarded production/native acceptance remains pending. PF-020 and
+SDVK-001 remain blocked; no historical CFX/PF-017/P400 or performance gate is
+reopened or inferred from these results.
