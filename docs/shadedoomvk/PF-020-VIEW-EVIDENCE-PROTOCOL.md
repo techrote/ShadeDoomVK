@@ -170,6 +170,14 @@ renderer meaning. Cold/warm behavior needs actual file/load/hit evidence; a
 shadow cache model is insufficient. Zero observed generalized records cannot be
 reported as generalized parity.
 
+Compare a separate nonempty set of every complete actual shader-binary cache
+key, including null-scene and worker records. Lookup precedes the cache-hit
+return, so access counts, hit outcomes, thread and scene association are not
+binary identity. Identical source requests in these frozen current/original
+pairs must produce identical key sets; any missing/additional key fails rather
+than being dismissed as scheduling. This gate supplements meaningful native
+shader/pipeline partitions and does not replace them.
+
 Before native execution, register the exact runner, fresh output paths, ordered
 cold/warm variants, input hashes, settings, watchdogs and expected positive
 witnesses. Each child is serial and exits normally. Compiler/check/profiling work

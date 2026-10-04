@@ -603,3 +603,11 @@ only in SpecialEffect and validates the complete production shader cache key
 (type/SHA1/final-source-size), rather than demanding a bare SHA1. Source edits
 require fresh frozen exports/builds and fixture identities before the next
 native attempt. PF020/SDVK001 stay blocked and PR111 stays draft.
+
+Repaired source0791911 then passes clean PF612/612, CFX8/8, four standalone
+fixtures and identical oracles; fresh exact-source native builds04 both pass
+with source exports and regenerated fixturev5 sealed. A reviewed tool guard
+compares nonempty full production shader-binary key sets including all actual
+null-scene/worker lookups, independently of access counts and hit outcomes.
+This supplements native semantic shader/pipeline partitions. Fresh paired
+core/synchronization and supported generalized proof remain pending.

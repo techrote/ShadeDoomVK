@@ -214,6 +214,24 @@ class ViewAcceptanceControls(unittest.TestCase):
                     "0-"+"a"*40+"-01255", "0-"+"a"*40+"-1255-extra"):
             self.reject_key(lambda d: d["keyLookups"][-1]["observation"].update(actualSourceChecksum=key), "source checksum")
 
+    def test_binary_identity_keeps_all_worker_and_null_scene_keys_without_access_counts(self):
+        data = key_packet()
+        keys = runner.key_evidence(data, "current")
+        expected = frozenset({"0-"+"a"*40+"-1255"})
+        self.assertEqual(runner.binary_key_identity(keys), expected)
+        altered = copy.deepcopy(keys)
+        binary = altered["keys"][-1]
+        binary["count"] = 37
+        binary["observation"].update(hit=False, workerThread=False)
+        self.assertEqual(runner.binary_key_identity(altered), expected)
+        extra = copy.deepcopy(binary)
+        extra["observation"].update(actualSourceChecksum="4-"+"b"*40+"-2222", workerThread=True)
+        altered["keys"].append(extra)
+        self.assertEqual(runner.binary_key_identity(altered), expected | {"4-"+"b"*40+"-2222"})
+        altered["keys"] = [row for row in altered["keys"] if row["observation"]["kind"] != "shader-binary-cache"]
+        with self.assertRaisesRegex(ValueError, "binary key set missing"):
+            runner.binary_key_identity(altered)
+
     def test_script_is_one_physical_wait_chain_and_dump_order_is_source_grounded(self):
         out = runner.ROOT / "build/parser-service"
         text = runner.script(out)
@@ -449,6 +467,10 @@ class ViewAcceptanceControls(unittest.TestCase):
                         "nativeDevice": "same", "settings": "same"}
             a, b = packet("current"), packet("original-seams")
             self.assertEqual(runner.paired_compare(a, b)["status"], "PAIRED_EXACT_MATCH")
+            b["state"]["keys"]["keys"][-1]["observation"]["actualSourceChecksum"] = "4-"+"b"*40+"-2222"
+            with self.assertRaisesRegex(ValueError, "complete production shader binary key sets"):
+                runner.paired_compare(a, b)
+            b = packet("original-seams")
             b["state"]["scene"]["records"][0]["diagnosticIdentity"] += 100
             runner.paired_compare(a, b)
             b["state"]["scene"]["records"][0]["tic"] += 10

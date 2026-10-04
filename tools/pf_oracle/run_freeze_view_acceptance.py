@@ -731,6 +731,15 @@ def projection(rows, key_fields, ignored):
     return result
 
 
+def binary_key_identity(packet):
+    # Cache lookup runs before the hit-return branch. Null-scene and worker
+    # records are real production identities and must not disappear here.
+    result = frozenset(row["observation"]["actualSourceChecksum"] for row in packet["keys"]
+                       if row["observation"].get("kind") == "shader-binary-cache")
+    require(result, "Actual production shader binary key set missing")
+    return result
+
+
 def paired_compare(left, right):
     # Correspondence uses the actual stable root/path/group/phase, not pointer IDs or invocation counters.
     a, b = left["state"], right["state"]
@@ -738,6 +747,8 @@ def paired_compare(left, right):
     scene_a = projection(a["scene"]["records"], ("phase", "event", "semanticKey", "tid"), ignore)
     scene_b = projection(b["scene"]["records"], ("phase", "event", "semanticKey", "tid"), ignore)
     require(scene_a == scene_b, "Paired actual scene/sprite/matrix/UV/portal/postprocess state differs")
+    binary_a, binary_b = binary_key_identity(a["keys"]), binary_key_identity(b["keys"])
+    require(binary_a == binary_b, "Paired complete production shader binary key sets differ")
     def keys(packet):
         result = set()
         for row in packet["keys"]["keys"]:
@@ -766,7 +777,9 @@ def paired_compare(left, right):
     require(left["presentation"]["decodedRgbSha256"] == right["presentation"]["decodedRgbSha256"], "Exact paired decoded main RGB differs")
     require(left["nativeDevice"] == right["nativeDevice"] and left["settings"] == right["settings"], "Paired device/settings differ")
     return {"status": "PAIRED_EXACT_MATCH", "decodedComponentTolerance": 0, "decodedMainRgbTolerance": 0,
-            "images": sorted(a["rawImages"]), "stateSemanticRecords": len(scene_a), "generalizedAccepted": False, "freezeAccepted": False}
+            "images": sorted(a["rawImages"]), "stateSemanticRecords": len(scene_a),
+            "shaderBinaryKeys": len(binary_a), "shaderBinaryKeySetSha256": hashlib.sha256("\n".join(sorted(binary_a)).encode("ascii")).hexdigest(),
+            "generalizedAccepted": False, "freezeAccepted": False}
 
 
 def collect(child, before, mode):

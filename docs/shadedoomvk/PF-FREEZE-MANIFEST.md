@@ -98,6 +98,16 @@ Frame serialization and source-correct sentinel/cache-key parsing are repaired
 for fresh qualification; all prior outputs/builds remain immutable. The source
 edit requires new current/original-seam exports, builds and fixture identities.
 
+Repaired observer head0791911 passes clean PF612/612, CFX8/8, four standalone
+fixtures and identical oracles in checks09. Both fresh native builds04 pass
+and are sealed: current EXE SHA256
+`67be255d4e2dab95bba37557922ef3e4fba90d53fc1c666d4d69d6fa4c829e61`,
+original-seams `02d65e99915e4546e263ac6972a97eb18642eec4005455d2e820ddf7f2bc527e`.
+Source-derived export04 and regenerated fixturev5 carry this corrected engine.
+A later tool guard additionally compares complete actual production binary-key
+sets including null-scene/worker records. Its qualification remains separate;
+no actual paired core/synchronization or generalized acceptance is inferred.
+
 The explicitly requested [targeted Dense recheck](PF-020-DENSE-TARGETED-RECHECK.json)
 retains both members of original pairs3/4/5, selected before rerun because each
 had a scored sprite Setup snapshot at least5.0ms. Two unscored warmups and six
