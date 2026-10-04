@@ -1,4 +1,4 @@
-# #110 — indexed material candidate and acceptance plan
+# #110 — indexed material repair and verification
 
 
 Status: **accepted through PR #116; verified master and exact post-merge checks passed**.

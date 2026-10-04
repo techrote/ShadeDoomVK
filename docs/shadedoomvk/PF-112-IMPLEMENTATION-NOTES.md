@@ -1,7 +1,7 @@
 # PF-112 — Mapped software-image sampled-layout declaration
 
 
-Status: **native qualification verified; release integration tracked in the source issues**
+Status: **accepted through PR #116; verified master and exact post-merge checks passed**
 
 Issue: [#112](https://github.com/techrote/ShadeDoomVK/issues/112), required by PF-020/#37
 
