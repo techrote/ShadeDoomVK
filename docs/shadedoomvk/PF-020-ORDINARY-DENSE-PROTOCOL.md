@@ -1,6 +1,6 @@
 # PF-020 ordinary Dense qualification protocol
 
-Status: revised preregistered bounded qualification; **no scored result yet**. This
+Status: revised qualification completed at tool head `ef79361822199112ee2179414ce21b812178bca7`; **state/image gates pass, performance concern remains**. This
 packet contributes current production CPU-overhead and main-image evidence to
 [PF-020](issues/PF-020.md), without accepting its remaining view/sprite/key
 equivalence gates. The historical PF017/CFX STOP scopes remain sealed.
@@ -109,6 +109,35 @@ matched ratios and their median/range. No invented numerical pass/win target
 is imposed; a measured regression remains a finding requiring explanation.
 Built-in bench clocks are CPU snapshots, not GPU timestamps or a per-frame
 distribution. FPS is context only.
+
+## Measured disposition
+
+The two fresh warmups and all five declared pairs complete:12 processes,
+20 scored CPU snapshots per variant, unchanged input/source/package/STOP pins
+and expected actual device/settings/camera/draw-light counts. All12 decoded
+RGB images have SHA256
+`ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151`;
+five scored pairs compare9,529,520 pixels with zero mismatches. Root inspected
+both warmup images and confirmed query notifications are absent.
+
+Candidate sprite Setup is higher in all five pairs: median paired increase
+3.91%, range0.86–13.73%. CPU All including Finish/wait is higher by median1.15%,
+range0.003–7.98%. Baselinepair5 itself drifts upward. All samples remain;
+neither the large pair3 nor the drifting pair5 is excluded. These are measured
+CPU snapshot differences, with cause unproved and no performance acceptance.
+Each child contributes only four scored snapshots. All includes Finish/wait,
+and the elapsed RDTSC timers can include preemption. Pair4 All medians differ
+by0.0005ms, below the native0.001ms printed precision; its positive sign has
+no demonstrated meaning. GPU power/temperature vary between runs, with no
+continuous CPU-clock or scheduling trace. Independent raw-packet audit passes
+within these limits; it does not establish causality or statistical significance.
+The [compact measurement packet](PF-020-DENSE-MEASUREMENT.json) retains raw
+values, exact order/build/content/source identities and limitations.
+
+Bounded profiling must investigate the concern before optimization or a
+no-regression claim. The earlier notification-bearing warmup remains a
+separately rejected, unscored attempt. The full freeze remains blocked on this
+concern and its separate applicable view/sprite/key evidence gaps.
 
 ## Limits and publication
 

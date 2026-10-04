@@ -494,3 +494,26 @@ Canonical/RAG reconciliation and final-source aggregate/equivalence review
 continue. PF-020 is not accepted; SDVK001 remains blocked. Earlier pending
 PF017/material/probe ledger entries are dated historical snapshots, not
 current work directions. Historical STOP/saturation scopes remain sealed.
+
+## PF-020 ordinary Dense packet — 2026-10-04
+
+Tool/source checkpoint `ef79361822199112ee2179414ce21b812178bca7` passes the
+clean strict PF480/480, four standalone fixtures, CFX8/8 and identical oracles.
+Its engine content remains accepted master7d29. Two fresh warmups and five
+alternating ordinary Dense pairs complete on GTX1650SUPER:40 scored CPU
+snapshots, actual fixed camera/count/settings/input proofs and five exact RGB
+image pairs,9,529,520 pixels/zero mismatches. The first notification-bearing
+warmup remains rejected/unscored with its original raw PASS receipt intact.
+[Protocol](PF-020-ORDINARY-DENSE-PROTOCOL.md),
+[retained disposition](PF-020-DENSE-RETAINED-ATTEMPTS.json) and
+[measurement packet](PF-020-DENSE-MEASUREMENT.json).
+
+Candidate sprite Setup is higher in all five pairs: median paired+3.91%,
+range0.86–13.73%; CPU All including Finish/wait median+1.15%,
+range0.003–7.98%. All samples remain; cause and performance acceptance are
+unproved. Independent raw-packet audit passes. All includes Finish/wait;
+elapsed timers can include preemption, and the pair4 All sign is below printed
+precision. All eight exact tool-head CI jobs pass in run37196660221. These
+checks do not accept the freeze. Profile before optimizing. No GPU timestamp/budget, PBR/indexed
+cost, packed-light state, key/cache, sprite-emission or offscreen-view parity
+follows. PF020/SDVK001 remain blocked; no historical STOP lane is reopened.

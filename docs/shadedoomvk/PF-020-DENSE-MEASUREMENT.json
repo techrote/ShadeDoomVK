@@ -1,0 +1,5173 @@
+{
+  "schema": "pf020-ordinary-dense-measurement/v1",
+  "status": "STATE_IMAGE_QUALIFIED_PERFORMANCE_CONCERN_FREEZE_BLOCKED",
+  "toolSourceHead": "ef79361822199112ee2179414ce21b812178bca7",
+  "acceptedRendererMaster": "7d29c7e4d64d61dba05524d9e7f5711ffd915d90",
+  "physicalProcesses": 12,
+  "excludedEarlierProcesses": 1,
+  "warmupProcesses": 2,
+  "scoredPairs": 5,
+  "scoredCpuSnapshots": {
+    "baseline": 20,
+    "candidate": 20
+  },
+  "declaredRunOrder": [
+    "warm-baseline-02",
+    "warm-candidate-02",
+    "pair-01-baseline",
+    "pair-01-candidate",
+    "pair-02-candidate",
+    "pair-02-baseline",
+    "pair-03-baseline",
+    "pair-03-candidate",
+    "pair-04-candidate",
+    "pair-04-baseline",
+    "pair-05-baseline",
+    "pair-05-candidate"
+  ],
+  "exactImageGate": {
+    "metric": "Exact decoded RGB8 equality",
+    "tolerance": 0,
+    "extent": [
+      1904,
+      1001
+    ],
+    "pixelsPerPair": 1905904,
+    "scoredPixelsCompared": 9529520,
+    "mismatchedPixels": 0,
+    "maxChannelError": 0,
+    "all12DecodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151"
+  },
+  "cpuMetrics": {
+    "spriteSetup": {
+      "cpuRunMediansMilliseconds": {
+        "baseline": [
+          3.762,
+          3.7190000000000003,
+          3.752,
+          3.686,
+          4.2885
+        ],
+        "candidate": [
+          3.7945,
+          3.8015,
+          4.2669999999999995,
+          3.8840000000000003,
+          4.4559999999999995
+        ]
+      },
+      "pairedRelativePercent": [
+        0.8639021796916557,
+        2.218338262973907,
+        13.726012793176956,
+        5.371676614215959,
+        3.905794566864862
+      ],
+      "medianPairedRelativePercent": 3.905794566864862,
+      "pairedRelativePercentRange": [
+        0.8639021796916557,
+        13.726012793176956
+      ],
+      "method": "Each run median of four retained CPU snapshots; pair=(candidate/baseline-1)*100; median/range across exactly five pairs. No outlier removed."
+    },
+    "setup": {
+      "cpuRunMediansMilliseconds": {
+        "baseline": [
+          3.8105,
+          3.776,
+          3.8040000000000003,
+          3.7375,
+          4.35
+        ],
+        "candidate": [
+          3.863,
+          3.862,
+          4.332,
+          3.9379999999999997,
+          4.508
+        ]
+      },
+      "pairedRelativePercent": [
+        1.3777719459388438,
+        2.277542372881358,
+        13.880126182965281,
+        5.364548494983268,
+        3.632183908045983
+      ],
+      "medianPairedRelativePercent": 3.632183908045983,
+      "pairedRelativePercentRange": [
+        1.3777719459388438,
+        13.880126182965281
+      ],
+      "method": "Each run median of four retained CPU snapshots; pair=(candidate/baseline-1)*100; median/range across exactly five pairs. No outlier removed."
+    },
+    "allIncludingFinish": {
+      "cpuRunMediansMilliseconds": {
+        "baseline": [
+          19.195500000000003,
+          19.244999999999997,
+          19.075,
+          19.075499999999998,
+          19.719
+        ],
+        "candidate": [
+          19.384,
+          19.4665,
+          20.5965,
+          19.076,
+          20.014499999999998
+        ]
+      },
+      "pairedRelativePercent": [
+        0.9820009898153126,
+        1.1509482982593022,
+        7.976408912188737,
+        0.002621163272276128,
+        1.4985546934428662
+      ],
+      "medianPairedRelativePercent": 1.1509482982593022,
+      "pairedRelativePercentRange": [
+        0.002621163272276128,
+        7.976408912188737
+      ],
+      "method": "Each run median of four retained CPU snapshots; pair=(candidate/baseline-1)*100; median/range across exactly five pairs. No outlier removed."
+    }
+  },
+  "runs": [
+    {
+      "id": "warm-baseline-02",
+      "variant": "baseline",
+      "warmupOnly": true,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-baseline-02/receipt.json",
+        "bytes": 1518764,
+        "sha256": "2fdec118192b42913b3b996f586de8a0e3b3ec0854e2b1f6a55367e03edd6714"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T10:52:08.380452+00:00",
+      "completedUtc": "2026-10-04T10:52:54.300362+00:00",
+      "nativeDurationSeconds": 38.92383740001242,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 31, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 46, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-baseline-02/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 48,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.023,
+            "render": 0.551,
+            "setup": 3.797,
+            "portal": 0.0,
+            "drawcalls": 0.185,
+            "postprocess": 0.097,
+            "finish": 14.497,
+            "spriteRender": 0.387,
+            "spriteSetup": 3.743
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.511,
+            "render": 0.491,
+            "setup": 3.738,
+            "portal": 0.0,
+            "drawcalls": 0.185,
+            "postprocess": 0.104,
+            "finish": 15.106,
+            "spriteRender": 0.346,
+            "spriteSetup": 3.693
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.841,
+            "render": 0.635,
+            "setup": 3.72,
+            "portal": 0.0,
+            "drawcalls": 0.185,
+            "postprocess": 0.102,
+            "finish": 14.303,
+            "spriteRender": 0.457,
+            "spriteSetup": 3.661
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.869,
+            "render": 0.544,
+            "setup": 3.736,
+            "portal": 0.0,
+            "drawcalls": 0.204,
+            "postprocess": 0.142,
+            "finish": 14.357,
+            "spriteRender": 0.388,
+            "spriteSetup": 3.681
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 20.39,
+            "render": 0.607,
+            "setup": 3.977,
+            "portal": 0.0,
+            "drawcalls": 0.219,
+            "postprocess": 0.145,
+            "finish": 15.557,
+            "spriteRender": 0.446,
+            "spriteSetup": 3.928
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 940,
+          "sha256": "87804aaa63409460328512e4fbf8594490613a50fdffadf653ccd6f1256e46d4"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "0389d97663a30c8bdd5d2a4197cfcb7d3946a5d239eabfea492c3cc9feabeb0a"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3901,
+          "sha256": "0e8de1e56748632fcf4ff864c4208daafa481fb23978d8fc868420f0bd9b52a6"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "e0dd203625dc67eab0458c7ded58846cdef6fcbe3c836e0e0e9b0b266b037848"
+        }
+      }
+    },
+    {
+      "id": "warm-candidate-02",
+      "variant": "candidate",
+      "warmupOnly": true,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-candidate-02/receipt.json",
+        "bytes": 1519695,
+        "sha256": "ed948ecb41a8f7cda7b99dd63a7c0652ca16849ae76ad17e134b58a4b9d5415c"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T10:53:59.047388+00:00",
+      "completedUtc": "2026-10-04T10:54:45.338111+00:00",
+      "nativeDurationSeconds": 38.815621400019154,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 34, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 46, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/warm-candidate-02/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 47,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.952,
+            "render": 1.006,
+            "setup": 3.915,
+            "portal": 0.0,
+            "drawcalls": 0.312,
+            "postprocess": 0.165,
+            "finish": 14.757,
+            "spriteRender": 0.731,
+            "spriteSetup": 3.823
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.518,
+            "render": 0.565,
+            "setup": 3.836,
+            "portal": 0.0,
+            "drawcalls": 0.19,
+            "postprocess": 0.101,
+            "finish": 14.935,
+            "spriteRender": 0.4,
+            "spriteSetup": 3.776
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.06,
+            "render": 0.593,
+            "setup": 3.898,
+            "portal": 0.0,
+            "drawcalls": 0.192,
+            "postprocess": 0.105,
+            "finish": 14.367,
+            "spriteRender": 0.432,
+            "spriteSetup": 3.846
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.686,
+            "render": 0.564,
+            "setup": 3.733,
+            "portal": 0.0,
+            "drawcalls": 0.205,
+            "postprocess": 0.106,
+            "finish": 14.215,
+            "spriteRender": 0.416,
+            "spriteSetup": 3.688
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.503,
+            "render": 0.52,
+            "setup": 3.759,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.092,
+            "finish": 14.062,
+            "spriteRender": 0.373,
+            "spriteSetup": 3.713
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 941,
+          "sha256": "d46f03989eaf4693d809be2419c99472a971aba893393dff79a481c2de20ae83"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "f5502595c87909f0848d5fef3b592bbae75951762f30d50ef43918b0d431d0c7"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3911,
+          "sha256": "aba3ae348eced8d111b4b325b44e0fb60ffe28cfb3f9920c263c91b8f5ba61d7"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "26c9bb93439253074428f48d19f420cd359e3bb1be5ed5d1da6e27ea1a88bdca"
+        }
+      }
+    },
+    {
+      "id": "pair-01-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-01-baseline/receipt.json",
+        "bytes": 1518759,
+        "sha256": "0c1febaa00c6da31f40972341b740c5b9c7259c5febf4d066dfdddea70977db8"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T10:56:25.968863+00:00",
+      "completedUtc": "2026-10-04T10:57:11.702626+00:00",
+      "nativeDurationSeconds": 38.81405600000289,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 33, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 46, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-01-baseline/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 50,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.54,
+            "render": 0.493,
+            "setup": 3.64,
+            "portal": 0.0,
+            "drawcalls": 0.199,
+            "postprocess": 0.119,
+            "finish": 14.221,
+            "spriteRender": 0.348,
+            "spriteSetup": 3.592
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.166,
+            "render": 0.655,
+            "setup": 3.872,
+            "portal": 0.0,
+            "drawcalls": 0.209,
+            "postprocess": 0.118,
+            "finish": 14.431,
+            "spriteRender": 0.467,
+            "spriteSetup": 3.806
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 20.277,
+            "render": 0.614,
+            "setup": 3.802,
+            "portal": 0.0,
+            "drawcalls": 0.206,
+            "postprocess": 0.124,
+            "finish": 15.645,
+            "spriteRender": 0.434,
+            "spriteSetup": 3.746
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.108,
+            "render": 0.541,
+            "setup": 3.8,
+            "portal": 0.0,
+            "drawcalls": 0.207,
+            "postprocess": 0.105,
+            "finish": 14.591,
+            "spriteRender": 0.389,
+            "spriteSetup": 3.754
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.225,
+            "render": 0.531,
+            "setup": 3.819,
+            "portal": 0.0,
+            "drawcalls": 0.207,
+            "postprocess": 0.1,
+            "finish": 14.702,
+            "spriteRender": 0.377,
+            "spriteSetup": 3.77
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 940,
+          "sha256": "31bff8ad3295a0d31ef5f007ae098d458ce115cad391a1ad68055eadbe4e36c4"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "b9a97712d6ddc683ef8d27b1495cd24a6bb819c2c7afe317623f4ce6fe6d8883"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3901,
+          "sha256": "fa0f9362016d8086acc75a830d1184089470519451f4a872b0f679282df9dfd2"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "4f600bbe85735eea8870f9989de73c980aca43e3097c3eac383915971bc3f341"
+        }
+      }
+    },
+    {
+      "id": "pair-01-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-01-candidate/receipt.json",
+        "bytes": 1519696,
+        "sha256": "c1fbbb5ec3a810067631a0e97f18634706a508301660e75f13e3667935dfded9"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T10:57:20.866703+00:00",
+      "completedUtc": "2026-10-04T10:58:07.034819+00:00",
+      "nativeDurationSeconds": 38.7161216000095,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 40, P0, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 49, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-01-candidate/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 50,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.788,
+            "render": 0.503,
+            "setup": 3.623,
+            "portal": 0.0,
+            "drawcalls": 0.191,
+            "postprocess": 0.093,
+            "finish": 14.502,
+            "spriteRender": 0.349,
+            "spriteSetup": 3.579
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.125,
+            "render": 0.57,
+            "setup": 3.917,
+            "portal": 0.0,
+            "drawcalls": 0.191,
+            "postprocess": 0.106,
+            "finish": 14.426,
+            "spriteRender": 0.398,
+            "spriteSetup": 3.843
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 20.778,
+            "render": 1.272,
+            "setup": 4.784,
+            "portal": 0.0,
+            "drawcalls": 0.395,
+            "postprocess": 0.17,
+            "finish": 14.443,
+            "spriteRender": 0.927,
+            "spriteSetup": 4.686
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.561,
+            "render": 0.603,
+            "setup": 3.809,
+            "portal": 0.0,
+            "drawcalls": 0.195,
+            "postprocess": 0.103,
+            "finish": 14.968,
+            "spriteRender": 0.414,
+            "spriteSetup": 3.746
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.207,
+            "render": 0.503,
+            "setup": 3.737,
+            "portal": 0.0,
+            "drawcalls": 0.189,
+            "postprocess": 0.106,
+            "finish": 14.777,
+            "spriteRender": 0.351,
+            "spriteSetup": 3.693
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 941,
+          "sha256": "1dc30da84237fff3151bb9d361bf62e730128f861d5bca66a3944f2309ae8399"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "960259aa304e5b042339708d6b5c55d2a082a76a46d57c11abbc2fc0ad2d7c4d"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3911,
+          "sha256": "510784b564bc6af74f18ea7930499070bff467f1377dd8337fc4adf9e3eced88"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "2f48da04bc1a62fed328ada86744ad347ae7db574c9bf2dd4d942bc75000ca20"
+        }
+      }
+    },
+    {
+      "id": "pair-02-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-02-candidate/receipt.json",
+        "bytes": 1519695,
+        "sha256": "e7f22b9c2c9019044529c6c01b0a5bfae1738af744c743136273a1f6e632b575"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T10:59:22.106941+00:00",
+      "completedUtc": "2026-10-04T11:00:08.306991+00:00",
+      "nativeDurationSeconds": 38.93483079998987,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 35, P5, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 47, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-02-candidate/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 48,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.535,
+            "render": 0.732,
+            "setup": 4.065,
+            "portal": 0.0,
+            "drawcalls": 0.207,
+            "postprocess": 0.179,
+            "finish": 14.467,
+            "spriteRender": 0.557,
+            "spriteSetup": 4.001
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.479,
+            "render": 0.505,
+            "setup": 3.77,
+            "portal": 0.0,
+            "drawcalls": 0.187,
+            "postprocess": 0.108,
+            "finish": 15.019,
+            "spriteRender": 0.357,
+            "spriteSetup": 3.718
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.104,
+            "render": 0.567,
+            "setup": 3.832,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.11,
+            "finish": 14.506,
+            "spriteRender": 0.37,
+            "spriteSetup": 3.777
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.893,
+            "render": 0.632,
+            "setup": 4.443,
+            "portal": 0.0,
+            "drawcalls": 0.188,
+            "postprocess": 0.123,
+            "finish": 14.594,
+            "spriteRender": 0.44,
+            "spriteSetup": 4.381
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.454,
+            "render": 0.634,
+            "setup": 3.892,
+            "portal": 0.0,
+            "drawcalls": 0.195,
+            "postprocess": 0.111,
+            "finish": 14.694,
+            "spriteRender": 0.443,
+            "spriteSetup": 3.826
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 941,
+          "sha256": "23132f7c6d3dd9689145a72eeb68e74987223507a56cc002186dd1856280162f"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "051d012ba48dab68fdc2f57a99f9897130424c41e6db23a9d1b0b079971ffa5a"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3911,
+          "sha256": "209b724cf66d49b7b45d06bf9d2a0742277ca1f6fa4fc06e416146e9e813705e"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "619a0016f8fd6bdbf4d8d1e9f4f89e7713233f75f422d70106a67ce80f826997"
+        }
+      }
+    },
+    {
+      "id": "pair-02-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-02-baseline/receipt.json",
+        "bytes": 1518765,
+        "sha256": "ed52aa31fffb6af94ae69f15d51ca5463fca5d7f0d735754cbc1ad3493c56ccb"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:00:17.027697+00:00",
+      "completedUtc": "2026-10-04T11:01:02.988656+00:00",
+      "nativeDurationSeconds": 38.72351239999989,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 40, P5, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 51, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-02-baseline/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 49,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.885,
+            "render": 0.484,
+            "setup": 3.658,
+            "portal": 0.0,
+            "drawcalls": 0.191,
+            "postprocess": 0.124,
+            "finish": 14.545,
+            "spriteRender": 0.339,
+            "spriteSetup": 3.609
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.137,
+            "render": 0.494,
+            "setup": 3.717,
+            "portal": 0.0,
+            "drawcalls": 0.188,
+            "postprocess": 0.102,
+            "finish": 14.753,
+            "spriteRender": 0.343,
+            "spriteSetup": 3.672
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.261,
+            "render": 0.598,
+            "setup": 3.772,
+            "portal": 0.0,
+            "drawcalls": 0.221,
+            "postprocess": 0.136,
+            "finish": 14.677,
+            "spriteRender": 0.435,
+            "spriteSetup": 3.713
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.573,
+            "render": 0.526,
+            "setup": 3.829,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.118,
+            "finish": 15.016,
+            "spriteRender": 0.364,
+            "spriteSetup": 3.773
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.229,
+            "render": 0.504,
+            "setup": 3.78,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.105,
+            "finish": 14.769,
+            "spriteRender": 0.355,
+            "spriteSetup": 3.725
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 940,
+          "sha256": "a45e473dce2cfaf291002c379722589f9e67ccf0f19617861789c627ae760142"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "e52364412e9e65516f06540ae7d6f1dc4cb17873ea650926e4a48bc88ec0cf6c"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3901,
+          "sha256": "54d11c9501af56ed0589630c05d692ff68681d84821084714727c32bc78e9160"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "759cb700be6e47b242e62873127234dd8d6816d493453417684c3fd2d3a9025e"
+        }
+      }
+    },
+    {
+      "id": "pair-03-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-03-baseline/receipt.json",
+        "bytes": 1518759,
+        "sha256": "373d36afdd4e4b9f385721f84176238d79e599829cee759989ccf7928a508ddc"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:01:47.907961+00:00",
+      "completedUtc": "2026-10-04T11:02:33.551090+00:00",
+      "nativeDurationSeconds": 38.715382199996384,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 37, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 48, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-03-baseline/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 50,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.695,
+            "render": 0.514,
+            "setup": 3.703,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.101,
+            "finish": 14.292,
+            "spriteRender": 0.355,
+            "spriteSetup": 3.652
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.604,
+            "render": 0.497,
+            "setup": 3.845,
+            "portal": 0.0,
+            "drawcalls": 0.181,
+            "postprocess": 0.109,
+            "finish": 15.081,
+            "spriteRender": 0.345,
+            "spriteSetup": 3.794
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.104,
+            "render": 0.552,
+            "setup": 3.87,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.103,
+            "finish": 14.497,
+            "spriteRender": 0.389,
+            "spriteSetup": 3.812
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.455,
+            "render": 0.478,
+            "setup": 3.727,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.1,
+            "finish": 14.081,
+            "spriteRender": 0.335,
+            "spriteSetup": 3.681
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.046,
+            "render": 0.497,
+            "setup": 3.763,
+            "portal": 0.0,
+            "drawcalls": 0.216,
+            "postprocess": 0.127,
+            "finish": 14.55,
+            "spriteRender": 0.343,
+            "spriteSetup": 3.71
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 940,
+          "sha256": "00566bc4674f1974fbced8506d10b188913d3c9cb5ac25f915be7c878157daf3"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "4e33855ad29bc5c659d64201028cbbdf0722bc2f68a06ac288e8b27918f0538f"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3901,
+          "sha256": "52ffe78f3afca3c6391a60aaa3f9e05cbf2e8bccd401ac59293913822008d15d"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "09c42b92835862dca292b33660cf5063056eb13ddd4b642c55ad98da759f5a4e"
+        }
+      }
+    },
+    {
+      "id": "pair-03-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-03-candidate/receipt.json",
+        "bytes": 1519695,
+        "sha256": "35726231e76f1df3315d61e8527635a27522f003d93adad58633b1f20ef43a20"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:02:42.801784+00:00",
+      "completedUtc": "2026-10-04T11:03:28.695953+00:00",
+      "nativeDurationSeconds": 38.71995289999177,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 41, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 50, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-03-candidate/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 48,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 20.532,
+            "render": 1.087,
+            "setup": 4.893,
+            "portal": 0.0,
+            "drawcalls": 0.296,
+            "postprocess": 0.209,
+            "finish": 14.214,
+            "spriteRender": 0.79,
+            "spriteSetup": 4.813
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 23.214,
+            "render": 0.574,
+            "setup": 5.361,
+            "portal": 0.0,
+            "drawcalls": 0.192,
+            "postprocess": 0.11,
+            "finish": 17.063,
+            "spriteRender": 0.407,
+            "spriteSetup": 5.292
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.751,
+            "render": 0.498,
+            "setup": 3.717,
+            "portal": 0.0,
+            "drawcalls": 0.187,
+            "postprocess": 0.105,
+            "finish": 14.362,
+            "spriteRender": 0.354,
+            "spriteSetup": 3.672
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.872,
+            "render": 0.625,
+            "setup": 3.907,
+            "portal": 0.0,
+            "drawcalls": 0.194,
+            "postprocess": 0.125,
+            "finish": 15.127,
+            "spriteRender": 0.445,
+            "spriteSetup": 3.843
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 21.321,
+            "render": 0.563,
+            "setup": 4.757,
+            "portal": 0.0,
+            "drawcalls": 0.19,
+            "postprocess": 0.107,
+            "finish": 15.77,
+            "spriteRender": 0.392,
+            "spriteSetup": 4.691
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 941,
+          "sha256": "f09156b13b416307b537fd81449ca70c57572e593e1ec9ea3cc40142f73a92c1"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "7fa4c7be7f9b55bb9b12f0b98a63bc1ad82d3f303c27458e33571f59b2da0a83"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3911,
+          "sha256": "bf16cc59b072987b4e8b1c1d5b482442f2d6432dc9b83ab297fcdf79d66b3c6f"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "fa7fcb64625469d8a5fc0425fd0c511cd4a84ad4cb447645277e8ff98728cb0a"
+        }
+      }
+    },
+    {
+      "id": "pair-04-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-04-candidate/receipt.json",
+        "bytes": 1519695,
+        "sha256": "005c60918aa654fa4822ba040025f54aa616fbc27e268fe544a522d05bed1f6e"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:04:21.703038+00:00",
+      "completedUtc": "2026-10-04T11:05:07.783765+00:00",
+      "nativeDurationSeconds": 38.916261300008046,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 38, P0, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 48, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-04-candidate/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 48,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.782,
+            "render": 0.518,
+            "setup": 3.751,
+            "portal": 0.0,
+            "drawcalls": 0.196,
+            "postprocess": 0.109,
+            "finish": 14.318,
+            "spriteRender": 0.359,
+            "spriteSetup": 3.695
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.899,
+            "render": 0.523,
+            "setup": 3.876,
+            "portal": 0.0,
+            "drawcalls": 0.2,
+            "postprocess": 0.104,
+            "finish": 14.325,
+            "spriteRender": 0.374,
+            "spriteSetup": 3.826
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.796,
+            "render": 0.557,
+            "setup": 4.649,
+            "portal": 0.0,
+            "drawcalls": 0.195,
+            "postprocess": 0.099,
+            "finish": 14.39,
+            "spriteRender": 0.386,
+            "spriteSetup": 4.592
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.772,
+            "render": 0.494,
+            "setup": 3.784,
+            "portal": 0.0,
+            "drawcalls": 0.188,
+            "postprocess": 0.089,
+            "finish": 14.334,
+            "spriteRender": 0.348,
+            "spriteSetup": 3.739
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.253,
+            "render": 0.599,
+            "setup": 4.0,
+            "portal": 0.0,
+            "drawcalls": 0.193,
+            "postprocess": 0.099,
+            "finish": 14.475,
+            "spriteRender": 0.425,
+            "spriteSetup": 3.942
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 941,
+          "sha256": "832c3378d855db39eb554f74e15c55d0058cce5c919f69f8a2ad70b285a408ce"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "7285dac864ddbb9432142343280a3e779d7aa4bf5d154305d25516a69e02ac1d"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3911,
+          "sha256": "06f7bdcd3dfd23438a4f66dfc8f1604bb88f71258784e0db8a1fc1006dd12d13"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "15da4cd2c381ccfb45728b6132e3b6c021cd444a2a27fcdb08471fb103528846"
+        }
+      }
+    },
+    {
+      "id": "pair-04-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-04-baseline/receipt.json",
+        "bytes": 1518764,
+        "sha256": "1fb8ac9b439fbda1199c7f661464cf418c1106f4d883033706965d312d376a1b"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:05:16.644419+00:00",
+      "completedUtc": "2026-10-04T11:06:02.509117+00:00",
+      "nativeDurationSeconds": 38.7169873000239,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 42, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 50, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-04-baseline/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 50,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.137,
+            "render": 0.494,
+            "setup": 3.768,
+            "portal": 0.0,
+            "drawcalls": 0.184,
+            "postprocess": 0.135,
+            "finish": 14.671,
+            "spriteRender": 0.347,
+            "spriteSetup": 3.712
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.264,
+            "render": 0.473,
+            "setup": 3.677,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.091,
+            "finish": 14.953,
+            "spriteRender": 0.331,
+            "spriteSetup": 3.633
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.732,
+            "render": 0.473,
+            "setup": 3.723,
+            "portal": 0.0,
+            "drawcalls": 0.179,
+            "postprocess": 0.102,
+            "finish": 14.364,
+            "spriteRender": 0.328,
+            "spriteSetup": 3.674
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.887,
+            "render": 0.493,
+            "setup": 3.752,
+            "portal": 0.0,
+            "drawcalls": 0.182,
+            "postprocess": 0.119,
+            "finish": 14.441,
+            "spriteRender": 0.337,
+            "spriteSetup": 3.698
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 22.668,
+            "render": 0.601,
+            "setup": 7.359,
+            "portal": 0.0,
+            "drawcalls": 0.181,
+            "postprocess": 0.103,
+            "finish": 14.526,
+            "spriteRender": 0.436,
+            "spriteSetup": 7.281
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 940,
+          "sha256": "b3f80d3e8e91334090441a88d5ca39274d6d59d3281f434c74610e3f4a006969"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "98a3399539eaa72b525607a68e605c09ed1f209dbec043413bcf1403d2242162"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3901,
+          "sha256": "10916f586e012164a782c360ee01395e296828fd21a14e5390033df2697f388c"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "b4587275c2a745a21f464dc0de04a1ebe9db63fa5057a9f16b341f2fa7eaa1b4"
+        }
+      }
+    },
+    {
+      "id": "pair-05-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-05-baseline/receipt.json",
+        "bytes": 1518761,
+        "sha256": "4d982872cdadd86be8c08cb49a29778437f357c0704de93536d8b52456ddea2d"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:06:56.354730+00:00",
+      "completedUtc": "2026-10-04T11:07:42.271134+00:00",
+      "nativeDurationSeconds": 38.923061900015455,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 37, P8, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 52, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-05-baseline/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 50,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.222,
+            "render": 0.498,
+            "setup": 3.591,
+            "portal": 0.0,
+            "drawcalls": 0.2,
+            "postprocess": 0.135,
+            "finish": 14.929,
+            "spriteRender": 0.353,
+            "spriteSetup": 3.542
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.564,
+            "render": 0.608,
+            "setup": 4.622,
+            "portal": 0.0,
+            "drawcalls": 0.218,
+            "postprocess": 0.101,
+            "finish": 14.14,
+            "spriteRender": 0.424,
+            "spriteSetup": 4.57
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.681,
+            "render": 0.499,
+            "setup": 3.752,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.099,
+            "finish": 14.227,
+            "spriteRender": 0.334,
+            "spriteSetup": 3.696
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.874,
+            "render": 0.791,
+            "setup": 4.078,
+            "portal": 0.0,
+            "drawcalls": 0.233,
+            "postprocess": 0.207,
+            "finish": 14.679,
+            "spriteRender": 0.564,
+            "spriteSetup": 4.007
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 22.569,
+            "render": 0.543,
+            "setup": 6.984,
+            "portal": 0.0,
+            "drawcalls": 0.181,
+            "postprocess": 0.104,
+            "finish": 14.85,
+            "spriteRender": 0.374,
+            "spriteSetup": 6.909
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 940,
+          "sha256": "232d8de448ecab73879d660c76c88b0b377507d1a45a717110b126ad1097e2e2"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "aff6c4990bc2648ac8bafd5d3ad0e01a63e523ff34da2bc0e5e1710b9e326ccd"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3901,
+          "sha256": "5a61d4bde747ca679ac5e736abe8579c47e7883dfbf1a3f2c0a68071520f7b2c"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "7e786fbf5f6955bc36ce2c48f509386e5d54e6ac99020a508ac4474bc7951d7d"
+        }
+      }
+    },
+    {
+      "id": "pair-05-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "receipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-05-candidate/receipt.json",
+        "bytes": 1519693,
+        "sha256": "412f557f96dc030ac92b5bace45758b063de8342cdb0c4099fa3c88c4845bf98"
+      },
+      "nativeBuildSource": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "candidateReceipt": {
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "startedUtc": "2026-10-04T11:07:52.016567+00:00",
+      "completedUtc": "2026-10-04T11:08:38.249193+00:00",
+      "nativeDurationSeconds": 38.71631799999159,
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "uiOnlyOverrides": {
+        "GlobalSettings": {
+          "show_messages": "false"
+        },
+        "Doom.ConsoleVariables": {
+          "con_notifytime": "0"
+        },
+        "scope": "Suppress capture notifications; actual CVar queries remain in stdout"
+      },
+      "hostGpuBefore": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 41, P5, 4096",
+      "hostGpuAfter": "NVIDIA GeForce GTX 1650 SUPER, 0x218710DE, 616.92, 50, P0, 4096",
+      "hostFailureEvents": [],
+      "inputsUnchanged": true,
+      "loadedPackageInventory": [
+        {
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537",
+          "lumps": 718
+        },
+        {
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+          "lumps": 3308
+        },
+        {
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab",
+          "lumps": 2928
+        },
+        {
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+          "lumps": 7
+        },
+        {
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+          "lumps": 499
+        },
+        {
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+          "lumps": 214
+        },
+        {
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e",
+          "lumps": 6
+        }
+      ],
+      "image": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-05-candidate/scene.png",
+        "bytes": 1224472,
+        "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "extent": [
+        1904,
+        1001
+      ],
+      "cpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 49,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.89,
+            "render": 0.496,
+            "setup": 3.59,
+            "portal": 0.0,
+            "drawcalls": 0.196,
+            "postprocess": 0.153,
+            "finish": 14.584,
+            "spriteRender": 0.347,
+            "spriteSetup": 3.549
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 20.054,
+            "render": 0.615,
+            "setup": 4.43,
+            "portal": 0.0,
+            "drawcalls": 0.227,
+            "postprocess": 0.099,
+            "finish": 14.822,
+            "spriteRender": 0.432,
+            "spriteSetup": 4.377
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.975,
+            "render": 0.51,
+            "setup": 4.586,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.091,
+            "finish": 14.714,
+            "spriteRender": 0.358,
+            "spriteSetup": 4.535
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.336,
+            "render": 0.574,
+            "setup": 3.754,
+            "portal": 0.0,
+            "drawcalls": 0.219,
+            "postprocess": 0.144,
+            "finish": 14.791,
+            "spriteRender": 0.417,
+            "spriteSetup": 3.708
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 34,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 21.741,
+            "render": 0.838,
+            "setup": 5.881,
+            "portal": 0.0,
+            "drawcalls": 0.24,
+            "postprocess": 0.148,
+            "finish": 14.744,
+            "spriteRender": 0.608,
+            "spriteSetup": 5.816
+          }
+        }
+      ],
+      "scoredSnapshotIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "outputs": {
+        "configuration-input.ini": {
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        },
+        "execute.cfg": {
+          "bytes": 941,
+          "sha256": "a94dc984f8d53e7b323dfc3ec28ac6044194898f5a444ad06be6856e2813c910"
+        },
+        "fixture-live.ini": {
+          "bytes": 15649,
+          "sha256": "4ef3c991e35cb3060deaf2a7acc4a52252d663ecceeca00feadc497cd7bca9bd"
+        },
+        "scene.png": {
+          "bytes": 1224472,
+          "sha256": "1d94135a16cf928d21a4f7a5afda69cc7f6074fb310bbb6833c9982cf1c62a1f"
+        },
+        "stderr.log": {
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout.log": {
+          "bytes": 3911,
+          "sha256": "0ab647a4c30ae103fff842603e325df62b7d11f69e375e67ba46ecef73f64c3c"
+        },
+        "work\\benchmarks.txt": {
+          "bytes": 3575,
+          "sha256": "7c0037ca8d8454854afda9b1bb56b817776baeb93005af3b5f45e87db08fd0ac"
+        }
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "schema": "pf020-ordinary-dense-pair/v1",
+      "status": "PASS",
+      "pair": 1,
+      "toolSourceHead": "ef79361822199112ee2179414ce21b812178bca7",
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "zeroToleranceDecodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "cpuRunMediansMilliseconds": {
+        "baseline": {
+          "spriteSetup": 3.762,
+          "setup": 3.8105,
+          "allIncludingFinish": 19.195500000000003
+        },
+        "candidate": {
+          "spriteSetup": 3.7945,
+          "setup": 3.863,
+          "allIncludingFinish": 19.384
+        }
+      },
+      "candidateRelativePercent": {
+        "spriteSetup": 0.8639021796916557,
+        "setup": 1.3777719459388438,
+        "allIncludingFinish": 0.9820009898153126
+      },
+      "rawReceipts": {
+        "baseline": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-01-baseline/receipt.json",
+          "sha256": "0c1febaa00c6da31f40972341b740c5b9c7259c5febf4d066dfdddea70977db8"
+        },
+        "candidate": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-01-candidate/receipt.json",
+          "sha256": "c1fbbb5ec3a810067631a0e97f18634706a508301660e75f13e3667935dfded9"
+        }
+      },
+      "gpuTimestampClaimed": false,
+      "performanceAccepted": false,
+      "pairReceipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-01.json",
+        "bytes": 1194,
+        "sha256": "1e1c44060ead410b0800817c4c3773f6400088ba588debb98e9b1b049df08933"
+      }
+    },
+    {
+      "schema": "pf020-ordinary-dense-pair/v1",
+      "status": "PASS",
+      "pair": 2,
+      "toolSourceHead": "ef79361822199112ee2179414ce21b812178bca7",
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "zeroToleranceDecodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "cpuRunMediansMilliseconds": {
+        "candidate": {
+          "spriteSetup": 3.8015,
+          "setup": 3.862,
+          "allIncludingFinish": 19.4665
+        },
+        "baseline": {
+          "spriteSetup": 3.7190000000000003,
+          "setup": 3.776,
+          "allIncludingFinish": 19.244999999999997
+        }
+      },
+      "candidateRelativePercent": {
+        "spriteSetup": 2.218338262973907,
+        "setup": 2.277542372881358,
+        "allIncludingFinish": 1.1509482982593022
+      },
+      "rawReceipts": {
+        "candidate": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-02-candidate/receipt.json",
+          "sha256": "e7f22b9c2c9019044529c6c01b0a5bfae1738af744c743136273a1f6e632b575"
+        },
+        "baseline": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-02-baseline/receipt.json",
+          "sha256": "ed52aa31fffb6af94ae69f15d51ca5463fca5d7f0d735754cbc1ad3493c56ccb"
+        }
+      },
+      "gpuTimestampClaimed": false,
+      "performanceAccepted": false,
+      "pairReceipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-02.json",
+        "bytes": 1205,
+        "sha256": "c64da36784a86148e7e07df952a6c97db072579a853e1af104a69e6f63b2fb5d"
+      }
+    },
+    {
+      "schema": "pf020-ordinary-dense-pair/v1",
+      "status": "PASS",
+      "pair": 3,
+      "toolSourceHead": "ef79361822199112ee2179414ce21b812178bca7",
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "zeroToleranceDecodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "cpuRunMediansMilliseconds": {
+        "baseline": {
+          "spriteSetup": 3.752,
+          "setup": 3.8040000000000003,
+          "allIncludingFinish": 19.075
+        },
+        "candidate": {
+          "spriteSetup": 4.2669999999999995,
+          "setup": 4.332,
+          "allIncludingFinish": 20.5965
+        }
+      },
+      "candidateRelativePercent": {
+        "spriteSetup": 13.726012793176956,
+        "setup": 13.880126182965281,
+        "allIncludingFinish": 7.976408912188737
+      },
+      "rawReceipts": {
+        "baseline": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-03-baseline/receipt.json",
+          "sha256": "373d36afdd4e4b9f385721f84176238d79e599829cee759989ccf7928a508ddc"
+        },
+        "candidate": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-03-candidate/receipt.json",
+          "sha256": "35726231e76f1df3315d61e8527635a27522f003d93adad58633b1f20ef43a20"
+        }
+      },
+      "gpuTimestampClaimed": false,
+      "performanceAccepted": false,
+      "pairReceipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-03.json",
+        "bytes": 1206,
+        "sha256": "d24bc3189dccb365a7fd5a57fa5abe8ff90b077cd261bd75cd9150c78d960e22"
+      }
+    },
+    {
+      "schema": "pf020-ordinary-dense-pair/v1",
+      "status": "PASS",
+      "pair": 4,
+      "toolSourceHead": "ef79361822199112ee2179414ce21b812178bca7",
+      "order": [
+        "candidate",
+        "baseline"
+      ],
+      "zeroToleranceDecodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "cpuRunMediansMilliseconds": {
+        "candidate": {
+          "spriteSetup": 3.8840000000000003,
+          "setup": 3.9379999999999997,
+          "allIncludingFinish": 19.076
+        },
+        "baseline": {
+          "spriteSetup": 3.686,
+          "setup": 3.7375,
+          "allIncludingFinish": 19.075499999999998
+        }
+      },
+      "candidateRelativePercent": {
+        "spriteSetup": 5.371676614215959,
+        "setup": 5.364548494983268,
+        "allIncludingFinish": 0.002621163272276128
+      },
+      "rawReceipts": {
+        "candidate": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-04-candidate/receipt.json",
+          "sha256": "005c60918aa654fa4822ba040025f54aa616fbc27e268fe544a522d05bed1f6e"
+        },
+        "baseline": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-04-baseline/receipt.json",
+          "sha256": "1fb8ac9b439fbda1199c7f661464cf418c1106f4d883033706965d312d376a1b"
+        }
+      },
+      "gpuTimestampClaimed": false,
+      "performanceAccepted": false,
+      "pairReceipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-04.json",
+        "bytes": 1219,
+        "sha256": "1a2246d75b8bb70193628350d84d92c55a1e66b368e3be182228e8af0fd09ec0"
+      }
+    },
+    {
+      "schema": "pf020-ordinary-dense-pair/v1",
+      "status": "PASS",
+      "pair": 5,
+      "toolSourceHead": "ef79361822199112ee2179414ce21b812178bca7",
+      "order": [
+        "baseline",
+        "candidate"
+      ],
+      "zeroToleranceDecodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "cpuRunMediansMilliseconds": {
+        "baseline": {
+          "spriteSetup": 4.2885,
+          "setup": 4.35,
+          "allIncludingFinish": 19.719
+        },
+        "candidate": {
+          "spriteSetup": 4.4559999999999995,
+          "setup": 4.508,
+          "allIncludingFinish": 20.014499999999998
+        }
+      },
+      "candidateRelativePercent": {
+        "spriteSetup": 3.905794566864862,
+        "setup": 3.632183908045983,
+        "allIncludingFinish": 1.4985546934428662
+      },
+      "rawReceipts": {
+        "baseline": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-05-baseline/receipt.json",
+          "sha256": "4d982872cdadd86be8c08cb49a29778437f357c0704de93536d8b52456ddea2d"
+        },
+        "candidate": {
+          "path": "build/pf020-native/pf020-dense-runs/pair-05-candidate/receipt.json",
+          "sha256": "412f557f96dc030ac92b5bace45758b063de8342cdb0c4099fa3c88c4845bf98"
+        }
+      },
+      "gpuTimestampClaimed": false,
+      "performanceAccepted": false,
+      "pairReceipt": {
+        "path": "build/pf020-native/pf020-dense-runs/pair-05.json",
+        "bytes": 1203,
+        "sha256": "ddd4295397f7e53a907c15a6e8d15d4bda694064bde2d3f206b56164617df98d"
+      }
+    }
+  ],
+  "cleanCpuGate": {
+    "receipt": {
+      "path": "build/pf020-native/pf020-final-checks-03/receipt.json",
+      "bytes": 4185,
+      "sha256": "4bf1209fe7fbe6b08889781ef4b5d2d45273557f91fc289a3dfb066b5d4f1885"
+    },
+    "source": {
+      "head": "ef79361822199112ee2179414ce21b812178bca7",
+      "status": ""
+    },
+    "pfTests": 480,
+    "cfxTests": 8,
+    "standaloneFixtures": 4,
+    "oraclesByteEqual": true,
+    "logs": [
+      {
+        "name": "pf-suite",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-v"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\pf-suite.log",
+        "sha256": "ba0f7e25a563c26e5bcdcf4c752fa33ce74d107f2662a94b379fd178e1e4dcb5"
+      },
+      {
+        "name": "cfx",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/test_cfx_capture.py"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\cfx.log",
+        "sha256": "f776650b092e0b87c3c527dc4b651d78f89db8cf647b56b01049a25e5034fd12"
+      },
+      {
+        "name": "resource_generation",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/pf_oracle/fixture_runner.py",
+          "--source",
+          "tools/pf_oracle/tests/resource_generation_fixture.cpp",
+          "--include",
+          "src/common/rendering/hwrenderer/data"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\resource_generation.log",
+        "sha256": "996dc4807a69b244253bc38a180e5209eb5017c4d9b4cb3503addb8f55717cd7"
+      },
+      {
+        "name": "bindless_allocator",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/pf_oracle/fixture_runner.py",
+          "--source",
+          "tools/pf_oracle/tests/bindless_allocator_fixture.cpp",
+          "--include",
+          "src/common/rendering",
+          "--include",
+          "src/common/rendering/vulkan/descriptorsets"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\bindless_allocator.log",
+        "sha256": "5b5a2fbbc8257af4e13314eb2748ce97236e2337d2e786fc204d1229bdec0c74"
+      },
+      {
+        "name": "levelmesh_contract",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/pf_oracle/fixture_runner.py",
+          "--source",
+          "tools/pf_oracle/tests/levelmesh_contract_fixture.cpp",
+          "--include",
+          "src/common/rendering/hwrenderer/data"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\levelmesh_contract.log",
+        "sha256": "fee670f9edfd0838186e799590bb69efe7091b38334eda45aa147d0060463844"
+      },
+      {
+        "name": "probe_selection",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/pf_oracle/fixture_runner.py",
+          "--source",
+          "tools/pf_oracle/tests/probe_selection_fixture.cpp",
+          "--include",
+          "src/common/rendering/hwrenderer/data"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\probe_selection.log",
+        "sha256": "1b7cbcd1661a5446daf1b9606ee2fce8b44dc0fa7fd8b0bc534332e7230c97dd"
+      },
+      {
+        "name": "oracle-a",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/pf_oracle/run.py",
+          "--baseline",
+          "tools/pf_oracle/baseline.json",
+          "--output",
+          "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf020-final-checks-03\\oracle-a.json"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\oracle-a.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "name": "oracle-b",
+        "argv": [
+          "C:\\Python314\\python.exe",
+          "tools/pf_oracle/run.py",
+          "--baseline",
+          "tools/pf_oracle/baseline.json",
+          "--output",
+          "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf020-final-checks-03\\oracle-b.json"
+        ],
+        "exit": 0,
+        "log": "build\\pf020-native\\pf020-final-checks-03\\oracle-b.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "retainedFirstWarmupDisposition": "docs/shadedoomvk/PF-020-DENSE-RETAINED-ATTEMPTS.json",
+  "independentAudit": {
+    "status": "PASS",
+    "scope": "Raw twelve-process receipts, source/build/package closure, PNG decode, five image pairs and all forty scored CPU samples; not whole-freeze acceptance or human review.",
+    "report": "build/pf020-native/pf020-dense-review/independent-20261004T111448Z.json",
+    "sha256": "6344689524e0d5e71458721e6c6fa68eff3fba6e3da46a347f5de6ff7b976362",
+    "readableReport": "build/pf020-native/pf020-dense-review/independent-20261004T111448Z.md",
+    "readableSha256": "d4b0d96e6dba873fc5c97d16f0e7deaef9baf7b8893678ce46b28764a3ec5129"
+  },
+  "toolCheckpointCi": {
+    "head": "ef79361822199112ee2179414ce21b812178bca7",
+    "run": 37196660221,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37196660221",
+    "status": "completed",
+    "conclusion": "success",
+    "actualSuccessfulJobs": [111419865610, 111420023414, 111420023422, 111420023431, 111420023446, 111420023460, 111420023475, 111420023484],
+    "scope": "Exact tool checkpoint; neither this later evidence commit's CI nor full PF020 acceptance."
+  },
+  "performanceAccepted": false,
+  "gpuTimestampClaimed": false,
+  "freezeAccepted": false,
+  "finding": "Candidate sprite Setup is higher in all five pairs. Median paired increase is about3.91%; All including Finish/wait is about1.15%. Pair3 is substantially larger; baselinepair5 itself drifts upward. Preserve every raw sample. Cause and a performance pass are unproved; investigate with bounded profiling before optimizing.",
+  "limits": [
+    "CPU snapshots, not GPU timestamps, per-frame distributions or a whole-renderer budget.",
+    "Four scored snapshots per child do not establish statistical significance or causality. All includes Finish/wait; elapsed RDTSC spans can include off-CPU preemption.",
+    "Pair4 All medians differ by only0.0005ms, below the native0.001ms printed precision; do not interpret its positive sign as meaningful.",
+    "Pre-run GPU power state and temperature vary; there is no continuous CPU clock or scheduling trace. Equal reported3600MHz calibration is not a measured turbo-clock guarantee.",
+    "Validation-off environment/configuration was requested and observed; this does not prove every implicit layer was disabled.",
+    "Actual static ordinary BSP/LevelMesh-off scene and aggregate counters, not ordered packed-light state or PBR/indexed cost.",
+    "Shared inherited caches left in place; no isolated cold-cache result.",
+    "No PF006 native key/cache, PF009 emitted frame/UV/vertex or PF010 mirror/camera/probe-face parity follows.",
+    "No historical STOP/P400 campaign, human approval, SDVK001 permission or full PF020 acceptance.",
+    "Hashes/timers/metadata only; original private raw images/logs/receipts remain immutable in local evidence staging."
+  ]
+}
