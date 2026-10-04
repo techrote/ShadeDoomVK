@@ -271,7 +271,19 @@ void SceneEnd(const HWDrawInfo* di)
         {
             if (Active())
             {
-                try { Observer.CompletedKey = SceneKey(di); }
+                try
+                {
+                    // Deduplicated scene rows may belong to an earlier frame.
+                    // A producer must carry its own actual completed view.
+                    const auto key = SceneKey(di);
+                    std::ostringstream completed;
+                    completed << key.substr(0, key.size() - 1) << ",\"completedView\":{\"depth\":"
+                        << Observer.Stack.size() - 1 << ',';
+                    View(completed, di);
+                    completed << "}}";
+                    Require(completed.str().size() < 16384, "PF020 completed view snapshot limit reached");
+                    Observer.CompletedKey = completed.str();
+                }
                 catch (const std::exception& error) { Fail(error); }
             }
             Observer.Stack.pop_back();

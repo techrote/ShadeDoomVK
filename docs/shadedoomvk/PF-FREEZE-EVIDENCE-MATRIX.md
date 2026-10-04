@@ -77,12 +77,14 @@ The [view evidence protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) defines the
 currently prepared fixture/observer/private sampling/key/cache prerequisite.
 CPU source derivation and observer controls do not prove runtime traversal,
 API correctness, cache reuse or images. Named diagnostic CPU captures complete
-with owned cleanup; offline coverage/attribution remains separate. The owner
-has reported concurrent slicing spikes and requested targeted extreme-test
-rechecks. Retain the original Dense packet unchanged, preregister the selected
-pair reruns, and report them separately without claiming proven interference
-or excluding original samples. The [manifest](PF-FREEZE-MANIFEST.md) records
-current exact boundaries.
+with owned cleanup. [Bounded offline decoding](PF-020-CPU-PROFILE.json) passes
+zero loss/truncation, exact PID/module/PDB and sampled-stack/scheduler coverage;
+whole-lifetime observations establish no phase cause or performance acceptance.
+After reported slicing spikes, the separately recorded
+[targeted rechecks](PF-020-DENSE-TARGETED-RECHECK.json) complete24 snapshots in
+three exact pairs, with no extreme spike recurrence. Original samples remain
+unchanged; no replacement aggregate or proven interference is inferred.
+The [manifest](PF-FREEZE-MANIFEST.md) records current exact boundaries.
 
 PF016 retains exact selected/order/class/group, portal displacement, visibility invalidation and18 image pairs; PF018 retains1,630 exact rays and bounded geometry/capacity/CPU evidence. Canonical query/allocator/AABB implementations remain unchanged, while later correctness repairs intentionally alter wrong indexed/PBR semantics and must not use those broken GPU paths as performance baselines.
 

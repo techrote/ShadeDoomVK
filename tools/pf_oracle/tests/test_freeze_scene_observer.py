@@ -332,9 +332,19 @@ int main(int argc, char** argv) {
     }
     Pf020ViewDiagnostics::SceneEnd(&root);
     assert(Observer.Stack.empty());
+    if (scenario=="completed-later") {
+        // Same semantic key remains deduplicated, while a later completed
+        // producer must retain its actual invocation's changed time and view.
+        gametic=456;
+        root.Viewpoint.Pos.X=25;
+        root.VPUniforms.mViewMatrix.Values[12]=25;
+        Pf020ViewDiagnostics::SceneBegin(&root,0);
+        Pf020ViewDiagnostics::SceneEnd(&root);
+        assert(Observer.Records.size()==2 && Observer.Scenes==2);
+    }
     if (Observer.Error.empty()) {
         const auto completed=Pf020ViewDiagnostics::CurrentSceneKeyJson();
-        assert(!completed.empty() && completed.find("\"diagnosticIdentity\":1")!=std::string::npos);
+        assert(!completed.empty() && completed.find(scenario=="completed-later" ? "\"diagnosticIdentity\":2" : "\"diagnosticIdentity\":1")!=std::string::npos);
         std::ofstream key(prefix+".completed.json"); key<<completed;
     }
     if (scenario=="reset-phase") {
@@ -416,6 +426,25 @@ class ProductionObserverGuards(unittest.TestCase):
                 completed = json.loads((self.directory/("normal-"+variant+".completed.json")).read_text())
                 self.assertEqual(completed["diagnosticIdentity"], scene["diagnosticIdentity"])
                 self.assertEqual(completed["semanticKey"], scene["semanticKey"])
+                self.assertEqual(completed["completedView"]["tic"], scene["tic"])
+                self.assertEqual(completed["completedView"]["viewMatrix"], scene["viewMatrix"])
+                self.assertEqual(completed["completedView"]["productionContextAvailable"], variant == "current")
+
+    def test_completed_producer_snapshot_uses_later_actual_view_after_semantic_dedup(self):
+        for variant in self.executables:
+            with self.subTest(variant=variant):
+                _, receipt = self.observe("completed-later", variant)
+                first = next(r for r in receipt["records"] if r["event"] == "scene")
+                completed = json.loads((self.directory/("completed-later-"+variant+".completed.json")).read_text())
+                self.assertEqual(first["tic"], 123)
+                self.assertEqual(first["position"], [1, 2, 3])
+                self.assertEqual(completed["semanticKey"], first["semanticKey"])
+                self.assertNotEqual(completed["diagnosticIdentity"], first["diagnosticIdentity"])
+                self.assertEqual(completed["completedView"]["tic"], 456)
+                self.assertEqual(completed["completedView"]["position"], [25, 2, 3])
+                self.assertEqual(completed["completedView"]["viewMatrix"][12], 25)
+                self.assertEqual(completed["completedView"]["depth"], 0)
+                self.assertEqual(completed["completedView"]["productionContextAvailable"], variant == "current")
 
     def test_disabled_and_foreign_map_leave_fractions_and_records_untouched(self):
         output, receipt = self.observe("off")

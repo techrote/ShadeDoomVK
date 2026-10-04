@@ -83,6 +83,21 @@ production probes. Completed image keys preserve invocation IDs; key aggregation
 uses the stable semantic view projection. Worker key events have an explicit
 worker marker and null scene, without unsynchronized frontend state access.
 
+Each captured producer also carries its own bounded `completedView` snapshot,
+taken before its actual scene stack pop. Compare its actual tic, fraction,
+position, angles, matrices and camera uniform exactly. First semantic rows can
+belong to an earlier invocation and cannot substitute for this capture-time
+state. Only invocation tokens and explicitly unavailable legacy production
+metadata are excluded from semantic comparison.
+
+The existing Vulkan screenshot path uses the retained previous frame through
+its ordinary screenshot presentation pass and RGB conversion, including its
+capture-time presentation settings. It is not a direct swapchain readback.
+Immediately after this production `GetScreenshotBuffer` readback, the observer
+retains its RGB bytes and completed main-view snapshot as `mainPresentation`.
+Independent PNG decoding must match those exact bytes; paired presentation
+snapshots must also match. No diagnostic substitute scene is rendered.
+
 Camera/probe producers lack TRANSFER_SRC usage. The Vulkan observer must sample
 their actual completed images through a private 2D per-layer view and same-format
 texelFetch pass, then copy only its private transfer-capable target. Record

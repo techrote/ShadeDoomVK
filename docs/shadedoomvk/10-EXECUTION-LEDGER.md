@@ -526,7 +526,8 @@ named/default WPR status is idle. Only the fixed catalog-verified profiler
 controller was elevated under explicit owner permission; configuration/policy
 was not changed. Original denied/cancelled/parser-failed attempts remain retained.
 The [manifest](PF-FREEZE-MANIFEST.md) pins both ETLs. Zero scored samples are
-added, and decoded coverage/CPU cause/performance acceptance remain pending.
+added. At capture time decoded coverage was pending; its separate bounded
+disposition is recorded below. CPU cause/performance acceptance remains unproved.
 
 The [view protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) records the opt-in actual
 scene/sprite observer, private same-format camera/probe sampling, production
@@ -544,3 +545,23 @@ Sprite Setup differences are−0.90%,+1.05%,+1.07%; total including Finish/wait
 is+1.28%,−0.77%,−0.62%. The large spikes did not recur. Original samples and
 failed quiet preparations remain retained; no replacement aggregate, causal
 attribution, statistical significance or performance/GPU acceptance follows.
+
+## PF-020 bounded CPU decoding and capture-time state repair — 2026-10-04
+
+The separate v4 decoder changes only its4M event cap to32M and passes both
+capture05 traces with zero loss/truncation,99.963%/99.970% target stacks,
+100% resolved engine frames and exact recorded target/module/PDB identities.
+Actual decode resources and owned exits pass. Whole-lifetime sprite light-list
+samples do not provide phase boundaries, a timing cause or performance
+acceptance. The [public metadata receipt](PF-020-CPU-PROFILE.json) preserves
+the original capacity failures and an unexercised wrapper cleanup limitation.
+
+Frozen50a4b554 passes all570 strict PF tests, CFX8/8, four standalone fixtures,
+identical oracles and all eight exact-head jobs. Fresh current build02 succeeds
+after the public nested texture-manager enum scope was corrected; failed build01
+is retained. Review identifies a separate qualification gap: first semantic
+scene rows need not describe a later captured producer invocation. The observer
+now retains its actual completed view, and the ordinary screenshot readback
+retains corresponding RGB/state. These additions and the bounded launcher need
+fresh frozen-head builds and real core/sync, traversal/cache/image verification.
+PF020/SDVK001 and draft111 remain closed to passing-freeze acceptance.

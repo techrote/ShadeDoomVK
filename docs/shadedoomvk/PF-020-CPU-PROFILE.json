@@ -1,0 +1,542 @@
+{
+  "schema": "shadedoomvk-pf020-cpu-profile-public/v1",
+  "status": "PROFILE_EVIDENCE_PASS",
+  "evidenceScope": "Two diagnostic-only CPU captures of the ordinary PF16TST fixture; offline sampled native stacks and target scheduler residence.",
+  "capture": "capture05",
+  "scoredSamplesAdded": 0,
+  "performanceAccepted": false,
+  "causalAttributionEstablished": false,
+  "gpuTimingClaimed": false,
+  "mainFrameParityClaimed": false,
+  "frameBudgetClaimed": false,
+  "p400Claimed": false,
+  "publicArtifactPolicy": "Metadata and hashes only. Raw ETL, native logs, private paths, pixel RGB and host screenshots are not attachments.",
+  "sourceClosure": {
+    "captureInputClosureSha256": "50dc2055e2937d2507a643be255ec7381f37dbc720142a1682adffb6177bc71e",
+    "captureInputFileCount": 2544,
+    "captureInputCheckpoint": "0ffded4316b6a50b4220b99b52a55e72245cd51b"
+  },
+  "evidenceReceiptPins": {
+    "captureManifest": {
+      "artifact": "manifest.json",
+      "bytes": 433046,
+      "sha256": "a03acba3f78753af0ca0832e1ea582c68506f186a6b66727f98574901b0563fc"
+    },
+    "controller": {
+      "artifact": "controller-receipt.json",
+      "bytes": 14982,
+      "sha256": "c18b3e1f5a25eb01353e6b2f42be7823423cce37a9c4dc1b951cc47085ddfb03"
+    },
+    "coordinator": {
+      "artifact": "coordinator-receipt.json",
+      "bytes": 3260,
+      "sha256": "6edbac3ecdb181a1347e838ac05d317c97347600cf5b3d4de9b7b916deb6f927"
+    },
+    "v4HelperFreeze": {
+      "artifact": "analyzer-v4-freeze.json",
+      "bytes": 9392,
+      "sha256": "5cf3475fdf44dd048acd27b25213f226e06ecc8d899d2bf82bd210bdcda13d93"
+    },
+    "v4AnalysisReceipt": {
+      "artifact": "receipt.json",
+      "bytes": 50577,
+      "sha256": "e84eb15f2a0a3e1b5855b5974c818b62847659438bce036f2bf984ad02406383"
+    },
+    "independentAudit": {
+      "artifact": "analysis-v4-05-summary.json",
+      "bytes": 49864,
+      "sha256": "305ff46a3d080ce07445f4fcd131ac8a8a6cb0f0e7b5eaa7983b82ffa127ba31"
+    },
+    "finalCheckpoint": {
+      "artifact": "analysis-v4-results-freeze.json",
+      "bytes": 27780,
+      "sha256": "3d03aab646faf70188cb843749698e425ce2c0e1cd7c506549f5c01ace3b3c8b"
+    },
+    "retainedV3Failure": {
+      "artifact": "receipt.json",
+      "bytes": 22864,
+      "sha256": "046d7d9fad4bf8aa6b71a532997478eb095ec145cb8c380040ff45df811d32ef"
+    }
+  },
+  "captureTools": {
+    "wprSha256": "b641bcda33b6e77deea90676570fdb96907ecc6ac8145be43ca72e33064ec615",
+    "controllerSourceSha256": "e4dcd6a76bfa335db0fe020f5d761cebbb1b21af68d20ca60ab19b49d987ec3f",
+    "controllerExeSha256": "0ffd10cdd86a12f4ec0d78e3453a887c0d0d00ffbf6131fd8b43a09450e15c15",
+    "coordinatorSha256": "9c3fb9b3c41db067c962cf7edb059a3299b6db865c6eb69b1fae7e177ecab6ce",
+    "profileDeclarationSha256": "12805bb12d54e496bef594aa285bb784dfbb5883d49dc5344c675a18aeaf578c",
+    "actualProfile": "CPU.Verbose.Memory",
+    "actualLoggingMode": "Memory",
+    "controllerElevated": true,
+    "coordinatorElevated": false,
+    "onlyRecorderControllerElevated": true
+  },
+  "offlineAnalyzer": {
+    "version": "v4-bounded",
+    "sourceSha256": "aa7793ddc6540af820a2f428b8066648778ee4160086768b9e97b1f6531561d4",
+    "exeSha256": "55905ef39651a4ada79575adc91c4af6e56eb5a35046b71bc4f0c9fd1a9d28f6",
+    "originalV3SourceSha256": "70a6e38604ed4dfc3bbebd05d48be7ba7621d8102cf84cd219f604e7cba3b6bd",
+    "compilerSha256": "46809206887326d2d24db1eff1f3064de972c3451abe766b49111450a5e08e00",
+    "wrapperSha256": "32d4c1a4718b4ba6ac9c4962bfbe8e2336ede306bd2410cae1ad70a2847c932b",
+    "onlyDecoderSourceChange": "MaxEventCount 4,000,000 to 32,000,000; exact substitution/round-trip equivalence verified.",
+    "strictCompilerWarningsAsErrors": true,
+    "inheritedSelftestChecks": 10,
+    "resourceGuardTests": 10,
+    "actualTinyOwnJobSmoke": "PASS",
+    "dependencies": [
+      {
+        "artifact": "Microsoft.Diagnostics.Tracing.TraceEvent.dll",
+        "bytes": 3163584,
+        "sha256": "3958d3e8da886dc57909019fe1ea3bcac86c0fd20abc51419782ec7b8be49c99"
+      },
+      {
+        "artifact": "Microsoft.Diagnostics.FastSerialization.dll",
+        "bytes": 75296,
+        "sha256": "e71fbedce64331678399550a14483ff4b0d12a20632dc3ad6162566063f30850"
+      },
+      {
+        "artifact": "Dia2Lib.dll",
+        "bytes": 59024,
+        "sha256": "6c4cac68010fe032218efe5e9fcf46eef9f77bfaa5f3bd33f03c5ff77d5a8fac"
+      },
+      {
+        "artifact": "TraceReloggerLib.dll",
+        "bytes": 23216,
+        "sha256": "6830c0f1d3f3c17719181e73dd5cfa8ccbb3f3c575329d2120576545103467b5"
+      },
+      {
+        "artifact": "System.Reflection.Metadata.dll",
+        "bytes": 487696,
+        "sha256": "f79ea5e38af769cbde5d7f5e873564708941a148bb461472019e10373ea4c780"
+      },
+      {
+        "artifact": "System.Collections.Immutable.dll",
+        "bytes": 252696,
+        "sha256": "d5ec0837bb176abf13dcd52c658c4e84c5264f67065b9c19679b6643f7d21564"
+      },
+      {
+        "artifact": "System.Memory.dll",
+        "bytes": 142240,
+        "sha256": "bf3fb84664f4097f1a8a9bc71a51dcf8cf1a905d4080a4d290da1730866e856f"
+      },
+      {
+        "artifact": "System.Runtime.CompilerServices.Unsafe.dll",
+        "bytes": 18024,
+        "sha256": "37768488e8ef45729bc7d9a2677633c6450042975bb96516e186da6cb9cd0dcf"
+      },
+      {
+        "artifact": "Microsoft.Win32.Registry.dll",
+        "bytes": 26496,
+        "sha256": "e9a9d281c1a708aaae366f82fd6a1742f65da2918cc4fa5eaaaada0be24277d9"
+      },
+      {
+        "artifact": "msdia140.dll",
+        "bytes": 2293320,
+        "sha256": "634f9825de6f55e288e56d4c682517c15154e4cc8b032f637bfbb63de241b6a6"
+      }
+    ]
+  },
+  "bounds": {
+    "events": 32000000,
+    "inputBytes": 536870912,
+    "uniqueStacks": 100000,
+    "stackDepth": 1024,
+    "privateAndWorkingSetBytes": 6442450944,
+    "perCaseOutputBytes": 4294967296,
+    "perChildSeconds": 300,
+    "minimumAvailableRamBytes": 10737418240,
+    "minimumAvailableDiskBytes": 12884901888
+  },
+  "boundSemantics": {
+    "privateCommit": "6 GiB own-job cap starts after successful attachment of the freshly created helper; OS lifetime peaks additionally cover pre-attachment allocation.",
+    "workingSet": "OS lifetime peak checked; no working-set trimming claim.",
+    "output": "4 GiB per case, sampled every 100 ms and checked at exit; no hard filesystem quota claim.",
+    "deadline": "300 seconds per isolated offline helper; no retries."
+  },
+  "unchangedQualityGates": [
+    "Zero lost events; no conversion loss callbacks or truncation",
+    "Recorded call stacks and PDB metadata",
+    "Unique actual PID lifetime; exact staged executable module path and matching local EXE/PDB GUID and age",
+    "Positive target sampled native, context-switch and ready-thread coverage",
+    "At least 95% target sample stacks and 95% resolved engine frames"
+  ],
+  "cases": [
+    {
+      "variant": "baseline",
+      "status": "PASS",
+      "actualTargetPid": 1664,
+      "nativeExit": 0,
+      "nativeElevated": false,
+      "analyzerElevated": false,
+      "sourceAttestation": {
+        "method": "read-only git cat-file --batch",
+        "commit": "bd2586f51c456fcdb9d04e616a6facf30d47a5ec",
+        "files": 2528,
+        "crlfProjections": 2299,
+        "status": "PASS"
+      },
+      "buildReceipt": {
+        "artifact": "candidate.json",
+        "bytes": 615121,
+        "sha256": "097c5457367ad1624f4be6fc205ce8be8e2252c85a4060aa8dfc416c90de268c"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "artifact": "vkdoom.exe",
+          "bytes": 12207104,
+          "sha256": "e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488"
+        },
+        "vkdoom.pdb": {
+          "artifact": "vkdoom.pdb",
+          "bytes": 76820480,
+          "sha256": "845942411b66b4bf146da6c14284834c449baf04fc0011e0062dd9ca9dbaf8f0"
+        },
+        "vkdoom.pk3": {
+          "artifact": "vkdoom.pk3",
+          "bytes": 4237850,
+          "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0"
+        },
+        "brightmaps.pk3": {
+          "artifact": "brightmaps.pk3",
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "artifact": "game_support.pk3",
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "artifact": "game_widescreen_gfx.pk3",
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "artifact": "lights.pk3",
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "artifact": "ZMusic.dll",
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "inputPins": {
+        "iwad": {
+          "artifact": "doom2.wad",
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab"
+        },
+        "fixture": {
+          "artifact": "PF016_DenseLights_Interior.wad",
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e"
+        },
+        "seed": {
+          "artifact": "pf016-01.ini",
+          "bytes": 17636,
+          "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+        },
+        "execute": {
+          "artifact": "execute.cfg",
+          "bytes": 998,
+          "sha256": "fb458835b726a2143065f5dfb989c0ce6e3fa6ca162cb6b61a3010b3b2d8e0dd"
+        },
+        "configurationInput": {
+          "artifact": "configuration-input.ini",
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        }
+      },
+      "trace": {
+        "artifact": "baseline/cpu.etl",
+        "bytes": 429916160,
+        "sha256": "bd861d714df23f4fe2e7f709ec240bbeee3fe3c186d29c666ac130259b5cc7ed",
+        "eventCount": 4219191,
+        "eventsLost": 0,
+        "truncated": false,
+        "conversionLossCallbacks": 0,
+        "sampleIntervalMSec": 1,
+        "wholeProcessLifetimeMSec": 39190.676999999996
+      },
+      "localSymbols": {
+        "guid": "380d5df3-eca1-4dfb-b6bc-c00ad7028a70",
+        "age": 1,
+        "nativePdbOpened": true,
+        "pdbGuidAgeMatch": true,
+        "nativeEntrySymbol": "mainStartup",
+        "traceModuleCount": 1,
+        "traceModuleIdentityMatched": true
+      },
+      "actualRecorderStatus": {
+        "profile": "CPU.Verbose.Memory",
+        "loggingMode": "Memory",
+        "droppedEvents": 0,
+        "collectorLosses": [
+          0,
+          0
+        ],
+        "recordingStopped": true
+      },
+      "coverage": {
+        "samples": 13681,
+        "samplesWithStack": 13676,
+        "sampleStackFraction": 0.9996345296396463,
+        "engineStackFrames": 157466,
+        "engineResolvedFrames": 157466,
+        "engineFrameResolvedFraction": 1,
+        "targetSwitchOut": 20213,
+        "switchOutWithBlockingStack": 20213,
+        "targetReadyEvents": 19274,
+        "readyWithWakerStack": 19268
+      },
+      "decodeResources": {
+        "elapsedSeconds": 15.315283800009638,
+        "osPeakPrivateBytes": 450576384,
+        "osPeakWorkingSetBytes": 457334784,
+        "osJobPeakPrivateBytes": 450576384,
+        "peakOutputBytes": 821475237,
+        "observations": 147,
+        "pollSeconds": 0.1
+      },
+      "allDeclaredInputsToolsSymbolsDependenciesUnchanged": true,
+      "independentHashAndAggregateAudit": "PASS",
+      "dominantSetupInclusiveSamples": {
+        "spriteLightList": 4937,
+        "addLight": 2336
+      },
+      "namedProbeDiagnosticSamples": 0,
+      "mainThreadScheduler": {
+        "runningMSec": 7366.703500000034,
+        "readyMSec": 173.02050000014424,
+        "blockedMSec": 31625.539999999823,
+        "unknownMSec": 0.6691000000027998,
+        "maxReadyMSec": 12.154899999999543
+      },
+      "context": {
+        "map": "PF16TST",
+        "authoredStationaryTargets": 832,
+        "authoredLights": 216,
+        "authoredPbrIndexedProbeShaderOverrides": false,
+        "route": "Stock textures/static POSS sprites, ordinary BSP with gl_levelmesh=false and lm_dynlights=false",
+        "extent": [
+          1904,
+          1001
+        ],
+        "rngSeed": 12345,
+        "diagnosticsAndValidation": "Off: sanitized PF/CFX/VK environment, vk_debug=false; no diagnostic commands",
+        "nativeDevice": {
+          "name": "NVIDIA GeForce GTX 1650 SUPER",
+          "type": "discrete gpu",
+          "apiVersion": "1.4.351",
+          "encodedDriver": "616.368.0"
+        }
+      }
+    },
+    {
+      "variant": "candidate",
+      "status": "PASS",
+      "actualTargetPid": 5916,
+      "nativeExit": 0,
+      "nativeElevated": false,
+      "analyzerElevated": false,
+      "sourceAttestation": {
+        "method": "read-only git cat-file --batch",
+        "commit": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+        "files": 2535,
+        "crlfProjections": 2304,
+        "status": "PASS"
+      },
+      "buildReceipt": {
+        "artifact": "candidate.json",
+        "bytes": 617072,
+        "sha256": "7870042972d4a612fc6b1ecfeead3c655f4a40b834142bc6787ce1c66d30d352"
+      },
+      "stagedArtifacts": {
+        "vkdoom.exe": {
+          "artifact": "vkdoom.exe",
+          "bytes": 12298752,
+          "sha256": "c287a601a803b467d585c24283edad2986d48f9c295a134a1843c9906a925813"
+        },
+        "vkdoom.pdb": {
+          "artifact": "vkdoom.pdb",
+          "bytes": 77377536,
+          "sha256": "10eef2fb52334042a10cb637e79a4f1e6887643c97a9de5384ea4ada03d96f00"
+        },
+        "vkdoom.pk3": {
+          "artifact": "vkdoom.pk3",
+          "bytes": 4238062,
+          "sha256": "16773cdefb06f08842a038d81c14ad2cf6e1122b780900768ee4ceb76149c537"
+        },
+        "brightmaps.pk3": {
+          "artifact": "brightmaps.pk3",
+          "bytes": 246181,
+          "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab"
+        },
+        "game_support.pk3": {
+          "artifact": "game_support.pk3",
+          "bytes": 2381991,
+          "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7"
+        },
+        "game_widescreen_gfx.pk3": {
+          "artifact": "game_widescreen_gfx.pk3",
+          "bytes": 5565936,
+          "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38"
+        },
+        "lights.pk3": {
+          "artifact": "lights.pk3",
+          "bytes": 24059,
+          "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b"
+        },
+        "ZMusic.dll": {
+          "artifact": "ZMusic.dll",
+          "bytes": 2469888,
+          "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+        }
+      },
+      "inputPins": {
+        "iwad": {
+          "artifact": "doom2.wad",
+          "bytes": 14951361,
+          "sha256": "31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab"
+        },
+        "fixture": {
+          "artifact": "PF016_DenseLights_Interior.wad",
+          "bytes": 242350,
+          "sha256": "21da7231bc1f81c32d15cda2150c840c6b670299a038a994f498fe680fd1d85e"
+        },
+        "seed": {
+          "artifact": "pf016-01.ini",
+          "bytes": 17636,
+          "sha256": "b4e4f84eff7f212bf4584e7c417d4e749a628499add91e63ade2c817d0fdbaeb"
+        },
+        "execute": {
+          "artifact": "execute.cfg",
+          "bytes": 999,
+          "sha256": "b89c1ad688c7e9ee70638a6345d8e29f9bfed8e285a6f9d11e9ba89356b2b7bf"
+        },
+        "configurationInput": {
+          "artifact": "configuration-input.ini",
+          "bytes": 14354,
+          "sha256": "43ac67de793f8db265c97bc274d40004148568886ac14052de8528c7cb4ca728"
+        }
+      },
+      "trace": {
+        "artifact": "candidate/cpu.etl",
+        "bytes": 417333248,
+        "sha256": "f6c490a8ed94f2c10056ad8245d7a7866446e23489c5c6a87e0a12059240dd71",
+        "eventCount": 4189408,
+        "eventsLost": 0,
+        "truncated": false,
+        "conversionLossCallbacks": 0,
+        "sampleIntervalMSec": 1,
+        "wholeProcessLifetimeMSec": 38951.6263
+      },
+      "localSymbols": {
+        "guid": "b2e27848-9bd7-4de0-aeee-dfc46bb68588",
+        "age": 1,
+        "nativePdbOpened": true,
+        "pdbGuidAgeMatch": true,
+        "nativeEntrySymbol": "mainStartup",
+        "traceModuleCount": 1,
+        "traceModuleIdentityMatched": true
+      },
+      "actualRecorderStatus": {
+        "profile": "CPU.Verbose.Memory",
+        "loggingMode": "Memory",
+        "droppedEvents": 0,
+        "collectorLosses": [
+          0,
+          0
+        ],
+        "recordingStopped": true
+      },
+      "coverage": {
+        "samples": 13357,
+        "samplesWithStack": 13353,
+        "sampleStackFraction": 0.9997005315564872,
+        "engineStackFrames": 152673,
+        "engineResolvedFrames": 152673,
+        "engineFrameResolvedFraction": 1,
+        "targetSwitchOut": 19717,
+        "switchOutWithBlockingStack": 19717,
+        "targetReadyEvents": 19370,
+        "readyWithWakerStack": 19367
+      },
+      "decodeResources": {
+        "elapsedSeconds": 15.837523800000781,
+        "osPeakPrivateBytes": 415072256,
+        "osPeakWorkingSetBytes": 425013248,
+        "osJobPeakPrivateBytes": 415072256,
+        "peakOutputBytes": 806706315,
+        "observations": 151,
+        "pollSeconds": 0.1
+      },
+      "allDeclaredInputsToolsSymbolsDependenciesUnchanged": true,
+      "independentHashAndAggregateAudit": "PASS",
+      "dominantSetupInclusiveSamples": {
+        "spriteLightList": 4788,
+        "addLight": 2429
+      },
+      "namedProbeDiagnosticSamples": 3,
+      "mainThreadScheduler": {
+        "runningMSec": 7199.75009999955,
+        "readyMSec": 94.60090000036871,
+        "blockedMSec": 31633.609900000076,
+        "unknownMSec": 0.4977000000017142,
+        "maxReadyMSec": 4.024299999997311
+      },
+      "context": {
+        "map": "PF16TST",
+        "authoredStationaryTargets": 832,
+        "authoredLights": 216,
+        "authoredPbrIndexedProbeShaderOverrides": false,
+        "route": "Stock textures/static POSS sprites, ordinary BSP with gl_levelmesh=false and lm_dynlights=false",
+        "extent": [
+          1904,
+          1001
+        ],
+        "rngSeed": 12345,
+        "diagnosticsAndValidation": "Off: sanitized PF/CFX/VK environment, vk_debug=false; no diagnostic commands",
+        "nativeDevice": {
+          "name": "NVIDIA GeForce GTX 1650 SUPER",
+          "type": "discrete gpu",
+          "apiVersion": "1.4.351",
+          "encodedDriver": "616.368.0"
+        }
+      }
+    }
+  ],
+  "retainedV3Failure": {
+    "status": "FAIL",
+    "originalToolUnchanged": true,
+    "failedPacketsUnchanged": true,
+    "causeScope": "The original 4M conversion cap truncated conversion. This was a bounded-tool capacity failure, not proof that the raw captured ETLs lacked evidence.",
+    "actualEventCountAtRejection": 4000001,
+    "attributionPermitted": false,
+    "receiptSha256": "046d7d9fad4bf8aa6b71a532997478eb095ec145cb8c380040ff45df811d32ef",
+    "exeSha256": "9a2284a2b716bff17b845445bcab4e481ae50eff7035d82bed45d0d352916ef6"
+  },
+  "prospectiveCleanupDefect": {
+    "status": "UNEXERCISED_FAILURE_PATH",
+    "wrapperSha256": "32d4c1a4718b4ba6ac9c4962bfbe8e2336ede306bd2410cae1ad70a2847c932b",
+    "description": "If own-child kill() or wait(timeout=10) raises, run_monitored can skip job-close cleanup because termination precedes its job-close finally.",
+    "completedRunImpact": "Both frozen helpers exited 0 with no kill/wait/cleanup error; their measured successful results and bounds are retained.",
+    "futureRepairNeeded": "A separately authorized revision should always close the own job in an outer finally and add injected kill/wait-failure negatives.",
+    "frozenToolsAndReceiptsRevised": false
+  },
+  "limitations": [
+    "One historical diagnostic profile per variant; sampled counts are statistical observations, not precise timed function costs or benchmark deltas.",
+    "Window is the complete recorded renderer lifetime, including startup, warm-up, screenshot and quit; no exact steady-state or SetupSprite phase markers exist.",
+    "Inclusive stack groups overlap and cannot be added.",
+    "A short or inlined guard can escape sampling; sparse samples do not prove zero overhead.",
+    "Target ready residence is scheduler evidence, not attribution to any external workload. Reported concurrent host work is a possible confounder, not proven causation.",
+    "OS/driver frames remain raw addresses without downloaded symbols. No GPU, performance-equivalence, no-regression or frame-budget acceptance is inferred."
+  ],
+  "publicExportReview": {
+    "status": "PASS",
+    "checks": 192,
+    "sha256": "4c922ffb26ebcdd79530ce435732c8175a96f214d7603a949b280f8bb287ac78",
+    "scope": "55 small files rehashed; large frozen trace/build pins matched by retained hash receipts and current sizes; no new decoding"
+  }
+}

@@ -44,7 +44,7 @@ struct Observation
 	std::mutex Mutex;
 	bool Initialized = false, Enabled = false, Written = false;
 	std::thread::id OwnerThread;
-	std::string Prefix, CacheRoot, Error;
+	std::string Prefix, CacheRoot, Error, MainPresentation;
 	std::map<std::string, uint64_t> Keys;
 	std::vector<std::string> Images, CacheEvents;
 	std::array<std::string, 6> FaceKeys;
@@ -517,6 +517,35 @@ void CameraCompleted(VulkanRenderDevice* fb, VkTextureImage* image, FCanvasTextu
 	Capture(fb, image->Image.get(), image->View.get(), 0, first ? "camera-PFVCAM-startup" : "camera-PFVCAM-demanded", SceneKey(),
 		std::string("{\"firstUpdate\":") + (first ? "true" : "false") + ",\"requestedUpdate\":" + (requested ? "true" : "false") + "}");
 }
+void ScreenshotCompleted(int width, int height, const uint8_t* rgb, size_t bytes)
+{
+	if (!Enabled() || !Pf020ViewDiagnostics::FixtureActive()) return;
+	try
+	{
+		auto& state = State();
+		std::lock_guard<std::mutex> lock(state.Mutex);
+		if (!state.Error.empty() || state.Written) return;
+		Require(!state.Captured.count("main-presented"), "PF020 main presentation already captured");
+		state.Captured.insert("main-presented");
+		Require(rgb && width > 0 && height > 0 && width <= 1024 && height <= 1024 &&
+			bytes == size_t(width) * size_t(height) * 3 && bytes <= MaxImageBytes, "PF020 main screenshot RGB extent/size invalid");
+		// GetScreenshotBuffer uses the retained previous frame through its
+		// ordinary screenshot presentation pass and RGB conversion. This is
+		// production screenshot evidence, not a direct swapchain readback.
+		// Its completed key remains the actual previous scene render.
+		const auto scene = Pf020ViewDiagnostics::CurrentSceneKeyJson();
+		Require(!scene.empty() && scene != "null" && scene.size() < 16384, "PF020 main screenshot has no completed scene");
+		const auto file = state.Prefix + "-main-presented.rgb8";
+		WriteFresh(file, rgb, bytes);
+		std::ostringstream out;
+		out << "{\"semantic\":\"main-presented\",\"scene\":" << scene
+			<< ",\"width\":" << width << ",\"height\":" << height << ",\"bytes\":" << bytes
+			<< ",\"rowBytes\":" << size_t(width) * 3 << ",\"channels\":3,\"format\":\"RGB8\",\"file\":" << Quote(file)
+			<< ",\"basis\":\"production-GetScreenshotBuffer-RGB\"}";
+		state.MainPresentation = out.str();
+	}
+	catch (const std::exception& error) { Fail(error.what()); }
+}
 }
 
 CCMD(pf020vk_dump)
@@ -544,7 +573,7 @@ CCMD(pf020vk_dump)
 			<< ",\"allObservedTasksCompleted\":" << (!state.QueuedWorkers && !state.ActiveWorkers && !state.PendingMain && !state.FailedWorkers ? "true" : "false")
 			<< "},\"images\":[";
 		for (size_t i = 0; i < state.Images.size(); ++i) { if (i) out << ','; out << state.Images[i]; }
-		out << "],\"keyLookups\":[";
+		out << "],\"mainPresentation\":" << (state.MainPresentation.empty() ? "null" : state.MainPresentation) << ",\"keyLookups\":[";
 		bool first = true;
 		for (const auto& item : state.Keys) { if (!first) out << ','; first = false; out << "{\"count\":" << item.second << ",\"observation\":" << item.first << '}'; }
 		out << "],\"cacheEventsAtDump\":[";

@@ -80,6 +80,13 @@ def validate(sources):
     ordered(camera, "renderFunc(bounds)", "mRenderState->EndRenderPass()",
             "VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL", "SetRenderTarget(&GetBuffers()->SceneColor",
             "CameraCompleted(this, image, tex)", "tex->SetUpdated(true)")
+    presentation = function(render, "TArray<uint8_t> VulkanRenderDevice::GetScreenshotBuffer(")
+    ordered(presentation, "DrawPresentTexture(box, true, true)", "CopyScreenToBuffer(w, h, ScreenshotBuffer.Data())",
+            "ScreenshotCompleted(w, h, ScreenshotBuffer.Data(), ScreenshotBuffer.Size())", "return ScreenshotBuffer")
+    screenshot = function(native, "void ScreenshotCompleted(")
+    ordered(screenshot, "!Enabled() || !Pf020ViewDiagnostics::FixtureActive()", 'state.Captured.insert("main-presented")',
+            "Pf020ViewDiagnostics::CurrentSceneKeyJson()", "WriteFresh(file, rgb, bytes)", "state.MainPresentation = out.str()")
+    assert "width <= 1024 && height <= 1024" in screenshot and "bytes <= MaxImageBytes" in screenshot
     environment = function(probe, "void VkLightprober::RenderEnvironmentMap(")
     ordered(environment, "renderFunc(bounds, side)", "renderstate->EndRenderPass()", "ProbeFaceCompleted(side, environmentMap.renderTargets[side].View.get())",
             "VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL", "SetRenderTarget(&fb->GetBuffers()->SceneColor", "ProbeCompleted(")
@@ -177,6 +184,12 @@ class ObserverContract(unittest.TestCase):
 
     def test_reject_camera_before_completed_producer(self):
         self.rejected(PATHS[2], "Pf020VulkanDiagnostics::CameraCompleted(this, image, tex);", "/* missing camera observation */")
+
+    def test_reject_unassociated_main_screenshot(self):
+        self.rejected(PATHS[2], "ScreenshotCompleted(w, h, ScreenshotBuffer.Data(), ScreenshotBuffer.Size())", "MissingPresentationObservation()")
+
+    def test_reject_semantic_key_substituted_for_completed_main_view(self):
+        self.rejected(PATHS[0], "const auto scene = Pf020ViewDiagnostics::CurrentSceneKeyJson();", "const auto scene = Pf020ViewDiagnostics::ActiveSemanticKeyJson();")
 
     def test_reject_missing_probe_readback(self):
         self.rejected(PATHS[3], "Pf020VulkanDiagnostics::ProbeCompleted(fb, environmentMap.cubeimage.get(), environmentMap.cubeview.get());", "/* absent */")

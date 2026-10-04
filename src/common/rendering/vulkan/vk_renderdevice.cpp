@@ -657,6 +657,7 @@ TArray<uint8_t> VulkanRenderDevice::GetScreenshotBuffer(int &pitch, ESSType &col
 
 	TArray<uint8_t> ScreenshotBuffer(w * h * 3, true);
 	CopyScreenToBuffer(w, h, ScreenshotBuffer.Data());
+	Pf020VulkanDiagnostics::ScreenshotCompleted(w, h, ScreenshotBuffer.Data(), ScreenshotBuffer.Size());
 
 	pitch = w * 3;
 	color_type = SS_RGB;

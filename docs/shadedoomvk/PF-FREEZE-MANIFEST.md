@@ -45,8 +45,17 @@ idle. Baseline ETL is429,916,160 bytes, SHA256
 `bd861d714df23f4fe2e7f709ec240bbeee3fe3c186d29c666ac130259b5cc7ed`;
 candidate is417,333,248 bytes, SHA256
 `f6c490a8ed94f2c10056ad8245d7a7866446e23489c5c6a87e0a12059240dd71`.
-No scored samples are added. Capture success is not decoded loss/stack/scheduler
-coverage, CPU causality or performance acceptance; offline analysis is pending.
+No scored samples are added. The separate bounded v4 decoder now passes both
+traces:4,219,191/4,189,408 events, zero loss/truncation,99.963%/99.970% target
+stack coverage and100% resolved engine frames. Exact target lifetimes/module/PDB,
+positive scheduler coverage and resource limits pass. Decode durations are
+15.32s/15.84s; each private/working-set peak is below0.5GiB. The original4M-cap
+decoder failures and tools remain unchanged. [Public profile receipt](PF-020-CPU-PROFILE.json)
+records pins and independent aggregate/export audits. Both profiles are dominated
+by sprite light-list work, but whole-lifetime samples include startup and have
+no exact benchmark/SetupSprite boundaries. CPU causality and performance
+acceptance remain unproved. An unexercised wrapper kill/wait-error cleanup gap
+is disclosed; the completed helpers exited0 without that failure path.
 Original policy-denied recording, low-integrity launcher cancellation and the
 short-status-parser failure remain retained with their cleanup dispositions.
 No UAC, security policy, driver setting or machine-wide configuration changed.
@@ -56,7 +65,13 @@ bounded healthy PFVTEST fixture, actual frontend scene/sprite observations,
 completed camera/probe same-format private sampling, native key/cache events and
 strict original-seam source derivation. CPU preparation tests do not establish
 full-engine compilation, actual traversal, Vulkan API validity or paired images.
-Fresh current/original-seam builds and runtime witnesses remain required.
+Source50a4b554 passes clean PF570/570, CFX8/8, four standalone fixtures,
+identical oracles and all eight exact-head CI jobs in run37208260715. Its fresh
+current native build02 passes and is staged; the earlier enum-scope compile
+failure remains retained. Subsequent capture-time snapshot and launcher changes
+require their own frozen-head checks, fresh current/original-seam builds and
+runtime witnesses. First semantic-row dedup cannot substitute for a later
+completed producer's view state; presentation raw RGB must match its actual PNG.
 
 The explicitly requested [targeted Dense recheck](PF-020-DENSE-TARGETED-RECHECK.json)
 retains both members of original pairs3/4/5, selected before rerun because each

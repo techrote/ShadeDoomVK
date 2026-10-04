@@ -2,6 +2,7 @@
 
 #include "zstring.h"
 #include <cstddef>
+#include <cstdint>
 #include <string>
 
 class VulkanRenderDevice;
@@ -30,4 +31,5 @@ void MainTaskCompleted();
 void ProbeFaceCompleted(int side, VulkanImageView* actualAttachment);
 void ProbeCompleted(VulkanRenderDevice* fb, VulkanImage* image, VulkanImageView* cubeView);
 void CameraCompleted(VulkanRenderDevice* fb, VkTextureImage* image, FCanvasTexture* texture);
+void ScreenshotCompleted(int width, int height, const uint8_t* rgb, size_t bytes);
 }
