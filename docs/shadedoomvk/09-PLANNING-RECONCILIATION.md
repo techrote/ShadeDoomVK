@@ -93,7 +93,7 @@ PF issues may discover that a refactor removes a defect before its repair issue 
 - Finish/repair probe plumbing before SDVK-010 qualifies actor/environment lighting.
 - Treat dormant tiled-light infrastructure as a research asset, not an active feature.
 
-## Assumptions that must be verified during PF
+## Historical assumptions to be verified during PF
 
 - Existing inherited CI/build commands are sufficient to execute PF issues before SDVK-001 formalizes project branding/build documentation.
 - Generation-safe identities can be introduced incrementally without forcing every renderer index into a heavyweight object.
@@ -102,7 +102,22 @@ PF issues may discover that a refactor removes a defect before its repair issue 
 - Dormant light-tile/Z-minmax resources can be conditionally skipped without side effects when the dormant path is disabled.
 - Typed/hash pipeline keys can preserve the exact pipeline-state partitioning currently implied by packed structs.
 
-These are not accepted facts. Their owning issues must test them.
+These were unverified planning premises at the founding baseline. Their current dispositions follow; the historical list does not override accepted issue outcomes.
+
+## Current verified findings and remaining freeze blockers — 2026-10-04
+
+- PF-002–005 accept incremental generation/lifetime/reservation and upload ownership; this is not a universal heavyweight handle conversion.
+- PF-006 accepts semantic keys with the inherited ordered cache topology. It does not accept hashed lookup performance; PF-019 leaves those maps/worker queues unchanged without representative benefit.
+- PF-016 proves the narrow qualified single-section fast path against baseline selected identity/order/class/group and later actual portal/visibility/invalidation state and images. Unsupported cases retain BSP fallback and repeated qualification allocation cost.
+- PF-017 completes the light/material hypothesis as an accepted measured no-go. The integrated light candidate regresses and is fully restored; rejected material hash prototypes and earlier partial light benefits cannot be counted as current savings. [Final acceptance](PF-017-FINAL-ACCEPTANCE.md).
+- PF-019 proves the dormant tiled producer has no active accepted consumer and gates only that work. Its payload/allocation formula is not a GPU wall-time or resident-memory measurement.
+- Inherited per-layer sampling remains an existing mechanism, but PF-020 confirmed its GLDEFS default initialization overwrote another authored slot (`src/r_data/gldefs.cpp` shared material/map/class and legacy HardwareShader branches). The local candidate moves two actual-slot assignments before default initialization; current production-extracted blocks PASS1119checks/31expectederrors while exact old blocks retain the bad material/legacy arrays. Fresh native build/full272tests pass with zeroerrors/skips. This repair is **TESTED BUT UNACCEPTED**, not a donor feature port, full-loader/GPU/image proof or accepted-master change.
+- PF-020 also confirms the public `DTA_Indexed` draw path can produce a one-layer indexed material while Vulkan assumes three layers and the paletted shader requires a palette binding. A descriptor-count-only change cannot establish the missing palette/translation semantics. See [indexed-material blocker](PF-020-INDEXED-MATERIAL-BLOCKER.md).
+- PF-001–019 and CFX #75 are accepted on `master@4df7dea1338f063c6417e024f967bfa4aa23edd4`. CFX removed-slot typed neutral publication and repaired GTX route coverage are accepted, while repaired P400 remains untested and all historical STOP/saturation guards remain sealed.
+
+The native Windows compiled-fixture runner gap is resolved locally; the initial260-test/12missing-compiler-errors result remains historical evidence. Preparatory270tests, four standalone strict native fixtures, CFX capture8/8 and two byte-identical oracle files pass; the post-parser272test suite also passes. Final exact source/toolchain/log identities belong in the coordinator's freeze manifest.
+
+PF-020 / #37 is running; release remains **BLOCKED** on indexed #110 and final source/evidence/RAG/CI/merge verification. The parser candidate remains unaccepted; no indexed runtime/output proof is supplied by the passing local suite. SDVK-001 remains blocked. The [provisional matrix](PF-FREEZE-EVIDENCE-MATRIX.md) records exact accepted source and aggregate claim boundaries; this reconciliation does not itself accept or merge PF-020.
 
 ## Speculation / future research, not PF requirements
 

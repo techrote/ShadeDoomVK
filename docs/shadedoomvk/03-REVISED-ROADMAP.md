@@ -12,6 +12,8 @@ ShadeDoomVK now has two serial macro-tranches:
 
 The PF tranche is mandatory. SDVK-001 has hard dependency PF-020.
 
+Current gate (2026-10-04): PF-001–019 and CFX #75 are accepted on `master@4df7dea1338f063c6417e024f967bfa4aa23edd4`. PF-017 completed as a measured no-go with complete candidate restoration, not a required deduplication/hash implementation. PF-020 / #37 is running; release remains **BLOCKED** on confirmed inherited material/parser findings and final-source verification. SDVK-001 remains blocked. See [provisional evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
+
 Within each tranche, independent lanes may run concurrently only when issue bodies/`05-AUTONOMOUS-ISSUE-GRAPH.md` permit it.
 
 # Macro-tranche A — pre-foundation hardening
@@ -62,11 +64,13 @@ The PF issues preserve failing fixtures and either fix the assigned defect or pr
 ## PF Gate 4 — no-image-quality performance
 
 - **PF-016 — Unified dynamic-light query service and exact-equivalence actor fast path**;
-- **PF-017 — Light/material data deduplication and cache lookup performance**;
+- **PF-017 — Measured light/material reuse and lookup disposition** (accepted no-go; candidate fully restored);
 - **PF-018 — LevelMesh/AABB allocator and update-path performance**;
 - **PF-019 — Pipeline/resource micro-performance and dormant-path cleanup**.
 
 Performance acceptance requires equivalent selected-light/material/probe/shadow state and image evidence within the declared baseline tolerance. These issues may not trade quality for speed.
+
+PF-017's live issue superseded mandatory techniques with measured outcomes. Five integrated-source pairs rejected its light candidate (+10.79% CPU setup, +2.42% CPU whole-frame); material hash prototypes also lost. Accepted PR #74 / `844462c3a4ed5f7037ade1b49d1a28f578077213` preserves the repaired renderer and no optimization. PF-019 retains only proven dormant-resource cleanup; no GPU frame-time claim follows from its source allocation formula.
 
 ## PF Gate 5 — pre-foundation synthesis
 

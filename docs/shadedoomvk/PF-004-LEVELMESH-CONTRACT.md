@@ -42,7 +42,7 @@ PF-004 routes both CPU and Vulkan range-to-partition mapping through `MeshBuffer
 
 `MeshBufferAllocator` is moved to the dependency-light `hw_levelmesh_contract.h` so its production behavior is directly testable.
 
-The inherited first-fit allocation and growth policy are retained; PF-018 still owns allocator performance. PF-004 adds:
+At PF-004 acceptance, the inherited first-fit allocation/growth policy was retained; the following ownership invariants were added. Accepted PF-018 / PR #68, merge `8ad883ada35b80dbf750462dbb4c36b5edf38893`, later supersedes that historical performance policy with an eight-range small-list scan / `{size,address}` best-fit index, bounded geometric growth with stationary live ranges, and cached moving-AABB leaf/parent topology. It retains all PF-004 ownership/generation/span checks and dirty upload semantics. See [PF-018 runtime evidence](PF-018-RUNTIME-EVIDENCE.md) for measured resource/subsystem benefits and limitations. PF-004 adds:
 
 - bounds checks before free;
 - exact live-span validation;

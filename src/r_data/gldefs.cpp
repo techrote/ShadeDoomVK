@@ -2067,6 +2067,7 @@ class GLDefsParser
 						{
 							if (!mlay.CustomShaderTextures[i])
 							{
+								texIndex = i;
 								mlay.CustomShaderTextureSampling[texIndex] = MaterialLayerSampling::Default;
 								mlay.CustomShaderTextures[i] = TexMan.FindGameTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_TryAny);
 								if (!mlay.CustomShaderTextures[i])
@@ -2083,7 +2084,6 @@ class GLDefsParser
 
 								texNameList.Push(textureName);
 								texNameIndex.Push((int)i);
-								texIndex = i;
 								okay = true;
 								break;
 							}
@@ -2856,6 +2856,7 @@ class GLDefsParser
 					{
 						if (!mlay.CustomShaderTextures[i])
 						{
+							texIndex = i;
 							mlay.CustomShaderTextureSampling[texIndex] = MaterialLayerSampling::Default;
 							mlay.CustomShaderTextures[i] = TexMan.FindGameTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_TryAny);
 							if (!mlay.CustomShaderTextures[i])
@@ -2865,7 +2866,6 @@ class GLDefsParser
 
 							texNameList.Push(textureName);
 							texNameIndex.Push((int)i);
-							texIndex = i;
 							okay = true;
 							break;
 						}

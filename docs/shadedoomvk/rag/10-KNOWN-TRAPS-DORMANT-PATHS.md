@@ -122,15 +122,15 @@ Owner: PF-017.
 
 ## 20. LevelMesh allocator is intentionally simple
 
-First-fit free-range scans and aggressive growth are understandable but can become inefficient under richer dynamic renderer state.
+Historical baseline concern resolved by accepted PF-018 / PR #68, merge `8ad883ada35b80dbf750462dbb4c36b5edf38893`. Current production uses a deterministic eight-range small-list scan, a `{size,address}` best-fit index for larger free lists and bounded geometric growth without moving live ranges. PF-004 address/generation/span ownership and dirty uploads remain authoritative. Four complete DBP37 MAP04 diagnostic pairs report main-array logical bytes11,702,876→8,635,124(−26.21%), plus10,244nominalcacheB; this is not GPU heap residency/FPS and the map has negligible steady allocation/moving-AABB work. [Runtime evidence](../PF-018-RUNTIME-EVIDENCE.md).
 
-Owner: PF-018 after PF-004 freezes ownership semantics.
+Owner: completed PF-018; PF-020 verifies the retained contract.
 
 ## 21. Moving AABB lines rediscover parent paths
 
-Dynamic AABB update calls `FindNodePath` for changed dynamic lines. Caching parent/leaf topology can remove repeated traversal if topology invariants permit it.
+Historical baseline concern resolved by accepted PF-018 / PR #68, merge `8ad883ada35b80dbf750462dbb4c36b5edf38893`. Current moving-line update caches immutable line→leaf and node→parent topology while retaining leaf→root order. A targeted light-bearing moving-polyobject fixture matches1,630fixed-tic RayTest records and paused world/geometry; five pairs measure310.378→159.175CPU ns/movedline(−48.72%). Full BeginFrame20.129→20.082ms is mixed/essentially flat, so no material whole-path speedup is claimed. Dirty upload merging is unchanged. [Runtime evidence](../PF-018-RUNTIME-EVIDENCE.md).
 
-Owner: PF-018.
+Owner: completed PF-018; PF-020 verifies topology/reset/lifetime invariants.
 
 ## 22. Texture uploads allocate staging buffers per image
 
@@ -161,7 +161,7 @@ When a PF issue resolves an item, replace the warning with:
 Do not simply delete historical traps; their provenance is useful when reviewing regressions or donor patches.
 ## PF-017 integrated physical no-go — 2026-10-03
 
-PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
+Accepted PR #74, merge `844462c3a4ed5f7037ade1b49d1a28f578077213`, completes PF-017 as a measured no-go and restores the original light path after five integrated-source GTX 1650 SUPER pairs regress CPU setup (+10.79%) and CPU whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Entries18/19 describe historical research, not outstanding mandatory optimization or retained savings. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
 
 ## CFX descriptor-retirement trap — resolved current-source state
 

@@ -133,7 +133,15 @@ PF-008 semantic metadata is not added to descriptor identity because it does not
 
 ## PF-017 lookup profiling boundary
 
-Accepted master retained the per-material linear descriptor-variant scan after physical profiling: the dense PF-016 workload populated at most one variant per material and DBP37 MAP04 at most three. No representative hashed-lookup benefit was demonstrated. The exact state partition and PF-003 cleanup remain unchanged; PF-017-PROFILING-NOTES.md records the counts and unresolved performance gate.
+Accepted master retains the per-material linear descriptor-variant scan. Early physical profiling found at most one variant per material in the dense PF-016 workload and three in DBP37 MAP04; later 15–17-variant Champions comparisons also rejected node/flat hashes. PF-017's final integrated light candidate regressed and was completely restored; its gate is resolved as a measured no-go through PR #74 / `844462c3a4ed5f7037ade1b49d1a28f578077213`, not an unresolved mandatory lookup optimization. The exact state partition and PF-003 cleanup remain unchanged. [Final acceptance](../PF-017-FINAL-ACCEPTANCE.md) supersedes the historical profiling next-action status.
+
+## PF-020 current material blockers — 2026-10-04
+
+Per-layer sampling's existence did not prove authored slot isolation. Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` initializes shared material/map/class and legacy HardwareShader sampling through initial `texIndex=0` before selecting slot `i`; a later omitted filter overwrites an earlier explicit override and leaves its own wrong default. The local candidate moves both index assignments before default initialization, preserving filter/error/publication ordering. Production-source-extracted current blocks PASS1119checks/31expectederrors; the exact old blocks retain material `[-1,0]` instead of `[1,-1]` and legacy `[-1,0]` instead of `[-1,-1]`. Fresh native build and full272tests pass with zeroerrors/skips. This is **TESTED BUT UNACCEPTED** on the focused branch; scanner/texture/container services are stubbed, with no complete-loader/Vulkan/image claim. Final-head CI/merge remains pending.
+
+The public ZScript `DTA_Indexed` → DrawTexture route separately passes sole `CTF_Indexed` into a one-layer `FMaterial`; Vulkan assumes three layers and the paletted shader reads a palette binding that this path has not provisioned. SWCanvas palette construction is a distinct path. See [indexed-material blocker](../PF-020-INDEXED-MATERIAL-BLOCKER.md); changing descriptor count alone masks the missing palette/translation contract. These are confirmed inherited freeze blockers, not an observed native crash claim or a revision of PF-013's bounded RedIsAlpha repair.
+
+PF-020 is running with release blocked by indexed #110 and final source/evidence/RAG/CI/merge verification. Parser local tests and the repaired Windows compiler-runner gap do not accept the freeze or provide indexed runtime proof. [Provisional matrix](../PF-FREEZE-EVIDENCE-MATRIX.md). SDVK-001 remains blocked.
 
 ## Invariants
 
