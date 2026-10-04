@@ -73,6 +73,20 @@ require their own frozen-head checks, fresh current/original-seam builds and
 runtime witnesses. First semantic-row dedup cannot substitute for a later
 completed producer's view state; presentation raw RGB must match its actual PNG.
 
+Frozen observer head `41c63ffca83ab606ad1479ddb2f6b90b4cb53d16` passes clean
+PF605/605, CFX8/8, four standalone fixtures and identical oracles in checks07.
+Both source-derived native builds03 pass and are sealed, current EXE SHA256
+`3f00840fb17cfee790d4f7456b9b87ef86b75f075c23740ecdbec7df212b1d7e`
+and original-seams
+`73bbd619c9ecc2da4214cd23c50417029831ab0a6d3e9500c41a79cec0edd6b6`.
+The first core attempt01 exits0 on the preregistered GTX with actual medium,
+unelevated tokens, but remains failed: it captures the title sequence, records
+no fixture scenes/sprites and rejects unequal launch/dump prefix strings.
+The complete failed packet is retained. A launcher revision uses early `+map`
+and one path representation, validates real queries independently of unarchived
+CVar persistence, and captures startup capabilities. It reauthenticates the
+sealed complete source/build closures; actual native acceptance remains pending.
+
 The explicitly requested [targeted Dense recheck](PF-020-DENSE-TARGETED-RECHECK.json)
 retains both members of original pairs3/4/5, selected before rerun because each
 had a scored sprite Setup snapshot at least5.0ms. Two unscored warmups and six
@@ -107,4 +121,4 @@ The [initial checkpoint54e9a1b3](https://github.com/techrote/ShadeDoomVK/blob/54
 
 ## Next action
 
-Independently decode the completed CPU recordings and assess their limits before any optimization or causality claim. Build and execute the bounded supported-view/sprite/key observer and fixture against both qualified source variants; no missing source or physical hardware has been identified. Keep PR111 draft and the freeze blocked until its own full contract passes. Local artifacts hold evidence only; current remote humagent remains the human-task inbox. No human action is currently required.
+Execute the corrected bounded supported-view/sprite/key launcher against both qualified source variants, then separately qualify synchronization and applicable generalized/library routes. Completed CPU capture/decoding retains unknown steady-phase attribution and performance disposition; do not optimize or infer a cause from whole-process samples. No missing source or physical hardware has been identified. Keep PR111 draft and the freeze blocked until its own full contract passes. Local artifacts hold evidence only; current remote humagent remains the human-task inbox. No human action is currently required.

@@ -167,7 +167,7 @@ The CFX programme does not establish a material-identity or malformed-shader roo
 
 Sunlust + Champions nevertheless supplies a material-heavy repaired-build route: the reconstructed movement/filter/reload path qualifies 3/3 in CFX-010. That is practical compatibility coverage, not proof that the historical Sunlust event shared the DBP37 descriptor-retirement mechanism. PF material identity, palette/translation, sampler and shader-key contracts remain unchanged by the final CFX synthesis. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
 
-## #110/#112 material correctness candidates — repair contract
+## Accepted #110/#112 material correctness repair contract
 
 Public `DTA_Indexed` reaches one authored albedo layer but the inherited Vulkan consumer attempts missing additional layers. The accepted #110 repair provisions exactly two real resources: canonical-remap-specific R8 indices followed by an entry-owned unchanged base-palette row. Remap remains before the existing inverse/additive/object operations and palette lookup. Nearest/no-mip index sampling and normal fenced retirement are explicit; ordinary layer order, state-driven palette/RedIsAlpha and real SWCanvas remain protected. See [source and acceptance boundaries](../PF-110-IMPLEMENTATION-NOTES.md).
 
@@ -185,5 +185,7 @@ standalone contracts, CFX8/8 and deterministic source oracles pass.
 See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 [compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
 retained failures and unmeasured mode1/SW-retirement/performance limits.
-Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
-separate blocked gates.
+Focused release integration is accepted through PR #116 at master
+`1524686e77f1e89dabfb044bf757a2d19566c31c`, with exact-head and post-merge checks
+in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 and SDVK-001
+remain separate blocked gates.

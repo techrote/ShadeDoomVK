@@ -216,21 +216,27 @@ defaults, overrides, ordering, sparse slots and errors. See [repair](../PF-GLDEF
 This parser repair does not accept the renderer freeze or close its independent
 material/probe/compatibility gates.
 
-## 26. Public indexed 2D material lacks its palette resource
+## Historical candidate preparation for resolved trap26
 
-The inherited public `DTA_Indexed` / `DTA_TranslationIndex` path constructs one authored albedo layer but its Vulkan consumer allocates three descriptors and attempts missing layers. `material_paletted.glsl` requires a real palette at binding1. This is a source-established supported-path defect, not a native crash claim.
+This block records preparation before accepted PR #116. The resolved disposition
+in trap26 above and [release receipt](../PF-110-RELEASE-ACCEPTANCE.json) are current.
+The inherited public `DTA_Indexed` / `DTA_TranslationIndex` path constructed one authored albedo layer but its Vulkan consumer allocated three descriptors and attempted missing layers. `material_paletted.glsl` requires a real palette at binding1. This was a source-established supported-path defect, not a native crash claim.
 
 The #110 candidate supplies a canonical-remap-specific one-mip R8 image and an entry-owned unchanged base-palette row as two real PF-003 resources. Moving translation to the row fails inverse/additive/object ordering. Public indexed production is synchronous; index/row lookup is nearest, including the explicit `XY_NOMIP` to `NOFILTER_XY` normalization. Both non-mip upload paths finish READ. Rows/variants retain owner reset, PF invalidation and draw-fence retirement; ordinary authored layers, async truecolour, palette/RedIsAlpha and SWCanvas remain protected.
 
-Status: **native verified repair; integration tracked in the source issues**. Candidate4 normal evidence is retained history; the newer candidate5 native qualification is verified below and release integration is tracked in the source issues. [Implementation notes and historical evidence](../PF-110-IMPLEMENTATION-NOTES.md). Owner: [#110](https://github.com/techrote/ShadeDoomVK/issues/110).
+Historical status before PR #116: **native verified repair; integration pending**. Candidate4 evidence remains retained; candidate5 and the subsequent accepted integration are recorded below. [Implementation notes and historical evidence](../PF-110-IMPLEMENTATION-NOTES.md). Owner: completed [#110](https://github.com/techrote/ShadeDoomVK/issues/110).
 
-## 27. Mapped software framebuffer declares an uploaded-image layout
+## Historical candidate preparation for resolved trap27
 
-The existing sampled linear software framebuffer is tracked GENERAL. `SWSceneDrawer::RenderView` writes that owner; nullable `CreateTexture` records no upload/transition and `GetImage` returns it unchanged. The inherited bindless writer declares READ. This supported producer/declaration mismatch is separate from #110 and is not evidence of a native crash.
+The resolved disposition in trap27 above is current. The sampled linear software
+framebuffer is tracked GENERAL. `SWSceneDrawer::RenderView` writes that owner;
+nullable `CreateTexture` records no upload/transition and `GetImage` returns it
+unchanged. The inherited bindless writer declared READ. This supported
+producer/declaration mismatch was separate from #110 and is not evidence of a native crash.
 
 The #112 candidate publishes each selected material image's actual tracked layout, retains READ as the default for audited uploaded callers and guards READ/GENERAL. Pixels, palette/translation, filters, producers, cache identity and normal fence retirement are unchanged. Real paletted SWCanvas retains its mapped R8 plus original palette; no replacement resource or forced transition is acceptance.
 
-Status: **native verified repair; integration tracked in the source issues**. Candidate4 mode0 core/sync evidence is historical. Mode1 BGRA frame execution and direct post-retirement SWCanvas token measurement remain unclaimed; candidate5 native qualification is verified below and release integration is tracked in the source issues. [Implementation notes and precise limits](../PF-112-IMPLEMENTATION-NOTES.md). Owner: [#112](https://github.com/techrote/ShadeDoomVK/issues/112).
+Historical status before PR #116: **native verified repair; integration pending**. Candidate4 mode0 core/sync evidence is historical. Mode1 BGRA frames and direct post-retirement SWCanvas token measurements remain unclaimed; candidate5 qualification and accepted integration are recorded below. [Implementation notes and precise limits](../PF-112-IMPLEMENTATION-NOTES.md). Owner: completed [#112](https://github.com/techrote/ShadeDoomVK/issues/112).
 
 Neither focused repair accepts PF-020 or unblocks SDVK-001.
 
@@ -244,5 +250,7 @@ standalone contracts, CFX8/8 and deterministic source oracles pass.
 See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 [compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
 retained failures and unmeasured mode1/SW-retirement/performance limits.
-Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
-separate blocked gates.
+Focused release integration is accepted through PR #116 at master
+`1524686e77f1e89dabfb044bf757a2d19566c31c`, with exact-head and post-merge checks
+in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 and SDVK-001
+remain separate blocked gates.

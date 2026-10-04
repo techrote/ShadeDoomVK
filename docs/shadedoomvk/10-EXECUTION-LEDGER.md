@@ -565,3 +565,23 @@ now retains its actual completed view, and the ordinary screenshot readback
 retains corresponding RGB/state. These additions and the bounded launcher need
 fresh frozen-head builds and real core/sync, traversal/cache/image verification.
 PF020/SDVK001 and draft111 remain closed to passing-freeze acceptance.
+
+## PF-020 first native launcher qualification — 2026-10-04
+
+Frozen observer head41c63ff passes clean PF605/605, CFX8/8, four standalone
+fixtures and identical oracles; both exact-source current/original-seam native
+builds03 pass. First core packet01 launches one real medium, unelevated GTX
+child and exits0, but fails its observer/fixture gate. The actual screenshot
+shows the title sequence, no frontend scenes/sprites were observed, and the
+Vulkan dump rejects unequal Windows argv and console prefix representations.
+All outputs/inputs and the original runner/builds remain retained as failed
+qualification; no second child or image equivalence is claimed.
+
+The source-backed launcher repair uses early `+map`, a consistent console-safe
+prefix, and `+logfile` for actual startup capabilities. Actual queries remain
+mandatory for every requested setting; the six built-ins declared with flags0
+are required absent from the normal-exit INI, while archived settings retain
+exact values. Corrected retries get fresh packet/cache directories and verify
+every sealed engine/build input. Reviewed RAG candidate/integration prose is
+marked historical or reconciled to accepted PR116; completed CPU decoding no
+longer appears as pending work. PF020/SDVK001 remain blocked.

@@ -190,7 +190,8 @@ class ViewAcceptanceControls(unittest.TestCase):
         out = runner.ROOT / "build/parser-service"
         text = runner.script(out)
         self.assertEqual(text.count("\n"), 1)
-        self.assertIn("map PFVTEST; wait 350; vid_setsize 640 480; wait 35; pf020view_begin warmup; wait 140", text)
+        self.assertIn("wait 350; vid_setsize 640 480; wait 35; pf020view_begin warmup; wait 140", text)
+        self.assertNotIn("map PFVTEST", text)
         self.assertLess(text.index("pf020vk_dump"), text.index("pf020view_dump"))
         self.assertTrue(text.endswith("wait 35; quit\n"))
         dispatch = (runner.ROOT / "src/common/console/c_dispatch.cpp").read_text()
@@ -198,6 +199,68 @@ class ViewAcceptanceControls(unittest.TestCase):
         frontend = (runner.ROOT / "src/rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp").read_text()
         self.assertIn('Observer.CompletedKey.clear()', frontend)
         self.assertNotIn("Observer.Records.clear()", frontend)
+
+    def test_bootstrap_map_and_dump_prefix_use_actual_startup_interfaces(self):
+        out = runner.ROOT / "build/prefix-service"
+        args = runner.command(out / "vkdoom.exe", {"iwad": {"path": "doom2.wad"}, "mod": {"path": "fixture.pk3"}}, out, out / "cache")
+        prefix = args[args.index("-pf020viewobserve") + 1]
+        self.assertEqual(prefix, runner.base.safe_console_path(out / "native"))
+        self.assertNotIn("\\", prefix)
+        self.assertIn('pf020vk_dump "' + prefix + '"', runner.script(out))
+        self.assertEqual(args[args.index("+map") + 1], "PFVTEST")
+        self.assertLess(args.index("+map"), args.index("+exec"))
+        self.assertEqual(args[args.index("+logfile") + 1], runner.base.safe_console_path(out / "startup.log"))
+        source = (runner.ROOT / "src/d_main.cpp").read_text()
+        self.assertIn('Args->TakeValue("+map")', source)
+        self.assertIn('startmap = mapvalue;', source)
+        self.assertIn('autostart = true;', source)
+        self.assertIn('Args->TakeValue("+logfile")', source)
+
+    def test_unarchived_settings_still_require_actual_values_and_normal_exit_absence(self):
+        expected = {k: str(v).lower() for k, v in runner.fixture.SETTINGS.items()} | runner.UI_SETTINGS
+        text = "\n".join(f'"{k}" is "{v}" (default: "unused")' for k, v in expected.items()) + "\n"
+        self.assertEqual(runner.unarchived_settings(), set(runner.UNARCHIVED_SETTINGS))
+        with tempfile.TemporaryDirectory() as temporary:
+            out = Path(temporary)
+            saved = "[GlobalSettings]\n" + "\n".join(k + "=" + v for k, v in expected.items() if k not in runner.UNARCHIVED_SETTINGS) + "\n"
+            (out / "fixture-live.ini").write_text(saved)
+            with patch.object(runner.base, "log_text", return_value=text):
+                self.assertEqual(runner.settings_evidence(out), expected)
+                (out / "fixture-live.ini").write_text(saved + "gl_ubershaders=false\n")
+                with self.assertRaisesRegex(ValueError, "Saved normal-exit CVar"):
+                    runner.settings_evidence(out)
+                (out / "fixture-live.ini").write_text(saved.replace("gl_texture_filter=0\n", ""))
+                with self.assertRaisesRegex(ValueError, "Saved normal-exit CVar"):
+                    runner.settings_evidence(out)
+            (out / "fixture-live.ini").write_text(saved)
+            for replacement in (text.replace('"gl_ubershaders" is "false"', '"gl_ubershaders" is "true"'),
+                                "\n".join(x for x in text.splitlines() if '"gl_ubershaders"' not in x)):
+                with patch.object(runner.base, "log_text", return_value=replacement):
+                    with self.assertRaisesRegex(ValueError, "Actual runtime CVar"):
+                        runner.settings_evidence(out)
+
+    def test_unarchived_setting_exception_requires_the_pinned_zero_flag_declaration(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(runner, "ROOT", Path(temporary)):
+            for path in set(runner.UNARCHIVED_SETTINGS.values()):
+                target = Path(temporary) / path
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_text("\n".join(f"CVAR(Bool, {name}, true, 0);" for name, member in runner.UNARCHIVED_SETTINGS.items() if member == path))
+            self.assertEqual(runner.unarchived_settings(), set(runner.UNARCHIVED_SETTINGS))
+            target = Path(temporary) / runner.UNARCHIVED_SETTINGS["gl_customshader"]
+            target.write_text(target.read_text().replace(", 0)", ", CVAR_ARCHIVE)"))
+            with self.assertRaisesRegex(ValueError, "source declaration changed"):
+                runner.unarchived_settings()
+
+    def test_launcher_revision_is_committed_and_clean_independently_of_engine_source(self):
+        head = "a" * 40
+        with patch.object(runner.derive, "git", side_effect=[(head + "\n").encode(), b""]):
+            self.assertEqual(runner.tool_source_identity(), {"commit": head, "clean": True})
+        with patch.object(runner.derive, "git", side_effect=[(head + "\n").encode(), b" M tools/launcher.py\n"]):
+            with self.assertRaisesRegex(ValueError, "clean and committed"):
+                runner.tool_source_identity()
+        with patch.object(runner.derive, "git", return_value=b"short-or-missing\n"):
+            with self.assertRaisesRegex(ValueError, "tool source head unavailable"):
+                runner.tool_source_identity()
 
     def test_prep_path_rejects_overwrite_parent_escape_and_alias(self):
         with tempfile.TemporaryDirectory() as temporary, patch.object(runner, "ROOT", Path(temporary)):

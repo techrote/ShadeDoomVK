@@ -68,6 +68,24 @@ unsupported or unexecuted routes remain explicit limitations.
 
 ## Actual scene and GPU observations
 
+The runner requests `+map PFVTEST` through the actual early autostart interface;
+the delayed command script cannot substitute a startup `map` command. Explicit
+observer/cache arguments and the dump command use the same console-safe forward
+slash path representation. A fresh `+logfile` captures startup capability output,
+including PRINT_LOG lines that ordinary stdout omits. All requested CVars require
+one exact actual query. The six source-verified built-ins with flags0 must be
+absent from the normal-exit INI; archived settings must retain their exact values.
+Neither omission nor the authored INI substitutes for the actual query.
+
+First core attempt01 used the frozen41c63 builds and exited0 on the GTX, but its
+PNG showed the title sequence, frontend scene/sprite counts were zero and the
+Vulkan dump rejected unequal argv/console prefix strings. It is retained as
+failed launcher qualification, with no view/image acceptance. Corrected retries
+use fresh output/cache directories and reauthenticate every frozen build input.
+The clean committed tool revision is pinned separately from the frozen engine
+head. A later tool/docs revision can reuse those builds only when every runtime
+source and build counterpart still matches the authenticated frozen export.
+
 `-pf020viewobserve <fresh-prefix>` enables bounded frontend records only on
 actual PFVTEST roots. Record actual root/eye/face, parent/depth/parity, published
 production context where present, viewpoint index/group/fraction, live view and

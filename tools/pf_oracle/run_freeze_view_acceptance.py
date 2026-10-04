@@ -59,6 +59,16 @@ WATCHDOG_SECONDS = 120
 WARMUP_WAIT_UNITS, COLLECTION_WAIT_UNITS = 350, 140
 UI_SETTINGS = {"show_messages": "false", "con_notifytime": "0", "use_mouse": "false", "m_use_mouse": "0",
                "vid_activeinbackground": "true", "vid_lowerinbackground": "false"}
+# These existing built-ins have flags 0. ReadCVars sets their values without
+# adding ARCHIVE; normal exit omits them. Runtime queries remain mandatory.
+UNARCHIVED_SETTINGS = {
+    "gl_portals": "src/common/rendering/hwrenderer/data/hw_cvars.cpp",
+    "gl_mirrors": "src/common/rendering/hwrenderer/data/hw_cvars.cpp",
+    "gl_lightprobe": "src/rendering/hwrenderer/hw_entrypoint.cpp",
+    "gl_levelmesh": "src/rendering/hwrenderer/scene/hw_drawinfo.cpp",
+    "gl_ubershaders": "src/common/rendering/vulkan/pipelines/vk_renderpass.cpp",
+    "gl_customshader": "src/common/textures/hw_material.cpp",
+}
 EXTRA_PINS = ("docs/shadedoomvk/PF-020-VIEW-EVIDENCE-PROTOCOL.md", "tools/pf_oracle/run_indexed_material_runtime.py",
               "tools/pf_oracle/run_freeze_dense_runtime.py", "tools/pf_oracle/derive_freeze_view_baseline.py",
               "src/rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp",
@@ -215,7 +225,15 @@ def build_identity(candidate_path, variant, derivation_path):
             "build": inventory, "nativeReceipt": identity(linked), "sourceDirectory": str(source)}
 
 
+def tool_source_identity():
+    head = derive.git(ROOT, "rev-parse", "HEAD").decode("ascii").strip()
+    require(re.fullmatch(r"[0-9a-f]{40}", head), "Current tool source head unavailable")
+    require(not derive.git(ROOT, "status", "--porcelain").strip(), "Current launcher/tool source must be clean and committed")
+    return {"commit": head, "clean": True}
+
+
 def snapshot(fixture_path, derivation_path, candidate_paths, layer_dir, expected_device_path):
+    tool_source = tool_source_identity()
     _, inputs = fixture_identity(fixture_path)
     builds = {variant: build_identity(candidate_paths[variant], variant, derivation_path) for variant in ("current", "original-seams")}
     require(builds["current"]["sourceHead"] == builds["original-seams"]["sourceHead"], "Variants do not derive from the same head")
@@ -225,7 +243,7 @@ def snapshot(fixture_path, derivation_path, candidate_paths, layer_dir, expected
     require(set(device) == {"name", "type", "apiVersion", "encodedDriver"} and device["name"] == "NVIDIA GeForce GTX 1650 SUPER"
             and device["type"] == "discrete gpu" and all(isinstance(v, str) and 0 < len(v) <= 128 for v in device.values()),
             "Preregistered native target device fields differ")
-    return {"inputs": inputs, "variants": builds, "layer": base.layer_identity(layer_dir),
+    return {"inputs": inputs, "variants": builds, "layer": base.layer_identity(layer_dir), "toolSource": tool_source,
             "expectedDevice": {"file": identity(device_path), "fields": device},
             "tools": {name: identity(ROOT / name) for name in EXTRA_PINS},
             "runner": identity(Path(__file__)), "stops": dense.stop_identity()}
@@ -246,7 +264,7 @@ def cache_inventory(path, *, cold=False):
 def script(out):
     commands = [*(f"{k} {v}" for k, v in UI_SETTINGS.items()), "unbindall"]
     commands += [f"{k} {str(v).lower()}" for k, v in fixture.SETTINGS.items()]
-    commands += ["map PFVTEST", f"wait {WARMUP_WAIT_UNITS}", "vid_setsize 640 480", "wait 35",
+    commands += [f"wait {WARMUP_WAIT_UNITS}", "vid_setsize 640 480", "wait 35",
                  "pf020view_begin warmup", f"wait {COLLECTION_WAIT_UNITS}", *fixture.SETTINGS, *UI_SETTINGS,
                  'screenshot "' + base.safe_console_path(out / "scene.png") + '"', "wait 35",
                  'pf020vk_dump "' + base.safe_console_path(out / "native") + '"', "pf020view_dump", "wait 35", "quit"]
@@ -258,7 +276,13 @@ def command(exe, inputs, out, cache):
     return [str(exe), "-stdout", "-noautoload", "-noautoexec", "-nosound", "-nojoy", "-rngseed", "12345",
             "-iwad", inputs["iwad"]["path"], "-file", inputs["mod"]["path"],
             "-config", str(out / "fixture-live.ini"), "-width", "640", "-height", "480", "-window",
-            "-pf020viewobserve", str(out / "native"), "-pf020viewfraction", "0.5", "-pf020viewcache", str(cache),
+            # The dump command compares the explicit prefix literally. Use one
+            # console-safe representation for argv and the command script.
+            "-pf020viewobserve", base.safe_console_path(out / "native"), "-pf020viewfraction", "0.5",
+            "-pf020viewcache", base.safe_console_path(cache),
+            # D_DoomInit consumes +map as an autostart request before ordinary
+            # startup commands; a map command inside +exec cannot replace it.
+            "+map", fixture.MAP, "+logfile", base.safe_console_path(out / "startup.log"),
             "+exec", str(out / "execute.cfg")]
 
 
@@ -661,6 +685,16 @@ def cache_evidence(data, child, cache_before):
     return {"before": cache_before, "after": after, "events": rows, "actualWarmLoad": child["cacheState"] == "warm"}
 
 
+def unarchived_settings():
+    for name, path in UNARCHIVED_SETTINGS.items():
+        source = (ROOT / path).read_text()
+        source = re.sub(r"/\*.*?\*/|//[^\n]*", "", source, flags=re.S)
+        require(len(re.findall(r"\bCVAR\s*\(\s*Bool\s*,\s*" + re.escape(name)
+                               + r"\s*,\s*(?:true|false)\s*,\s*0\s*\)", source)) == 1,
+                "Unarchived built-in source declaration changed: " + name)
+    return set(UNARCHIVED_SETTINGS)
+
+
 def settings_evidence(out):
     text = base.log_text(out / "stdout.log")
     expected = {k: str(v).lower() for k, v in fixture.SETTINGS.items()} | UI_SETTINGS
@@ -668,9 +702,10 @@ def settings_evidence(out):
         matches = re.findall(r'(?m)^"' + re.escape(name) + r'" is "([^"]*)" \(default: "[^"]*"\)\s*$', text)
         require(matches == [value], "Actual runtime CVar missing/duplicated/changed: " + name)
     sections = dense.ini_sections((out / "fixture-live.ini").read_text())
+    absent = unarchived_settings()
     for name, value in expected.items():
         matches = [v.lower() for entries in sections.values() for key, v in entries if key == name]
-        require(matches == [value], "Saved normal-exit CVar differs: " + name)
+        require(matches == ([] if name in absent else [value]), "Saved normal-exit CVar differs: " + name)
     return expected
 
 
@@ -738,6 +773,9 @@ def collect(child, before, mode):
     require(re.findall(r"(?m)^D_DoomInit: Static RNGseed (\d+) set\.$", text) == ["12345"], "Actual fixed RNG seed startup acknowledgement missing/changed")
     child["nativeDevice"] = dense.native_device(text)
     require(child["nativeDevice"] == before["expectedDevice"]["fields"], "Actual native device/API/driver differs from preregistration")
+    startup = identity(out / "startup.log")
+    require(0 < startup["bytes"] <= 32 * 1024 * 1024, "Actual startup capability log missing or unbounded")
+    child["startupLog"] = startup
     validation = base.validation_evidence(out, mode)
     require(validation["requestedModeVerified"] and validation["errorCount"] == validation["warningCount"] == 0, "Actual requested loader/core/sync proof absent or validation findings")
     child["validation"] = validation
@@ -880,8 +918,9 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
                     started = clock()
                     while process.poll() is None:
                         require(clock() - started < WATCHDOG_SECONDS, "Own native child watchdog expired")
-                        for name in ("stdout.log", "stderr.log"):
-                            require((child_out / name).stat().st_size <= 32 * 1024 * 1024, "Native log cap exceeded")
+                        for name in ("stdout.log", "stderr.log", "startup.log"):
+                            log = child_out / name
+                            require(not log.exists() or log.stat().st_size <= 32 * 1024 * 1024, "Native log cap exceeded")
                         try: process.wait(timeout=.25)
                         except subprocess.TimeoutExpired: pass
                     child["exitCode"] = process.wait(timeout=10)
