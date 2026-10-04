@@ -4,12 +4,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-import subprocess
-import tempfile
+import sys
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT))
+from tools.pf_oracle.fixture_runner import run_fixture
 
 
 def source(relpath: str) -> str:
@@ -100,24 +101,8 @@ class PipelineKeyContractTests(unittest.TestCase):
             self.assertIn(token, self.renderpass_cpp + self.renderpass_h)
 
     def test_compiled_old_new_partition_and_boundary_fixture(self) -> None:
-        with tempfile.TemporaryDirectory() as tempdir:
-            executable = Path(tempdir) / "pipeline-key-contract-fixture"
-            subprocess.run(
-                [
-                    "c++",
-                    "-std=c++17",
-                    "-Wall",
-                    "-Wextra",
-                    "-Werror",
-                    "-Isrc/common/rendering",
-                    "tools/pf_oracle/tests/pipeline_key_contract_fixture.cpp",
-                    "-o",
-                    str(executable),
-                ],
-                cwd=ROOT,
-                check=True,
-            )
-            subprocess.run([str(executable)], cwd=ROOT, check=True)
+        run_fixture("tools/pf_oracle/tests/pipeline_key_contract_fixture.cpp",
+                    includes=('src/common/rendering',), root=ROOT)
 
 
 if __name__ == "__main__":

@@ -29,6 +29,31 @@ cmp pf-oracle-a.json pf-oracle-b.json
 
 The runner uses only the Python standard library.
 
+### Native CPU fixture invocation
+
+The compiled PF unittest fixtures use `fixture_runner.py`: Windows selects `cl`
+from a Visual Studio developer shell, while other platforms select `c++`.
+`PF_CXX` may name an explicit compiler executable, including a path containing
+spaces; it is not a shell command or a place to add flags. MSVC uses C++17,
+`/W4 /WX /UNDEBUG`; GCC/Clang use C++17, `-Wall -Wextra -Werror -UNDEBUG`.
+Assertions remain enabled and warnings or missing compilers fail the fixture.
+Compiler products are temporary and fixture execution retains the repository
+root as its working directory. These are CPU tests, not renderer/GPU evidence.
+
+Run the complete unittest discovery above, then the four additional standalone
+fixtures required by the inherited workflow. These commands work in a VS
+developer shell and on GCC/Clang hosts:
+
+```text
+python tools/pf_oracle/fixture_runner.py --source tools/pf_oracle/tests/resource_generation_fixture.cpp --include src/common/rendering/hwrenderer/data
+python tools/pf_oracle/fixture_runner.py --source tools/pf_oracle/tests/bindless_allocator_fixture.cpp --include src/common/rendering --include src/common/rendering/vulkan/descriptorsets
+python tools/pf_oracle/fixture_runner.py --source tools/pf_oracle/tests/levelmesh_contract_fixture.cpp --include src/common/rendering/hwrenderer/data
+python tools/pf_oracle/fixture_runner.py --source tools/pf_oracle/tests/probe_selection_fixture.cpp --include src/common/rendering/hwrenderer/data
+```
+
+Fixture arguments, when required, follow `--`. The existing CFX fixtures retain
+their separate `CFX_CXX` and `CFX_TEST_ASAN` controls.
+
 PF-002 also adds a tiny C++ lifetime primitive fixture. To run the same check locally:
 
 ```bash

@@ -1,0 +1,331 @@
+{
+  "date_utc": "2026-10-04",
+  "starting_master": "4df7dea1338f063c6417e024f967bfa4aa23edd4",
+  "compiler": "MSVC 19.44.35228.0",
+  "python": "3.14.7",
+  "baseline": {
+    "tests": 260,
+    "errors": 12,
+    "skips": 0,
+    "seconds": 14.444,
+    "cause": "POSIX c++ executable missing on native Windows"
+  },
+  "portable": {
+    "tests": 270,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 29.533
+  },
+  "parser_repair": {
+    "tests": 272,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 30.333,
+    "production_parser_checks": 1119,
+    "expected_parser_errors": 31,
+    "preserved_original_checks": 15,
+    "full_loader": false,
+    "gpu": false,
+    "native_engine_build_exit": 0
+  },
+  "standalone_fixtures": 4,
+  "cfx_capture_tests": 8,
+  "source_oracle_sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+  "sources": [
+    {
+      "path": "src/r_data/gldefs.cpp",
+      "measured_raw_sha256": "998e174cfbe2055111681bb6362869906ea324d286559b961b388bd51a73bb6e",
+      "normalized_lf_sha256": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5",
+      "committed_blob_sha256": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5",
+      "normalized_equals_commit_blob": true
+    },
+    {
+      "path": "tools/pf_oracle/fixture_runner.py",
+      "measured_raw_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "normalized_lf_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "committed_blob_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "normalized_equals_commit_blob": true
+    },
+    {
+      "path": "tools/pf_oracle/tests/test_gldefs_custom_sampling_contract.py",
+      "measured_raw_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "normalized_lf_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "committed_blob_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "normalized_equals_commit_blob": true
+    },
+    {
+      "path": "tools/pf_oracle/tests/gldefs_custom_sampling_fixture.cpp",
+      "measured_raw_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "normalized_lf_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "committed_blob_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "normalized_equals_commit_blob": true
+    }
+  ],
+  "retained_local_artifacts": [
+    {
+      "path": "build\\pf020-native\\oracle-baseline-tests.log",
+      "sha256": "95a1f63f099c47a02dcbc1179e089335a759ceb2364191b289b72c804807d44a",
+      "bytes": 65716
+    },
+    {
+      "path": "build\\pf020-native\\oracle-portable-tests.log",
+      "sha256": "01332766538836522d470c97c9955087138b456265f60e17ac3203b8efd64eaa",
+      "bytes": 45338
+    },
+    {
+      "path": "build\\pf020-native\\oracle-parser-repair-tests.log",
+      "sha256": "812416b0970fd6f4562eb9b2989c441b6a332d94353b808105d259e3ba6c56cb",
+      "bytes": 46110
+    },
+    {
+      "path": "build\\pf020-native\\gldefs-prefix-regression.log",
+      "sha256": "7089213e10aebb3a58365a006dbe7528b5398834a9df265abc0ef91d6183d469",
+      "bytes": 2947
+    },
+    {
+      "path": "build\\pf020-native\\gldefs-postrepair-regression.log",
+      "sha256": "faa38425e5dad0405c6f7ae2ebba3cc6d4d7974d47533437e64b5b96434b5369",
+      "bytes": 875
+    },
+    {
+      "path": "build\\pf020-native\\build-baseline.log",
+      "sha256": "24f7b88580a9ad3424a56dac64e3a8099598be3ee0a1a037cd478901247ed94c",
+      "bytes": 22440
+    },
+    {
+      "path": "build\\pf020-native\\build-parser-repair.log",
+      "sha256": "eab0f960a50c8d393138c2eb32aaa190ed58f9d4bc483aa87b52117e166a3a54",
+      "bytes": 3984
+    },
+    {
+      "path": "build\\pf020-native\\cfx-capture-tests.log",
+      "sha256": "c2fda27f277f74326177ce98de2f312ab157e9224b8fbe1be11dbef7c830d909",
+      "bytes": 1061
+    },
+    {
+      "path": "build\\pf020-native\\oracle-a.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "bytes": 4561
+    },
+    {
+      "path": "build\\pf020-native\\oracle-b.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "bytes": 4561
+    },
+    {
+      "path": "build\\pf020-native\\resource_generation_fixture.cpp.log",
+      "sha256": "996dc4807a69b244253bc38a180e5209eb5017c4d9b4cb3503addb8f55717cd7",
+      "bytes": 33
+    },
+    {
+      "path": "build\\pf020-native\\bindless_allocator_fixture.cpp.log",
+      "sha256": "5b5a2fbbc8257af4e13314eb2748ce97236e2337d2e786fc204d1229bdec0c74",
+      "bytes": 32
+    },
+    {
+      "path": "build\\pf020-native\\levelmesh_contract_fixture.cpp.log",
+      "sha256": "fee670f9edfd0838186e799590bb69efe7091b38334eda45aa147d0060463844",
+      "bytes": 91
+    },
+    {
+      "path": "build\\pf020-native\\probe_selection_fixture.cpp.log",
+      "sha256": "1b7cbcd1661a5446daf1b9606ee2fce8b44dc0fa7fd8b0bc534332e7230c97dd",
+      "bytes": 29
+    }
+  ],
+  "schema": "pf-gldefs-partial-verification/v1",
+  "disposition": "Independent parser repair; not PF-020 acceptance",
+  "frozen_checkpoint": "f495981841945b8779b0d73b70f603cfe968a749",
+  "source_equivalence": {
+    "src/r_data/gldefs.cpp": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5",
+    "tools/pf_oracle/README.md": "77462f0e993fa94a10958a8f6f2bd73c02ff382543eb2030527b3a864de328fd",
+    "tools/pf_oracle/fixture_runner.py": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+    "tools/pf_oracle/tests/gldefs_custom_sampling_fixture.cpp": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+    "tools/pf_oracle/tests/test_fixture_runner.py": "c19839ed3f1831ad74e0fdc7d54a2c2101b19baac740cf63ebff8e7668996e6a",
+    "tools/pf_oracle/tests/test_gldefs_custom_sampling_contract.py": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+    "tools/pf_oracle/tests/test_light_query_correctness_contract.py": "bfeea5a2452d1c009af3e768b781dd0d1804b8e7f482faaf49ece1d668f4f0c7",
+    "tools/pf_oracle/tests/test_lighting_compat_contract.py": "06b5f9cbc2a040e4dd659be5acb7ed34c155c16917abf8745b07e5b6ea408073",
+    "tools/pf_oracle/tests/test_material_correctness_contract.py": "4f0a20d795c09542b78b5b27eb70f3085387ab66107e62a969bd7018f3a58bf6",
+    "tools/pf_oracle/tests/test_material_layer_semantics_contract.py": "fd6e0abe95a0bf2f9012efc7fe27df1628f8bf8af8f9b1053b11c403fd060a82",
+    "tools/pf_oracle/tests/test_pf019_dormant_resources.py": "d2baa0d2fd76294f6285189eaa797bb96a247f9380498ecb7f1b7f541956a722",
+    "tools/pf_oracle/tests/test_pipeline_key_contract.py": "23c67eb89646167838a1189de5dc50fc1ae7bc7cdfcd2f58fa56c289b5a47d40",
+    "tools/pf_oracle/tests/test_render_context_contract.py": "15f76661fec5e5f51e4e508254e5ff7915e401f9c0b046c90c07389097c5af52",
+    "tools/pf_oracle/tests/test_shadow_visibility_correctness_contract.py": "d6cc7bcd05a961e1eef8a033d40cde4eec86af4ab8c0005fdc9ab07496d4882d",
+    "tools/pf_oracle/tests/test_sprite_portal_correctness_contract.py": "21244617ba09ff4eba5a25c0b50c4097e2c31c595573f5e02714435e2f710109",
+    "tools/pf_oracle/tests/test_sprite_surface_contract.py": "f93ee4b64064026f099ae12a7e77d927dfac526fcd9fd9274a8f9284b74b8e67",
+    "tools/pf_oracle/tests/test_texture_upload_contract.py": "5d57c6c317bacd9def52d3ac12fda7873f8580576f3f188699a6c5a30e520dc1",
+    "tools/pf_oracle/tests/test_vulkan_capabilities_contract.py": "3aa7475bb76dc79a126b704aa3b8a0cc5bf92be15187544ed3f5cc259f9ba774"
+  },
+  "limitations": [
+    "Initial native build belonged to f495 checkpoint; parser production bytes are identical.",
+    "No GPU, performance, complete-loader or human acceptance claim.",
+    "Required focused exact-head eight-job CI and verified master remain pending."
+  ],
+  "issue": "https://github.com/techrote/ShadeDoomVK/issues/114",
+  "focused_gate": {
+    "prepared_tree": "0513cfa3cb8a8d45d6828030768e5ade88296e33",
+    "tests": 272,
+    "seconds": 28.894,
+    "errors": 0,
+    "skips": 0,
+    "strict_flags": [
+      "/W4",
+      "/WX",
+      "/UNDEBUG"
+    ],
+    "standalone_fixtures": 4,
+    "cfx_tests": 8,
+    "source_oracle_equal": true,
+    "source_projection_normalized_lf_byte_equal": true,
+    "commands": [
+      "python -X utf8 -B -m unittest discover -s tools/pf_oracle/tests -v",
+      "python -X utf8 -B tools/pf_oracle/fixture_runner.py --source tools/pf_oracle/tests/<fixture>.cpp --include <CI include paths>",
+      "python -X utf8 -B tools/test_cfx_capture.py",
+      "python -X utf8 -B tools/pf_oracle/run.py --baseline tools/pf_oracle/baseline.json --output <a|b>.json"
+    ]
+  },
+  "focused_artifacts": [
+    {
+      "path": "build/pf020-gldefs-partial/focused-bindless_allocator.log",
+      "bytes": 32,
+      "sha256": "5b5a2fbbc8257af4e13314eb2748ce97236e2337d2e786fc204d1229bdec0c74"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-cfx-tests.log",
+      "bytes": 1061,
+      "sha256": "277399bcb109c5067985d1db33c53b1a945fc4aa0d7bda68fef5d91e0202ae7d"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-levelmesh_contract.log",
+      "bytes": 91,
+      "sha256": "fee670f9edfd0838186e799590bb69efe7091b38334eda45aa147d0060463844"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-oracle-a.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-oracle-a.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-oracle-b.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-oracle-b.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-pf-tests.log",
+      "bytes": 46110,
+      "sha256": "dd6d3b17a2fb9f549388134e15b83134eaaf9f6d782faffd6f3f7b2d685af4a5"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-probe_selection.log",
+      "bytes": 29,
+      "sha256": "1b7cbcd1661a5446daf1b9606ee2fce8b44dc0fa7fd8b0bc534332e7230c97dd"
+    },
+    {
+      "path": "build/pf020-gldefs-partial/focused-resource_generation.log",
+      "bytes": 33,
+      "sha256": "996dc4807a69b244253bc38a180e5209eb5017c4d9b4cb3503addb8f55717cd7"
+    }
+  ],
+  "focused_source_files": {
+    "src/r_data/gldefs.cpp": {
+      "raw_sha256": "998e174cfbe2055111681bb6362869906ea324d286559b961b388bd51a73bb6e",
+      "normalized_lf_sha256": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5",
+      "committed_blob_sha256": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5"
+    },
+    "tools/pf_oracle/README.md": {
+      "raw_sha256": "cd19e8a25775bb46e26465e2ac11352b4eaab6e8f01847bd46730e3c4aa43f3e",
+      "normalized_lf_sha256": "77462f0e993fa94a10958a8f6f2bd73c02ff382543eb2030527b3a864de328fd",
+      "committed_blob_sha256": "77462f0e993fa94a10958a8f6f2bd73c02ff382543eb2030527b3a864de328fd"
+    },
+    "tools/pf_oracle/fixture_runner.py": {
+      "raw_sha256": "2a5f530133f7dcf88bf867454b3acc5fd040ed1d44858c4f37dd1188acd848b4",
+      "normalized_lf_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "committed_blob_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817"
+    },
+    "tools/pf_oracle/tests/gldefs_custom_sampling_fixture.cpp": {
+      "raw_sha256": "f3eb56ce06019a85d32a4ce8ede74a97706f8f3e1bb5589f63c12698ec0947f6",
+      "normalized_lf_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "committed_blob_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927"
+    },
+    "tools/pf_oracle/tests/test_fixture_runner.py": {
+      "raw_sha256": "afb3f680bdd2f150c88f48b6017d2effdc38f3289ef985c895ac3cd324802383",
+      "normalized_lf_sha256": "c19839ed3f1831ad74e0fdc7d54a2c2101b19baac740cf63ebff8e7668996e6a",
+      "committed_blob_sha256": "c19839ed3f1831ad74e0fdc7d54a2c2101b19baac740cf63ebff8e7668996e6a"
+    },
+    "tools/pf_oracle/tests/test_gldefs_custom_sampling_contract.py": {
+      "raw_sha256": "ab2c6f74f59ee9854db376048a0825033f5f807ae6009a8ef5905712d223b7ce",
+      "normalized_lf_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "committed_blob_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7"
+    },
+    "tools/pf_oracle/tests/test_light_query_correctness_contract.py": {
+      "raw_sha256": "8f5c8265b840d6806e83ae2d5d544a06436dc6444dd34040dff6d8939f92e1d4",
+      "normalized_lf_sha256": "bfeea5a2452d1c009af3e768b781dd0d1804b8e7f482faaf49ece1d668f4f0c7",
+      "committed_blob_sha256": "bfeea5a2452d1c009af3e768b781dd0d1804b8e7f482faaf49ece1d668f4f0c7"
+    },
+    "tools/pf_oracle/tests/test_lighting_compat_contract.py": {
+      "raw_sha256": "f1e3fd07d2370a589c6119b22aa1dd64895a7eb89d23572072a175baa3d8a576",
+      "normalized_lf_sha256": "06b5f9cbc2a040e4dd659be5acb7ed34c155c16917abf8745b07e5b6ea408073",
+      "committed_blob_sha256": "06b5f9cbc2a040e4dd659be5acb7ed34c155c16917abf8745b07e5b6ea408073"
+    },
+    "tools/pf_oracle/tests/test_material_correctness_contract.py": {
+      "raw_sha256": "291f514679095f92b5c59eb4ac56a6174d858715fc49adfa49a98c785faf9d89",
+      "normalized_lf_sha256": "4f0a20d795c09542b78b5b27eb70f3085387ab66107e62a969bd7018f3a58bf6",
+      "committed_blob_sha256": "4f0a20d795c09542b78b5b27eb70f3085387ab66107e62a969bd7018f3a58bf6"
+    },
+    "tools/pf_oracle/tests/test_material_layer_semantics_contract.py": {
+      "raw_sha256": "786b70c509ad6d070b88b8520bcf69071c38ad5a0b6b4069f71c2760c4ac4192",
+      "normalized_lf_sha256": "fd6e0abe95a0bf2f9012efc7fe27df1628f8bf8af8f9b1053b11c403fd060a82",
+      "committed_blob_sha256": "fd6e0abe95a0bf2f9012efc7fe27df1628f8bf8af8f9b1053b11c403fd060a82"
+    },
+    "tools/pf_oracle/tests/test_pf019_dormant_resources.py": {
+      "raw_sha256": "a64b035d5adc06aae0db74921a5d476786e9f0af50ff84d0e9c602a52ea1e138",
+      "normalized_lf_sha256": "d2baa0d2fd76294f6285189eaa797bb96a247f9380498ecb7f1b7f541956a722",
+      "committed_blob_sha256": "d2baa0d2fd76294f6285189eaa797bb96a247f9380498ecb7f1b7f541956a722"
+    },
+    "tools/pf_oracle/tests/test_pipeline_key_contract.py": {
+      "raw_sha256": "3b5e587cee08a415df3055b6dce4cb83ff313f8c46242729831b47a8f65b5440",
+      "normalized_lf_sha256": "23c67eb89646167838a1189de5dc50fc1ae7bc7cdfcd2f58fa56c289b5a47d40",
+      "committed_blob_sha256": "23c67eb89646167838a1189de5dc50fc1ae7bc7cdfcd2f58fa56c289b5a47d40"
+    },
+    "tools/pf_oracle/tests/test_render_context_contract.py": {
+      "raw_sha256": "cd13362bbd34585e6bb331b7395c77b178cdc064522423c36411d589b9522942",
+      "normalized_lf_sha256": "15f76661fec5e5f51e4e508254e5ff7915e401f9c0b046c90c07389097c5af52",
+      "committed_blob_sha256": "15f76661fec5e5f51e4e508254e5ff7915e401f9c0b046c90c07389097c5af52"
+    },
+    "tools/pf_oracle/tests/test_shadow_visibility_correctness_contract.py": {
+      "raw_sha256": "9df50bb8656bb15e184a4cb1bf149b95ff33422f39e88ccd84fdfa4a49b68a15",
+      "normalized_lf_sha256": "d6cc7bcd05a961e1eef8a033d40cde4eec86af4ab8c0005fdc9ab07496d4882d",
+      "committed_blob_sha256": "d6cc7bcd05a961e1eef8a033d40cde4eec86af4ab8c0005fdc9ab07496d4882d"
+    },
+    "tools/pf_oracle/tests/test_sprite_portal_correctness_contract.py": {
+      "raw_sha256": "9584f6925ac893ea01fafabaf8eed5d7aca7c26d56f0c31f90e6e57d88ab11fc",
+      "normalized_lf_sha256": "21244617ba09ff4eba5a25c0b50c4097e2c31c595573f5e02714435e2f710109",
+      "committed_blob_sha256": "21244617ba09ff4eba5a25c0b50c4097e2c31c595573f5e02714435e2f710109"
+    },
+    "tools/pf_oracle/tests/test_sprite_surface_contract.py": {
+      "raw_sha256": "0c04c857aaac2c182ad1395366fb07f85a3078f2c1e7c7b8cc7e79616c693549",
+      "normalized_lf_sha256": "f93ee4b64064026f099ae12a7e77d927dfac526fcd9fd9274a8f9284b74b8e67",
+      "committed_blob_sha256": "f93ee4b64064026f099ae12a7e77d927dfac526fcd9fd9274a8f9284b74b8e67"
+    },
+    "tools/pf_oracle/tests/test_texture_upload_contract.py": {
+      "raw_sha256": "a602eb87b64f82c3c87888970d41b1f9ea4974454e54872af028b75f750a8e9f",
+      "normalized_lf_sha256": "5d57c6c317bacd9def52d3ac12fda7873f8580576f3f188699a6c5a30e520dc1",
+      "committed_blob_sha256": "5d57c6c317bacd9def52d3ac12fda7873f8580576f3f188699a6c5a30e520dc1"
+    },
+    "tools/pf_oracle/tests/test_vulkan_capabilities_contract.py": {
+      "raw_sha256": "755ef19e3df6f2b586bd98628a6a11c47371c86b0faceaa7fed66684fba34dd8",
+      "normalized_lf_sha256": "3aa7475bb76dc79a126b704aa3b8a0cc5bf92be15187544ed3f5cc259f9ba774",
+      "committed_blob_sha256": "3aa7475bb76dc79a126b704aa3b8a0cc5bf92be15187544ed3f5cc259f9ba774"
+    }
+  }
+}

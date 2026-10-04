@@ -39,6 +39,14 @@ Per-layer sampling is **already inherited**.
 
 Therefore PF-008/SDVK-005 must not treat per-layer filtering as absent.
 
+The PF-020 GLDEFS repair selects each custom texture's free authoring slot before
+initializing its omitted-filter default. Declaring another custom texture must
+not overwrite a previous slot's explicit sampling override. Both the shared
+material/map/class property and legacy HardwareShader property follow this
+invariant; sparse authoring slots and historical binding order are preserved.
+See [repair and retained negative fixture](../PF-GLDEFS-SAMPLING-REPAIR.md). This
+partial repair does not accept PF-020 or the separate indexed-material path.
+
 ## PF-008 semantic identity and binding adapter
 
 The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical shader-binding order consumed by Vulkan.

@@ -400,3 +400,15 @@ Safe control exits0, no loss/TDR, normal automatic recovery/caches restored. EXT
 - At 1904x1001 the source formulas avoid 5,862,384 bytes of Z-min/max/tile payload before allocator overhead, plus five dormant shader compilations, four dedicated pipeline creations, seven dedicated descriptor-set allocations and nine per-frame dedicated descriptor writes.
 - PF-006 ordered maps, scene-shader math, worker queues and ambiguous resources are unchanged because no representative evidence justified speculative changes. No quality policy changed and no physical GPU campaign was required or opened.
 - PF-019 is complete. CFX-000 / #75 is also accepted/closed through PR #108 on current master. After #36 tracker closure, PF-020 / #37 has no remaining external PF/CFX prerequisite; it becomes dependency-ready for its own fail-closed freeze synthesis. SDVK-001 remains blocked until PF-020 itself passes and explicitly unblocks it.
+
+
+## PF-020 independent GLDEFS repair — 2026-10-04
+
+[#114](https://github.com/techrote/ShadeDoomVK/issues/114) isolates the four-line
+custom-texture default-slot repair and strict native CPU helper migrations from
+the blocked synthesis. The exact original parser retains both counterexamples;
+the focused tree passes272/272 native PF tests, four strict standalone fixtures,
+CFX8/8 and deterministic oracle equality. No GPU/visual/performance claim or
+PF-020/SDVK-001 acceptance follows. See [repair](PF-GLDEFS-SAMPLING-REPAIR.md) and
+[compact verification](PF-GLDEFS-SAMPLING-VERIFICATION.json); required exact-head
+CI, merge/master and post-merge verification govern independent acceptance.
