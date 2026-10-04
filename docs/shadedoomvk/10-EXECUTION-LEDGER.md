@@ -471,3 +471,24 @@ First build and CPU-wrapper failures remain immutable with their dispositions.
 PR#117 final review/CI and verified merge/master/post-merge integration remain
 pending. This qualification does not accept PF-020/#37, SDVK001, performance,
 human visual approval, P400 or historical CFX/PF017 gates.
+
+
+## #113 accepted; PF-020 synthesis resumed — 2026-10-04
+
+PR #117 final head `c37c2d6132a86299f674de5c4126402311b5e1d2` passed
+independent review5405434084 and all eight jobs in run37193338914. Merge
+`7d29c7e4d64d61dba05524d9e7f5711ffd915d90` is verified on remote master,
+with exact engine/tool equality and all2,535 frozen inputs bridged. Exact
+post-merge run37194078630 passed all eight jobs; #113 is closed.
+[Release acceptance](PF-113-RELEASE-ACCEPTANCE.json) preserves bounded
+native results, original failures and unmeasured performance/visual/P400 limits.
+
+The serial PF-020 coordinator resumes `codex/pf020-native-freeze`, preserving
+old checkpoint54e9a1b3 through reconciliation204c666ba with accepted master.
+Its full strict PF440/440, CFX8/8, four standalone contracts and identical
+oracle repeats pass. A recorded checkout line-ending disposition preserves
+measured raw bytes; no renderer program or committed source content changed.
+Canonical/RAG reconciliation and final-source aggregate/equivalence review
+continue. PF-020 is not accepted; SDVK001 remains blocked. Earlier pending
+PF017/material/probe ledger entries are dated historical snapshots, not
+current work directions. Historical STOP/saturation scopes remain sealed.

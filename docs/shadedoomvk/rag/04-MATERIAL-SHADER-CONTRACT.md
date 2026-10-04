@@ -138,13 +138,13 @@ PF-013 owns numerical safety at the roughness-zero edge while preserving normal 
 
 ## Descriptor interaction
 
-`VkMaterial::GetDescriptorEntry` caches bindless ranges keyed by material state such as clamp mode, translation/palette and global shader. Richer materials consume contiguous bindless slots. PF-003/PF-017 harden lifetime and lookup behavior before SDVK height layers increase pressure.
+`VkMaterial::GetDescriptorEntry` caches bindless ranges keyed by material state such as clamp mode, translation/palette and global shader. Richer materials consume contiguous bindless slots. PF-003 hardens lifetime; accepted PF-017 profiling retains the linear lookup and the fully restored light path before SDVK height layers increase pressure.
 
 PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Vulkan still iterates the ordered layers and chooses each sampler from `GetLayerFilter(i)`. PF-013's RedIsAlpha bit is different: it changes the producer/consumer interpretation of the bound R8 texture, so it is explicitly part of descriptor identity. PF-003 generation/lifetime/reservation rules remain authoritative.
 
 ## PF-017 lookup profiling boundary
 
-Accepted master retained the per-material linear descriptor-variant scan after physical profiling: the dense PF-016 workload populated at most one variant per material and DBP37 MAP04 at most three. No representative hashed-lookup benefit was demonstrated. The exact state partition and PF-003 cleanup remain unchanged; PF-017-PROFILING-NOTES.md records the counts and unresolved performance gate.
+Accepted master retained the per-material linear descriptor-variant scan after physical profiling: the dense PF-016 workload populated at most one variant per material and DBP37 MAP04 at most three. No representative hashed-lookup benefit was demonstrated. The exact state partition and PF-003 cleanup remain unchanged; [PF-017 final acceptance](../PF-017-FINAL-ACCEPTANCE.md) records the accepted measured no-go; earlier profiling counts remain historical evidence.
 
 ## Invariants
 
@@ -169,11 +169,11 @@ Sunlust + Champions nevertheless supplies a material-heavy repaired-build route:
 
 ## #110/#112 material correctness candidates — repair contract
 
-Public `DTA_Indexed` reaches one authored albedo layer but the inherited Vulkan consumer attempts missing additional layers. The #110 candidate provisions exactly two real resources: canonical-remap-specific R8 indices followed by an entry-owned unchanged base-palette row. Remap remains before the existing inverse/additive/object operations and palette lookup. Nearest/no-mip index sampling and normal fenced retirement are explicit; ordinary layer order, state-driven palette/RedIsAlpha and real SWCanvas remain protected. See [source and acceptance boundaries](../PF-110-IMPLEMENTATION-NOTES.md).
+Public `DTA_Indexed` reaches one authored albedo layer but the inherited Vulkan consumer attempts missing additional layers. The accepted #110 repair provisions exactly two real resources: canonical-remap-specific R8 indices followed by an entry-owned unchanged base-palette row. Remap remains before the existing inverse/additive/object operations and palette lookup. Nearest/no-mip index sampling and normal fenced retirement are explicit; ordinary layer order, state-driven palette/RedIsAlpha and real SWCanvas remain protected. See [source and acceptance boundaries](../PF-110-IMPLEMENTATION-NOTES.md).
 
-Mapped software framebuffer images stay GENERAL through the existing nullable upload path. The #112 candidate carries that actual owner layout into material descriptors, retaining default READ for audited uploaded callers and a READ/GENERAL writer guard. Real paletted SWCanvas retains both original resources; no forced transition, substitute producer or cache flush is added. See [layout contract and native limits](../PF-112-IMPLEMENTATION-NOTES.md).
+Mapped software framebuffer images stay GENERAL through the existing nullable upload path. The accepted #112 repair carries that actual owner layout into material descriptors, retaining default READ for audited uploaded callers and a READ/GENERAL writer guard. Real paletted SWCanvas retains both original resources; no forced transition, substitute producer or cache flush is added. See [layout contract and native limits](../PF-112-IMPLEMENTATION-NOTES.md).
 
-Candidate4's normal packets are retained history. Candidate5 native qualification is verified below; exact-head release integration is tracked in the source issues. Neither repair accepts the independent PF-020 freeze or changes gameplay, filtering or quality policy.
+Candidate4's normal packets are retained history. Candidate5 native qualification and verified PR #116 merge/post-merge integration are recorded in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). Neither repair accepts the independent PF-020 freeze or changes gameplay, filtering or quality policy.
 
 
 ## Verified candidate5 native qualification

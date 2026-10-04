@@ -94,7 +94,7 @@ Vulkan scene resources include:
 - linear depth;
 - postprocess HDR pipeline images;
 - Z-min/max pyramid images, only when the dormant light-tile policy is enabled;
-- light-tile storage buffer, only when that policy is enabled.
+- full-grid light-tile storage only when that policy is enabled; disabled policy still retains one initialized `LightTileBlock` for the always-live LevelMesh binding4.
 
 PF-007 records the intersection of sampled color/depth/stencil sample-count support and routes the existing `gl_multisample` request through `VulkanCapabilities::BestSceneSampleCount()`. The clamping and best-supported-count algorithm are unchanged.
 
