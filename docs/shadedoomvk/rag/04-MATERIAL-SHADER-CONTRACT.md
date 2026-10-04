@@ -1,8 +1,9 @@
 # Material and shader contract
 
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 node/flat hash lookups rejected after physical profiling; #110 indexed and #112 mapped-layout candidates unaccepted
-Primary issues: PF-003, PF-008, PF-013, PF-020/#110/#112, SDVK-005, SDVK-007, SDVK-008
+Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 node/flat hash lookups rejected after physical profiling
+Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
 
 ## Current material model
 
@@ -39,9 +40,17 @@ Per-layer sampling is **already inherited**.
 
 Therefore PF-008/SDVK-005 must not treat per-layer filtering as absent.
 
+The PF-020 GLDEFS repair selects each custom texture's free authoring slot before
+initializing its omitted-filter default. Declaring another custom texture must
+not overwrite a previous slot's explicit sampling override. Both the shared
+material/map/class property and legacy HardwareShader property follow this
+invariant; sparse authoring slots and historical binding order are preserved.
+See [repair and retained negative fixture](../PF-GLDEFS-SAMPLING-REPAIR.md). This
+partial repair does not accept PF-020 or the separate indexed-material path.
+
 ## PF-008 semantic identity and binding adapter
 
-The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical order for authored material layers consumed by Vulkan. The unaccepted #110 candidate's auxiliary indexed palette row is separately owned shader data, not an authored layer or semantic-order replacement.
+The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical binding order for authored layers consumed by Vulkan; a shader-required auxiliary palette row is not an authored layer.
 
 Representative layouts remain:
 
@@ -60,7 +69,7 @@ Sparse custom authoring slots still compact into the historical binding array. `
 
 Shader logic still relies materially on known layer ordering/defines. PBR layer presence is all-or-nothing for the normal/metallic/roughness/AO group in `FMaterial` construction. Placeholder textures are inserted for absent bright/detail/glow layers so shader texture units remain valid.
 
-PF-008 contains rather than removes this compatibility coupling: semantic lookup is explicit, while descriptor construction still consumes the inherited array order. Later work may use semantic lookup where safe, but may not silently reorder legacy bindings.
+PF-008 contains rather than removes this compatibility coupling: semantic lookup is explicit, while ordinary material descriptor construction still consumes the inherited array order. Later work may use semantic lookup where safe, but may not silently reorder legacy bindings.
 
 ## PF-008 semantic refactor boundary
 
@@ -121,6 +130,8 @@ PF-009 extracts sprite orientation metadata without changing the current normal 
 
 `lightmodel_pbr.glsl` implements GGX distribution, Smith geometry, Schlick Fresnel, metallic/roughness/AO, local lights, sunlight and irradiance/prefiltered environment probes.
 
+PF-113/#113 guards a zero environment pair before cube access or pair arithmetic. Its shared irradiance/prefilter helpers preserve live directions, pair identities, call order, gather coefficients and the rest of PBR. Missing taps contribute zero without renormalization; independent ambient/direct/sunlight terms remain. Explicit irradiance LOD0 and `nonuniformEXT` avoid relying on implicit derivatives or uniform descriptor selection under a divergent zero guard. This exception is justified by the actual one-mip probe view and dedicated LINEAR, zero-bias, non-anisotropic sampler; it is not a change to other material sampling policies. See [the adopted decision](../PF-113-MISSING-IBL-DECISION.md) and the separate native/release qualification.
+
 Compatibility constants such as `PBRBrightnessScale` and ambient-sector-light approximations are part of current visual behavior. PF-011 centralizes/documents those bridges before later policy changes.
 
 PF-013 owns numerical safety at the roughness-zero edge while preserving normal settings.
@@ -129,31 +140,15 @@ PF-013 owns numerical safety at the roughness-zero edge while preserving normal 
 
 `VkMaterial::GetDescriptorEntry` caches bindless ranges keyed by material state such as clamp mode, translation/palette and global shader. Richer materials consume contiguous bindless slots. PF-003/PF-017 harden lifetime and lookup behavior before SDVK height layers increase pressure.
 
-PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Ordinary Vulkan materials still iterate the ordered layers and choose each sampler from `GetLayerFilter(i)`. PF-013's RedIsAlpha bit is different: it changes the producer/consumer interpretation of the bound R8 texture, so it is explicitly part of descriptor identity. PF-003 generation/lifetime/reservation rules remain authoritative. The public indexed-material candidate below supplies an explicit two-resource shader exception without changing ordinary layer order.
+PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Vulkan still iterates the ordered layers and chooses each sampler from `GetLayerFilter(i)`. PF-013's RedIsAlpha bit is different: it changes the producer/consumer interpretation of the bound R8 texture, so it is explicitly part of descriptor identity. PF-003 generation/lifetime/reservation rules remain authoritative.
 
 ## PF-017 lookup profiling boundary
 
-Accepted master retains the per-material linear descriptor-variant scan. Early physical profiling found at most one variant per material in the dense PF-016 workload and three in DBP37 MAP04; later 15–17-variant Champions comparisons also rejected node/flat hashes. PF-017's final integrated light candidate regressed and was completely restored; its gate is resolved as a measured no-go through PR #74 / `844462c3a4ed5f7037ade1b49d1a28f578077213`, not an unresolved mandatory lookup optimization. The exact state partition and PF-003 cleanup remain unchanged. [Final acceptance](../PF-017-FINAL-ACCEPTANCE.md) supersedes the historical profiling next-action status.
-
-## PF-020 current material blockers — 2026-10-04
-
-Per-layer sampling's existence did not prove authored slot isolation. Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` initializes shared material/map/class and legacy HardwareShader sampling through initial `texIndex=0` before selecting slot `i`; a later omitted filter overwrites an earlier explicit override and leaves its own wrong default. The local candidate moves both index assignments before default initialization, preserving filter/error/publication ordering. Production-source-extracted current blocks PASS1119checks/31expectederrors; the exact old blocks retain material `[-1,0]` instead of `[1,-1]` and legacy `[-1,0]` instead of `[-1,-1]`. Fresh native build and full272tests pass with zeroerrors/skips. This is **TESTED BUT UNACCEPTED** on the focused branch; scanner/texture/container services are stubbed, with no complete-loader/Vulkan/image claim. Final-head CI/merge remains pending.
-
-Accepted starting master has a separate public ZScript `DTA_Indexed` / `DTA_TranslationIndex` → DrawTexture defect: sole `CTF_Indexed` creates a one-layer `FMaterial`, while Vulkan assumes three layers and the paletted shader requires an unprovisioned palette binding. SWCanvas palette construction is a distinct path. See [indexed-material blocker](../PF-020-INDEXED-MATERIAL-BLOCKER.md). This is a confirmed inherited freeze blocker, not an observed native crash or a revision of PF-013's bounded RedIsAlpha repair.
-
-The **unaccepted #110 source candidate** retains the one authored albedo layer and allocates exactly two real contiguous PF-003 descriptors: translated one-mip R8 indices plus an entry-owned opaque 256×1 BGRA base-palette row. `GetIndexedMaterialImage()` partitions resident content by the resolved active canonical remap inside the existing hardware owner, uploads the actual indexed producer synchronously and preserves translation before `getTexel` inverse/colour operations. Nonpositive/luminosity/inactive inputs retain unremapped bytes; positive invalid input follows the actual resolved identity table. Nearest index/row sampling includes an explicit `XY_NOMIP` → `NOFILTER_XY` correction. Non-mip create/update copies now end in shader-readable layout. Descriptor deletion and owner reset retire rows/variants through PF-003 and normal draw fences; no global palette cache or descriptor flush is added. Ordinary layer/sampler order, palette mode, RedIsAlpha, global shaders and SWCanvas remain protected. [Implementation and pending evidence](../PF-110-IMPLEMENTATION-NOTES.md).
-
-PF-020 is running with release blocked by indexed #110, mapped SWCanvas layout #112 and final source/evidence/RAG/CI/merge verification. Parser local tests and the repaired Windows compiler-runner gap do not accept the freeze or provide indexed runtime proof. [Provisional matrix](../PF-FREEZE-EVIDENCE-MATRIX.md). SDVK-001 remains blocked.
-
-### #112 mapped SWCanvas sampled-layout candidate
-
-The separate [#112](https://github.com/techrote/ShadeDoomVK/issues/112) source defect is a mapped software-image `GENERAL` / declared `SHADER_READ_ONLY_OPTIMAL` mismatch. The focused candidate passes each material image's tracked layout into `SetBindlessTexture`; default READ remains for audited uploaded-image callers, and the writer rejects states outside READ/GENERAL before publication. The real software-paletted SWCanvas material still owns its existing R8 framebuffer and separate BGRA palette, rather than borrowing #110's auxiliary palette. No producer, palette, shader, sampling, cache-key or fence change is made.
-
-The combined strict MSVC layout/indexed/runner suite passes 56/56 in 6.002 seconds, including both original negatives and repaired extracted bodies. A native 640×480 allocation-only observation has offset 0 and matching producer/native row pitch for R8 and BGRA; it did not write, sample or copy those mapped images and did not inspect the running SWCanvas producer. The #110 raw command separately passed 348 assertions across 23 cases with proved core validation and zero reported real errors/warnings, while its containing run **FAILED** for missing presentation. Neither partial receipt accepts #112 or PF-020. Actual warm software scene, existing two-resource owners/repeated use/retirement, presentation, core-plus-sync validation, clean final build, eight exact-head CI jobs, independent review and merge/master checks remain open. [Candidate notes and retained receipts](../PF-112-IMPLEMENTATION-NOTES.md).
+Accepted master retained the per-material linear descriptor-variant scan after physical profiling: the dense PF-016 workload populated at most one variant per material and DBP37 MAP04 at most three. No representative hashed-lookup benefit was demonstrated. The exact state partition and PF-003 cleanup remain unchanged; PF-017-PROFILING-NOTES.md records the counts and unresolved performance gate.
 
 ## Invariants
 
-1. Existing content material meaning/output must not change during PF semantic tagging. Explicit PF-013 and separately scoped #110 correctness repairs must retain their own pre-fix negative and protected-path evidence; #110 remains unaccepted.
+1. Existing content material meaning/output must not change during PF semantic tagging except for explicit PF-013 bugfix cases.
 2. Semantic metadata may not become a second contradictory source of layer order truth.
 3. Optional/default layers must not create stale bindless references.
 4. Indexed/palette/translation behavior is compatibility-sensitive; palette-index and RedIsAlpha R8 data must not alias.
@@ -171,3 +166,24 @@ The material-only qualification on master `84bbbac` found a sustained expensive 
 The CFX programme does not establish a material-identity or malformed-shader root cause. All 138 logged historical DBP37 cache-hit SPIR-V modules passed structural validation for the source target, and the recognized ordinary lightmap loads in cached fragment modules remained under their immediate lightmap-index guard. Neither result proves the executed shader/SASS or dynamic descriptor correctness.
 
 Sunlust + Champions nevertheless supplies a material-heavy repaired-build route: the reconstructed movement/filter/reload path qualifies 3/3 in CFX-010. That is practical compatibility coverage, not proof that the historical Sunlust event shared the DBP37 descriptor-retirement mechanism. PF material identity, palette/translation, sampler and shader-key contracts remain unchanged by the final CFX synthesis. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+
+## #110/#112 material correctness candidates — repair contract
+
+Public `DTA_Indexed` reaches one authored albedo layer but the inherited Vulkan consumer attempts missing additional layers. The #110 candidate provisions exactly two real resources: canonical-remap-specific R8 indices followed by an entry-owned unchanged base-palette row. Remap remains before the existing inverse/additive/object operations and palette lookup. Nearest/no-mip index sampling and normal fenced retirement are explicit; ordinary layer order, state-driven palette/RedIsAlpha and real SWCanvas remain protected. See [source and acceptance boundaries](../PF-110-IMPLEMENTATION-NOTES.md).
+
+Mapped software framebuffer images stay GENERAL through the existing nullable upload path. The #112 candidate carries that actual owner layout into material descriptors, retaining default READ for audited uploaded callers and a READ/GENERAL writer guard. Real paletted SWCanvas retains both original resources; no forced transition, substitute producer or cache flush is added. See [layout contract and native limits](../PF-112-IMPLEMENTATION-NOTES.md).
+
+Candidate4's normal packets are retained history. Candidate5 native qualification is verified below; exact-head release integration is tracked in the source issues. Neither repair accepts the independent PF-020 freeze or changes gameplay, filtering or quality policy.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

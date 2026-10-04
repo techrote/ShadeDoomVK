@@ -1,8 +1,10 @@
-# #110 — indexed material candidate and acceptance plan
+# #110 — indexed material repair and verification
 
-Status: **native normal matrix verified / unaccepted**. The twelve candidate4 normal packets pass independent review; genuine restart and release gates remain separate. Issue: [#110](https://github.com/techrote/ShadeDoomVK/issues/110). The source chain and ancestral defect are recorded in [the blocker notebook](PF-020-INDEXED-MATERIAL-BLOCKER.md). PF-020 and SDVK-001 remain blocked until their full acceptance gates pass. Earlier sections retain the preparation and historical evidence boundary; the current result follows below.
 
-The audit uses the focused ShadeDoomVK checkout based on `4df7dea1338f063c6417e024f967bfa4aa23edd4`. Numbered source references below identify the audited pre-#110 bodies; candidate code moves them. Current candidate entrypoints are identified by symbol. The separate GLDEFS parser repair is not acceptance evidence for #110.
+Status: **accepted through PR #116; verified master and exact post-merge checks passed**.
+Issue: [#110](https://github.com/techrote/ShadeDoomVK/issues/110). The source contract and ancestral supported-path defect are recorded in that issue. Candidate4's twelve normal packets and failed original restart are retained history below; they do not attest the newer restart seam.
+
+The focused proposed integration base is accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`; renderer negative bodies were audited at `4df7dea1338f063c6417e024f967bfa4aa23edd4` and are unchanged by that GL repair. Numbered source references identify historical pre-#110 bodies; current entrypoints are identified by symbol. This focused material repair is separate from PF-020 freeze acceptance and SDVK-001 unblock.
 
 ## Keep translation before the existing shader operations
 
@@ -17,11 +19,11 @@ old:      BaseColors[255 - Remap[n]]
 proposed: BaseColors[Remap[255 - n]]
 ```
 
-For `n=5`, `Remap[5]=10`, `Remap[250]=20`, those indices are 245 and 20. Select unequal actual base-palette colours for the fixture. Colour multiply/add and other shader operations need the same ordering check. The neutral-image/translated-row suggestion in the earlier blocker notebook is provisional and superseded by this counterexample; it must not be promoted to an accepted contract.
+For `n=5`, `Remap[5]=10`, `Remap[250]=20`, those indices are 245 and 20. Select unequal actual base-palette colours for the fixture. Colour multiply/add and other shader operations need the same ordering check. The earlier neutral-image/translated-row proposal is rejected by this counterexample and must not be promoted to an accepted contract.
 
 ## Small coherent resource repair
 
-The focused source candidate implements the audited direction: preserve the actual translated R8 producer, partition its resident images by resolved translation within the existing hardware-texture owner, and publish a real unchanged base-palette row beside each indexed descriptor entry. These are candidate resource rules pending native and release evidence.
+The focused source candidate implements the audited direction: preserve the actual translated R8 producer, partition its resident images by resolved translation within the existing hardware-texture owner, and publish a real unchanged base-palette row beside each indexed descriptor entry. Native qualification and release acceptance are recorded below; historical preparation and failed packets remain preserved.
 
 1. Keep `FMaterial`'s one actual albedo layer and its public `CTF_Indexed` variant identity. Its current `GetLayer`/`FTexture::GetHardwareTexture` forced `translation=-1` owner is not permission to fabricate layer 1 or 2.
 2. Within that owner, select a palette-index image by the effective canonical remap identity. Nonpositive ID, luminosity ID or an inactive resolved table follows the existing unremapped byte policy. A positive invalid ID resolves through `TranslationToTable` to the canonical identity table: preserve that table's actual `Remap` bytes and inactive state rather than assuming invalid input always means a null remap. Any active canonical table selects a distinct translated image. Keep palette-index and RedIsAlpha image interpretation separate, as required by PF-013. A same-source A/B/A sequence must retain both image contents and revisit A correctly regardless of first-use order.
@@ -61,15 +63,15 @@ The candidate's `DeleteDescriptors()` frees each descriptor block and calls the 
 
 `UpdatePalette:553–558` currently refreshes the tonemap/RGB666 LUT; it is not a general material-row invalidation hook. A candidate must not clear rows globally while published material descriptors survive. The current per-material owner/restart sequence avoids such a shared cache. If a new operation can mutate base-palette bytes while those owners stay live, it needs an explicit scoped rebuild/epoch and production-linked lifetime proof before acceptance, not an emergency global descriptor flush.
 
-## Actual native acceptance route
+## Prepared native route — historical preparation and protected scope
 
 The candidate prepares `pf_indexedmaterial_validate`, implemented in `src/common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp`, and synthetic runtime inputs from `tools/pf_oracle/prepare_indexed_material_runtime.py`. Their existence and successful native compilation are not execution or acceptance evidence.
 
 The prepared command runs on the renderer-owner thread after a clean small startup, validates synthetic 16×4 PF110SRC/PF110SA/PF110SB inputs and renders its own 128×20 target through the real `DrawTexture` tag parser → `F2DDrawer` → `Draw2D(F2DDrawer*, FRenderState&, x,y,w,h)` → material → Vulkan shader route. It retains source pixels, tags, numerical translation IDs and canonical identities. The public ZScript equivalent is a registered `RenderOverlay(RenderEvent)` callback using `DTA_Indexed` and **`DTA_TranslationIndex`**; calling `Screen.DrawTexture` outside a draw callback is rejected by the VM at `v_draw.cpp:256`.
 
-The raw command prepares 22 draws covering normal/inverse output, A/B/A and B/A/B first use, numeric-ID replacement/restoration, default/invalid/inactive/luminosity input, off-grid/no-mip sampling, queued-draw retirement and recreation. It reads actual resident R8, base-row and target RGBA bytes, checks complete registered remap rows, actual shader/PF descriptor identity and zero new indexed async jobs. Ordinary state-driven palette/RedIsAlpha checks are descriptor/resident-byte controls, not software-colormap shader parity. The ordinary output is retained without claiming the indexed palette equation applies to it. Missing input emits no draw. These are implemented assertions awaiting native execution; palette-arena restart and real SWCanvas acceptance remain separate production-linked controls.
+The earlier command preparation covered 22 draws, before the later actual object/add controls, covering normal/inverse output, A/B/A and B/A/B first use, numeric-ID replacement/restoration, default/invalid/inactive/luminosity input, off-grid/no-mip sampling, queued-draw retirement and recreation. It reads actual resident R8, base-row and target RGBA bytes, checks complete registered remap rows, actual shader/PF descriptor identity and zero new indexed async jobs. Ordinary state-driven palette/RedIsAlpha checks are descriptor/resident-byte controls, not software-colormap shader parity. The ordinary output is retained without claiming the indexed palette equation applies to it. Missing input emits no draw. These are implemented assertions awaiting native execution; palette-arena restart and real SWCanvas acceptance remain separate production-linked controls.
 
-The overlay's `DTA_Color` control must not be described as direct `getTexel` object-colour tint. `v_draw.cpp` parses it into `parms.color`; `F2DDrawer::SetStyle` combines vertex colour, then indexed `AddTexture` records its luminance in `mLightLevel` and replaces vertex colour with white. `Draw2D` forwards that value via `SetSoftLightLevel`; shader `SIMPLE2D` processing is a separate downstream boundary. The literal translated PF110RA reference therefore uses the same indexed route, translation 0 and identical style/tag. This controls the public authored-colour route without claiming a visible tint effect or native `uObjectColor` ordering. The source-extracted scalar CPU oracle separately covers `getTexel` additive/object-uniform ordering; raw inverse draws exercise the full actual shader's noncommuting transformation.
+The overlay's `DTA_Color` control must not be described as direct `getTexel` object-colour tint. `v_draw.cpp` parses it into `parms.color`; `F2DDrawer::SetStyle` combines vertex colour, then indexed `AddTexture` records its luminance in `mLightLevel` and replaces vertex colour with white. `Draw2D` forwards that value via `SetSoftLightLevel`; shader `SIMPLE2D` processing is a separate downstream boundary. The literal translated PF110RA reference therefore uses the same indexed route, translation 0 and identical style/tag. This controls the public authored-colour route without claiming a visible tint effect or native `uObjectColor` ordering. The source-extracted scalar CPU oracle covers `getTexel` additive/object-uniform ordering; later candidate4 actual shader object/add controls are recorded below. Raw inverse draws exercise the full actual shader's noncommuting transformation.
 
 For exact byte evidence, prefer an own small colour/depth target and explicit readback with production builders/transitions. The colour image needs COLOR_ATTACHMENT and TRANSFER_SRC usage, and the depth/stencil format must come from the actual device capability result. Use neutral draw state for the base-palette equation, then separately exercise inverse and authored colour controls. Restore the prior render target/state after the diagnostic. Clear/end the diagnostic render pass, transition to TRANSFER_SRC, copy to a GPU-to-CPU staging buffer, wait via the normal command manager, map and retain actual bytes. Read back the resident R8 source and palette row as well as the shader result; pair image assertions with published descriptor/view identity.
 
@@ -79,19 +81,9 @@ For exact byte evidence, prefer an own small colour/depth target and explicit re
 
 A safe scope is a fresh isolated configuration, no autoload/addons, tiny explicit fixture and a bounded process. A small empty/startup scene with a verified local IWAD is sufficient; no dense light workload, CFX crash route or PF-017 campaign is needed. The audit found the local Doom II IWAD, but did not establish a local Freedoom artifact for a claimed Freedoom launch. Hash whichever input the integrator actually selects. Missing input or fixture production is a blocker, not a reason to select a saturated historical workload.
 
-### Validation facilities available locally
+### Scoped validation requirement
 
-Read-only inventory verified Khronos JSON/DLL files under:
-
-```text
-C:\ShadeDoomVK\pf-local-evidence\cfx002-tools\vulkan-sdk-1.4.357.0\Bin
-```
-
-The manifest advertises layer API `1.4.357`; the DLL is 21,681,592 bytes. The copied SDK supplies `vulkaninfoSDK.exe`, and PATH also resolves `C:\WINDOWS\system32\vulkaninfo.exe`. These are availability observations, not proof of layer activation on the repaired executable. No Vulkan probe or draw was launched for this note.
-
-`tools/cfx_capture.py` supplies a source-available process-scoped validation recipe: `VK_ADD_LAYER_PATH`, `VK_INSTANCE_LAYERS=VK_LAYER_KHRONOS_validation`, `VK_LAYER_SETTINGS_PATH`, loader layer logging and an isolated settings/log file. Its lines 21–27 distinguish core, synchronization and GPU-assisted modes. The later checks require both actual loader insertion and the layer's own CURRENT-VALIDATION-ENABLED report; GPU-assisted mode additionally requires real instrumentation. `vk_debug` alone does not establish any of that. Reuse the recipe in a #110 scoped runner; do not execute a historical CFX campaign or treat its old activation as this run's acceptance.
-
-Run core and synchronization validation in separate bounded #110 executions, after CPU/state proof; any required GPU-assisted check must likewise prove actual instrumentation. Record errors, warnings, activation proof, exit/process cleanup and exact executable/config/layer identities. Missing activation is an explicit unavailable check rather than a zero-error success.
+The existing runtime runner uses process-scoped Khronos validation settings with loader insertion and the layer's own CURRENT-VALIDATION-ENABLED proof. `vk_debug`, an installed layer, or historical CFX activation alone proves neither core nor synchronization validation for this candidate. Run core and synchronization separately and retain exact layer/executable/input/config identities, messages, normal process exit and output hashes. GPU-assisted instrumentation is a separate claim; none is inferred here.
 
 ## Acceptance evidence still required
 
@@ -108,45 +100,24 @@ Run core and synchronization validation in separate bounded #110 executions, aft
 
 Useful existing state accessors are `GetLayerDiagnostic`, `GetBindlessIdentity`, `GetBindlessLifetimeStats`, `GetBindlessAllocationStats`, texture/async epoch statistics and upload-staging statistics. The prepared command emits its own `shadedoomvk-pf110-native-indexed/v1` receipt with actual material/view/sampler/remap/PF-token and readback observations. An external runner must still retain exact executable/source/config/layer identity and process exit; neither that command nor `tools/pf_oracle/runtime_evidence.schema.json` alone provides full release provenance.
 
-The root reports a clean native build and 302/302 PF tests before the pending authored-colour generator/reference delta; the revised generator adds a source-linked route test and requires a fresh rerun/input regeneration. These CPU/build results do not execute the Vulkan diagnostic, prove validation activation or accept #110. Affected PF-005/PF-008/RAG material/trap documents now identify the focused candidate exception while retaining historical accepted scope. This note records no native GPU success, performance result, crash reproduction, merge or change to PF-020 gate status.
+## Presentation policy and guarded restart — newer candidate pending
 
+The inverse presentation reference uses independently literal inverse R8 indices with indexed translation0/normal style. Five ordinary controls retain configured global-linear interpolation. Equality/pairing to discrete indexed output is a nearest-only check; bounded diversity, vertical structure and presence remain required for ordinary linear controls. Indexed repeat/inverse/color/alpha gates remain strict at 1 presented-RGB byte. All 21 decoded ROIs and the actual two-enabled-callback acknowledgement are mandatory.
 
-## Latest frozen candidate and pending native matrix
+Frozen source `bd2586f51c456fcdb9d04e616a6facf30d47a5ec` contains the diagnostic seam repair after candidate4's guarded failure. It preflights exact pinned `-iwad`, `-file`, `+exec`, `+map` pairs using the real `FArgs::TakeValue` on a copy, preserves every other option, verifies original argv stayed unchanged during BEFORE, then commits the identical pair removal before dispatching the existing `debug_restart`. It does not change ordinary restart, renderer cleanup, palette initialization or resource retirement.
 
-Candidate4 supersedes the earlier source/diagnostic preparations above. The
-normal diagnostic retains400 assertions/26 cases; opt-in restart BEFORE is
-expected403/26 and AFTER400/26 on hardware mode4. These are expected counts
-until actual execution. Source-linked tests guard actual `int restart`, normal
-`D_Cleanup`/palette reinitialization, two live Span2 tokens after RAII/fence
-return, same manager/device/framebuffer, stale-token validation before fresh
-diagnostic production, exact safe argv preflight and one-shot atomic restart.
-No old resource or palette pointer survives in the checkpoint.
+A genuine acceptance run requires one child and two actual 7-package archive startup blocks, counter+1 and the same Vulkan instance/device/descriptor manager. The checkpoint retains value tokens, not old pointers. AFTER must test the two selected old tokens as stale before fresh diagnostic production, after normal map warm-up. This is not a guard before every engine producer. Both raw oracles, final decoded presentation and proved core/synchronization activation remain required. Lifetime allocation/free counters are cumulative process observations; they must not be confused with the selected-token live-to-stale assertion. Candidate5 native qualification is verified below; release integration is tracked in the source issues.
 
-The clean build and391-test strict CPU gate pass. The fresh native matrix must
-cover mode4, mode2 and actual mode0 SWCanvas under nearest/linear filters and
-separate proved core/synchronization validation. The real restart runner needs
-one child, exactly two7-package startup blocks, one persistent Vulkan instance,
-actual counter+1, live-to-stale tokens, both raw oracles and final presentation.
-See [candidate hashes](PF-110-CANDIDATE-CHECKPOINT.json). Native acceptance is
-pending; raw success, presentation, lifetime and exact-head CI remain distinct.
+## Retained normal native matrix — candidate4/source890, 2026-10-04
 
-The presentation inverse reference now uses independently literal inverse R8
-indices with indexed translation0/normal style. Five ordinary controls retain
-global-linear interpolation; equality/pairing to discrete indexed output is a
-nearest-only check, while diversity/vertical/presence remain required. Indexed
-repeat/inverse/color/alpha gates remain strict at1 presented-RGB byte. All21
-decoded ROIs and the actual two-enabled-callback acknowledgement are mandatory.
-
-## Current normal native matrix — candidate4, 2026-10-04
-
-All twelve fixed mode/filter cases pass: mode4 hardware truecolour, mode2
+All twelve retained fixed mode/filter cases pass: mode4 hardware truecolour, mode2
 hardware palette and mode0 real paletted SWCanvas, each under global nearest0
 and linear2, with separate proved core and synchronization validation. Every
 process exits normally with zero requested-validation errors/warnings and
-unchanged source/build/input closure. Hardware packets contain400 assertions
-across26 cases; software packets contain407 across27. Total:4,828 assertions
-across316 cases. All252 presentation ROIs and actual overlay acknowledgements
-pass; the independent audit recomputes737,280 indexed pixels with zero mismatch.
+unchanged source/build/input closure. Hardware packets contain 400 assertions
+across 26 cases; software packets contain 407 across 27. Total: 4,828 assertions
+across 316 cases. All 252 presentation ROIs and actual overlay acknowledgements
+pass; the independent audit recomputes 737,280 indexed pixels with zero mismatch.
 See [compact matrix verification](PF-110-NATIVE-MATRIX-VERIFICATION.json).
 
 The inverse reference's presented indexed difference is0 in all twelve packets.
@@ -156,14 +127,67 @@ with discrete indexed output is observational. No tolerance was broadened.
 The first genuine-restart attempt fails safely before its raw diagnostic or
 restart: startup's `CollectFiles("-file", nullptr)` moves the package pair to the
 end, and inherited `RemoveArgs` leaves the terminal filename behind. The exact
-preflight rejects that state. Engine exit0, one archive startup and no BEFORE
+preflight rejects that state. Engine exit 0, one archive startup and no BEFORE
 raw output do not constitute restart acceptance. The packet is retained in
-[the restart attempts receipt](PF-110-RESTART-RETAINED-ATTEMPTS.json). A narrow
-source-linked diagnostic seam repair must use exact `TakeValue` pair removal
-before dispatching the existing `debug_restart`; fresh build/core/sync restart
-proof is required. No original packet is overwritten.
+[the restart attempts receipt](PF-110-RESTART-RETAINED-ATTEMPTS.json). The newer
+source-linked diagnostic seam uses exact `TakeValue` pair removal before the
+existing `debug_restart`; fresh candidate5 build/core/sync restart proof is
+required. No original packet is overwritten.
 
 These are bounded correctness results, not GPU timing, global frame budget,
 human approval, historical CFX/PF-017 requalification or repaired P400 evidence.
-Independent focused release CI, merge/master and post-merge checks are pending;
-PF-020 remains blocked separately by #113.
+Independent focused release CI, merge/master and post-merge checks are pending.
+The independent PF-020 freeze remains outside this repair's acceptance.
+
+The candidate4/source890 raw cases also retain actual shader object/add controls against both the preserved operation-order oracle and a rejected pre-remap ordering. Public `DTA_Color` remains a separate luminance/white-vertex route; these witnesses must not be conflated. The normal matrix receipt records selected descriptor retirement/recreation, while the genuine arena restart is a distinct candidate5 acceptance gate.
+
+
+## Verified candidate5 native qualification
+
+The final clean RelWithDebInfo build corresponds to committed source
+`bd2586f51c456fcdb9d04e616a6facf30d47a5ec`. All 2,528 engine inputs are verified
+against that Git tree through exact raw or declared text newline equivalence.
+Executable SHA256 is
+`e5ac64d21b2bbb0f893b6317957660085040ff6ef232f75485d08f3f33a00488`.
+
+All twelve normal mode/filter cases pass with 4,828 assertions / 316 cases,
+including four real paletted mode0 SWCanvas packets. Both genuine one-process
+restart controls pass under separately proved core and synchronization
+validation: two exact seven-package startups, real counter 0 to 1, persistent
+Vulkan device/manager, two retained tokens live to stale before the fresh
+diagnostic producer, and 403 BEFORE / 400 AFTER assertions in each run. All
+fourteen processes exit normally with zero requested-validation errors/warnings,
+unchanged source/build/input pins and 294 decoded presentation ROIs.
+
+The strict native PF suite passes 393/393 with zero errors/skips. Four strict
+standalone contracts, CFX classifier 8/8 and two byte-equal source oracles pass.
+[Compact final qualification](PF-110-FINAL-NATIVE-VERIFICATION.json) retains hashes/counts/status and
+separate independent native audits. Earlier successful and failed packets
+remain immutable history.
+
+Mode1 BGRA software frame execution and a direct post-retirement SWCanvas token
+query remain unmeasured. Observed software memory contains CPU-written bytes;
+tracked sampled layouts are not a driver layout query. Restart lifetime counters
+include normal owner activity; selected old-token checks occur before the fresh
+diagnostic producer, after normal map warm-up. No GPU timing, total-frame budget,
+cross-mode image equality, human approval, historical campaign or P400 proof is
+inferred. Focused review/CI/merge/master/post-merge acceptance is tracked in
+[#110](https://github.com/techrote/ShadeDoomVK/issues/110) and
+[#112](https://github.com/techrote/ShadeDoomVK/issues/112). PF-020 and SDVK-001
+remain separate blocked gates.
+
+
+## Focused release acceptance — 2026-10-04
+
+[PR #116](https://github.com/techrote/ShadeDoomVK/pull/116) merged as
+`1524686e77f1e89dabfb044bf757a2d19566c31c` after independent exact-head review
+and all eight actual PR jobs passed at `9df93b6d`. Remote master and ancestry
+were verified, with unchanged engine/tool inputs. All eight actual push jobs
+then passed at the exact merge SHA, and #110/#112 were closed as complete.
+See [compact release acceptance](PF-110-RELEASE-ACCEPTANCE.json).
+
+The qualification and failed-attempt receipts above retain their original
+measurement-time statuses. Earlier pending-gate statements describe those
+preparations; this receipt records their eventual completion. Software,
+performance, human-review and historical-campaign limits remain unchanged.
+PF-020/SDVK-001 stay blocked by the separate #113 repair.

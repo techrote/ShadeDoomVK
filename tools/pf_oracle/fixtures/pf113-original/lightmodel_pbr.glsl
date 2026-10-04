@@ -92,23 +92,6 @@ vec3 ProcessLight(const DynLightInfo light, vec3 albedo, float metallic, float r
 	return vec3(0.0);
 }
 
-// Runtime zero is no probe, not the fixed 2D null/BRDF pair. Irradiance
-// exposes one mip with identical min/mag filtering and no anisotropy, so LOD
-// zero preserves live filtering without implicit derivatives inside the guard.
-vec3 SampleProbeIrradiance(uint base, vec3 N)
-{
-	if (base == 0u)
-		return vec3(0.0);
-	return textureLod(cubeTextures[nonuniformEXT(base)], N, 0.0).rgb;
-}
-
-vec3 SampleProbePrefiltered(uint base, vec3 R, float lod)
-{
-	if (base == 0u)
-		return vec3(0.0);
-	return textureLod(cubeTextures[nonuniformEXT(base + 1u)], R, lod).rgb;
-}
-
 vec3 ProcessMaterialLight(Material material, vec3 ambientLight, float sunlightAttenuation)
 {
 	vec3 albedo = material.Base.rgb;
@@ -207,23 +190,23 @@ vec3 ProcessMaterialLight(Material material, vec3 ambientLight, float sunlightAt
 		float t01 = invt.x * t.y;
 		float t11 = t.x * t.y;
 
-		vec3 irradiance0 = SampleProbeIrradiance(probeIndexes.x, N);
-		vec3 irradiance1 = SampleProbeIrradiance(probeIndexes.y, N);
-		vec3 irradiance2 = SampleProbeIrradiance(probeIndexes.z, N);
-		vec3 irradiance3 = SampleProbeIrradiance(probeIndexes.w, N);
+		vec3 irradiance0 = texture(cubeTextures[probeIndexes.x], N).rgb;
+		vec3 irradiance1 = texture(cubeTextures[probeIndexes.y], N).rgb;
+		vec3 irradiance2 = texture(cubeTextures[probeIndexes.z], N).rgb;
+		vec3 irradiance3 = texture(cubeTextures[probeIndexes.w], N).rgb;
 		
-		vec3 prefilteredColor0 = SampleProbePrefiltered(probeIndexes.x, R, roughness * MAX_REFLECTION_LOD);
-		vec3 prefilteredColor1 = SampleProbePrefiltered(probeIndexes.y, R, roughness * MAX_REFLECTION_LOD);
-		vec3 prefilteredColor2 = SampleProbePrefiltered(probeIndexes.z, R, roughness * MAX_REFLECTION_LOD);
-		vec3 prefilteredColor3 = SampleProbePrefiltered(probeIndexes.w, R, roughness * MAX_REFLECTION_LOD);
+		vec3 prefilteredColor0 = textureLod(cubeTextures[probeIndexes.x + 1], R, roughness * MAX_REFLECTION_LOD).rgb;
+		vec3 prefilteredColor1 = textureLod(cubeTextures[probeIndexes.y + 1], R, roughness * MAX_REFLECTION_LOD).rgb;
+		vec3 prefilteredColor2 = textureLod(cubeTextures[probeIndexes.z + 1], R, roughness * MAX_REFLECTION_LOD).rgb;
+		vec3 prefilteredColor3 = textureLod(cubeTextures[probeIndexes.w + 1], R, roughness * MAX_REFLECTION_LOD).rgb;
 
 		irradiance = irradiance0 * t00 + irradiance1 * t10 + irradiance2 * t01 + irradiance3 * t11;
 		prefilteredColor = prefilteredColor0 * t00 + prefilteredColor1 * t10 + prefilteredColor2 * t01 + prefilteredColor3 * t11;
 	}
 	else
 	{
-		irradiance = SampleProbeIrradiance(uint(uLightProbeIndex), N);
-		prefilteredColor = SampleProbePrefiltered(uint(uLightProbeIndex), R, roughness * MAX_REFLECTION_LOD);
+		irradiance = texture(cubeTextures[uLightProbeIndex], N).rgb;
+		prefilteredColor = textureLod(cubeTextures[uLightProbeIndex + 1], R, roughness * MAX_REFLECTION_LOD).rgb;
 	}
 
 	/*

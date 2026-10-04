@@ -1,6 +1,6 @@
 # PF-020 — PBR missing-probe fallback blocker
 
-Status: **OPEN — source-established release blocker; implementation decision adopted, repair/proof pending**
+Status: **OPEN — guarded repair/native qualification PASS; release integration pending**
 
 Authority: [#113](https://github.com/techrote/ShadeDoomVK/issues/113), required by [PF-020 / #37](https://github.com/techrote/ShadeDoomVK/issues/37)
 
@@ -12,15 +12,17 @@ Audit date: 2026-10-04
 [#113's delegated contribution decision](PF-113-MISSING-IBL-DECISION.md) is now
 recorded: zero IBL for missing token zero, with original mixed-tap weights and
 sum order retained. No renormalization or environment substitution is adopted.
-This does not accept a repair or the freeze. The original unresolved-decision
-audit below remains historical evidence; source-extracted negatives and current
-guards, native unavailable-to-published proof and release gates remain required.
+[Guarded implementation and native qualification](PF-113-IMPLEMENTATION-NOTES.md)
+and [compact measured receipt](PF-113-FINAL-NATIVE-VERIFICATION.json) now pass.
+Final exact-head CI/review and merge/master/post-merge gates remain required.
+The original unresolved-decision audit below remains historical evidence;
+PF-020 still requires its separate full freeze acceptance.
 
 ## Finding and evidence boundary
 
 The inherited Vulkan PBR consumer can interpret the missing-probe token `0` as a cube-image descriptor index, although fixed descriptors `0` and `1` contain 2D views. The initial multi-probe bake provides a reachable source counterexample. This defect is present at accepted master and is independent of the #110 indexed-material and #112 sampled-layout candidates.
 
-This notebook records authenticated source inspection, not a compiled regression, native PBR execution, validation-layer result, device loss or driver-causation claim. No original incompatible path was launched on GPU. PF-020 and SDVK-001 remain blocked; no fallback decision or repair is accepted here.
+The original notebook recorded authenticated source inspection. The separately retained CPU negative below extends that evidence; no native PBR, validation-layer, device-loss or driver-causation result follows. No original incompatible path was launched on GPU. PF-020 and SDVK-001 remain blocked; the adopted decision is linked above and repair acceptance remains pending.
 
 ## Exact source pins
 
@@ -53,7 +55,7 @@ The minimized source counterexample requires a fresh two-probe scene without pre
 
 Ordinary authored target `0` is different: the initial real cube pair resolves to a nonzero dynamic pair start. This finding does not claim that every no-probe scene, every PBR draw, or every historical CFX incident executes the incompatible branch.
 
-## Accepted contract versus unresolved decision
+## Historical decision gap at the original audit
 
 Accepted [PF-012](issues/PF-012.md) and [probe RAG](rag/06-LIGHTMAP-PROBE-PIPELINE.md) establish:
 
@@ -65,9 +67,9 @@ Accepted [PF-012](issues/PF-012.md) and [probe RAG](rag/06-LIGHTMAP-PROBE-PIPELI
 
 Those identity rules do not establish the **radiometric contribution** of token `0`, the treatment of mixed valid/zero taps, or a type-safe cube fallback. The old ordinal-derived `2*N+1` draft was explicitly superseded before PF-012 acceptance and is not authority.
 
-Required decision, still **OPEN** under #113: state the missing-probe contribution and mixed-tap blending before implementing a typed guard/fallback. Black IBL, authored probe `0`, another environment, and weight renormalization are possible policies, not adopted choices in this notebook. Preserve valid-pair selection, contribution, interpolation and operation order plus [PF-008](PF-008-MATERIAL-SEMANTICS-CONTRACT.md) channel/sampling semantics. If the decision cannot be established, record that precise blocker rather than choosing silently.
+At the original audit, the required decision was **OPEN** under #113: state the missing-probe contribution and mixed-tap blending before implementing a typed guard/fallback. Black IBL, authored probe `0`, another environment, and weight renormalization are possible policies, not adopted choices in this notebook. Preserve valid-pair selection, contribution, interpolation and operation order plus [PF-008](PF-008-MATERIAL-SEMANTICS-CONTRACT.md) channel/sampling semantics. If the decision cannot be established, record that precise blocker rather than choosing silently.
 
-## Safe next action and acceptance limits
+## Original verification plan and acceptance limits
 
 Next, resolve and record the contribution decision, then retain the exact accepted-master negative **off GPU**. Extract the actual lookup, initial builder order and PBR sampling branches with source/hash guards; stubs may model service dependencies and sample logging, but must not replace index-selection or sampling/guard logic. Preserve unavailable-uniform and all-zero/mixed-tap counterexamples against the actual fixed 2D views. Protect live allocator-backed pairs, ordinary target `0`, missing-to-available publication, repeated lookup/reset, selector omissions and unchanged 2D null/BRDF/material users.
 
@@ -80,3 +82,21 @@ Complete the strict PF suite, independent review, eight actual exact-head CI job
 Before #113 creation, authenticated inspection found 21 open issues and one open PR, [draft #111](https://github.com/techrote/ShadeDoomVK/pull/111), on the existing `codex/pf020-native-freeze` coordinator branch. PF-012/#29 and PF-008/#25 are closed; the remaining `pf-012-probe-lightmap` branch belongs to merged PR #59. No independent open issue or competing probe repair PR was found.
 
 SDVK-010/#10 explicitly excludes foundational probe repair and SDVK-014/#14 consumes corrected plumbing. Accepted PR #104's removed-page publication evidence explicitly does not establish downstream PBR sentinel handling. #113 is therefore a separate current-source blocker, not a new actor-lighting feature or a reopened historical crash campaign. Use the existing serial PF-020 coordinator and refresh live ownership before claiming work; #110/#112 may continue independently in their tiny non-PBR material fixture.
+
+
+## Current CPU negative and focused continuation
+
+The exact original extraction now reproduces the defect under strict MSVC:
+20 incompatible fixed-2D-as-cube attempts across275 service/source checks,
+including unavailable uniform, all-zero/mixed gathers and actual extracted
+initial render-before-publication ordering. The original safety check fails
+with exit1 as required. Its synthetic namespace collision and first failed
+compile are retained; the derived adapter only separates compilation domains.
+See [compact independently reviewed negative](PF-113-ORIGINAL-NEGATIVE-VERIFICATION.json)
+and the [adopted sampling amendment](PF-113-MISSING-IBL-DECISION.md).
+
+The focused continuation branch starts from native material/layout master
+`1524686e77f1e89dabfb044bf757a2d19566c31c`. Production guarded helpers, current
+extracted controls, early actual scene observation and legal native readbacks
+are in preparation. None is accepted by the original CPU negative. PF-020 and
+SDVK-001 remain blocked; all native and exact-head release gates still apply.

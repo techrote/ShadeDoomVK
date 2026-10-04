@@ -1,11 +1,13 @@
 # PF-112 — Mapped software-image sampled-layout declaration
 
-Status: **TESTED BUT UNACCEPTED**; focused source candidate, not accepted `master`
+
+Status: **accepted through PR #116; verified master and exact post-merge checks passed**
 
 Issue: [#112](https://github.com/techrote/ShadeDoomVK/issues/112), required by PF-020/#37
 
-Accepted starting source: `4df7dea1338f063c6417e024f967bfa4aa23edd4`
-Evidence checkpoint: 2026-10-04; four real paletted SWCanvas packets now pass independent review. Release gates remain pending. Earlier preparation and partial observations below are retained as history; see the latest normal matrix result.
+Focused integration base: accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`.
+The historical negative source is `4df7dea1338f063c6417e024f967bfa4aa23edd4`; this material path is unchanged by the GL repair.
+Historical evidence checkpoint: 2026-10-04, candidate4/source890. Four real paletted SWCanvas packets pass independent review for that exact candidate; they do not attest the newer diagnostic. Preparation, failed enclosing gates and partial observations remain history below. Candidate5 native qualification is verified below; release integration is tracked in the source issues.
 
 ## Requirement and source-established defect
 
@@ -78,19 +80,19 @@ Complete the strict PF oracle/compiled fixtures and clean final native build, sc
 - `src/rendering/swrenderer/r_swscene.cpp`: actual SWCanvas framebuffer and separately provisioned palette producers.
 - `src/common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp`: gated per-invocation native allocation and actual existing SWCanvas observations.
 - [PF-005 upload contract](PF-005-TEXTURE-UPLOAD-CONTRACT.md), [PF-008 material semantics](PF-008-MATERIAL-SEMANTICS-CONTRACT.md), [material RAG](rag/04-MATERIAL-SHADER-CONTRACT.md), [trap 27](rag/10-KNOWN-TRAPS-DORMANT-PATHS.md#27-mapped-software-framebuffer-declares-an-uploaded-image-layout).
-- [#110 candidate notes](PF-110-IMPLEMENTATION-NOTES.md) and [provisional freeze matrix](PF-FREEZE-EVIDENCE-MATRIX.md) retain their separate blockers and limitations.
+- [#110 source and acceptance notes](PF-110-IMPLEMENTATION-NOTES.md) retain the separate indexed provisioning, guarded restart and release limits. No PF-020 freeze synthesis is part of this focused proposal.
 
-## Latest actual SWCanvas result — candidate4 normal matrix
+## Retained actual SWCanvas result — candidate4/source890 normal matrix
 
 Four actual mode0 packets pass: nearest and linear under separately proved
 core and synchronization validation. Each packet observes two distinct existing
-rotating SWCanvas owners/materials at640x480 with two resources: host-written R8
+rotating SWCanvas owners/materials at 640x480 with two resources: host-written R8
 in tracked/declared GENERAL, and its existing palette in tracked/declared READ.
-Actual mapped-memory offset0 and row pitch640 agree with the producer. The
+Actual mapped-memory offset 0 and row pitch 640 agree with the producer. The
 observer does not manufacture an owner, create a replacement image/palette,
 write mapped bytes or copy the sampled-only framebuffer. Descriptor registry
-and selected keys remain unchanged. All four packets pass407 assertions/27
-cases,21 decoded presentation ROIs, actual overlay acknowledgement, normal
+and selected keys remain unchanged. All four packets pass 407 assertions/27
+cases, 21 decoded presentation ROIs, actual overlay acknowledgement, normal
 exit and zero requested-validation errors/warnings. See [compact matrix](PF-110-NATIVE-MATRIX-VERIFICATION.json).
 
 Retirement is preserved by unchanged owner rotation/reset, destructor and
@@ -106,3 +108,34 @@ native allocation geometry check; only mode0 R8 has the real software frame
 proof above. No broader compatibility, performance or human acceptance is
 inferred. Required exact-head CI, independent review, verified merge/master
 and post-merge checks remain pending before #112 closure.
+
+Candidate5 repeats the normal matrix on its own clean build/source closure; the final proof below preserves these historical candidate4 packets. The genuine indexed-token restart does not measure direct SWCanvas post-retirement tokens. Final exact-head CI/review/merge/master evidence is pending, and this focused repair does not accept PF-020 or unblock SDVK-001.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.
+
+
+## Focused release acceptance — 2026-10-04
+
+[PR #116](https://github.com/techrote/ShadeDoomVK/pull/116) merged as
+`1524686e77f1e89dabfb044bf757a2d19566c31c` after independent exact-head review
+and all eight actual PR jobs passed at `9df93b6d`. Remote master and ancestry
+were verified, with unchanged engine/tool inputs. All eight actual push jobs
+then passed at the exact merge SHA, and #110/#112 were closed as complete.
+See [compact release acceptance](PF-110-RELEASE-ACCEPTANCE.json).
+
+The qualification and failed-attempt receipts above retain their original
+measurement-time statuses. Earlier pending-gate statements describe those
+preparations; this receipt records their eventual completion. Software,
+performance, human-review and historical-campaign limits remain unchanged.
+PF-020/SDVK-001 stay blocked by the separate #113 repair.

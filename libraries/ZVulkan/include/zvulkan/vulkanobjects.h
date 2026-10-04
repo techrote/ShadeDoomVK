@@ -117,6 +117,17 @@ private:
 class VulkanImageView
 {
 public:
+	// Immutable application creation arguments, not a driver query. Unknown
+	// until the successful builder factory captures them; no pNext is retained.
+	struct CreationArguments
+	{
+		bool Captured = false;
+		VkImage Image = VK_NULL_HANDLE;
+		VkImageViewType ViewType = VK_IMAGE_VIEW_TYPE_MAX_ENUM;
+		VkFormat Format = VK_FORMAT_UNDEFINED;
+		VkImageSubresourceRange Range = {};
+	};
+	const CreationArguments& GetCreationArguments() const { return Creation; }
 	VulkanImageView(VulkanDevice *device, VkImageView view);
 	~VulkanImageView();
 
@@ -125,6 +136,8 @@ public:
 	VkImageView view = VK_NULL_HANDLE;
 
 private:
+	friend class ImageViewBuilder;
+	CreationArguments Creation;
 	VulkanImageView(const VulkanImageView &) = delete;
 	VulkanImageView &operator=(const VulkanImageView &) = delete;
 
@@ -134,6 +147,18 @@ private:
 class VulkanSampler
 {
 public:
+	struct CreationArguments
+	{
+		bool Captured = false;
+		VkFilter MinFilter = VK_FILTER_MAX_ENUM, MagFilter = VK_FILTER_MAX_ENUM;
+		VkSamplerMipmapMode MipmapMode = VK_SAMPLER_MIPMAP_MODE_MAX_ENUM;
+		VkSamplerAddressMode AddressU = VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+		VkSamplerAddressMode AddressV = VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+		VkSamplerAddressMode AddressW = VK_SAMPLER_ADDRESS_MODE_MAX_ENUM;
+		float MipLodBias = 0.0f, MinLod = 0.0f, MaxLod = 0.0f, MaxAnisotropy = 0.0f;
+		VkBool32 AnisotropyEnable = VK_FALSE;
+	};
+	const CreationArguments& GetCreationArguments() const { return Creation; }
 	VulkanSampler(VulkanDevice *device, VkSampler sampler);
 	~VulkanSampler();
 
@@ -142,6 +167,8 @@ public:
 	VkSampler sampler = VK_NULL_HANDLE;
 
 private:
+	friend class SamplerBuilder;
+	CreationArguments Creation;
 	VulkanSampler(const VulkanSampler &) = delete;
 	VulkanSampler &operator=(const VulkanSampler &) = delete;
 

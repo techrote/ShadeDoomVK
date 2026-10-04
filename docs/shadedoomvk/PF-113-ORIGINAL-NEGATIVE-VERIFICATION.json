@@ -1,0 +1,320 @@
+{
+  "schema": "pf113-original-negative-verification/v1",
+  "status": "CPU_ORIGINAL_DEFECT_REPRODUCED",
+  "scope": "Exact original producer/consumer extraction and namespace-only CPU adapter; no current repair, shader, native or release acceptance.",
+  "original_commit": "4df7dea1338f063c6417e024f967bfa4aa23edd4",
+  "rechecked_source_master": "3f37b63a4fdfb4c95421db951cf81682b5eb92c9",
+  "source_snapshots": [
+    {
+      "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+      "git_blob_sha1": "47c9e8b5c7225d9437b0d39d6dc64a16fa810d21",
+      "normalized_lf_sha256": "21c9a25f74e704fc305212aeeed5f37743c28db64ad3c4f5a6118195ff9cf623",
+      "bytes": 25557
+    },
+    {
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "git_blob_sha1": "976edcf98f3ba076504212253d79dc2561883014",
+      "normalized_lf_sha256": "f4d9e9aeef55e5bb25be9fea161c23bef75bb5d4fbff8e1e81be229f125dade2",
+      "bytes": 38844
+    },
+    {
+      "path": "src/common/rendering/vulkan/textures/vk_texture.h",
+      "git_blob_sha1": "60c37396279f7e63d2509fe3f882368b8a45bd8a",
+      "normalized_lf_sha256": "b3ac01759838e2d47b26ae569e7971abccc8e7ca1d2524e4d72ab4834261aaf8",
+      "bytes": 8459
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp",
+      "git_blob_sha1": "73c20dc1eb0f9a083e036267ea17cdf4d3e900e0",
+      "normalized_lf_sha256": "cb0ff3368425f73a1692f7c3e885ada4a95e94c7b7d94e409b5050c57487fa34",
+      "bytes": 7226
+    },
+    {
+      "path": "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+      "git_blob_sha1": "d43b6e66af7b5644aec3dc0b0cd24d829891667d",
+      "normalized_lf_sha256": "1694bfbd60b9d8aa59d3d05a0df0c6d73f47c1045382f264a86f4589c7e2d6ca",
+      "bytes": 7314
+    },
+    {
+      "path": "src/common/rendering/vulkan/vk_lightprober.cpp",
+      "git_blob_sha1": "eafeecafe4e90c29f4b7c67ef0122f014a25069f",
+      "normalized_lf_sha256": "20da81bccf6f882996420dad6ac74e87033ca57b683b1a8c2e3f1d7c4fe9d40c",
+      "bytes": 21460
+    },
+    {
+      "path": "libraries/ZVulkan/src/vulkanbuilders.cpp",
+      "git_blob_sha1": "7e9223a1ddd57d91e6f005a78aeb5204c2996314",
+      "normalized_lf_sha256": "d9b7920593f5b0565ad5a641dfc5573710261877dc6d1b43ba7ee6d6cd760a20",
+      "bytes": 70454
+    },
+    {
+      "path": "wadsrc/static/shaders/lightmap/frag_copy.glsl",
+      "git_blob_sha1": "113451ea0287d015508799bbd179815ceb0f46d4",
+      "normalized_lf_sha256": "8ec7f81dda5170f46ba7e5f555f210eb49a5e1ce14e7f8ab5a745043303eaaa7",
+      "bytes": 1466
+    }
+  ],
+  "extracted_fragments": [
+    {
+      "name": "view-default",
+      "path": "libraries/ZVulkan/src/vulkanbuilders.cpp",
+      "original_lf_sha256": "614234d0af28e6fa3921bff40d1fc7ba91578a89e484e595bd3eb5e49a7c8dc0",
+      "adapter_lf_sha256": "614234d0af28e6fa3921bff40d1fc7ba91578a89e484e595bd3eb5e49a7c8dc0",
+      "original_bytes": 346,
+      "adapter_bytes": 346
+    },
+    {
+      "name": "fixed-null-creation",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "b2b8bfeb4044d9bdf2c3eb4beaa221b870dbd704e47495a375b36c323be91cda",
+      "adapter_lf_sha256": "fa683304dcc76f8941fc1049df339e71cfc220ca1bb5864f2389869d909b8302",
+      "original_bytes": 368,
+      "adapter_bytes": 415
+    },
+    {
+      "name": "fixed-brdf-creation",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "f61288779d91b8cfe5be8c53a27f9ed0080c6daceabcc70979a9e99ac7ae43fe",
+      "adapter_lf_sha256": "80c40a728ff24eeb712d37a9183518240b1186ddb1226f73e65ac9c5480ca5ea",
+      "original_bytes": 420,
+      "adapter_bytes": 470
+    },
+    {
+      "name": "initial-resource-call-order",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "43da26322b5413ede5e19ebbe0bbfd6cadec75017914ae98b9706a754deb9b4c",
+      "adapter_lf_sha256": "537ba2f6e4ff212c2ef5148e5b57f6c2f1f360edd048e8303926a065b74f5031",
+      "original_bytes": 147,
+      "adapter_bytes": 197
+    },
+    {
+      "name": "check-irradiance",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "8cd0b9e844d1eefcbcb68921e4b0bef9334f141e236ae53a94671a18dacf53f5",
+      "adapter_lf_sha256": "1ef80fe688732b755a6cca595b9a9098fd1c322e6d6ade49e7113310deb45fec",
+      "original_bytes": 813,
+      "adapter_bytes": 831
+    },
+    {
+      "name": "check-prefilter",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "a8836df652d0c7c0426ad4a0fb0959415a87bc0782706d025dcb524dadb99d3d",
+      "adapter_lf_sha256": "9f7acfe8b9769bc7283a762f07c26e0ada34703197b2ee3cdc5f7fad13074661",
+      "original_bytes": 896,
+      "adapter_bytes": 931
+    },
+    {
+      "name": "initial-irradiance",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "203d76fee9f8a2ec03e1e7a485c94ab44ea382b01469f7c6e32ec6cd901c8f74",
+      "adapter_lf_sha256": "203d76fee9f8a2ec03e1e7a485c94ab44ea382b01469f7c6e32ec6cd901c8f74",
+      "original_bytes": 224,
+      "adapter_bytes": 224
+    },
+    {
+      "name": "initial-prefilter",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "bd7639c69bf33e2c07fb2557eeab918a20427a1f6670a9b1a3c6aca318699a88",
+      "adapter_lf_sha256": "bd7639c69bf33e2c07fb2557eeab918a20427a1f6670a9b1a3c6aca318699a88",
+      "original_bytes": 351,
+      "adapter_bytes": 351
+    },
+    {
+      "name": "reset-probes",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "4b991a1c5f8da44935dc7109d4eb233a53e5b477c5af2a03026b46d39074fb8f",
+      "adapter_lf_sha256": "4b991a1c5f8da44935dc7109d4eb233a53e5b477c5af2a03026b46d39074fb8f",
+      "original_bytes": 1481,
+      "adapter_bytes": 1481
+    },
+    {
+      "name": "copy-irradiance",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "a3a218c45b5e11043fecaae619dfb99525950f7731dca61a1ff77c4d3a26ed9e",
+      "adapter_lf_sha256": "05c7038608e21969c90ad7e0d6e41850144f4f54036f2bb4caeff16d7d8fcd93",
+      "original_bytes": 1160,
+      "adapter_bytes": 1178
+    },
+    {
+      "name": "copy-prefilter",
+      "path": "src/common/rendering/vulkan/textures/vk_texture.cpp",
+      "original_lf_sha256": "2ff85b14a2cb9e276914778f397c65a386623d7924daa2b093577c4a8cebd77e",
+      "adapter_lf_sha256": "b9c4a9c4002d47fbe08c177cc12c2c16a98b686a32c773ab65e11bcc055cdb7c",
+      "original_bytes": 1469,
+      "adapter_bytes": 1487
+    },
+    {
+      "name": "lookup",
+      "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+      "original_lf_sha256": "4d4c876e1148506b66e294e74a6fe19adfc9ad2171756830bc0ceef920f2a452",
+      "adapter_lf_sha256": "4d4c876e1148506b66e294e74a6fe19adfc9ad2171756830bc0ceef920f2a452",
+      "original_bytes": 949,
+      "adapter_bytes": 949
+    },
+    {
+      "name": "fixed-descriptor-publication",
+      "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+      "original_lf_sha256": "cbe779836baaf870f819f6a72bfa10dbb16259706145a24224d80d6345e39fe8",
+      "adapter_lf_sha256": "b82093115fcac3c2d36c0694974e37fcdd107235062f47f57b51138a44fc7f0f",
+      "original_bytes": 234,
+      "adapter_bytes": 285
+    },
+    {
+      "name": "builder-step",
+      "path": "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp",
+      "original_lf_sha256": "e870b9cf97443520909424b26470e1052cd6619c86fab111b8b424fd9c9e5fb8",
+      "adapter_lf_sha256": "e870b9cf97443520909424b26470e1052cd6619c86fab111b8b424fd9c9e5fb8",
+      "original_bytes": 825,
+      "adapter_bytes": 825
+    },
+    {
+      "name": "completed-publication",
+      "path": "src/common/rendering/vulkan/vk_lightprober.cpp",
+      "original_lf_sha256": "7982c7e70332c51950267df11f0fe24f843ce0f5cf52d12bd725e6b30cda79b9",
+      "adapter_lf_sha256": "7982c7e70332c51950267df11f0fe24f843ce0f5cf52d12bd725e6b30cda79b9",
+      "original_bytes": 175,
+      "adapter_bytes": 175
+    },
+    {
+      "name": "original-pbr-sampling",
+      "path": "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+      "original_lf_sha256": "3b8e5d895afd88252253a082a804f04ddcd33f9c126ef81bf4598bb943d98465",
+      "adapter_lf_sha256": "b0e53625b1ac85085c23075ecafdcb88d334887d8a8a6597bb8544598021c67a",
+      "original_bytes": 1486,
+      "adapter_bytes": 1779
+    },
+    {
+      "name": "selector",
+      "path": "wadsrc/static/shaders/lightmap/frag_copy.glsl",
+      "original_lf_sha256": "7231fc629c1229e842589c64fab25a38dc56cc8d27c9f09623b874412d8becd2",
+      "adapter_lf_sha256": "7231fc629c1229e842589c64fab25a38dc56cc8d27c9f09623b874412d8becd2",
+      "original_bytes": 799,
+      "adapter_bytes": 799
+    }
+  ],
+  "extraction_receipt": {
+    "local_artifact": "build/pf020-native/pf113-preparation/extraction.json",
+    "sha256": "56ef9a3117723c4850ffe320350fa149c8b94bb67fa5ed9fc39fa8eae528081b",
+    "bytes": 11283
+  },
+  "namespace_derivation": {
+    "local_artifact": "build/pf020-native/pf113-preparation/namespace-adapter/derivation.json",
+    "sha256": "d5692571f8bd5f55ff60c82de063ebb4b7d4f8c6da975eb38e4276498bf8014b",
+    "bytes": 3335
+  },
+  "original_frozen_fixture": {
+    "local_artifact": "build/pf020-native/pf113-preparation/original_probe_fixture.cpp",
+    "sha256": "0b5819627e5df74738d48ed7d0101f73769ebc3c79cf0db54efe261077722e10",
+    "bytes": 23660
+  },
+  "generated_original_header": {
+    "local_artifact": "build/pf020-native/pf113-preparation/extracted_original.hpp",
+    "sha256": "858822465402afeba97988409ff93cd68b0b27329ce06547cd3c4a1494b31b2b",
+    "bytes": 13815
+  },
+  "cpu_receipt": {
+    "local_artifact": "build/pf020-native/pf113-preparation/original-msvc-02/receipt.json",
+    "sha256": "0c586ec60b26a00af0acfd2e928110eaf91a5ca5c09af4b8e6086e08590e34b6",
+    "bytes": 18212
+  },
+  "compiler": {
+    "family": "MSVC",
+    "flags": [
+      "/std:c++17",
+      "/EHsc",
+      "/W4",
+      "/WX",
+      "/UNDEBUG"
+    ],
+    "exit": 0,
+    "warnings": 0,
+    "log": {
+      "local_artifact": "build/pf020-native/pf113-preparation/original-msvc-02/compile.log",
+      "sha256": "209a7ea4ed52e9cf54f6089b100598a4beab28e0a8d3744e2694ea8af07f8cf3",
+      "bytes": 28
+    }
+  },
+  "observe_original": {
+    "exit": 0,
+    "service_source_checks": 275,
+    "incompatible_fixed_2d_as_cube_attempts": 20,
+    "witness_counts": {
+      "unavailable_uniform": 2,
+      "all_zero_gather": 8,
+      "initial_render_before_publication": 4,
+      "mixed_zero_live": 4,
+      "zero_coefficient_missing_tap": 2
+    },
+    "log": {
+      "local_artifact": "build/pf020-native/pf113-preparation/original-msvc-02/observe-original.log",
+      "sha256": "84b0c5153173b866ba0dd0a95a676efdfc7db38d33e1a619fd66760b134d0b02",
+      "bytes": 122
+    }
+  },
+  "require_safe_original": {
+    "exit": 1,
+    "expected_failure": true,
+    "log": {
+      "local_artifact": "build/pf020-native/pf113-preparation/original-msvc-02/require-safe.log",
+      "sha256": "7e96caf32793d6c18ae458e4174d527f12e451491b6150fb1f2bbe3333f6bad1",
+      "bytes": 81
+    }
+  },
+  "inputs_before_after_unchanged": 21,
+  "retained_failed_compile": {
+    "receipt": {
+      "local_artifact": "build/pf020-native/pf113-preparation/original-msvc-01/receipt.json",
+      "sha256": "9797e04ed3ae25f9e4532773a50f12f02732affd78f893d4c3087d02890de14d",
+      "bytes": 11005
+    },
+    "exit": 2,
+    "disposition": "Three strict C4459 errors from a synthetic GLSL global sharing the C++ translation unit; namespace-only adapter separates real compilation domains. No warnings suppressed or inherited parameter/guard/selection rewrite."
+  },
+  "adapter_changes": [
+    {
+      "extraction": "check-irradiance",
+      "change": "explicit bounded vector-size cast",
+      "original": "int createStart = Irradiancemaps.size();"
+    },
+    {
+      "extraction": "check-prefilter",
+      "change": "explicit bounded vector-size cast",
+      "original": "int createStart = Prefiltermaps.size();"
+    },
+    {
+      "extraction": "check-prefilter",
+      "change": "harness-only unused-local annotation; producer logic unchanged"
+    },
+    {
+      "extraction": "copy-irradiance",
+      "change": "explicit bounded vector-size cast",
+      "original": "CheckIrradiancemapSize(probes.size());"
+    },
+    {
+      "extraction": "copy-prefilter",
+      "change": "explicit bounded vector-size cast",
+      "original": "CheckPrefiltermapSize(probes.size());"
+    }
+  ],
+  "independent_review": {
+    "status": "PASS",
+    "authenticated_original_blobs": 8,
+    "recomputed_fragments": 17,
+    "checks": [
+      "Complete generated original header and fixture hashes reproduce",
+      "Namespace derivation preserves inherited C++/sampling prefix and selector block; only five witness references qualified",
+      "Actual fixed 2D views and original samplerCube declaration independently authenticated",
+      "Compile/observation/expected-failure receipts and all 21 inputs rehashed; first failed compile preserved",
+      "Authored0/nonordinal lookup, missing-to-published retry/cache, valid weights/order/LOD, reset and fixed2D controls execute extracted logic"
+    ]
+  },
+  "limitations": [
+    "CPU service/sample logger only; no Vulkan commands, engine scene or GPU execution.",
+    "GLSL vector/sample operations use a scalar C++ adapter, not shader execution.",
+    "Upload/copy/renderer services are bounded stubs; full render/convolution/transfer correctness is not tested.",
+    "No current guarded helper exists in this original-only draft; do not fabricate a candidate implementation.",
+    "No contribution is attributed to an incompatible original sample; only its attempted access is observed.",
+    "Invalid sample logger zeros establish no radiometric result.",
+    "Current guarded helpers and spatial Vulkan readbacks require their own fresh evidence."
+  ]
+}

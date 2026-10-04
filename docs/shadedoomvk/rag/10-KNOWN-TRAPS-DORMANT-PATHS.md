@@ -1,5 +1,6 @@
 # Known traps, incomplete systems and dormant paths
 
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: canonical audit warnings; update as PF work resolves them  
 Primary issues: PF-001, PF-003, PF-006, PF-012..PF-019, PF-020/#110/#112
@@ -202,3 +203,46 @@ The matched retention experiment is not the production behavior: normal repaired
 The executing shader/SASS, illegal dynamic access, shared historical cause and repaired P400 behavior remain unknown and must not be inferred from the successful qualification.
 
 Owner: completed CFX-009/#102 repair and CFX-000/#75 synthesis; PF-020 must preserve the invariant in the final freeze.
+
+
+## GLDEFS custom texture sampling slot isolation
+
+The inherited material/map/class and legacy HardwareShader texture properties
+initialized a new slot's default through the initial index zero. A later texture
+could overwrite the first texture's explicit filter. The PF-020 partial repair
+selects the actual free slot first. The exact original producer retains both
+counterexamples in the strict compiled regression; the current producer checks
+defaults, overrides, ordering, sparse slots and errors. See [repair](../PF-GLDEFS-SAMPLING-REPAIR.md).
+This parser repair does not accept the renderer freeze or close its independent
+material/probe/compatibility gates.
+
+## 26. Public indexed 2D material lacks its palette resource
+
+The inherited public `DTA_Indexed` / `DTA_TranslationIndex` path constructs one authored albedo layer but its Vulkan consumer allocates three descriptors and attempts missing layers. `material_paletted.glsl` requires a real palette at binding1. This is a source-established supported-path defect, not a native crash claim.
+
+The #110 candidate supplies a canonical-remap-specific one-mip R8 image and an entry-owned unchanged base-palette row as two real PF-003 resources. Moving translation to the row fails inverse/additive/object ordering. Public indexed production is synchronous; index/row lookup is nearest, including the explicit `XY_NOMIP` to `NOFILTER_XY` normalization. Both non-mip upload paths finish READ. Rows/variants retain owner reset, PF invalidation and draw-fence retirement; ordinary authored layers, async truecolour, palette/RedIsAlpha and SWCanvas remain protected.
+
+Status: **native verified repair; integration tracked in the source issues**. Candidate4 normal evidence is retained history; the newer candidate5 native qualification is verified below and release integration is tracked in the source issues. [Implementation notes and historical evidence](../PF-110-IMPLEMENTATION-NOTES.md). Owner: [#110](https://github.com/techrote/ShadeDoomVK/issues/110).
+
+## 27. Mapped software framebuffer declares an uploaded-image layout
+
+The existing sampled linear software framebuffer is tracked GENERAL. `SWSceneDrawer::RenderView` writes that owner; nullable `CreateTexture` records no upload/transition and `GetImage` returns it unchanged. The inherited bindless writer declares READ. This supported producer/declaration mismatch is separate from #110 and is not evidence of a native crash.
+
+The #112 candidate publishes each selected material image's actual tracked layout, retains READ as the default for audited uploaded callers and guards READ/GENERAL. Pixels, palette/translation, filters, producers, cache identity and normal fence retirement are unchanged. Real paletted SWCanvas retains its mapped R8 plus original palette; no replacement resource or forced transition is acceptance.
+
+Status: **native verified repair; integration tracked in the source issues**. Candidate4 mode0 core/sync evidence is historical. Mode1 BGRA frame execution and direct post-retirement SWCanvas token measurement remain unclaimed; candidate5 native qualification is verified below and release integration is tracked in the source issues. [Implementation notes and precise limits](../PF-112-IMPLEMENTATION-NOTES.md). Owner: [#112](https://github.com/techrote/ShadeDoomVK/issues/112).
+
+Neither focused repair accepts PF-020 or unblocks SDVK-001.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

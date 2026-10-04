@@ -2,7 +2,7 @@
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: lightmapper active; PF-012 per-lightmap probe selection repaired; experimental probe AABB remains dormant  
-Primary issues: PF-004, PF-010, PF-012, PF-020/#113, SDVK-010, SDVK-014
+Primary issues: PF-004, PF-010, PF-012, SDVK-010, SDVK-014
 
 ## Lightmapper
 
@@ -84,7 +84,7 @@ The previous `floorZ + ceilingZ / 2` expression was wrong whenever the floor hei
 
 - completed builders return without spinning;
 - a probe-count change resets indices/collection/iteration state and calls `ResetLightProbes()` before rebaking;
-- transition to an empty probe set clears/reset contents through `ResetLightProbes()`, preserving cached image owners and descriptor pairs while restoring their shader-readable layout; it does not retire those allocations;
+- transition to an empty probe set also retires/reset previously allocated probe resources;
 - `Full()` has an explicit no-progress guard so a future terminal `Step()` state cannot create an infinite loop.
 
 The per-texel selector itself is independent of Vulkan ray-query support; ray-query-disabled lightmap baking continues to use the existing CPU/fallback collision representation while the same probe-map copy contract applies.
@@ -93,7 +93,7 @@ The per-texel selector itself is independent of Vulkan ray-query support; ray-qu
 
 `lightmodel_pbr.glsl` uses irradiance for diffuse IBL and the adjacent prefiltered cubemap + BRDF LUT for specular IBL. Probe correctness therefore directly affects apparent roughness/metal response and can mask as a material problem. PF-012 changes only which already-authored runtime probe pair is selected; it does not recalibrate PBR response or define actor probe policy.
 
-**Open PF-020 blocker [#113](https://github.com/techrote/ShadeDoomVK/issues/113):** accepted master can return missing-map token `0` during an initial multi-probe bake, then PBR samples fixed 2D null/BRDF descriptors through cube samplers; zero lightmap taps have the same mismatch when that branch executes. Ordinary authored target `0` instead resolves a real nonzero cube pair. PF-012 establishes the default/no-probe token and dynamic pair identity, but not zero's radiometric contribution or mixed valid/zero-tap blending. That decision must precede a repair; source inspection is not native failure or acceptance evidence. [Exact inherited chain, source pins and safe off-GPU next action](../PF-020-PBR-PROBE-BLOCKER.md).
+PF-113/#113 completes the missing-pair consumer contract in `SampleProbeIrradiance` and `SampleProbePrefiltered`: zero returns zero radiance before cube access or `base+1`. Uniform and gathered branches share those helpers. Mixed zero/live taps retain all four original coefficients and sum order; no weight renormalization or substitute environment is used. Ambient/direct/sunlight `Lo` remains independent, so zero IBL does not imply a black final surface. Live irradiance uses explicit LOD0 on the actual one-mip cube view with LINEAR min/mag, zero bias and disabled anisotropy; prefilter keeps the original roughness LOD. Both descriptor accesses use `nonuniformEXT`, including across divergent zero/live fragments. [Decision and sampling amendment](../PF-113-MISSING-IBL-DECISION.md) distinguish this policy from PF-012's original evidence. Native qualification and release disposition are recorded separately.
 
 ## Invariants
 

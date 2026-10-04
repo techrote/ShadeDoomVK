@@ -29,6 +29,7 @@
 #include "vulkan/descriptorsets/vk_descriptorset.h"
 #include "vulkan/textures/vk_renderbuffers.h"
 #include "vulkan/textures/vk_hwtexture.h"
+#include "vulkan/textures/vk_pbrprobediagnostics.h"
 #include <zvulkan/vulkanbuilders.h>
 
 #include "hw_skydome.h"
@@ -86,6 +87,7 @@ void VkRenderState::DoDraw(int dt, int index, int count, bool apply)
 			ApplyVertexBuffers();
 
 		mCommandBuffer->drawIndexed((count - 2) * 3, 1, 0, index, 0);
+		if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, (count - 2) * 3, true);
 
 		mIndexBuffer = oldIndexBuffer;
 	}
@@ -96,6 +98,7 @@ void VkRenderState::DoDraw(int dt, int index, int count, bool apply)
 			Apply(dt);
 
 		mCommandBuffer->draw(count, 1, index, 0);
+		if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, count, false);
 		#ifdef __APPLE__
 	}
 	#endif
@@ -107,6 +110,7 @@ void VkRenderState::DoDrawIndexed(int dt, int index, int count, bool apply)
 		Apply(dt);
 
 	mCommandBuffer->drawIndexed(count, 1, index, 0, 0);
+	if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, count, true);
 }
 
 bool VkRenderState::SetDepthClamp(bool on)
@@ -363,7 +367,9 @@ void VkRenderState::ApplyRenderPass(int dt)
 
 	if (changingPipeline)
 	{
-		mCommandBuffer->bindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, mPassSetup->GetPipeline(pipelineKey, mUniforms));
+		auto pipeline = mPassSetup->GetPipeline(pipelineKey, mUniforms);
+		mCommandBuffer->bindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+		if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::BoundPipeline(this, pipeline);
 		mPipelineKey = pipelineKey;
 	}
 }

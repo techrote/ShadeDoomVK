@@ -1,6 +1,7 @@
 # ShadeDoomVK execution ledger
 
-Status: PF-001–019 and CFX accepted; PF-020 running, release blocked on material findings and final verification
+
+Status: planning workflow complete; implementation begins at PF-001  
 Started: 2026-09-17  
 Planning closure: 2026-09-17
 
@@ -299,17 +300,7 @@ Verification snapshot before the final consistency-report/ledger commits: `maste
 - No GTX 1650 SUPER workload was launched in this pass. This is **not PF-017 acceptance** and PR #74 remains draft/unmerged. The remaining gate is final-source physical A/B performance plus image/state equivalence on the representative light-rich workload; if the benefit does not survive, the candidate must be restored/rejected rather than merged.
 - PF-019 / #36 remains blocked until PF-017 is accepted or receives a complete no-go disposition.
 
-## Current implementation gate — 2026-10-04
-
-- **COMPLETED:** PF-001–019 / #18–36 and CFX-000 / #75 on verified remote `master@4df7dea1338f063c6417e024f967bfa4aa23edd4`. Read-only ancestry audit confirms every accepted PF implementation/disposition merge and CFX #104/#106/#108 merge is an ancestor of this starting master.
-- **PF-017 ACCEPTED NO-GO:** PR #74 merged as `844462c3a4ed5f7037ade1b49d1a28f578077213` after exact-head run37094446019 and exact-merge run37095080988 passed8/8. Candidate fully restored; no earlier prototype saving is retained. #34 is closed.
-- **PF-019 / CFX RECEIPTS:** PR #107 merge `44864d9d`, CFX final PR #108 merge `41daecc2`, and PF-019 receipt PR #109 merge `4df7dea1338f063c6417e024f967bfa4aa23edd4` are accepted. Final-master push run37115776563 passed8/8. #36/#75 are closed. No external PF/CFX prerequisite remains for PF-020.
-- **RUNNING / RELEASE BLOCKED:** PF-020 / #37 on focused `codex/pf020-native-freeze` from that master. Matrix-first [provisional evidence audit](PF-FREEZE-EVIDENCE-MATRIX.md) precedes repairs. The inherited GLDEFS sampling-default defect has a locally tested/unaccepted assignment-move candidate; strict Windows fixture runner and post-parser native272test/build checks pass. Independently scoped [#110](https://github.com/techrote/ShadeDoomVK/issues/110) remains OPEN on the public indexed draw route's one-layer material / three-layer Vulkan assumption and missing palette binding. Neither finding is a claimed native crash. Indexed repair/output-state proof, final-source/evidence/RAG review and exact-head CI/merge verification remain gates.
-- **SDVK-001: BLOCKED.** No new feature or physical CFX campaign begins. Historical STOP/saturation and the untested repaired-build P400 limitation remain authoritative.
-
-## Historical implementation gate — 2026-10-03
-
-The following records the integration state before the later accepted PF-017/PF-019/CFX receipts and is retained as history; the current gate above supersedes its pending/open status.
+## Current implementation gate
 
 ### 2026-10-03 — PF-017 current-master integration before physical acceptance
 
@@ -411,76 +402,72 @@ Safe control exits0, no loss/TDR, normal automatic recovery/caches restored. EXT
 - PF-006 ordered maps, scene-shader math, worker queues and ambiguous resources are unchanged because no representative evidence justified speculative changes. No quality policy changed and no physical GPU campaign was required or opened.
 - PF-019 is complete. CFX-000 / #75 is also accepted/closed through PR #108 on current master. After #36 tracker closure, PF-020 / #37 has no remaining external PF/CFX prerequisite; it becomes dependency-ready for its own fail-closed freeze synthesis. SDVK-001 remains blocked until PF-020 itself passes and explicitly unblocks it.
 
-### 2026-10-04 — accepted receipts and provisional PF-020 audit
 
-- PF-017 / #34 accepted no-go: PR #74 final head `e8eee1e4863c7dbc28ac725b873b09ce5e66e1c5` passes required8/8 in [run37094446019](https://github.com/techrote/ShadeDoomVK/actions/runs/37094446019), merge `844462c3a4ed5f7037ade1b49d1a28f578077213` passes8/8 in [run37095080988](https://github.com/techrote/ShadeDoomVK/actions/runs/37095080988). Repaired source is restored, material lookup remains linear; candidate correctness diagnostics were stopped/unmeasured. No optimization or partial research percentage is relabelled as retained benefit.
-- CFX-000 / #75 final PR #108 head `e13f9d71bd4c792fae01a8b869c28d716a9aa50b` passes8/8 in [run37108870593](https://github.com/techrote/ShadeDoomVK/actions/runs/37108870593), merge `41daecc2a2cf62d674163a0bb3dc5481c8be37b1` passes8/8 in [run37109278147](https://github.com/techrote/ShadeDoomVK/actions/runs/37109278147). Practical selected GTX repaired-route qualification is accepted; unique historical mechanism/GPU access and repaired P400 remain unproved/untested. STOP guards and saturated scopes remain sealed.
-- PF-019 final receipt PR #109 head `c2caf519c0de57cc551e5856a558879b1cde2dcc` passes8/8 in [run37115171253](https://github.com/techrote/ShadeDoomVK/actions/runs/37115171253), merge/current master `4df7dea1338f063c6417e024f967bfa4aa23edd4` passes8/8 in [run37115776563](https://github.com/techrote/ShadeDoomVK/actions/runs/37115776563). This documentation receipt supplies no new GPU performance evidence.
-- Current authenticated #37 ownership checkpoint declares one local coordinator and focused branch; no competing owner was found. ShadeDoomVK is sole mutable source; other checkouts/evidence remain read-only context. The initial [matrix](PF-FREEZE-EVIDENCE-MATRIX.md) records all PF source/test/evidence/merge dispositions and aggregate bounds before repairs. Independent audit verifies all19 PF disposition merges plus CFX accepted merges are ancestors of the exact starting master.
-- Source audit confirms two inherited material findings. GLDEFS shared material/map/class and legacy HardwareShader branches initialize the wrong sampling slot before slot assignment; production-parser regression and narrow repair are required. Public `DTA_Indexed` reaches one-layer `FMaterial`, but Vulkan requests three layers and the paletted shader requires a missing palette binding; [new #110](https://github.com/techrote/ShadeDoomVK/issues/110) and [blocker notebook](PF-020-INDEXED-MATERIAL-BLOCKER.md) preserve the supported source chain without a native-crash assertion or descriptor-count-only workaround.
-- PF-020 remains **RUNNING / RELEASE BLOCKED** pending those dispositions and the full native oracle/build/source/RAG/evidence/CI gate. Historical accepted per-issue measurements are bounded CPU/subsystem/resource evidence; no aggregate founding-baseline→current-master GPU or whole-game-frame gain is invented. SDVK-001 remains blocked.
+## PF-020 independent GLDEFS repair — 2026-10-04
 
-### 2026-10-04 — local compiler-runner and parser repair tested, unaccepted
+[#114](https://github.com/techrote/ShadeDoomVK/issues/114) isolates the four-line
+custom-texture default-slot repair and strict native CPU helper migrations from
+the blocked synthesis. The exact original parser retains both counterexamples;
+the focused tree passes272/272 native PF tests, four strict standalone fixtures,
+CFX8/8 and deterministic oracle equality. No GPU/visual/performance claim or
+PF-020/SDVK-001 acceptance follows. See [repair](PF-GLDEFS-SAMPLING-REPAIR.md) and
+[compact verification](PF-GLDEFS-SAMPLING-VERIFICATION.json); required exact-head
+CI, merge/master and post-merge verification govern independent acceptance.
 
-- Initial native baseline build passed; the first260-test suite retained12 `c++` command-not-found errors/no skips. Portable fixture compiler routing closes that Windows execution gap without bypassing compiled cases. Preparatory270tests pass29.533s, four standalone `cl /W4 /WX` assertion/stress fixtures pass, CFX capture8/8 passes0.060s, and two oracle outputs are byte-identical SHA256 `2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88`. These receipts precede the parser candidate.
-- Root's parser candidate moves actual free-slot `texIndex=i` before sampling-default initialization in the two production property branches (four changed lines). The source-extracted regression pins the actual enum/MaterialLayers initialization/current branch, with scanner/lookup/container services explicitly stubbed. Exact old producer15checks preserves material `[-1,0]` vs required `[1,-1]` and legacy `[-1,0]` vs required `[-1,-1]`; the current producer passes1119checks/31expectederrors (two tests1.710s). Independent read-only reconstruction matches both pre-fix accepted4df7dea blocks byte-for-byte; normalized source SHA guards prevent silently replacing the negative producer.
-- Fresh incremental native build passes in `build-parser-repair.log`; the final post-parser suite passes272tests30.333s with zeroerrors/skips in `build/pf020-native/oracle-parser-repair-tests.log`. `gldefs-postrepair-regression.log` retains the focused result. The coordinator's freeze manifest owns exact source/toolchain/log identity. No GPU/image/fullGLDEFS-loader claim follows; no physical CFX campaign ran.
-- Parser B1 is **LOCAL REPAIR TESTED — UNACCEPTED**. Indexed B6/#110 stays **OPEN** and the PF-020 release gate remains **BLOCKED**, pending its producer/descriptor/palette repair and output-state proof plus final-head CI/review/merge. Passing local tests do not establish accepted master, unblock SDVK-001 or weaken historical STOP/P400 limits.
+## Independent #110/#112 material correctness candidates — 2026-10-04
 
-### 2026-10-04 — indexed candidate CPU/build checks and independent SWCanvas blocker
+This focused preparation is based on accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`. It preserves the accepted GLDEFS repair and does not publish a PF-020 freeze, probe contribution decision, optimization or gameplay/quality change.
 
-- #110's unaccepted source candidate provisions a real base-palette row and canonical-remap-specific R8 images, preserves remap before shader operations, uses nearest lookup and scoped synchronous indexed production, and corrects non-mip final sampled layout. Strict actual extracted current/original tests pass24/24; full native discovery passes302/302 in33.850s with zeroerrors/skips, four standalone fixtures pass, CFX classifier8/8 passes0.044s, deterministic oracle hashes remain equal, and the bounded native diagnostic builds. Seven corrected runtime-input tests pass0.013s. These are CPU/build/preparation results; no GPU success or merge is claimed.
-- Independent [#112](https://github.com/techrote/ShadeDoomVK/issues/112) records the mapped software framebuffer's source-established `GENERAL` image / `SHADER_READ_ONLY` descriptor mismatch. Its known incoherent software launch is held; no physical fault is induced. Retain an off-GPU negative and repair/validate the protected route separately.
-- **PF-020: RELEASE BLOCKED. SDVK-001: BLOCKED.** Exact native output/validation, protected controls, final-head checks/review and eligible verified-master changes remain outstanding. Historical STOP/saturation/P400 boundaries are unchanged.
+The candidates provision public indexed materials with canonical-remap R8 plus an owned real base-palette row, complete non-mip sampled transitions, and declare the actual READ/GENERAL layout at material descriptor publication. Ordinary materials, async uploads, palette/RedIsAlpha and existing SWCanvas ownership remain protected. See [#110 source and acceptance notes](PF-110-IMPLEMENTATION-NOTES.md) and [#112 layout notes](PF-112-IMPLEMENTATION-NOTES.md).
 
-### 2026-10-04 — retained indexed native attempts, incomplete packet
+Historical candidate4/source890 retains twelve normal mode/filter packets: 4,828 assertions across 316 cases, 252 decoded presentation ROIs, separately proved core/synchronization validation with zero errors/warnings, and independent 737,280 indexed-pixel recomputation with zero mismatch. [Compact normal verification](PF-110-NATIVE-MATRIX-VERIFICATION.json) preserves exact source/build/input identities and the mode1/SW-retirement/performance limits.
 
-- The #112 layout candidate passes11/11 strict extracted software tests; updated indexed25/25 and runtime runner20/20 also pass,56 total in6.002s. Actual producer allocation/pixels/sampling/fence policy is unchanged. Native engine rebuild succeeds.
-- Three isolated hardware attempts are retained: fixture header rejection before indexed work; partial19-case native diagnostic stopped by an optional-trace-ID assertion; then actual diagnostic348 assertions/23 cases PASS with proved core validation0 errors/warnings and exit0. The corrected assertion observes real retirement ownership around the normal fence, without enabling a CFX campaign. Original failed receipts are preserved.
-- The third full packet still FAILS because the presentation screenshot is absent. Source inspection proves per-line exec waits did not defer later commands; a single semicolon chain and source-linked tests repair preparation. Prior fixed-scene warm-up/presentation is unproved. Production software allocation observations at640×480 show offset0 and matching R8/BGRA producer/native pitch; they do not claim a software draw.
-- Real protected software/colour/alpha controls, fresh capture, synchronization validation, clean final build, exact-head CI/review and eligible verified merges remain required. **PF-020 and SDVK-001 remain BLOCKED.** No physical action is requested; no performance/device-loss/P400 success is inferred.
+The original genuine-restart attempt remains FAIL: GPU initialization occurred, the terminal package guard rejected startup argv before its raw BEFORE command or actual restart, and engine exit 0 did not pass the enclosing runner. [Retained attempt](PF-110-RESTART-RETAINED-ATTEMPTS.json) is unchanged. Frozen newer source `bd2586f51c456fcdb9d04e616a6facf30d47a5ec` repairs only the guarded diagnostic pair-removal seam; historical candidate4 success is not reattributed to it.
 
-### 2026-10-04 — clean material candidate, capture-gate negative and PBR blocker
-
-- Current strict PF discovery passes345/345 in32.814s, zeroerrors/skips; four standalone fixtures, CFX classifier8/8 and two matching source-oracle hashes pass. A fresh native configure/build under build/pf110-clean returns0. Candidate3 pins2528 source files and EXE SHA256 8f2baf070ac0a475eaf7589ec3e91ead265aa3ea8ec4036e665a9611269e341d.
-- Hardware attempt04 executes400 native assertions/26 cases, including actual public alpha/colour and noncommuting object/add controls, with proved core validation0errors/warnings and exit0. Its original PASS receipt is retained but separately rejected for presentation: the640x480 PNG contains only the room/log; the old gate checked only header/extent. Raw GPU observations remain valid partial proof, not complete acceptance.
-- Source tracing explains the capture: a17-tick catch-up batch precedes display; post-diagnostic5/post-enable5 waits can request the old frame. Display-boundary waits, actual overlay acknowledgement and decoded ROI checks are under repair. Fresh six-case core/sync and real software evidence remain required.
-- [#113](https://github.com/techrote/ShadeDoomVK/issues/113) records an inherited PBR missing-probe0/cube-type mismatch in initial multi-probe baking. The authored probe0 real pair is distinct. No affected PBR native route was launched; zero's radiometric/mixed-tap contribution remains a localized decision blocker. Canonical source links are in [the PBR notebook](PF-020-PBR-PROBE-BLOCKER.md).
-- **PF-020 and SDVK-001 remain BLOCKED.** Required final-head CI, independent review, eligible focused repair merges and verified master remain pending; no physical action or performance/device-loss/P400 claim is added.
+Status: **native verified repair; integration tracked in the source issues**. Candidate5 clean build, normal/restart and strict CPU qualification pass below; exact-head CI, review, merge/master and post-merge integration are tracked in the source issues. The coordinator will append those final receipts separately; PF-020/#37 and SDVK-001 remain outside this focused acceptance.
 
 
-## PF-020 material candidate4 durable checkpoint — 2026-10-04
+## Verified candidate5 native qualification
 
-The candidate passes391/391 strict native MSVC PF tests in61.146 seconds,
-zero errors/skips, and a clean RelWithDebInfo build. Its2,528 engine source
-files remained unchanged during engine compilation. Candidate EXE SHA256 is
-`327d8d6d5e2b82eb45ffc4e097f0ed76d614abc27aae131d0d90f7475db74d48`.
-Independent source review covers the value-only real-restart seam and decoded
-presentation gate; all six renderer/filter cases under separate core/sync
-validation plus genuine one-process restart remain pending for this candidate.
-See [compact checkpoint](PF-110-CANDIDATE-CHECKPOINT.json) and
-[seven retained attempts](PF-110-RETAINED-ATTEMPTS.json). The failed global-linear
-ordinary/indexed comparison is corrected without changing ordinary filtering
-or increasing indexed tolerance. No earlier receipt was rewritten.
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.
 
-The independent GLDEFS repair is isolated in[#114/PR115](https://github.com/techrote/ShadeDoomVK/pull/115);
-the blocked synthesis draft remains separate. #110/#112/#113 and PF-020/SDVK-001
-are unaccepted at this checkpoint. No GPU timing or human approval is claimed.
 
-## PF-020 independent GL acceptance and normal material matrix — 2026-10-04
+## #110/#112 accepted material/layout repair — 2026-10-04
 
-GLDEFS repair #114 is accepted and closed through PR115, merge
-`3f37b63a4fdfb4c95421db951cf81682b5eb92c9`, verified on remote master. All eight
-actual final-head jobs and all eight exact merge-SHA post-merge push jobs pass.
-The focused272-test strict native PF gate, protected fixtures, CFX8/8 and
-matching source oracles pass. This acceptance is independent of the freeze.
+PR #116 passed independent review and all eight exact-head jobs at `9df93b6d`,
+merged as `1524686e77f1e89dabfb044bf757a2d19566c31c`, and passed all eight
+post-merge push jobs after remote master/ancestry verification. #110/#112 are
+closed. [Release receipt](PF-110-RELEASE-ACCEPTANCE.json) links the retained
+source/native qualification and immutable original failures.
 
-The candidate4 normal material matrix passes all12 cases with4,828 raw
-assertions/316 cases,252 presentation ROIs and737,280 independently recomputed
-indexed pixels/zero mismatch. Four packets inspect actual existing paletted
-SWCanvas owners. See [matrix receipt](PF-110-NATIVE-MATRIX-VERIFICATION.json).
-The first guarded restart fails before the raw diagnostic/restart because of
-inherited terminal package removal; [its immutable packet](PF-110-RESTART-RETAINED-ATTEMPTS.json)
-is retained. A source-linked seam correction and fresh genuine proof follow.
-#110/#112 remain unaccepted pending release gates; #113, PF-020 and SDVK-001
-remain blocked. No performance, human approval or P400 qualification is added.
+The separate #113 repair continues from this master with a reviewed explicit
+zero-IBL/LOD0/NonUniform decision and independently verified strict CPU original
+negative. Guarded production/native acceptance remains pending. PF-020 and
+SDVK-001 remain blocked; no historical CFX/PF-017/P400 or performance gate is
+reopened or inferred from these results.
+
+
+## #113 guarded probe repair native-qualified — 2026-10-04
+
+Runtime source `a113e2bc1644fe5e7e9079b49ef67308f83eecff` passes a fresh
+source-pinned Vulkan build, strict PF440/440, CFX8/8, four standalone contracts
+and deterministic oracles. Two serialized GTX1650SUPER core/sync processes
+pass23,603 checks and12 private controls each, actual missing→published scene
+command/uniform observations and zero Khronos validation errors/warnings.
+Independent source/build/package closure, raw float mathematics and18 retained
+SPIR-V validations pass. Loader notices and early622×433/later640×480 extents
+are explicitly recorded. See [scope](PF-113-IMPLEMENTATION-NOTES.md) and
+[compact measured qualification](PF-113-FINAL-NATIVE-VERIFICATION.json).
+
+First build and CPU-wrapper failures remain immutable with their dispositions.
+PR#117 final review/CI and verified merge/master/post-merge integration remain
+pending. This qualification does not accept PF-020/#37, SDVK001, performance,
+human visual approval, P400 or historical CFX/PF017 gates.

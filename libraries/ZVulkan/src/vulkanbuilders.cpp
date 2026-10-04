@@ -416,6 +416,11 @@ std::unique_ptr<VulkanImageView> ImageViewBuilder::Create(VulkanDevice* device)
 	device->CheckVulkanError(result, "Could not create texture image view");
 
 	auto obj = std::make_unique<VulkanImageView>(device, view);
+	obj->Creation.Captured = true;
+	obj->Creation.Image = viewInfo.image;
+	obj->Creation.ViewType = viewInfo.viewType;
+	obj->Creation.Format = viewInfo.format;
+	obj->Creation.Range = viewInfo.subresourceRange;
 	if (debugName)
 		obj->SetDebugName(debugName);
 	return obj;
@@ -502,6 +507,18 @@ std::unique_ptr<VulkanSampler> SamplerBuilder::Create(VulkanDevice* device)
 	VkResult result = vkCreateSampler(device->device, &samplerInfo, nullptr, &sampler);
 	device->CheckVulkanError(result, "Could not create texture sampler");
 	auto obj = std::make_unique<VulkanSampler>(device, sampler);
+	obj->Creation.Captured = true;
+	obj->Creation.MinFilter = samplerInfo.minFilter;
+	obj->Creation.MagFilter = samplerInfo.magFilter;
+	obj->Creation.MipmapMode = samplerInfo.mipmapMode;
+	obj->Creation.AddressU = samplerInfo.addressModeU;
+	obj->Creation.AddressV = samplerInfo.addressModeV;
+	obj->Creation.AddressW = samplerInfo.addressModeW;
+	obj->Creation.MipLodBias = samplerInfo.mipLodBias;
+	obj->Creation.MinLod = samplerInfo.minLod;
+	obj->Creation.MaxLod = samplerInfo.maxLod;
+	obj->Creation.AnisotropyEnable = samplerInfo.anisotropyEnable;
+	obj->Creation.MaxAnisotropy = samplerInfo.maxAnisotropy;
 	if (debugName)
 		obj->SetDebugName(debugName);
 	return obj;

@@ -1,5 +1,6 @@
 # Renderer identity and lifetime map
 
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: PF-002 generation/epoch substrate active; PF-003/PF-004/PF-005 subsystem hardening active; PF-012 probe-map identity contract active; PF-013 material-interpretation identity active; PF-017 source-owned candidate rejected/restored after integrated physical no-go
 Primary issues: PF-002, PF-003, PF-004, PF-005, PF-012, PF-013, PF-017, SDVK-004
@@ -42,6 +43,13 @@ Candidate / unaccepted #110 extends only the public indexed-material interpretat
 Candidate / unaccepted #112 publishes each selected image's tracked sampled layout through the descriptor writer: mapped software buffers remain GENERAL and uploaded rows/layers remain READ. This declaration neither changes owner lifetime nor transitions an image; producer state and published descriptor must agree at access. [Software layout and observational limits](../PF-112-IMPLEMENTATION-NOTES.md). Both candidates still require complete native, CI/review and verified-merge gates; they do not accept PF-020.
 
 Material destruction still calls `FreeBindlessSlot()` for every descriptor variant and clears the cache. Texture reset still advances the PF-005 upload epoch and now resets all three image interpretations. The PF-003 generation allocator remains the authority for recycled dynamic descriptor slots; PF-013 does not introduce a second lifetime system.
+
+
+### #110/#112 material ownership — repair contract
+
+The [#110 indexed candidate](../PF-110-IMPLEMENTATION-NOTES.md) keys translated resident R8 variants by canonical remap identity inside the existing hardware owner. Each descriptor entry owns its unchanged base-palette row. These pointer keys are process-local identities: owner destruction precedes palette-arena reinitialization, and no old resource or remap pointer may survive the guarded restart checkpoint. Hardware reset retires every variant; entry deletion invalidates its PF-003 range and retires the row through normal draw fences. Selected old descriptor tokens must be checked before fresh diagnostic production after ordinary map warm-up, not described as a guard before every engine producer.
+
+The [#112 declaration](../PF-112-IMPLEMENTATION-NOTES.md) copies each stable selected owner's sampled layout into its descriptor; it is neither an image transition nor a replacement lifetime mechanism. Existing SWCanvas owner rotation and palette resources remain intact. Candidate4 observations do not measure a direct post-retirement SWCanvas token query. Candidate5 native qualification is verified below; release integration is tracked in the source issues.
 
 ## PF-002 generation substrate
 
@@ -126,6 +134,8 @@ The active lightmap-copy path reads the live probe set only when its current `Vk
 Environment-probe reset remains owned by `VkTextureManager`'s PF-002 environment-probe epoch. `LightProbeIncrementalBuilder` now also resets those resources when the probe count changes or falls to zero. Existing descriptor pairs continue to point at their probe image objects across image clears; probe-set changes invalidate per-lightmap selection so obsolete authored candidates are not retained merely because an old descriptor remains addressable.
 
 The experimental `LightProbeAABBTree` is not part of this live identity path; its `Update()`/`Upload()` remain dormant.
+
+PF-113/#113 gives runtime pair0 a typed consumer guard; fixed bindless slots0/1 remain the actual 2D null/BRDF resources. Nonzero environment pairs remain allocator-owned two-slot identities, without ordinal arithmetic or a new owner/reset scheme. For native diagnostics, `VulkanImageView` and `VulkanSampler` retain bounded creation arguments captured only after successful builder factory creation. These immutable application records describe the arguments passed to Vulkan, not queried driver state; uncaptured objects remain explicitly unknown and no transient `pNext` is retained. The opt-in scene observer and private GPU controls use this metadata to distinguish real cube and 2D views.
 
 ## Swapchain presentation semaphore lifetime
 
@@ -224,3 +234,16 @@ The #75 synthesis accepts PR #104's removed-page publication invariant as the cu
 The experiment-only `CFX_RETAIN_REPLACED_LIGHTMAPS` path remains diagnostic infrastructure when explicitly enabled with resource tracing; it is not normal production behavior and was OFF for all three accepted former-reproducer successes and all CFX-010 qualifying targets. Do not use that diagnostic path as the correctness model.
 
 The repaired GTX 1650 SUPER primary route succeeds 3/3 and the selected DBP50/v1.2/Sunlust routes each qualify 3/3. This does not identify the executing shader, prove an illegal dynamic descriptor read, or establish repaired P400 behavior. PF-020 should test the publication/lifetime invariant directly rather than encode stronger historical causal assumptions. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.
