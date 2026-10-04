@@ -37,6 +37,10 @@ The renderer has two semantically different single-byte texture producers: ordin
 
 PF-013 therefore gives a `VkHardwareTexture` separate normal/palette-index/RedIsAlpha resident-image variants and records `mRedIsAlpha` in `FMaterialState` when palette mode consumes `TM_ALPHATEXTURE`. `VkMaterial::DescriptorEntry` includes that bit in its variant identity so a bindless slot prepared for palette indices cannot be silently reused for luminance-as-alpha, or vice versa. Ordinary translation identity remains part of the existing descriptor key.
 
+Candidate / unaccepted #110 extends only the public indexed-material interpretation: canonical-remap-specific R8 images belong to the existing hardware owner, and each live descriptor entry owns its actual base-palette row. Hardware reset retires all indexed variants; descriptor cleanup frees its PF block and retires the row through normal draw-fence ownership. Canonical remap pointers are process-local content keys within the texture owner's lifetime, never durable identities. The ordinary PF-013 variants and separately provisioned SWCanvas remain distinct. [Implementation and native acceptance limits](../PF-110-IMPLEMENTATION-NOTES.md).
+
+Candidate / unaccepted #112 publishes each selected image's tracked sampled layout through the descriptor writer: mapped software buffers remain GENERAL and uploaded rows/layers remain READ. This declaration neither changes owner lifetime nor transitions an image; producer state and published descriptor must agree at access. [Software layout and observational limits](../PF-112-IMPLEMENTATION-NOTES.md). Both candidates still require complete native, CI/review and verified-merge gates; they do not accept PF-020.
+
 Material destruction still calls `FreeBindlessSlot()` for every descriptor variant and clears the cache. Texture reset still advances the PF-005 upload epoch and now resets all three image interpretations. The PF-003 generation allocator remains the authority for recycled dynamic descriptor slots; PF-013 does not introduce a second lifetime system.
 
 ## PF-002 generation substrate

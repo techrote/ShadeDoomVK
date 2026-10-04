@@ -61,7 +61,9 @@ Translation reuse needs an explicit oracle: current `FTexture::CreateTexBuffer` 
 
 Only after that separate repair is merged, source identity and required checks are verified, and its acceptance evidence is reconciled into the PF matrix may PF-020 reconsider the release gate. This notebook records a blocker; it is not acceptance evidence for a repair.
 
-## Source-grounded repair candidate — unaccepted
+## Historical repair proposal — rejected after source-order audit
+
+The neutral-index/translated-row proposal below is retained as a rejected approach, not implementation authority. The subsequent [source-order audit and candidate](PF-110-IMPLEMENTATION-NOTES.md) demonstrates that remap must remain before `getTexel` inversion and authored material operations: `BaseColors[255 - Remap[n]]` differs from `BaseColors[Remap[255 - n]]`. The implemented, still unaccepted candidate therefore retains canonical-remap-specific R8 images and a real unchanged base-palette row. Its production-linked CPU checks pass; native output/validation and release gates remain outstanding.
 
 The current indexed upload rule supplies a bounded starting contract: for an active remap it writes `remap->Remap[originalIndex]`, and otherwise retains the original index. Combining that existing producer with the real base-palette lookup gives `GPalette.BaseColors[remap->Remap[index]]` for active translations and `GPalette.BaseColors[index]` otherwise. `FRemapTable::Palette` is separately documented as the ideal true-color palette; substituting it for the existing indexed `Remap` rule would change representation semantics and needs a separate decision.
 

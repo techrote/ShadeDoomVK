@@ -50,6 +50,8 @@ PF-019 may optimize lookup/worker overhead only after key identity is frozen.
 
 The Vulkan renderer has distinct descriptor layouts/sets for fixed resources, bindless textures, LevelMesh, render-state buffers, light tiles and Z-min/max resources.
 
+The dedicated light-tile/Z-min/max layouts and sets are dormant under accepted PF-019's false `VkLightTilePolicy::Enabled` default. Ordinary startup does not allocate them; the LevelMesh scene contract retains its separate valid fallback binding. Their source presence is a future reactivation seam, not an active accepted tiled-light consumer. See [PF-019 review and disposition](../PF-019-PERFORMANCE-REVIEW.md).
+
 Bindless textures use update-after-bind/partially-bound/variable-count descriptor features.
 
 PF-003 makes the required feature contract explicit: partially-bound, variable descriptor count, sampled-image update-after-bind, runtime descriptor array and non-uniform sampled-image indexing must all be enabled before bindless set creation.
@@ -91,8 +93,8 @@ Vulkan scene resources include:
 - fog buffer;
 - linear depth;
 - postprocess HDR pipeline images;
-- Z-min/max pyramid images;
-- light-tile storage buffer.
+- Z-min/max pyramid images, only when the dormant light-tile policy is enabled;
+- light-tile storage buffer, only when that policy is enabled.
 
 PF-007 records the intersection of sampled color/depth/stencil sample-count support and routes the existing `gl_multisample` request through `VulkanCapabilities::BestSceneSampleCount()`. The clamping and best-supported-count algorithm are unchanged.
 

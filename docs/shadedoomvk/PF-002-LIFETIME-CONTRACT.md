@@ -46,7 +46,7 @@ This is intended for reset boundaries, not per-object identity.
 
 | Domain | Current hook | Invalidation event | Later owner |
 |---|---|---|---|
-| dynamic bindless blocks | `VkDescriptorSetManager::Bindless.Generations` | `FreeBindlessSlot`; reuse through `AllocBindlessSlot` | PF-003 |
+| dynamic bindless blocks | `VkDescriptorSetManager::Bindless.Allocator` generation tracking; public `GetBindlessIdentity` / `ValidateBindlessIdentity` | `FreeBindlessSlot`; reuse through `AllocBindlessSlot` | PF-003 |
 | LevelMesh owner state | `LevelMesh::ResourceEpoch` | every `LevelMesh::Reset()` | PF-004 |
 | Vulkan texture resource domain | `VkTextureManager::TextureEpoch` | hardware/postprocess texture removal; manager deinit | PF-005 / later resource work |
 | lightmap texture domain | `VkTextureManager::LightmapEpoch` | full `CreateLightmap(...)` rebuild; manager deinit | PF-003/PF-012/PF-014 |

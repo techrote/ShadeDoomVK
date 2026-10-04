@@ -2,7 +2,7 @@
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: canonical audit warnings; update as PF work resolves them  
-Primary issues: PF-001, PF-003, PF-006, PF-012..PF-019, PF-020
+Primary issues: PF-001, PF-003, PF-006, PF-012..PF-019, PF-020/#110/#112
 
 This is a warning index, not a defect count. Items may be fixed, removed or reclassified only with issue/PR evidence.
 
@@ -82,6 +82,8 @@ Owner: PF-013.
 
 Resolved by PF-013: Vulkan `CTF_IndexedRedIsAlpha` has separate luminance-as-alpha resident image/descriptor identity and no longer aliases ordinary indexed/palette translation semantics.
 
+That bounded accepted repair does not prove the separate public `DTA_Indexed` material provisioning path. The unaccepted #110 defect/candidate is recorded in item 26 below.
+
 Owner: PF-013.
 
 ## 14. PBR roughness-zero numerical edge
@@ -149,6 +151,34 @@ Historical PF-005 concern. Qualified ordinary texture uploads now use the bounde
 HDR/depth/normal buffers exist, but motion vectors/history ownership/per-view invalidation are not established. Do not bolt temporal effects onto one global history buffer.
 
 Owner for preparatory context: PF-010. Actual temporal effects are later work.
+
+## 26. Public indexed 2D material lacks its palette resource
+
+Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` constructs one authored albedo layer for public `DTA_Indexed` / `DTA_TranslationIndex`, but the Vulkan consumer allocates three descriptors and attempts missing material layers. `material_paletted.glsl` needs a real second palette resource. This supported path is a PF-020 blocker; it is not a native crash claim and is independent of PF-013's accepted RedIsAlpha boundary. [Blocker and ancestry](../PF-020-INDEXED-MATERIAL-BLOCKER.md).
+
+The focused #110 candidate supplies two real resources: a canonical-remap-specific, one-mip R8 image plus an entry-owned opaque base-palette row. Moving translation to the palette row is rejected because inverse/colour operations run before palette lookup. Public indexed upload is scoped synchronous, so numerical ID replacement cannot overwrite an earlier canonical variant via deferred production. Index/row lookup is nearest; `XY_NOMIP` must normalize to `NOFILTER_XY`, not `CAMTEX`. Non-mip create and update must explicitly finish in shader-readable layout. Palette rows and all resident variants retire through existing owner reset, PF-003 invalidation and draw fences. Ordinary authored layer order, asynchronous true-colour loading, state-driven palette/RedIsAlpha and SWCanvas must remain independently protected.
+
+Status: **candidate / unaccepted**. Production-linked negative/positive fixtures and a scoped native command are prepared; native execution, validation activation, restart/SWCanvas controls, exact-head CI, review, merge and verified-master gates are still pending. Do not remove this trap or unblock PF-020/SDVK-001 from source inspection or a successful build. [Implementation notes and acceptance limits](../PF-110-IMPLEMENTATION-NOTES.md).
+
+Owner: [#110](https://github.com/techrote/ShadeDoomVK/issues/110), required by PF-020.
+
+## 27. Mapped software framebuffer declares an uploaded-image layout
+
+Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` creates the sampled linear mapped software framebuffer with tracked layout `GENERAL`. `SWSceneDrawer::RenderView` writes it through `MapBuffer`; `CreateTexture(nullptr, ...)` records no upload/transition and `GetImage` returns that owner. The inherited bindless writer unconditionally declares `SHADER_READ_ONLY_OPTIMAL`. This source-established supported-route mismatch is independent of #110's public indexed palette provisioning; it is not a claimed observed GPU crash.
+
+The focused #112 candidate publishes each selected material image's actual tracked layout, retains READ as the default for audited uploaded-image callers, and guards the writer to READ/GENERAL. It leaves pixels, palette/translation, filtering, mapped producer, upload policy, cache identity and normal fence retirement unchanged. The existing software-paletted SWCanvas R8 plus palette pair must stay intact; no substitute producer, blanket flush, extra per-frame upload or forced layout transition is acceptance.
+
+Status: **TESTED BUT UNACCEPTED**. Extracted original/current MSVC fixtures pass, but allocation-only native offset/pitch observations and #110 raw paletted output do not prove a real software frame. Actual warm SWCanvas state, repeated use/retirement, presentation, scoped core-plus-sync validation, clean build, eight exact-head CI jobs, review and verified merge/master gates remain pending. Keep PF-020/SDVK-001 blocked. [Implementation notes and exact evidence limits](../PF-112-IMPLEMENTATION-NOTES.md).
+
+Owner: [#112](https://github.com/techrote/ShadeDoomVK/issues/112), required by PF-020.
+
+## 28. Missing PBR probe token reaches fixed 2D views as cubes
+
+Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` initially provides one sampled cube pair. A fresh multi-probe scene without prebaked maps can render a PBR surface assigned unavailable authored target `1` before completed-pass publication grows the collection. `GetLightProbeTextureIndex()` then returns `0`; the consumer samples fixed null/BRDF descriptors `0`/`1` through `samplerCube`. Zero lightmap gather taps reach the same mismatch when that branch executes. Ordinary authored target `0` resolves a separate real nonzero pair and must not be conflated with this token.
+
+Status: **OPEN — source-established blocker; contribution decision unresolved**. PF-012's default/no-probe identity does not adopt black IBL, authored-target substitution, another environment or mixed-tap weight renormalization. Record the contribution/blending decision before repair, preserve exact production-extracted original negatives off GPU, and retain valid-pair/material behavior. No original invalid GPU launch, native failure, driver cause or passing freeze is claimed. [Source hashes, reachability and acceptance limits](../PF-020-PBR-PROBE-BLOCKER.md).
+
+Owner: [#113](https://github.com/techrote/ShadeDoomVK/issues/113), required by PF-020; serialize with the existing coordinator rather than opening a competing probe worker.
 
 ## Maintenance rule
 

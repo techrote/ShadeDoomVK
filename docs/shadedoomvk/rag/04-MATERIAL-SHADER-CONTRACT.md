@@ -1,8 +1,8 @@
 # Material and shader contract
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
-Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 node/flat hash lookups rejected after physical profiling
-Primary issues: PF-003, PF-008, PF-013, SDVK-005, SDVK-007, SDVK-008
+Status: active; PF-008 semantic identity implemented; PF-013 correctness boundaries accepted; PF-017 node/flat hash lookups rejected after physical profiling; #110 indexed and #112 mapped-layout candidates unaccepted
+Primary issues: PF-003, PF-008, PF-013, PF-020/#110/#112, SDVK-005, SDVK-007, SDVK-008
 
 ## Current material model
 
@@ -41,7 +41,7 @@ Therefore PF-008/SDVK-005 must not treat per-layer filtering as absent.
 
 ## PF-008 semantic identity and binding adapter
 
-The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical shader-binding order consumed by Vulkan.
+The semantic tag is descriptive metadata, not a second ordering mechanism. `FMaterial::mTextureLayers` remains the single historical order for authored material layers consumed by Vulkan. The unaccepted #110 candidate's auxiliary indexed palette row is separately owned shader data, not an authored layer or semantic-order replacement.
 
 Representative layouts remain:
 
@@ -129,7 +129,7 @@ PF-013 owns numerical safety at the roughness-zero edge while preserving normal 
 
 `VkMaterial::GetDescriptorEntry` caches bindless ranges keyed by material state such as clamp mode, translation/palette and global shader. Richer materials consume contiguous bindless slots. PF-003/PF-017 harden lifetime and lookup behavior before SDVK height layers increase pressure.
 
-PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Vulkan still iterates the ordered layers and chooses each sampler from `GetLayerFilter(i)`. PF-013's RedIsAlpha bit is different: it changes the producer/consumer interpretation of the bound R8 texture, so it is explicitly part of descriptor identity. PF-003 generation/lifetime/reservation rules remain authoritative.
+PF-008 semantic metadata is not added to descriptor identity because it does not change bound resource state. Ordinary Vulkan materials still iterate the ordered layers and choose each sampler from `GetLayerFilter(i)`. PF-013's RedIsAlpha bit is different: it changes the producer/consumer interpretation of the bound R8 texture, so it is explicitly part of descriptor identity. PF-003 generation/lifetime/reservation rules remain authoritative. The public indexed-material candidate below supplies an explicit two-resource shader exception without changing ordinary layer order.
 
 ## PF-017 lookup profiling boundary
 
@@ -139,13 +139,21 @@ Accepted master retains the per-material linear descriptor-variant scan. Early p
 
 Per-layer sampling's existence did not prove authored slot isolation. Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` initializes shared material/map/class and legacy HardwareShader sampling through initial `texIndex=0` before selecting slot `i`; a later omitted filter overwrites an earlier explicit override and leaves its own wrong default. The local candidate moves both index assignments before default initialization, preserving filter/error/publication ordering. Production-source-extracted current blocks PASS1119checks/31expectederrors; the exact old blocks retain material `[-1,0]` instead of `[1,-1]` and legacy `[-1,0]` instead of `[-1,-1]`. Fresh native build and full272tests pass with zeroerrors/skips. This is **TESTED BUT UNACCEPTED** on the focused branch; scanner/texture/container services are stubbed, with no complete-loader/Vulkan/image claim. Final-head CI/merge remains pending.
 
-The public ZScript `DTA_Indexed` → DrawTexture route separately passes sole `CTF_Indexed` into a one-layer `FMaterial`; Vulkan assumes three layers and the paletted shader reads a palette binding that this path has not provisioned. SWCanvas palette construction is a distinct path. See [indexed-material blocker](../PF-020-INDEXED-MATERIAL-BLOCKER.md); changing descriptor count alone masks the missing palette/translation contract. These are confirmed inherited freeze blockers, not an observed native crash claim or a revision of PF-013's bounded RedIsAlpha repair.
+Accepted starting master has a separate public ZScript `DTA_Indexed` / `DTA_TranslationIndex` → DrawTexture defect: sole `CTF_Indexed` creates a one-layer `FMaterial`, while Vulkan assumes three layers and the paletted shader requires an unprovisioned palette binding. SWCanvas palette construction is a distinct path. See [indexed-material blocker](../PF-020-INDEXED-MATERIAL-BLOCKER.md). This is a confirmed inherited freeze blocker, not an observed native crash or a revision of PF-013's bounded RedIsAlpha repair.
 
-PF-020 is running with release blocked by indexed #110 and final source/evidence/RAG/CI/merge verification. Parser local tests and the repaired Windows compiler-runner gap do not accept the freeze or provide indexed runtime proof. [Provisional matrix](../PF-FREEZE-EVIDENCE-MATRIX.md). SDVK-001 remains blocked.
+The **unaccepted #110 source candidate** retains the one authored albedo layer and allocates exactly two real contiguous PF-003 descriptors: translated one-mip R8 indices plus an entry-owned opaque 256×1 BGRA base-palette row. `GetIndexedMaterialImage()` partitions resident content by the resolved active canonical remap inside the existing hardware owner, uploads the actual indexed producer synchronously and preserves translation before `getTexel` inverse/colour operations. Nonpositive/luminosity/inactive inputs retain unremapped bytes; positive invalid input follows the actual resolved identity table. Nearest index/row sampling includes an explicit `XY_NOMIP` → `NOFILTER_XY` correction. Non-mip create/update copies now end in shader-readable layout. Descriptor deletion and owner reset retire rows/variants through PF-003 and normal draw fences; no global palette cache or descriptor flush is added. Ordinary layer/sampler order, palette mode, RedIsAlpha, global shaders and SWCanvas remain protected. [Implementation and pending evidence](../PF-110-IMPLEMENTATION-NOTES.md).
+
+PF-020 is running with release blocked by indexed #110, mapped SWCanvas layout #112 and final source/evidence/RAG/CI/merge verification. Parser local tests and the repaired Windows compiler-runner gap do not accept the freeze or provide indexed runtime proof. [Provisional matrix](../PF-FREEZE-EVIDENCE-MATRIX.md). SDVK-001 remains blocked.
+
+### #112 mapped SWCanvas sampled-layout candidate
+
+The separate [#112](https://github.com/techrote/ShadeDoomVK/issues/112) source defect is a mapped software-image `GENERAL` / declared `SHADER_READ_ONLY_OPTIMAL` mismatch. The focused candidate passes each material image's tracked layout into `SetBindlessTexture`; default READ remains for audited uploaded-image callers, and the writer rejects states outside READ/GENERAL before publication. The real software-paletted SWCanvas material still owns its existing R8 framebuffer and separate BGRA palette, rather than borrowing #110's auxiliary palette. No producer, palette, shader, sampling, cache-key or fence change is made.
+
+The combined strict MSVC layout/indexed/runner suite passes 56/56 in 6.002 seconds, including both original negatives and repaired extracted bodies. A native 640×480 allocation-only observation has offset 0 and matching producer/native row pitch for R8 and BGRA; it did not write, sample or copy those mapped images and did not inspect the running SWCanvas producer. The #110 raw command separately passed 348 assertions across 23 cases with proved core validation and zero reported real errors/warnings, while its containing run **FAILED** for missing presentation. Neither partial receipt accepts #112 or PF-020. Actual warm software scene, existing two-resource owners/repeated use/retirement, presentation, core-plus-sync validation, clean final build, eight exact-head CI jobs, independent review and merge/master checks remain open. [Candidate notes and retained receipts](../PF-112-IMPLEMENTATION-NOTES.md).
 
 ## Invariants
 
-1. Existing content material meaning/output must not change during PF semantic tagging except for explicit PF-013 bugfix cases.
+1. Existing content material meaning/output must not change during PF semantic tagging. Explicit PF-013 and separately scoped #110 correctness repairs must retain their own pre-fix negative and protected-path evidence; #110 remains unaccepted.
 2. Semantic metadata may not become a second contradictory source of layer order truth.
 3. Optional/default layers must not create stale bindless references.
 4. Indexed/palette/translation behavior is compatibility-sensitive; palette-index and RedIsAlpha R8 data must not alias.
