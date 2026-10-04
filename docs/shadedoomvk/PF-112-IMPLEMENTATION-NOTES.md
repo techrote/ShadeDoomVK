@@ -1,7 +1,7 @@
 # PF-112 — Mapped software-image sampled-layout declaration
 
 
-Status: **native qualification verified; release integration tracked in the source issues**
+Status: **accepted through PR #116; verified master and exact post-merge checks passed**
 
 Issue: [#112](https://github.com/techrote/ShadeDoomVK/issues/112), required by PF-020/#37
 
@@ -123,3 +123,19 @@ See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
 retained failures and unmeasured mode1/SW-retirement/performance limits.
 Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
 separate blocked gates.
+
+
+## Focused release acceptance — 2026-10-04
+
+[PR #116](https://github.com/techrote/ShadeDoomVK/pull/116) merged as
+`1524686e77f1e89dabfb044bf757a2d19566c31c` after independent exact-head review
+and all eight actual PR jobs passed at `9df93b6d`. Remote master and ancestry
+were verified, with unchanged engine/tool inputs. All eight actual push jobs
+then passed at the exact merge SHA, and #110/#112 were closed as complete.
+See [compact release acceptance](PF-110-RELEASE-ACCEPTANCE.json).
+
+The qualification and failed-attempt receipts above retain their original
+measurement-time statuses. Earlier pending-gate statements describe those
+preparations; this receipt records their eventual completion. Software,
+performance, human-review and historical-campaign limits remain unchanged.
+PF-020/SDVK-001 stay blocked by the separate #113 repair.

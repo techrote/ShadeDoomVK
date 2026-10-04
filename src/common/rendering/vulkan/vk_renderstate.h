@@ -16,6 +16,7 @@ class VkTextureImage;
 
 class VkRenderState : public FRenderState
 {
+	friend struct FPbrProbeDiagnosticAccess;
 public:
 	VkRenderState(VulkanRenderDevice* fb);
 	virtual ~VkRenderState() = default;

@@ -131,6 +131,8 @@ Environment-probe reset remains owned by `VkTextureManager`'s PF-002 environment
 
 The experimental `LightProbeAABBTree` is not part of this live identity path; its `Update()`/`Upload()` remain dormant.
 
+PF-113/#113 gives runtime pair0 a typed consumer guard; fixed bindless slots0/1 remain the actual 2D null/BRDF resources. Nonzero environment pairs remain allocator-owned two-slot identities, without ordinal arithmetic or a new owner/reset scheme. For native diagnostics, `VulkanImageView` and `VulkanSampler` retain bounded creation arguments captured only after successful builder factory creation. These immutable application records describe the arguments passed to Vulkan, not queried driver state; uncaptured objects remain explicitly unknown and no transient `pNext` is retained. The opt-in scene observer and private GPU controls use this metadata to distinguish real cube and 2D views.
+
 ## Swapchain presentation semaphore lifetime
 
 Issue #82 closes an inherited binary-semaphore lifetime hole in the presentation path. `VkFramebufferManager` owns one render-finished semaphore per live swapchain image, and both the present-bound graphics submit and `QueuePresent` select the semaphore by the current acquired image index. Steady-state reuse is therefore gated by reacquisition of that same image, which proves the preceding presentation wait for that image has retired; a graphics submission fence alone is not treated as presentation completion.

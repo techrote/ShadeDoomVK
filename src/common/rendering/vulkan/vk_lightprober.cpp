@@ -2,6 +2,7 @@
 #include "vk_lightprober.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/textures/vk_texture.h"
+#include "vulkan/textures/vk_pbrprobediagnostics.h"
 #include "vulkan/commands/vk_commandbuffer.h"
 #include "vulkan/descriptorsets/vk_descriptorset.h"
 #include "vulkan/textures/vk_renderbuffers.h"
@@ -485,8 +486,10 @@ void VkLightprober::GeneratePrefilterMap(int probeIndex)
 
 void VkLightprober::EndLightProbePass()
 {
+	if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::Publication(fb, false);
 	fb->GetTextureManager()->CopyIrradiancemap(irradianceMap.probes);
 	fb->GetTextureManager()->CopyPrefiltermap(prefilterMap.probes);
+	if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::Publication(fb, true);
 }
 
 std::vector<uint32_t> VkLightprober::CompileShader(const std::string& filename)

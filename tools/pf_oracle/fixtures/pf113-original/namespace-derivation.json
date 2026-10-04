@@ -1,0 +1,60 @@
+{
+  "schema": "pf113-disposable-namespace-adapter/v1",
+  "status": "DERIVED_ADAPTER_NOT_COMPILED",
+  "scope": "CPU cross-language scope adapter only; no current repair/native/GPU claim",
+  "reason": "Strict MSVC C4459 arose only because separately compiled GLSL service globals shared a synthetic C++ translation unit with inherited probes parameters",
+  "frozen_inputs": [
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\original_probe_fixture.cpp",
+      "bytes": 23660,
+      "sha256": "0b5819627e5df74738d48ed7d0101f73769ebc3c79cf0db54efe261077722e10"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\extraction.json",
+      "bytes": 11283,
+      "sha256": "56ef9a3117723c4850ffe320350fa149c8b94bb67fa5ed9fc39fa8eae528081b"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\extracted_original.hpp",
+      "bytes": 13815,
+      "sha256": "858822465402afeba97988409ff93cd68b0b27329ce06547cd3c4a1494b31b2b"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\source_constants.hpp",
+      "bytes": 176,
+      "sha256": "3ffaba622bff816e62371518bbeaa59e43f221f1e0d619a2bdd38c97be9190c9"
+    }
+  ],
+  "frozen_original_extraction": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\extraction.json",
+  "retained_failed_attempt": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\original-msvc-01\\receipt.json",
+  "retained_failed_receipt_sha256": "9797e04ed3ae25f9e4532773a50f12f02732affd78f893d4c3087d02890de14d",
+  "exact_cpp_and_sampling_prefix_sha256": "ebdc0741ba7bfc73ba4cd7a7b24829614eb4145d96f11ac5d26d572275ec7cd4",
+  "exact_selector_block_sha256": "f303f205bc47197cbe758bb804810cce4ce898021f5c7323ea99204412b7f5e8",
+  "exact_cpp_and_sampling_bodies_unchanged": true,
+  "exact_selector_body_unchanged": true,
+  "changes": [
+    "Relocate exact GLSL selector service-global block under ShaderSelection namespace",
+    "Wrap exact selector block in the same namespace",
+    "Qualify five fixture witness statements accessing only that namespace"
+  ],
+  "no_inherited_parameter_or_body_rename": true,
+  "no_guard_sampling_selection_change": true,
+  "no_compiler_warning_suppression": true,
+  "outputs": [
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\namespace-adapter\\original_probe_fixture.cpp",
+      "bytes": 23621,
+      "sha256": "03baf5054f062ee0bd0ab45c898f43cb0702c659ff560524f34bca1d9fa22363"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\namespace-adapter\\extracted_original.hpp",
+      "bytes": 14015,
+      "sha256": "c8dea5f3bff283ca026cdd88ed3f890e620c7a2952d33b5627e34f0732ab2af8"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-native\\pf113-preparation\\namespace-adapter\\source_constants.hpp",
+      "bytes": 176,
+      "sha256": "3ffaba622bff816e62371518bbeaa59e43f221f1e0d619a2bdd38c97be9190c9"
+    }
+  ]
+}
