@@ -172,3 +172,15 @@ The matched retention experiment is not the production behavior: normal repaired
 The executing shader/SASS, illegal dynamic access, shared historical cause and repaired P400 behavior remain unknown and must not be inferred from the successful qualification.
 
 Owner: completed CFX-009/#102 repair and CFX-000/#75 synthesis; PF-020 must preserve the invariant in the final freeze.
+
+
+## GLDEFS custom texture sampling slot isolation
+
+The inherited material/map/class and legacy HardwareShader texture properties
+initialized a new slot's default through the initial index zero. A later texture
+could overwrite the first texture's explicit filter. The PF-020 partial repair
+selects the actual free slot first. The exact original producer retains both
+counterexamples in the strict compiled regression; the current producer checks
+defaults, overrides, ordering, sparse slots and errors. See [repair](../PF-GLDEFS-SAMPLING-REPAIR.md).
+This parser repair does not accept the renderer freeze or close its independent
+material/probe/compatibility gates.

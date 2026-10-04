@@ -4,12 +4,13 @@
 from __future__ import annotations
 
 from pathlib import Path
-import subprocess
-import tempfile
+import sys
 import unittest
 
 
 ROOT = Path(__file__).resolve().parents[3]
+sys.path.insert(0, str(ROOT))
+from tools.pf_oracle.fixture_runner import run_fixture
 
 
 def source(relpath: str) -> str:
@@ -93,23 +94,8 @@ class SpritePortalCorrectnessContractTests(unittest.TestCase):
         self.assertLess(shutdown, restore)
 
     def test_compiled_adversarial_boundary_fixture(self) -> None:
-        with tempfile.TemporaryDirectory() as tempdir:
-            executable = Path(tempdir) / "sprite-portal-correctness-fixture"
-            subprocess.run(
-                [
-                    "c++",
-                    "-std=c++17",
-                    "-Wall",
-                    "-Wextra",
-                    "-Werror",
-                    "tools/pf_oracle/tests/sprite_portal_correctness_fixture.cpp",
-                    "-o",
-                    str(executable),
-                ],
-                cwd=ROOT,
-                check=True,
-            )
-            subprocess.run([str(executable)], cwd=ROOT, check=True)
+        run_fixture("tools/pf_oracle/tests/sprite_portal_correctness_fixture.cpp",
+                    includes=(), root=ROOT)
 
 
 if __name__ == "__main__":
