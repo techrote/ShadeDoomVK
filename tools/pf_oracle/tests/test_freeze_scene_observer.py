@@ -170,6 +170,7 @@ HARNESS = r'''
 #include <cassert>
 #include <limits>
 int gametic=123;
+bool singletics=false;
 
 int main(int argc, char** argv) {
     assert(argc==3);
@@ -177,6 +178,32 @@ int main(int argc, char** argv) {
     FArgs arguments;
     arguments.Values={"fixture","-pf020viewobserve",prefix,"-pf020viewfraction","0.5"};
     Args=&arguments;
+    if (scenario.rfind("clock",0)==0) {
+        gametic=0;
+        arguments.Values.insert(arguments.Values.end(),{"-pf020viewclock","single-tic"});
+        if (scenario=="clock-bad-mode") arguments.Values.back()="real-time";
+        if (scenario=="clock-duplicate") arguments.Values.insert(arguments.Values.end(),{"-pf020viewclock","single-tic"});
+        if (scenario=="clock-no-fraction") arguments.Values.erase(arguments.Values.begin()+3,arguments.Values.begin()+5);
+        if (scenario=="clock-no-observer") arguments.Values={"fixture","-pf020viewclock","single-tic"};
+        if (scenario=="clock-late") gametic=1;
+        if (scenario=="clock-preexisting") singletics=true;
+        const bool started=Pf020ViewDiagnostics::BeginFixtureClock(scenario=="clock-foreign" ? "MAP01" : "PFVTEST", scenario!="clock-unsafe-mode");
+        if (scenario!="clock" && scenario!="clock-repeated") {
+            assert(!started && !Observer.ClockStarted && !Observer.Error.empty());
+            assert(singletics==(scenario=="clock-preexisting"));
+            assert(gametic==(scenario=="clock-late" ? 1 : 0));
+            pf020view_dump({{"pf020view_dump"}});
+            return 0;
+        }
+        assert(started && Observer.ClockStarted && Observer.ClockStartTic==0 && !singletics && gametic==0);
+        singletics=true; // Controlled caller interface; the play loop is not simulated here.
+        if (scenario=="clock-repeated") {
+            assert(!Pf020ViewDiagnostics::BeginFixtureClock("PFVTEST",true) && !Observer.Error.empty());
+            pf020view_dump({{"pf020view_dump"}});
+            return 0;
+        }
+        gametic=1; // Independent controlled input for actual observer serialization.
+    }
     StubSector sector;
     DrawContext context;
     HWDrawInfo root;
@@ -188,6 +215,7 @@ int main(int argc, char** argv) {
     FFlatVertex vertices[4]={{1,2,3,.125f,.25f},{4,5,6,.875f,.25f},{7,8,9,.125f,.75f},{10,11,12,.875f,.75f}};
     if (scenario=="off") {
         arguments.Values={"fixture"};
+        assert(!Pf020ViewDiagnostics::BeginFixtureClock("PFVTEST",true) && !singletics && gametic==123);
         Pf020ViewDiagnostics::BeginRoot(true,true,-1,"PFVTEST");
         assert(!Pf020ViewDiagnostics::Enabled());
         assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
@@ -410,6 +438,7 @@ class ProductionObserverGuards(unittest.TestCase):
                 self.assertEqual(receipt["status"], "COLLECTED_STATE_ONLY")
                 self.assertFalse(receipt["freezeAccepted"])
                 self.assertFalse(receipt["imagesCapturedByThisObserver"])
+                self.assertEqual(receipt["fixtureClock"], {"requested": False, "activated": False, "mode": "adaptive", "startTic": -1, "endTic": 123, "singletics": False})
                 self.assertIn("PF020_VIEW_DUMP_REJECTED", output)
                 scene = next(r for r in receipt["records"] if r["event"] == "scene")
                 sprite = next(r for r in receipt["records"] if r["event"] == "sprite-vertices")
@@ -431,6 +460,21 @@ class ProductionObserverGuards(unittest.TestCase):
                 self.assertEqual(completed["completedView"]["tic"], scene["tic"])
                 self.assertEqual(completed["completedView"]["viewMatrix"], scene["viewMatrix"])
                 self.assertEqual(completed["completedView"]["productionContextAvailable"], variant == "current")
+
+    def test_actual_fixture_clock_validates_once_without_rewriting_tics(self):
+        for variant in self.executables:
+            output, receipt = self.observe("clock", variant)
+            self.assertEqual(output.count("PF020_VIEW_CLOCK single-tic start=0"), 1)
+            self.assertEqual(receipt["fixtureClock"], {"requested": True, "activated": True, "mode": "single-tic-per-display", "startTic": 0, "endTic": 1, "singletics": True})
+            self.assertEqual(next(r for r in receipt["records"] if r["event"] == "scene")["tic"], 1)
+            for scenario in ("clock-bad-mode", "clock-duplicate", "clock-no-fraction", "clock-no-observer",
+                             "clock-late", "clock-preexisting", "clock-foreign", "clock-unsafe-mode", "clock-repeated"):
+                with self.subTest(variant=variant, scenario=scenario):
+                    _, rejected = self.observe(scenario, variant)
+                    if scenario == "clock-no-observer": self.assertIsNone(rejected)
+                    else:
+                        self.assertEqual(rejected["status"], "FAIL")
+                        self.assertTrue(rejected["error"])
 
     def test_actual_byte_frame_roundtrips_as_json_number_in_both_variants(self):
         actor_source = (ROOT/"src/playsim/actor.h").read_text()

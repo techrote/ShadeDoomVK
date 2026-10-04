@@ -76,6 +76,7 @@ def scene_packet(variant="current"):
         rows.append(row)
     return {"schema": "pf020-native-scene-observation/v1", "status": "COLLECTED_STATE_ONLY", "error": "", "freezeAccepted": False,
             "imagesCapturedByThisObserver": False, "fixedActorFractionRequested": True, "sceneCalls": 11, "spriteVertexCalls": 13,
+            "fixtureClock": {"requested": True, "activated": True, "mode": "single-tic-per-display", "startTic": 0, "endTic": 560, "singletics": True},
             "restorationCalls": 1, "postprocessSceneCalls": 1, "records": rows}
 
 
@@ -125,6 +126,16 @@ class ViewAcceptanceControls(unittest.TestCase):
         self.reject_scene(lambda d: d["records"].pop(10), "Six natural")
         self.reject_scene(lambda d: d["records"][5].update(fraction=.5), "fraction")
         self.reject_scene(lambda d: d["records"][4].update(fraction=1), "fraction")
+
+    def test_actual_fixture_clock_is_explicit_typed_bounded_and_cannot_be_reset(self):
+        for field, value in (("requested", False), ("activated", False), ("singletics", False),
+                             ("mode", "adaptive"), ("startTic", 1), ("startTic", False),
+                             ("endTic", 0), ("endTic", True), ("endTic", 8193)):
+            with self.subTest(field=field, value=value):
+                self.reject_scene(lambda d: d["fixtureClock"].update({field: value}), "Actual fixture clock")
+        self.reject_scene(lambda d: d.pop("fixtureClock"), "Actual fixture clock")
+        self.reject_scene(lambda d: d["fixtureClock"].update(invented=True), "Actual fixture clock")
+        self.reject_scene(lambda d: d["records"][0].update(tic=561), "Scene ancestry")
 
     def test_actual_history_ownership_is_main_root_only(self):
         source = (runner.ROOT/"src/rendering/hwrenderer/scene/hw_rendercontext.h").read_text()
@@ -517,6 +528,10 @@ class ViewAcceptanceControls(unittest.TestCase):
                         "nativeDevice": "same", "settings": "same"}
             a, b = packet("current"), packet("original-seams")
             self.assertEqual(runner.paired_compare(a, b)["status"], "PAIRED_EXACT_MATCH")
+            b["state"]["scene"]["fixtureClock"]["endTic"] += 1
+            with self.assertRaisesRegex(ValueError, "fixture clock lifetime"):
+                runner.paired_compare(a, b)
+            b = packet("original-seams")
             b["state"]["keys"]["keys"][-1]["observation"]["actualSourceChecksum"] = "4-"+"b"*40+"-2222"
             with self.assertRaisesRegex(ValueError, "complete production shader binary key sets"):
                 runner.paired_compare(a, b)
@@ -702,6 +717,8 @@ class ViewAcceptanceControls(unittest.TestCase):
             self.assertFalse(any(Path(c["cache"]).exists() for c in receipt["children"]))
             for packet in receipt["children"]:
                 self.assertEqual(packet["argv"][packet["argv"].index("-pf020viewfraction")+1], "0.5")
+                self.assertEqual(packet["argv"].count("-pf020viewclock"), 1)
+                self.assertEqual(packet["argv"][packet["argv"].index("-pf020viewclock")+1], "single-tic")
                 self.assertIn("-noautoload", packet["argv"])
                 self.assertIn("-noautoexec", packet["argv"])
                 self.assertEqual(packet["argv"].count("-nosound"), 1)

@@ -23,6 +23,7 @@
 #include <vector>
 
 extern int gametic;
+extern bool singletics;
 
 namespace
 {
@@ -36,6 +37,8 @@ struct State
 {
     bool Checked = false, Enabled = false, Fixture = false, FixedFraction = false;
     bool Written = false, DestinationValidated = false;
+    bool ClockRequested = false, ClockStarted = false;
+    int ClockStartTic = -1;
     std::string Prefix, Error, RootType, Phase = "startup", CompletedKey;
     int Side = -1, Eye = 0;
     uint64_t Root = 0, Next = 0, Scenes = 0, Sprites = 0, Restores = 0, Postprocess = 0;
@@ -224,6 +227,28 @@ bool Enabled()
     }
     return Observer.Enabled && Observer.Error.empty() && !Observer.Written;
 }
+bool BeginFixtureClock(const char* map, bool ordinarySinglePlayer)
+{
+    if (!Args || !Args->CheckParm("-pf020viewclock")) return false;
+    Observer.ClockRequested = true;
+    try
+    {
+        Require(Enabled() && Observer.FixedFraction && Observer.DestinationValidated,
+                "The fixture clock requires fresh scene observations and the explicit actor fraction");
+        const char* mode = Args->CheckValue("-pf020viewclock");
+        Require(mode && std::string(mode) == "single-tic" &&
+                Args->CheckParm("-pf020viewclock", Args->CheckParm("-pf020viewclock") + 1) == 0,
+                "Exactly one -pf020viewclock single-tic request is required");
+        Require(ordinarySinglePlayer && !singletics && map && std::string(map) == "PFVTEST" &&
+                gametic == 0 && !Observer.ClockStarted && Observer.Stack.empty(),
+                "The fixture clock requires the loaded PFVTEST single-player map before its first tic");
+        Observer.ClockStartTic = gametic;
+        Observer.ClockStarted = true;
+        Printf("PF020_VIEW_CLOCK single-tic start=%d\n", gametic);
+        return true;
+    }
+    catch (const std::exception& error) { Fail(error); return false; }
+}
 void BeginRoot(bool mainview, bool toscreen, int side, const char* map)
 {
     if (!Enabled()) return;
@@ -396,6 +421,11 @@ CCMD(pf020view_dump)
              << ",\"error\":" << Quote(Observer.Error.c_str()) << ",\"phase\":" << Quote(Observer.Phase.c_str())
              << ",\"sceneCalls\":" << Observer.Scenes << ",\"spriteVertexCalls\":" << Observer.Sprites
              << ",\"restorationCalls\":" << Observer.Restores << ",\"fixedActorFractionRequested\":" << (Observer.FixedFraction ? "true" : "false")
+             << ",\"fixtureClock\":{\"requested\":" << (Observer.ClockRequested ? "true" : "false")
+             << ",\"activated\":" << (Observer.ClockStarted ? "true" : "false")
+             << ",\"mode\":" << Quote(Observer.ClockStarted ? "single-tic-per-display" : "adaptive")
+             << ",\"startTic\":" << Observer.ClockStartTic << ",\"endTic\":" << gametic
+             << ",\"singletics\":" << (singletics ? "true" : "false") << '}'
              << ",\"postprocessSceneCalls\":" << Observer.Postprocess
              << ",\"imagesCapturedByThisObserver\":false,\"freezeAccepted\":false,\"records\":[";
         for (size_t i = 0; i < Observer.Records.size(); ++i) { if (i) file << ','; file << Observer.Records[i]; }

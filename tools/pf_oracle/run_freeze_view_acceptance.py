@@ -279,6 +279,7 @@ def command(exe, inputs, out, cache):
             # The dump command compares the explicit prefix literally. Use one
             # console-safe representation for argv and the command script.
             "-pf020viewobserve", base.safe_console_path(out / "native"), "-pf020viewfraction", "0.5",
+            "-pf020viewclock", "single-tic",
             "-pf020viewcache", base.safe_console_path(cache),
             # D_DoomInit consumes +map as an autostart request before ordinary
             # startup commands; a map command inside +exec cannot replace it.
@@ -319,7 +320,8 @@ def _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mod
                     "candidates": {k: str(Path(v).resolve()) for k, v in candidate_paths.items()}, "layer": str(Path(layer_dir).resolve()),
                     "expectedDevice": None if expected_device_path is None else str(Path(expected_device_path).resolve())},
                "children": packets, "watchdogSeconds": WATCHDOG_SECONDS, "warmupWaitUnits": WARMUP_WAIT_UNITS, "collectionWaitUnits": COLLECTION_WAIT_UNITS,
-               "waitUnitBasis": "FWaitingCommand delayed-command Tick advances; simulation/render time is independently observed, never inferred",
+               "waitUnitBasis": "FWaitingCommand delayed-command ticks under the explicit PFVTEST one-game-tic-per-display scheduler; actual gametic remains observed",
+               "fixtureClock": "single-tic-per-display",
                "imageTolerance": {"decodedComponents": 0, "decodedMainRgb": 0}, "rendererStarted": False, "gpuExecuted": False,
                "gpuExecutionStatus": "NOT_STARTED",
                "freezeAccepted": False, "generalizedExecuted": False, "createdUtc": base.utc(), "limits": LIMITS}
@@ -359,6 +361,12 @@ def scene_evidence(data, variant):
             and data.get("error") == "" and data.get("freezeAccepted") is False and data.get("imagesCapturedByThisObserver") is False
             and data.get("fixedActorFractionRequested") is True, "Frontend collection failed or asserts unsupported acceptance")
     finite(data)
+    clock = data.get("fixtureClock", {})
+    require(set(clock) == {"requested", "activated", "mode", "startTic", "endTic", "singletics"}
+            and clock.get("requested") is True and clock.get("activated") is True and clock.get("singletics") is True
+            and clock.get("mode") == "single-tic-per-display" and type(clock.get("startTic")) is int and clock["startTic"] == 0
+            and type(clock.get("endTic")) is int and 0 < clock["endTic"] <= 8192,
+            "Actual fixture clock request/activation/lifetime differs")
     rows = data.get("records", [])
     require(0 < len(rows) <= 2048 and all(r.get("phase") in ("startup", "warmup") for r in rows), "Scene phase/record bounds invalid")
     scenes = [r for r in rows if r.get("event") == "scene"]
@@ -370,7 +378,7 @@ def scene_evidence(data, variant):
         require(row.get("rootType") in ("main", "camera-texture", "light-probe") and 0 <= row.get("depth", -1) < 32
                 and row.get("diagnosticIdentity", 0) > row.get("diagnosticParent", -1) >= 0 and row.get("eye") == 0
                 and row.get("face") in (range(6) if row["rootType"] == "light-probe" else (-1,))
-                and type(row.get("tic")) is int and row["tic"] >= 0, "Scene ancestry/root/face/time invalid")
+                and type(row.get("tic")) is int and clock["startTic"] <= row["tic"] <= clock["endTic"], "Scene ancestry/root/face/time invalid")
         for field, n in (("position", 3), ("hardwareAngles", 3), ("viewMatrix", 16), ("projectionMatrix", 16), ("cameraPositionUniform", 4)):
             vector(row.get(field), n)
         require(row.get("fraction") == (1 if row["rootType"] == "light-probe" else .5), "Actual root interpolation fraction differs")
@@ -443,7 +451,7 @@ def scene_evidence(data, variant):
                             ("previousAngles", [0, 0, 0]), ("actorAngles", [22.5, 0, 0]), ("interpolatedAngles", [11.25, 0, 0])):
         require(interpolated.get(field) == expected, "Positive interpolation endpoints/angles differ: " + field)
     require(interpolated["fraction"] == .5 and interpolated["effectiveSpriteAngles"][0] == 11.25, "Effective emitted interpolation yaw not positive")
-    return {"validated": True, "stateOnly": True, "records": rows, "startupSixFaces": True, "mainSpriteTids": sorted(main),
+    return {"validated": True, "stateOnly": True, "records": rows, "fixtureClock": clock, "startupSixFaces": True, "mainSpriteTids": sorted(main),
             "legacyMetadataUnavailable": variant == "original-seams", "generalizedAccepted": False}
 
 
@@ -745,6 +753,7 @@ def binary_key_identity(packet):
 def paired_compare(left, right):
     # Correspondence uses the actual stable root/path/group/phase, not pointer IDs or invocation counters.
     a, b = left["state"], right["state"]
+    require(a["scene"]["fixtureClock"] == b["scene"]["fixtureClock"], "Paired actual fixture clock lifetime differs")
     ignore = {"diagnosticRoot", "diagnosticIdentity", "diagnosticParent", "productionContextAvailable", "productionContext", "productionSurfaceAvailable", "productionSurface"}
     scene_a = projection(a["scene"]["records"], ("phase", "event", "semanticKey", "tid"), ignore)
     scene_b = projection(b["scene"]["records"], ("phase", "event", "semanticKey", "tid"), ignore)
@@ -788,6 +797,7 @@ def collect(child, before, mode):
     out = Path(child["directory"])
     text = base.log_text(out / "stdout.log")
     require(text.count("PF020_VIEW_BEGIN warmup") == 1 and text.count("PF020_VIEW_STATE_WRITTEN") == 1
+            and re.findall(r"(?m)^PF020_VIEW_CLOCK single-tic start=(\d+)\s*$", text) == ["0"]
             and not re.search(r"PF020.*(?:REJECTED|FAILED|failed)|Script error|Execution could not continue|Fatal error", text, re.I), "Runtime command/fixture/observer failed")
     require(re.findall(r"(?m)^D_DoomInit: Static RNGseed (\d+) set\.$", text) == ["12345"], "Actual fixed RNG seed startup acknowledgement missing/changed")
     child["nativeDevice"] = dense.native_device(text)
@@ -884,6 +894,7 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
     paths = receipt["paths"]
     require(receipt.get("mode") in ("core", "sync") and receipt.get("watchdogSeconds") == WATCHDOG_SECONDS
             and receipt.get("warmupWaitUnits") == WARMUP_WAIT_UNITS and receipt.get("collectionWaitUnits") == COLLECTION_WAIT_UNITS
+            and receipt.get("fixtureClock") == "single-tic-per-display"
             and receipt.get("imageTolerance") == {"decodedComponents": 0, "decodedMainRgb": 0}
             and [(c.get("variant"), c.get("cacheState")) for c in receipt.get("children", [])] == list(ORDER),
             "Preregistered mode/order/timing/tolerance changed")

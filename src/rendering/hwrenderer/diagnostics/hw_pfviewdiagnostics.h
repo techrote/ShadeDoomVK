@@ -11,6 +11,9 @@ class HWSprite;
 namespace Pf020ViewDiagnostics
 {
 bool Enabled();
+// Called once after the real map load, before the first play-loop tic. This
+// opt-in fixture scheduler preserves game tics; it is not a timing benchmark.
+bool BeginFixtureClock(const char* map, bool ordinarySinglePlayer);
 bool FixtureActive();
 const char* OutputPrefix();
 std::string CurrentSceneKeyJson();

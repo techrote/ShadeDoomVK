@@ -59,8 +59,17 @@ Use fixed declared camera/time/content/seed/quality and identical settings in a
 pair: ordinary BSP, immediate specialized rendering, nearest filtering, no
 shadows, fixed resolution/render scale and identical portal/mirror recursion.
 The separately explicit `-pf020viewfraction 0.5` sets only fixture visual actor
-interpolation for main/camera roots. Simulation ticks/gameplay are untouched;
-probe roots retain their actual inherited fraction. Observe actor previous,
+interpolation for main/camera roots without changing simulation values;
+probe roots retain their actual inherited fraction. The separate explicit
+`-pf020viewclock single-tic` correctness fixture uses the engine's existing
+`singletics`/`D_SingleTick` path: one complete game tic per displayed frame,
+including synchronous `NetUpdate` behavior. Arm only after actual PFVTEST
+loads, before its first tic, with fresh diagnostics/fraction and no preexisting
+single-tic, network or demo mode. Normal adaptive scheduling stays the default.
+Changing the fixture map or synchronous mode fails closed. Retain actual
+activation/end tics and the real `singletics` flag; compare clock lifetimes and
+every observed tic exactly. This changes fixture pacing and supplies no
+wall-clock or performance acceptance. Observe actor previous,
 current and interpolated positions/angles plus the effective emitted sprite
 angles to verify that premise. A separate controlled Uber=true variant is needed
 for the actual generalized/library maps when the tested adapter supports them;
@@ -201,6 +210,19 @@ lifecycle, independent file hashes, actual warm loads/hits and all prior source,
 device/state/image gates remain mandatory. Retry only in a new registered packet.
 
 ## Current verification boundary
+
+Core attempt04 uses clean toolc6643 and both0791911 builds04. All four actual
+unelevated children validate independently, including strict native observations,
+private images/main RGB, zero core findings and isolated cold/warm cache loads
+and hits. The overall packet nevertheless **FAILS** paired scene state: eleven
+first warmup scene/restoration rows carry tic386 versus385 in the cold pair.
+All other semantic fields, actual completed capture states, eight camera/probe
+images, main RGB and all37 production binary keys match in both pairs; the warm
+subset compares exactly. None of these partial findings relabels packet04.
+Adaptive `TryRunTics` can execute multiple `G_Ticker` calls after the delayed
+phase command and before `D_Display`; FPS caps still permit catch-up batches.
+The explicit one-tic fixture revision requires fresh exports/builds/inputs and
+a new packet. No tic is normalized, dropped or tolerated.
 
 CPU source-derivation, fixture-authoring and actual production observer-TU guard
 tests establish bounded preparation. They do not prove native ZScript compilation,

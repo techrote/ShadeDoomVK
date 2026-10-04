@@ -116,6 +116,7 @@
 #include "texturemanager.h"
 #include "hw_clock.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
+#include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
 #include "doomfont.h"
 #include "screenjob.h"
 #include "startscreen.h"
@@ -1255,6 +1256,11 @@ void D_SingleTick()
 
 void D_DoomLoop ()
 {
+    // Explicit PFVTEST correctness scheduling uses the existing coherent
+    // single-tic path, including NetUpdate's synchronous-mode behavior.
+    const bool fixtureClock = Pf020ViewDiagnostics::BeginFixtureClock(primaryLevel->MapName.GetChars(),
+        gamestate == GS_LEVEL && !netgame && !multiplayer && !demoplayback && !demorecording);
+    if (fixtureClock) singletics = true;
 	D_BeginDoomLoop();
 	vid_cursor->Callback();
 
@@ -1264,6 +1270,9 @@ void D_DoomLoop ()
 	{
 		try
 		{
+            if (fixtureClock && (!singletics || primaryLevel->MapName != "PFVTEST" ||
+                netgame || multiplayer || demoplayback || demorecording))
+                I_FatalError("PF020_VIEW_CLOCK_REJECTED: fixture or synchronous clock changed");
 			GStrings.SetDefaultGender(players[consoleplayer].userinfo.GetGender()); // cannot be done when the CVAR changes because we don't know if it's for the consoleplayer.
 
 			// frame syncronous IO operations

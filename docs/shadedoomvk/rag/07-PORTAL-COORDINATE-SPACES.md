@@ -135,3 +135,10 @@ PF-009 supplies the orientation/mirror/portal inputs only. It does not add or al
 9. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
 10. Sky deduplication is semantic field identity, never raw `HWSkyInfo` object representation or padding.
 11. An unresolved sprite ceiling candidate uses `-NO_VAL` consistently from initialization through ordinary-sector fallback.
+
+PF-020's explicit PFVTEST correctness clock is separate from those production
+contracts. `Pf020ViewDiagnostics::BeginFixtureClock` and `D_DoomLoop` select the
+existing one-tic-per-display `singletics` path only after guarded opt-in. Normal
+adaptive scheduling remains the default. Observations retain actual game tics;
+the fixture clock changes pacing and supplies no performance evidence. See the
+[view protocol](../PF-020-VIEW-EVIDENCE-PROTOCOL.md) for guard and capture limits.

@@ -104,6 +104,16 @@ and are sealed: current EXE SHA256
 `67be255d4e2dab95bba37557922ef3e4fba90d53fc1c666d4d69d6fa4c829e61`,
 original-seams `02d65e99915e4546e263ac6972a97eb18642eec4005455d2e820ddf7f2bc527e`.
 Source-derived export04 and regenerated fixturev5 carry this corrected engine.
+
+Clean toolc6643 passes PF614/614, CFX8/8, four standalone fixtures and
+identical oracles in checks11. Native core04 validates all four unelevated
+children individually, with zero core findings, exact completed capture state/
+images and actual isolated warm cache loads/hits. Overall paired acceptance
+**FAILS** because eleven first cold warmup scene/restoration rows differ only
+in actual tic386 versus385. The warm subset is exact; no partial finding
+relabels the packet. A default-off, PFVTEST-only one-tic-per-display fixture
+clock now retains actual tics and requires fresh source exports/builds/inputs
+and core/synchronization qualification. Original packets/builds remain sealed.
 A later tool guard additionally compares complete actual production binary-key
 sets including null-scene/worker records. Its qualification remains separate;
 no actual paired core/synchronization or generalized acceptance is inferred.
