@@ -32,7 +32,7 @@ PF-006 replaces whole-object `memcmp`/padding identity for `VkPipelineKey`, `VkR
 
 `VkShaderKey::AsQWORD` remains the packed specialization-constant ABI used by the shaders; PF-006 does not reorder or reinterpret its meaningful bits. The generalized shader cache preserves the inherited narrower partition through explicit layout/effect/user-shader/vertex-format serialization rather than raw `Layout.AsDWORD` object representation.
 
-PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. PF-019 may optimize cache/worker overhead only after this semantic identity is frozen. See `PF-006-PIPELINE-KEY-CONTRACT.md`.
+PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. Accepted PF-019 leaves cache/worker overhead unchanged; future optimization requires representative profiling and an owning issue. See `PF-006-PIPELINE-KEY-CONTRACT.md`.
 
 ## Pipeline compilation/caching
 
@@ -44,7 +44,7 @@ PF-007 records graphics-pipeline-library extension and enabled-feature state in 
 
 The on-disk `pipelinecache.zdpc` contains the Vulkan driver cache blob returned by `VulkanPipelineCache::GetCacheData()` and restored through `PipelineCacheBuilder::InitialData()`. Renderer C++ key objects are not serialized into that file, so PF-006 introduces no renderer-key disk-cache migration.
 
-PF-019 may optimize lookup/worker overhead only after key identity is frozen.
+Accepted PF-019 leaves lookup/worker overhead unchanged; it gates only the source-proven dormant light-tile producer.
 
 ## Descriptor sets
 
@@ -94,7 +94,7 @@ Vulkan scene resources include:
 - linear depth;
 - postprocess HDR pipeline images;
 - Z-min/max pyramid images, only when the dormant light-tile policy is enabled;
-- full-grid light-tile storage only when that policy is enabled; disabled policy still retains one initialized `LightTileBlock` for the always-live LevelMesh binding4.
+- full-grid light-tile storage only when that policy is enabled; disabled policy still retains one allocated valid `LightTileBlock` for the always-live LevelMesh binding4. Its payload is not initialized by the dormant dispatcher and is not consumed while `uLightIndex=-1`.
 
 PF-007 records the intersection of sampled color/depth/stencil sample-count support and routes the existing `gl_multisample` request through `VulkanCapabilities::BestSceneSampleCount()`. The clamping and best-supported-count algorithm are unchanged.
 

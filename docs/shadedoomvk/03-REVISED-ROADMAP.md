@@ -12,7 +12,7 @@ ShadeDoomVK now has two serial macro-tranches:
 
 The PF tranche is mandatory. SDVK-001 has hard dependency PF-020.
 
-Current gate (2026-10-04): PF-001–019 and CFX #75 are accepted on `master@4df7dea1338f063c6417e024f967bfa4aa23edd4`. PF-017 completed as a measured no-go with complete candidate restoration, not a required deduplication/hash implementation. PF-020 / #37 is running; release remains **BLOCKED** on confirmed inherited material/parser findings and final-source verification. SDVK-001 remains blocked. See [provisional evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
+Current gate (2026-10-04): PF-001–019 and CFX #75 are accepted; current renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 completed as a measured no-go with complete candidate restoration, not a required deduplication/hash implementation. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 remains **BLOCKED** on its applicable state/image equivalence, aggregate review and final-source verification/integration gates. SDVK-001 remains blocked. See [current evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
 
 Within each tranche, independent lanes may run concurrently only when issue bodies/`05-AUTONOMOUS-ISSUE-GRAPH.md` permit it.
 

@@ -414,6 +414,8 @@ PF-020/SDVK-001 acceptance follows. See [repair](PF-GLDEFS-SAMPLING-REPAIR.md) a
 [compact verification](PF-GLDEFS-SAMPLING-VERIFICATION.json); required exact-head
 CI, merge/master and post-merge verification govern independent acceptance.
 
+Final independent release acceptance: exact head `5c3b2895888e5af18fac5a51e4e0988fe5a88fa4` passed all eight actual jobs in [run37183408191](https://github.com/techrote/ShadeDoomVK/actions/runs/37183408191). PR #115 merged as `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`, verified on remote master, and all eight exact merge-push jobs passed in [run37184391659](https://github.com/techrote/ShadeDoomVK/actions/runs/37184391659). [Acceptance comment](https://github.com/techrote/ShadeDoomVK/issues/114#issuecomment-5977683648) records independent exact-head review and closure. The earlier compact verification remains measurement-time history with its original pending integration limits; it is not rewritten as a release receipt. Full PF-020 remains separate and blocked.
+
 ## Independent #110/#112 material correctness candidates — 2026-10-04
 
 This focused preparation is based on accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`. It preserves the accepted GLDEFS repair and does not publish a PF-020 freeze, probe contribution decision, optimization or gameplay/quality change.

@@ -138,4 +138,4 @@ The qualification and failed-attempt receipts above retain their original
 measurement-time statuses. Earlier pending-gate statements describe those
 preparations; this receipt records their eventual completion. Software,
 performance, human-review and historical-campaign limits remain unchanged.
-PF-020/SDVK-001 stay blocked by the separate #113 repair.
+PF-020/SDVK-001 stay blocked by the separate final freeze gates. The #113 repair is accepted at `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`; it does not establish complete freeze acceptance.
