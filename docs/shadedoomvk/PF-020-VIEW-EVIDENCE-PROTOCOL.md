@@ -58,9 +58,16 @@ uses the emitted FIRST_USER_SHADER and NUM_BUILTIN_SHADERS constants.
 Use fixed declared camera/time/content/seed/quality and identical settings in a
 pair: ordinary BSP, immediate specialized rendering, nearest filtering, no
 shadows, fixed resolution/render scale and identical portal/mirror recursion.
-The separately explicit `-pf020viewfraction 0.5` sets only fixture visual actor
-interpolation for main/camera roots without changing simulation values;
-probe roots retain their actual inherited fraction. The separate explicit
+The separately explicit `-pf020viewfraction 0.5` sets fixture visual view/actor
+interpolation for main/camera roots without changing simulation values. The
+validated map/side hook applies it inside `R_SetupFrame`, before actual position,
+angle and quake interpolation; the later actor hook uses the same fraction.
+Applying it only after frame setup could label a wall-clock-interpolated camera
+position as fraction0.5. The setup hook does not depend on a prior renderer root;
+ordinary/off/foreign-map calls preserve their inherited fraction. This common
+function also serves software rendering, for which no diagnostic qualification
+is claimed. Probe roots retain their actual inherited fraction. The separate
+explicit
 `-pf020viewclock single-tic` correctness fixture uses the engine's existing
 `singletics`/`D_SingleTick` path: one complete game tic per displayed frame,
 including synchronous `NetUpdate` behavior. Arm only after actual PFVTEST
@@ -230,6 +237,17 @@ comparison with a C string. No engine was staged or launched and the original
 build/source/logs remain unchanged. The repair uses the real case-sensitive
 `FString::Compare(const char*)` API, with that header included in fixture source
 pins. Fresh export/build/input identities precede any retry.
+
+Both correcteddb8844 builds06 pass native compilation and full unchanged-source
+closure. Core05 validates all four actual unelevated children and their real
+clock0..559. Its cold pair matches260 semantic records, all37 complete binary
+keys and all captured images exactly. Overall packet05 nevertheless **FAILS**
+the warm camera producer snapshot: at actualtic2 both, an interpolated position
+contains -47.99999999999999/47.99999999999999 versus -48/48. The actual fraction
+was assigned only after `R_SetupFrame` had used `I_GetTimeFrac` to compute the
+view. Preserve packet05 and its raw positions; do not round them or widen
+tolerance. The early validated setup fraction requires fresh source/build/input
+identities and another exact native packet. Synchronization has not yet run.
 
 CPU source-derivation, fixture-authoring and actual production observer-TU guard
 tests establish bounded preparation. They do not prove native ZScript compilation,

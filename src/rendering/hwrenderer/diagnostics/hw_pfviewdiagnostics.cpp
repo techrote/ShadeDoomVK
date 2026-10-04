@@ -260,6 +260,10 @@ void BeginRoot(bool mainview, bool toscreen, int side, const char* map)
     Observer.Side = side; Observer.Eye = 0; ++Observer.Root;
     Observer.RootType = side >= 0 ? "light-probe" : mainview ? toscreen ? "main" : "save-picture" : "camera-texture";
 }
+double SetupFraction(double inherited, int side, const char* map)
+{
+    return Enabled() && Observer.FixedFraction && side == -1 && map && std::string(map) == "PFVTEST" ? 0.5 : inherited;
+}
 double ActorFraction(double inherited)
 {
     return Active() && Observer.FixedFraction && Observer.Side < 0 ? 0.5 : inherited;

@@ -124,6 +124,22 @@ A later tool guard additionally compares complete actual production binary-key
 sets including null-scene/worker records. Its qualification remains separate;
 no actual paired core/synchronization or generalized acceptance is inferred.
 
+Supported API repair head `db8844f867546a7419538511660439d85fde8398`
+passes clean PF616/616, CFX8/8, four standalone fixtures and identical oracles
+in checks13. Both fresh source-derived builds06 pass native compilation and
+unchanged-source closure. Core05 validates all four actual medium, unelevated
+children with zero core findings and a real clock0..559. The cold pair is exact
+for260 semantic records, all37 complete binary keys and all captured images.
+The overall packet nevertheless **FAILS** on a warm camera completed-view
+position at actualtic2: -47.99999999999999/47.99999999999999 versus -48/48.
+The late actor fraction did not control the earlier `R_SetupFrame` camera
+interpolation. A guarded fixture-only fraction now enters before actual view
+position/angle consumers, independently of prior observer roots. Ordinary,
+foreign-map, rejected-observer and probe inputs remain inherited. This source
+repair requires fresh exports/builds/inputs and another exact core packet.
+Failed packet05 and build06 identities remain sealed; synchronization has not
+yet run and no warm-image or whole-packet acceptance is inferred.
+
 Tool4997491 passes clean PF613/613, CFX8/8, four standalone fixtures and
 identical oracles in checks10. Core packet03's first repaired GTX child exits0
 and passes strict scene/key/camera/probe/main RGB gates, with zero core errors/

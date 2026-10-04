@@ -142,3 +142,15 @@ existing one-tic-per-display `singletics` path only after guarded opt-in. Normal
 adaptive scheduling remains the default. Observations retain actual game tics;
 the fixture clock changes pacing and supplies no performance evidence. See the
 [view protocol](../PF-020-VIEW-EVIDENCE-PROTOCOL.md) for guard and capture limits.
+
+The separately requested PFVTEST fraction0.5 must enter `R_SetupFrame` before
+quake, actor-angle and `R_InterpolateView` position/angle consumers. Assigning it
+only after setup changes the later label while leaving the actual completed
+camera position dependent on the original fraction. `SetupFraction` checks the
+actual map and side directly rather than a prior root; probe sides0..5 keep
+their inherited fraction1. Default-off, foreign-map and rejected observer
+states preserve the inherited value. This is bounded diagnostic interpolation,
+not a production portal transform, gameplay-time change, software-renderer
+qualification or performance result. Native packet05 retains the reproduced
+warm camera mismatch; fresh source/build/input identities must qualify the fix
+without rounding actual positions or widening the exact comparison.

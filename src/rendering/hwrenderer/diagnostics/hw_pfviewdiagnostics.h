@@ -20,6 +20,9 @@ std::string CurrentSceneKeyJson();
 std::string ActiveSceneKeyJson();
 std::string ActiveSemanticKeyJson();
 void BeginRoot(bool mainview, bool toscreen, int side, const char* map);
+// Apply the explicit fixture fraction before viewpoint interpolation. This
+// does not depend on a previous root and preserves the inherited probe value.
+double SetupFraction(double inherited, int side, const char* map);
 double ActorFraction(double inherited);
 void BeginEye(int eye);
 void SceneBegin(const HWDrawInfo* di, int drawmode);

@@ -67,6 +67,7 @@
 #include "v_draw.h"
 #include "i_interface.h"
 #include "d_main.h"
+#include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
 
 const float MY_SQRT2    = float(1.41421356237309504880); // sqrt(2)
 // EXTERNAL DATA DECLARATIONS ----------------------------------------------
@@ -932,6 +933,10 @@ void R_SetupFrame(FRenderViewpoint& viewPoint, const FViewWindow& viewWindow, AA
 
 	if (actor == nullptr)
 		I_Error("Tried to render from a null actor.");
+
+	// A fixture fraction must govern the position/angle calculation itself,
+	// rather than only the later actor draws and observation label.
+	viewPoint.TicFrac = Pf020ViewDiagnostics::SetupFraction(viewPoint.TicFrac, side, actor->Level->MapName.GetChars());
 
 	viewPoint.ViewLevel = actor->Level;
 

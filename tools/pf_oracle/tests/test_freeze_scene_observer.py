@@ -216,6 +216,7 @@ int main(int argc, char** argv) {
     if (scenario=="off") {
         arguments.Values={"fixture"};
         assert(!Pf020ViewDiagnostics::BeginFixtureClock("PFVTEST",true) && !singletics && gametic==123);
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.375);
         Pf020ViewDiagnostics::BeginRoot(true,true,-1,"PFVTEST");
         assert(!Pf020ViewDiagnostics::Enabled());
         assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
@@ -228,6 +229,7 @@ int main(int argc, char** argv) {
         return 0;
     }
     if (scenario=="foreign") {
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"MAP01")==.375);
         Pf020ViewDiagnostics::BeginRoot(true,true,-1,"MAP01");
         assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
         Pf020ViewDiagnostics::SceneBegin(&root,0);
@@ -237,6 +239,7 @@ int main(int argc, char** argv) {
     }
     if (scenario=="no-fraction") {
         arguments.Values.resize(3);
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.375);
         Pf020ViewDiagnostics::BeginRoot(true,true,-1,"PFVTEST");
         assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
         Pf020ViewDiagnostics::SceneBegin(&root,0);
@@ -254,7 +257,30 @@ int main(int argc, char** argv) {
         assert(!Pf020ViewDiagnostics::Enabled());
         assert(!Observer.Error.empty());
         assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.375);
         pf020view_dump({{"pf020view_dump"}});
+        return 0;
+    }
+    if (scenario=="setup-fraction") {
+        // Exercise the actual helper before the first root, when Active() is
+        // false, and with a preceding probe root. No production view is faked.
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.5);
+        assert(Observer.Root==0 && Observer.Stack.empty() && Observer.Records.empty() && gametic==123);
+        const char* maps[] = {nullptr,"MAP01","pfvtest","PFVTEST2"};
+        for (const char* map : maps)
+            assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,map)==.375);
+        for (int side=-2;side<=6;++side) {
+            if (side==-1) continue;
+            assert(Pf020ViewDiagnostics::SetupFraction(.375,side,"PFVTEST")==.375);
+            assert(Pf020ViewDiagnostics::SetupFraction(1,side,"PFVTEST")==1);
+        }
+        Pf020ViewDiagnostics::BeginRoot(false,false,3,"PFVTEST");
+        const auto priorRoot=Observer.Root;
+        assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.5);
+        assert(Observer.Root==priorRoot && Observer.Stack.empty() && Observer.Records.empty() && gametic==123);
+        Observer.Error="controlled prior error";
+        assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.375);
         return 0;
     }
     Pf020ViewDiagnostics::BeginRoot(true,true,-1,"PFVTEST");
@@ -395,6 +421,7 @@ int main(int argc, char** argv) {
     assert(!Pf020ViewDiagnostics::FixtureActive());
     assert(Pf020ViewDiagnostics::CurrentSceneKeyJson().empty());
     assert(Pf020ViewDiagnostics::ActorFraction(.375)==.375);
+    assert(Pf020ViewDiagnostics::SetupFraction(.375,-1,"PFVTEST")==.375);
     return 0;
 }
 '''
@@ -520,6 +547,11 @@ class ProductionObserverGuards(unittest.TestCase):
                 self.assertEqual(next(r for r in receipt["records"] if r["event"] == "sprite-vertices")["fraction"], .375)
                 self.assertIsNone(self.observe("fraction-roots", variant)[1])
 
+    def test_actual_setup_fraction_precedes_root_and_preserves_probe_foreign_and_error_state(self):
+        for variant in self.executables:
+            with self.subTest(variant=variant):
+                self.assertIsNone(self.observe("setup-fraction", variant)[1])
+
     def test_nested_parent_stack_and_restored_state_use_actual_observer(self):
         for variant in self.executables:
             with self.subTest(variant=variant):
@@ -600,6 +632,15 @@ class ProductionObserverGuards(unittest.TestCase):
 
 
 class ObserverIntegrationSourceGuards(unittest.TestCase):
+    def test_fixed_view_fraction_precedes_actual_position_and_angle_consumers(self):
+        utility = (ROOT/"src/rendering/r_utility.cpp").read_text()
+        setup = utility.split("void R_SetupFrame(", 1)[1].split("\n}\n", 1)[0]
+        hook = setup.index("viewPoint.TicFrac = Pf020ViewDiagnostics::SetupFraction(")
+        self.assertLess(setup.index('I_Error("Tried to render from a null actor.")'), hook)
+        self.assertLess(hook, setup.index("DEarthquake::StaticGetQuakeIntensities(viewPoint.TicFrac"))
+        self.assertLess(hook, setup.index("R_DoActorTickerAngleChanges(player, iView->New.Angles, viewPoint.TicFrac)"))
+        self.assertLess(hook, setup.index("R_InterpolateView(viewPoint, player, viewPoint.TicFrac, iView)"))
+
     def test_finite_guard_translation_units_have_explicit_precise_math_policy(self):
         cmake = (ROOT/"src/CMakeLists.txt").read_text()
         frontend = "rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp"

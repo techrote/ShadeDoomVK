@@ -56,6 +56,7 @@ SOURCE_FILES = (
     "src/maploader/udmf.cpp", "src/maploader/specials.cpp", "src/r_data/sprites.cpp",
     "src/r_data/r_canvastexture.cpp", "src/gamedata/textures/animations.cpp",
     "src/rendering/hwrenderer/hw_entrypoint.cpp",
+    "src/rendering/r_utility.cpp", "src/rendering/r_utility.h",
     "src/d_main.cpp", "src/d_net.cpp", "src/g_game.cpp",
     "src/common/utility/zstring.h",
     "src/common/console/c_dispatch.cpp",
