@@ -1,4 +1,4 @@
-# PF-113 â€” Missing environment-probe contribution repair
+# PF-113 — Missing environment-probe contribution repair
 
 Status: **native qualification PASS; exact-head review/CI and release integration pending.**
 
