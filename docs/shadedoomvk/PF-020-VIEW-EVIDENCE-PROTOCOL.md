@@ -284,8 +284,10 @@ SavePicture and software are outside this bounded packet. CPU tests, capability
 lines or zero generic observations never substitute for actual execution.
 
 CPU source-derivation, fixture-authoring and actual production observer-TU guard
-tests establish bounded preparation. They do not prove native ZScript compilation,
-linked traversal, camera demand, six-face production, cache reuse, API validity,
-pixel parity, or full-engine build success. Those gates remain pending until fresh
-native receipts exist. The separate ordinary Dense CPU concern requires its own
-recorded profiling and aggregate disposition; this observer does not explain it.
+tests establish bounded preparation. CPU preparation alone does not prove native
+ZScript compilation, linked traversal, camera demand, six-face production, cache
+reuse, API validity, pixel parity, or full-engine build success. Their bounded
+native qualification is recorded above and in [the closed measurement record](PF-020-VIEW-MEASUREMENT.json).
+Broader modes and the final aggregate remain unaccepted. The separate ordinary
+Dense CPU concern requires its own recorded profiling and aggregate disposition;
+this observer does not explain it.
