@@ -312,7 +312,7 @@ void SpriteVertices(const HWDrawInfo* di, const HWSprite* sprite, const FFlatVer
         const auto* actor = sprite->actor; ++Observer.Sprites;
         std::ostringstream out;
         out << "{\"event\":\"sprite-vertices\",\"semanticKey\":" << Quote(Key(di).c_str()) << ",\"tid\":" << actor->tid
-            << ",\"sprite\":" << actor->sprite << ",\"frame\":" << actor->frame
+            << ",\"sprite\":" << actor->sprite << ",\"frame\":" << unsigned(actor->frame)
             << ",\"renderflags\":" << uint32_t(actor->renderflags) << ",\"renderflags2\":" << uint32_t(actor->renderflags2)
             << ",\"texture\":" << Quote(sprite->texture ? sprite->texture->GetName().GetChars() : "")
             << ",\"translation\":" << sprite->translation.index() << ",\"shaderOverride\":" << sprite->OverrideShader

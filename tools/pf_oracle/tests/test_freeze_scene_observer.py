@@ -131,7 +131,8 @@ struct HWDrawInfo {
 struct NameValue { std::string Value="POSSA2A8"; const char* GetChars() const { return Value.c_str(); } };
 struct Texture { NameValue Name; const NameValue& GetName() const { return Name; } };
 struct StubActor {
-    int tid=4400, sprite=3, frame=0;
+    int tid=4400, sprite=3;
+    uint8_t frame=0;
     uint32_t renderflags=5, renderflags2=6;
     StubSector* Sector=nullptr;
     Vec3 Position{-24,-40,8}, Prev{-32,-48,8}, ControlledInterpolated{-28,-44,8};
@@ -181,6 +182,7 @@ int main(int argc, char** argv) {
     HWDrawInfo root;
     root.drawctx=&context; root.Viewpoint.sector=&sector;
     StubActor actor; actor.Sector=&sector;
+    if (scenario.rfind("frame-",0)==0) actor.frame=uint8_t(std::stoi(scenario.substr(6)));
     Texture texture;
     HWSprite sprite; sprite.actor=&actor; sprite.texture=&texture;
     FFlatVertex vertices[4]={{1,2,3,.125f,.25f},{4,5,6,.875f,.25f},{7,8,9,.125f,.75f},{10,11,12,.875f,.75f}};
@@ -429,6 +431,18 @@ class ProductionObserverGuards(unittest.TestCase):
                 self.assertEqual(completed["completedView"]["tic"], scene["tic"])
                 self.assertEqual(completed["completedView"]["viewMatrix"], scene["viewMatrix"])
                 self.assertEqual(completed["completedView"]["productionContextAvailable"], variant == "current")
+
+    def test_actual_byte_frame_roundtrips_as_json_number_in_both_variants(self):
+        actor_source = (ROOT/"src/playsim/actor.h").read_text()
+        self.assertRegex(actor_source, r"\buint8_t\s+frame\s*;")
+        for variant in self.executables:
+            for frame in (0, 9, 10, 13, 34, 65, 92, 127, 128, 255):
+                with self.subTest(variant=variant, frame=frame):
+                    _, receipt = self.observe(f"frame-{frame}", variant)
+                    sprite = next(r for r in receipt["records"] if r["event"] == "sprite-vertices")
+                    self.assertEqual(receipt["status"], "COLLECTED_STATE_ONLY")
+                    self.assertIs(type(sprite["frame"]), int)
+                    self.assertEqual(sprite["frame"], frame)
 
     def test_completed_producer_snapshot_uses_later_actual_view_after_semantic_dedup(self):
         for variant in self.executables:

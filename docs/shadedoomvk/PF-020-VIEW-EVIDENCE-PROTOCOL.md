@@ -86,6 +86,24 @@ The clean committed tool revision is pinned separately from the frozen engine
 head. A later tool/docs revision can reuse those builds only when every runtime
 source and build counterpart still matches the authenticated frozen export.
 
+Core attempt02 uses clean tool head1be5127 and the same frozen engine builds03.
+Its first unelevated GTX child reaches PFVTEST, produces both camera captures,
+all six probe faces and the main screenshot, and exits0. Core validation reports
+zero errors/warnings; actual startup reports pipeline-library support. The
+packet nevertheless **FAILS** strict frontend JSON decoding: `AActor::frame`
+is a byte and direct stream insertion emits a raw NUL for frame0. No later child
+was launched. Original outputs remain immutable; diagnostic in-memory recovery
+is not acceptance. The observer now emits the frame as an unsigned number,
+guarded using the actual byte type and control/quote/high-byte boundaries in
+both compiled source variants. This engine edit needs fresh exports/builds and
+a fresh native packet.
+
+Native key parsing preserves source-defined `EFF_NONE=-1` only for SpecialEffect.
+Other scalar/layout fields remain nonnegative. Shader binary cache identity is
+the complete production `<ShaderType>-<SHA1>-<final-source-size>` string, with
+the six source-defined shader types, lowercase40-hex SHA1 and canonical decimal
+size. Missing/malformed components fail; a bare SHA1 cannot replace the key.
+
 `-pf020viewobserve <fresh-prefix>` enables bounded frontend records only on
 actual PFVTEST roots. Record actual root/eye/face, parent/depth/parity, published
 production context where present, viewpoint index/group/fraction, live view and

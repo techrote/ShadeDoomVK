@@ -75,6 +75,11 @@ No accepted performance result authorizes fewer eligible lights, approximate sel
 
 The [view evidence protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) defines the
 currently prepared fixture/observer/private sampling/key/cache prerequisite.
+Core attempt02 reaches the fixture and completes camera/probe/main captures on
+one unelevated GTX child with zero core validation errors/warnings. It remains
+**FAIL** on raw byte-frame JSON serialization, with no paired/sync acceptance.
+The engine fix and source-correct key parser require fresh build/runtime proof;
+the failed packet and all original bytes are retained.
 CPU source derivation and observer controls do not prove runtime traversal,
 API correctness, cache reuse or images. Named diagnostic CPU captures complete
 with owned cleanup. [Bounded offline decoding](PF-020-CPU-PROFILE.json) passes

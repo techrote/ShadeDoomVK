@@ -585,3 +585,21 @@ exact values. Corrected retries get fresh packet/cache directories and verify
 every sealed engine/build input. Reviewed RAG candidate/integration prose is
 marked historical or reconciled to accepted PR116; completed CPU decoding no
 longer appears as pending work. PF020/SDVK001 remain blocked.
+
+## PF-020 fixture reached, strict diagnostic failure retained — 2026-10-04
+
+Clean launcher/tool head1be5127 passes PF609/609, CFX8/8, four standalone
+fixtures, identical oracles and all eight exact-head jobs in run37214800451.
+Core packet02 launches only its first unelevated GTX child against frozen41c63
+build03. The actual map, both camera outputs, six probe faces and main screenshot
+complete; core validation reports zero errors/warnings, actual pipeline-library
+support is recorded, and the renderer exits0. Strict scene JSON decoding fails
+because byte-sized frame0 was streamed as a raw NUL. No paired, synchronization,
+generalized or freeze acceptance follows. All failed outputs remain unchanged.
+
+The observer converts the actual uint8_t frame to a JSON number. Compiled guards
+use that real byte type in both source variants. The parser retains EFF_NONE=-1
+only in SpecialEffect and validates the complete production shader cache key
+(type/SHA1/final-source-size), rather than demanding a bare SHA1. Source edits
+require fresh frozen exports/builds and fixture identities before the next
+native attempt. PF020/SDVK001 stay blocked and PR111 stays draft.

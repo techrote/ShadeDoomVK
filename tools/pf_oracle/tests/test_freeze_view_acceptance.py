@@ -89,7 +89,7 @@ def key_packet(variant="current"):
                      "pipeline": pipeline, "pass": {key: 0 for key in runner.PASS_FIELDS}, "workerThread": False, "scene": scene},
                     {"kind": "shader", "route": "specialized-find", "hit": True, "generalized": False, "actualGeneralizedKey": None,
                      "shader": copy.deepcopy(shader), "workerThread": False, "scene": copy.deepcopy(scene)},
-                    {"kind": "shader-binary-cache", "actualSourceChecksum": "a"*40, "hit": True, "workerThread": True, "scene": None}]
+                    {"kind": "shader-binary-cache", "actualSourceChecksum": "0-"+"a"*40+"-1255", "hit": True, "workerThread": True, "scene": None}]
     return {"schema": "shadedoomvk-pf020-vulkan-observation/v1", "status": "COLLECTED_PENDING_VALIDATION", "error": "", "freezeAccepted": False,
             "performanceMeasured": False, "sourceBranch": "current-named-seams" if variant == "current" else "source-derived-original-seams",
             "productionNamedKeysAvailable": variant == "current", "shaderClassification": {"firstUserShader": 12, "builtinShaderCount": 12},
@@ -185,6 +185,34 @@ class ViewAcceptanceControls(unittest.TestCase):
         self.reject_key(lambda d: d["workerState"].update(active=False), "types")
         self.reject_key(lambda d: d["keyLookups"][-1]["observation"].update(scene={}), "unsynchronized")
         self.reject_key(lambda d: d["keyLookups"][0]["observation"]["scene"].update(diagnosticIdentity=1), "stable semantic")
+
+    def test_only_source_defined_no_special_effect_sentinel_is_permitted(self):
+        source = (runner.ROOT/"src/common/rendering/hwrenderer/data/hw_renderstate.h").read_text()
+        self.assertIn("EFF_NONE = -1", source)
+        for variant in ("current", "original-seams"):
+            data = key_packet(variant)
+            data["keyLookups"][0]["observation"]["pipeline"]["shader"]["SpecialEffect"] = -1
+            data["keyLookups"][1]["observation"]["shader"]["SpecialEffect"] = -1
+            runner.key_evidence(data, variant)
+        for row, field, value in ((0, "SpecialEffect", -2), (1, "SpecialEffect", -2), (0, "EffectState", -1), (1, "VertexFormat", -1)):
+            def mutation(data):
+                observation = data["keyLookups"][row]["observation"]
+                shader = observation["pipeline"]["shader"] if row == 0 else observation["shader"]
+                shader[field] = value
+            self.reject_key(mutation, "field types")
+
+    def test_complete_actual_shader_cache_key_is_preserved_and_required(self):
+        source = (runner.ROOT/"src/common/rendering/vulkan/shaders/vk_shadercache.cpp").read_text()
+        self.assertIn('std::to_string((int)type) + "-" + sha1.final() + "-" + std::to_string(totalSize)', source)
+        for key in ("0-"+"a"*40+"-0", "1-"+"0123456789abcdef"*2+"01234567-1255"):
+            data = key_packet()
+            data["keyLookups"][-1]["observation"]["actualSourceChecksum"] = key
+            result = runner.key_evidence(data, "current")
+            self.assertEqual(result["keys"][-1]["observation"]["actualSourceChecksum"], key)
+        for key in (None, "a"*40, "-"+"a"*40+"-1255", "0-"+"a"*40, "-1-"+"a"*40+"-1255",
+                    "6-"+"a"*40+"-1255", "00-"+"a"*40+"-1255", "0-"+"a"*39+"-1255", "0-"+"g"*40+"-1255", "0-"+"a"*40+"--1",
+                    "0-"+"a"*40+"-01255", "0-"+"a"*40+"-1255-extra"):
+            self.reject_key(lambda d: d["keyLookups"][-1]["observation"].update(actualSourceChecksum=key), "source checksum")
 
     def test_script_is_one_physical_wait_chain_and_dump_order_is_source_grounded(self):
         out = runner.ROOT / "build/parser-service"

@@ -87,6 +87,17 @@ and one path representation, validates real queries independently of unarchived
 CVar persistence, and captures startup capabilities. It reauthenticates the
 sealed complete source/build closures; actual native acceptance remains pending.
 
+Launcher/tool head1be5127 passes clean PF609/609, CFX8/8, four standalone
+fixtures, identical oracles and all eight exact-head jobs in run37214800451.
+Its fresh core packet02 reaches the actual fixture on the first unelevated GTX
+child, captures both cameras/six probes/main RGB and exits0; core validation
+reports zero errors/warnings and startup reports pipeline-library support.
+Strict frontend JSON fails on a raw byte-sized sprite frame. The packet remains
+failed with no paired/synchronization acceptance and no later child launched.
+Frame serialization and source-correct sentinel/cache-key parsing are repaired
+for fresh qualification; all prior outputs/builds remain immutable. The source
+edit requires new current/original-seam exports, builds and fixture identities.
+
 The explicitly requested [targeted Dense recheck](PF-020-DENSE-TARGETED-RECHECK.json)
 retains both members of original pairs3/4/5, selected before rerun because each
 had a scored sprite Setup snapshot at least5.0ms. Two unscored warmups and six

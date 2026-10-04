@@ -468,7 +468,8 @@ def key_evidence(data, variant):
     def shader_fields(shader):
         require(isinstance(shader, dict) and set(shader) == SHADER_FIELDS and isinstance(shader.get("layout"), dict)
                 and set(shader["layout"]) == LAYOUT_FIELDS, "Actual meaningful shader/layout field closure missing")
-        require(all(type(v) is int and v >= 0 for k, v in shader.items() if k != "layout")
+        # EFF_NONE is -1 in hw_renderstate.h; other scalar fields stay nonnegative.
+        require(all(type(v) is int and v >= (-1 if k == "SpecialEffect" else 0) for k, v in shader.items() if k != "layout")
                 and all(type(v) is int and v >= 0 for v in shader["layout"].values()), "Shader/layout field types invalid")
     for row in rows:
         observation = row["observation"]
@@ -488,7 +489,10 @@ def key_evidence(data, variant):
                     and type(observation.get("ready")) is bool and type(observation.get("hit")) is bool, "Actual meaningful pipeline/style/pass field closure missing")
             shader_fields(pipeline.get("shader"))
         elif observation.get("kind") == "shader-binary-cache":
-            require(re.fullmatch(r"[0-9a-fA-F]{40}", observation.get("actualSourceChecksum", "")) and type(observation.get("hit")) is bool,
+            # CalcSha1(ShaderType, sources) includes decimal type and final source
+            # length. Preserve the whole production key, not only its SHA1 part.
+            checksum = observation.get("actualSourceChecksum")
+            require(isinstance(checksum, str) and re.fullmatch(r"[0-5]-[0-9a-f]{40}-(?:0|[1-9][0-9]*)", checksum) and type(observation.get("hit")) is bool,
                     "Actual shader binary source checksum/cache result missing")
         else: require(False, "Unknown actual key observation kind")
         if observation.get("kind") == "pipeline" and observation.get("ready") is True and observation.get("route") == "specialized-main-lookup" and not observation["workerThread"] and scene and scene["rootType"] == "main" and scene["phase"] == "warmup":
