@@ -14,6 +14,7 @@
 #include "hw_material.h"
 #include "hwrenderer/data/hw_resourcegeneration.h"
 #include <list>
+#include <unordered_map>
 
 struct FMaterialState;
 class VulkanDescriptorSet;
@@ -26,6 +27,7 @@ class FGameTexture;
 class VkHardwareTexture : public IHardwareTexture
 {
 	friend class VkMaterial;
+	friend struct FIndexedMaterialDiagnosticAccess;
 public:
 	VkHardwareTexture(VulkanRenderDevice* fb, int numchannels);
 	~VkHardwareTexture();
@@ -41,19 +43,23 @@ public:
 	void CreateWipeTexture(int w, int h, const char *name);
 
 	VkTextureImage *GetImage(FTexture *tex, int translation, int flags);
+	VkTextureImage *GetIndexedMaterialImage(FTexture *tex, int translation, int flags);
 	VkTextureImage *GetDepthStencil(FTexture *tex);
 
 	VulkanRenderDevice* fb = nullptr;
 	std::list<VkHardwareTexture*>::iterator it;
 
 private:
-	void CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags);
+	void CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags, bool allowAsync = true);
 
 	void CreateTexture(VkTextureImage* image, int w, int h, int pixelsize, VkFormat format, const void *pixels, bool mipmap);
 	void UploadTexture(VkTextureImage* image, int w, int h, int pixelsize, VkFormat format, const void* pixels, bool mipmap);
 	static int GetMipLevels(int w, int h);
 
 	VkTextureImage mImage, mPaletteImage, mAlphaImage;
+	// Public indexed materials share a hardware owner, but translated bytes do
+	// not share an image. Canonical remaps are immutable until texture teardown.
+	std::unordered_map<const FRemapTable*, std::unique_ptr<VkTextureImage>> IndexedPaletteImages, IndexedAlphaImages;
 	int mTexelsize = 4;
 
 	VkTextureImage mDepthStencil;
@@ -64,6 +70,7 @@ private:
 
 class VkMaterial : public FMaterial
 {
+	friend struct FIndexedMaterialDiagnosticAccess;
 public:
 	VkMaterial(VulkanRenderDevice* fb, FGameTexture* tex, int scaleflags);
 	~VkMaterial();
@@ -84,6 +91,7 @@ private:
 		GlobalShaderAddr globalShaderAddr;
 		bool indexed;
 		bool redIsAlpha;
+		std::unique_ptr<VkTextureImage> IndexedPalette;
 
 		DescriptorEntry(int cm, intptr_t f, int index, GlobalShaderAddr addr, bool paletteMode, bool indexedRedIsAlpha)
 		{
@@ -97,6 +105,7 @@ private:
 	};
 
 	DescriptorEntry& GetDescriptorEntry(const FMaterialState& state);
+	std::unique_ptr<VkTextureImage> CreateIndexedPalette();
 
 	std::vector<DescriptorEntry> mDescriptorSets;
 };

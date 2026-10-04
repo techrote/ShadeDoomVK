@@ -1,5 +1,6 @@
 # PF-008 — Material-layer semantic identity contract
 
+
 Status: implementation contract for PF-008  
 Issue: #25
 
@@ -26,7 +27,7 @@ This is metadata and an adapter around the existing material model. It is not a 
 
 ## Binding-order compatibility
 
-PF-008 deliberately does **not** reorder descriptor bindings. `FMaterial::mTextureLayers` remains the single binding-order truth consumed by Vulkan.
+PF-008 deliberately does **not** reorder descriptor bindings. `FMaterial::mTextureLayers` remains the single binding-order truth for authored layers consumed by Vulkan. A shader-required auxiliary palette resource is not an authored material layer.
 
 Representative inherited layouts remain:
 
@@ -43,11 +44,11 @@ Custom texture arrays remain sparse at authoring time and compact in the histori
 
 ## Vulkan descriptor and PF-003 lifetime invariants
 
-`VkMaterial::GetDescriptorEntry()` continues to allocate one contiguous PF-003 bindless range for the historical layer count and binds layers by array index. It still chooses each sampler from `GetLayerFilter(i)` and still keys descriptor variants by clamp, translation/remap, global shader and palette mode.
+For ordinary materials, `VkMaterial::GetDescriptorEntry()` continues to allocate one contiguous PF-003 bindless range for the historical layer count and binds layers by array index. It still chooses each sampler from `GetLayerFilter(i)` and still keys descriptor variants by clamp, translation/remap, global shader and palette mode.
 
 PF-008 semantic metadata is **not** added to descriptor identity because it does not alter resource state. Slot allocation, generation/lifetime validation, lightmap reservations and descriptor cleanup remain governed by PF-003.
 
-Indexed/palette paths, translations, canvases, warped materials and state-dependent global-shader extension binding remain unchanged. A global shader custom texture retains its existing custom-array slot as its extension identity; PF-008 does not repack or reinterpret those arrays.
+Within PF-008's accepted metadata-only change, indexed/palette paths, translations, canvases, warped materials and state-dependent global-shader extension binding remained unchanged. The focused public-indexed and descriptor-layout correctness exceptions below are separately owned by #110/#112. A global shader custom texture retains its existing custom-array slot as its extension identity; PF-008 does not repack or reinterpret those arrays.
 
 ## Sampling and authoring
 
@@ -73,3 +74,24 @@ The compiled adversarial fixture checks every semantic name, invalid-enum diagno
 No donor code is introduced by PF-008. Per-layer sampling was already present in the VKDoom baseline; the GriddleVK entry in `04-DONOR-PROVENANCE.md` remains historical provenance only.
 
 Gameplay/tic state, material authoring meaning, shader selection, palette/translation semantics, sprite conventions, portals, audio, source ownership and donor provenance are unchanged.
+
+## Focused #110/#112 material corrections — repair contract
+
+The supported public `DTA_Indexed` material has one authored albedo layer. [#110](https://github.com/techrote/ShadeDoomVK/issues/110) replaces its inherited three-descriptor/missing-layer consumer with exactly two real contiguous PF-003 resources: the canonical-remap-specific one-mip R8 index image and an entry-owned opaque 256x1 BGRA base-palette row. Translation remains in the index bytes before existing inverse/additive/object-colour shader operations; moving it to the row is not equivalent. The row has no invented semantic layer or authoring slot. Index and palette lookup remain discrete under both global filters. Ordinary layer ordering, placeholders, state-driven palette, RedIsAlpha and separately provisioned SWCanvas remain protected. See [identity, producer and retirement evidence](PF-110-IMPLEMENTATION-NOTES.md).
+
+[#112](https://github.com/techrote/ShadeDoomVK/issues/112) passes the actual selected owner's tracked layout at all four material publication sites. The bindless writer defaults to READ for audited uploaded-image callers and guards READ/GENERAL. Real paletted SWCanvas retains its existing mapped R8 GENERAL plus palette READ pair; layout declaration adds no producer, transition, pixel reinterpretation, cache key or retirement rule. See [software-image evidence limits](PF-112-IMPLEMENTATION-NOTES.md).
+
+Candidate4's normal native matrix is historical evidence for its exact source. Candidate5 native qualification is verified below; release integration is tracked in the source issues; no final acceptance, performance gain or PF-020/SDVK-001 unblock is recorded here.
+
+
+## Verified candidate5 native qualification
+
+The final clean candidate passes all twelve normal mode/filter cases and both
+genuine one-process core/sync restarts, with zero requested-validation errors or
+warnings, unchanged pins and all294 presentation ROIs. Strict PF393/393, four
+standalone contracts, CFX8/8 and deterministic source oracles pass.
+See [source and acceptance scope](PF-110-IMPLEMENTATION-NOTES.md) and
+[compact independently reviewed qualification](PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
+retained failures and unmeasured mode1/SW-retirement/performance limits.
+Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
+separate blocked gates.

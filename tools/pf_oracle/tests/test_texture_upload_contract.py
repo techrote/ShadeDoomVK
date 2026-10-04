@@ -70,7 +70,7 @@ class TextureUploadContractTests(unittest.TestCase):
     def test_async_completion_consumes_manager_ticket_before_target_dereference(self) -> None:
         body = function_body(
             self.hw_cpp,
-            "void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags)",
+            "void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags, bool allowAsync)",
         )
         self.assertIn("CreateUploadTicket(this, mUploadEpoch.Snapshot())", body)
         self.assertIn("textureManager->CheckUploadTicket(uploadTicket)", body)
@@ -145,7 +145,7 @@ class TextureUploadContractTests(unittest.TestCase):
     def test_indexed_redalpha_truecolor_and_canvas_format_policy_is_explicit(self) -> None:
         create_image = function_body(
             self.hw_cpp,
-            "void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags)",
+            "void VkHardwareTexture::CreateImage(VkTextureImage* image, FTexture *tex, int translation, int flags, bool allowAsync)",
         )
         # PF-013 deliberately extends PF-005's indexed format predicate to the
         # other one-byte producer. Both palette indices and RedIsAlpha use R8;
