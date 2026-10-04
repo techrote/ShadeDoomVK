@@ -28,6 +28,7 @@
 #include "vulkan/vk_levelmesh.h"
 #include "vulkan/descriptorsets/vk_descriptorset.h"
 #include "vulkan/textures/vk_renderbuffers.h"
+#include "vulkan/textures/vk_pfviewdiagnostics.h"
 #include "vulkan/samplers/vk_samplers.h"
 #include "vulkan/shaders/vk_shader.h"
 #include "vulkan/buffers/vk_hwbuffer.h"
@@ -86,13 +87,13 @@ static unsigned CalculatePipelineThreadCountTarget()
 
 VkRenderPassManager::VkRenderPassManager(VulkanRenderDevice* fb) : fb(fb)
 {
-	FString path = M_GetCachePath(true);
-	CreatePath(path.GetChars());
-	CacheFilename = path + "/pipelinecache.zdpc";
+	CacheFilename = Pf020VulkanDiagnostics::CacheFilename("pipelinecache.zdpc");
 	CfxTrace::Mark("pipeline-cache-path", CacheFilename.GetChars());
+	Pf020VulkanDiagnostics::CacheFile("pipeline", "before-load", CacheFilename, false);
 
 	PipelineCacheBuilder builder;
 	builder.DebugName("PipelineCache");
+	size_t loadedBytes = 0;
 
 	try
 	{
@@ -104,6 +105,7 @@ VkRenderPassManager::VkRenderPassManager(VulkanRenderDevice* fb) : fb(fb)
 			if (fr.Read(data.data(), data.size()) == (FileReader::Size)data.size())
 			{
 				builder.InitialData(data.data(), data.size());
+				loadedBytes = data.size();
 			}
 		}
 	}
@@ -112,6 +114,7 @@ VkRenderPassManager::VkRenderPassManager(VulkanRenderDevice* fb) : fb(fb)
 	}
 
 	PipelineCache = builder.Create(fb->GetDevice());
+	Pf020VulkanDiagnostics::CacheFile("pipeline", "after-create", CacheFilename, true, loadedBytes);
 
 	CreatePipelineWorkThreads();
 	if (fb->IsLightTilesEnabled())
@@ -125,16 +128,21 @@ VkRenderPassManager::~VkRenderPassManager()
 {
 	StopWorkerThreads();
 
+	bool saved = false;
 	try
 	{
 		auto data = PipelineCache->GetCacheData();
 		std::unique_ptr<FileWriter> fw(FileWriter::Open(CacheFilename.GetChars()));
 		if (fw)
-			fw->Write(data.data(), data.size());
+		{
+			saved = fw->Write(data.data(), data.size()) == data.size();
+			fw.reset();
+		}
 	}
 	catch (...)
 	{
 	}
+	Pf020VulkanDiagnostics::CacheFile("pipeline", "after-save-close", CacheFilename, saved);
 }
 
 void VkRenderPassManager::ProcessMainThreadTasks()
@@ -153,6 +161,7 @@ void VkRenderPassManager::ProcessMainThreadTasks()
 	for (auto& task : tasks)
 	{
 		task();
+		Pf020VulkanDiagnostics::MainTaskCompleted();
 	}
 }
 
@@ -163,6 +172,7 @@ void VkRenderPassManager::RunOnWorkerThread(std::function<void()> task, bool pre
 		Worker.PrecacheTasks.push_back(std::move(task));
 	else
 		Worker.PriorityTasks.push_back(std::move(task));
+	Pf020VulkanDiagnostics::WorkerScheduled(precache);
 	lock.unlock();
 	Worker.CondVar.notify_one();
 }
@@ -171,6 +181,7 @@ void VkRenderPassManager::RunOnMainThread(std::function<void()> task)
 {
 	std::unique_lock lock(Worker.Mutex);
 	Worker.MainTasks.push_back(std::move(task));
+	Pf020VulkanDiagnostics::MainTaskScheduled();
 }
 
 void VkRenderPassManager::StopWorkerThreads()
@@ -214,17 +225,21 @@ void VkRenderPassManager::WorkerThreadMain()
 
 		if (task)
 		{
+			Pf020VulkanDiagnostics::WorkerStarted();
 			lock.unlock();
 
+			bool failed = false;
 			try
 			{
 				task();
 			}
 			catch (...)
 			{
+				failed = true;
 				auto exception = std::current_exception();
 				RunOnMainThread([=]() { std::rethrow_exception(exception); });
 			}
+			Pf020VulkanDiagnostics::WorkerFinished(failed);
 
 			lock.lock();
 		}
@@ -496,6 +511,7 @@ VulkanPipeline *VkRenderPassSetup::GetPipeline(const VkPipelineKey &key, Uniform
 	else
 	{
 		auto item = SpecializedPipelines.find(key);
+		Pf020VulkanDiagnostics::PipelineLookup(key, PassKey, "specialized-main-lookup", item != SpecializedPipelines.end(), item != SpecializedPipelines.end() && item->second.pipeline != nullptr);
 		if (item == SpecializedPipelines.end() || item->second.pipeline == nullptr)
 		{
 			auto pipeline = CreateWithStats(*CreatePipeline(key, false, Uniforms), "Specialized");
@@ -515,6 +531,7 @@ PipelineData* VkRenderPassSetup::GetSpecializedPipeline(const VkPipelineKey& key
 {
 	// Have we seen this before?
 	auto it = SpecializedPipelines.find(key);
+	Pf020VulkanDiagnostics::PipelineLookup(key, PassKey, "specialized-worker-lookup", it != SpecializedPipelines.end(), it != SpecializedPipelines.end() && it->second.pipeline != nullptr);
 	if (it != SpecializedPipelines.end())
 	{
 		// Yes. Do we have the pipeline yet?
@@ -558,6 +575,7 @@ PipelineData* VkRenderPassSetup::GetSpecializedPipeline(const VkPipelineKey& key
 				auto& slot = SpecializedPipelines[k];
 				if (!slot.pipeline)
 					slot.pipeline = std::move(data->pipeline);
+				Pf020VulkanDiagnostics::PipelineLookup(k, PassKey, "specialized-worker-published", true, slot.pipeline != nullptr);
 
 				pipeline_time += duration;
 				++pipeline_count;
@@ -579,6 +597,7 @@ PipelineData* VkRenderPassSetup::GetGeneralizedPipeline(const VkPipelineKey& key
 	gkey.ShaderKey.AsQWORD = 0;
 
 	auto item = GeneralizedPipelines.find(gkey);
+	Pf020VulkanDiagnostics::PipelineLookup(gkey, PassKey, "generalized-lookup", item != GeneralizedPipelines.end(), item != GeneralizedPipelines.end() && item->second.pipeline != nullptr);
 	if (item == GeneralizedPipelines.end())
 	{
 		UniformStructHolder uniforms;
@@ -713,6 +732,7 @@ VulkanPipeline* VkRenderPassSetup::GetVertexShaderLibrary(const VkPipelineKey& k
 		vkey.ShaderKey.UseSpriteCenter = 0;
 	}
 	auto& pipeline = Libraries.VertexShader[vkey];
+	Pf020VulkanDiagnostics::PipelineLookup(vkey, PassKey, "vertex-library-lookup", pipeline != nullptr, pipeline != nullptr);
 	if (!pipeline)
 		pipeline = CreateVertexShaderLibrary(key, isUberShader);
 	return pipeline.get();
@@ -739,6 +759,7 @@ void VkRenderPassSetup::PrecompileFragmentShaderLibrary(const VkPipelineKey& key
 {
 	VkPipelineKey fkey = GetFragmentShaderKey(key, isUberShader);
 	auto it = Libraries.FragmentShader.find(fkey);
+	Pf020VulkanDiagnostics::PipelineLookup(fkey, PassKey, "fragment-library-precompile-lookup", it != Libraries.FragmentShader.end(), it != Libraries.FragmentShader.end() && it->second != nullptr);
 	if (it == Libraries.FragmentShader.end())
 	{
 		Libraries.FragmentShader[fkey] = nullptr;
@@ -765,6 +786,7 @@ void VkRenderPassSetup::PrecompileFragmentShaderLibrary(const VkPipelineKey& key
 				auto& slot = Libraries.FragmentShader[fkey];
 				if (!slot)
 					slot = std::move(data->pipeline);
+				Pf020VulkanDiagnostics::PipelineLookup(fkey, PassKey, "fragment-library-worker-published", true, slot != nullptr);
 
 				pipeline_time += duration;
 				++pipeline_count;
@@ -782,6 +804,7 @@ VulkanPipeline* VkRenderPassSetup::GetFragmentShaderLibrary(const VkPipelineKey&
 {
 	VkPipelineKey fkey = GetFragmentShaderKey(key, isUberShader);
 	auto& pipeline = Libraries.FragmentShader[fkey];
+	Pf020VulkanDiagnostics::PipelineLookup(fkey, PassKey, "fragment-library-lookup", pipeline != nullptr, pipeline != nullptr);
 	if (!pipeline)
 		pipeline = CreateWithStats(*CreateFragmentShaderLibrary(key, isUberShader), "FragmentShaderLibrary");
 	return pipeline.get();

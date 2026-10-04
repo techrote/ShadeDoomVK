@@ -1,5 +1,6 @@
 
 #include "vk_shadercache.h"
+#include "vulkan/textures/vk_pfviewdiagnostics.h"
 #include <zvulkan/cfxtrace.h>
 #include "vulkan/vk_renderdevice.h"
 #include "sha1.h"
@@ -12,15 +13,15 @@
 
 VkShaderCache::VkShaderCache(VulkanRenderDevice* fb) : fb(fb)
 {
-	FString path = M_GetCachePath(true);
-	CreatePath(path.GetChars());
-	CacheFilename = path + "/shadercache.zdsc";
+	CacheFilename = Pf020VulkanDiagnostics::CacheFilename("shadercache.zdsc");
 	CfxTrace::Mark("shader-cache-path", CacheFilename.GetChars());
+	Pf020VulkanDiagnostics::CacheFile("shader", "before-load", CacheFilename, false);
 
 	using namespace std::chrono;
 	LaunchTime = (uint64_t)(duration_cast<seconds>(system_clock::now().time_since_epoch()).count());
 
 	Load();
+	Pf020VulkanDiagnostics::CacheFile("shader", "after-load-return", CacheFilename, true, CodeCache.size());
 }
 
 VkShaderCache::~VkShaderCache()
@@ -44,6 +45,7 @@ std::vector<uint32_t> VkShaderCache::Compile(ShaderType type, const TArrayView<V
 {
 	FString key = CalcSha1(type, sources);
 	std::vector<uint32_t> code = GetFromCache(key);
+	Pf020VulkanDiagnostics::ShaderBinaryLookup(key.GetChars(), !code.empty());
 	if (!code.empty())
 	{
 		CfxTrace::Mark("shader-cache-hit", key.GetChars());
@@ -290,11 +292,15 @@ void VkShaderCache::Load()
 
 void VkShaderCache::Save()
 {
+	bool saved = false;
 	try
 	{
 		std::unique_ptr<FileWriter> fw(FileWriter::Open(CacheFilename.GetChars()));
 		if (!fw)
+		{
+			Pf020VulkanDiagnostics::CacheFile("shader", "after-save-close", CacheFilename, false, CodeCache.size());
 			return;
+		}
 
 		fw->Write("shadercache", 11);
 
@@ -302,10 +308,12 @@ void VkShaderCache::Save()
 		writeUInt32(fw, version);
 
 		writeUInt32(fw, CodeCache.size());
+		size_t expectedBytes = 11 + sizeof(uint32_t) * 2;
 		for (const auto& it : CodeCache)
 		{
 			const FString& checksum = it.first;
 			const VkCachedCompile& cachedCompile = it.second;
+			expectedBytes += sizeof(uint32_t) + checksum.Len() + sizeof(uint64_t) + sizeof(uint32_t) * 2 + cachedCompile.Code.size() * sizeof(uint32_t);
 
 			writeString(fw, it.first);
 			writeUInt64(fw, cachedCompile.LastUsed);
@@ -315,15 +323,19 @@ void VkShaderCache::Save()
 			writeUInt32(fw, cachedCompile.Includes.size());
 			for (const VkCachedInclude& cachedInclude : cachedCompile.Includes)
 			{
+				expectedBytes += sizeof(uint32_t) * 2 + cachedInclude.LumpName.Len() + cachedInclude.Checksum.Len() + sizeof(uint8_t);
 				writeString(fw, cachedInclude.LumpName);
 				writeUInt8(fw, cachedInclude.PrivateLump ? 1 : 0);
 				writeString(fw, cachedInclude.Checksum);
 			}
 		}
+		saved = fw->Tell() == static_cast<ptrdiff_t>(expectedBytes);
+		fw.reset();
 	}
 	catch (...)
 	{
 	}
+	Pf020VulkanDiagnostics::CacheFile("shader", "after-save-close", CacheFilename, saved, CodeCache.size());
 }
 
 /////////////////////////////////////////////////////////////////////////////

@@ -55,6 +55,7 @@
 #include "vulkan/textures/vk_renderbuffers.h"
 #include "vulkan/textures/vk_hwtexture.h"
 #include "vulkan/textures/vk_texture.h"
+#include "vulkan/textures/vk_pfviewdiagnostics.h"
 #include "vulkan/framebuffers/vk_framebuffer.h"
 #include "vulkan/commands/vk_commandbuffer.h"
 #include "vulkan/buffers/vk_hwbuffer.h"
@@ -442,6 +443,7 @@ void VulkanRenderDevice::RenderTextureView(FCanvasTexture* tex, std::function<vo
 
 	mRenderState->SetRenderTarget(&GetBuffers()->SceneColor, GetBuffers()->SceneDepthStencil.View.get(), GetBuffers()->GetWidth(), GetBuffers()->GetHeight(), VK_FORMAT_R16G16B16A16_SFLOAT, GetBuffers()->GetSceneSamples());
 
+	Pf020VulkanDiagnostics::CameraCompleted(this, image, tex);
 	tex->SetUpdated(true);
 }
 

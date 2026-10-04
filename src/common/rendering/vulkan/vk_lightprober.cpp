@@ -1,5 +1,6 @@
  
 #include "vk_lightprober.h"
+#include "vulkan/textures/vk_pfviewdiagnostics.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/textures/vk_texture.h"
 #include "vulkan/textures/vk_pbrprobediagnostics.h"
@@ -186,6 +187,7 @@ void VkLightprober::RenderEnvironmentMap(std::function<void(IntRect&, int)> rend
 
 		renderstate->EndRenderPass();
 
+		Pf020VulkanDiagnostics::ProbeFaceCompleted(side, environmentMap.renderTargets[side].View.get());
 		environmentMap.renderTargets[side].Layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	}
 
@@ -204,6 +206,7 @@ void VkLightprober::RenderEnvironmentMap(std::function<void(IntRect&, int)> rend
 			VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT);
 
 	renderstate->SetRenderTarget(&fb->GetBuffers()->SceneColor, fb->GetBuffers()->SceneDepthStencil.View.get(), fb->GetBuffers()->GetWidth(), fb->GetBuffers()->GetHeight(), VK_FORMAT_R16G16B16A16_SFLOAT, fb->GetBuffers()->GetSceneSamples());
+	Pf020VulkanDiagnostics::ProbeCompleted(fb, environmentMap.cubeimage.get(), environmentMap.cubeview.get());
 }
 
 void VkLightprober::CreateIrradianceMap()

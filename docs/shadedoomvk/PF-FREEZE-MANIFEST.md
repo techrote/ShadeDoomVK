@@ -6,7 +6,7 @@ Date: 2026-10-04. **PF-020: NOT ACCEPTED. SDVK-001: BLOCKED.** [Draft PR #111](h
 
 The accepted renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`, the verified merge of [PR #117](https://github.com/techrote/ShadeDoomVK/pull/117). All PF-001–019 and accepted CFX disposition merges are ancestors. The sole mutable source repository is ShadeDoomVK, checkout `C:/ShadeDoomVK/campaign-worktrees/pf020-native-freeze`, branch `codex/pf020-native-freeze`. Sibling source repositories and historical source worktrees are read-only.
 
-The freeze branch integrates accepted master at `204c666ba6e1f97438f8aec36f67ef66ddcaf718`; `dc58b3aa1d66050286fafc999cb505aa82e7d889` adds release/reconciliation documentation. Engine, shader, library and build content is unchanged from accepted master. Subsequent focused documentation/tool heads require their own recorded checks; no new engine build or runtime result is implied by a documentation commit.
+The freeze branch integrates accepted master at `204c666ba6e1f97438f8aec36f67ef66ddcaf718`; `dc58b3aa1d66050286fafc999cb505aa82e7d889` adds release/reconciliation documentation. Through the pushed Dense checkpoint `0ffded4316b6a50b4220b99b52a55e72245cd51b`, engine, shader, library and build content is unchanged from accepted master. The subsequent opt-in view observer adds engine hooks and build registration; it requires fresh source-qualified builds and native verification. Historical build/check receipts are not attributed to these new additions.
 
 Root owns integration and native execution. Disjoint agents review source/evidence and prepare the guarded ordinary-runtime tool. Physical children run serially; compiler/check jobs do not compete with measured runtime windows.
 
@@ -32,7 +32,44 @@ The checkout changed two diagnostic files' line endings. Before checks, root res
 
 Clean focused tool head `ef79361822199112ee2179414ce21b812178bca7` subsequently passes PF480/480, CFX8/8, the four standalone fixtures and repeat-oracle equality, with clean unchanged Git status. `build/pf020-native/pf020-final-checks-03/receipt.json` and its exact logs are pinned by the [current measurement packet](PF-020-DENSE-MEASUREMENT.json). The prior440/478 runs retain their own identities; later480 success is not attributed to their heads.
 
-The existing clean native build bridges all2,535 inputs:231 raw and2,304 documented CRLF projections, including two legacy encodings and two forced-text terminal-NUL files. Git/text equality is not silently substituted for measured raw identity. No engine source change occurred during this reconciliation.
+The existing accepted repair build bridges all2,535 inputs:231 raw and2,304 documented CRLF projections, including two legacy encodings and two forced-text terminal-NUL files. Git/text equality is not silently substituted for measured raw identity. No engine source change occurred during that reconciliation; the new view observer has a separate qualification boundary.
+
+## Bounded CPU capture and view preparation
+
+Two diagnostic-only Dense processes complete under named WPR CPU recordings in
+`build/pf020-native/pf020-cpu-profile/uac-capture-compiled-05`. Only the fixed,
+catalog-verified profiler controller is elevated. Coordinator and actual native
+children are unelevated at integrity RID8192. Both children exit normally;
+both owned stops succeed and subsequent independent named/default status reports
+idle. Baseline ETL is429,916,160 bytes, SHA256
+`bd861d714df23f4fe2e7f709ec240bbeee3fe3c186d29c666ac130259b5cc7ed`;
+candidate is417,333,248 bytes, SHA256
+`f6c490a8ed94f2c10056ad8245d7a7866446e23489c5c6a87e0a12059240dd71`.
+No scored samples are added. Capture success is not decoded loss/stack/scheduler
+coverage, CPU causality or performance acceptance; offline analysis is pending.
+Original policy-denied recording, low-integrity launcher cancellation and the
+short-status-parser failure remain retained with their cleanup dispositions.
+No UAC, security policy, driver setting or machine-wide configuration changed.
+
+The [view evidence protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) specifies the
+bounded healthy PFVTEST fixture, actual frontend scene/sprite observations,
+completed camera/probe same-format private sampling, native key/cache events and
+strict original-seam source derivation. CPU preparation tests do not establish
+full-engine compilation, actual traversal, Vulkan API validity or paired images.
+Fresh current/original-seam builds and runtime witnesses remain required.
+
+The explicitly requested [targeted Dense recheck](PF-020-DENSE-TARGETED-RECHECK.json)
+retains both members of original pairs3/4/5, selected before rerun because each
+had a scored sprite Setup snapshot at least5.0ms. Two unscored warmups and six
+scored children complete under bounded quiet preparation, with24 new snapshots
+and three exact image/state pairs,5,717,712 pixels/zero mismatch. Sprite Setup
+paired differences are−0.90%,+1.05%,+1.07%; All including Finish/wait is
++1.28%,−0.77%,−0.62%. Extreme original spikes did not recur. Original40 scores
+are unchanged; no selected replacement aggregate, CPU cause, significance,
+performance acceptance or GPU timing is inferred. Two failed quiet preparations
+are retained, including the separately reused unscored baseline warmup.
+Owner-supplied reset-interval monitoring is retained locally as unaligned host
+context; its PresentMon section identifies dwm.exe, not the renderer.
 
 ## Remaining freeze gates
 
@@ -55,4 +92,4 @@ The [initial checkpoint54e9a1b3](https://github.com/techrote/ShadeDoomVK/blob/54
 
 ## Next action
 
-Independent audit of the completed Dense raw packet passes; profile the unexplained CPU concern before optimizing. Prepare the bounded safe supported-view/sprite/key observer and fixture prerequisite; no missing source or physical hardware has been identified. Keep PR111 draft and the freeze blocked until its own full contract passes. Local artifacts hold evidence only; current remote humagent remains the human-task inbox. No human action is currently required.
+Independently decode the completed CPU recordings and assess their limits before any optimization or causality claim. Build and execute the bounded supported-view/sprite/key observer and fixture against both qualified source variants; no missing source or physical hardware has been identified. Keep PR111 draft and the freeze blocked until its own full contract passes. Local artifacts hold evidence only; current remote humagent remains the human-task inbox. No human action is currently required.

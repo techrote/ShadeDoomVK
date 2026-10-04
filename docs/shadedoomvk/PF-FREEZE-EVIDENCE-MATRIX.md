@@ -1,6 +1,6 @@
 # PF-020 final-source evidence matrix — synthesis in progress
 
-Status: **RELEASE BLOCKED / NOT ACCEPTED**. Current accepted renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. The serial freeze branch incorporates it at `204c666ba6e1f97438f8aec36f67ef66ddcaf718`; engine, shader, library, build, test and existing tool Git content exactly match that accepted master. Root records final documentation/tool heads separately as they are qualified.
+Status: **RELEASE BLOCKED / NOT ACCEPTED**. Current accepted renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. The serial freeze branch incorporates it at `204c666ba6e1f97438f8aec36f67ef66ddcaf718`. Engine/shader/library/build content stayed identical through the Dense checkpoint0ffded43. Subsequent opt-in view-observer engine hooks/build registration need their own source-qualified builds and native proof. Historical checks and runtime receipts retain their exact heads.
 
 [PF-020/#37](https://github.com/techrote/ShadeDoomVK/issues/37), [canonical issue](issues/PF-020.md), [validation contract](06-VALIDATION-PERFORMANCE-CONTRACT.md) and [equivalence protocol](PF-EQUIVALENCE-PROTOCOL.md) govern this synthesis. PF-001–019 and CFX are accepted dependencies. The starting-master findings and all failed material/probe preparation packets remain immutable in [checkpoint54e9a1b3](https://github.com/techrote/ShadeDoomVK/blob/54e9a1b3bd95046faa80566340c31e8ddbaac99b/docs/shadedoomvk/PF-FREEZE-MANIFEST.md), source-controlled original receipts and local artifacts. They are history, not current unaccepted repairs.
 
@@ -72,6 +72,17 @@ No accepted performance result authorizes fewer eligible lights, approximate sel
 | B5 | Final freeze review/CI/merge/master | **PENDING**. Draft PR #111 is ineligible to merge as a passing freeze. No SDVK001 permission follows until the complete gate is genuinely accepted and verified. |
 
 ## Final-source coverage boundaries
+
+The [view evidence protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) defines the
+currently prepared fixture/observer/private sampling/key/cache prerequisite.
+CPU source derivation and observer controls do not prove runtime traversal,
+API correctness, cache reuse or images. Named diagnostic CPU captures complete
+with owned cleanup; offline coverage/attribution remains separate. The owner
+has reported concurrent slicing spikes and requested targeted extreme-test
+rechecks. Retain the original Dense packet unchanged, preregister the selected
+pair reruns, and report them separately without claiming proven interference
+or excluding original samples. The [manifest](PF-FREEZE-MANIFEST.md) records
+current exact boundaries.
 
 PF016 retains exact selected/order/class/group, portal displacement, visibility invalidation and18 image pairs; PF018 retains1,630 exact rays and bounded geometry/capacity/CPU evidence. Canonical query/allocator/AABB implementations remain unchanged, while later correctness repairs intentionally alter wrong indexed/PBR semantics and must not use those broken GPU paths as performance baselines.
 

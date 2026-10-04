@@ -141,6 +141,26 @@ concern and its separate applicable view/sprite/key evidence gaps.
 
 ## Limits and publication
 
+The owner subsequently reported concurrent 3D-print slicing with CPU bursts
+and explicitly requested reruns of extreme tests after slicing finished.
+The separately preregistered targeted recheck selects original pairs3/4/5,
+each containing a scored sprite Setup sample at least5.0ms. Repeat both sides
+of each selected pair once, preserving alternating order and all original
+samples/receipts. Two whole-process warmups remain unscored; the new six
+scored children contribute24 snapshots in a separate packet. This descriptive
+selection is not an exclusion rule or a new performance threshold. Source,
+sealed binaries, settings, exact image gate and90s owned-child guard remain
+unchanged; builds/tests/offline analysis pause during physical windows.
+Quiet preparation records at least30 and at most120 one-second aggregate CPU
+intervals, requiring the final ten below15% before native launch. That is a preparation condition,
+not a performance gate or proof every source of interference was absent.
+Failed preparation is retained. Rerun outcomes and possible slicing
+interference do not replace the original measurement or establish causality.
+The [targeted actual packet](PF-020-DENSE-TARGETED-RECHECK.json) records24 new
+scored snapshots and three exact image/state pairs. Its sprite Setup differences
+are−0.90%,+1.05%,+1.07%, with no recurrence of the extreme original spikes.
+All original samples and both failed quiet preparations remain retained.
+
 No founding-baseline→current whole-renderer speedup, GPU budget, PBR cost,
 indexed cold-upload cost, packed ordered-light state, mirror/camera/probe-face
 parity, sprite vertex/frame/UV equivalence, key cache partition, P400 or human

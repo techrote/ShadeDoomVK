@@ -517,3 +517,30 @@ precision. All eight exact tool-head CI jobs pass in run37196660221. These
 checks do not accept the freeze. Profile before optimizing. No GPU timestamp/budget, PBR/indexed
 cost, packed-light state, key/cache, sprite-emission or offscreen-view parity
 follows. PF020/SDVK001 remain blocked; no historical STOP lane is reopened.
+
+## PF-020 CPU capture and view evidence preparation — 2026-10-04
+
+Two fresh unelevated native Dense diagnostic children complete with named CPU
+recordings, normal exits and successful owned stops in capture05. Independent
+named/default WPR status is idle. Only the fixed catalog-verified profiler
+controller was elevated under explicit owner permission; configuration/policy
+was not changed. Original denied/cancelled/parser-failed attempts remain retained.
+The [manifest](PF-FREEZE-MANIFEST.md) pins both ETLs. Zero scored samples are
+added, and decoded coverage/CPU cause/performance acceptance remain pending.
+
+The [view protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) records the opt-in actual
+scene/sprite observer, private same-format camera/probe sampling, production
+key/cache recording and strict source-derived original seams. These engine
+additions require their own fresh builds/native proof; earlier480/accepted-build
+receipts do not validate them. Fixture placement and CPU controls are preparation,
+not actual linked/mirror/camera/probe/user-shader traversal or image equivalence.
+PF020/SDVK001 stay blocked; draft111 remains ineligible to merge as a passing freeze.
+
+The owner reported concurrent CPU spikes from slicing and requested specific
+extreme-test reruns after it finished. [Targeted recheck](PF-020-DENSE-TARGETED-RECHECK.json)
+repeats both sides of original pairs3/4/5 once:8 physical children including2
+unscored warmups,24 scored CPU snapshots and three exact image/state pairs.
+Sprite Setup differences are−0.90%,+1.05%,+1.07%; total including Finish/wait
+is+1.28%,−0.77%,−0.62%. The large spikes did not recur. Original samples and
+failed quiet preparations remain retained; no replacement aggregate, causal
+attribution, statistical significance or performance/GPU acceptance follows.

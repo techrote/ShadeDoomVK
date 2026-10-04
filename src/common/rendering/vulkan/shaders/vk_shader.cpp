@@ -21,6 +21,7 @@
 */
 
 #include "vk_shader.h"
+#include "vulkan/textures/vk_pfviewdiagnostics.h"
 #include "vk_ppshader.h"
 #include "vk_shadercache.h"
 #include "vulkan/vk_renderdevice.h"
@@ -93,12 +94,14 @@ VkShaderProgram* VkShaderManager::GetFromCache(const VkShaderKey& key, bool isUb
 	if (isUberShader)
 	{
 		auto it = generic.find(key.GeneralizedShaderKey());
+		Pf020VulkanDiagnostics::ShaderLookup(key, true, it != generic.end(), "generic-find");
 		if (it != generic.end())
 			return it->second.get();
 	}
 	else
 	{
 		auto it = specialized.find(key);
+		Pf020VulkanDiagnostics::ShaderLookup(key, false, it != specialized.end(), "specialized-find");
 		if (it != specialized.end())
 			return it->second.get();
 	}
@@ -111,6 +114,7 @@ VkShaderProgram* VkShaderManager::AddToCache(const VkShaderKey& key, bool isUber
 	// If someone beat us to it, use their copy instead.
 	std::unique_lock lock(mutex);
 	auto& entry = isUberShader ? generic[key.GeneralizedShaderKey()] : specialized[key];
+	Pf020VulkanDiagnostics::ShaderLookup(key, isUberShader, entry != nullptr, "publish-existing-or-insert");
 	if (!entry)
 		entry = std::move(program);
 	return entry.get();

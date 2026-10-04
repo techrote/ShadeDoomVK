@@ -1,0 +1,27 @@
+#pragma once
+#include <string>
+
+struct HWDrawInfo;
+struct FFlatVertex;
+class HWSprite;
+
+// PF020-only scene observations. The separately requested fixture actor fraction
+// changes visual interpolation only. No production context is constructed here;
+// a derived original-seams build reports that metadata as unavailable.
+namespace Pf020ViewDiagnostics
+{
+bool Enabled();
+bool FixtureActive();
+const char* OutputPrefix();
+std::string CurrentSceneKeyJson();
+std::string ActiveSceneKeyJson();
+std::string ActiveSemanticKeyJson();
+void BeginRoot(bool mainview, bool toscreen, int side, const char* map);
+double ActorFraction(double inherited);
+void BeginEye(int eye);
+void SceneBegin(const HWDrawInfo* di, int drawmode);
+void SceneEnd(const HWDrawInfo* di);
+void Restored(const HWDrawInfo* di);
+void PostprocessCompleted(const HWDrawInfo* di);
+void SpriteVertices(const HWDrawInfo* di, const HWSprite* sprite, const FFlatVertex* vertices);
+}
