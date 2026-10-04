@@ -247,7 +247,37 @@ contains -47.99999999999999/47.99999999999999 versus -48/48. The actual fraction
 was assigned only after `R_SetupFrame` had used `I_GetTimeFrac` to compute the
 view. Preserve packet05 and its raw positions; do not round them or widen
 tolerance. The early validated setup fraction requires fresh source/build/input
-identities and another exact native packet. Synchronization has not yet run.
+identities and another exact native packet. The retained packet05 remains failed.
+
+## Corrected native and supported-library qualification
+
+Current source569bdb1/export07/builds07 and fixturev8 complete fresh Core06 and
+separate SYNC01. All four children in each packet exit0 at actual medium integrity
+without elevation; actual single-tic clocks span0..559. Both cold/warm pairs match
+260 semantic rows, all37 complete production binary keys, eight actual completed
+camera/probe images and independently decoded main RGB exactly. Camera startup/
+demand snapshots are actualtics1/2 at fraction0.5 and position `[1328,-48,48]`.
+Actual main user-ready pipelines number2 at emitted cutoff15. Core-only and
+Sync-only runs report zero findings; actual isolated cold absence, normal saves,
+warm loads/hits and source/build/input/device/STOP closures pass. Independent
+read-only raw/pixel/source/build rehash review confirms this bounded specialized
+result. It is not broader feature or performance qualification.
+
+The runner additionally preregisters `--pipeline-policy uber-library`, setting
+the existing Uber CVar before render-pass construction. This tested adapter
+retains every state/clock/image/binary-key/cache/source/token/device gate. Require
+actual pipeline-library capability; ready scene-associated generalized hits with
+matching actual generic ShaderPrograms and independently computed uint64 keys;
+ready main specialized user hits with full matching shader programs; positive
+vertex/fragment-library reuse and both completed worker publication routes;
+positive priority/precache queues and exact completed publications/workers with
+zero pending/failed work. Pair complete whole-process cache-family identities,
+including worker/null-scene records. Retain scheduling/hit/thread/scene observations
+without treating them as global map identity; changed family/key/pass still fails.
+Native Uber/library qualification remains pending until fresh Core/Sync packets
+pass. Direct VI/FO key-hit observation, LevelMesh, stereo, plane mirrors,
+SavePicture and software are outside this bounded packet. CPU tests, capability
+lines or zero generic observations never substitute for actual execution.
 
 CPU source-derivation, fixture-authoring and actual production observer-TU guard
 tests establish bounded preparation. They do not prove native ZScript compilation,

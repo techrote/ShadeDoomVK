@@ -145,7 +145,10 @@ def fixture_identity(path):
 
 
 def runtime_member(name):
-    return name.startswith(("src/", "libraries/", "wadsrc/", "cmake/")) or name.endswith("CMakeLists.txt")
+    return name.startswith(("src/", "libraries/", "wadsrc/", "wadsrc_bm/", "wadsrc_lights/",
+                            "wadsrc_extra/", "wadsrc_widepix/", "cmake/", "tools/re2c/", "tools/lemon/",
+                            "tools/zipdir/", "tools/updaterevision/", "fm_banks/", "soundfont/")) \
+        or name.endswith("CMakeLists.txt") or name.endswith(".gitattributes") or name == "vcpkg.json"
 
 
 def build_identity(candidate_path, variant, derivation_path):
@@ -261,9 +264,21 @@ def cache_inventory(path, *, cold=False):
     return result
 
 
-def script(out):
+def runtime_settings(policy="specialized"):
+    require(policy in ("specialized", "uber-library"), "Unknown pipeline policy")
+    return fixture.SETTINGS | {"gl_ubershaders": policy == "uber-library"}
+
+
+def runtime_configuration(policy="specialized"):
+    raw = fixture.configuration().encode("utf-8")
+    runtime_settings(policy)
+    require(raw.count(b"\ngl_ubershaders=false\n") == 1, "Exact startup Uber declaration changed")
+    return raw if policy == "specialized" else raw.replace(b"\ngl_ubershaders=false\n", b"\ngl_ubershaders=true\n")
+
+
+def script(out, policy="specialized"):
     commands = [*(f"{k} {v}" for k, v in UI_SETTINGS.items()), "unbindall"]
-    commands += [f"{k} {str(v).lower()}" for k, v in fixture.SETTINGS.items()]
+    commands += [f"{k} {str(v).lower()}" for k, v in runtime_settings(policy).items()]
     commands += [f"wait {WARMUP_WAIT_UNITS}", "vid_setsize 640 480", "wait 35",
                  "pf020view_begin warmup", f"wait {COLLECTION_WAIT_UNITS}", *fixture.SETTINGS, *UI_SETTINGS,
                  'screenshot "' + base.safe_console_path(out / "scene.png") + '"', "wait 35",
@@ -287,9 +302,10 @@ def command(exe, inputs, out, cache):
             "+exec", str(out / "execute.cfg")]
 
 
-def _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mode, expected_device_path=None):
+def _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mode, expected_device_path=None, pipeline_policy="specialized"):
     require(mode in ("core", "sync"), "Only independent core/sync modes are preregistered; GPU-AV excluded")
     out = safe_build(out, fresh=True)
+    requested_settings = runtime_settings(pipeline_policy)
     before = snapshot(fixture_path, derivation_path, candidate_paths, layer_dir, expected_device_path)
     out.mkdir(parents=True, exist_ok=False)
     packets = []
@@ -299,9 +315,9 @@ def _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mod
         child = out / f"{index + 1:02d}-{variant}-{thermal}"
         child.mkdir()
         config = child / "fixture-live.ini"
-        config.write_bytes(Path(before["inputs"]["config"]["path"]).read_bytes())
+        config.write_bytes(runtime_configuration(pipeline_policy))
         (child / "fixture-input.ini").write_bytes(config.read_bytes())
-        (child / "execute.cfg").write_text(script(child), encoding="utf-8", newline="\n")
+        (child / "execute.cfg").write_text(script(child, pipeline_policy), encoding="utf-8", newline="\n")
         settings = child / "vk_layer_settings.txt"
         settings.write_text("\n".join("khronos_validation." + item for item in base.settings_recipe(mode))
                             + "\nkhronos_validation.debug_action = VK_DBG_LAYER_ACTION_LOG_MSG\n"
@@ -312,6 +328,7 @@ def _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mod
         exe = Path(before["variants"][variant]["build"]["vkdoom.exe"]["path"])
         packets.append({"ordinal": index, "variant": variant, "cacheState": thermal, "directory": str(child), "cache": str(cache),
                         "argv": command(exe, before["inputs"], child, cache), "status": "PREPARED", "rendererStarted": False,
+                        "pipelinePolicy": pipeline_policy,
                         "generated": {name: identity(child / name) for name in ("fixture-input.ini", "fixture-live.ini", "execute.cfg", "vk_layer_settings.txt")}})
         save(out / "receipt.json", {"schema": SCHEMA, "status": "PREPARING", "output": str(out), "mode": mode,
                                     "before": before, "children": packets, "rendererStarted": False, "gpuExecuted": False, "freezeAccepted": False})
@@ -321,18 +338,23 @@ def _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mod
                     "expectedDevice": None if expected_device_path is None else str(Path(expected_device_path).resolve())},
                "children": packets, "watchdogSeconds": WATCHDOG_SECONDS, "warmupWaitUnits": WARMUP_WAIT_UNITS, "collectionWaitUnits": COLLECTION_WAIT_UNITS,
                "waitUnitBasis": "FWaitingCommand delayed-command ticks under the explicit PFVTEST one-game-tic-per-display scheduler; actual gametic remains observed",
-               "fixtureClock": "single-tic-per-display",
+               "fixtureClock": "single-tic-per-display", "pipelinePolicy": pipeline_policy, "requestedSettings": requested_settings,
                "imageTolerance": {"decodedComponents": 0, "decodedMainRgb": 0}, "rendererStarted": False, "gpuExecuted": False,
                "gpuExecutionStatus": "NOT_STARTED",
-               "freezeAccepted": False, "generalizedExecuted": False, "createdUtc": base.utc(), "limits": LIMITS}
+               "freezeAccepted": False, "generalizedExecuted": False, "createdUtc": base.utc(),
+               "limits": LIMITS if pipeline_policy == "specialized" else
+               [x for x in LIMITS if not x.startswith("Specialized immediate")] +
+               ["Supported immediate BSP Uber/library only; direct VI/FO map key-hit, LevelMesh, stereo, plane mirrors, SavePicture and software qualification remain unproved."]
+                   + ["Supported Uber BSP only; LevelMesh/stereo/plane mirrors/SavePicture unexecuted.",
+                      "No direct VI/FO key-hit observation, GPU timing or full freeze acceptance."]}
     save(out / "receipt.json", receipt)
     return receipt
 
 
-def prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mode, expected_device_path=None):
+def prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mode, expected_device_path=None, pipeline_policy="specialized"):
     out = safe_build(out, fresh=True)
     try:
-        return _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mode, expected_device_path)
+        return _prepare(fixture_path, derivation_path, candidate_paths, layer_dir, out, mode, expected_device_path, pipeline_policy)
     except BaseException as error:
         if out.is_dir():
             partial = read_json(out / "receipt.json", 64 * 1024 * 1024) if (out / "receipt.json").is_file() else {"schema": SCHEMA, "output": str(out)}
@@ -455,7 +477,44 @@ def scene_evidence(data, variant):
             "legacyMetadataUnavailable": variant == "original-seams", "generalizedAccepted": False}
 
 
-def key_evidence(data, variant):
+def generalized_identity(shader):
+    layout = shader["layout"]
+    names = ("AlphaTest", "Simple", "Simple3D", "GBufferPass", "UseLevelMesh", "ShadeVertex", "UseRaytracePrecise")
+    require(all(type(layout.get(n)) is int and layout[n] in (0, 1) for n in names)
+            and type(shader.get("EffectState")) is int and 0 <= shader["EffectState"] <= 0x7fffffff
+            and type(shader.get("SpecialEffect")) is int and -1 <= shader["SpecialEffect"] <= 0x7fffffff
+            and type(shader.get("VertexFormat")) is int and 0 <= shader["VertexFormat"] <= 0x7fffffff,
+            "Actual generic integer source fields invalid")
+    value = sum(layout[n] << bit for bit, n in enumerate(names)) | (shader["EffectState"] << 32) \
+        | ((shader["SpecialEffect"] & 255) << 48) | ((shader["VertexFormat"] & 255) << 56)
+    return value & ((1 << 64) - 1)
+
+
+def cache_family_identity(rows):
+    routes = {"specialized-main-lookup": "specialized-pipeline", "specialized-worker-lookup": "specialized-pipeline",
+              "specialized-worker-published": "specialized-pipeline", "generalized-lookup": "generalized-pipeline",
+              "vertex-library-lookup": "vertex-library", "fragment-library-lookup": "fragment-library",
+              "fragment-library-precompile-lookup": "fragment-library", "fragment-library-worker-published": "fragment-library"}
+    result = set()
+    for row in rows:
+        o = row["observation"]
+        if o["kind"] == "shader-binary-cache": continue  # separately compare complete native binary keys
+        if o["kind"] == "pipeline":
+            require(o.get("route") in routes, "Unknown actual pipeline map route")
+            fields = {"family": routes[o["route"]], "pipeline": o["pipeline"], "pass": o["pass"]}
+        else:
+            require(o["kind"] == "shader" and o.get("route") in ("specialized-find", "generic-find", "publish-existing-or-insert")
+                    and (o["route"] == "publish-existing-or-insert" or o["generalized"] is (o["route"] == "generic-find")),
+                    "Unknown/inconsistent actual shader map route")
+            fields = {"family": "generic-program" if o["generalized"] else "specialized-program"}
+            fields["actualGeneralizedKey" if o["generalized"] else "shader"] = o["actualGeneralizedKey"] if o["generalized"] else o["shader"]
+        result.add(json.dumps(fields, sort_keys=True, separators=(",", ":")))
+    require(result, "Actual whole-process native cache families missing")
+    return result
+
+
+def key_evidence(data, variant, pipeline_policy="specialized"):
+    runtime_settings(pipeline_policy)
     require(data.get("schema") == "shadedoomvk-pf020-vulkan-observation/v1" and data.get("status") == "COLLECTED_PENDING_VALIDATION"
             and data.get("error") == "" and data.get("freezeAccepted") is False and data.get("performanceMeasured") is False
             and data.get("productionNamedKeysAvailable") is (variant == "current")
@@ -490,6 +549,9 @@ def key_evidence(data, variant):
             shader_fields(observation.get("shader"))
             require(type(observation.get("generalized")) is bool and type(observation.get("hit")) is bool
                     and (type(observation.get("actualGeneralizedKey")) is int if observation["generalized"] else observation.get("actualGeneralizedKey") is None), "Actual shader map partition missing")
+            if observation["generalized"]:
+                require(0 <= observation["actualGeneralizedKey"] < 1 << 64
+                        and observation["actualGeneralizedKey"] == generalized_identity(observation["shader"]), "Actual generic integer key differs from source fields")
         elif observation.get("kind") == "pipeline":
             pipeline = observation.get("pipeline", {})
             require(set(pipeline) == PIPELINE_FIELDS and set(pipeline.get("style", {})) == {"BlendOp", "SrcAlpha", "DestAlpha", "Flags"}
@@ -503,19 +565,41 @@ def key_evidence(data, variant):
             require(isinstance(checksum, str) and re.fullmatch(r"[0-5]-[0-9a-f]{40}-(?:0|[1-9][0-9]*)", checksum) and type(observation.get("hit")) is bool,
                     "Actual shader binary source checksum/cache result missing")
         else: require(False, "Unknown actual key observation kind")
-        if observation.get("kind") == "pipeline" and observation.get("ready") is True and observation.get("route") == "specialized-main-lookup" and not observation["workerThread"] and scene and scene["rootType"] == "main" and scene["phase"] == "warmup":
+        if observation.get("kind") == "pipeline" and observation.get("ready") is True and observation.get("route") == ("specialized-main-lookup" if pipeline_policy == "specialized" else "specialized-worker-lookup") and not observation["workerThread"] and scene and scene["rootType"] == "main" and scene["phase"] == "warmup":
+            if pipeline_policy == "uber-library": require(observation["hit"] is True, "Uber specialized user lookup is not an actual ready hit")
             if observation["pipeline"]["shader"]["EffectState"] >= cutoff: user.append(observation)
     require(user, "Actual ready main user-material pipeline lookup missing")
     program_matches = [r["observation"] for r in rows if r["observation"].get("kind") == "shader"
-                       and not r["observation"]["workerThread"] and r["observation"].get("scene")
+                       and (pipeline_policy == "uber-library" or (not r["observation"]["workerThread"] and r["observation"].get("scene")))
                        and r["observation"].get("generalized") is False
                        and (r["observation"].get("route") == "publish-existing-or-insert" or r["observation"].get("hit") is True)
                        and any(r["observation"]["shader"] == p["pipeline"]["shader"] for p in user)]
     require(program_matches, "Actual matching user ShaderProgram lookup/publication missing")
+    witnesses = {}
+    if pipeline_policy == "uber-library":
+        families = cache_family_identity(rows)
+        observations = [r["observation"] for r in rows]
+        pipelines = [o for o in observations if o["kind"] == "pipeline"]
+        generic = [o for o in pipelines if o["route"] == "generalized-lookup" and o["hit"] and o["ready"]
+                   and not o["workerThread"] and o.get("scene")]
+        require(generic, "Actual scene-associated ready generalized hit missing")
+        programs = [o for o in observations if o["kind"] == "shader" and o["generalized"]
+                    and (o["hit"] or o["route"] == "publish-existing-or-insert")]
+        require(all(any(p["actualGeneralizedKey"] == generalized_identity(o["pipeline"]["shader"]) for p in programs)
+                    for o in generic), "Matching completed generic ShaderProgram missing")
+        for route in ("vertex-library-lookup", "fragment-library-lookup", "specialized-worker-published", "fragment-library-worker-published"):
+            count = sum(o["route"] == route and o["hit"] and o["ready"] for o in pipelines)
+            require(count > 0, "Actual ready Uber/library lookup/publication missing: " + route)
+            witnesses[route] = count
+        require(worker["scheduledPrecache"] > 0 and worker["scheduledPriority"] > 0
+                and worker["completedMainPublications"] == worker["completedWorkers"],
+                "Positive actual worker/publication completion missing")
+        witnesses.update(generalizedReadyKeys=len(generic), genericPrograms=len(programs), cacheFamilies=len(families))
     return {"validated": True, "keys": rows, "workerState": worker, "userCutoff": cutoff, "readyUserKeys": len(user),
             "association": "Unique pinned authored identity source + actual ready main warmup pipeline; matching ShaderProgram lookup/publish can occur on its actual startup root. No emitted material-name association.",
             "shaderLookupHookBasis": "GetProgram only during pipeline creation; publication hook reports existing entry before insertion. Ready matching pipeline establishes completion.",
-            "generalizedExecuted": any(r["observation"].get("generalized") is True for r in rows), "generalizedAccepted": False}
+            "generalizedExecuted": any(r["observation"].get("generalized") is True for r in rows), "generalizedAccepted": False,
+            "pipelinePolicy": pipeline_policy, "uberLibraryWitnesses": witnesses}
 
 
 def artifact(path, expected, maximum):
@@ -709,9 +793,9 @@ def unarchived_settings():
     return set(UNARCHIVED_SETTINGS)
 
 
-def settings_evidence(out):
+def settings_evidence(out, pipeline_policy="specialized"):
     text = base.log_text(out / "stdout.log")
-    expected = {k: str(v).lower() for k, v in fixture.SETTINGS.items()} | UI_SETTINGS
+    expected = {k: str(v).lower() for k, v in runtime_settings(pipeline_policy).items()} | UI_SETTINGS
     for name, value in expected.items():
         matches = re.findall(r'(?m)^"' + re.escape(name) + r'" is "([^"]*)" \(default: "[^"]*"\)\s*$', text)
         require(matches == [value], "Actual runtime CVar missing/duplicated/changed: " + name)
@@ -723,12 +807,12 @@ def settings_evidence(out):
     return expected
 
 
-def validate_state(out, variant):
+def validate_state(out, variant, pipeline_policy="specialized"):
     out = safe_build(out)
     scene = scene_evidence(read_json(out / "native.scene.json", 32 * 1024 * 1024), variant)
     vulkan = read_json(out / "native.vulkan.json", 32 * 1024 * 1024)
     return {"status": "STATE_VALIDATED_IMAGES_PENDING", "stateOnly": True, "freezeAccepted": False,
-            "scene": scene, "keys": key_evidence(vulkan, variant), "rawImages": image_evidence(vulkan, out, variant),
+            "scene": scene, "keys": key_evidence(vulkan, variant, pipeline_policy), "rawImages": image_evidence(vulkan, out, variant),
             "mainPresentation": main_presentation_evidence(vulkan, out, variant)}
 
 
@@ -768,7 +852,13 @@ def paired_compare(left, right):
             fields = {k: v for k, v in observation.items() if k not in ("hit", "ready", "workerThread", "actualSourceChecksum")}
             result.add(json.dumps(fields, sort_keys=True, separators=(",", ":")))
         return result
-    require(keys(a) == keys(b), "Paired meaningful actual key partitions differ")
+    policy = left.get("pipelinePolicy", "specialized")
+    require(policy == right.get("pipelinePolicy", "specialized"), "Paired pipeline policy differs")
+    runtime_settings(policy)
+    if policy == "uber-library":
+        require(cache_family_identity(a["keys"]["keys"]) == cache_family_identity(b["keys"]["keys"]), "Paired whole-process cache-family identities differ")
+    else:
+        require(keys(a) == keys(b), "Paired meaningful actual key partitions differ")
     require(set(a["rawImages"]) == set(b["rawImages"]), "Paired sampled image closure differs")
     for name in a["rawImages"]:
         x, y = a["rawImages"][name], b["rawImages"][name]
@@ -793,6 +883,12 @@ def paired_compare(left, right):
             "generalizedAccepted": False, "freezeAccepted": False}
 
 
+def pipeline_library_evidence(out):
+    capability = re.findall(r"(?m)^Vulkan capabilities: ([^\r\n]+)$", base.log_text(out / "startup.log"))
+    require(len(capability) == 1 and re.search(r"(?:^| )pipeline-library=yes(?: |;|$)", capability[0]), "Actual startup pipeline-library capability absent")
+    return capability[0]
+
+
 def collect(child, before, mode):
     out = Path(child["directory"])
     text = base.log_text(out / "stdout.log")
@@ -811,8 +907,11 @@ def collect(child, before, mode):
     packages = base.loaded_package_evidence(out, {"build": before["variants"][child["variant"]]["build"], "inputs": before["inputs"]})
     require(packages["verified"] and packages["packageCount"] == 7, "Actual loaded package closure is not exactly seven pinned files")
     child["packages"] = packages
-    child["settings"] = settings_evidence(out)
-    child["state"] = validate_state(out, child["variant"])
+    policy = child.get("pipelinePolicy", "specialized")
+    if policy == "uber-library":
+        child["pipelineLibraryCapability"] = pipeline_library_evidence(out)
+    child["settings"] = settings_evidence(out, policy)
+    child["state"] = validate_state(out, child["variant"], policy)
     child["cacheEvidence"] = cache_evidence(read_json(out / "native.vulkan.json", 32 * 1024 * 1024), child, child["cacheBefore"])
     retained = out / "cache-saved"
     retained.mkdir(exist_ok=False)
@@ -892,6 +991,9 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
             and receipt.get("rendererStarted") is False and receipt.get("cwd") == str(ROOT), "Only a pristine preregistered packet may launch")
     out = safe_build(receipt["output"])
     paths = receipt["paths"]
+    policy = receipt.get("pipelinePolicy")
+    require(policy in ("specialized", "uber-library"), "Preregistered pipeline policy is missing/invalid")
+    require(receipt.get("requestedSettings") == runtime_settings(policy), "Preregistered pipeline policy/settings changed")
     require(receipt.get("mode") in ("core", "sync") and receipt.get("watchdogSeconds") == WATCHDOG_SECONDS
             and receipt.get("warmupWaitUnits") == WARMUP_WAIT_UNITS and receipt.get("collectionWaitUnits") == COLLECTION_WAIT_UNITS
             and receipt.get("fixtureClock") == "single-tic-per-display"
@@ -905,8 +1007,9 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
         require(child.get("ordinal") == index and child.get("status") == "PREPARED" and child.get("rendererStarted") is False
                 and child.get("directory") == str(expected_out) and child.get("cache") == str(expected_cache)
                 and child.get("argv") == command(exe, receipt["before"]["inputs"], expected_out, expected_cache)
-                and (expected_out / "execute.cfg").read_text() == script(expected_out)
-                and (expected_out / "fixture-live.ini").read_text() == fixture.configuration(),
+                and child.get("pipelinePolicy") == policy
+                and (expected_out / "execute.cfg").read_text() == script(expected_out, policy)
+                and (expected_out / "fixture-live.ini").read_bytes() == runtime_configuration(policy),
                 "Preregistered child paths/argv/script/config changed")
     def current_snapshot():
         return snapshot(Path(paths["fixture"]), Path(paths["derivation"]), {k: Path(v) for k, v in paths["candidates"].items()}, Path(paths["layer"]),
@@ -972,7 +1075,8 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
         for thermal in ("cold", "warm"):
             pair = [c for c in receipt["children"] if c["cacheState"] == thermal]
             receipt["comparisons"].append({"cacheState": thermal, **paired_compare(*pair)})
-        receipt.update(status="PASS_BOUNDED_SPECIALIZED_EQUIVALENCE", gpuExecuted=True)
+        receipt.update(status="PASS_BOUNDED_SPECIALIZED_EQUIVALENCE" if policy == "specialized" else "PASS_BOUNDED_UBER_LIBRARY_EQUIVALENCE",
+                       gpuExecuted=True, generalizedExecuted=policy == "uber-library")
     except BaseException as error:
         receipt.update(status="FAIL", error=f"{type(error).__name__}: {error}", winerror=getattr(error, "winerror", None))
     finally:
@@ -990,7 +1094,7 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
         try: retained_inventory(out, receipt)
         except Exception as error: receipt.update(status="FAIL", outputIdentityError=repr(error))
         save(out / "receipt.json", receipt)
-    return 0 if receipt["status"] == "PASS_BOUNDED_SPECIALIZED_EQUIVALENCE" else 1
+    return 0 if receipt["status"] in ("PASS_BOUNDED_SPECIALIZED_EQUIVALENCE", "PASS_BOUNDED_UBER_LIBRARY_EQUIVALENCE") else 1
 
 
 def main(argv=None):
@@ -1002,6 +1106,7 @@ def main(argv=None):
     parser.add_argument("--layer-dir", type=Path)
     parser.add_argument("--expected-device", type=Path)
     parser.add_argument("--mode", choices=("core", "sync"), default="core")
+    parser.add_argument("--pipeline-policy", choices=("specialized", "uber-library"))
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--variant", choices=("current", "original-seams"))
     actions = parser.add_mutually_exclusive_group()
@@ -1011,16 +1116,17 @@ def main(argv=None):
     try:
         if args.validate_state:
             require(args.variant is not None, "State validation needs exact source variant")
-            result = validate_state(args.out, args.variant)
+            result = validate_state(args.out, args.variant, args.pipeline_policy or "specialized")
             print(json.dumps({k: v for k, v in result.items() if k not in ("scene", "keys", "rawImages")}))
             return 0
         if args.launch:
             receipt = read_json(safe_build(args.out) / "receipt.json", 64 * 1024 * 1024)
+            require(args.pipeline_policy is None or args.pipeline_policy == receipt.get("pipelinePolicy"), "CLI pipeline policy differs from pinned receipt")
             return launch(receipt)
         require(all((args.fixture, args.derivation, args.current_candidate, args.original_candidate, args.layer_dir, args.expected_device)),
                 "Preparation needs all fixture/derivation/build/layer/target device inputs")
         receipt = prepare(args.fixture, args.derivation, {"current": args.current_candidate, "original-seams": args.original_candidate},
-                          args.layer_dir, args.out, args.mode, args.expected_device)
+                          args.layer_dir, args.out, args.mode, args.expected_device, args.pipeline_policy or "specialized")
         print(json.dumps({"status": receipt["status"], "rendererStarted": False, "freezeAccepted": False, "receipt": str(args.out / "receipt.json")}))
         return 0
     except (OSError, ValueError, KeyError, TypeError, json.JSONDecodeError, zipfile.BadZipFile) as error:
