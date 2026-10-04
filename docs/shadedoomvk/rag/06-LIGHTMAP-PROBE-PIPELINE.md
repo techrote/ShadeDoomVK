@@ -93,6 +93,8 @@ The per-texel selector itself is independent of Vulkan ray-query support; ray-qu
 
 `lightmodel_pbr.glsl` uses irradiance for diffuse IBL and the adjacent prefiltered cubemap + BRDF LUT for specular IBL. Probe correctness therefore directly affects apparent roughness/metal response and can mask as a material problem. PF-012 changes only which already-authored runtime probe pair is selected; it does not recalibrate PBR response or define actor probe policy.
 
+PF-113/#113 completes the missing-pair consumer contract in `SampleProbeIrradiance` and `SampleProbePrefiltered`: zero returns zero radiance before cube access or `base+1`. Uniform and gathered branches share those helpers. Mixed zero/live taps retain all four original coefficients and sum order; no weight renormalization or substitute environment is used. Ambient/direct/sunlight `Lo` remains independent, so zero IBL does not imply a black final surface. Live irradiance uses explicit LOD0 on the actual one-mip cube view with LINEAR min/mag, zero bias and disabled anisotropy; prefilter keeps the original roughness LOD. Both descriptor accesses use `nonuniformEXT`, including across divergent zero/live fragments. [Decision and sampling amendment](../PF-113-MISSING-IBL-DECISION.md) distinguish this policy from PF-012's original evidence. Native qualification and release disposition are recorded separately.
+
 ## Invariants
 
 1. Probe-map value `0` is the explicit fallback and may not be casually reinterpreted as authored probe 0.

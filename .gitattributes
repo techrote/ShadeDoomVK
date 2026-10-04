@@ -26,3 +26,6 @@ language.*	text
 *.flac		binary
 *.dat		binary
 *.ico		binary
+
+# PF-113 original-source snapshots are hash-pinned data; preserve exact bytes.
+tools/pf_oracle/fixtures/pf113-original/* -text

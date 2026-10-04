@@ -130,6 +130,8 @@ PF-009 extracts sprite orientation metadata without changing the current normal 
 
 `lightmodel_pbr.glsl` implements GGX distribution, Smith geometry, Schlick Fresnel, metallic/roughness/AO, local lights, sunlight and irradiance/prefiltered environment probes.
 
+PF-113/#113 guards a zero environment pair before cube access or pair arithmetic. Its shared irradiance/prefilter helpers preserve live directions, pair identities, call order, gather coefficients and the rest of PBR. Missing taps contribute zero without renormalization; independent ambient/direct/sunlight terms remain. Explicit irradiance LOD0 and `nonuniformEXT` avoid relying on implicit derivatives or uniform descriptor selection under a divergent zero guard. This exception is justified by the actual one-mip probe view and dedicated LINEAR, zero-bias, non-anisotropic sampler; it is not a change to other material sampling policies. See [the adopted decision](../PF-113-MISSING-IBL-DECISION.md) and the separate native/release qualification.
+
 Compatibility constants such as `PBRBrightnessScale` and ambient-sector-light approximations are part of current visual behavior. PF-011 centralizes/documents those bridges before later policy changes.
 
 PF-013 owns numerical safety at the roughness-zero edge while preserving normal settings.
