@@ -1270,7 +1270,7 @@ void D_DoomLoop ()
 	{
 		try
 		{
-            if (fixtureClock && (!singletics || primaryLevel->MapName != "PFVTEST" ||
+            if (fixtureClock && (!singletics || primaryLevel->MapName.Compare("PFVTEST") != 0 ||
                 netgame || multiplayer || demoplayback || demorecording))
                 I_FatalError("PF020_VIEW_CLOCK_REJECTED: fixture or synchronous clock changed");
 			GStrings.SetDefaultGender(players[consoleplayer].userinfo.GetGender()); // cannot be done when the CVAR changes because we don't know if it's for the consoleplayer.

@@ -224,6 +224,13 @@ phase command and before `D_Display`; FPS caps still permit catch-up batches.
 The explicit one-tic fixture revision requires fresh exports/builds/inputs and
 a new packet. No tic is normalized, dropped or tolerated.
 
+Fresh export05 atdfbfed9 passes the exact derivation but its current build05
+**FAILS** compilation: the map guard used FString's deliberately deleted
+comparison with a C string. No engine was staged or launched and the original
+build/source/logs remain unchanged. The repair uses the real case-sensitive
+`FString::Compare(const char*)` API, with that header included in fixture source
+pins. Fresh export/build/input identities precede any retry.
+
 CPU source-derivation, fixture-authoring and actual production observer-TU guard
 tests establish bounded preparation. They do not prove native ZScript compilation,
 linked traversal, camera demand, six-face production, cache reuse, API validity,

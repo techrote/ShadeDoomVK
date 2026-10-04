@@ -57,6 +57,7 @@ SOURCE_FILES = (
     "src/r_data/r_canvastexture.cpp", "src/gamedata/textures/animations.cpp",
     "src/rendering/hwrenderer/hw_entrypoint.cpp",
     "src/d_main.cpp", "src/d_net.cpp", "src/g_game.cpp",
+    "src/common/utility/zstring.h",
     "src/common/console/c_dispatch.cpp",
     "src/rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp",
     "src/rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.h",
