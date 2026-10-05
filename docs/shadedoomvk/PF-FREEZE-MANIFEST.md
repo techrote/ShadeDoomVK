@@ -1,10 +1,10 @@
-# PF-020 final-source freeze manifest — final release verification
+# PF-020 final-source freeze manifest — accepted release
 
-Date: 2026-10-05. **Native/equivalence/aggregate gates: SATISFIED within declared bounds. Final publication/check/review/integration: PENDING. SDVK-001: BLOCKED until verified PF-020 acceptance on master.** [PR #111](https://github.com/techrote/ShadeDoomVK/pull/111) records synthesis work; eligibility requires the final gates below.
+Date: 2026-10-05. **PF-020: ACCEPTED, MERGED AND VERIFIED. SDVK-001: UNBLOCKED.** [PR #111](https://github.com/techrote/ShadeDoomVK/pull/111) merged as `e185e60b04fe37ec84a18c5a85eec6722b541b71` after all eight final-head jobs and required checks/reviews. Remote master/full-tree ancestry and all eight exact post-merge jobs plus the complete clean merge-head corpus pass. [Release acceptance](PF-020-RELEASE-ACCEPTANCE.json) pins exact commits, checks, reviews and honest bounds. No SDVK-001 implementation is included.
 
 ## Source and ownership
 
-The accepted renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`, the verified merge of [PR #117](https://github.com/techrote/ShadeDoomVK/pull/117). All PF-001–019 and accepted CFX disposition merges are ancestors. The sole mutable source repository is ShadeDoomVK, checkout `C:/ShadeDoomVK/campaign-worktrees/pf020-native-freeze`, branch `codex/pf020-native-freeze`. Sibling source repositories and historical source worktrees are read-only.
+The pre-freeze accepted renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`, the verified merge of [PR #117](https://github.com/techrote/ShadeDoomVK/pull/117). All PF-001–019 and accepted CFX disposition merges are ancestors. The sole mutable source repository is ShadeDoomVK, checkout `C:/ShadeDoomVK/campaign-worktrees/pf020-native-freeze`, branch `codex/pf020-native-freeze`. Sibling source repositories and historical source worktrees are read-only.
 
 The freeze branch integrates accepted master at `204c666ba6e1f97438f8aec36f67ef66ddcaf718`; `dc58b3aa1d66050286fafc999cb505aa82e7d889` adds release/reconciliation documentation. Through the pushed Dense checkpoint `0ffded4316b6a50b4220b99b52a55e72245cd51b`, engine, shader, library and build content is unchanged from accepted master. The subsequent opt-in view observer adds engine hooks and build registration; it requires fresh source-qualified builds and native verification. Historical build/check receipts are not attributed to these new additions.
 
@@ -244,14 +244,14 @@ identical oracles; all eight actual jobs pass in
 [run37252799838](https://github.com/techrote/ShadeDoomVK/actions/runs/37252799838).
 Later publication changes require their own final clean-head checks/review/CI.
 
-## Final freeze gates
+## Final freeze verification
 
 The [evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md) maps every PF disposition, CFX prerequisite, retained measurement and limitation. The owning [PF-020 issue](https://github.com/techrote/ShadeDoomVK/issues/37), [canonical issue](issues/PF-020.md), [validation contract](06-VALIDATION-PERFORMANCE-CONTRACT.md) and [equivalence protocol](PF-EQUIVALENCE-PROTOCOL.md) govern acceptance.
 
 1. **B4: bounded view packet completed; scope remains explicit.** [Actual verification](PF-020-VIEW-MEASUREMENT.json) supplies healthy main/linked/mirror/nested/camera/six-probe state/matrix/sprite/key/cache and paired images, including independent review. Direct VI/FO map-hit and broader renderer modes/performance remain unclaimed. This replaces the earlier missing bounded prerequisite; it does not waive the final aggregate or integration gates.
 2. **B4: SATISFIED within declared limits.** The complete fresh [final-source ordinary comparison](PF-020-FINAL-DENSE-MEASUREMENT.json) and [independent aggregate disposition](PF-020-AGGREGATE-DISPOSITION.md) supply the missing five exact pairs/40 scores and review all retained results. Original40 adverse observations, selected24 rechecks, zero-loss whole-lifetime traces and incomplete01–04 remain separate and unchanged. No causal, universal improvement/no-regression or GPU result is inferred.
-3. **B2/B3: final focused head.** Complete the clean strict corpus/tool tests, source closure and independent canonical/RAG/all-links audit on the frozen documentation/tool head. Correctly describe dormant light-tile storage as allocated/valid, not initialized payload; `uLightIndex=-1` prevents consumption. No engine initialization requirement is added for that inactive consumer.
-4. **B5: final integration.** Only after all applicable proof passes: exact-head independent review and all eight actual required jobs, eligible PR merge, verified master and required merge checks, then issue closure. No passing freeze merge exists; SDVK001 remains blocked.
+3. **B2/B3: PASS.** Clean publication60d8dc9 and exact mergee185 pass PF651/651, CFX8/8, four compiled contracts and identical oracles. Complete qualification preserves all6,750 native inputs and4,746 package members. Independent full24-document canonical/RAG/source audit,191 local links,51 source/tool targets and14 raw/committed publication files pass. Dormant light-tile storage remains allocated/valid, not initialized; `uLightIndex=-1` prevents consumption. [Exact release pins](PF-020-RELEASE-ACCEPTANCE.json).
+4. **B5: PASS.** Independent exact-head reviews and all eight actual publication jobs pass. PR111 mergee185 is verified on master with exact tested-tree equality, runtime/publication ancestry, all eight exact push jobs and clean full merge-head checks. PF020 is accepted and SDVK001 is unblocked; no founding feature is implemented here. [Acceptance](PF-020-RELEASE-ACCEPTANCE.json).
 
 ## Performance, quality and retained history
 
@@ -265,4 +265,4 @@ The [initial checkpoint54e9a1b3](https://github.com/techrote/ShadeDoomVK/blob/54
 
 ## Next action
 
-Complete the final focused canonical/RAG/source/link audit and clean publication-head checks, independent review and all eight required jobs. Then, only if no concrete blocker remains, make PR111 eligible, merge and verify master plus required post-merge checks before closing PF020 and recording SDVK001 unblocked. The complete CPU campaign and bounded aggregate work are finished; no further native timing campaign is required by current evidence. Preserve every raw/failed packet and honest limitation. No human action or automatic continuation is requested.
+PF020 and its CPU campaign are complete. Future work may select SDVK001 only under its own issue/ownership/context; this freeze does not implement it. Preserve every raw/failed packet, historical adverse finding and qualification limit. The accepted gate needs no additional native timing campaign or human action. The current remote inbox records the durable handoff; no automatic continuation is promised.
