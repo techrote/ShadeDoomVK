@@ -674,3 +674,20 @@ no universal speedup/no-regression/zero-overhead, phase cause, GPU performance
 or human approval claim follows. Final publication-head source/canonical/checks,
 independent review, CI and verified master integration remain required before
 PF020 closure/SDVK001 permission. No SDVK001 implementation is included.
+
+### 5 October 2026 — verified PF020 release / SDVK001 unblocked
+
+PR111 merged as `e185e60b04fe37ec84a18c5a85eec6722b541b71` after clean publication60d8 checks19
+(PF651/651, CFX8/8, four compiled contracts and identical oracles), independent
+exact-head raw/canonical/source/aggregate reviews and all eight actual final-head
+jobs in run37256093249. Authenticated remote master, runtime/publication ancestry
+and exact whole-tree equality are verified. All eight exact merge-push jobs in
+run37256839102 and clean full merge-head checks20 pass.
+[Release receipt](PF-020-RELEASE-ACCEPTANCE.json) pins source/check/review/CI and
+retains native/CPU evidence plus every historical failure/adverse finding.
+
+**PF020: ACCEPTED, MERGED AND VERIFIED. SDVK001: UNBLOCKED.** This is the bounded
+freeze gate, not a universal performance/GPU/human/P400/broader-mode claim or
+implementation of a founding feature. The followup changes acceptance records
+only and preserves every runtime input. No further CPU campaign or human action
+is required by the current evidence.

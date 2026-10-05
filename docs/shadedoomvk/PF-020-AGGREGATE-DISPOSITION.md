@@ -3,7 +3,7 @@
 Date: 2026-10-05. **B4: SATISFIED WITH DECLARED LIMITATIONS.** Independent
 contract review finds no remaining aggregate-performance criterion requiring
 another native campaign. Final documentation/source checks, review, CI and
-verified integration remain separate release gates. This is no universal
+verified integration pass separately in the [release acceptance](PF-020-RELEASE-ACCEPTANCE.json). This is no universal
 speedup, zero-overhead or no-regression claim.
 
 ## Requirement and decision

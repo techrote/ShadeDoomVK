@@ -9,7 +9,7 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 
 **SDVK-001 is blocked until PF-020 is accepted, merged and verified on `master`.**
 
-Current gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; current renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 has completed bounded view/state/image and final ordinary CPU evidence plus independent aggregate disposition; final publication-head checks/review/CI and verified integration remain required. SDVK-001 stays blocked until PF-020 acceptance is verified on master. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
+Current gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; pre-freeze accepted renderer master was `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 is accepted, merged and verified on master at `e185e60b04fe37ec84a18c5a85eec6722b541b71`, with final local/source/review gates and all eight actual final-head plus all eight exact post-merge jobs. [Release acceptance](PF-020-RELEASE-ACCEPTANCE.json) preserves bounded evidence and limitations. SDVK-001 is UNBLOCKED; no SDVK feature is implemented by this freeze. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
 
 # Pre-foundation issue graph
 

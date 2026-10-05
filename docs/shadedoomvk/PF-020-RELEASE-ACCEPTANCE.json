@@ -1,0 +1,238 @@
+{
+  "schema": "pf020-release-acceptance/v1",
+  "dateUtc": "2026-10-05",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/37",
+  "pullRequest": "https://github.com/techrote/ShadeDoomVK/pull/111",
+  "publicationHead": "60d8dc9f752192fd922167842a1adc9a439a2999",
+  "mergeCommit": "e185e60b04fe37ec84a18c5a85eec6722b541b71",
+  "masterVerified": true,
+  "wholeMergedTreeEqualsTestedPublication": true,
+  "qualifiedNativeRuntime": "569bdb118c709dac00dc6543570d6840c88dad12",
+  "measuredToolHead": "ad8d68072074ac1e621474c108c0c5e4a1b8e207",
+  "acceptedPreFreezeMaster": "7d29c7e4d64d61dba05524d9e7f5711ffd915d90",
+  "finalHeadCI": {
+    "runId": 37256093249,
+    "actualJobsPassed": 8,
+    "status": "PASS"
+  },
+  "postMergeCI": {
+    "head": "e185e60b04fe37ec84a18c5a85eec6722b541b71",
+    "runId": 37256839102,
+    "status": "PASS",
+    "event": "push",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37256839102",
+    "completedAt": "2026-10-05T02:58:59Z",
+    "jobs": [
+      {
+        "id": 111595632565,
+        "name": "PF renderer contract oracle",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817089,
+        "name": "Visual Studio 2022 | Debug",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817093,
+        "name": "macOS | Debug",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817094,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817127,
+        "name": "Linux Clang 15 | Release",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817134,
+        "name": "Linux Clang 11 | Debug",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817135,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111595817222,
+        "name": "macOS | Release",
+        "run_id": 37256839102,
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "localChecks": {
+    "19": {
+      "sourceHead": "60d8dc9f752192fd922167842a1adc9a439a2999",
+      "receipt": {
+        "path": "build/pf020-native/pf020-final-checks-19/receipt.json",
+        "bytes": 4185,
+        "sha256": "0c8c4bf6ff63236f2fb48815746c75045c3d14af5c1128d72e81974e866a5e09"
+      },
+      "pfTests": 651,
+      "cfxTests": 8,
+      "compiledContracts": 4,
+      "identicalOracles": true,
+      "checkExits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "20": {
+      "sourceHead": "e185e60b04fe37ec84a18c5a85eec6722b541b71",
+      "receipt": {
+        "path": "build/pf020-native/pf020-final-checks-20/receipt.json",
+        "bytes": 4185,
+        "sha256": "9c68c2f4323838c7444a28137e4e5c6fa3a2acea04ba560d9dd454b688a02f57"
+      },
+      "pfTests": 651,
+      "cfxTests": 8,
+      "compiledContracts": 4,
+      "identicalOracles": true,
+      "checkExits": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "sourceQualification": {
+    "receipt": {
+      "path": "build/pf020-native/pf020-session-2026-10-05-overnight/final-source-qualification-01.json",
+      "bytes": 5908938,
+      "sha256": "35d8da9020488d9c5cd1b638d718f5016ae017df6feb1ca7481bf0660ae533bd"
+    },
+    "nativeInputs": 6750,
+    "packageMembers": 4746,
+    "exactMeasuredQualificationPreserved": true
+  },
+  "independentReviews": {
+    "publicEvidence": {
+      "path": "build/pf020-native/pf020-session-2026-10-05-overnight/final-public-evidence-review-01.json",
+      "bytes": 1147,
+      "sha256": "d92cc7e4ffd781b8198573c50eda8e6e9ea992bc1da80cd9bd2654b0bfd81ae0"
+    },
+    "canonicalSource": {
+      "path": "build/pf020-native/pf020-session-2026-10-05-overnight/final-canonical-source-review-02.json",
+      "bytes": 4678,
+      "sha256": "95bd74d67bbdd06d622b3ab6fa768469cb25cf329aff5bf8c1ea66f93d4e6d02"
+    },
+    "canonicalRagDocumentsRead": 24,
+    "publicationFilesVerified": 14,
+    "localLinks": 191,
+    "sourceToolTargets": 51,
+    "concreteSupportedPathBlockerFound": false
+  },
+  "nativeProof": {
+    "record": {
+      "path": "docs/shadedoomvk/PF-020-VIEW-MEASUREMENT.json",
+      "bytes": 468477,
+      "sha256": "a46cf3dac140270ca72b5399e0aa4733f0a20ae4df96422d685ae0986dd3ab45"
+    },
+    "qualifiedChildren": 16,
+    "defaultAndSupportedUberCoreSync": true,
+    "exactSemanticRowsPerPair": 260,
+    "actualProducerImagesPerPair": 8,
+    "requestedValidationFindings": 0,
+    "specializedBinaryKeys": 37,
+    "supportedUberBinaryKeys": 115,
+    "uberFamilies": 455,
+    "completedUberWorkersPublications": 341
+  },
+  "ordinaryCPU": {
+    "measurementRecord": {
+      "path": "docs/shadedoomvk/PF-020-FINAL-DENSE-MEASUREMENT.json",
+      "bytes": 345716,
+      "sha256": "5984f729d5773a6705909d80b5b4ee5dbb47cd37e3dc9a3120cbf394dfd7eef6"
+    },
+    "rawReceiptSha256": "bed62aba523f79473f653a01e123774e87cd419e0b244ac97d56efc0ffdb443b",
+    "qualifiedChildren": 12,
+    "rawBlocks": 60,
+    "scoredSnapshots": 40,
+    "exactPairs": 5,
+    "independentlyDecodedPNG": 12,
+    "retainedOutputFilesRehashed": 84,
+    "quietIntervalsVerified": 360,
+    "meanOfPairMediansMs": {
+      "allIncludingFinish": [
+        18.3481,
+        18.2598
+      ],
+      "setup": [
+        3.666,
+        3.6319
+      ],
+      "spriteSetup": [
+        3.6243,
+        3.591
+      ]
+    }
+  },
+  "gateDisposition": {
+    "PF001Through019": "ACCEPTED_TRACED",
+    "CFXPrerequisite": "ACCEPTED_WITH_STOP_LIMITS",
+    "confirmedSupportedPFDefects": "FIXED_OR_SUPERSEDED_BY_RETAINED_PROOF",
+    "B2": "PASS",
+    "B3": "PASS",
+    "B4": "SATISFIED_WITH_DECLARED_LIMITATIONS",
+    "B5": "PASS",
+    "PF020": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK001": "UNBLOCKED"
+  },
+  "historicalEvidencePreserved": [
+    "Original40 adverse Dense scores",
+    "Selected24 rechecks remain separate",
+    "Whole-lifetime zero-loss CPU profiles without phase cause",
+    "Allfailed/partial native packets and builds",
+    "PF017 losing candidate completely restored",
+    "CFX/P400 STOP and repaired-P400 untested limits"
+  ],
+  "gpuTimingClaimed": false,
+  "universalSpeedupClaimed": false,
+  "universalNoRegressionClaimed": false,
+  "zeroOverheadClaimed": false,
+  "causeClaimed": false,
+  "humanApprovalClaimed": false,
+  "unqualifiedBounds": [
+    "Direct VI/FO map-hit",
+    "Broader LevelMesh/stereo/plane mirrors/SavePicture/software",
+    "Full bake",
+    "Repaired P400",
+    "GPU performance/frame budget",
+    "Human visual approval"
+  ],
+  "documentationOnlyFollowup": "This record captures the verified substantive freeze merge; later acceptance-documentation integration changes no runtime and follows ordinary review/check rules.",
+  "SDVK001ImplementationIncluded": false
+}
