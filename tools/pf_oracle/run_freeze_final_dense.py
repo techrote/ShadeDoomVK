@@ -36,7 +36,7 @@ view = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(view)
 dense = view.dense
 require, save, identity, read_json = dense.require, dense.save, dense.identity, dense.read_json
-SCHEMA = "pf020-final-source-dense-comparison/v1"
+SCHEMA = "pf020-final-source-dense-comparison/v2"
 ACCEPTED_MASTER = "7d29c7e4d64d61dba05524d9e7f5711ffd915d90"
 BASELINE_NATIVE = "a113e2bc1644fe5e7e9079b49ef67308f83eecff"
 CURRENT_NATIVE = "569bdb118c709dac00dc6543570d6840c88dad12"
@@ -65,7 +65,8 @@ NATIVE_ROOTS = ("src/", "libraries/", "wadsrc/", "wadsrc_bm/", "wadsrc_lights/",
 PACKAGE_ROOTS = {"vkdoom.pk3": "wadsrc/static/", "brightmaps.pk3": "wadsrc_bm/static/",
                  "lights.pk3": "wadsrc_lights/static/", "game_support.pk3": "wadsrc_extra/static/",
                  "game_widescreen_gfx.pk3": "wadsrc_widepix/static/"}
-QUIET_POLICY = {"intervals": 30, "secondsEach": 1, "lastIntervals": 10, "maxCpuPercent": 15.0,
+QUIET_POLICY = {"minimumIntervals": 30, "maximumIntervals": 120, "secondsEach": 1,
+                "lastIntervals": 10, "maxCpuPercent": 15.0,
                 "basis": "GetSystemTimes prelaunch only; no claim about load during child"}
 NORMAL = {"gl_ubershaders": "true", "gl_light_shadows": "1", "gl_levelmesh": "false"}
 QUERIES = dense.QUERIES | NORMAL
@@ -82,6 +83,7 @@ TOOL_PINS = (
     "tools/pf_oracle/run_indexed_material_runtime.py", "docs/shadedoomvk/PF-020-FINAL-DENSE-PROTOCOL.md",
 )
 QUIET_INTERVALS, QUIET_FINAL_INTERVALS, QUIET_MAX_PERCENT = 30, 10, 15.0
+QUIET_MAX_INTERVALS = 120
 
 
 def runtime_tree(commit):
@@ -349,16 +351,41 @@ def system_times():
     return value(idle), value(kernel_time) + value(user)
 
 
+class QuietObservationError(ValueError):
+    def __init__(self, error, observation):
+        super().__init__(str(error))
+        self.observation = observation
+        self.winerror = getattr(error, "winerror", None)
+
+
 def quiet_host(*, sample=system_times, wait=time.sleep):
-    prior = sample(); result = []
-    for _ in range(QUIET_INTERVALS):
-        wait(1); current = sample()
-        idle, total = current[0] - prior[0], current[1] - prior[1]
-        require(total > 0 and 0 <= idle <= total, "System CPU interval invalid")
-        result.append(100 * (total - idle) / total); prior = current
-    accepted = max(result[-QUIET_FINAL_INTERVALS:]) < QUIET_MAX_PERCENT
-    return {"cpuPercent": result, "lastWindowMaximum": max(result[-QUIET_FINAL_INTERVALS:]), "accepted": accepted,
-            "observedUtc": dense.utc(), "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"}
+    initial = None; result = []; raw = []; stage = "initial-sample"
+    def observation(accepted):
+        return {"cpuPercent": result, "rawIntervals": raw, "initialSystemTimes": initial,
+                "lastWindowMaximum": max(result[-QUIET_FINAL_INTERVALS:]) if result else None, "accepted": accepted,
+                "observedIntervals": len(result), "minimumIntervals": QUIET_INTERVALS, "maximumIntervals": QUIET_MAX_INTERVALS,
+                "settlingExtended": len(raw) > QUIET_INTERVALS,
+                "acceptedWindowIndices": [len(result) - QUIET_FINAL_INTERVALS, len(result) - 1] if accepted else None,
+                "observedUtc": dense.utc(), "basis": "Prelaunch one-second GetSystemTimes intervals; not a continuous in-run CPU measurement"}
+    try:
+        prior = sample(); initial = list(prior)
+        for index in range(QUIET_MAX_INTERVALS):
+            stage = "wait"; wait(1)
+            stage = "interval-sample"; current = sample()
+            stage = "interval-validation"
+            idle, total = current[0] - prior[0], current[1] - prior[1]
+            raw.append({"index": index, "idleDelta": idle, "totalDelta": total})
+            require(total > 0 and 0 <= idle <= total, "System CPU interval invalid")
+            result.append(100 * (total - idle) / total); prior = current
+            if len(result) >= QUIET_INTERVALS and max(result[-QUIET_FINAL_INTERVALS:]) < QUIET_MAX_PERCENT:
+                break
+    except BaseException as error:
+        rejected = observation(False)
+        rejected["observationError"] = {"stage": stage, "type": type(error).__name__, "message": str(error),
+                                        "winerror": getattr(error, "winerror", None)}
+        raise QuietObservationError(error, rejected) from error
+    accepted = len(result) >= QUIET_INTERVALS and max(result[-QUIET_FINAL_INTERVALS:]) < QUIET_MAX_PERCENT
+    return observation(accepted)
 
 
 def run_child(child, receipt, env, *, popen=subprocess.Popen, clock=time.monotonic, token_query=None):
@@ -514,7 +541,11 @@ def launch(receipt, *, popen=subprocess.Popen, clock=time.monotonic, token_query
         for child in receipt["children"][2:] if scored else receipt["children"][:2]:
             require(qualify(receipt["paths"]) == receipt["before"], "Normal source/build/input/STOP changed before child")
             child["hostBefore"] = dense.health(dense.utc())
-            child["quietHost"] = quiet()
+            try: child["quietHost"] = quiet()
+            except QuietObservationError as error:
+                child["quietHost"] = error.observation
+                save(out / "receipt.json", receipt)
+                raise
             save(out / "receipt.json", receipt)
             require(child["quietHost"]["accepted"] is True, "Prelaunch CPU quiet window failed; no timing retry or exclusion")
             require(qualify(receipt["paths"]) == receipt["before"], "Normal source/build/input/STOP changed during quiet preparation")

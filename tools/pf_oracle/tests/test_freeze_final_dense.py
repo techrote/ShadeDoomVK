@@ -112,14 +112,110 @@ class FinalDenseControls(unittest.TestCase):
             return count * 98, count * 100
         waits = []; result = runner.quiet_host(sample=sample, wait=waits.append)
         self.assertTrue(result["accepted"]); self.assertEqual(len(result["cpuPercent"]), 30); self.assertEqual(waits, [1] * 30)
+        self.assertEqual(result["acceptedWindowIndices"], [20, 29]); self.assertFalse(result["settlingExtended"])
         count = 0
         def spike():
             nonlocal count
             count += 1
             return count * 70, count * 100
         result = runner.quiet_host(sample=spike, wait=lambda _: None)
-        self.assertFalse(result["accepted"]); self.assertEqual(len(result["cpuPercent"]), 30)
+        self.assertFalse(result["accepted"]); self.assertEqual(len(result["cpuPercent"]), 120)
+        self.assertIsNone(result["acceptedWindowIndices"])
         with self.assertRaises(ValueError): runner.quiet_host(sample=lambda: (1, 1), wait=lambda _: None)
+
+    def quiet_sequence(self, percentages):
+        values = iter(percentages); idle = total = 0
+        def sample():
+            nonlocal idle, total
+            if total:
+                percent = next(values); idle += 100 - percent
+            total += 100
+            return idle, total
+        waits = []; result = runner.quiet_host(sample=sample, wait=waits.append)
+        self.assertEqual(len(waits), len(result["cpuPercent"])); self.assertTrue(all(t == 1 for t in waits))
+        return result
+
+    def test_prelaunch_spike_extends_observation_and_retains_it_until_ten_new_quiet_intervals(self):
+        percentages = [2] * 29 + [25] + [2] * 10
+        result = self.quiet_sequence(percentages)
+        self.assertTrue(result["accepted"]); self.assertTrue(result["settlingExtended"])
+        self.assertEqual(result["cpuPercent"], percentages)
+        self.assertEqual(result["observedIntervals"], 40)
+        self.assertEqual(result["acceptedWindowIndices"], [30, 39])
+
+    def test_equal_threshold_sustained_load_and_nine_quiet_intervals_cannot_pass(self):
+        for percentages in ([15] * 120, [16] * 120, [25] * 111 + [2] * 9, ([2] * 9 + [15]) * 12):
+            with self.subTest(percentages=percentages[-10:]):
+                result = self.quiet_sequence(percentages)
+                self.assertFalse(result["accepted"]); self.assertEqual(result["cpuPercent"], percentages)
+                self.assertEqual(result["observedIntervals"], 120); self.assertIsNone(result["acceptedWindowIndices"])
+
+    def test_first_eligible_window_is_used_and_quiet_at_the_limit_can_pass(self):
+        percentages = [25] * 110 + [2] * 10
+        result = self.quiet_sequence(percentages)
+        self.assertTrue(result["accepted"]); self.assertEqual(result["cpuPercent"], percentages)
+        self.assertEqual(result["acceptedWindowIndices"], [110, 119])
+        result = self.quiet_sequence([25] * 20 + [2] * 10)
+        self.assertTrue(result["accepted"]); self.assertEqual(result["observedIntervals"], 30)
+
+    def test_invalid_cpu_interval_fails_in_the_extended_observation(self):
+        values = [(n * 70, n * 100) for n in range(1, 33)]
+        values.append(values[-1])
+        with self.assertRaisesRegex(runner.QuietObservationError, "interval invalid") as failure:
+            runner.quiet_host(sample=iter(values).__next__, wait=lambda _: None)
+        observation = failure.exception.observation
+        self.assertFalse(observation["accepted"]); self.assertIsNone(observation["acceptedWindowIndices"])
+        self.assertEqual(observation["cpuPercent"], [30] * 31)
+        self.assertEqual(observation["observedIntervals"], 31)
+        self.assertEqual(len(observation["rawIntervals"]), 32)
+        self.assertEqual(observation["rawIntervals"][-1], {"index": 31, "idleDelta": 0, "totalDelta": 0})
+        self.assertEqual(observation["observationError"]["stage"], "interval-validation")
+
+    def test_sample_and_wait_failures_retain_all_prior_cpu_observations(self):
+        for stage in ("initial-sample", "interval-sample", "wait"):
+            count = 0
+            error = PermissionError("controlled observation failure"); error.winerror = 5
+            def sample():
+                nonlocal count
+                if stage == "initial-sample" or (stage == "interval-sample" and count == 32): raise error
+                count += 1
+                return count * 70, count * 100
+            def wait(seconds):
+                if stage == "wait" and count == 32: raise error
+            with self.subTest(stage=stage), self.assertRaises(runner.QuietObservationError) as failure:
+                runner.quiet_host(sample=sample, wait=wait)
+            observation = failure.exception.observation
+            self.assertFalse(observation["accepted"]); self.assertIsNone(observation["acceptedWindowIndices"])
+            self.assertEqual(observation["cpuPercent"], [] if stage == "initial-sample" else [30] * 31)
+            self.assertEqual(len(observation["rawIntervals"]), len(observation["cpuPercent"]))
+            self.assertEqual(observation["observationError"]["stage"], stage)
+            self.assertEqual(observation["observationError"]["winerror"], 5)
+            self.assertEqual(failure.exception.winerror, 5)
+
+    def test_failed_quiet_observation_is_serialized_before_any_native_process(self):
+        with tempfile.TemporaryDirectory() as temporary, patch.object(runner.view, "ROOT", Path(temporary)), patch.object(runner, "ROOT", Path(temporary)):
+            root = Path(temporary); (root / "build").mkdir(); seed = root / "build/seed.ini"; seed.write_text("controlled seed")
+            before = {"packageEquivalence": {}, "builds": {v: {"artifacts": {"vkdoom.exe": {"path": v}}} for v, _ in runner.ORDER}, "inputs": {}}
+            values = [(n * 70, n * 100) for n in range(1, 33)]; values.append(values[-1])
+            quiet = lambda: runner.quiet_host(sample=iter(values).__next__, wait=lambda _: None)
+            with patch.object(runner, "qualify", return_value=before), patch.object(runner, "configuration", return_value="controlled config\n"), \
+                 patch.object(runner, "command", return_value=["controlled native command"]), patch.object(runner.dense, "health", return_value={}):
+                receipt = runner.prepare({"seed": str(seed)}, root / "build/packet")
+                with patch.object(runner.subprocess, "Popen") as native:
+                    code = runner.launch(receipt, popen=native, quiet=quiet,
+                                         token_query=lambda pid=None: {"pid": 123, "integrityRid": 8192, "elevated": False, "queryOnly": True})
+                recorded = runner.read_json(root / "build/packet/receipt.json")
+                self.assertEqual(code, 1); self.assertEqual(recorded["status"], "FAIL")
+                self.assertFalse(recorded["rendererStarted"]); self.assertEqual(recorded["before"], recorded["after"])
+                self.assertEqual(recorded["children"][0]["quietHost"]["cpuPercent"], [30] * 31)
+                self.assertEqual(recorded["children"][0]["quietHost"]["rawIntervals"][-1], {"index": 31, "idleDelta": 0, "totalDelta": 0})
+                self.assertNotIn("pid", recorded["children"][0]); native.assert_not_called()
+
+    def test_legacy_schema_cannot_relaunch_under_extended_preparation(self):
+        with patch.object(runner.subprocess, "Popen") as native:
+            with self.assertRaises(ValueError):
+                runner.launch({"schema": "pf020-final-source-dense-comparison/v1", "status": "PREPARED", "rendererStarted": False})
+            native.assert_not_called()
 
     def test_owned_normal_child_token_failure_records_pid_and_kills_only_that_child(self):
         class Child:

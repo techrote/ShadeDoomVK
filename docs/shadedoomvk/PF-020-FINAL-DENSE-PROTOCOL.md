@@ -1,7 +1,9 @@
 # PF-020 final-source ordinary Dense comparison
 
-Status: tested preparation contract; [two native attempts](PF-020-FINAL-DENSE-CHECKPOINT.json)
-stop at unchanged prelaunch quiet gates, with no complete scored pair. This
+Status: bounded preparation revision2, 2026-10-05; fresh native qualification
+pending. [Earlier native attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) remain
+failed historical evidence. Attempts03/04 also stop at prelaunch quiet gates;
+their completed partial runs do not supply a complete five-pair packet. This
 finite packet supplements the retained [ordinary Dense investigation](PF-020-ORDINARY-DENSE-PROTOCOL.md),
 [targeted rechecks](PF-020-DENSE-TARGETED-RECHECK.json) and
 [CPU profile](PF-020-CPU-PROFILE.json). It does not replace samples, prove a CPU
@@ -66,12 +68,41 @@ No outlier removal, replacement, automatic retry or additional pair is allowed.
 Record actual coordinator/child medium tokens, PID/exit and before/after Windows
 events. A90-second watchdog and bounded logs/output kill and wait only for the
 own child. Preserve failed packets; revisions require new paths and recorded
-reasons. Before each child record30 one-second GetSystemTimes intervals, requiring
-the last10 maximum below15% total CPU. This **prelaunch** quiet check does not
+reasons. Before each child record at least30 and at most120 one-second
+GetSystemTimes intervals. Starting after interval30, launch preparation may
+finish only when the last10 maximum is strictly below15% total CPU. Retain every
+observed interval, the total count and zero-based accepted-window indices.
+Retain raw idle/total deltas too. Invalid intervals and sample/wait API errors
+preserve all earlier readings, the offending deltas when available, and the
+error stage in the failed receipt before any process creation.
+Sustained load, exactly15%, fewer than ten consecutive quiet intervals, an
+invalid interval or failure to reach readiness within120 intervals rejects the
+child before launch. This **prelaunch** quiet check does not
 guarantee in-run load. Revalidate source and the pending child's exact generated
 command/config/output inventory after quiet preparation, immediately before
 launch. No tests/compiler/analyzer/agent workload may compete with measurement.
 Retain every score even if an in-run disturbance is suspected.
+
+### Decision: bounded settling observation, 5 October2026
+
+Four earlier packets preserve their fixed30-interval failures, including
+attempt03 at15.5963% before pair3 and attempt04 at25.0656% before pair2's
+baseline. Independent raw review confirms the completed partial observations;
+none is promoted to a full packet. Later readiness and background observations
+do not establish the cause of the failed windows.
+
+Revision2 allows the existing strict ten-interval readiness condition to be
+reached during one continuous observation capped at120 intervals, consistent
+with the bounded preparation used for the retained targeted rechecks. It does
+not change15%, shorten the required quiet window, ignore preparation readings,
+retry a scored process, exclude a score, combine incomplete packets or relaunch
+a failed receipt. The first eligible window after the30-interval minimum is
+used. This is an explicit preparation-policy change requiring tested/reviewed
+committed tools and a fresh packet, not retroactive acceptance of the old runs.
+The receipt schema is version2; version1 packets cannot launch with this tool.
+Source/build/input revalidation still follows preparation immediately before
+process creation. No security/driver/machine setting or background process is
+changed by this policy, and in-run quiet is still unproved.
 
 ## Two phases and acceptance boundary
 
