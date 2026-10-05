@@ -4,7 +4,7 @@ Status: canonical pre-SDVK implementation programme
 Date: 2026-09-17  
 Baseline under audit: `nashmuhandes/VkDoom@09634479ab5bf9adf691074fffe85a006a398cd0`
 
-The source-audit observations below describe that founding baseline. Current gate (2026-10-04): PF-001–019 and CFX #75 are accepted; current renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 remains **BLOCKED** on its applicable state/image equivalence, aggregate review and final verification/integration gates. Historical defects such as the probe-0 stub are not current implementation claims. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md) records accepted source/evidence/limitations. SDVK-001 stays blocked.
+The source-audit observations below describe that founding baseline. Current gate (2026-10-05): PF-001–019 and CFX #75 are accepted; current renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 has completed bounded view/state/image and final ordinary CPU evidence plus independent aggregate disposition; final publication-head checks/review/CI and verified integration remain required. SDVK-001 stays blocked until PF-020 acceptance is verified on master. Historical defects such as the probe-0 stub are not current implementation claims. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md) records accepted source/evidence/limitations.
 
 ## Why this tranche exists
 

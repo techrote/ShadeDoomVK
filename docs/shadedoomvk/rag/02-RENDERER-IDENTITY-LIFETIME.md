@@ -245,5 +245,5 @@ standalone contracts, CFX8/8 and deterministic source oracles pass.
 See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 [compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
 retained failures and unmeasured mode1/SW-retirement/performance limits.
-Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
-separate blocked gates.
+Focused release integration is tracked in #110/#112; PF-020 release and SDVK-001 permission follow the separate
+[freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.

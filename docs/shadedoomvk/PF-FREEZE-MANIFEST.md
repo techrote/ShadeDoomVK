@@ -1,6 +1,6 @@
-# PF-020 final-source freeze checkpoint — release blocked
+# PF-020 final-source freeze manifest — final release verification
 
-Date: 2026-10-04. **PF-020: NOT ACCEPTED. SDVK-001: BLOCKED.** [Draft PR #111](https://github.com/techrote/ShadeDoomVK/pull/111) records reviewable synthesis work. It is not eligible to merge as a passing freeze.
+Date: 2026-10-05. **Native/equivalence/aggregate gates: SATISFIED within declared bounds. Final publication/check/review/integration: PENDING. SDVK-001: BLOCKED until verified PF-020 acceptance on master.** [PR #111](https://github.com/techrote/ShadeDoomVK/pull/111) records synthesis work; eligibility requires the final gates below.
 
 ## Source and ownership
 
@@ -211,12 +211,45 @@ unproved. No additional campaign runs this session. All five packages have
 projections, with raw archive/member/source hashes retained. This is not a strict
 one-variable byte-identical comparison; no arbitrary binary normalization occurs.
 
-## Remaining freeze gates
+## Complete final-source ordinary CPU comparison — 5 October 2026
+
+[FinalDense05](PF-020-FINAL-DENSE-MEASUREMENT.json) qualifies clean committed
+tool `ad8d68072074ac1e621474c108c0c5e4a1b8e207` and unchanged native runtime569/
+build07 against accepted-master nativea113. All12 actual medium, unelevated
+children exit0; two agent-inspected warmups and five fixed alternating pairs
+retain60 raw blocks/40 scores. Exact camera/count/settings/device and paired
+RGB cover9,529,520 pixels with zero mismatch. Before/after source/build/input
+closure is identical. Independent raw review verifies84 output files, all60
+blocks without the acceptance parser, all12 independently decoded PNGs and
+all360 raw CPU interval formulas. Every readiness check accepts the first
+30-interval window; maximum final-ten CPU is11.711711711711711% versus strict15%.
+
+The explicit revision2 preparation policy allows one continuous30–120-interval
+observation while preserving15%, ten consecutive quiet intervals, every reading,
+fixed scoring and no failed-packet relaunch. Its extra settling allowance is
+not needed in05. Sealed03/04 FAILs retain16/12 partial scores and all prior01/02
+failures/scores remain unchanged; no incomplete packet is combined or replaced.
+
+Mean of five paired CPU medians is18.3481→18.2598ms All including Finish/wait,
+3.6660→3.6319ms full Setup and3.6243→3.5910ms Sprite Setup. Pair signs are mixed;
+all other printed CPU fields and every raw score remain in the measurement.
+No GPU, significance, unique callback cause, zero-overhead or universal
+no-regression claim follows. [Independent aggregate disposition](PF-020-AGGREGATE-DISPOSITION.md)
+satisfies B4 while retaining the original adverse Dense observations, selected
+rechecks, whole-lifetime profiles and each bounded PF benefit/no-go. No hidden
+quality trade or confirmed material adverse final-runtime finding is established.
+
+Clean ad8d680 checks18 pass PF651/651, CFX8/8, four compiled contracts and
+identical oracles; all eight actual jobs pass in
+[run37252799838](https://github.com/techrote/ShadeDoomVK/actions/runs/37252799838).
+Later publication changes require their own final clean-head checks/review/CI.
+
+## Final freeze gates
 
 The [evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md) maps every PF disposition, CFX prerequisite, retained measurement and limitation. The owning [PF-020 issue](https://github.com/techrote/ShadeDoomVK/issues/37), [canonical issue](issues/PF-020.md), [validation contract](06-VALIDATION-PERFORMANCE-CONTRACT.md) and [equivalence protocol](PF-EQUIVALENCE-PROTOCOL.md) govern acceptance.
 
 1. **B4: bounded view packet completed; scope remains explicit.** [Actual verification](PF-020-VIEW-MEASUREMENT.json) supplies healthy main/linked/mirror/nested/camera/six-probe state/matrix/sprite/key/cache and paired images, including independent review. Direct VI/FO map-hit and broader renderer modes/performance remain unclaimed. This replaces the earlier missing bounded prerequisite; it does not waive the final aggregate or integration gates.
-2. **B4: final aggregate blocked by host preparation.** The retained [original Dense40 scores](PF-020-DENSE-MEASUREMENT.json), selected24 quiet recheck scores and zero-loss trace decodes remain unchanged. They do not prove timing cause or accept callbacks added later. [Both final-source attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) stop at unchanged quiet gates31.51%/28.61%; only4 unpaired baseline scores and0 complete scored pairs exist. Resolve intermittent prelaunch CPU bursts before a fresh complete diagnostics-OFF comparison and aggregate disposition. No warmup ratio or original replacement is scored.
+2. **B4: SATISFIED within declared limits.** The complete fresh [final-source ordinary comparison](PF-020-FINAL-DENSE-MEASUREMENT.json) and [independent aggregate disposition](PF-020-AGGREGATE-DISPOSITION.md) supply the missing five exact pairs/40 scores and review all retained results. Original40 adverse observations, selected24 rechecks, zero-loss whole-lifetime traces and incomplete01–04 remain separate and unchanged. No causal, universal improvement/no-regression or GPU result is inferred.
 3. **B2/B3: final focused head.** Complete the clean strict corpus/tool tests, source closure and independent canonical/RAG/all-links audit on the frozen documentation/tool head. Correctly describe dormant light-tile storage as allocated/valid, not initialized payload; `uLightIndex=-1` prevents consumption. No engine initialization requirement is added for that inactive consumer.
 4. **B5: final integration.** Only after all applicable proof passes: exact-head independent review and all eight actual required jobs, eligible PR merge, verified master and required merge checks, then issue closure. No passing freeze merge exists; SDVK001 remains blocked.
 
@@ -232,4 +265,4 @@ The [initial checkpoint54e9a1b3](https://github.com/techrote/ShadeDoomVK/blob/54
 
 ## Next action
 
-Resolve the intermittent host CPU quiet prerequisite, then preregister a fresh complete normal diagnostics-OFF final-source comparison against the qualified accepted-master build. Existing builds, fixture, launcher and actual healthy warmup acceptance material are prepared and tested; failed packets cannot be relaunched. Retain every unpaired/original score and full failure history. Finish aggregate and final focused canonical/check/review/integration gates before accepting PF020. PR111 remains draft/ineligible and SDVK001 blocked. No missing source/hardware or proven timing cause is identified. Current remote humagent holds the agent-owned handoff; no human action or automatic continuation is promised.
+Complete the final focused canonical/RAG/source/link audit and clean publication-head checks, independent review and all eight required jobs. Then, only if no concrete blocker remains, make PR111 eligible, merge and verify master plus required post-merge checks before closing PF020 and recording SDVK001 unblocked. The complete CPU campaign and bounded aggregate work are finished; no further native timing campaign is required by current evidence. Preserve every raw/failed packet and honest limitation. No human action or automatic continuation is requested.

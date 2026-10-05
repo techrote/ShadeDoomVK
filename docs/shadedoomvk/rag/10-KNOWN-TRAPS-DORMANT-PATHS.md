@@ -252,5 +252,5 @@ See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 retained failures and unmeasured mode1/SW-retirement/performance limits.
 Focused release integration is accepted through PR #116 at master
 `1524686e77f1e89dabfb044bf757a2d19566c31c`, with exact-head and post-merge checks
-in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 and SDVK-001
-remain separate blocked gates.
+in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 release and SDVK-001 permission follow the separate
+[freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.

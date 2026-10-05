@@ -104,7 +104,7 @@ PF issues may discover that a refactor removes a defect before its repair issue 
 
 These were unverified planning premises at the founding baseline. Their current dispositions follow; the historical list does not override accepted issue outcomes.
 
-## Current verified findings and remaining freeze blockers — 2026-10-04
+## Current verified findings and final freeze verification — 2026-10-05
 
 - PF-002–005 accept incremental generation/lifetime/reservation and upload ownership; this is not a universal heavyweight handle conversion.
 - PF-006 accepts semantic keys with the inherited ordered cache topology. It does not accept hashed lookup performance; PF-019 leaves those maps/worker queues unchanged without representative benefit.
@@ -117,7 +117,7 @@ These were unverified planning premises at the founding baseline. Their current 
 
 The native Windows compiled-fixture runner gap is resolved; initial260-test/12missing-compiler-errors and270/272-test preparations remain history. Clean tooldf667 checks15 pass PF644/644, CFX8/8, four compiled contracts and identical oracles, with all eight exact-head hosted jobs. [Bounded native identity/result record](PF-020-VIEW-MEASUREMENT.json) qualifies current source569/builds07 default and supported Uber/library Core/Sync, within explicit limits.
 
-PF-020 / #37 remains **RELEASE BLOCKED**. The local campaign stops at a durable checkpoint after two [final-source Dense attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) fail the unchanged prelaunch CPU quiet gate; four baseline scores are retained unpaired, with no final performance result. Resolve host preparation before a fresh complete comparison, then finish aggregate/final focused reconciliation, CI/review and verified integration. Accepted repairs and bounded correctness packets do not alone accept PF-020. SDVK-001 remains blocked; no further physical campaign runs in this session.
+PF-020 / #37 now has a complete [ordinary final-source comparison](PF-020-FINAL-DENSE-MEASUREMENT.json):12 medium unelevated exits0,60 raw blocks/40 scores and five exact state/RGB pairs. Independent raw and [bounded aggregate review](PF-020-AGGREGATE-DISPOSITION.md) satisfy B4 with historical adverse results and limits retained. The clean measured preparation headad8d680 passes PF651/651, CFX8/8, four compiled contracts, identical oracles and all eight exact-head jobs. Final publication-head reconciliation/checks/review/CI and verified master integration remain required. SDVK-001 stays blocked until those release gates pass; accepted bounded evidence does not imply universal performance or human approval.
 
 ## Speculation / future research, not PF requirements
 

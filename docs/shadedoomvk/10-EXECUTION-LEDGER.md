@@ -644,3 +644,33 @@ members with550 exact text newline projections and no arbitrary binary transform
 No final performance/aggregate acceptance, cause, GPU time or human approval is
 inferred. No further physical campaign this session. Finish final focused docs/
 checks and durable stop record; PF020/SDVK001 remain blocked and PR111 draft.
+
+### 5 October 2026 — complete final-source CPU comparison and aggregate disposition
+
+Sealed FinalDense03/04 remain FAIL at strict quiet preparation, retaining16/12
+scored snapshots and all completed logs/images/state. Revision2 at clean pushed
+`ad8d68072074ac1e621474c108c0c5e4a1b8e207` permits one continuous30–120-interval
+settling observation, preserving the strict15%/ten-consecutive predicate, every
+reading/raw delta, fixed scoring and rejection before native launch. Independent
+source review and23 focused controls pass, including failed-observation retention.
+Checks18 pass PF651/651, CFX8/8, four compiled contracts and identical oracles;
+all eight exact-head jobs pass in run37252799838. Native runtime569/build07 is
+unchanged. No source/quality/host-setting waiver or old receipt relaunch occurs.
+
+[FinalDense05](PF-020-FINAL-DENSE-MEASUREMENT.json) passes12 medium unelevated
+exits0,60 raw blocks/40 retained scores and five exact image/state pairs with
+9,529,520 pixels/zero mismatch. Both actual warmups are inspected. All360 raw
+CPU intervals verify; every readiness observation finishes at30, maximum final
+ten11.711711711711711%. Independent raw audit rehashes84 output files, parses
+all60 blocks and independently decodes all12 PNGs. Before/after closure is exact.
+Mean of paired CPU medians is18.3481→18.2598ms All including Finish/wait,
+3.6660→3.6319ms full Setup and3.6243→3.5910ms Sprite Setup; pair signs are mixed.
+
+[Independent aggregate disposition](PF-020-AGGREGATE-DISPOSITION.md) satisfies
+B4 within the owning contract's bounds. Original adverse40, selected24, complete
+whole-lifetime CPU profiles and all failed/partial packets remain separate and
+unchanged. Bounded PF005/016/018/019 benefits and PF017 restoration are retained;
+no universal speedup/no-regression/zero-overhead, phase cause, GPU performance
+or human approval claim follows. Final publication-head source/canonical/checks,
+independent review, CI and verified master integration remain required before
+PF020 closure/SDVK001 permission. No SDVK001 implementation is included.

@@ -1,7 +1,10 @@
 # PF-020 final-source ordinary Dense comparison
 
-Status: bounded preparation revision2, 2026-10-05; fresh native qualification
-pending. [Earlier native attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) remain
+Status: bounded preparation revision2, 2026-10-05; fresh
+[FinalDense05](PF-020-FINAL-DENSE-MEASUREMENT.json) passes the complete ordinary
+comparison. [Aggregate disposition](PF-020-AGGREGATE-DISPOSITION.md) satisfies B4
+within declared limits; final release verification remains separate.
+[Earlier native attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) remain
 failed historical evidence. Attempts03/04 also stop at prelaunch quiet gates;
 their completed partial runs do not supply a complete five-pair packet. This
 finite packet supplements the retained [ordinary Dense investigation](PF-020-ORDINARY-DENSE-PROTOCOL.md),
