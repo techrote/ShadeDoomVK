@@ -3,7 +3,7 @@
 
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: canonical audit warnings; update as PF work resolves them  
-Primary issues: PF-001, PF-003, PF-006, PF-012..PF-019, PF-020
+Primary issues: PF-001, PF-003, PF-006, PF-012..PF-019, PF-020/#110/#112
 
 This is a warning index, not a defect count. Items may be fixed, removed or reclassified only with issue/PR evidence.
 
@@ -83,6 +83,8 @@ Owner: PF-013.
 
 Resolved by PF-013: Vulkan `CTF_IndexedRedIsAlpha` has separate luminance-as-alpha resident image/descriptor identity and no longer aliases ordinary indexed/palette translation semantics.
 
+That bounded accepted repair does not prove the separate public `DTA_Indexed` material provisioning path. The separately accepted #110 repair and its bounded evidence are recorded in item 26 below.
+
 Owner: PF-013.
 
 ## 14. PBR roughness-zero numerical edge
@@ -123,15 +125,15 @@ Owner: PF-017.
 
 ## 20. LevelMesh allocator is intentionally simple
 
-First-fit free-range scans and aggressive growth are understandable but can become inefficient under richer dynamic renderer state.
+Historical baseline concern resolved by accepted PF-018 / PR #68, merge `8ad883ada35b80dbf750462dbb4c36b5edf38893`. Current production uses a deterministic eight-range small-list scan, a `{size,address}` best-fit index for larger free lists and bounded geometric growth without moving live ranges. PF-004 address/generation/span ownership and dirty uploads remain authoritative. Four complete DBP37 MAP04 diagnostic pairs report main-array logical bytes11,702,876→8,635,124(−26.21%), plus10,244nominalcacheB; this is not GPU heap residency/FPS and the map has negligible steady allocation/moving-AABB work. [Runtime evidence](../PF-018-RUNTIME-EVIDENCE.md).
 
-Owner: PF-018 after PF-004 freezes ownership semantics.
+Owner: completed PF-018; PF-020 verifies the retained contract.
 
 ## 21. Moving AABB lines rediscover parent paths
 
-Dynamic AABB update calls `FindNodePath` for changed dynamic lines. Caching parent/leaf topology can remove repeated traversal if topology invariants permit it.
+Historical baseline concern resolved by accepted PF-018 / PR #68, merge `8ad883ada35b80dbf750462dbb4c36b5edf38893`. Current moving-line update caches immutable line→leaf and node→parent topology while retaining leaf→root order. A targeted light-bearing moving-polyobject fixture matches1,630fixed-tic RayTest records and paused world/geometry; five pairs measure310.378→159.175CPU ns/movedline(−48.72%). Full BeginFrame20.129→20.082ms is mixed/essentially flat, so no material whole-path speedup is claimed. Dirty upload merging is unchanged. [Runtime evidence](../PF-018-RUNTIME-EVIDENCE.md).
 
-Owner: PF-018.
+Owner: completed PF-018; PF-020 verifies topology/reset/lifetime invariants.
 
 ## 22. Texture uploads allocate staging buffers per image
 
@@ -151,6 +153,34 @@ HDR/depth/normal buffers exist, but motion vectors/history ownership/per-view in
 
 Owner for preparatory context: PF-010. Actual temporal effects are later work.
 
+## 26. Public indexed 2D material lacks its palette resource
+
+Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` constructs one authored albedo layer for public `DTA_Indexed` / `DTA_TranslationIndex`, but the Vulkan consumer allocates three descriptors and attempts missing material layers. `material_paletted.glsl` needs a real second palette resource. This supported path is a PF-020 blocker; it is not a native crash claim and is independent of PF-013's accepted RedIsAlpha boundary. [Blocker and ancestry](../PF-020-INDEXED-MATERIAL-BLOCKER.md).
+
+The accepted #110 repair supplies two real resources: a canonical-remap-specific, one-mip R8 image plus an entry-owned opaque base-palette row. Moving translation to the palette row is rejected because inverse/colour operations run before palette lookup. Public indexed upload is scoped synchronous, so numerical ID replacement cannot overwrite an earlier canonical variant via deferred production. Index/row lookup is nearest; `XY_NOMIP` must normalize to `NOFILTER_XY`, not `CAMTEX`. Non-mip create and update must explicitly finish in shader-readable layout. Palette rows and all resident variants retire through existing owner reset, PF-003 invalidation and draw fences. Ordinary authored layer order, asynchronous true-colour loading, state-driven palette/RedIsAlpha and SWCanvas must remain independently protected.
+
+Status: **RESOLVED — accepted PR #116 / master `1524686e77f1e89dabfb044bf757a2d19566c31c`**. Exact original negatives, clean build,12 normal and2 genuine restart packets, independent pixel/ROI audits and all eight final-head/post-merge jobs pass. [Release acceptance](../PF-110-RELEASE-ACCEPTANCE.json) retains mode1/SW-retirement/performance limits. This does not accept PF-020/SDVK-001. [Implementation notes and acceptance limits](../PF-110-IMPLEMENTATION-NOTES.md).
+
+Owner: [#110](https://github.com/techrote/ShadeDoomVK/issues/110), required by PF-020.
+
+## 27. Mapped software framebuffer declares an uploaded-image layout
+
+Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` creates the sampled linear mapped software framebuffer with tracked layout `GENERAL`. `SWSceneDrawer::RenderView` writes it through `MapBuffer`; `CreateTexture(nullptr, ...)` records no upload/transition and `GetImage` returns that owner. The inherited bindless writer unconditionally declares `SHADER_READ_ONLY_OPTIMAL`. This source-established supported-route mismatch is independent of #110's public indexed palette provisioning; it is not a claimed observed GPU crash.
+
+The accepted #112 repair publishes each selected material image's actual tracked layout, retains READ as the default for audited uploaded-image callers, and guards the writer to READ/GENERAL. It leaves pixels, palette/translation, filtering, mapped producer, upload policy, cache identity and normal fence retirement unchanged. The existing software-paletted SWCanvas R8 plus palette pair must stay intact; no substitute producer, blanket flush, extra per-frame upload or forced layout transition is acceptance.
+
+Status: **RESOLVED — accepted PR #116 / master `1524686e77f1e89dabfb044bf757a2d19566c31c`**. Bounded actual mode0 R8 SWCanvas presentation/core/sync and genuine restart acceptance accompany the production-extracted original/current controls. Direct post-retirement SWCanvas token queries and mode1 BGRA frames remain unmeasured. [Release receipt](../PF-110-RELEASE-ACCEPTANCE.json) retains those limits; PF-020/SDVK-001 remain separate gates. [Implementation notes and exact evidence limits](../PF-112-IMPLEMENTATION-NOTES.md).
+
+Owner: [#112](https://github.com/techrote/ShadeDoomVK/issues/112), required by PF-020.
+
+## 28. Missing PBR probe token reaches fixed 2D views as cubes
+
+Accepted starting master `4df7dea1338f063c6417e024f967bfa4aa23edd4` initially provides one sampled cube pair. A fresh multi-probe scene without prebaked maps can render a PBR surface assigned unavailable authored target `1` before completed-pass publication grows the collection. `GetLightProbeTextureIndex()` then returns `0`; the consumer samples fixed null/BRDF descriptors `0`/`1` through `samplerCube`. Zero lightmap gather taps reach the same mismatch when that branch executes. Ordinary authored target `0` resolves a separate real nonzero pair and must not be conflated with this token.
+
+Status: **RESOLVED — accepted PR #117 / master `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`**. The adopted zero-IBL decision guards before cube access/pair arithmetic and retains mixed coefficients/order without renormalization. Exact original negatives stay off GPU; two separate GTX core/sync packets prove bounded legal readbacks and actual missing-to-published draw/uniform/shader state. [Release acceptance](../PF-113-RELEASE-ACCEPTANCE.json) records review and all eight final-head/post-merge jobs. No unsafe original GPU, performance, whole-frame parity, human/P400 or full freeze acceptance follows. [Source hashes, reachability and acceptance limits](../PF-020-PBR-PROBE-BLOCKER.md).
+
+Owner: [#113](https://github.com/techrote/ShadeDoomVK/issues/113), required by PF-020; serialize with the existing coordinator rather than opening a competing probe worker.
+
 ## Maintenance rule
 
 When a PF issue resolves an item, replace the warning with:
@@ -162,7 +192,7 @@ When a PF issue resolves an item, replace the warning with:
 Do not simply delete historical traps; their provenance is useful when reviewing regressions or donor patches.
 ## PF-017 integrated physical no-go — 2026-10-03
 
-PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
+Accepted PR #74, merge `844462c3a4ed5f7037ade1b49d1a28f578077213`, completes PF-017 as a measured no-go and restores the original light path after five integrated-source GTX 1650 SUPER pairs regress CPU setup (+10.79%) and CPU whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Entries18/19 describe historical research, not outstanding mandatory optimization or retained savings. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
 
 ## CFX descriptor-retirement trap — resolved current-source state
 
@@ -186,21 +216,27 @@ defaults, overrides, ordering, sparse slots and errors. See [repair](../PF-GLDEF
 This parser repair does not accept the renderer freeze or close its independent
 material/probe/compatibility gates.
 
-## 26. Public indexed 2D material lacks its palette resource
+## Historical candidate preparation for resolved trap26
 
-The inherited public `DTA_Indexed` / `DTA_TranslationIndex` path constructs one authored albedo layer but its Vulkan consumer allocates three descriptors and attempts missing layers. `material_paletted.glsl` requires a real palette at binding1. This is a source-established supported-path defect, not a native crash claim.
+This block records preparation before accepted PR #116. The resolved disposition
+in trap26 above and [release receipt](../PF-110-RELEASE-ACCEPTANCE.json) are current.
+The inherited public `DTA_Indexed` / `DTA_TranslationIndex` path constructed one authored albedo layer but its Vulkan consumer allocated three descriptors and attempted missing layers. `material_paletted.glsl` requires a real palette at binding1. This was a source-established supported-path defect, not a native crash claim.
 
 The #110 candidate supplies a canonical-remap-specific one-mip R8 image and an entry-owned unchanged base-palette row as two real PF-003 resources. Moving translation to the row fails inverse/additive/object ordering. Public indexed production is synchronous; index/row lookup is nearest, including the explicit `XY_NOMIP` to `NOFILTER_XY` normalization. Both non-mip upload paths finish READ. Rows/variants retain owner reset, PF invalidation and draw-fence retirement; ordinary authored layers, async truecolour, palette/RedIsAlpha and SWCanvas remain protected.
 
-Status: **native verified repair; integration tracked in the source issues**. Candidate4 normal evidence is retained history; the newer candidate5 native qualification is verified below and release integration is tracked in the source issues. [Implementation notes and historical evidence](../PF-110-IMPLEMENTATION-NOTES.md). Owner: [#110](https://github.com/techrote/ShadeDoomVK/issues/110).
+Historical status before PR #116: **native verified repair; integration pending**. Candidate4 evidence remains retained; candidate5 and the subsequent accepted integration are recorded below. [Implementation notes and historical evidence](../PF-110-IMPLEMENTATION-NOTES.md). Owner: completed [#110](https://github.com/techrote/ShadeDoomVK/issues/110).
 
-## 27. Mapped software framebuffer declares an uploaded-image layout
+## Historical candidate preparation for resolved trap27
 
-The existing sampled linear software framebuffer is tracked GENERAL. `SWSceneDrawer::RenderView` writes that owner; nullable `CreateTexture` records no upload/transition and `GetImage` returns it unchanged. The inherited bindless writer declares READ. This supported producer/declaration mismatch is separate from #110 and is not evidence of a native crash.
+The resolved disposition in trap27 above is current. The sampled linear software
+framebuffer is tracked GENERAL. `SWSceneDrawer::RenderView` writes that owner;
+nullable `CreateTexture` records no upload/transition and `GetImage` returns it
+unchanged. The inherited bindless writer declared READ. This supported
+producer/declaration mismatch was separate from #110 and is not evidence of a native crash.
 
 The #112 candidate publishes each selected material image's actual tracked layout, retains READ as the default for audited uploaded callers and guards READ/GENERAL. Pixels, palette/translation, filters, producers, cache identity and normal fence retirement are unchanged. Real paletted SWCanvas retains its mapped R8 plus original palette; no replacement resource or forced transition is acceptance.
 
-Status: **native verified repair; integration tracked in the source issues**. Candidate4 mode0 core/sync evidence is historical. Mode1 BGRA frame execution and direct post-retirement SWCanvas token measurement remain unclaimed; candidate5 native qualification is verified below and release integration is tracked in the source issues. [Implementation notes and precise limits](../PF-112-IMPLEMENTATION-NOTES.md). Owner: [#112](https://github.com/techrote/ShadeDoomVK/issues/112).
+Historical status before PR #116: **native verified repair; integration pending**. Candidate4 mode0 core/sync evidence is historical. Mode1 BGRA frames and direct post-retirement SWCanvas token measurements remain unclaimed; candidate5 qualification and accepted integration are recorded below. [Implementation notes and precise limits](../PF-112-IMPLEMENTATION-NOTES.md). Owner: completed [#112](https://github.com/techrote/ShadeDoomVK/issues/112).
 
 Neither focused repair accepts PF-020 or unblocks SDVK-001.
 
@@ -214,5 +250,7 @@ standalone contracts, CFX8/8 and deterministic source oracles pass.
 See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 [compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
 retained failures and unmeasured mode1/SW-retirement/performance limits.
-Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
-separate blocked gates.
+Focused release integration is accepted through PR #116 at master
+`1524686e77f1e89dabfb044bf757a2d19566c31c`, with exact-head and post-merge checks
+in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 release and SDVK-001 permission follow the separate
+[freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.

@@ -38,14 +38,18 @@ The renderer has two semantically different single-byte texture producers: ordin
 
 PF-013 therefore gives a `VkHardwareTexture` separate normal/palette-index/RedIsAlpha resident-image variants and records `mRedIsAlpha` in `FMaterialState` when palette mode consumes `TM_ALPHATEXTURE`. `VkMaterial::DescriptorEntry` includes that bit in its variant identity so a bindless slot prepared for palette indices cannot be silently reused for luminance-as-alpha, or vice versa. Ordinary translation identity remains part of the existing descriptor key.
 
+Accepted #110 / PR #116 extends only the public indexed-material interpretation: canonical-remap-specific R8 images belong to the existing hardware owner, and each live descriptor entry owns its actual base-palette row. Hardware reset retires all indexed variants; descriptor cleanup frees its PF block and retires the row through normal draw-fence ownership. Canonical remap pointers are process-local content keys within the texture owner's lifetime, never durable identities. The ordinary PF-013 variants and separately provisioned SWCanvas remain distinct. [Implementation and native acceptance limits](../PF-110-IMPLEMENTATION-NOTES.md).
+
+Accepted #112 / PR #116 publishes each selected image's tracked sampled layout through the descriptor writer: mapped software buffers remain GENERAL and uploaded rows/layers remain READ. This declaration neither changes owner lifetime nor transitions an image; producer state and published descriptor must agree at access. [Software layout and observational limits](../PF-112-IMPLEMENTATION-NOTES.md). Both repairs passed their bounded native, exact-head CI/review and verified merge/post-merge gates at `1524686e77f1e89dabfb044bf757a2d19566c31c`; they do not accept PF-020. [Release receipt](../PF-110-RELEASE-ACCEPTANCE.json).
+
 Material destruction still calls `FreeBindlessSlot()` for every descriptor variant and clears the cache. Texture reset still advances the PF-005 upload epoch and now resets all three image interpretations. The PF-003 generation allocator remains the authority for recycled dynamic descriptor slots; PF-013 does not introduce a second lifetime system.
 
 
 ### #110/#112 material ownership — repair contract
 
-The [#110 indexed candidate](../PF-110-IMPLEMENTATION-NOTES.md) keys translated resident R8 variants by canonical remap identity inside the existing hardware owner. Each descriptor entry owns its unchanged base-palette row. These pointer keys are process-local identities: owner destruction precedes palette-arena reinitialization, and no old resource or remap pointer may survive the guarded restart checkpoint. Hardware reset retires every variant; entry deletion invalidates its PF-003 range and retires the row through normal draw fences. Selected old descriptor tokens must be checked before fresh diagnostic production after ordinary map warm-up, not described as a guard before every engine producer.
+The [#110 indexed repair](../PF-110-IMPLEMENTATION-NOTES.md) keys translated resident R8 variants by canonical remap identity inside the existing hardware owner. Each descriptor entry owns its unchanged base-palette row. These pointer keys are process-local identities: owner destruction precedes palette-arena reinitialization, and no old resource or remap pointer may survive the guarded restart checkpoint. Hardware reset retires every variant; entry deletion invalidates its PF-003 range and retires the row through normal draw fences. Selected old descriptor tokens must be checked before fresh diagnostic production after ordinary map warm-up, not described as a guard before every engine producer.
 
-The [#112 declaration](../PF-112-IMPLEMENTATION-NOTES.md) copies each stable selected owner's sampled layout into its descriptor; it is neither an image transition nor a replacement lifetime mechanism. Existing SWCanvas owner rotation and palette resources remain intact. Candidate4 observations do not measure a direct post-retirement SWCanvas token query. Candidate5 native qualification is verified below; release integration is tracked in the source issues.
+The [#112 declaration](../PF-112-IMPLEMENTATION-NOTES.md) copies each stable selected owner's sampled layout into its descriptor; it is neither an image transition nor a replacement lifetime mechanism. Existing SWCanvas owner rotation and palette resources remain intact. Candidate4 observations do not measure a direct post-retirement SWCanvas token query. Candidate5 native qualification and verified release integration are recorded in [the acceptance receipt](../PF-110-RELEASE-ACCEPTANCE.json); its SWCanvas and performance limits remain.
 
 ## PF-002 generation substrate
 
@@ -241,5 +245,5 @@ standalone contracts, CFX8/8 and deterministic source oracles pass.
 See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 [compact independently reviewed qualification](../PF-110-FINAL-NATIVE-VERIFICATION.json) for hashes, methods,
 retained failures and unmeasured mode1/SW-retirement/performance limits.
-Focused release integration is tracked in #110/#112; PF-020 and SDVK-001 remain
-separate blocked gates.
+Focused release integration is tracked in #110/#112; PF-020 release and SDVK-001 permission follow the separate
+[freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.

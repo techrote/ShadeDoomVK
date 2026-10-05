@@ -61,6 +61,7 @@
 #include "quaternion.h"
 
 #include "p_visualthinker.h"
+#include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
 
 extern TArray<spritedef_t> sprites;
 extern TArray<spriteframe_t> SpriteFrames;
@@ -771,6 +772,7 @@ void HWSprite::CreateVertices(HWDrawInfo *di, FRenderState& state)
 		vp[1].Set(v[1][0], v[1][1], v[1][2], ur, vt);
 		vp[2].Set(v[2][0], v[2][1], v[2][2], ul, vb);
 		vp[3].Set(v[3][0], v[3][1], v[3][2], ur, vb);
+		Pf020ViewDiagnostics::SpriteVertices(di, this, vp);
 	}
 
 }

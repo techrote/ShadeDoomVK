@@ -414,6 +414,8 @@ PF-020/SDVK-001 acceptance follows. See [repair](PF-GLDEFS-SAMPLING-REPAIR.md) a
 [compact verification](PF-GLDEFS-SAMPLING-VERIFICATION.json); required exact-head
 CI, merge/master and post-merge verification govern independent acceptance.
 
+Final independent release acceptance: exact head `5c3b2895888e5af18fac5a51e4e0988fe5a88fa4` passed all eight actual jobs in [run37183408191](https://github.com/techrote/ShadeDoomVK/actions/runs/37183408191). PR #115 merged as `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`, verified on remote master, and all eight exact merge-push jobs passed in [run37184391659](https://github.com/techrote/ShadeDoomVK/actions/runs/37184391659). [Acceptance comment](https://github.com/techrote/ShadeDoomVK/issues/114#issuecomment-5977683648) records independent exact-head review and closure. The earlier compact verification remains measurement-time history with its original pending integration limits; it is not rewritten as a release receipt. Full PF-020 remains separate and blocked.
+
 ## Independent #110/#112 material correctness candidates — 2026-10-04
 
 This focused preparation is based on accepted GL master `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`. It preserves the accepted GLDEFS repair and does not publish a PF-020 freeze, probe contribution decision, optimization or gameplay/quality change.
@@ -471,3 +473,204 @@ First build and CPU-wrapper failures remain immutable with their dispositions.
 PR#117 final review/CI and verified merge/master/post-merge integration remain
 pending. This qualification does not accept PF-020/#37, SDVK001, performance,
 human visual approval, P400 or historical CFX/PF017 gates.
+
+
+## #113 accepted; PF-020 synthesis resumed — 2026-10-04
+
+PR #117 final head `c37c2d6132a86299f674de5c4126402311b5e1d2` passed
+independent review5405434084 and all eight jobs in run37193338914. Merge
+`7d29c7e4d64d61dba05524d9e7f5711ffd915d90` is verified on remote master,
+with exact engine/tool equality and all2,535 frozen inputs bridged. Exact
+post-merge run37194078630 passed all eight jobs; #113 is closed.
+[Release acceptance](PF-113-RELEASE-ACCEPTANCE.json) preserves bounded
+native results, original failures and unmeasured performance/visual/P400 limits.
+
+The serial PF-020 coordinator resumes `codex/pf020-native-freeze`, preserving
+old checkpoint54e9a1b3 through reconciliation204c666ba with accepted master.
+Its full strict PF440/440, CFX8/8, four standalone contracts and identical
+oracle repeats pass. A recorded checkout line-ending disposition preserves
+measured raw bytes; no renderer program or committed source content changed.
+Canonical/RAG reconciliation and final-source aggregate/equivalence review
+continue. PF-020 is not accepted; SDVK001 remains blocked. Earlier pending
+PF017/material/probe ledger entries are dated historical snapshots, not
+current work directions. Historical STOP/saturation scopes remain sealed.
+
+## PF-020 ordinary Dense packet — 2026-10-04
+
+Tool/source checkpoint `ef79361822199112ee2179414ce21b812178bca7` passes the
+clean strict PF480/480, four standalone fixtures, CFX8/8 and identical oracles.
+Its engine content remains accepted master7d29. Two fresh warmups and five
+alternating ordinary Dense pairs complete on GTX1650SUPER:40 scored CPU
+snapshots, actual fixed camera/count/settings/input proofs and five exact RGB
+image pairs,9,529,520 pixels/zero mismatches. The first notification-bearing
+warmup remains rejected/unscored with its original raw PASS receipt intact.
+[Protocol](PF-020-ORDINARY-DENSE-PROTOCOL.md),
+[retained disposition](PF-020-DENSE-RETAINED-ATTEMPTS.json) and
+[measurement packet](PF-020-DENSE-MEASUREMENT.json).
+
+Candidate sprite Setup is higher in all five pairs: median paired+3.91%,
+range0.86–13.73%; CPU All including Finish/wait median+1.15%,
+range0.003–7.98%. All samples remain; cause and performance acceptance are
+unproved. Independent raw-packet audit passes. All includes Finish/wait;
+elapsed timers can include preemption, and the pair4 All sign is below printed
+precision. All eight exact tool-head CI jobs pass in run37196660221. These
+checks do not accept the freeze. Profile before optimizing. No GPU timestamp/budget, PBR/indexed
+cost, packed-light state, key/cache, sprite-emission or offscreen-view parity
+follows. PF020/SDVK001 remain blocked; no historical STOP lane is reopened.
+
+## PF-020 CPU capture and view evidence preparation — 2026-10-04
+
+Two fresh unelevated native Dense diagnostic children complete with named CPU
+recordings, normal exits and successful owned stops in capture05. Independent
+named/default WPR status is idle. Only the fixed catalog-verified profiler
+controller was elevated under explicit owner permission; configuration/policy
+was not changed. Original denied/cancelled/parser-failed attempts remain retained.
+The [manifest](PF-FREEZE-MANIFEST.md) pins both ETLs. Zero scored samples are
+added. At capture time decoded coverage was pending; its separate bounded
+disposition is recorded below. CPU cause/performance acceptance remains unproved.
+
+The [view protocol](PF-020-VIEW-EVIDENCE-PROTOCOL.md) records the opt-in actual
+scene/sprite observer, private same-format camera/probe sampling, production
+key/cache recording and strict source-derived original seams. These engine
+additions require their own fresh builds/native proof; earlier480/accepted-build
+receipts do not validate them. Fixture placement and CPU controls are preparation,
+not actual linked/mirror/camera/probe/user-shader traversal or image equivalence.
+PF020/SDVK001 stay blocked; draft111 remains ineligible to merge as a passing freeze.
+
+The owner reported concurrent CPU spikes from slicing and requested specific
+extreme-test reruns after it finished. [Targeted recheck](PF-020-DENSE-TARGETED-RECHECK.json)
+repeats both sides of original pairs3/4/5 once:8 physical children including2
+unscored warmups,24 scored CPU snapshots and three exact image/state pairs.
+Sprite Setup differences are−0.90%,+1.05%,+1.07%; total including Finish/wait
+is+1.28%,−0.77%,−0.62%. The large spikes did not recur. Original samples and
+failed quiet preparations remain retained; no replacement aggregate, causal
+attribution, statistical significance or performance/GPU acceptance follows.
+
+## PF-020 bounded CPU decoding and capture-time state repair — 2026-10-04
+
+The separate v4 decoder changes only its4M event cap to32M and passes both
+capture05 traces with zero loss/truncation,99.963%/99.970% target stacks,
+100% resolved engine frames and exact recorded target/module/PDB identities.
+Actual decode resources and owned exits pass. Whole-lifetime sprite light-list
+samples do not provide phase boundaries, a timing cause or performance
+acceptance. The [public metadata receipt](PF-020-CPU-PROFILE.json) preserves
+the original capacity failures and an unexercised wrapper cleanup limitation.
+
+Frozen50a4b554 passes all570 strict PF tests, CFX8/8, four standalone fixtures,
+identical oracles and all eight exact-head jobs. Fresh current build02 succeeds
+after the public nested texture-manager enum scope was corrected; failed build01
+is retained. Review identifies a separate qualification gap: first semantic
+scene rows need not describe a later captured producer invocation. The observer
+now retains its actual completed view, and the ordinary screenshot readback
+retains corresponding RGB/state. These additions and the bounded launcher need
+fresh frozen-head builds and real core/sync, traversal/cache/image verification.
+PF020/SDVK001 and draft111 remain closed to passing-freeze acceptance.
+
+## PF-020 first native launcher qualification — 2026-10-04
+
+Frozen observer head41c63ff passes clean PF605/605, CFX8/8, four standalone
+fixtures and identical oracles; both exact-source current/original-seam native
+builds03 pass. First core packet01 launches one real medium, unelevated GTX
+child and exits0, but fails its observer/fixture gate. The actual screenshot
+shows the title sequence, no frontend scenes/sprites were observed, and the
+Vulkan dump rejects unequal Windows argv and console prefix representations.
+All outputs/inputs and the original runner/builds remain retained as failed
+qualification; no second child or image equivalence is claimed.
+
+The source-backed launcher repair uses early `+map`, a consistent console-safe
+prefix, and `+logfile` for actual startup capabilities. Actual queries remain
+mandatory for every requested setting; the six built-ins declared with flags0
+are required absent from the normal-exit INI, while archived settings retain
+exact values. Corrected retries get fresh packet/cache directories and verify
+every sealed engine/build input. Reviewed RAG candidate/integration prose is
+marked historical or reconciled to accepted PR116; completed CPU decoding no
+longer appears as pending work. PF020/SDVK001 remain blocked.
+
+## PF-020 fixture reached, strict diagnostic failure retained — 2026-10-04
+
+Clean launcher/tool head1be5127 passes PF609/609, CFX8/8, four standalone
+fixtures, identical oracles and all eight exact-head jobs in run37214800451.
+Core packet02 launches only its first unelevated GTX child against frozen41c63
+build03. The actual map, both camera outputs, six probe faces and main screenshot
+complete; core validation reports zero errors/warnings, actual pipeline-library
+support is recorded, and the renderer exits0. Strict scene JSON decoding fails
+because byte-sized frame0 was streamed as a raw NUL. No paired, synchronization,
+generalized or freeze acceptance follows. All failed outputs remain unchanged.
+
+The observer converts the actual uint8_t frame to a JSON number. Compiled guards
+use that real byte type in both source variants. The parser retains EFF_NONE=-1
+only in SpecialEffect and validates the complete production shader cache key
+(type/SHA1/final-source-size), rather than demanding a bare SHA1. Source edits
+require fresh frozen exports/builds and fixture identities before the next
+native attempt. PF020/SDVK001 stay blocked and PR111 stays draft.
+
+Repaired source0791911 then passes clean PF612/612, CFX8/8, four standalone
+fixtures and identical oracles; fresh exact-source native builds04 both pass
+with source exports and regenerated fixturev5 sealed. A reviewed tool guard
+compares nonempty full production shader-binary key sets including all actual
+null-scene/worker lookups, independently of access counts and hit outcomes.
+This supplements native semantic shader/pipeline partitions. Fresh paired
+core/synchronization and supported generalized proof remain pending.
+
+Clean tool4997491 passes PF613/613, CFX8/8, four standalone fixtures and
+identical oracles. Core packet03 reaches strict scene/key/image acceptance for
+its first unelevated GTX child, with zero core validation errors/warnings and
+normal exit, but rejects the event file's forward-slash prefix versus Windows
+Path string spelling. All six actual load/save records and failed outputs stay
+unchanged; no later child launches. The tool now uses exact private artifact
+Path/link/size validation and event-file identity, preserving cache lifecycle,
+hashes and positive warm evidence. New native qualification was required at that
+historical checkpoint.
+
+### 4 October 2026 — bounded native proof and final-source host blocker
+
+Runtime569/source export07/builds07 qualify fresh default Core06/SYNC01 and
+supported Uber/library Core01/SYNC01, with16 actual medium/unelevated exits0,
+zero requested validation findings, exact cold/warm260 semantic rows,eight actual
+producer images/main RGB,37 specialized/115 Uber binary keys and455 Uber family
+identities. Every Uber child completes304+37=341 workers/publications. Independent
+raw/image/source/build and generic-program/family review passes within bounded
+scope. [Exact successful and retained failed identities](PF-020-VIEW-MEASUREMENT.json).
+Clean tooldf667 checks15 pass PF644/644, CFX8/8, four compiled contracts, identical
+oracles and all eight exact-head hosted jobs.
+
+[Final Dense attempts](PF-020-FINAL-DENSE-CHECKPOINT.json) retain FAIL prelaunch
+quiet maxima31.51% and28.61% against15%. After a separately recorded readiness
+PASS, one explicitly fresh attempt runs two actual healthy/no-overlay warmups;
+both images are agent-inspected and exact. One baseline scored child validates
+four retained scores, but no current scored child or complete pair exists. Source/
+input/package/STOP closures remain exact; all5 packages authenticate4,746 source
+members with550 exact text newline projections and no arbitrary binary transform.
+No final performance/aggregate acceptance, cause, GPU time or human approval is
+inferred. No further physical campaign this session. Finish final focused docs/
+checks and durable stop record; PF020/SDVK001 remain blocked and PR111 draft.
+
+### 5 October 2026 — complete final-source CPU comparison and aggregate disposition
+
+Sealed FinalDense03/04 remain FAIL at strict quiet preparation, retaining16/12
+scored snapshots and all completed logs/images/state. Revision2 at clean pushed
+`ad8d68072074ac1e621474c108c0c5e4a1b8e207` permits one continuous30–120-interval
+settling observation, preserving the strict15%/ten-consecutive predicate, every
+reading/raw delta, fixed scoring and rejection before native launch. Independent
+source review and23 focused controls pass, including failed-observation retention.
+Checks18 pass PF651/651, CFX8/8, four compiled contracts and identical oracles;
+all eight exact-head jobs pass in run37252799838. Native runtime569/build07 is
+unchanged. No source/quality/host-setting waiver or old receipt relaunch occurs.
+
+[FinalDense05](PF-020-FINAL-DENSE-MEASUREMENT.json) passes12 medium unelevated
+exits0,60 raw blocks/40 retained scores and five exact image/state pairs with
+9,529,520 pixels/zero mismatch. Both actual warmups are inspected. All360 raw
+CPU intervals verify; every readiness observation finishes at30, maximum final
+ten11.711711711711711%. Independent raw audit rehashes84 output files, parses
+all60 blocks and independently decodes all12 PNGs. Before/after closure is exact.
+Mean of paired CPU medians is18.3481→18.2598ms All including Finish/wait,
+3.6660→3.6319ms full Setup and3.6243→3.5910ms Sprite Setup; pair signs are mixed.
+
+[Independent aggregate disposition](PF-020-AGGREGATE-DISPOSITION.md) satisfies
+B4 within the owning contract's bounds. Original adverse40, selected24, complete
+whole-lifetime CPU profiles and all failed/partial packets remain separate and
+unchanged. Bounded PF005/016/018/019 benefits and PF017 restoration are retained;
+no universal speedup/no-regression/zero-overhead, phase cause, GPU performance
+or human approval claim follows. Final publication-head source/canonical/checks,
+independent review, CI and verified master integration remain required before
+PF020 closure/SDVK001 permission. No SDVK001 implementation is included.

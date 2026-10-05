@@ -93,7 +93,7 @@ PF issues may discover that a refactor removes a defect before its repair issue 
 - Finish/repair probe plumbing before SDVK-010 qualifies actor/environment lighting.
 - Treat dormant tiled-light infrastructure as a research asset, not an active feature.
 
-## Assumptions that must be verified during PF
+## Historical assumptions to be verified during PF
 
 - Existing inherited CI/build commands are sufficient to execute PF issues before SDVK-001 formalizes project branding/build documentation.
 - Generation-safe identities can be introduced incrementally without forcing every renderer index into a heavyweight object.
@@ -102,7 +102,22 @@ PF issues may discover that a refactor removes a defect before its repair issue 
 - Dormant light-tile/Z-minmax resources can be conditionally skipped without side effects when the dormant path is disabled.
 - Typed/hash pipeline keys can preserve the exact pipeline-state partitioning currently implied by packed structs.
 
-These are not accepted facts. Their owning issues must test them.
+These were unverified planning premises at the founding baseline. Their current dispositions follow; the historical list does not override accepted issue outcomes.
+
+## Current verified findings and final freeze verification — 2026-10-05
+
+- PF-002–005 accept incremental generation/lifetime/reservation and upload ownership; this is not a universal heavyweight handle conversion.
+- PF-006 accepts semantic keys with the inherited ordered cache topology. It does not accept hashed lookup performance; PF-019 leaves those maps/worker queues unchanged without representative benefit.
+- PF-016 proves the narrow qualified single-section fast path against baseline selected identity/order/class/group and later actual portal/visibility/invalidation state and images. Unsupported cases retain BSP fallback and repeated qualification allocation cost.
+- PF-017 completes the light/material hypothesis as an accepted measured no-go. The integrated light candidate regresses and is fully restored; rejected material hash prototypes and earlier partial light benefits cannot be counted as current savings. [Final acceptance](PF-017-FINAL-ACCEPTANCE.md).
+- PF-019 proves the dormant tiled producer has no active accepted consumer and gates only that work. Its payload/allocation formula is not a GPU wall-time or resident-memory measurement.
+- The inherited GLDEFS authored-slot sampling repair is accepted through #114/PR #115, merge `3f37b63a4fdfb4c95421db951cf81682b5eb92c9`, preserving exact original negatives and the strict source-extracted repair. [Historical compiled verification](PF-GLDEFS-SAMPLING-VERIFICATION.json) and [final release acceptance](https://github.com/techrote/ShadeDoomVK/issues/114#issuecomment-5977683648) retain their distinct scopes.
+- Public indexed provisioning and mapped software-image layout are accepted through #110/#112 / PR #116, merge `1524686e77f1e89dabfb044bf757a2d19566c31c`. Canonical-remap R8 plus an owned base-palette row, complete sampled transitions and actual READ/GENERAL publication pass bounded native and integration acceptance. [Release receipt and explicit software/performance limits](PF-110-RELEASE-ACCEPTANCE.json). Earlier failed packets remain immutable.
+- Missing-probe PBR access is accepted through #113 / PR #117, merge `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. The adopted zero-IBL guard, unchanged mixed coefficients/order, LOD0 and NonUniform contract pass exact original CPU negatives and bounded actual missing-to-published/core/sync readbacks. [Release receipt](PF-113-RELEASE-ACCEPTANCE.json). This does not accept full bake robustness, performance or the full freeze.
+
+The native Windows compiled-fixture runner gap is resolved; initial260-test/12missing-compiler-errors and270/272-test preparations remain history. Clean tooldf667 checks15 pass PF644/644, CFX8/8, four compiled contracts and identical oracles, with all eight exact-head hosted jobs. [Bounded native identity/result record](PF-020-VIEW-MEASUREMENT.json) qualifies current source569/builds07 default and supported Uber/library Core/Sync, within explicit limits.
+
+PF-020 / #37 now has a complete [ordinary final-source comparison](PF-020-FINAL-DENSE-MEASUREMENT.json):12 medium unelevated exits0,60 raw blocks/40 scores and five exact state/RGB pairs. Independent raw and [bounded aggregate review](PF-020-AGGREGATE-DISPOSITION.md) satisfy B4 with historical adverse results and limits retained. The clean measured preparation headad8d680 passes PF651/651, CFX8/8, four compiled contracts, identical oracles and all eight exact-head jobs. Final publication-head reconciliation/checks/review/CI and verified master integration remain required. SDVK-001 stays blocked until those release gates pass; accepted bounded evidence does not imply universal performance or human approval.
 
 ## Speculation / future research, not PF requirements
 

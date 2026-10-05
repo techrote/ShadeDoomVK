@@ -757,6 +757,7 @@ set (VULKAN_SOURCES
 	common/rendering/vulkan/textures/vk_hwtexture.cpp
 	common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp
 	common/rendering/vulkan/textures/vk_pbrprobediagnostics.cpp
+	common/rendering/vulkan/textures/vk_pfviewdiagnostics.cpp
 	common/rendering/vulkan/textures/vk_pptexture.cpp
 	common/rendering/vulkan/textures/vk_imagetransition.cpp
 	common/rendering/vulkan/textures/vk_renderbuffers.cpp
@@ -1170,6 +1171,7 @@ set( GAME_SOURCES
 	${SYSTEM_SOURCES}
 	${FASTMATH_SOURCES}
 	${PCH_SOURCES}
+	rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp
 	common/utility/x86.cpp
 	common/thirdparty/strnatcmp.c
 	common/thirdparty/utf8proc/utf8proc.c
@@ -1235,9 +1237,33 @@ add_library( zengine STATIC ${GAME_SOURCES})
 add_executable( zdoom WIN32 MACOSX_BUNDLE ${APP_SOURCES} )
 add_executable( ztool ${TOOL_SOURCES} )
 
+# Restricted to the exact source-derived diagnostic export. Defining this on the
+# current tree would mislabel real production context/key/surface observations.
+option(PF020_ORIGINAL_SEAMS "Build the source-derived PF020 diagnostic baseline" OFF)
+if(PF020_ORIGINAL_SEAMS)
+	foreach(PF020_HEADER
+		common/rendering/vulkan/vk_keyidentity.h
+		rendering/hwrenderer/scene/hw_sprite_surface.h
+		rendering/hwrenderer/scene/hw_rendercontext.h)
+		if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${PF020_HEADER}")
+			message(FATAL_ERROR "PF020_ORIGINAL_SEAMS requires the qualified original-seams source export")
+		endif()
+	endforeach()
+	target_compile_definitions(zengine PRIVATE PF020_ORIGINAL_SEAMS=1)
+endif()
+
 target_precompile_headers( zengine PRIVATE g_pch.h )
 
 set_source_files_properties( ${FASTMATH_SOURCES} PROPERTIES COMPILE_FLAGS ${ZD_FASTMATH_FLAG} )
+# JSON evidence rejects nonfinite values; fast-math must not elide its checks.
+if(MSVC)
+	set(PF020_DIAGNOSTIC_MATH "/fp:precise")
+else()
+	set(PF020_DIAGNOSTIC_MATH "-fno-fast-math -ffp-contract=off")
+endif()
+set_source_files_properties(rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp
+	common/rendering/vulkan/textures/vk_pfviewdiagnostics.cpp
+	PROPERTIES COMPILE_FLAGS "${PF020_DIAGNOSTIC_MATH}")
 set_source_files_properties( xlat/parse_xlat.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/xlat_parser.c" )
 set_source_files_properties( common/engine/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )
 set_source_files_properties( ${NOT_COMPILED_SOURCE_FILES} PROPERTIES HEADER_FILE_ONLY TRUE )

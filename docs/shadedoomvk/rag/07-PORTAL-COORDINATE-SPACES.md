@@ -135,3 +135,27 @@ PF-009 supplies the orientation/mirror/portal inputs only. It does not add or al
 9. PF-010 portal context is created only after successful inherited portal setup and is restored after inherited shutdown; context metadata must never become a hidden substitute for portal transform state.
 10. Sky deduplication is semantic field identity, never raw `HWSkyInfo` object representation or padding.
 11. An unresolved sprite ceiling candidate uses `-NO_VAL` consistently from initialization through ordinary-sector fallback.
+
+PF-020's explicit PFVTEST correctness clock is separate from those production
+contracts. `Pf020ViewDiagnostics::BeginFixtureClock` and `D_DoomLoop` select the
+existing one-tic-per-display `singletics` path only after guarded opt-in. Normal
+adaptive scheduling remains the default. Observations retain actual game tics;
+the fixture clock changes pacing and supplies no performance evidence. See the
+[view protocol](../PF-020-VIEW-EVIDENCE-PROTOCOL.md) for guard and capture limits.
+
+The separately requested PFVTEST fraction0.5 must enter `R_SetupFrame` before
+quake, actor-angle and `R_InterpolateView` position/angle consumers. Assigning it
+only after setup changes the later label while leaving the actual completed
+camera position dependent on the original fraction. `SetupFraction` checks the
+actual map and side directly rather than a prior root; probe sides0..5 keep
+their inherited fraction1. Default-off, foreign-map and rejected observer
+states preserve the inherited value. This is bounded diagnostic interpolation,
+not a production portal transform, gameplay-time change, software-renderer
+qualification or performance result. Native packet05 retains the reproduced
+warm camera mismatch unchanged. Fresh source569/export07/builds07 with fixturesv8/v9
+qualify the repair in default Core06/SYNC01 and supported Uber Core01/SYNC01:
+actual demanded camera tic2/fraction0.5/position `[1328,-48,48]`, exact completed
+producer/main images and paired260-row semantics, with zero requested validation
+findings. No position is rounded or comparison tolerance widened. See the
+[bounded native record](../PF-020-VIEW-MEASUREMENT.json) for immutable identities,
+independent review and explicitly unqualified renderer modes/performance.

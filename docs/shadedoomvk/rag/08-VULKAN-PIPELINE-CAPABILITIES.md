@@ -32,7 +32,7 @@ PF-006 replaces whole-object `memcmp`/padding identity for `VkPipelineKey`, `VkR
 
 `VkShaderKey::AsQWORD` remains the packed specialization-constant ABI used by the shaders; PF-006 does not reorder or reinterpret its meaningful bits. The generalized shader cache preserves the inherited narrower partition through explicit layout/effect/user-shader/vertex-format serialization rather than raw `Layout.AsDWORD` object representation.
 
-PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. PF-019 may optimize cache/worker overhead only after this semantic identity is frozen. See `PF-006-PIPELINE-KEY-CONTRACT.md`.
+PF-006 deliberately retains `std::map` lookup topology and makes no lookup-performance claim. Accepted PF-019 leaves cache/worker overhead unchanged; future optimization requires representative profiling and an owning issue. See `PF-006-PIPELINE-KEY-CONTRACT.md`.
 
 ## Pipeline compilation/caching
 
@@ -44,11 +44,13 @@ PF-007 records graphics-pipeline-library extension and enabled-feature state in 
 
 The on-disk `pipelinecache.zdpc` contains the Vulkan driver cache blob returned by `VulkanPipelineCache::GetCacheData()` and restored through `PipelineCacheBuilder::InitialData()`. Renderer C++ key objects are not serialized into that file, so PF-006 introduces no renderer-key disk-cache migration.
 
-PF-019 may optimize lookup/worker overhead only after key identity is frozen.
+Accepted PF-019 leaves lookup/worker overhead unchanged; it gates only the source-proven dormant light-tile producer.
 
 ## Descriptor sets
 
 The Vulkan renderer has distinct descriptor layouts/sets for fixed resources, bindless textures, LevelMesh, render-state buffers, light tiles and Z-min/max resources.
+
+The dedicated light-tile/Z-min/max layouts and sets are dormant under accepted PF-019's false `VkLightTilePolicy::Enabled` default. Ordinary startup does not allocate them; the LevelMesh scene contract retains its separate valid fallback binding. Their source presence is a future reactivation seam, not an active accepted tiled-light consumer. See [PF-019 review and disposition](../PF-019-PERFORMANCE-REVIEW.md).
 
 Bindless textures use update-after-bind/partially-bound/variable-count descriptor features.
 
@@ -91,8 +93,8 @@ Vulkan scene resources include:
 - fog buffer;
 - linear depth;
 - postprocess HDR pipeline images;
-- Z-min/max pyramid images;
-- light-tile storage buffer.
+- Z-min/max pyramid images, only when the dormant light-tile policy is enabled;
+- full-grid light-tile storage only when that policy is enabled; disabled policy still retains one allocated valid `LightTileBlock` for the always-live LevelMesh binding4. Its payload is not initialized by the dormant dispatcher and is not consumed while `uLightIndex=-1`.
 
 PF-007 records the intersection of sampled color/depth/stencil sample-count support and routes the existing `gl_multisample` request through `VulkanCapabilities::BestSceneSampleCount()`. The clamping and best-supported-count algorithm are unchanged.
 
@@ -119,6 +121,16 @@ See `09-POSTPROCESS-HDR-FUTURE-SEAMS.md` and `10-KNOWN-TRAPS-DORMANT-PATHS.md` f
 Adversarial/boundary verification lives in `tools/pf_oracle/tests/vulkan_capabilities_fixture.cpp` and `test_vulkan_capabilities_contract.py`, including the Intel `0.405.1286` edge, AMD major-10 edge, every required bindless bit, ray-query-disabled fallback state, pipeline-library conjunction, sparse MSAA masks and format fallback/unsupported cases.
 
 ## Invariants
+
+PF-020's [bounded native record](../PF-020-VIEW-MEASUREMENT.json) separately
+qualifies default specialized and supported immediate BSP Uber/library paths on
+the actual GTX. The actual startup capability reports pipeline-library support;
+Uber Core/Sync pairs match115 complete binary keys and455 whole-process family
+identities. Ready generic/user programs, vertex/fragment-library reuse and
+304+37=341 completed workers/publications are actual positive witnesses, rather
+than a capability-only inference. Scheduling counts remain observations, not map
+identity. Direct VI/FO map-hit, broader modes, GPU timing and full freeze acceptance
+are outside that proof; source invariants and quality policy remain unchanged.
 
 1. Capability queries are descriptive; quality policy remains separate.
 2. Vendor/driver workaround extraction may not silently remove old workarounds.

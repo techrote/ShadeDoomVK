@@ -1,0 +1,2315 @@
+{
+  "schema": "pf020-targeted-dense-recheck/v1",
+  "status": "STATE_IMAGE_QUALIFIED_TARGETED_RECHECK",
+  "originalPacket": {
+    "path": "docs/shadedoomvk/PF-020-DENSE-MEASUREMENT.json",
+    "sha256": "dd1bcba8e0c4cb4262e4c1ecdf0b2f1d1ecb275577ffca063c85a5fd37ec1ca8",
+    "unchanged": true,
+    "scoredSnapshots": 40
+  },
+  "selection": "Original scored spriteSetup sample >=5.0ms; both members of each selected pair repeated once",
+  "selectionScope": "Descriptive targeted selection after original inspection, registered before rerun; not an outlier exclusion rule",
+  "selectedPairs": [
+    3,
+    4,
+    5
+  ],
+  "physicalProcesses": 8,
+  "warmupProcesses": 2,
+  "scoredSnapshots": 24,
+  "originalSamplesReplaced": 0,
+  "possibleSlicingConfounderReported": true,
+  "causalityEstablished": false,
+  "manifest": {
+    "path": "build/pf020-native/pf020-dense-outlier-recheck-03/manifest.json",
+    "sha256": "7957cae148836f9227694bc318c2e58a5b7be33acba0f847bc4aa50fd83f6226"
+  },
+  "frozenInputClosureSha256": "50dc2055e2937d2507a643be255ec7381f37dbc720142a1682adffb6177bc71e",
+  "inputSourceCheckpoint": "0ffded4316b6a50b4220b99b52a55e72245cd51b",
+  "launcherSha256": "cc524697e5121aa3884bf75bc5f2a0219abbb29188b7797cfcaa09e51f6ee315",
+  "denseModuleSha256": "6bfd153fdcf75a18fde767fc1c074f3b83c2a8f58c9c8e636e8671d486c79332",
+  "runs": [
+    {
+      "id": "warm-baseline",
+      "variant": "baseline",
+      "warmupOnly": true,
+      "nativeToken": {
+        "pid": 19392,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.91879210001207,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/warm-baseline/receipt.json",
+        "sha256": "7365e5353033c18d23a2ddcf24e13d53e843b0f009105f46e90a4debad3c0f0a",
+        "bytes": 1814279
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/warm-baseline.json",
+        "sha256": "43215cf721e52b4bc0fa5ef704c809c261585f85709658207e0e558d04ff3af9"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-02/warm-baseline-quiet.json",
+        "sha256": "125f87f5a8c4d24b4d820f5819ed7e43010e82df97b44478865180326bb9efb5",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 10.700132100396301
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 52,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.334,
+            "render": 0.505,
+            "setup": 3.816,
+            "portal": 0.0,
+            "drawcalls": 0.188,
+            "postprocess": 0.094,
+            "finish": 13.848,
+            "spriteRender": 0.356,
+            "spriteSetup": 3.77
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.966,
+            "render": 0.609,
+            "setup": 3.752,
+            "portal": 0.0,
+            "drawcalls": 0.195,
+            "postprocess": 0.14,
+            "finish": 14.38,
+            "spriteRender": 0.433,
+            "spriteSetup": 3.686
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.271,
+            "render": 0.48,
+            "setup": 3.679,
+            "portal": 0.0,
+            "drawcalls": 0.19,
+            "postprocess": 0.099,
+            "finish": 13.949,
+            "spriteRender": 0.336,
+            "spriteSetup": 3.633
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.2,
+            "render": 0.487,
+            "setup": 3.694,
+            "portal": 0.0,
+            "drawcalls": 0.191,
+            "postprocess": 0.086,
+            "finish": 13.875,
+            "spriteRender": 0.345,
+            "spriteSetup": 3.652
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.546,
+            "render": 0.631,
+            "setup": 3.789,
+            "portal": 0.0,
+            "drawcalls": 0.205,
+            "postprocess": 0.149,
+            "finish": 13.881,
+            "spriteRender": 0.457,
+            "spriteSetup": 3.723
+          }
+        }
+      ],
+      "retainedScoredIndices": [],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.669,
+        "setup": 3.723,
+        "allIncludingFinish": 18.4085
+      }
+    },
+    {
+      "id": "warm-candidate",
+      "variant": "candidate",
+      "warmupOnly": true,
+      "nativeToken": {
+        "pid": 13276,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.7055771999876,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/warm-candidate/receipt.json",
+        "sha256": "c6aed816d82fb744ebc2a71d3080e1c361fa39d4d6066247d1aaf3e2966813a9",
+        "bytes": 1815211
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/warm-candidate.json",
+        "sha256": "321e695eb4743cca8e77b55abc08c135e642180011779b24cf2e3c0caea5f2c7"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/warm-candidate-quiet.json",
+        "sha256": "2f8b8e443c34b5cbcbfceb2692de9e0374eb87e61f7782143420f6a21108e328",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 2.7166882276843465
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 51,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.64,
+            "render": 0.512,
+            "setup": 3.808,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.072,
+            "finish": 14.2,
+            "spriteRender": 0.372,
+            "spriteSetup": 3.755
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.493,
+            "render": 0.574,
+            "setup": 3.779,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.093,
+            "finish": 13.984,
+            "spriteRender": 0.427,
+            "spriteSetup": 3.72
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.795,
+            "render": 0.555,
+            "setup": 3.777,
+            "portal": 0.0,
+            "drawcalls": 0.187,
+            "postprocess": 0.075,
+            "finish": 14.337,
+            "spriteRender": 0.417,
+            "spriteSetup": 3.72
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.306,
+            "render": 0.565,
+            "setup": 3.61,
+            "portal": 0.0,
+            "drawcalls": 0.185,
+            "postprocess": 0.089,
+            "finish": 13.983,
+            "spriteRender": 0.423,
+            "spriteSetup": 3.562
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.959,
+            "render": 0.649,
+            "setup": 4.003,
+            "portal": 0.0,
+            "drawcalls": 0.196,
+            "postprocess": 0.114,
+            "finish": 14.095,
+            "spriteRender": 0.461,
+            "spriteSetup": 3.915
+          }
+        }
+      ],
+      "retainedScoredIndices": [],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.72,
+        "setup": 3.778,
+        "allIncludingFinish": 18.644
+      }
+    },
+    {
+      "id": "pair-03-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "nativeToken": {
+        "pid": 16828,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.70779019998736,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/pair-03-baseline/receipt.json",
+        "sha256": "021473f9cba3a2bcc57d49743dbec98aec4f5d1722ea330e07e3477d14397f82",
+        "bytes": 1814327
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-03-baseline.json",
+        "sha256": "6779a21a9eda67ea469134264b78d157651319364d26c70f1e03be4c5bb3800f"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-03-baseline-quiet.json",
+        "sha256": "d8ac035fb6c49a9e6dbbb11f3f2907b4c9b9d5d9fccafc2d2d8a353f761e0cfe",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 13.171355498721228
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 51,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.447,
+            "render": 0.521,
+            "setup": 3.635,
+            "portal": 0.0,
+            "drawcalls": 0.179,
+            "postprocess": 0.104,
+            "finish": 14.129,
+            "spriteRender": 0.37,
+            "spriteSetup": 3.585
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.287,
+            "render": 0.531,
+            "setup": 3.688,
+            "portal": 0.0,
+            "drawcalls": 0.176,
+            "postprocess": 0.077,
+            "finish": 13.942,
+            "spriteRender": 0.4,
+            "spriteSetup": 3.637
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.393,
+            "render": 0.55,
+            "setup": 3.752,
+            "portal": 0.0,
+            "drawcalls": 0.179,
+            "postprocess": 0.086,
+            "finish": 13.937,
+            "spriteRender": 0.408,
+            "spriteSetup": 3.69
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.369,
+            "render": 0.553,
+            "setup": 3.618,
+            "portal": 0.0,
+            "drawcalls": 0.178,
+            "postprocess": 0.093,
+            "finish": 14.041,
+            "spriteRender": 0.411,
+            "spriteSetup": 3.566
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.486,
+            "render": 0.566,
+            "setup": 3.715,
+            "portal": 0.0,
+            "drawcalls": 0.185,
+            "postprocess": 0.1,
+            "finish": 14.036,
+            "spriteRender": 0.417,
+            "spriteSetup": 3.659
+          }
+        }
+      ],
+      "retainedScoredIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.6479999999999997,
+        "setup": 3.7015000000000002,
+        "allIncludingFinish": 18.381
+      }
+    },
+    {
+      "id": "pair-03-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "nativeToken": {
+        "pid": 18484,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.70699249999598,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/pair-03-candidate/receipt.json",
+        "sha256": "b52e7980a73179422fb5d113c8d62e81919d14460d5fc56a7b16886cb997ffa1",
+        "bytes": 1815263
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-03-candidate.json",
+        "sha256": "17401b106b62bc27f3393716f0cd1c5bacab56ea8c59fa5a962d057c6388b1f8"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-03-candidate-quiet.json",
+        "sha256": "9d3fe6dfa709e57fcb1658e2e1701ef0b99b87293fa37198b1840120d8e3d7e0",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 2.4390243902439024
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 51,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.506,
+            "render": 0.538,
+            "setup": 3.706,
+            "portal": 0.0,
+            "drawcalls": 0.189,
+            "postprocess": 0.088,
+            "finish": 14.101,
+            "spriteRender": 0.383,
+            "spriteSetup": 3.653
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.082,
+            "render": 0.701,
+            "setup": 3.671,
+            "portal": 0.0,
+            "drawcalls": 0.22,
+            "postprocess": 0.093,
+            "finish": 14.546,
+            "spriteRender": 0.52,
+            "spriteSetup": 3.608
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.465,
+            "render": 0.523,
+            "setup": 3.734,
+            "portal": 0.0,
+            "drawcalls": 0.182,
+            "postprocess": 0.09,
+            "finish": 14.074,
+            "spriteRender": 0.393,
+            "spriteSetup": 3.682
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.319,
+            "render": 0.576,
+            "setup": 3.558,
+            "portal": 0.0,
+            "drawcalls": 0.187,
+            "postprocess": 0.097,
+            "finish": 14.026,
+            "spriteRender": 0.428,
+            "spriteSetup": 3.506
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.766,
+            "render": 0.56,
+            "setup": 3.681,
+            "portal": 0.0,
+            "drawcalls": 0.187,
+            "postprocess": 0.094,
+            "finish": 14.368,
+            "spriteRender": 0.415,
+            "spriteSetup": 3.622
+          }
+        }
+      ],
+      "retainedScoredIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.615,
+        "setup": 3.676,
+        "allIncludingFinish": 18.615499999999997
+      }
+    },
+    {
+      "id": "pair-04-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "nativeToken": {
+        "pid": 23556,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.61135359999025,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/pair-04-candidate/receipt.json",
+        "sha256": "2e1c02e61403d4f3272e93fdbe4b1c8ed7c08ba90a148df5576328afd77fa067",
+        "bytes": 1815262
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-04-candidate.json",
+        "sha256": "aa545318c93c9e47cd063727bdbb885412cd91e18c984317b9f18de7ff1ee92d"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-04-candidate-quiet.json",
+        "sha256": "855d80e3b6c9d58ce6549178eb40c6eeb79ee70aac2604de0696db6c4dbe782b",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 3.259452411994785
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 51,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.753,
+            "render": 0.588,
+            "setup": 3.66,
+            "portal": 0.0,
+            "drawcalls": 0.192,
+            "postprocess": 0.13,
+            "finish": 14.307,
+            "spriteRender": 0.418,
+            "spriteSetup": 3.6
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.474,
+            "render": 0.557,
+            "setup": 3.756,
+            "portal": 0.0,
+            "drawcalls": 0.187,
+            "postprocess": 0.077,
+            "finish": 14.035,
+            "spriteRender": 0.416,
+            "spriteSetup": 3.707
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.673,
+            "render": 0.634,
+            "setup": 3.852,
+            "portal": 0.0,
+            "drawcalls": 0.192,
+            "postprocess": 0.096,
+            "finish": 14.022,
+            "spriteRender": 0.452,
+            "spriteSetup": 3.78
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.418,
+            "render": 0.592,
+            "setup": 3.658,
+            "portal": 0.0,
+            "drawcalls": 0.189,
+            "postprocess": 0.094,
+            "finish": 14.009,
+            "spriteRender": 0.437,
+            "spriteSetup": 3.603
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.524,
+            "render": 0.575,
+            "setup": 3.736,
+            "portal": 0.0,
+            "drawcalls": 0.186,
+            "postprocess": 0.089,
+            "finish": 14.063,
+            "spriteRender": 0.422,
+            "spriteSetup": 3.677
+          }
+        }
+      ],
+      "retainedScoredIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.692,
+        "setup": 3.746,
+        "allIncludingFinish": 18.499000000000002
+      }
+    },
+    {
+      "id": "pair-04-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "nativeToken": {
+        "pid": 4676,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.70798469998408,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/pair-04-baseline/receipt.json",
+        "sha256": "b8debe291ca8df8b0bb53952ff99cc74a4f1818f1e62c348fb66096028c10e00",
+        "bytes": 1814329
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-04-baseline.json",
+        "sha256": "9874ead8c01f35f1be21c03fc8ee88afc7b6c220989b9460dbaaa942d14405c8"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-04-baseline-quiet.json",
+        "sha256": "bc836d7b9e07c1a18a47c4a1bb929fae761332211752f28fc6894118ee5422c0",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 13.541666666666666
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 52,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.339,
+            "render": 0.512,
+            "setup": 3.726,
+            "portal": 0.0,
+            "drawcalls": 0.181,
+            "postprocess": 0.098,
+            "finish": 13.932,
+            "spriteRender": 0.364,
+            "spriteSetup": 3.675
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.884,
+            "render": 0.576,
+            "setup": 3.766,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.094,
+            "finish": 14.379,
+            "spriteRender": 0.424,
+            "spriteSetup": 3.699
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.316,
+            "render": 0.462,
+            "setup": 3.68,
+            "portal": 0.0,
+            "drawcalls": 0.178,
+            "postprocess": 0.082,
+            "finish": 14.041,
+            "spriteRender": 0.328,
+            "spriteSetup": 3.647
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.556,
+            "render": 0.464,
+            "setup": 3.65,
+            "portal": 0.0,
+            "drawcalls": 0.177,
+            "postprocess": 0.094,
+            "finish": 14.287,
+            "spriteRender": 0.328,
+            "spriteSetup": 3.609
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.728,
+            "render": 0.483,
+            "setup": 3.714,
+            "portal": 0.0,
+            "drawcalls": 0.179,
+            "postprocess": 0.092,
+            "finish": 14.367,
+            "spriteRender": 0.338,
+            "spriteSetup": 3.66
+          }
+        }
+      ],
+      "retainedScoredIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.6535,
+        "setup": 3.697,
+        "allIncludingFinish": 18.642000000000003
+      }
+    },
+    {
+      "id": "pair-05-baseline",
+      "variant": "baseline",
+      "warmupOnly": false,
+      "nativeToken": {
+        "pid": 5708,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.60681409999961,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/pair-05-baseline/receipt.json",
+        "sha256": "15729399e7261c72c5a7d1e12ae47cc92feea2eade370fbe76a2059331715699",
+        "bytes": 1814329
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-05-baseline.json",
+        "sha256": "4f5898cbdefc1060024a14c210be6a511f89c5911391dd534d995b13b3ee4866"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-05-baseline-quiet.json",
+        "sha256": "5ed74f9eb279bf0fa99fedb47fc3a686406972174fd9d4383d768e6c65465187",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 3.6601307189542482
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 51,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.024,
+            "render": 0.478,
+            "setup": 4.399,
+            "portal": 0.0,
+            "drawcalls": 0.18,
+            "postprocess": 0.118,
+            "finish": 13.958,
+            "spriteRender": 0.334,
+            "spriteSetup": 4.353
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.261,
+            "render": 0.456,
+            "setup": 3.579,
+            "portal": 0.0,
+            "drawcalls": 0.173,
+            "postprocess": 0.086,
+            "finish": 14.092,
+            "spriteRender": 0.323,
+            "spriteSetup": 3.543
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.677,
+            "render": 0.557,
+            "setup": 3.924,
+            "portal": 0.0,
+            "drawcalls": 0.176,
+            "postprocess": 0.092,
+            "finish": 14.041,
+            "spriteRender": 0.407,
+            "spriteSetup": 3.86
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.785,
+            "render": 0.467,
+            "setup": 3.645,
+            "portal": 0.0,
+            "drawcalls": 0.178,
+            "postprocess": 0.094,
+            "finish": 14.514,
+            "spriteRender": 0.328,
+            "spriteSetup": 3.601
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 19.21,
+            "render": 0.54,
+            "setup": 3.844,
+            "portal": 0.0,
+            "drawcalls": 0.182,
+            "postprocess": 0.101,
+            "finish": 14.649,
+            "spriteRender": 0.375,
+            "spriteSetup": 3.789
+          }
+        }
+      ],
+      "retainedScoredIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.6950000000000003,
+        "setup": 3.7445,
+        "allIncludingFinish": 18.731
+      }
+    },
+    {
+      "id": "pair-05-candidate",
+      "variant": "candidate",
+      "warmupOnly": false,
+      "nativeToken": {
+        "pid": 22148,
+        "elevated": false,
+        "integrityRid": 8192,
+        "queryOnly": true
+      },
+      "nativeDevice": {
+        "name": "NVIDIA GeForce GTX 1650 SUPER",
+        "type": "discrete gpu",
+        "apiVersion": "1.4.351",
+        "encodedDriver": "616.368.0"
+      },
+      "nativeDurationSeconds": 38.71016329998383,
+      "rawReceipt": {
+        "path": "build/pf020-native/pf020-cpu-profile/frozen-inputs-01/build/pf020-dense-outlier-recheck-02/pair-05-candidate/receipt.json",
+        "sha256": "7e5b2ee1a0d032a859b7ff1cde85642a14deb0e7fc99135006dbd56166c01fe5",
+        "bytes": 1815264
+      },
+      "recheckReceipt": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-05-candidate.json",
+        "sha256": "6aec4bce539c541eb90d0ccd47f1d8382783987924fe557b3f9931267485e49b"
+      },
+      "quiet": {
+        "path": "build/pf020-native/pf020-dense-outlier-recheck-03/pair-05-candidate-quiet.json",
+        "sha256": "ee1bf04157823415486a10fe31723e55da0fd2328ebac04ced815227a172a7d2",
+        "intervals": 30,
+        "maximumFinalTenBusyPercent": 3.8107752956636007
+      },
+      "settings": {
+        "vid_rendermode": "4",
+        "gl_multithread": "true",
+        "gl_spritelight": "2",
+        "gl_lights": "true",
+        "gl_texture_filter": "6",
+        "gl_texture_filter_anisotropic": "0",
+        "gl_texture_hqresizemode": "0",
+        "vid_scalefactor": "1",
+        "vid_scalemode": "0",
+        "cl_capfps": "false",
+        "vid_maxfps": "0",
+        "vid_vsync": "false",
+        "vid_fullscreen": "false",
+        "vk_debug": "false",
+        "vk_device": "0",
+        "use_mouse": "false",
+        "m_use_mouse": "0",
+        "vid_activeinbackground": "true",
+        "vid_lowerinbackground": "false",
+        "show_messages": "false",
+        "lm_dynlights": "false",
+        "gl_lightmode": "1",
+        "con_notifytime": "0",
+        "gl_levelmesh": "false"
+      },
+      "decodedRgbSha256": "ce28813599b98a19dd2bba4456e4acf587e29f9f18813547de1ae3ca69e22151",
+      "allFiveCpuSnapshots": [
+        {
+          "index": 0,
+          "excludedWarmSnapshot": true,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 51,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.37,
+            "render": 0.536,
+            "setup": 3.768,
+            "portal": 0.0,
+            "drawcalls": 0.182,
+            "postprocess": 0.063,
+            "finish": 13.956,
+            "spriteRender": 0.404,
+            "spriteSetup": 3.725
+          }
+        },
+        {
+          "index": 1,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.571,
+            "render": 0.579,
+            "setup": 3.711,
+            "portal": 0.0,
+            "drawcalls": 0.188,
+            "postprocess": 0.098,
+            "finish": 14.116,
+            "spriteRender": 0.427,
+            "spriteSetup": 3.653
+          }
+        },
+        {
+          "index": 2,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.657,
+            "render": 0.621,
+            "setup": 3.821,
+            "portal": 0.0,
+            "drawcalls": 0.19,
+            "postprocess": 0.108,
+            "finish": 14.033,
+            "spriteRender": 0.449,
+            "spriteSetup": 3.747
+          }
+        },
+        {
+          "index": 3,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.843,
+            "render": 0.548,
+            "setup": 3.801,
+            "portal": 0.0,
+            "drawcalls": 0.184,
+            "postprocess": 0.077,
+            "finish": 14.37,
+            "spriteRender": 0.408,
+            "spriteSetup": 3.752
+          }
+        },
+        {
+          "index": 4,
+          "excludedWarmSnapshot": false,
+          "camera": [
+            -1850,
+            0,
+            41,
+            0,
+            0
+          ],
+          "counts": {
+            "walls": 5,
+            "splits": 0,
+            "tSplits": 0,
+            "wallVertices": 20,
+            "flats": 2,
+            "flatPrimitives": 2,
+            "flatVertices": 24,
+            "sprites": 832,
+            "decals": 0,
+            "portals": 0,
+            "commandBuffers": 5,
+            "wallLightsProcessed": 257,
+            "wallLightsRendered": 253,
+            "flatLightsProcessed": 432,
+            "flatLightsRendered": 432
+          },
+          "fpsContext": 35,
+          "cpuMilliseconds": {
+            "allIncludingFinish": 18.489,
+            "render": 0.551,
+            "setup": 3.773,
+            "portal": 0.0,
+            "drawcalls": 0.183,
+            "postprocess": 0.071,
+            "finish": 14.044,
+            "spriteRender": 0.409,
+            "spriteSetup": 3.722
+          }
+        }
+      ],
+      "retainedScoredIndices": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "cpuRunMediansMilliseconds": {
+        "spriteSetup": 3.7344999999999997,
+        "setup": 3.787,
+        "allIncludingFinish": 18.614
+      }
+    }
+  ],
+  "pairs": [
+    {
+      "pair": 3,
+      "originalRelativePercent": {
+        "spriteSetup": 13.726012793176956,
+        "setup": 13.880126182965281,
+        "allIncludingFinish": 7.976408912188737
+      },
+      "recheckRelativePercent": {
+        "spriteSetup": -0.904605263157876,
+        "setup": -0.6889099013913325,
+        "allIncludingFinish": 1.2757738969588095
+      },
+      "baselineMediansMilliseconds": {
+        "spriteSetup": 3.6479999999999997,
+        "setup": 3.7015000000000002,
+        "allIncludingFinish": 18.381
+      },
+      "candidateMediansMilliseconds": {
+        "spriteSetup": 3.615,
+        "setup": 3.676,
+        "allIncludingFinish": 18.615499999999997
+      },
+      "exactDecodedRgbEqual": true
+    },
+    {
+      "pair": 4,
+      "originalRelativePercent": {
+        "spriteSetup": 5.371676614215959,
+        "setup": 5.364548494983268,
+        "allIncludingFinish": 0.002621163272276128
+      },
+      "recheckRelativePercent": {
+        "spriteSetup": 1.05378404269878,
+        "setup": 1.3253989721395687,
+        "allIncludingFinish": -0.7670850767085069
+      },
+      "baselineMediansMilliseconds": {
+        "spriteSetup": 3.6535,
+        "setup": 3.697,
+        "allIncludingFinish": 18.642000000000003
+      },
+      "candidateMediansMilliseconds": {
+        "spriteSetup": 3.692,
+        "setup": 3.746,
+        "allIncludingFinish": 18.499000000000002
+      },
+      "exactDecodedRgbEqual": true
+    },
+    {
+      "pair": 5,
+      "originalRelativePercent": {
+        "spriteSetup": 3.905794566864862,
+        "setup": 3.632183908045983,
+        "allIncludingFinish": 1.4985546934428662
+      },
+      "recheckRelativePercent": {
+        "spriteSetup": 1.0690121786197437,
+        "setup": 1.1349979970623592,
+        "allIncludingFinish": -0.624632961400895
+      },
+      "baselineMediansMilliseconds": {
+        "spriteSetup": 3.6950000000000003,
+        "setup": 3.7445,
+        "allIncludingFinish": 18.731
+      },
+      "candidateMediansMilliseconds": {
+        "spriteSetup": 3.7344999999999997,
+        "setup": 3.787,
+        "allIncludingFinish": 18.614
+      },
+      "exactDecodedRgbEqual": true
+    }
+  ],
+  "exactScoredPixelsCompared": 5717712,
+  "mismatchedPixels": 0,
+  "failedPreparations": [
+    {
+      "packet": "build/pf020-native/pf020-dense-outlier-recheck-01",
+      "nativeProcesses": 0,
+      "status": "QUIET_PREPARATION_FAILED",
+      "fullQuietVectorRetained": false
+    },
+    {
+      "packet": "build/pf020-native/pf020-dense-outlier-recheck-02",
+      "nativeProcesses": 1,
+      "status": "CANDIDATE_QUIET_PREPARATION_FAILED",
+      "baselineWarmupReusedUnscored": true,
+      "fullQuietVectorRetained": true
+    }
+  ],
+  "independentAudit": {
+    "status": "PASS",
+    "path": "build/pf020-native/independent-outlier-review-03.json",
+    "sha256": "d50e997eb80ef8a52d6f2ef45a193ee55ceccff27d133a09ed6b7ba764c8f1f3",
+    "scope": "Raw original12/recheck8 receipts+artifacts/source/build/STOP/settings/state, independent40 bench blocks/24 scores, all8 PNGs15,247,232 pixels, exact image pairs and native token/order/watchdog/quiet vectors. No causal/performance/freeze acceptance."
+  },
+  "performanceAccepted": false,
+  "gpuTimestampClaimed": false,
+  "freezeAccepted": false,
+  "limits": [
+    "Targeted selection after original inspection, registered before rerun; no original outlier removal or five-pair aggregate replacement.",
+    "Two whole-process warmups unscored; first snapshot per scored child excluded under unchanged protocol; all raw snapshots retained.",
+    "CPU elapsed RDTSC/Finish-wait snapshots, not per-frame distributions or GPU timestamps.",
+    "Quiet prep is bounded aggregate idle observation, not continuous child CPU/scheduling evidence or proof of no interference.",
+    "Extreme original spikes did not recur; slicing cause and statistical significance remain unproved.",
+    "Sealed accepted Dense binaries/input export used; new view observer WIP is not executed or qualified by these runs."
+  ]
+}

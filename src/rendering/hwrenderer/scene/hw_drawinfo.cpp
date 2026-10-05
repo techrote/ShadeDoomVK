@@ -54,6 +54,7 @@
 #include "hw_lighting.h"
 #include "d_main.h"
 #include "swrenderer/r_swcolormaps.h"
+#include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
 
 EXTERN_CVAR(Float, r_visibility)
 EXTERN_CVAR(Int, lm_background_updates);
@@ -1068,6 +1069,7 @@ void HWDrawInfo::RenderPortal(HWPortal *p, FRenderState &state, bool usestencil)
 	state.SetFlatVertexBuffer();
 	state.SetViewpoint(vpIndex);
 	gp->RemoveStencil(this, state, usestencil);
+	Pf020ViewDiagnostics::Restored(this);
 
 }
 
@@ -1441,6 +1443,7 @@ extern int gametic;
 void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 {
 	CfxTrace::SetTic(static_cast<uint64_t>(gametic));
+	Pf020ViewDiagnostics::SceneBegin(this, drawmode);
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
 	auto& vp = Viewpoint;
@@ -1514,6 +1517,7 @@ void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 	}
 
 	state.SetWireframe(0);
+	Pf020ViewDiagnostics::SceneEnd(this);
 
 }
 

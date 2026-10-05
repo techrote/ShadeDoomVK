@@ -1,6 +1,6 @@
 # PF-113 — Missing environment-probe contribution repair
 
-Status: **native qualification PASS; exact-head review/CI and release integration pending.**
+Status: **ACCEPTED — PR #117 merged and verified; #113 closed.**
 
 Issue [#113](https://github.com/techrote/ShadeDoomVK/issues/113) owns the reachable missing-probe PBR consumer repair. PF-020/#37 and SDVK-001 remain blocked until their separate gates pass. The [adopted contribution and sampling decision](PF-113-MISSING-IBL-DECISION.md) is implementation authority; [the original negative receipt](PF-113-ORIGINAL-NEGATIVE-VERIFICATION.json) preserves the exact accepted-master counterexample off GPU.
 
@@ -32,4 +32,4 @@ Three independent audits pass: source/build/package/layer closure, raw native pi
 
 Reproduce on a clean built/staged candidate with `prepare_pbr_probe_runtime.py --out <fresh-inputs> --iwad <local-doom2.wad> --exe <candidate-vkdoom.exe>`. For each fresh output, run `run_pbr_probe_runtime.py --manifest <inputs/manifest.json> --exe <candidate-vkdoom.exe> --out <fresh-run> --mode core|sync --layer-dir <pinned-layer-bin> --candidate-receipt <candidate.json> --prepare`, then the identical command with `--launch`. The retained receipt records the exact argument vectors, generated config/exec files, 90-second watchdog and loaded archives. Run core and sync separately; never launch the original missing/divergent descriptor path.
 
-This native qualification awaits final exact-head CI/review, merge/master verification and post-merge checks for #113 closure. PF-020/#37 retains its separate full freeze contract.
+[Release acceptance](PF-113-RELEASE-ACCEPTANCE.json) records independent exact-head review, all eight final-head jobs, merge `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`, verified master/source closure and all eight exact post-merge jobs. #113 is closed; the native qualification receipt retains its measurement-time release-pending status. PF-020/#37 retains its separate full freeze contract.

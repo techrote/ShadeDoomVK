@@ -1,6 +1,6 @@
 # PF-020 — PBR missing-probe fallback blocker
 
-Status: **OPEN — guarded repair/native qualification PASS; release integration pending**
+Status: **RESOLVED — #113 accepted through PR #117; independent PF-020 freeze pending**
 
 Authority: [#113](https://github.com/techrote/ShadeDoomVK/issues/113), required by [PF-020 / #37](https://github.com/techrote/ShadeDoomVK/issues/37)
 
@@ -14,7 +14,8 @@ recorded: zero IBL for missing token zero, with original mixed-tap weights and
 sum order retained. No renormalization or environment substitution is adopted.
 [Guarded implementation and native qualification](PF-113-IMPLEMENTATION-NOTES.md)
 and [compact measured receipt](PF-113-FINAL-NATIVE-VERIFICATION.json) now pass.
-Final exact-head CI/review and merge/master/post-merge gates remain required.
+[Release acceptance](PF-113-RELEASE-ACCEPTANCE.json) records all final-head and
+post-merge jobs, independent review and verified master. #113 is closed.
 The original unresolved-decision audit below remains historical evidence;
 PF-020 still requires its separate full freeze acceptance.
 

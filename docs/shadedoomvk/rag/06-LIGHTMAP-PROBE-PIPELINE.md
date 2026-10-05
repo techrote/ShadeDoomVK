@@ -84,7 +84,7 @@ The previous `floorZ + ceilingZ / 2` expression was wrong whenever the floor hei
 
 - completed builders return without spinning;
 - a probe-count change resets indices/collection/iteration state and calls `ResetLightProbes()` before rebaking;
-- transition to an empty probe set also retires/reset previously allocated probe resources;
+- transition to an empty probe set invalidates the epoch and transfer-clears/re-publishes existing probe maps through `ResetLightProbes()` while keeping their image owners/views/descriptor pairs alive;
 - `Full()` has an explicit no-progress guard so a future terminal `Step()` state cannot create an infinite loop.
 
 The per-texel selector itself is independent of Vulkan ray-query support; ray-query-disabled lightmap baking continues to use the existing CPU/fallback collision representation while the same probe-map copy contract applies.
@@ -93,7 +93,7 @@ The per-texel selector itself is independent of Vulkan ray-query support; ray-qu
 
 `lightmodel_pbr.glsl` uses irradiance for diffuse IBL and the adjacent prefiltered cubemap + BRDF LUT for specular IBL. Probe correctness therefore directly affects apparent roughness/metal response and can mask as a material problem. PF-012 changes only which already-authored runtime probe pair is selected; it does not recalibrate PBR response or define actor probe policy.
 
-PF-113/#113 completes the missing-pair consumer contract in `SampleProbeIrradiance` and `SampleProbePrefiltered`: zero returns zero radiance before cube access or `base+1`. Uniform and gathered branches share those helpers. Mixed zero/live taps retain all four original coefficients and sum order; no weight renormalization or substitute environment is used. Ambient/direct/sunlight `Lo` remains independent, so zero IBL does not imply a black final surface. Live irradiance uses explicit LOD0 on the actual one-mip cube view with LINEAR min/mag, zero bias and disabled anisotropy; prefilter keeps the original roughness LOD. Both descriptor accesses use `nonuniformEXT`, including across divergent zero/live fragments. [Decision and sampling amendment](../PF-113-MISSING-IBL-DECISION.md) distinguish this policy from PF-012's original evidence. Native qualification and release disposition are recorded separately.
+PF-113/#113 completes the missing-pair consumer contract in `SampleProbeIrradiance` and `SampleProbePrefiltered`: zero returns zero radiance before cube access or `base+1`. Uniform and gathered branches share those helpers. Mixed zero/live taps retain all four original coefficients and sum order; no weight renormalization or substitute environment is used. Ambient/direct/sunlight `Lo` remains independent, so zero IBL does not imply a black final surface. Live irradiance uses explicit LOD0 on the actual one-mip cube view with LINEAR min/mag, zero bias and disabled anisotropy; prefilter keeps the original roughness LOD. Both descriptor accesses use `nonuniformEXT`, including across divergent zero/live fragments. [Decision and sampling amendment](../PF-113-MISSING-IBL-DECISION.md) distinguish this policy from PF-012's original evidence. [Native qualification](../PF-113-FINAL-NATIVE-VERIFICATION.json) and [verified PR #117 release acceptance](../PF-113-RELEASE-ACCEPTANCE.json) record the bounded missing-to-published result; they do not accept the full freeze.
 
 ## Invariants
 

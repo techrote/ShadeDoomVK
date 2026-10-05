@@ -1,0 +1,148 @@
+{
+  "schema": 1,
+  "date_utc": "2026-10-04",
+  "disposition": "BLOCKED checkpoint; not PF-020 acceptance",
+  "starting_master": "4df7dea1338f063c6417e024f967bfa4aa23edd4",
+  "compiler": "MSVC 19.44.35228.0",
+  "python": "3.14.7",
+  "configuration": "VS2022 x64 RelWithDebInfo",
+  "gpu_launches": 0,
+  "baseline": {
+    "tests": 260,
+    "errors": 12,
+    "skips": 0,
+    "seconds": 14.444,
+    "cause": "POSIX c++ executable missing on native Windows"
+  },
+  "portable": {
+    "tests": 270,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 29.533
+  },
+  "parser_repair": {
+    "tests": 272,
+    "errors": 0,
+    "skips": 0,
+    "seconds": 30.333,
+    "production_parser_checks": 1119,
+    "expected_parser_errors": 31,
+    "preserved_original_checks": 15,
+    "full_loader": false,
+    "gpu": false,
+    "native_engine_build_exit": 0
+  },
+  "standalone_fixtures": 4,
+  "cfx_capture_tests": 8,
+  "source_oracle_sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+  "candidate_exe_sha256": "412652971e146f76f4dfc10e944b1e05934b166985da27bf544c31c454ae139d",
+  "candidate_pdb_sha256": "66a40a3c3036f3e5e6141f7e25f2612182cf44f1610dcc8785925c26b5fcd32d",
+  "sources": [
+    {
+      "path": "src/r_data/gldefs.cpp",
+      "measured_raw_sha256": "998e174cfbe2055111681bb6362869906ea324d286559b961b388bd51a73bb6e",
+      "normalized_lf_sha256": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5",
+      "committed_blob_sha256": "ebb6d1959a2a90212e54911cb311b52524ac758a37eb51aaef368a350f4095b5",
+      "normalized_equals_commit_blob": true
+    },
+    {
+      "path": "tools/pf_oracle/fixture_runner.py",
+      "measured_raw_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "normalized_lf_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "committed_blob_sha256": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+      "normalized_equals_commit_blob": true
+    },
+    {
+      "path": "tools/pf_oracle/tests/test_gldefs_custom_sampling_contract.py",
+      "measured_raw_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "normalized_lf_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "committed_blob_sha256": "fdf87358b0031a02a7ae8d22bbcef6e071dea4d385c81e65eb6a1c887c8351c7",
+      "normalized_equals_commit_blob": true
+    },
+    {
+      "path": "tools/pf_oracle/tests/gldefs_custom_sampling_fixture.cpp",
+      "measured_raw_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "normalized_lf_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "committed_blob_sha256": "62c8e5705e4638da1d423c23d65f7743c82785effef9226762996d697b7d6927",
+      "normalized_equals_commit_blob": true
+    }
+  ],
+  "retained_local_artifacts": [
+    {
+      "path": "build\\pf020-native\\oracle-baseline-tests.log",
+      "sha256": "95a1f63f099c47a02dcbc1179e089335a759ceb2364191b289b72c804807d44a",
+      "bytes": 65716
+    },
+    {
+      "path": "build\\pf020-native\\oracle-portable-tests.log",
+      "sha256": "01332766538836522d470c97c9955087138b456265f60e17ac3203b8efd64eaa",
+      "bytes": 45338
+    },
+    {
+      "path": "build\\pf020-native\\oracle-parser-repair-tests.log",
+      "sha256": "812416b0970fd6f4562eb9b2989c441b6a332d94353b808105d259e3ba6c56cb",
+      "bytes": 46110
+    },
+    {
+      "path": "build\\pf020-native\\gldefs-prefix-regression.log",
+      "sha256": "7089213e10aebb3a58365a006dbe7528b5398834a9df265abc0ef91d6183d469",
+      "bytes": 2947
+    },
+    {
+      "path": "build\\pf020-native\\gldefs-postrepair-regression.log",
+      "sha256": "faa38425e5dad0405c6f7ae2ebba3cc6d4d7974d47533437e64b5b96434b5369",
+      "bytes": 875
+    },
+    {
+      "path": "build\\pf020-native\\build-baseline.log",
+      "sha256": "24f7b88580a9ad3424a56dac64e3a8099598be3ee0a1a037cd478901247ed94c",
+      "bytes": 22440
+    },
+    {
+      "path": "build\\pf020-native\\build-parser-repair.log",
+      "sha256": "eab0f960a50c8d393138c2eb32aaa190ed58f9d4bc483aa87b52117e166a3a54",
+      "bytes": 3984
+    },
+    {
+      "path": "build\\pf020-native\\cfx-capture-tests.log",
+      "sha256": "c2fda27f277f74326177ce98de2f312ab157e9224b8fbe1be11dbef7c830d909",
+      "bytes": 1061
+    },
+    {
+      "path": "build\\pf020-native\\oracle-a.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "bytes": 4561
+    },
+    {
+      "path": "build\\pf020-native\\oracle-b.json",
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88",
+      "bytes": 4561
+    },
+    {
+      "path": "build\\pf020-native\\resource_generation_fixture.cpp.log",
+      "sha256": "996dc4807a69b244253bc38a180e5209eb5017c4d9b4cb3503addb8f55717cd7",
+      "bytes": 33
+    },
+    {
+      "path": "build\\pf020-native\\bindless_allocator_fixture.cpp.log",
+      "sha256": "5b5a2fbbc8257af4e13314eb2748ce97236e2337d2e786fc204d1229bdec0c74",
+      "bytes": 32
+    },
+    {
+      "path": "build\\pf020-native\\levelmesh_contract_fixture.cpp.log",
+      "sha256": "fee670f9edfd0838186e799590bb69efe7091b38334eda45aa147d0060463844",
+      "bytes": 91
+    },
+    {
+      "path": "build\\pf020-native\\probe_selection_fixture.cpp.log",
+      "sha256": "1b7cbcd1661a5446daf1b9606ee2fce8b44dc0fa7fd8b0bc534332e7230c97dd",
+      "bytes": 29
+    }
+  ],
+  "blockers": [
+    "Indexed 2D palette/layer provisioning #110",
+    "Final runtime validation, exact-head CI, accepted freeze, merge/master verification"
+  ],
+  "source_checkpoint_commit": "f495981841945b8779b0d73b70f603cfe968a749",
+  "source_hash_basis": "measured_raw_sha256 is native working-file bytes; normalized_lf_sha256 converts CRLF to LF; committed_blob_sha256 is git show at source_checkpoint_commit; equality is byte-tested."
+}

@@ -4,6 +4,8 @@ Status: canonical pre-SDVK implementation programme
 Date: 2026-09-17  
 Baseline under audit: `nashmuhandes/VkDoom@09634479ab5bf9adf691074fffe85a006a398cd0`
 
+The source-audit observations below describe that founding baseline. Current gate (2026-10-05): PF-001–019 and CFX #75 are accepted; current renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 has completed bounded view/state/image and final ordinary CPU evidence plus independent aggregate disposition; final publication-head checks/review/CI and verified integration remain required. SDVK-001 stays blocked until PF-020 acceptance is verified on master. Historical defects such as the probe-0 stub are not current implementation claims. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md) records accepted source/evidence/limitations.
+
 ## Why this tranche exists
 
 The founding SDVK-001..017 roadmap was directionally sound, but a deeper source audit showed that the inherited renderer is simultaneously more capable and more uneven than the first plan assumed. Several planned donor features are already present in the baseline, several important subsystems are only partially wired, and the most dangerous future failure mode is not lack of graphical capability but corruption or semantic drift across renderer-owned indices, cached state, portals, materials, LevelMesh, probes, descriptors and asynchronous resource work.
@@ -92,8 +94,8 @@ Make capped shadow-light selection deterministic/spatially meaningful, validate 
 **PF-016 — Unified dynamic-light query service and exact-equivalence actor fast path**  
 Centralize candidate collection/filtering/portal-relative positions/visibility and implement O(1) duplicate marking plus qualified section-local gathering where selected-light equivalence is proven.
 
-**PF-017 — Light/material data deduplication and cache lookup performance**  
-After PF-013 material correctness is accepted, deduplicate physical dynamic-light uploads where safe, retain per-surface index ranges, and replace linear material-descriptor-variant scans with canonical lookup without changing bindings/results.
+**PF-017 — Measured light/material reuse and lookup disposition**
+After PF-013 material correctness, qualify reuse/lookup candidates while preserving physical range/order/class/lifetime and bindings/results; retain only a measured equivalent benefit. The live issue superseded the original mandatory dedup/hash technique with a complete measured no-go option. Accepted PR #74 / `844462c3a4ed5f7037ade1b49d1a28f578077213` fully restores the integrated candidate after five pairs regress CPU setup +10.79% and CPU whole-frame +2.42%; material indexes/default sharing also retain no change. Historical prototype benefits remain research evidence, not retained improvements. [Final acceptance](PF-017-FINAL-ACCEPTANCE.md).
 
 **PF-018 — LevelMesh/AABB allocator and update-path performance**  
 Improve free-list/bin behavior, growth policy and moving-AABB parent update paths while preserving geometry, trace and upload results.
@@ -114,7 +116,7 @@ PF-001
  ├─ PF-002 ─ PF-003 ─┬─ PF-005
  │                   ├─ PF-008 → PF-013 ─────────────┐
  │                   └────────────────→ PF-012       │
- ├────────── PF-004 ─────────────┬────→ PF-012       │
+ ├─ PF-002 ─ PF-004 ─────────────┬────→ PF-012       │
  │                               ├────→ PF-015       │
  │                               └────→ PF-018       │
  ├─ PF-006 ──────────────────────────────────────────┼──→ PF-019

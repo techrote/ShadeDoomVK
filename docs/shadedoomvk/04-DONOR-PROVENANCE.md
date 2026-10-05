@@ -54,7 +54,7 @@ Commits:
 - `807043b995264f166e333bca54c4e0b281bd8669` — dynamic-light optimization attempt;
 - `773c53489663040697e744b50bf1b89e06525930` — remove linked lists entirely from lights.
 
-Disposition: **research/data-layout evidence**, not a blind cherry-pick. PF-016/PF-017 may use the concepts if current-source profiling and correctness fixtures support them.
+Disposition: **research/data-layout evidence**, not a blind cherry-pick. PF-016's separately accepted narrow query path is recorded above. PF-017's later light/material bookkeeping experiment is an accepted measured no-go with full source restoration; no donor bookkeeping optimization is retained. Any future experiment needs its own approved scope, current-source profiling and correctness fixtures. See [PF-017 final disposition](PF-017-FINAL-ACCEPTANCE.md).
 
 ### MrRaveYard/MAD-VKDoom — render-frame delta time
 

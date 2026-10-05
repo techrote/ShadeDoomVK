@@ -9,6 +9,8 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 
 **SDVK-001 is blocked until PF-020 is accepted, merged and verified on `master`.**
 
+Current gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; current renderer master is `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 has completed bounded view/state/image and final ordinary CPU evidence plus independent aggregate disposition; final publication-head checks/review/CI and verified integration remain required. SDVK-001 stays blocked until PF-020 acceptance is verified on master. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
+
 # Pre-foundation issue graph
 
 | ID | Objective | Hard dependencies |
@@ -29,7 +31,7 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 | PF-014 | sprite/portal state correctness repair pack | PF-009, PF-010 |
 | PF-015 | shadow/visibility-cache correctness repair pack | PF-004, PF-010, PF-011 |
 | PF-016 | unified dynamic-light query + exact-equivalence actor fast path | PF-009, PF-011, PF-015 |
-| PF-017 | light/material data dedup + cache lookup performance | PF-003, PF-008, PF-013, PF-016 |
+| PF-017 | measured light/material reuse + lookup disposition; accepted no-go/restoration | PF-003, PF-008, PF-013, PF-016 |
 | PF-018 | LevelMesh/AABB allocator/update performance | PF-004, PF-015 |
 | PF-019 | pipeline/resource micro-performance + dormant-path cleanup | PF-005, PF-006, PF-007, PF-017, PF-018 |
 | PF-020 | pre-foundation synthesis and SDVK-001 release gate | PF-001 through PF-019 |

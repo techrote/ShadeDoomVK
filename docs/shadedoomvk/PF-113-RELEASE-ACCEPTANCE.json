@@ -1,0 +1,178 @@
+{
+  "schema": "pf113-release-acceptance/v1",
+  "status": "ACCEPTED",
+  "issue": 113,
+  "pull_request": 117,
+  "head": "c37c2d6132a86299f674de5c4126402311b5e1d2",
+  "merge": "7d29c7e4d64d61dba05524d9e7f5711ffd915d90",
+  "exact_head_ci": {
+    "id": 37193338914,
+    "sha": "c37c2d6132a86299f674de5c4126402311b5e1d2",
+    "event": "pull_request",
+    "name": "Continuous Integration",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37193338914",
+    "jobs": [
+      {
+        "id": 111410005581,
+        "name": "PF renderer contract oracle",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157836,
+        "name": "Linux Clang 11 | Debug",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157845,
+        "name": "Visual Studio 2022 | Debug",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157886,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157896,
+        "name": "macOS | Release",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157914,
+        "name": "Linux Clang 15 | Release",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157922,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111410157980,
+        "name": "macOS | Debug",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "receipt": {
+      "local_artifact": "build/pf020-native/exact-head-pr-c37c2d6132a86299f674de5c4126402311b5e1d2.json",
+      "sha256": "f56b0b22e02deb88fceafd02ba3b2cb5b49b1bbf9fc8a144dc43f0dff2a14e35",
+      "bytes": 1777
+    }
+  },
+  "post_merge_ci": {
+    "id": 37194078630,
+    "sha": "7d29c7e4d64d61dba05524d9e7f5711ffd915d90",
+    "event": "push",
+    "name": "Continuous Integration",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37194078630",
+    "jobs": [
+      {
+        "id": 111412179759,
+        "name": "PF renderer contract oracle",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331024,
+        "name": "Linux Clang 11 | Debug",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331027,
+        "name": "macOS | Debug",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331068,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331102,
+        "name": "macOS | Release",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331111,
+        "name": "Linux Clang 15 | Release",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331152,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 111412331181,
+        "name": "Visual Studio 2022 | Debug",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "receipt": {
+      "local_artifact": "build/pf020-native/postmerge-7d29c7e4d64d61dba05524d9e7f5711ffd915d90.json",
+      "sha256": "302a10555841268725351c2d38e9c1d02261f1ae1232ede05ba9e47d99dc183c",
+      "bytes": 1769
+    }
+  },
+  "independent_exact_head_review": {
+    "status": "PASS",
+    "github_review_id": 5405434084,
+    "report": {
+      "local_artifact": "build/pf020-native/pf113-review/exact-head-c37-review-02.json",
+      "sha256": "502fdff7df121448fa7702030872c483b10b0768a4da416d031ed1a0fdf48a68",
+      "bytes": 1197920
+    },
+    "public_artifact_references_rehashed": 93,
+    "committed_qualification_sha256": "25d7f77178617890d41f7254f587806be94bc95ab0ed04d5a5d971bad5df4346",
+    "local_qualification_raw_sha256": "6fb36c4411a2d328efa8f36fc89cb4876709ce4653816f6baf3b35ee588dea79",
+    "qualification_text_projection": "Exact CRLF-to-Git-LF bytes and JSON semantic equality; distinct identities."
+  },
+  "master_verification": {
+    "remote_master": "7d29c7e4d64d61dba05524d9e7f5711ffd915d90",
+    "focused_head_ancestral": true,
+    "engine_tool_diff_head_to_merge": [],
+    "source_git_closure": {
+      "local_artifact": "build/pf020-native/pf113-build-02/merge-source-git-closure.json",
+      "sha256": "90023fd4d8faf4bf8be06d0d0d980f762bd7883f02a21f4b511c94b94b0159ee",
+      "bytes": 869
+    },
+    "engine_inputs": 2535
+  },
+  "native_qualification": {
+    "repository_artifact": "docs/shadedoomvk/PF-113-FINAL-NATIVE-VERIFICATION.json",
+    "runtime_source": "a113e2bc1644fe5e7e9079b49ef67308f83eecff",
+    "processes": 2,
+    "checks_per_process": 23603,
+    "private_controls_per_process": 12,
+    "actual_early_draws_per_process": 3,
+    "strict_pf_tests": 440,
+    "standalone_contracts": 4,
+    "cfx_tests": 8
+  },
+  "completed_tracker_receipt": 5978892431,
+  "limits": [
+    "Bounded correctness qualification; no GPU timing, whole-frame parity, full-bake robustness or human visual approval.",
+    "Immediate specialized rendering only; no LevelMesh/uber parity or P400/GPUAV claim.",
+    "Original unsafe missing/divergent descriptor paths never executed; original uniform live comparisons are legal.",
+    "PF020/#37 and SDVK001 retain their separate full freeze gate; historical PF017/CFX STOPs stay sealed."
+  ]
+}

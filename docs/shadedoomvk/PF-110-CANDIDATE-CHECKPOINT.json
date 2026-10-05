@@ -1,0 +1,143 @@
+{
+  "schema": "pf110-candidate-checkpoint/v1",
+  "disposition": "Built and CPU-verified candidate; native final matrix and restart pending; no issue accepted",
+  "parent_checkpoint": "f495981841945b8779b0d73b70f603cfe968a749",
+  "candidate_receipt": {
+    "path": "build/pf020-acceptance/indexed-candidate-4/candidate.json",
+    "sha256": "9a76f0ad4bb65bf0a1e42b1fa369cf5d5162236097eda0712b02903fa5a7eec4"
+  },
+  "source_files": 2528,
+  "source_closure_unchanged_during_engine_compile": true,
+  "source_closure_sha256": "f5d1959b3f21afc33c3f89e6a6e89b9dbda6b3b2d6701c296b5cc4ff3d2a0cc9",
+  "artifacts": [
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\vkdoom.exe",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "327d8d6d5e2b82eb45ffc4e097f0ed76d614abc27aae131d0d90f7475db74d48",
+      "bytes": 12204032
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\vkdoom.pdb",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\RelWithDebInfo\\vkdoom.pdb",
+      "sha256": "b519fbfc684745c3b117de3d08cc8ba25538853ae7e5d526db98f4496cf9d2f7",
+      "bytes": 76812288
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\vkdoom.pk3",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\vkdoom.pk3",
+      "sha256": "77b39266280f2fc878e8e1c29a92bf7cca72cb11de573f5994c86bc8196f63f0",
+      "bytes": 4237850
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\brightmaps.pk3",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\brightmaps.pk3",
+      "sha256": "3c978d3fd47f9b9e5f0a4bb1a4dd4c63308aadb71812e78b4179f17f1c5fe3ab",
+      "bytes": 246181
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\game_support.pk3",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\game_support.pk3",
+      "sha256": "4973748d5ca54a25375284efe04107b89edc96f340a41a18a704a9bb38b74bb7",
+      "bytes": 2381991
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\game_widescreen_gfx.pk3",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\game_widescreen_gfx.pk3",
+      "sha256": "a700f06f364dfef24f59aa0eedf372e16a8bdd5ae5804a1442f0a2ca89510d38",
+      "bytes": 5565936
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\lights.pk3",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf110-final\\lights.pk3",
+      "sha256": "4f97bf696c419885d46110e42eb65dd44d5d49f7f431197cd6ce86d15b90db5b",
+      "bytes": 24059
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\indexed-candidate-4\\ZMusic.dll",
+      "source": "C:\\ShadeDoomVK\\campaign-worktrees\\pf020-native-freeze\\build\\pf020-acceptance\\baseline\\ZMusic.dll",
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a",
+      "bytes": 2469888
+    }
+  ],
+  "native_build": {
+    "command": [
+      "cmake",
+      "--build",
+      "build/pf110-final",
+      "--config",
+      "RelWithDebInfo",
+      "--parallel",
+      "3"
+    ],
+    "log": "build\\pf020-native\\build-pf110-final.log",
+    "log_sha256": "e5a07c04027bd1e122d2462fdd210fbf8a8e1b7adc77e1441cd9e00a02b57abe",
+    "exit": 0
+  },
+  "diagnostic_source": {
+    "raw_sha256": "66f16023e9bd1b14ca611f420842cf5a6d7e2a3d190e42f3d248b895e6153c2f",
+    "normalized_lf_sha256": "66f16023e9bd1b14ca611f420842cf5a6d7e2a3d190e42f3d248b895e6153c2f"
+  },
+  "tool_sources": {
+    "tools/pf_oracle/prepare_indexed_material_runtime.py": {
+      "raw_sha256": "68115f155af09a11a55787dfd69946d0c6eed4a56944156a6d14d7a365e9b9a5",
+      "normalized_lf_sha256": "68115f155af09a11a55787dfd69946d0c6eed4a56944156a6d14d7a365e9b9a5"
+    },
+    "tools/pf_oracle/run_indexed_material_runtime.py": {
+      "raw_sha256": "73bd0c040199c3a6eab362929113de173357a6be8a43fb05ef38d6e6ddfef3db",
+      "normalized_lf_sha256": "73bd0c040199c3a6eab362929113de173357a6be8a43fb05ef38d6e6ddfef3db"
+    },
+    "tools/pf_oracle/run_indexed_material_restart.py": {
+      "raw_sha256": "ed70b8b590ee94898f5fdee2015d8718b32040fe475bb902f62bd3324d7d303d",
+      "normalized_lf_sha256": "ed70b8b590ee94898f5fdee2015d8718b32040fe475bb902f62bd3324d7d303d"
+    },
+    "tools/pf_oracle/tests/test_indexed_material_runtime_fixture.py": {
+      "raw_sha256": "033f460c5f06e1ca2b96ac29972eb0eb5089189030aec36f3b45786c48d0f568",
+      "normalized_lf_sha256": "033f460c5f06e1ca2b96ac29972eb0eb5089189030aec36f3b45786c48d0f568"
+    },
+    "tools/pf_oracle/tests/test_indexed_runtime_runner.py": {
+      "raw_sha256": "6386af294cfc814248bede6676157e41fdf045afd164faad0339fb61238f2872",
+      "normalized_lf_sha256": "6386af294cfc814248bede6676157e41fdf045afd164faad0339fb61238f2872"
+    },
+    "tools/pf_oracle/tests/test_indexed_restart_runner.py": {
+      "raw_sha256": "869a4744c321a64671ea3c3b3f9de588ebfdb2443cafac71fe8d9ef7f1ff6ec7",
+      "normalized_lf_sha256": "869a4744c321a64671ea3c3b3f9de588ebfdb2443cafac71fe8d9ef7f1ff6ec7"
+    },
+    "tools/pf_oracle/tests/test_indexed_restart_contract.py": {
+      "raw_sha256": "e93d6b3140f38b4834cd636aea995c88c876b98ba4021b6cd8bb3fe4d6b6fe22",
+      "normalized_lf_sha256": "e93d6b3140f38b4834cd636aea995c88c876b98ba4021b6cd8bb3fe4d6b6fe22"
+    }
+  },
+  "cpu_gate": {
+    "tests": 391,
+    "seconds": 61.146,
+    "errors": 0,
+    "skips": 0,
+    "strict_flags": [
+      "/W4",
+      "/WX",
+      "/UNDEBUG"
+    ],
+    "log": "build/pf020-native/oracle-final-material-durable-tests.log",
+    "log_sha256": "c51b3cb4b99d9a5d8906871a6f3af24331cf0b716aa364601b5c60186d837012",
+    "additional_verification": {
+      "tests": 25,
+      "errors": 0,
+      "skips": 0,
+      "log": "build/pf020-native/indexed-pinned-whitespace-tests.log",
+      "sha256": "6315abca8c5403c2c7a2ca4139e816ab4ced3163f969d225d36e0b21ec5ce167",
+      "purpose": "Original C++ negative bodies remain byte-exact after encoding their pinned trailing whitespace; evaluated fixture bodies unchanged."
+    }
+  },
+  "runtime_inputs": {
+    "path": "build/pf020-native/pf110-runtime-v6/manifest.json",
+    "sha256": "f3d927260190c23584c69658cff8f238d4f662201c2bdef837945d8c66559923",
+    "synthetic_mod_sha256": "f96c5963dd3ba9aa91b90b77fee6ca42c9c38fdb596058ef100eec100d1a8241"
+  },
+  "review": "Independent agents reviewed production lifetime/argv guards, corrected filtering and focused GL source/evidence; native run acceptance remains pending.",
+  "limitations": [
+    "Normal400/26 and restart403-before/400-after are expected current hardware counts, not measurements at this checkpoint.",
+    "Seven earlier processes are retained separately with raw and enclosing gate outcomes; v5 linear false comparison and v4 header-only false PASS are not rewritten.",
+    "No final mode2/mode0/restart/GPU performance/human or P400 acceptance.",
+    "PF-020 and SDVK-001 remain blocked by unresolved gates including #113."
+  ]
+}

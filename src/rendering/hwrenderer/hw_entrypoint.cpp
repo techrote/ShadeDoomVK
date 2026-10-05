@@ -52,6 +52,7 @@
 #include "hw_vrmodes.h"
 
 #include <vector>
+#include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Float, r_visibility)
@@ -153,6 +154,9 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 
 	R_SetupFrame(mainvp, r_viewwindow, camera, side);
 
+	Pf020ViewDiagnostics::BeginRoot(mainview, toscreen, side, camera->Level->MapName.GetChars());
+	mainvp.TicFrac = Pf020ViewDiagnostics::ActorFraction(mainvp.TicFrac);
+
 	if (mainview && toscreen && !(camera->Level->flags3 & LEVEL3_NOSHADOWMAP) && camera->Level->HasDynamicLights && gl_light_shadows > 0 && !lm_dynlights)
 	{
 		screen->mShadowMap->SetAABBTree(camera->Level->aabbTree);
@@ -223,6 +227,7 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 		// Stereo mode specific viewpoint adjustment
 		vp.Pos += eye.GetViewShift(vp.HWAngles.Yaw.Degrees());
 		di->SetupView(RenderState, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, false, false);
+		Pf020ViewDiagnostics::BeginEye(eye_ix);
 
 		if (gl_raytrace)
 		{
@@ -252,6 +257,7 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 			}
 
 			screen->PostProcessScene(false, cm, flash, !V_IsTrueColor(), [&]() { di->DrawEndScene2D(mainvp.sector, RenderState); });
+			Pf020ViewDiagnostics::PostprocessCompleted(di);
 			PostProcess.Unclock();
 		}
 		// Reset colormap so 2D drawing isn't affected
