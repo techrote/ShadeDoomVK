@@ -1,9 +1,11 @@
 # SDVK-001 foundation, identity and build contract
 
 Date: 2026-10-07. Owner: [SDVK-001 / #1](https://github.com/techrote/ShadeDoomVK/issues/1).
-Acceptance requires the implementation PR's eight passing jobs, verified merge
-on `master` and recorded release evidence. SDVK-002/003 remain gated on that
-verified acceptance.
+Status: **ACCEPTED, MERGED AND VERIFIED**. [PR #119](https://github.com/techrote/ShadeDoomVK/pull/119)
+merged as `7f34f15827f3cc98685d1af303d212ed5edc2b47`; all eight final PR jobs and
+all eight exact post-merge jobs passed. [Release acceptance](SDVK-001-RELEASE-ACCEPTANCE.json)
+pins the source, CI, local checks/builds and retained failures. SDVK-002/003 are
+unblocked.
 
 ## Checkout and freeze authority
 

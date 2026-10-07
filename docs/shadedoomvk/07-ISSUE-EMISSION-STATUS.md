@@ -1,6 +1,6 @@
 # GitHub issue emission and reconciliation status
 
-Date: 2026-09-17
+Date: 2026-10-07
 
 Status: complete for the current planning programme.
 
@@ -62,6 +62,7 @@ Canonical issue bodies are stored under `docs/shadedoomvk/issues/`. Live GitHub 
 
 - PF-001 through PF-020 are accepted; the [PF-020 release receipt](PF-020-RELEASE-ACCEPTANCE.json) records verified master integration.
 - PF-020 is the pre-foundation synthesis/release gate.
-- SDVK-001 is unblocked by PF-020 and owns the [foundation/build contract](SDVK-001-FOUNDATION.md). SDVK-002/003 wait for SDVK-001's verified merge and acceptance.
+- SDVK-001 is accepted, merged and verified on master at `7f34f15827f3cc98685d1af303d212ed5edc2b47`; its [foundation/build contract](SDVK-001-FOUNDATION.md) and [release receipt](SDVK-001-RELEASE-ACCEPTANCE.json) record the compatibility boundary and passing PR/master evidence.
+- SDVK-002 / #2 and SDVK-003 / #3 are unblocked by that verified foundation; their own issue contracts and concurrency rules govern subsequent work.
 
 GitHub issue numbers are convenience mappings only. Stable `PF-*` / `SDVK-*` IDs remain authoritative for dependencies and documentation.
