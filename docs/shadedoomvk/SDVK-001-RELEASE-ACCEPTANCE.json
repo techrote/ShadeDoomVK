@@ -1,0 +1,316 @@
+{
+  "schema": "sdvk001-release-acceptance/v1",
+  "dateUtc": "2026-10-07",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/1",
+  "pullRequest": "https://github.com/techrote/ShadeDoomVK/pull/119",
+  "publicationHead": "498acdeb7650161215049eeab8bfebdc1f13aed9",
+  "mergeCommit": "7f34f15827f3cc98685d1af303d212ed5edc2b47",
+  "masterVerified": true,
+  "wholeMergedTreeEqualsTestedPublication": true,
+  "foundingVKDoom": "09634479ab5bf9adf691074fffe85a006a398cd0",
+  "pfFreezeCommit": "e185e60b04fe37ec84a18c5a85eec6722b541b71",
+  "acceptedStartingMaster": "f21fe672cb54c8db3dca8977822d7697493c71ff",
+  "finalHeadCI": {
+    "runId": 37636588993,
+    "head": "498acdeb7650161215049eeab8bfebdc1f13aed9",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993",
+    "status": "PASS",
+    "actualJobsPassed": 8,
+    "jobs": [
+      {
+        "databaseId": 112844849420,
+        "name": "PF renderer contract oracle",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:27:55Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112844849420"
+      },
+      {
+        "databaseId": 112845411194,
+        "name": "macOS | Release",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:31:04Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411194"
+      },
+      {
+        "databaseId": 112845411200,
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:33:08Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411200"
+      },
+      {
+        "databaseId": 112845411222,
+        "name": "macOS | Debug",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:33:06Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411222"
+      },
+      {
+        "databaseId": 112845411300,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:35:59Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411300"
+      },
+      {
+        "databaseId": 112845411314,
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:33:10Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411314"
+      },
+      {
+        "databaseId": 112845411437,
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:34:27Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411437"
+      },
+      {
+        "databaseId": 112845411495,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:37:29Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37636588993/job/112845411495"
+      }
+    ],
+    "actualCheckout": "c739c562908c44ebcddd48530a1ff0248e572ae3",
+    "checkoutTreeEqualsPublication": true
+  },
+  "postMergeCI": {
+    "runId": 37638506103,
+    "head": "7f34f15827f3cc98685d1af303d212ed5edc2b47",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103",
+    "status": "PASS",
+    "actualJobsPassed": 8,
+    "jobs": [
+      {
+        "databaseId": 112850937451,
+        "name": "PF renderer contract oracle",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:40:21Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112850937451"
+      },
+      {
+        "databaseId": 112851493221,
+        "name": "macOS | Release",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:44:09Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493221"
+      },
+      {
+        "databaseId": 112851493222,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:49:46Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493222"
+      },
+      {
+        "databaseId": 112851493238,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:48:15Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493238"
+      },
+      {
+        "databaseId": 112851493384,
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:45:15Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493384"
+      },
+      {
+        "databaseId": 112851493501,
+        "name": "macOS | Debug",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:45:02Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493501"
+      },
+      {
+        "databaseId": 112851493512,
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:45:33Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493512"
+      },
+      {
+        "databaseId": 112851493653,
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success",
+        "completedAt": "2026-10-07T14:46:03Z",
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37638506103/job/112851493653"
+      }
+    ]
+  },
+  "localCPUChecks": {
+    "sourceHead": "498acdeb7650161215049eeab8bfebdc1f13aed9",
+    "pfTests": 665,
+    "cfxTests": 8,
+    "compiledContracts": 4,
+    "identicalOracles": true,
+    "exitCode": 0,
+    "logs": [
+      {
+        "path": "build/sdvk001/checks-04/bindless_allocator.log",
+        "bytes": 32,
+        "sha256": "5b5a2fbbc8257af4e13314eb2748ce97236e2337d2e786fc204d1229bdec0c74"
+      },
+      {
+        "path": "build/sdvk001/checks-04/cfx-tests.log",
+        "bytes": 1061,
+        "sha256": "ad1d316e9f0b022d7c437aaf9459c46a80e168cf54eb55c025c70e6b5191a241"
+      },
+      {
+        "path": "build/sdvk001/checks-04/levelmesh_contract.log",
+        "bytes": 91,
+        "sha256": "fee670f9edfd0838186e799590bb69efe7091b38334eda45aa147d0060463844"
+      },
+      {
+        "path": "build/sdvk001/checks-04/oracle-a.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "build/sdvk001/checks-04/oracle-b.log",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "build/sdvk001/checks-04/pf-tests.log",
+        "bytes": 2652,
+        "sha256": "7c20de30fff15f8a2d18703cf78561338fbc868222c697b3dd2b79d679ef7ec7"
+      },
+      {
+        "path": "build/sdvk001/checks-04/probe_selection.log",
+        "bytes": 29,
+        "sha256": "1b7cbcd1661a5446daf1b9606ee2fce8b44dc0fa7fd8b0bc534332e7230c97dd"
+      },
+      {
+        "path": "build/sdvk001/checks-04/resource_generation.log",
+        "bytes": 33,
+        "sha256": "996dc4807a69b244253bc38a180e5209eb5017c4d9b4cb3503addb8f55717cd7"
+      }
+    ],
+    "oracle": {
+      "path": "build/sdvk001/checks-04/oracle-a.json",
+      "bytes": 4561,
+      "sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+    }
+  },
+  "localWindowsBuild": {
+    "sourceHead": "7f34f15827f3cc98685d1af303d212ed5edc2b47",
+    "workingTree": "clean",
+    "generator": "Visual Studio 17 2022",
+    "architecture": "x64",
+    "configuration": "RelWithDebInfo",
+    "compiler": "MSVC 19.44.35228.0",
+    "cmake": "cmake version 4.4.3",
+    "initialCleanBuildSource": "105e8c122800fe6e9e7e033a7d97d52d94567c67",
+    "cleanConfigure": {
+      "path": "build/sdvk001/configure-clean.log",
+      "bytes": 2833,
+      "sha256": "da3b8107bc5e7c82912f17c716d092825e1ce1fa482edd49cbf2e56ba7649e34"
+    },
+    "initialCleanBuild": {
+      "path": "build/sdvk001/build-clean.log",
+      "bytes": 20876,
+      "sha256": "865118256aba665e2c1da265c0bc1ba7a10b0765fe69bd529dd976f294bfda04"
+    },
+    "mergeBuild": {
+      "path": "build/sdvk001/build-windows-master.log",
+      "bytes": 8445,
+      "sha256": "d0c3285c6cda6377befcd1ea44834e0032f8a74350fef9f7de8f474a18c65dc9"
+    },
+    "smoke": {
+      "path": "build/sdvk001/identity-windows-master.log",
+      "bytes": 650,
+      "sha256": "fe7ef17169125d310f90fa465764e1af3ae0ead11b6c37134db69424ff0d1790"
+    },
+    "originalRuntimeDirectory": "build/windows/RelWithDebInfo",
+    "retainedRuntimeArtifacts": [
+      {
+        "path": "build/sdvk001/accepted-windows-master/vkdoom.exe",
+        "bytes": 12436992,
+        "sha256": "79f19e14a540ab78874700c48361be89485a09f095bfb48c188c8e7c2200498e"
+      },
+      {
+        "path": "build/sdvk001/accepted-windows-master/vktool.exe",
+        "bytes": 12434432,
+        "sha256": "99519a0f8422e6764436303bcd49ca21d474e2e6fc05040b531f49f82f144df6"
+      },
+      {
+        "path": "build/sdvk001/accepted-windows-master/zmusic.dll",
+        "bytes": 2469888,
+        "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+      },
+      {
+        "path": "build/sdvk001/accepted-windows-master/libsndfile-1.dll",
+        "bytes": 2603520,
+        "sha256": "4e3bd2de8e1485110eaebef8e1239471f73d608773831c323bf528e05645655e"
+      },
+      {
+        "path": "build/sdvk001/accepted-windows-master/openal32.dll",
+        "bytes": 2011136,
+        "sha256": "9f7a94d4a1ba3a9c93bfc4ae3ba241885abe0bd5543b789583af5ab9c62d5f70"
+      },
+      {
+        "path": "build/sdvk001/accepted-windows-master/licenses.zip",
+        "bytes": 32713,
+        "sha256": "b22ab673c0572f714ef84d02e7f79b5f7f11a5f14228d6c2c645af2b8ed57347"
+      }
+    ]
+  },
+  "retainedFailureAndRepairEvidence": {
+    "preFixMacOSDebugger": {
+      "head": "48111ea7c7f99b52c840a6dd8a9112785bd3f1f6",
+      "job": "https://github.com/techrote/ShadeDoomVK/actions/runs/37635432959/job/112841654502",
+      "log": {
+        "path": "build/sdvk001/ci-macos-release-debugger.log",
+        "bytes": 208689,
+        "sha256": "69c019bd3ed76c71f727cbec4d6a0fb61dd056d50cb578520d093dddc1d5f38f"
+      },
+      "exception": "FStringData::Alloc during console-command static initialization before main"
+    },
+    "preFixAllocationControl": {
+      "path": "build/sdvk001/string-allocation-before-02.log",
+      "bytes": 1161,
+      "sha256": "d494d814da0a4523e1a483bbc85ab0e17f81fba4582bca1d1487190994814033"
+    },
+    "repairedAllocationControl": {
+      "path": "build/sdvk001/string-allocation-after.log",
+      "bytes": 346,
+      "sha256": "7d108e9b62c0e559b48b6fa4889583328d529fb7267b375fd3288e635bbb43f1"
+    },
+    "loaderFailureLogs": [
+      {
+        "path": "build/sdvk001/ci-linux-clang11-first.log",
+        "bytes": 226117,
+        "sha256": "76d19753eb338e4297c3baf76e0567c96a19a4423c1a8a4a07d2d13d6c9c5955"
+      },
+      {
+        "path": "build/sdvk001/ci-macos-release-first.log",
+        "bytes": 205207,
+        "sha256": "070f8166210a10ed53b98ca7af655b9a220c14bf9a9ae1ee5aee6a72faea4732"
+      }
+    ],
+    "dependencyRegressionTests": {
+      "path": "build/sdvk001/dependency-tests.log",
+      "bytes": 1176,
+      "sha256": "34e22458f04448139c4b55aa758b512b888908674ba476105d80c806a396f23d"
+    }
+  },
+  "compatibilitySensitiveIdentifiersPreserved": true,
+  "donorEngineSourceImported": false,
+  "rendererFeatureAdded": false,
+  "noticesPreserved": true,
+  "reproducibilityScope": "Pinned source/dependency inputs and documented configure/build/run commands; no cross-toolchain byte-identical binary claim.",
+  "runtimeQualificationScope": "Actual game/tool --version startup without content/display on all seven build configurations; no new renderer image or performance claim.",
+  "gateDisposition": {
+    "PF020": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK001": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK002": "UNBLOCKED",
+    "SDVK003": "UNBLOCKED"
+  },
+  "documentationOnlyFollowup": "This records the verified substantive foundation merge. Acceptance documentation follows the same PR/check/merge discipline and changes no runtime inputs."
+}

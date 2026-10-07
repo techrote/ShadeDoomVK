@@ -17,7 +17,7 @@ ShadeDoomVK's project version is `0.1.0-dev`. Build and startup diagnostics iden
 
 ## Current implementation gate
 
-**PF-001 through PF-020 are accepted.** PF-020 was merged and verified on `master` at `e185e60b04fe37ec84a18c5a85eec6722b541b71` on 5 October 2026; [the release receipt](docs/shadedoomvk/PF-020-RELEASE-ACCEPTANCE.json) records its evidence and limits. SDVK-001 establishes the project/build foundation on that freeze. SDVK-002 and SDVK-003 require SDVK-001's verified merge; [the execution ledger](docs/shadedoomvk/10-EXECUTION-LEDGER.md) records programme transitions.
+**PF-001 through PF-020 and SDVK-001 are accepted.** PF-020 was merged and verified on `master` at `e185e60b04fe37ec84a18c5a85eec6722b541b71` on 5 October 2026; [its release receipt](docs/shadedoomvk/PF-020-RELEASE-ACCEPTANCE.json) records the evidence and limits. SDVK-001's project/build foundation was merged and verified at `7f34f15827f3cc98685d1af303d212ed5edc2b47` on 7 October 2026, with all eight PR and all eight post-merge jobs passing. [Foundation acceptance](docs/shadedoomvk/SDVK-001-RELEASE-ACCEPTANCE.json) pins that evidence. **SDVK-002 and SDVK-003 are unblocked**; [the execution ledger](docs/shadedoomvk/10-EXECUTION-LEDGER.md) records programme transitions.
 
 The advanced material, sprite relief and shadow goals above are the founding feature programme. PF acceptance establishes the hardened baseline and does not imply those later features are implemented.
 

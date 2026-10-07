@@ -706,3 +706,25 @@ reconcile the Windows/Linux path with the eight-job inherited CI matrix.
 Release acceptance and SDVK-002/003 readiness require the foundation PR's passing
 checks, merge and verification on master; they are not inferred from this
 implementation entry. The issue/release record must pin those completed gates.
+
+### 7 October 2026 — verified SDVK-001 foundation acceptance
+
+PR #119 merged as `7f34f15827f3cc98685d1af303d212ed5edc2b47` after clean publication
+`498acdeb7650161215049eeab8bfebdc1f13aed9` passed 665 local tests, CFX 8/8, four
+compiled contracts, identical oracle outputs and all eight hosted jobs in run
+37636588993. The actual CI checkout's tree equals that publication. Authenticated
+remote/local master integration and exact merged-tree equality are verified;
+all eight exact merge-push jobs in run37638506103 also pass. The documented fresh
+Windows build and both merged-master executable identity checks pass.
+
+[Foundation release receipt](SDVK-001-RELEASE-ACCEPTANCE.json) pins commits, jobs,
+logs and retained Windows artifacts. Actual startup checks exposed and repaired
+missing versioned names in the authenticated ZMusic archives and a pre-main
+macOS `FStringData` aligned-allocation failure. Native debugger and failing/
+passing production-method controls remain traced. Project diagnostics preserve
+founding/PF lineage; compatibility-sensitive identifiers and notices remain intact.
+
+**SDVK-001: ACCEPTED, MERGED AND VERIFIED. SDVK-002/003: UNBLOCKED.** This
+foundation adds no renderer feature or upstream engine import. PF's historical
+qualification/performance limits remain unchanged. Acceptance-documentation
+integration follows ordinary PR/check/merge discipline and changes no runtime.
