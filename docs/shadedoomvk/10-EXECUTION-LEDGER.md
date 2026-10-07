@@ -691,3 +691,18 @@ freeze gate, not a universal performance/GPU/human/P400/broader-mode claim or
 implementation of a founding feature. The followup changes acceptance records
 only and preserves every runtime input. No further CPU campaign or human action
 is required by the current evidence.
+
+### 7 October 2026 — SDVK-001 foundation implementation
+
+SDVK-001 / #1 consumes verified PF-020 master `f21fe672cb54c8db3dca8977822d7697493c71ff`.
+The primary `C:/ShadeDoomVK/source` checkout was fast-forwarded and a dedicated
+`sdvk-001-foundation` branch created; historical PF checkouts/builds/evidence
+retain their original identities. [Foundation contract](SDVK-001-FOUNDATION.md)
+records project `0.1.0-dev` identity separately from inherited content/config/
+save/protocol identifiers, per-build Git metadata and early `--version` diagnostics.
+[Build instructions](../BUILDING.md) and shared CPU/dependency/identity helpers
+reconcile the Windows/Linux path with the eight-job inherited CI matrix.
+
+Release acceptance and SDVK-002/003 readiness require the foundation PR's passing
+checks, merge and verification on master; they are not inferred from this
+implementation entry. The issue/release record must pin those completed gates.

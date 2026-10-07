@@ -38,6 +38,15 @@ const char *GetGitDescription();
 const char *GetGitHash();
 const char *GetGitTime();
 const char *GetVersionString();
+const char *GetBuildIdentity();
+bool PrintVersionIfRequested(const char *argument);
+bool PrintVersionIfRequested(const wchar_t *argument);
+
+// Project identity is separate from inherited content/configuration protocols.
+#define SDVK_PROJECT_NAME "ShadeDoomVK"
+#define SDVK_VERSIONSTR "0.1.0-dev"
+#define SDVK_FOUNDING_COMMIT "09634479ab5bf9adf691074fffe85a006a398cd0"
+#define SDVK_PF_FREEZE_COMMIT "e185e60b04fe37ec84a18c5a85eec6722b541b71"
 
 /** Lots of different version numbers **/
 

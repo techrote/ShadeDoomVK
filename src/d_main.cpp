@@ -3825,7 +3825,7 @@ int D_DoomMain_Game()
 		Printf("\n");
 	}
 
-	Printf("%s version %s\n", GAMENAME, GetVersionString());
+	Printf("%s", GetBuildIdentity());
 
 	extern void D_ConfirmSendStats();
 	D_ConfirmSendStats();

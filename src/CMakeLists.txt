@@ -313,9 +313,21 @@ endif()
 
 # Update gitinfo.h
 
+set(SDVK_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(SDVK_GITINFO "${SDVK_GENERATED_DIR}/gitinfo.h")
+# Generate during configure as well, so every target has a header on a clean build.
+execute_process(
+	COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_SOURCE_DIR}/tools/updaterevision/UpdateRevision.cmake" "${SDVK_GITINFO}"
+	RESULT_VARIABLE SDVK_REVISION_RESULT
+)
+if(NOT SDVK_REVISION_RESULT EQUAL 0)
+	message(FATAL_ERROR "Unable to generate ShadeDoomVK build identity")
+endif()
 add_custom_target( revision_check ALL
-	COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_SOURCE_DIR}/tools/updaterevision/UpdateRevision.cmake" src/gitinfo.h
+	COMMAND "${CMAKE_COMMAND}" -P "${CMAKE_SOURCE_DIR}/tools/updaterevision/UpdateRevision.cmake" "${SDVK_GITINFO}"
+	BYPRODUCTS "${SDVK_GITINFO}"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	VERBATIM
 )
 
 # required libraries
@@ -351,6 +363,9 @@ if( MSVC AND NOT ZMUSIC_FOUND )
 		link_directories( ${ZMUSIC_ROOT_PATH}/32bit )
 	endif()
 	set( ZMUSIC_FOUND TRUE )
+	if(X64)
+		set(SDVK_BUNDLED_WINDOWS_RUNTIME TRUE)
+	endif()
 endif()
 
 
@@ -1350,6 +1365,12 @@ include_directories(
 	${SYSTEM_SOURCES_DIR}
 )
 
+# Directory include ordering differs between generators; give generated metadata
+# explicit target priority over the ignored historical src/gitinfo.h.
+foreach(SDVK_TARGET zengine zdoom ztool)
+	target_include_directories(${SDVK_TARGET} BEFORE PRIVATE "${SDVK_GENERATED_DIR}")
+endforeach()
+
 add_dependencies( zengine revision_check )
 add_dependencies( zdoom zengine )
 add_dependencies( ztool zengine )
@@ -1457,6 +1478,21 @@ add_custom_command(TARGET zdoom POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 	${CMAKE_SOURCE_DIR}/fm_banks/gs-by-papiezak-and-sneakernets.wopn $<TARGET_FILE_DIR:zdoom>/fm_banks/gs-by-papiezak-and-sneakernets.wopn
 )
+
+# Match the bundled x64 import libraries with their checked-in runtime DLLs.
+# Externally supplied ZMusic and other architectures retain their own packaging.
+if(SDVK_BUNDLED_WINDOWS_RUNTIME)
+	foreach(SDVK_TARGET zdoom ztool)
+		add_custom_command(TARGET ${SDVK_TARGET} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				"${CMAKE_SOURCE_DIR}/bin/windows/zmusic/64bit/zmusic.dll"
+				"${CMAKE_SOURCE_DIR}/bin/windows/libsndfile/64bit/libsndfile-1.dll"
+				"${CMAKE_SOURCE_DIR}/bin/windows/openal/64bit/openal32.dll"
+				"${CMAKE_SOURCE_DIR}/bin/licenses.zip"
+				"$<TARGET_FILE_DIR:${SDVK_TARGET}>"
+			VERBATIM)
+	endforeach()
+endif()
 
 if( WIN32 )
 	set( INSTALL_SOUNDFONT_PATH . CACHE STRING "Directory where soundfonts and WOPL/WOPN banks will be placed during install." )

@@ -6,6 +6,14 @@ Primary issues: PF-001, PF-009, PF-010, SDVK-002, SDVK-006
 
 ## Top-level frame flow
 
+SDVK-001's startup identity seam precedes the renderer: a standalone `--version`
+in `src/gamemain.cpp` or `src/toolmain.cpp` returns before platform/game entry.
+`GetBuildIdentity()` in `src/common/utility/gitinfo.cpp` supplies project/commit/
+lineage/freeze diagnostics, also printed by `D_DoomMain_Game`. Generated metadata
+is local to the build directory. Inherited config/content/protocol names and the
+frame/view flow below retain their existing meaning. See
+[SDVK-001 foundation](../SDVK-001-FOUNDATION.md) and [build instructions](../../BUILDING.md).
+
 The hardware view enters through `src/rendering/hwrenderer/hw_entrypoint.cpp`.
 
 High-level flow:

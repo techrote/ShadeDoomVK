@@ -9,6 +9,12 @@ It is deliberately not the full SDVK-002 renderer benchmark/reference-scene syst
 
 ## Run locally
 
+The complete CI-equivalent CPU check command is `python tools/check.py` from the
+repository root, in a native C++ developer environment. It preserves the full
+suite, CFX classification, four standalone fixtures and repeat oracle comparison,
+and writes logs under `build/checks`. See [platform setup](../../docs/BUILDING.md).
+The individual commands below remain available for focused work.
+
 From the repository root:
 
 ```bash

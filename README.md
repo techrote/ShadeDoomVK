@@ -13,15 +13,13 @@ The project is focused on:
 - modern Vulkan descriptor/material infrastructure and measurable performance tiers;
 - long-term renderer foundations suitable for HDR, bloom, richer volumetrics and later temporal work without sacrificing Doom semantics.
 
-Until the baseline/rebranding issue is completed, some executable names, documentation and source identifiers still say `VKDoom`. This is expected and must not be silently mass-renamed without compatibility review.
+ShadeDoomVK's project version is `0.1.0-dev`. Build and startup diagnostics identify the project, source commit, working-tree state, founding VKDoom lineage and PF-020 freeze. Executables remain `vkdoom` / `vktool`; resource, configuration, save and protocol identifiers retain their inherited values. See [identity and compatibility policy](docs/shadedoomvk/SDVK-001-FOUNDATION.md).
 
 ## Current implementation gate
 
-**SDVK-001 must not begin until the pre-foundation hardening programme PF-001 through PF-020 is accepted.**
+**PF-001 through PF-020 are accepted.** PF-020 was merged and verified on `master` at `e185e60b04fe37ec84a18c5a85eec6722b541b71` on 5 October 2026; [the release receipt](docs/shadedoomvk/PF-020-RELEASE-ACCEPTANCE.json) records its evidence and limits. SDVK-001 establishes the project/build foundation on that freeze. SDVK-002 and SDVK-003 require SDVK-001's verified merge; [the execution ledger](docs/shadedoomvk/10-EXECUTION-LEDGER.md) records programme transitions.
 
-The deeper VKDoom baseline audit found several source-level correctness defects, partially wired probe/tiled-light systems, raw renderer-resource identity risks and high-value output-equivalent refactors/optimizations. PF-001..PF-020 resolves that ground before the original feature roadmap diverges further.
-
-PF-020 is the hard release gate into SDVK-001.
+The advanced material, sprite relief and shadow goals above are the founding feature programme. PF acceptance establishes the hardened baseline and does not imply those later features are implemented.
 
 ## Canonical programme
 
@@ -50,14 +48,22 @@ Do not assume a donor patch is missing merely because it exists in another VKDoo
 Important source-audit corrections include:
 
 - per-layer material sampling is already inherited;
-- bindless slot reuse already exists, but lifetime/capacity/reservation hardening is still required;
-- per-lightmap probe selection is incomplete/stubbed in the audited baseline;
+- bindless slot reuse is inherited; PF-002/003 hardened lifetime, capacity and reservation boundaries;
+- PF-012 replaced the founding per-lightmap probe-selection stub with bounded selection and explicit fallback;
 - tiled-light infrastructure exists as dormant scaffolding rather than an active clustered-light path;
 - HDR/postprocess/depth/normal infrastructure is stronger than the founding plan initially assumed.
 
 ## Building
 
-The inherited VKDoom build remains the PF execution substrate until SDVK-001 formally reconciles ShadeDoomVK identity/build documentation. PF work must keep applicable inherited CI/build paths working; it must not smuggle rebranding/build-policy scope out of SDVK-001.
+Follow [Building and running ShadeDoomVK](docs/BUILDING.md) for Windows/Linux commands, dependencies, CPU checks and executable provenance verification. Use a fresh build directory under `build/`; keep historical qualification builds intact.
+
+From a configured C++ developer environment:
+
+```text
+python tools/check.py
+```
+
+Both executables support `--version` without an IWAD or renderer initialization. Ordinary play requires your own supported game IWAD and the resources built from this checkout.
 
 ## License
 

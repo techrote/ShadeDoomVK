@@ -36,6 +36,9 @@
 
 #include "gitinfo.h"
 #include "version.h"
+#include <cstdio>
+#include <cstring>
+#include <cwchar>
 
 const char *GetGitDescription()
 {
@@ -50,6 +53,31 @@ const char *GetGitHash()
 const char *GetGitTime()
 {
 	return GIT_TIME;
+}
+
+const char *GetBuildIdentity()
+{
+	return SDVK_PROJECT_NAME " " SDVK_VERSIONSTR "\n"
+		"Commit: " GIT_HASH "\n"
+		"Working tree: " GIT_STATE "\n"
+		"Git description: " GIT_DESCRIPTION "\n"
+		"VKDoom lineage: nashmuhandes/VkDoom@" SDVK_FOUNDING_COMMIT "\n"
+		"PF-020 freeze: " SDVK_PF_FREEZE_COMMIT "\n";
+}
+
+bool PrintVersionIfRequested(const char *argument)
+{
+	if (argument == nullptr || std::strcmp(argument, "--version") != 0)
+		return false;
+	std::fputs(GetBuildIdentity(), stdout);
+	return true;
+}
+
+bool PrintVersionIfRequested(const wchar_t *argument)
+{
+	if (argument == nullptr || std::wcscmp(argument, L"--version") != 0)
+		return false;
+	return PrintVersionIfRequested("--version");
 }
 
 const char *GetVersionString()
