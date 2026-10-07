@@ -49,7 +49,7 @@ The inherited identifiers below retain their frozen values:
 
 The project version is intentionally separate from inherited engine/content
 versions. Renaming config/resource/protocol identifiers would require individual
-migration evidence. The compiled compatibility fixture pins the frozen values.
+migration evidence. The compatibility fixture pins the frozen values.
 
 ## Build metadata contract
 
@@ -71,6 +71,20 @@ x64 build. The existing Linux/macOS ZMusic 1.1.14 packages are verified by SHA-2
 before extraction. [Build documentation](../BUILDING.md) specifies compiler,
 dependency and runtime paths. Reproducibility here covers declared inputs and
 commands; it is not a universal binary-reproducibility claim.
+
+The executable checks exposed two inherited startup gaps that compilation alone
+did not catch. The authenticated ZMusic packages omit their versioned loader
+filenames; extraction now supplies byte-identical runtime aliases. The ordinary
+POSIX `FStringData` allocator requested four-byte aligned storage, which a strict
+aligned allocator rejects. It now uses `malloc` with a compile-time fundamental
+alignment check, retaining the string layout, requested capacity, overflow checks
+and matching `free`. Windows retains its existing allocation/free pair. The
+production-method fixture retains the pre-fix failure and checks small storage,
+growth, overflow and allocation failure; native macOS CI checks the real startup.
+The [pre-fix native debugger job](https://github.com/techrote/ShadeDoomVK/actions/runs/37635432959/job/112841654502)
+traces the exception to `FStringData::Alloc` while a console-command initializer
+runs before `main`. This is a startup portability repair, with no donor source
+transplant or renderer algorithm change.
 
 ## Verification and acceptance
 

@@ -34,6 +34,7 @@
 
 #include <stdlib.h>
 #include <cstdlib>
+#include <cstddef>
 #include <algorithm>
 #include <ctype.h>
 #include <string.h>
@@ -1334,7 +1335,9 @@ FString &FString::operator=(const wchar_t *copyStr)
 
 #endif
 
-// std::aligned_alloc is not supported under Windows, we have to use _aligned_malloc/_aligned_free instead
+// Windows retains its matching aligned allocation/free pair. Ordinary POSIX
+// string storage needs no over-alignment, so malloc avoids aligned_alloc's
+// platform-specific minimum alignment restrictions (notably on macOS).
 
 FStringData *FStringData::Alloc (size_t strlen)
 {
@@ -1349,7 +1352,8 @@ FStringData *FStringData::Alloc (size_t strlen)
 #ifdef _WIN32
 	void* ptr = _aligned_malloc(memsize, alignment);
 #else
-	void* ptr = std::aligned_alloc(alignment, memsize);
+	static_assert(alignof(FStringData) <= alignof(std::max_align_t), "FStringData requires over-aligned storage");
+	void* ptr = std::malloc(memsize);
 #endif
 	if (!ptr)
 		throw std::bad_alloc();
