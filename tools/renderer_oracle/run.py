@@ -482,7 +482,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Only validated context-local tokens and, for declared static scenes, tic/fraction labels; decisions/order/generations retained",
+            "normalization": "Validated context tokens, static-scene tic/fraction labels and renderer-local live slot numbers only; order/aliasing/generation/epoch/span retained",
             "performance_accepted": False}
 
 

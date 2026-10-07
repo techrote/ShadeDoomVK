@@ -165,6 +165,22 @@ class SemanticProjectionTests(unittest.TestCase):
         right["records"][1]["data"]["resource"]["generation"] += 1
         self.assertNotEqual(validate.state_projection(left, static_scene=True), validate.state_projection(right, static_scene=True))
 
+    def test_renderer_local_resource_slots_normalize_but_aliasing_and_generation_remain(self):
+        left = observation()
+        left["records"].insert(2, copy.deepcopy(left["records"][1]))
+        recount(left)
+        right = copy.deepcopy(left)
+        for record in right["records"]:
+            resource = record["data"].get("resource")
+            if isinstance(resource, dict) and resource.get("available"):
+                resource["index"] = 22
+        self.assertEqual(validate.state_projection(left), validate.state_projection(right))
+        right["records"][2]["data"]["resource"]["index"] = 23
+        self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
+        right = copy.deepcopy(left)
+        right["records"][1]["data"]["resource"]["generation"] += 1
+        self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
+
     def test_parent_semantic_lineage_survives_token_normalization(self):
         left = observation()
         left["records"] += [row("context", {"context": context(2, semantic="other-root")}),

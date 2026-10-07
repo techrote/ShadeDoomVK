@@ -256,7 +256,8 @@ def state_projection(data, *, static_scene=False):
 
 For a corpus-declared static scene, tic/fraction labels can vary after startup;
 actual camera, vertices, uniforms, material, light and resource state remain.
-No renderer slot/generation, light-list order, pipeline key or fallback is erased.
+Renderer-local slot numbers are normalized by live identity while generation/epoch/span,
+aliasing, light-list order, pipeline keys and fallbacks remain compared.
 """
     observation(data)
     require(data["mode"] == "state", "State comparison requires state-mode observations")
@@ -265,6 +266,13 @@ No renderer slot/generation, light-list order, pipeline key or fallback is erase
                 for record in data["records"] if record["kind"] == "context"}
 
     normalized_contexts = {}
+    normalized_resources = {}
+
+    def resource_ordinal(resource):
+        token = (resource["index"], resource["generation"], resource["epoch"], resource["span"])
+        if token not in normalized_resources:
+            normalized_resources[token] = len(normalized_resources)
+        return normalized_resources[token]
 
     def normalized_context(frame, context):
         token = (frame, context["epoch"], context["identity"])
@@ -288,7 +296,13 @@ No renderer slot/generation, light-list order, pipeline key or fallback is erase
             return value
         if value.get("available") is True and "semantic_key" in value and "root_type" in value:
             return normalized_context(frame, value)
-        return {key: project(item, frame) for key, item in value.items()}
+        result = {key: project(item, frame) for key, item in value.items()}
+        if value.get("available") is True and all(key in value for key in ("index", "generation", "epoch", "span")):
+            result["index"] = resource_ordinal(value)
+        resource = value.get("resource")
+        if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
+            result["runtime_irradiance_index"] = resource_ordinal(resource)
+        return result
 
     ordered = []
     for record in data["records"]:

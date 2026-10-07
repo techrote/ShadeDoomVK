@@ -225,7 +225,7 @@ comparison gates. An intentional candidate build comparison uses
 requirements. Keep both immutable source packets and the comparison manifest.
 
 State comparison preserves the ordered record stream and multiplicities,
-semantic decisions, generations, slot indices, pipeline fields and fallbacks.
+semantic decisions, resource generation/epoch/span and aliasing, pipeline fields and fallbacks. Renderer-local live slot numbers are normalized to first-seen identities; raw slots are still validated within each capture.
 After validating context links, only renderer-local context epoch/id/parent
 tokens are normalized. Each parent link is replaced by a SHA-256 of its full
 normalized parent context, recursively including ancestry; equal human-readable
