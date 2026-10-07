@@ -1,0 +1,394 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:shadedoomvk:sdvk-renderer-observation:v1",
+  "title": "ShadeDoomVK bounded renderer observation v1",
+  "description": "Shape contract only. validate.py additionally checks frame closure, context ancestry, required scene channels and availability accounting. Collection does not award renderer or performance acceptance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "status",
+    "error",
+    "mode",
+    "gpu_timing_requested",
+    "build",
+    "requested_frames",
+    "warmup_frames",
+    "observed_frames",
+    "dropped_records",
+    "limits",
+    "availability",
+    "performance_accepted",
+    "screenshot",
+    "light_identity_scope",
+    "records"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sdvk-renderer-observation/v1"
+    },
+    "status": {
+      "enum": [
+        "COLLECTED_PENDING_VALIDATION",
+        "FAIL"
+      ]
+    },
+    "error": {
+      "type": "string"
+    },
+    "mode": {
+      "enum": [
+        "state",
+        "timing"
+      ]
+    },
+    "build": {
+      "type": "object",
+      "required": [
+        "commit",
+        "working_tree",
+        "identity",
+        "backend",
+        "renderer",
+        "device",
+        "vulkan"
+      ],
+      "properties": {
+        "commit": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{40}$"
+        },
+        "working_tree": {
+          "enum": [
+            "clean",
+            "modified"
+          ]
+        },
+        "identity": {
+          "type": "string",
+          "minLength": 1
+        },
+        "backend": {
+          "type": "string",
+          "minLength": 1
+        },
+        "renderer": {
+          "enum": [
+            "hardware",
+            "software"
+          ]
+        },
+        "device": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vulkan": {
+          "type": "object"
+        }
+      }
+    },
+    "requested_frames": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4096
+    },
+    "warmup_frames": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "observed_frames": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4096
+    },
+    "dropped_records": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_frames",
+        "max_records",
+        "max_record_bytes",
+        "max_retained_bytes",
+        "retained_records",
+        "retained_bytes"
+      ],
+      "properties": {
+        "max_frames": {
+          "const": 4096
+        },
+        "max_records": {
+          "const": 65536
+        },
+        "max_record_bytes": {
+          "const": 16384
+        },
+        "max_retained_bytes": {
+          "const": 16777216
+        },
+        "retained_records": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65536
+        },
+        "retained_bytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16777216
+        }
+      }
+    },
+    "availability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cpu_timing",
+        "gpu_timing",
+        "gpu_total_frame",
+        "state"
+      ],
+      "properties": {
+        "cpu_timing": {
+          "$ref": "#/$defs/availability"
+        },
+        "gpu_timing": {
+          "$ref": "#/$defs/availability"
+        },
+        "gpu_total_frame": {
+          "$ref": "#/$defs/availability"
+        },
+        "state": {
+          "$ref": "#/$defs/availability"
+        }
+      }
+    },
+    "performance_accepted": {
+      "const": false
+    },
+    "screenshot": {
+      "$ref": "#/$defs/availability"
+    },
+    "light_identity_scope": {
+      "type": "string",
+      "minLength": 1
+    },
+    "records": {
+      "type": "array",
+      "maxItems": 65536,
+      "items": {
+        "$ref": "#/$defs/record"
+      }
+    },
+    "gpu_timing_requested": {
+      "type": "boolean"
+    }
+  },
+  "$defs": {
+    "availability": {
+      "type": "object",
+      "required": [
+        "available"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1
+        },
+        "unavailable_batches": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "available": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "anyOf": [
+              {
+                "required": [
+                  "reason"
+                ]
+              },
+              {
+                "required": [
+                  "unavailable_batches"
+                ],
+                "properties": {
+                  "unavailable_batches": {
+                    "minItems": 1
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "record": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "frame",
+        "count",
+        "data"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "frame",
+            "context",
+            "material",
+            "light-query",
+            "probe",
+            "shadow",
+            "resource",
+            "pipeline",
+            "timing"
+          ]
+        },
+        "frame": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 4096
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "data": {
+          "type": "object",
+          "minProperties": 1
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "frame"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "count": {
+                "const": 1
+              },
+              "data": {
+                "required": [
+                  "gametic",
+                  "map",
+                  "cpu_render_view_ms",
+                  "cpu_scope",
+                  "state_instrumentation",
+                  "hardware_renderer",
+                  "width",
+                  "height",
+                  "walls",
+                  "flats",
+                  "sprites",
+                  "decals",
+                  "portals",
+                  "vertices",
+                  "camera",
+                  "settings",
+                  "hardware_renderer",
+                  "state_instrumentation"
+                ],
+                "properties": {
+                  "cpu_render_view_ms": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "gametic": {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  "map": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "state_instrumentation": {
+                    "type": "boolean"
+                  },
+                  "hardware_renderer": {
+                    "type": "boolean"
+                  },
+                  "camera": {
+                    "type": "object",
+                    "required": [
+                      "position",
+                      "angles",
+                      "fraction",
+                      "fov",
+                      "hardware_angles"
+                    ],
+                    "properties": {
+                      "position": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "angles": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "number"
+                        }
+                      },
+                      "fraction": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1
+                      },
+                      "fov": {
+                        "type": "number"
+                      },
+                      "hardware_angles": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 3,
+                        "items": {
+                          "type": "number"
+                        }
+                      }
+                    }
+                  },
+                  "settings": {
+                    "type": "object",
+                    "minProperties": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

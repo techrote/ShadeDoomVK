@@ -55,6 +55,7 @@
 #include "d_main.h"
 #include "swrenderer/r_swcolormaps.h"
 #include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 
 EXTERN_CVAR(Float, r_visibility)
 EXTERN_CVAR(Int, lm_background_updates);
@@ -1444,6 +1445,7 @@ void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 {
 	CfxTrace::SetTic(static_cast<uint64_t>(gametic));
 	Pf020ViewDiagnostics::SceneBegin(this, drawmode);
+	if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::SceneBegin(this, drawmode);
 	static int recursion = 0;
 	static int ssao_portals_available = 0;
 	auto& vp = Viewpoint;
@@ -1518,6 +1520,7 @@ void HWDrawInfo::DrawScene(int drawmode, FRenderState& state)
 
 	state.SetWireframe(0);
 	Pf020ViewDiagnostics::SceneEnd(this);
+	if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::SceneEnd(this);
 
 }
 
@@ -1556,4 +1559,3 @@ void HWDrawInfo::AddSubsectorToPortal(FSectorPortalGroup *ptg, subsector_t *sub)
 	auto ptl = static_cast<HWSectorStackPortal*>(portal);
 	ptl->AddSubsector(sub);
 }
-

@@ -9,6 +9,14 @@ ShadeDoomVK changes are unusually vulnerable to "looks good on my test map" vali
 
 PF-001 establishes the minimal hardening oracle used by the pre-foundation tranche. SDVK-002 later expands it into the durable full renderer reference/benchmark corpus.
 
+The SDVK-002 implementation is documented in
+[renderer observability](SDVK-002-OBSERVABILITY.md), with executable recipes and
+commands in [the corpus guide](../../tools/renderer_oracle/README.md). Its
+bounded collector, deterministic preparation, state/image comparison and
+descriptive benchmark receipts implement the evidence workflow below. Individual
+native recipe qualification and issue acceptance remain explicit evidence gates;
+CPU preparation success is not a rendered image or performance result.
+
 ## Reference-scene classes
 
 ### Sprite orientation

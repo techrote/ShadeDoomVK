@@ -117,6 +117,7 @@
 #include "hw_clock.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 #include "doomfont.h"
 #include "screenjob.h"
 #include "startscreen.h"
@@ -907,6 +908,7 @@ static void End2DAndUpdate()
 	CheckBench();
 	screen->Update();
 	twod->OnFrameDone();
+	if (SdvkDiagnostics::Enabled()) SdvkDiagnostics::FramePresented();
 }
 
 //==========================================================================

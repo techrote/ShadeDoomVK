@@ -30,6 +30,7 @@
 #include "vulkan/textures/vk_renderbuffers.h"
 #include "vulkan/textures/vk_hwtexture.h"
 #include "vulkan/textures/vk_pbrprobediagnostics.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include <zvulkan/vulkanbuilders.h>
 
 #include "hw_skydome.h"
@@ -88,6 +89,7 @@ void VkRenderState::DoDraw(int dt, int index, int count, bool apply)
 
 		mCommandBuffer->drawIndexed((count - 2) * 3, 1, 0, index, 0);
 		if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, (count - 2) * 3, true);
+		if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, (count - 2) * 3, true);
 
 		mIndexBuffer = oldIndexBuffer;
 	}
@@ -99,6 +101,7 @@ void VkRenderState::DoDraw(int dt, int index, int count, bool apply)
 
 		mCommandBuffer->draw(count, 1, index, 0);
 		if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, count, false);
+		if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, count, false);
 		#ifdef __APPLE__
 	}
 	#endif
@@ -111,6 +114,7 @@ void VkRenderState::DoDrawIndexed(int dt, int index, int count, bool apply)
 
 	mCommandBuffer->drawIndexed(count, 1, index, 0, 0);
 	if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, count, true);
+	if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, count, true);
 }
 
 bool VkRenderState::SetDepthClamp(bool on)

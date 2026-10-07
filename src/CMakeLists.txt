@@ -773,6 +773,7 @@ set (VULKAN_SOURCES
 	common/rendering/vulkan/textures/vk_indexedmaterialdiagnostics.cpp
 	common/rendering/vulkan/textures/vk_pbrprobediagnostics.cpp
 	common/rendering/vulkan/textures/vk_pfviewdiagnostics.cpp
+	common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp
 	common/rendering/vulkan/textures/vk_pptexture.cpp
 	common/rendering/vulkan/textures/vk_imagetransition.cpp
 	common/rendering/vulkan/textures/vk_renderbuffers.cpp
@@ -1187,6 +1188,7 @@ set( GAME_SOURCES
 	${FASTMATH_SOURCES}
 	${PCH_SOURCES}
 	rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp
+	rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp
 	common/utility/x86.cpp
 	common/thirdparty/strnatcmp.c
 	common/thirdparty/utf8proc/utf8proc.c
@@ -1278,6 +1280,10 @@ else()
 endif()
 set_source_files_properties(rendering/hwrenderer/diagnostics/hw_pfviewdiagnostics.cpp
 	common/rendering/vulkan/textures/vk_pfviewdiagnostics.cpp
+	PROPERTIES COMPILE_FLAGS "${PF020_DIAGNOSTIC_MATH}")
+set_source_files_properties(rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp
+	common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp
+	common/rendering/vulkan/commands/vk_commandbuffer.cpp
 	PROPERTIES COMPILE_FLAGS "${PF020_DIAGNOSTIC_MATH}")
 set_source_files_properties( xlat/parse_xlat.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/xlat_parser.c" )
 set_source_files_properties( common/engine/sc_man.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/sc_man_scanner.h" )

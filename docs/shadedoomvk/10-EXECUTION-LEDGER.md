@@ -728,3 +728,24 @@ founding/PF lineage; compatibility-sensitive identifiers and notices remain inta
 foundation adds no renderer feature or upstream engine import. PF's historical
 qualification/performance limits remain unchanged. Acceptance-documentation
 integration follows ordinary PR/check/merge discipline and changes no runtime.
+
+### 7 October 2026 — SDVK-002 observability implementation and qualification
+
+SDVK-002 / #2 starts from verified foundation master
+`a2d2d293d680895bb8daae86466596b05aaef483` on a dedicated branch. The
+[observability contract](SDVK-002-OBSERVABILITY.md) describes ten deterministic
+scene recipes over eight classes, nineteen retained CPU contracts, bounded
+native state/timestamp collection, fixed-camera capture, paired state/image
+comparison and raw-sample benchmark receipts. Existing PF generators, negative
+fixtures, native control protocols and historical failures remain preserved.
+
+Independent review added explicit negative controls for record-order loss,
+ambiguous parent labels, partial per-frame coverage, missing material state,
+incorrect sampler/resource identities and fabricated workload/readback claims.
+The local software Vulkan capability probe succeeds; this container rejects
+Unix socket creation before Xvfb can start, so it cannot supply a display-based
+native capture. The hosted software Vulkan lane is the documented runtime path.
+
+This entry records implementation progress, not acceptance. Current-head checks,
+native corpus comparisons/baseline, PR merge and verified master must be recorded
+before issue closure or dependent SDVK-004/006/009/014 readiness changes.

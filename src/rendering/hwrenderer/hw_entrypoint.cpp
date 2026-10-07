@@ -53,6 +53,7 @@
 
 #include <vector>
 #include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Float, r_visibility)
@@ -137,6 +138,17 @@ void CollectLights(FLevelLocals* Level, const DVector3& viewPosition)
 
 	for (; lightindex < static_cast<int>(HWShadowMapLightCapacity); lightindex++)
 		sm->SetLight(lightindex, 0, 0, 0, 0);
+
+	if (SdvkDiagnostics::StateEnabled())
+	{
+		for (auto light = Level->lights; light; light = light->next)
+		{
+			const bool eligible = light->shadowmapped && light->IsActive();
+			const bool selected = eligible && light->mShadowmapIndex != NoShadowMapIndex;
+			SdvkDiagnostics::ShadowDecision(Level, light, selected ? "selected" : eligible ? "capacity-rejected" : "not-eligible",
+				selected ? light->mShadowmapIndex : -1);
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -388,6 +400,7 @@ LightProbeIncrementalBuilder lightProbeBuilder;
 
 sector_t* RenderView(player_t* player)
 {
+	SdvkDiagnostics::BeginFrame();
 	Coronas.Clear();
 	auto RenderState = screen->RenderState();
 	RenderState->SetFlatVertexBuffer();
@@ -503,6 +516,7 @@ sector_t* RenderView(player_t* player)
 		retsec = RenderViewpoint(r_viewpoint, player->camera, NULL, r_viewpoint.FieldOfView.Degrees(), ratio, fovratio, true, true);
 	}
 	All.Unclock();
+	if (SdvkDiagnostics::Enabled()) SdvkDiagnostics::EndFrame();
 	return retsec;
 }
 
