@@ -728,3 +728,10 @@ founding/PF lineage; compatibility-sensitive identifiers and notices remain inta
 foundation adds no renderer feature or upstream engine import. PF's historical
 qualification/performance limits remain unchanged. Acceptance-documentation
 integration follows ordinary PR/check/merge discipline and changes no runtime.
+
+### 2026-10-07 — SDVK-003 upstream maintenance checkpoint (not accepted)
+
+- SDVK-001 / #1 confirmed closed and accepted; SDVK-003 began from `master@a2d2d293d680895bb8daae86466596b05aaef483`.
+- Pinned VKDoom, UZDoom and GZDoom heads and examined representative compatibility/build deltas; full cross-lineage differential is **pending**, and cross-repo UZDoom compare to the VKDoom founding commit returned 404.
+- Adapted two UZDoom Crusader target-null guards on dedicated SDVK-003 branch; no broad upstream merge, renderer modification or native GPU run.
+- Created bounded differential/ownership policy and donor entry; full regression verification, review, CI/merge and final acceptance are still required. #3 remains open; SDVK-004/009 remain dependency-blocked.
