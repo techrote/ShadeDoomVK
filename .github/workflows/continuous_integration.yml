@@ -17,55 +17,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Test oracle implementation
-      run: python3 -m unittest discover -s tools/pf_oracle/tests -v
+    - name: Run CPU contracts and deterministic oracle
+      run: python3 tools/check.py --output build/pf-oracle
 
-    - name: Test crash-capture failure classification
-      run: python3 tools/test_cfx_capture.py
-
-    - name: Verify deterministic PF baseline
-      run: |
-        mkdir -p build/pf-oracle
-        python3 tools/pf_oracle/run.py \
-          --baseline tools/pf_oracle/baseline.json \
-          --output build/pf-oracle/oracle-a.json
-        python3 tools/pf_oracle/run.py \
-          --baseline tools/pf_oracle/baseline.json \
-          --output build/pf-oracle/oracle-b.json
-        cmp build/pf-oracle/oracle-a.json build/pf-oracle/oracle-b.json
-
-    - name: Test renderer resource generation primitive
-      run: |
-        c++ -std=c++17 -Wall -Wextra -Werror \
-          -Isrc/common/rendering/hwrenderer/data \
-          tools/pf_oracle/tests/resource_generation_fixture.cpp \
-          -o build/pf-oracle/resource-generation-fixture
-        build/pf-oracle/resource-generation-fixture
-
-    - name: Test bindless capacity and allocator model
-      run: |
-        c++ -std=c++17 -Wall -Wextra -Werror \
-          -Isrc/common/rendering \
-          -Isrc/common/rendering/vulkan/descriptorsets \
-          tools/pf_oracle/tests/bindless_allocator_fixture.cpp \
-          -o build/pf-oracle/bindless-allocator-fixture
-        build/pf-oracle/bindless-allocator-fixture
-
-    - name: Test LevelMesh mutation and allocator contract
-      run: |
-        c++ -std=c++17 -Wall -Wextra -Werror \
-          -Isrc/common/rendering/hwrenderer/data \
-          tools/pf_oracle/tests/levelmesh_contract_fixture.cpp \
-          -o build/pf-oracle/levelmesh-contract-fixture
-        build/pf-oracle/levelmesh-contract-fixture
-
-    - name: Test probe selection boundaries
-      run: |
-        c++ -std=c++17 -Wall -Wextra -Werror \
-          -Isrc/common/rendering/hwrenderer/data \
-          tools/pf_oracle/tests/probe_selection_fixture.cpp \
-          -o build/pf-oracle/probe-selection-fixture
-        build/pf-oracle/probe-selection-fixture
+    - name: Upload check logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: cpu-contract-checks
+        path: build/pf-oracle/*.log
 
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
@@ -121,28 +81,29 @@ jobs:
         if [[ -n "${{ matrix.config.deps_cmdline }}" ]]; then
           eval ${{ matrix.config.deps_cmdline }}
         fi
-        mkdir build
         if [[ "${{ runner.os }}" == 'macOS' ]]; then
-          export ZMUSIC_PACKAGE=zmusic-1.1.14-macos-arm.tar.xz
+          python3 tools/fetch_build_deps.py --platform macos --output build/deps
         elif [[ "${{ runner.os }}" == 'Linux' ]]; then
-          export ZMUSIC_PACKAGE=zmusic-1.1.14-linux.tar.xz
-        fi
-        if [[ -n "${ZMUSIC_PACKAGE}" ]]; then
-          cd build
-          wget -q "https://github.com/coelckers/gzdoom/releases/download/ci_deps/${ZMUSIC_PACKAGE}"
-          tar -xf "${ZMUSIC_PACKAGE}"
+          python3 tools/fetch_build_deps.py --platform linux --output build/deps
         fi
 
     - name: Configure
       shell: bash
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCMAKE_PREFIX_PATH=`pwd`/build/zmusic -DPK3_QUIET_ZIPDIR=ON ${{ matrix.config.extra_options }} .
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=${{ matrix.config.build_type }} -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON ${{ matrix.config.extra_options }}
 
     - name: Build
       shell: bash
       run: |
         export MAKEFLAGS=--keep-going
         cmake --build build --config ${{ matrix.config.build_type }} --parallel 3
+
+    - name: Verify executable project and commit identity
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
 
 #   - name: Create Package
 #     if: (runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12') && matrix.config.build_type == 'RelWithDebInfo'

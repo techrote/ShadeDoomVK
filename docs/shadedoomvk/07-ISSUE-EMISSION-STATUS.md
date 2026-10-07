@@ -60,8 +60,8 @@ Canonical issue bodies are stored under `docs/shadedoomvk/issues/`. Live GitHub 
 
 ## Gate state
 
-- PF-001 is the first implementation issue.
+- PF-001 through PF-020 are accepted; the [PF-020 release receipt](PF-020-RELEASE-ACCEPTANCE.json) records verified master integration.
 - PF-020 is the pre-foundation synthesis/release gate.
-- SDVK-001 remains **blocked** until PF-020 is accepted, merged, verified on `master`, and explicitly records `SDVK-001: UNBLOCKED`.
+- SDVK-001 is unblocked by PF-020 and owns the [foundation/build contract](SDVK-001-FOUNDATION.md). SDVK-002/003 wait for SDVK-001's verified merge and acceptance.
 
 GitHub issue numbers are convenience mappings only. Stable `PF-*` / `SDVK-*` IDs remain authoritative for dependencies and documentation.

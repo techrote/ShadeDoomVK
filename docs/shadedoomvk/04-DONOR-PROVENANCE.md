@@ -11,6 +11,17 @@ ShadeDoomVK starts from VKDoom commit:
 
 Many apparent donor features are already ancestral or independently present in this baseline. Always inspect current source/history before importing a patch.
 
+## SDVK-001 foundation provenance
+
+The accepted PF freeze is `e185e60b04fe37ec84a18c5a85eec6722b541b71`, with release
+reconciliation at `f21fe672cb54c8db3dca8977822d7697493c71ff`. SDVK-001's independent
+project identity retains both pins in build/runtime diagnostics and documents the
+compatibility boundary in [the foundation contract](SDVK-001-FOUNDATION.md).
+No donor engine source is imported. The existing checked-in Windows dependencies
+and existing ZMusic 1.1.14 CI release archives keep their upstream provenance;
+[build documentation](../BUILDING.md) pins the latter's hashes. Existing GPL and
+third-party license/copyright notices are retained.
+
 ## Confirmed useful non-ancestral donor concepts
 
 ### jalovisko/VkDoom — configurable/device-aware bindless budget

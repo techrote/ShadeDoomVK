@@ -1,8 +1,9 @@
-
+#include "version.h"
 #if defined(WIN32)
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
+#include <cstdlib>
 
 int I_GameMain(HINSTANCE hInstance, HINSTANCE nothing, LPWSTR cmdline, int nCmdShow);
 
@@ -62,6 +63,8 @@ extern "C"
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE nothing, LPWSTR cmdline, int nCmdShow)
 {
+	if (__argc == 2 && PrintVersionIfRequested(__wargv[1]))
+		return 0;
 	return I_GameMain(hInstance, nothing, cmdline, nCmdShow);
 }
 
@@ -71,6 +74,8 @@ int I_GameMain(int argc, char** argv);
 
 int main(int argc, char** argv)
 {
+	if (argc == 2 && PrintVersionIfRequested(argv[1]))
+		return 0;
 	return I_GameMain(argc, argv);
 }
 
