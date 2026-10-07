@@ -105,6 +105,18 @@ jobs:
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
 
+    - name: Diagnose macOS startup failure
+      if: failure() && runner.os == 'macOS'
+      shell: bash
+      env:
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        runtime="build/vkdoom.app/Contents/MacOS/vkdoom"
+        if [[ -f "build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom" ]]; then
+          runtime="build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom"
+        fi
+        lldb --batch -o 'breakpoint set -n __cxa_throw' -o run -o 'thread backtrace all' -- "$runtime" --version
+
 #   - name: Create Package
 #     if: (runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12') && matrix.config.build_type == 'RelWithDebInfo'
 #     shell: bash
