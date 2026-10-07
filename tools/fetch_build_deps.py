@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 from pathlib import Path
+import shutil
 import subprocess
 import urllib.request
 
@@ -13,16 +14,18 @@ PACKAGES = {
               "395419c9d6f53e941e77148ec9b5bd4f88ccb66f86f33ad820a65f3a4e25795b"),
 }
 RELEASE = "https://github.com/ZDoom/gzdoom/releases/download/ci_deps/"
+RUNTIME_NAMES = {
+    "linux": (("libzmusic.so", "libzmusic.so.1"),
+              ("libzmusiclite.so", "libzmusiclite.so.1")),
+    "macos": (("libzmusic.dylib", "libzmusic.1.dylib"),
+              ("libzmusiclite.dylib", "libzmusiclite.1.dylib")),
+}
 
 
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--platform", choices=PACKAGES, required=True)
-    parser.add_argument("--output", type=Path, default=Path("build/deps"))
-    args = parser.parse_args()
-    args.output.mkdir(parents=True, exist_ok=True)
-    name, digest = PACKAGES[args.platform]
-    archive = args.output / name
+def fetch_package(platform, output):
+    output.mkdir(parents=True, exist_ok=True)
+    name, digest = PACKAGES[platform]
+    archive = output / name
     if archive.exists():
         data = archive.read_bytes()
     else:
@@ -33,8 +36,23 @@ def main():
     if not archive.exists():
         archive.write_bytes(data)
     # Extraction is permitted only after the exact known archive is authenticated.
-    subprocess.run(["tar", "-xf", str(archive.resolve()), "-C", str(args.output.resolve())], check=True)
-    print(f"Verified {name}: {digest}\nZMusic prefix: {(args.output / 'zmusic').resolve()}")
+    subprocess.run(["tar", "-xf", str(archive.resolve()), "-C", str(output.resolve())], check=True)
+    prefix = output / "zmusic"
+    # These exact upstream archives omit the versioned filenames required by
+    # their ELF SONAME / Mach-O install names. Copies preserve authenticated
+    # bytes and also work when inspecting packages on Windows without symlinks.
+    for source, runtime in RUNTIME_NAMES[platform]:
+        shutil.copyfile(prefix / "lib" / source, prefix / "lib" / runtime)
+    print(f"Verified {name}: {digest}\nZMusic prefix: {prefix.resolve()}")
+    return prefix
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--platform", choices=PACKAGES, required=True)
+    parser.add_argument("--output", type=Path, default=Path("build/deps"))
+    args = parser.parse_args()
+    fetch_package(args.platform, args.output)
 
 
 if __name__ == "__main__":

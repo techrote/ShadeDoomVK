@@ -101,6 +101,10 @@ its version and runtime library resolution when doing so.
 
 `tools/fetch_build_deps.py` verifies these existing upstream release assets
 before extracting them. A mismatched cached/downloaded archive fails closed.
+The archives omit their versioned ELF/Mach-O loader filenames; the helper creates
+`libzmusic.so.1` / `libzmusic.1.dylib` (and the lite equivalents) as byte-identical
+copies of the authenticated libraries. This supplies runtime names without
+changing the binaries or their dependency provenance.
 
 | CI platform | ZMusic archive | SHA-256 |
 |---|---|---|
