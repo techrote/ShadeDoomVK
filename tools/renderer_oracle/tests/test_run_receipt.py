@@ -7,6 +7,7 @@ Only that synthetic executable is mocked; real Git verification still runs.
 import argparse
 import copy
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -101,6 +102,16 @@ class SyntheticRunReceiptTests(unittest.TestCase):
             self.assertFalse(receipt["native_acceptance_awarded"])
             self.assertEqual(receipt["console_settings"], native["settings"])
             self.assertTrue(set(scene["required_state_channels"]).issubset(result["kinds"]))
+
+            # Two paths must not turn one process into repeatability evidence.
+            # A copied packet remains independently readable for archival use.
+            with self.assertRaisesRegex(common.EvidenceError, "independent"):
+                run.compare_runs(out, out)
+            copied = root / "copied-attempt"
+            shutil.copytree(out, copied)
+            self.assertEqual(run.validate_run(copied)[3]["status"], "PASS")
+            with self.assertRaisesRegex(common.EvidenceError, "same process"):
+                run.compare_runs(out, copied)
 
             names = ("input/scene.pk3", "input/fixture.ini", "capture.cfg", "request.json", "native.renderer.json", "run.json")
             originals = {name: (out / name).read_bytes() for name in names}

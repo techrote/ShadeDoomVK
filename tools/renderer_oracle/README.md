@@ -25,7 +25,7 @@ compatible IWAD.
 
 | File | Responsibility |
 | --- | --- |
-| [corpus.json](corpus.json) | Ten scene recipes, eight classes, exact settings/cameras, image policy, source references and 19 executable retained CPU contracts. |
+| [corpus.json](corpus.json) | Eleven scene recipes, eight classes, exact settings/cameras, image policy, source references and 19 executable retained CPU contracts. |
 | [prepare.py](prepare.py) | Deterministic authored assets and unchanged PF package members; pure prepared-input verification. |
 | [run.py](run.py) | Fresh process capture, artifact validation, state/image comparison, repeated-process baselines, PF import and CI entry points. |
 | [validate.py](validate.py) | Native schema, bounds, per-frame channel presence, context lineage and other state invariants. |
@@ -37,7 +37,7 @@ New texture pixels, maps and actors are authored here. Preparation copies no
 IWAD bytes into a PK3. The three retained PF recipes require the accepted Doom2
 IWAD SHA-256
 `31740ef23994b3959800134b41aaf86b04a2847336d328af8c4ae890450630ab`.
-The seven new authored scenes accept an externally supplied Doom2-compatible
+The eight new authored scenes accept an externally supplied Doom2-compatible
 IWAD whose actual hash is pinned before capture. A legal compatible IWAD such
 as Freedoom2 may be used for those scenes, subject to actual native
 compatibility validation. It does not replace the retained PF IWAD requirement.
@@ -58,8 +58,9 @@ The class names in the machine-readable catalog are `sprite_orientation`,
 | `lights-one` / `SDVL1` | Same room with one colored point light. | Light/occlusion and shadows. Exactly one eligible/selected shadow light and no drops are required; actual decisions and images remain necessary. |
 | `lights-many` / `SDVLMANY` | Same room with 64 deterministic colored point lights. | Light/occlusion and shadows. Exactly 64 eligible/selected shadow lights and no drops are required. |
 | `shadow-boundary` / `SDVSHDW` | 1,056 deterministic point lights around the solid occluder. | Light/occlusion and shadow capacity. Explicit `--include-stress`; requires exactly 1,056 candidates, 1,024 selected and 32 dropped. |
-| `material-stress` / `SDVMAT` | 64 distinct authored wall materials: albedo, normal/specular, PBR and zero-roughness inputs. | Semantic materials and resource stress. Authored inputs do not prove all panels were drawn or allocated. Descriptor exhaustion, async races and stale reuse retain their CPU negatives; optional reload metadata is not an executed transition. |
-| `sun-probes` / `SDVSUN` | Raised-floor PBR room, two explicit probes, generated sky, authored sunlight input and a separate point-light/two-marker query control. | Probes/sun and semantic materials. Explicit `--include-stress`; bake convergence and sunlight visibility are unqualified. No baked asset, full-bake command or broad bake-robustness claim is supplied. |
+| `material-stress` / `SDVMAT` | 64 distinct authored wall materials: albedo, normal/specular, PBR and zero-roughness inputs. | Semantic materials and resource stress. Every panel must be observed with its declared albedo, normal/specular or PBR binding sequence; authoring alone cannot pass. Descriptor exhaustion, async races and stale reuse retain their CPU negatives; optional reload metadata is not an executed transition. |
+| `sprite-mirror` / `SDVROT` | Eight stationary authored rotation actors, five asymmetric paired-rotation textures with normal/specular layers, wall/flat/X/Y-flip variants and an east-wall mirror. | Requires actual line-mirror context, all five material bindings and their declared semantics. Supplements the original PF fixed-fraction/linked-portal fixture; it does not relabel that fixture or its IWAD. |
+| `sun-probes` / `SDVSUN` | Raised-floor PBR room, two explicit probes, generated sky, authored sunlight input and a separate point-light/two-marker query control. | Probes/sun and semantic materials. Explicit `--include-stress`; requires at least two published irradiance/prefilter pairs, a live observed probe binding and actual authored sun intensity. Per-surface sunlight visibility and full bake convergence remain outside this receipt. No baked asset, full-bake command or broad bake-robustness claim is supplied. |
 
 The positive authored light workloads request `gl_light_shadows=2`. In the
 current light owner, mode 1 can additionally depend on whether the influence
@@ -171,7 +172,7 @@ state frame or 120 timing frames, with the recipe's recommended warmup (120
 when unspecified). The bounded interface permits 1–4,096 recorded frames,
 0–100,000 warmup frames and a 1–3,600 second process timeout.
 
-The seven new scenes use static authored cameras and no animated/random scene
+The eight new scenes use static authored cameras and no animated/random scene
 actors. Their correctness clock is `static_after_initialization`; timing uses
 `ordinary_engine_clock`. The interpolated PFVTEST actor remains tied to its
 retained PF single-tic/half-fraction correctness driver. Never use the PF fixed
@@ -216,7 +217,8 @@ prepared scene and explicit options, then compare:
 python tools/renderer_oracle/run.py compare /absolute/evidence/compositing-state-a /absolute/evidence/compositing-state-b --out /absolute/evidence/compositing-comparison.json
 ```
 
-Both input packets are revalidated. Reproduction profiles, actual
+Both input packets are revalidated. Identical directories and two archived copies
+of one original process are rejected; copying a packet does not create repetition evidence. Reproduction profiles, actual
 device/driver/backend, content and clean build identities must meet the
 comparison gates. An intentional candidate build comparison uses
 `--allow-build-change`; it does not relax scene/settings/device or image/state
@@ -325,7 +327,7 @@ python -m unittest discover -s tools/renderer_oracle/tests -p 'test_*.py' -v
 python tools/renderer_oracle/run.py ci --out /absolute/evidence/cpu-ci --with-contracts
 ```
 
-`ci` prepares all ten scenes twice and compares manifests/bytes. With
+`ci` prepares all eleven scenes twice and compares manifests/bytes. With
 `--with-contracts` it also executes each of the 19 named retained CPU commands
 once, preserving logs. No display or Vulkan runtime is required for this subset.
 Its `PASS` is explicitly `native_execution=false` and
@@ -341,7 +343,7 @@ xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracl
 ```
 
 `VK_DRIVER_FILES` and/or `VK_ICD_FILENAMES` must identify one llvmpipe manifest;
-when both are set they must agree. `--full` selects all seven newly authored
+when both are set they must agree. `--full` selects all eight newly authored
 scenes. Without it, the tractable default is `compositing` and `lights-one`;
 `--scene` may be repeated to choose a declared subset. The runner creates two
 independent state captures per selected scene, requires exact RGB/state

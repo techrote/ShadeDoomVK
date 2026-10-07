@@ -63,3 +63,14 @@ explicit comparison option. A failure is retained and an output directory is
 never reused. The CPU CI subset and software Vulkan lane have different proof
 scopes. Consult the owning release receipt before treating a recipe as newly
 native-qualified or unblocking dependent feature work.
+
+## Native workload assertions
+
+The catalog's `state_assertions` are checked in every recorded state frame by
+`run.py::_scene_assertions`: required material names and ordered semantic layers,
+root producers, actual line-mirror contexts, published probe pairs/live draw
+bindings, and authored sun intensity. A generated asset is not a draw witness.
+The new static `sprite-mirror` recipe uses authored asymmetric paired rotations
+and the accepted PF line-mirror special. Original PF byte inventories and
+fixed-fraction/IWAD contracts are preserved. Two copies of one capture cannot
+satisfy independent-repeat comparison.

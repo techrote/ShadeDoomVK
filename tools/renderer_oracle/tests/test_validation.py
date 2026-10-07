@@ -234,6 +234,27 @@ class CaptureReceiptTests(unittest.TestCase):
             with self.assertRaises(common.EvidenceError):
                 run._scene_assertions(changed, scene)
 
+    def test_scene_assertions_reject_unexercised_mirror_material_and_probe_routes(self):
+        data = observation()
+        scene = {"id": "synthetic", "native": {"camera": {"position": [0, 0, 64], "yaw": 0, "pitch": 0, "roll": 0},
+                 "settings": {}, "state_assertions": {"line_mirror": True, "materials": ["SYNTHETIC"],
+                 "material_semantics": {"SYNTHETIC": ["albedo"]}, "published_probes_minimum": 2, "sun_intensity": 1}}}
+        data["records"][0]["data"]["context"]["line_mirror"] = True
+        data["records"] += [row("resource", {"irradiance_maps": 2, "prefilter_maps": 2, "sun": {"intensity": 1}}),
+                            row("probe", {"fallback": False, "resource": {"available": True}})]
+        run._scene_assertions(data, scene)
+        mutations = [lambda d: d["records"][0]["data"]["context"].update(line_mirror=False),
+                     lambda d: d["records"][1]["data"].update(name="WRONG"),
+                     lambda d: d["records"][1]["data"]["layers"][0].update(semantic="normal"),
+                     lambda d: d["records"][-2]["data"].update(irradiance_maps=1),
+                     lambda d: d["records"][-2]["data"]["sun"].update(intensity=0),
+                     lambda d: d["records"][-1]["data"].update(fallback=True)]
+        for mutation in mutations:
+            changed = copy.deepcopy(data)
+            mutation(changed)
+            with self.subTest(mutation=mutation), self.assertRaises(common.EvidenceError):
+                run._scene_assertions(changed, scene)
+
     def test_equal_images_do_not_hide_a_state_change(self):
         with tempfile.TemporaryDirectory() as temporary:
             roots = [Path(temporary) / name for name in ("left", "right")]
@@ -241,6 +262,7 @@ class CaptureReceiptTests(unittest.TestCase):
                 root.mkdir()
                 (root / "native.png").write_bytes(png(bytes(6)))
                 common.write_json(root / "run.json", {"synthetic": True})
+                common.write_json(root / "request.json", {"cwd": str(root)})
             a, b = observation(), observation()
             b["records"][1]["data"]["resource"]["generation"] = 2
             receipt = {"mode": "state", "reproduction": {"clock": "static_after_initialization", "image_policy": {"metric": "exact-rgb8"}},

@@ -3095,6 +3095,428 @@
           "vid_vsync": false,
           "vk_rayquery": false
         },
+        "state_assertions": {
+          "material_semantics": {
+            "SM0000": [
+              "albedo"
+            ],
+            "SM0001": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0002": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0003": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0004": [
+              "albedo"
+            ],
+            "SM0005": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0006": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0007": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0008": [
+              "albedo"
+            ],
+            "SM0009": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0010": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0011": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0012": [
+              "albedo"
+            ],
+            "SM0013": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0014": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0015": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0016": [
+              "albedo"
+            ],
+            "SM0017": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0018": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0019": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0020": [
+              "albedo"
+            ],
+            "SM0021": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0022": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0023": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0024": [
+              "albedo"
+            ],
+            "SM0025": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0026": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0027": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0028": [
+              "albedo"
+            ],
+            "SM0029": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0030": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0031": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0032": [
+              "albedo"
+            ],
+            "SM0033": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0034": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0035": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0036": [
+              "albedo"
+            ],
+            "SM0037": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0038": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0039": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0040": [
+              "albedo"
+            ],
+            "SM0041": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0042": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0043": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0044": [
+              "albedo"
+            ],
+            "SM0045": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0046": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0047": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0048": [
+              "albedo"
+            ],
+            "SM0049": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0050": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0051": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0052": [
+              "albedo"
+            ],
+            "SM0053": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0054": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0055": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0056": [
+              "albedo"
+            ],
+            "SM0057": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0058": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0059": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0060": [
+              "albedo"
+            ],
+            "SM0061": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SM0062": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SM0063": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "materials": [
+            "SM0000",
+            "SM0001",
+            "SM0002",
+            "SM0003",
+            "SM0004",
+            "SM0005",
+            "SM0006",
+            "SM0007",
+            "SM0008",
+            "SM0009",
+            "SM0010",
+            "SM0011",
+            "SM0012",
+            "SM0013",
+            "SM0014",
+            "SM0015",
+            "SM0016",
+            "SM0017",
+            "SM0018",
+            "SM0019",
+            "SM0020",
+            "SM0021",
+            "SM0022",
+            "SM0023",
+            "SM0024",
+            "SM0025",
+            "SM0026",
+            "SM0027",
+            "SM0028",
+            "SM0029",
+            "SM0030",
+            "SM0031",
+            "SM0032",
+            "SM0033",
+            "SM0034",
+            "SM0035",
+            "SM0036",
+            "SM0037",
+            "SM0038",
+            "SM0039",
+            "SM0040",
+            "SM0041",
+            "SM0042",
+            "SM0043",
+            "SM0044",
+            "SM0045",
+            "SM0046",
+            "SM0047",
+            "SM0048",
+            "SM0049",
+            "SM0050",
+            "SM0051",
+            "SM0052",
+            "SM0053",
+            "SM0054",
+            "SM0055",
+            "SM0056",
+            "SM0057",
+            "SM0058",
+            "SM0059",
+            "SM0060",
+            "SM0061",
+            "SM0062",
+            "SM0063"
+          ]
+        },
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
@@ -3386,6 +3808,10 @@
           "vid_vsync": false,
           "vk_rayquery": false
         },
+        "state_assertions": {
+          "published_probes_minimum": 2,
+          "sun_intensity": 1
+        },
         "status": "native_qualification_pending",
         "sun_input": {
           "angle": 0,
@@ -3430,6 +3856,321 @@
         "wadsrc/static/zscript/actors/player/player.zs"
       ],
       "title": "Raised-floor PBR room with two probes and explicit sunlight input"
+    },
+    {
+      "classes": [
+        "sprite_orientation",
+        "semantic_materials",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_render_context_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sprite_surface_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_swcanvas_layout_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "render-context",
+        "sprite-surface",
+        "swcanvas"
+      ],
+      "id": "sprite-mirror",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDVROT",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -192,
+            0,
+            64
+          ],
+          "roll": 0,
+          "yaw": 0
+        },
+        "capture_script": "scenes/sprite-mirror/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/sprite-mirror/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_lightprobe",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_dynlights",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "portals": {
+            "minimum": 1
+          },
+          "sprites": {
+            "minimum": 8
+          }
+        },
+        "generator": "sprite_mirror",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": false,
+        "map": "SDVROT",
+        "map_guard": {
+          "equals": "SDVROT",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Actual native mirrored context, five distinct paired-rotation textures and bound normal/specular semantics are required; preparation alone is not coverage.",
+          "This static freely reproducible recipe supplements rather than replaces the retained PF interpolated/linked-portal fixture and its exact original IWAD contract."
+        ],
+        "pk3": "scenes/sprite-mirror/scene.pk3",
+        "recommended_warmup_frames": 120,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_lightprobe": false,
+          "gl_mirrors": true,
+          "gl_multisample": 0,
+          "gl_portals": true,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_dynlights": false,
+          "r_drawplayersprites": false,
+          "r_mirror_recursions": 2,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "state_assertions": {
+          "line_mirror": true,
+          "material_semantics": {
+            "SDVRA1": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SDVRA2A8": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SDVRA3A7": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SDVRA4A6": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ],
+            "SDVRA5": [
+              "albedo",
+              "normal",
+              "legacy-specular"
+            ]
+          },
+          "materials": [
+            "SDVRA1",
+            "SDVRA2A8",
+            "SDVRA3A7",
+            "SDVRA4A6",
+            "SDVRA5"
+          ],
+          "root_types": [
+            "main"
+          ]
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "resource",
+        "pipeline"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/rag/01-RENDERER-EXECUTION-MAP.md",
+        "src/common/textures/material_layer_semantics.h",
+        "src/gamedata/decallib.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/a_decals.cpp",
+        "src/r_data/r_canvastexture.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/scene/hw_sprite_surface.h",
+        "tools/pf_oracle/prepare_freeze_view_fixture.py",
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp",
+        "tools/pf_oracle/tests/test_render_context_contract.py",
+        "tools/pf_oracle/tests/test_sprite_surface_contract.py",
+        "tools/pf_oracle/tests/test_swcanvas_layout_contract.py",
+        "wadsrc/static/mapinfo/common.txt",
+        "wadsrc/static/zscript/actors/actor.zs",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "wadsrc/static/zscript/actors/shared/decal.zs"
+      ],
+      "title": "Authored eight rotations, paired mirrored frames, wall/flat sprites and line mirror"
     }
   ],
   "schema": "sdvk-renderer-corpus/v1",

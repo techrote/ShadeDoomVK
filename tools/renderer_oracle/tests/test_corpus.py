@@ -170,6 +170,17 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "unsupported root context"):
             prepare.validate_catalog(changed)
 
+    def test_new_native_assertions_are_typed_and_bound_to_observed_materials(self):
+        variants = ({"line_mirror": False}, {"published_probes_minimum": True}, {"published_probes_minimum": 0},
+                    {"sun_intensity": float("nan")}, {"sun_intensity": -1},
+                    {"material_semantics": {"NOT_REQUIRED": ["albedo"]}},
+                    {"materials": ["SM0000"], "material_semantics": {"SM0000": ["albedo", "albedo"]}})
+        for assertions in variants:
+            changed = prepare.load_catalog()
+            changed["scenes"][3]["native"]["state_assertions"] = assertions
+            with self.subTest(assertions=assertions), self.assertRaises(ValueError):
+                prepare.validate_catalog(changed)
+
 
 class AuthoredSceneTests(unittest.TestCase):
     def test_retained_pf_archives_remain_byte_identical(self):
@@ -267,6 +278,31 @@ class AuthoredSceneTests(unittest.TestCase):
         for name in ("lights-one", "lights-many", "shadow-boundary"):
             self.assertEqual(scene_named(name)["native"]["settings"]["gl_light_shadows"], 2)
 
+    def test_eight_rotations_and_mirror_require_actual_native_witnesses(self):
+        import math
+        scene = scene_named("sprite-mirror")
+        members, metadata = prepare.authored_members(scene)
+        records = parse_udmf(unpack_wad(members["maps/SDVROT.wad"])["TEXTMAP"])
+        mirrors = [line for line in records["linedef"] if line.get("special") == 182]
+        self.assertEqual(len(mirrors), 1)
+        self.assertEqual(mirrors[0]["id"], 2040)
+        camera = scene["native"]["camera"]["position"]
+        rotations = sorted((thing for thing in records["thing"] if thing["type"] == 32210), key=lambda thing: thing["id"])
+        self.assertEqual(len(rotations), 8)
+        for k, thing in enumerate(rotations):
+            angle = math.degrees(math.atan2(thing["y"]-camera[1], thing["x"]-camera[0]))-thing["angle"]
+            self.assertEqual(int(((angle+202.5) % 360)/22.5)//2, k)
+        for name in metadata["rotation_material_names"]:
+            header, pixels = unpack_png(members[f"sprites/{name}.png"])
+            self.assertEqual(header["offset"], (32, 64))
+            self.assertNotEqual(pixels[:4], pixels[60*4:61*4])
+            self.assertIn(f"material sprite {name}".encode(), members["GLDEFS"])
+        self.assertIs(scene["native"]["state_assertions"]["line_mirror"], True)
+        self.assertEqual(scene["native"]["state_assertions"]["materials"], metadata["rotation_material_names"])
+        self.assertEqual(scene["native"]["frame_assertions"]["portals"]["minimum"], 1)
+        for flag in (b"+WALLSPRITE", b"+FLATSPRITE", b"+XFLIP", b"+YFLIP"):
+            self.assertIn(flag, members["ZSCRIPT"])
+
     def test_material_panels_reference_64_distinct_authored_inputs(self):
         members, metadata = prepare.authored_members(scene_named("material-stress"))
         records = parse_udmf(unpack_wad(members["maps/SDVMAT.wad"])["TEXTMAP"])
@@ -274,6 +310,9 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual(len(textures), 64)
         self.assertEqual(len(set(textures)), 64)
         self.assertEqual(sorted(textures), metadata["material_names"])
+        assertions = scene_named("material-stress")["native"]["state_assertions"]
+        self.assertEqual(assertions["materials"], metadata["material_names"])
+        self.assertEqual(set(assertions["material_semantics"]), set(textures))
         for name in textures:
             self.assertIn(f"textures/{name}.png", members)
         self.assertIn(b'specular "SDVSP"', members["GLDEFS"])
@@ -299,6 +338,7 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual(scene["native"]["settings"]["gl_spritelight"], 2)
         self.assertIs(scene["native"]["settings"]["gl_light_sprites"], True)
         self.assertIs(scene["native"]["settings"]["gl_lights"], True)
+        self.assertEqual(scene["native"]["state_assertions"], {"published_probes_minimum": 2, "sun_intensity": 1})
         self.assertFalse(meta["full_bake_qualified"])
         self.assertEqual(meta["baked_lightmap_members"], 0)
 
@@ -336,8 +376,8 @@ class PreparationTests(unittest.TestCase):
             self.assertFalse(first["native_executed"])
             self.assertFalse(first["native_qualified"])
             self.assertEqual(first["status"], "prepared_only")
-            self.assertEqual(len(first["scenes"]), 10)
-            self.assertEqual(len(first["files"]), 30)
+            self.assertEqual(len(first["scenes"]), 11)
+            self.assertEqual(len(first["files"]), 33)
             for path, expected in first["files"].items():
                 raw = (a / path).read_bytes()
                 self.assertEqual(raw, (b / path).read_bytes())

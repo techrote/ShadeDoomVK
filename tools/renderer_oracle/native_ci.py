@@ -25,7 +25,7 @@ except ImportError:
     from common import pin, read_json, require, write_json
 
 SCENES = ("compositing", "lights-zero", "lights-one", "lights-many",
-          "shadow-boundary", "material-stress", "sun-probes")
+          "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror")
 FEATURES = ("shaderSampledImageArrayNonUniformIndexing",
             "descriptorBindingSampledImageUpdateAfterBind", "descriptorBindingPartiallyBound",
             "descriptorBindingVariableDescriptorCount", "runtimeDescriptorArray")
@@ -195,7 +195,7 @@ def main(argv=None):
     parser.add_argument("--iwad-license", type=Path, help="Copyright/license to retain; defaults to matching installed Freedoom copyright")
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--scene", action="append", choices=SCENES, help="Repeat for authored scenes; default: compositing and lights-one")
-    selection.add_argument("--full", action="store_true", help="All seven newly authored scenes; excludes retained PF recipes")
+    selection.add_argument("--full", action="store_true", help="All eight newly authored scenes; excludes retained PF recipes")
     args = parser.parse_args(argv)
     try:
         result = qualify(args)

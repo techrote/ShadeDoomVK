@@ -315,6 +315,27 @@ def _scene_assertions(raw, scene):
             materials = {record["data"].get("name") for record in records if record["kind"] == "material"}
             require(set(assertions.get("root_types", [])).issubset(roots), "Required view producer was not observed")
             require(set(assertions.get("materials", [])).issubset(materials), "Required material was not drawn")
+            if assertions.get("line_mirror"):
+                require(any(record["kind"] == "context" and record["data"]["context"]["line_mirror"]
+                            for record in records), "Required line-mirror context was not observed")
+            for name, expected in assertions.get("material_semantics", {}).items():
+                drawn = [record["data"] for record in records
+                         if record["kind"] == "material" and record["data"].get("name") == name]
+                require(drawn and all([layer["semantic"] for layer in value["layers"]] == expected for value in drawn),
+                        "Required material semantic bindings differ: " + name)
+            minimum_probes = assertions.get("published_probes_minimum")
+            if minimum_probes is not None:
+                owners = [record["data"] for record in records if record["kind"] == "resource"]
+                require(owners and all(value.get("irradiance_maps", 0) >= minimum_probes
+                                       and value.get("prefilter_maps", 0) >= minimum_probes for value in owners),
+                        "Required published probe resources were not observed")
+                require(any(record["kind"] == "probe" and record["data"].get("fallback") is False
+                            and record["data"].get("resource", {}).get("available") is True for record in records),
+                        "Published probes were not bound to an observed draw")
+            if "sun_intensity" in assertions:
+                owners = [record["data"] for record in records if record["kind"] == "resource"]
+                require(owners and all(value.get("sun", {}).get("intensity") == assertions["sun_intensity"] for value in owners),
+                        "Actual authored sun intensity differs")
 
 
 def validate_run(path):
@@ -426,6 +447,11 @@ def differences(left, right, path="", result=None, maximum=20):
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
+    require(left_root != right_root, "State comparison requires two independent capture directories")
+    left_request = read_json(left_root / "request.json")
+    right_request = read_json(right_root / "request.json")
+    require(left_request["cwd"] != right_request["cwd"],
+            "The same process capture was copied and supplied twice")
     require(a["mode"] == b["mode"] == "state", "Image/state comparison requires two correctness captures")
     require(a["reproduction"] == b["reproduction"], "Reproduction profiles differ; not a controlled comparison")
     for field in ("backend", "device", "renderer", "vulkan"):

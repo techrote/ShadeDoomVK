@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
-              "material_stress", "sun_probes"}
+              "material_stress", "sun_probes", "sprite_mirror"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -173,13 +173,34 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "line_mirror", "published_probes_minimum", "sun_intensity"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
-        for key, values in state_assertions.items():
+        for key in ("root_types", "materials"):
+            if key not in state_assertions:
+                continue
+            values = state_assertions[key]
             if not isinstance(values, list) or not values or not all(isinstance(value, str) and value for value in values) or len(set(values)) != len(values):
                 raise ValueError(f"Scene {name} requires distinct named state assertions")
             if key == "root_types" and not set(values) <= {"main", "camera-texture", "light-probe", "save-picture", "portal"}:
                 raise ValueError(f"Scene {name} names an unsupported root context")
+        if "line_mirror" in state_assertions and state_assertions["line_mirror"] is not True:
+            raise ValueError(f"Scene {name} requires an explicit positive line-mirror assertion")
+        if "published_probes_minimum" in state_assertions:
+            value = state_assertions["published_probes_minimum"]
+            if type(value) is not int or not 1 <= value <= 64:
+                raise ValueError(f"Scene {name} has invalid published probe bounds")
+        if "sun_intensity" in state_assertions:
+            value = state_assertions["sun_intensity"]
+            if type(value) not in (int, float) or not math.isfinite(value) or value <= 0:
+                raise ValueError(f"Scene {name} has invalid positive sunlight assertion")
+        semantic_assertions = state_assertions.get("material_semantics", {})
+        if not isinstance(semantic_assertions, dict) or len(semantic_assertions) > 256:
+            raise ValueError(f"Scene {name} has invalid material semantic assertions")
+        for material, semantics in semantic_assertions.items():
+            if (material not in state_assertions.get("materials", []) or not isinstance(semantics, list)
+                    or not semantics or not all(isinstance(value, str) and value for value in semantics)
+                    or len(set(semantics)) != len(semantics)):
+                raise ValueError(f"Scene {name} must bind semantic assertions to required named materials")
         if native.get("clock", {}).get("timing") != "ordinary_engine_clock":
             raise ValueError(f"Scene {name} may not time the PF fixed-tic clock")
         if not native.get("pending_coverage"):
@@ -387,6 +408,44 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
         metadata.update(decal_controls={"attached_candidate_tid": 2030, "distant_negative_tid": 2031,
                         "negative_wall_distance": 256, "actual_attach_count_required": True},
                         translucent_actor_tids=[2020, 2021], camera_texture="SDVCAM")
+    elif generator == "sprite_mirror":
+        model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
+        # The accepted PF view fixture uses Line_Mirror (182) on the same
+        # clockwise east-facing boundary; retain that real engine route.
+        model.records["linedef"][2].update(id=2040, special=182)
+        members["ZSCRIPT"] += b"""
+class SDVKRotated : Actor
+{
+    Default { Radius 8; Height 48; Scale 0.5; +NOGRAVITY +NOBLOCKMAP }
+    States { Spawn: SDVR A -1; Stop; }
+}
+class SDVKWall : SDVKRotated { Default { +WALLSPRITE } }
+class SDVKFlat : SDVKRotated { Default { +FLATSPRITE } }
+class SDVKFlipX : SDVKRotated { Default { +XFLIP } }
+class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
+"""
+        rotation_names = ["SDVRA1", "SDVRA2A8", "SDVRA3A7", "SDVRA4A6", "SDVRA5"]
+        _material_layers(members)
+        members["textures/SDVN.png"] = png_rgba(16, 16, bytes((196, 128, 234, 255)) * 256)
+        definitions = []
+        for i, name in enumerate(rotation_names):
+            # Deliberately asymmetric authored pixels expose mirrored frames.
+            colour = ((40 + i * 43) % 256, (190 - i * 27) % 256, 70 + i * 31, 255)
+            pixels = bytes(channel for y in range(64) for x in range(64)
+                           for channel in (colour if x < 20 or (y < 20 and x < 48)
+                                           else (235, 225, 190, 255)))
+            members[f"sprites/{name}.png"] = png_rgba(64, 64, pixels, offset=(32, 64))
+            definitions.append(f'material sprite {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
+        members["GLDEFS"] = "".join(definitions).encode()
+        for k, (x, y) in enumerate((x, y) for x in (0, 64) for y in (-72, -24, 24, 72)):
+            yaw = (math.degrees(math.atan2(y - camera[1], x - camera[0])) - ((2*k + .5)*22.5 - 202.5)) % 360
+            model.thing(32210, x, y, angle=round(yaw) % 360, tid=4201+k)
+        for kind, x, y, height, tid in ((32211, 96, -112, 32, 4301), (32212, 96, 112, 8, 4302),
+                                       (32213, 128, -48, 0, 4303), (32214, 128, 48, 0, 4304)):
+            model.thing(kind, x, y, height, tid=tid)
+        metadata.update(rotation_material_names=rotation_names, rotation_actor_tids=list(range(4201, 4209)),
+                        paired_frame_mirroring=True, mirror_line_id=2040,
+                        actual_mirrored_context_and_materials_required=True)
     elif generator == "lighting":
         model.boundary([(-512, -384), (-512, 384), (512, 384), (512, -384)], ["SDVW"] * 4)
         model.boundary([(0, -64), (128, -64), (128, 64), (0, 64)], ["SDVW"] * 4)
@@ -441,6 +500,9 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     members["MAPINFO"] = (f'map {map_name} "SDVK {scene["id"]}" {{ nointermission{sky} }}\n'
                           'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32201 = SDVKCanvasCamera\n'
                           ' 32202 = SDVKGlass\n 32203 = SDVKMarker\n}\n').encode()
+    if generator == "sprite_mirror":
+        members["MAPINFO"] += ("DoomEdNums\n{\n 32210 = SDVKRotated\n 32211 = SDVKWall\n"
+                               " 32212 = SDVKFlat\n 32213 = SDVKFlipX\n 32214 = SDVKFlipY\n}\n").encode()
     textmap = model.text().encode()
     members[f"maps/{map_name}.wad"] = pf_indexed.wad([(map_name, b""), ("TEXTMAP", textmap), ("ENDMAP", b"")])
     metadata["counts"] = {kind: len(rows) for kind, rows in model.records.items()}

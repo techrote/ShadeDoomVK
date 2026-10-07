@@ -14,7 +14,7 @@ do not re-award those historical native or performance results.
 
 The entry point for later renderer work is
 [`tools/renderer_oracle/README.md`](../../tools/renderer_oracle/README.md).
-[`corpus.json`](../../tools/renderer_oracle/corpus.json) connects ten scene
+[`corpus.json`](../../tools/renderer_oracle/corpus.json) connects eleven scene
 recipes, eight reference classes and nineteen executable retained CPU
 contracts. The accepted PF fixture generators and native validators remain
 independent. Newly authored assets contain generated pixels and map geometry;
@@ -132,3 +132,14 @@ The final issue receipt must identify the publication and merge commits, all
 required CI jobs, the two-run state/image comparisons, raw timing/counter
 baseline, retained failures and verified master. Until then, SDVK-002 and its
 dependent feature gates remain pending.
+
+## Recovery qualification hardening
+
+The source checkpoint was recovered through the exact GitHub CI source-bundle
+artifact, not reconstructed from chat. PR #121 owns continued qualification.
+The `sprite-mirror` scene adds freely reproducible rotation/mirror coverage while
+leaving all three original PF generators unchanged. Material stress requires all
+64 named panels and their exact semantic layer order. Sun/probe state requires
+actual published pairs, a live draw binding and the authored sunlight intensity.
+A comparison rejects one capture reused under the same path or copied paths.
+These are fail-closed workload/evidence checks, not new renderer features.
