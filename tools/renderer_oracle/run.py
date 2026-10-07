@@ -11,6 +11,7 @@ import argparse
 import copy
 import datetime
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -286,16 +287,27 @@ def capture(args):
     return result
 
 
+def _numeric_vector_matches(actual, expected, *, tolerance=1e-9):
+    if not isinstance(actual, list) or len(actual) != len(expected):
+        return False
+    for left, right in zip(actual, expected):
+        if isinstance(left, bool) or isinstance(right, bool) or not isinstance(left, (int, float)) or not isinstance(right, (int, float)):
+            return False
+        if not math.isfinite(float(left)) or not math.isfinite(float(right)) or not math.isclose(float(left), float(right), rel_tol=0.0, abs_tol=tolerance):
+            return False
+    return True
+
+
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     camera = scene["native"]["camera"]
     for frame in frames:
-        require(frame.get("camera", {}).get("position") == camera["position"], "Actual camera position differs from the fixture")
-        require(frame["camera"].get("angles") == [camera["yaw"], camera["pitch"], camera["roll"]], "Actual camera angles differ from the fixture")
+        require(_numeric_vector_matches(frame.get("camera", {}).get("position"), camera["position"]), "Actual camera position differs from the fixture")
+        require(_numeric_vector_matches(frame["camera"].get("angles"), [camera["yaw"], camera["pitch"], camera["roll"]]), "Actual camera angles differ from the fixture")
         for key, expected in scene["native"]["settings"].items():
             if key in frame["settings"]:
                 require(frame["settings"][key] == expected, "Actual frame setting differs: " + key)
-        require(frame["camera"].get("fov") == 90, "Actual camera FOV differs from the fixture")
+        require(_numeric_vector_matches([frame["camera"].get("fov")], [90]), "Actual camera FOV differs from the fixture")
         for counter, bounds in scene["native"].get("frame_assertions", {}).items():
             actual = integer(frame.get(counter), "Required frame counter " + counter)
             require(actual >= bounds.get("minimum", 0) and actual <= bounds.get("maximum", actual),

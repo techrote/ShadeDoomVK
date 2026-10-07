@@ -228,6 +228,12 @@ class CaptureReceiptTests(unittest.TestCase):
         scene = {"id": "synthetic", "native": {"camera": {"position": [0, 0, 64], "yaw": 0, "pitch": 0, "roll": 0},
                  "settings": {"vid_rendermode": 4}, "frame_assertions": {"sprites": {"minimum": 2}}}}
         run._scene_assertions(data, scene)
+        rounded = copy.deepcopy(data)
+        rounded["records"][-1]["data"]["camera"].update(position=[-2.8e-14, 0, 64], fov=89.99999999999999)
+        run._scene_assertions(rounded, scene)
+        rounded["records"][-1]["data"]["camera"]["position"][0] = 1e-6
+        with self.assertRaises(common.EvidenceError):
+            run._scene_assertions(rounded, scene)
         for key, value in (("sprites", 0), ("camera", {"position": [10, 0, 64]}), ("settings", {"vid_rendermode": 1})):
             changed = copy.deepcopy(data)
             changed["records"][-1]["data"][key] = value
