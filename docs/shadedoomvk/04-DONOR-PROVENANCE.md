@@ -162,3 +162,7 @@ Whenever donor work is materially introduced, record:
 - tests proving the transplanted concept preserves intended meaning in ShadeDoomVK.
 
 When a donor concept is already inherited, record **qualification/fix provenance** separately from donor provenance rather than claiming a new import.
+
+## SDVK-003 selective UZDoom actor-script candidate (2026-10-07)
+
+Donor `UZDoom/UZDoom@809e46c25fe2a2f89430de3fbac89626100df384` (2026-10-04), `wadsrc/static/zscript/actors/strife/crusader.zs`; receiver `ShadeDoomVK@a2d2d293d680895bb8daae86466596b05aaef483`. Recipient sweeps previously lacked local null-target guards. On dedicated `sdvk-003-selective-upstream-policy` branch, adapted two guards only (commit `2a9b95f32954b6dff8a32d7f37c4d479e6b0465f`, recipient blob `10ff41c18a8273d2f47cba2cef70aeb01111e2f1`). No upstream source history cherry-picked, no wholesale script replacement; original GPL notices retained. This is **candidate/unaccepted** until focused Strife transition tests, full CI and review. See [SDVK-003 differential](SDVK-003-UPSTREAM-DIFFERENTIAL.md). No renderer/PF contract is imported or reopened.
