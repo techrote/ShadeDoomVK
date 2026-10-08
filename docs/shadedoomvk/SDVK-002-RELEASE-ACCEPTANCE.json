@@ -1,0 +1,257 @@
+{
+  "schema": "sdvk002-release-acceptance/v1",
+  "dateUtc": "2026-10-08",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/2",
+  "implementationPullRequest": "https://github.com/techrote/ShadeDoomVK/pull/121",
+  "acceptedStartingMaster": "a2d2d293d680895bb8daae86466596b05aaef483",
+  "publicationHead": "59cfcaeccbdbd0617e4e032fa153fd91604aa970",
+  "publicationTree": "d12e07da15cccddc7f699c140911a5a6f852c4aa",
+  "testedPullRequestMergeRef": "bdbd178bf20b13a44e4e03d9623efa5707250287",
+  "mergeCommit": "1ecc3cf73aa2266a1e741f09078b7d089ba8bf89",
+  "mergeTree": "d12e07da15cccddc7f699c140911a5a6f852c4aa",
+  "wholeMergedTreeEqualsTestedPublication": true,
+  "masterVerified": true,
+  "finalHeadCI": {
+    "runId": 37766168263,
+    "head": "59cfcaeccbdbd0617e4e032fa153fd91604aa970",
+    "mergeRef": "bdbd178bf20b13a44e4e03d9623efa5707250287",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37766168263",
+    "status": "PASS",
+    "actualJobsPassed": 9,
+    "jobs": [
+      {
+        "databaseId": 113274476728,
+        "name": "PF renderer contract oracle",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982530,
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982575,
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982604,
+        "name": "macOS | Release",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982644,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982657,
+        "name": "Linux software Vulkan | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982699,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982710,
+        "name": "macOS | Debug",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113274982742,
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "postMergeCI": {
+    "runId": 37767780123,
+    "head": "1ecc3cf73aa2266a1e741f09078b7d089ba8bf89",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37767780123",
+    "status": "PASS",
+    "actualJobsPassed": 9,
+    "jobs": [
+      {
+        "databaseId": 113279536987,
+        "name": "PF renderer contract oracle",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990243,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990261,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990308,
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990352,
+        "name": "macOS | Debug",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990393,
+        "name": "Linux software Vulkan | RelWithDebInfo",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990417,
+        "name": "macOS | Release",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990418,
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success"
+      },
+      {
+        "databaseId": 113279990443,
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success"
+      }
+    ]
+  },
+  "sourceEvidence": {
+    "finalHead": {
+      "runId": 37766168248,
+      "artifactId": 11544378381,
+      "artifactName": "renderer-source-evidence",
+      "artifactBytes": 147504773,
+      "artifactZipSha256": "f81aeffb7ad3f19cb2645ec2f51e17bb342ee5ee449d5c257a8672a0f095ccc8",
+      "sourceBundleSha256": "ac6b2de8454abad6368141814cc26ee9e90297f9f7a09281dfb0315832760eed",
+      "commit": "bdbd178bf20b13a44e4e03d9623efa5707250287",
+      "tree": "d12e07da15cccddc7f699c140911a5a6f852c4aa"
+    },
+    "postMerge": {
+      "runId": 37767780437,
+      "artifactId": 11545956639,
+      "artifactName": "renderer-source-evidence",
+      "artifactBytes": 147504860,
+      "artifactZipSha256": "6ad77d891b69c1fed7a2ef4a3d269474b6f1cbd92842384e1d660a021c773c00",
+      "sourceBundleSha256": "3bdd6321110007ee95b44f96caaf515c34e0d3af728e089c3041c22ac9594f6b",
+      "commit": "1ecc3cf73aa2266a1e741f09078b7d089ba8bf89",
+      "tree": "d12e07da15cccddc7f699c140911a5a6f852c4aa"
+    }
+  },
+  "cpuContractEvidence": {
+    "finalHead": {
+      "artifactId": 11544523182,
+      "artifactBytes": 67598,
+      "artifactZipSha256": "cb21f602fba4632bec0e9c8f340cc05c649e0daafd5594addf8543e8f2a02df7",
+      "status": "PASS"
+    },
+    "postMerge": {
+      "artifactId": 11546685561,
+      "artifactBytes": 67598,
+      "artifactZipSha256": "7e7a7a017be8465c8e666b23a69f6c9ce196c138b1c5032d025ae67295b1e0e4",
+      "status": "PASS"
+    },
+    "coverage": [
+      "PF unittest suite",
+      "CFX classification suite",
+      "65 renderer-oracle tests",
+      "deterministic renderer-corpus preparation",
+      "two identical PF source-oracle outputs",
+      "resource_generation compiled contract",
+      "bindless_allocator compiled contract",
+      "levelmesh_contract compiled contract",
+      "probe_selection compiled contract"
+    ]
+  },
+  "independentCurrentHeadPreflight": {
+    "runId": 37766404761,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/37766404761",
+    "status": "PASS",
+    "rendererOracleTests": 65,
+    "observerContractTests": 8,
+    "deterministicPreparation": true
+  },
+  "nativeSoftwareVulkan": {
+    "driver": "Mesa llvmpipe",
+    "physicalGpuQualified": false,
+    "performanceAccepted": false,
+    "finalHeadArtifact": {
+      "artifactId": 11546975098,
+      "artifactBytes": 221162106,
+      "artifactZipSha256": "75a028ecbc83725eb752d5dd9dbf4b6511609c9789ea13470a3a934f058e66f9"
+    },
+    "postMergeArtifact": {
+      "artifactId": 11546439515,
+      "artifactBytes": 221161272,
+      "artifactZipSha256": "daf3f1f3d003cc0fec8c62c9d732d0081aa4d03fda40f26f5d8aca89730bfdf3"
+    },
+    "stateWorkloads": {
+      "compositing": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-zero": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-one": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-many": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "shadow-boundary": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "material-stress": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sun-probes": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sprite-mirror": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    "imagePolicy": "exact RGB8 on same device/driver/profile, paired with semantic state equality",
+    "shadowBoundary": {
+      "candidates": 1025,
+      "selected": 1024,
+      "dropped": 1,
+      "shadowMapResolution": 128,
+      "warmupFrames": 1,
+      "scope": "correctness-only capacity witness; not an image-quality or performance claim"
+    },
+    "timingBaseline": {
+      "scene": "lights-one",
+      "independentProcesses": 3,
+      "rawCpuSamplesPerProcess": 120,
+      "resolvedNamedGpuGroupsRequired": true,
+      "status": "PASS",
+      "scope": "descriptive software-Vulkan repeatability evidence; not a speedup or physical-GPU baseline"
+    }
+  },
+  "retainedFailures": [
+    {
+      "runId": 37677445294,
+      "artifactId": 11510466361,
+      "artifactName": "renderer-software-vulkan",
+      "artifactBytes": 220215156,
+      "artifactZipSha256": "f6ad09d51c3c0486e6bb338a4d0ad0fa0c4d978752e93447e671d8886a2c0dab",
+      "disposition": "historical failed native qualification retained; not relabelled as successful"
+    }
+  ],
+  "acceptedContracts": {
+    "sceneRecipes": 11,
+    "declaredReferenceClasses": 8,
+    "retainedCpuContracts": 19,
+    "stateComparison": "ordered semantic state with documented run-local token/representation normalization; raw cumulative telemetry retained separately",
+    "negativeFixturesPreserved": true,
+    "pfSafetyReplaced": false,
+    "rendererFeatureImplemented": false
+  },
+  "limitations": [
+    "Software Vulkan qualification is not physical-GPU qualification or a production performance claim.",
+    "Named GPU timestamp groups may nest and are not summed into whole-frame GPU time.",
+    "The observer proves emitted renderer state and bounded collection, not executed SPIR-V identity or arbitrary LevelMesh per-surface shader consumption.",
+    "Exact pixels are a same-device/driver/profile policy; cross-device acceptance requires owning state assertions and justified tolerance.",
+    "Historical failed and partial attempts remain evidence and are not deleted or reclassified."
+  ],
+  "gateDisposition": {
+    "SDVK001": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK002": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK003": "UNCHANGED",
+    "SDVK006": "DEPENDENCY_READY",
+    "SDVK004": "AWAITS_SDVK003",
+    "SDVK009": "AWAITS_SDVK003",
+    "SDVK014": "AWAITS_OTHER_DECLARED_DEPENDENCIES"
+  },
+  "documentationOnlyFollowup": "This receipt records the already verified substantive SDVK-002 merge. Acceptance documentation follows ordinary PR/check/merge discipline and changes no renderer/runtime inputs."
+}
