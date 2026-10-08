@@ -262,8 +262,9 @@ For a corpus-declared static scene, tic/fraction labels can vary after startup.
 Context/view numeric representation is canonicalized to 1e-9. The redundant
 derived semantic_key text is omitted from equality because its producer is now
 an explicit validated field and its numeric components are compared directly.
-Renderer-local slot numbers are normalized by live identity. Raw resource
-workload counters remain in evidence, but process-cumulative/lazy allocation,
+Renderer-local descriptor slots and selected shadow-map row numbers are
+normalized by live identity while preserving aliasing and rejection sentinels.
+Raw resource workload counters remain in evidence, but process-cumulative/lazy allocation,
 upload and staging-volume telemetry is excluded from semantic equality;
 capacities, epochs, resets/cancellations, waits/dedicated staging, failure/
 rejection state, aliasing, generation/span, light-list order, pipeline keys and
@@ -277,12 +278,24 @@ fallbacks remain compared.
 
     normalized_contexts = {}
     normalized_resources = {}
+    normalized_shadow_rows = {}
 
     def resource_ordinal(resource):
         token = (resource["index"], resource["generation"], resource["epoch"], resource["span"])
         if token not in normalized_resources:
             normalized_resources[token] = len(normalized_resources)
         return normalized_resources[token]
+
+    def shadow_row_ordinal(frame, row):
+        # A shadow-map row is an allocator-local frame identity. Keep the -1
+        # rejection sentinel exact and normalize selected rows bijectively so
+        # aliasing changes still fail comparison.
+        if row == -1:
+            return -1
+        token = (frame, row)
+        if token not in normalized_shadow_rows:
+            normalized_shadow_rows[token] = sum(1 for key in normalized_shadow_rows if key[0] == frame)
+        return normalized_shadow_rows[token]
 
     def comparison_number(value):
         rounded = round(float(value), 9)
@@ -327,6 +340,9 @@ fallbacks remain compared.
         resource = value.get("resource")
         if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
             result["runtime_irradiance_index"] = resource_ordinal(resource)
+        if (value.get("caster") == "world-geometry" and "decision" in value
+                and isinstance(value.get("row"), int) and not isinstance(value.get("row"), bool)):
+            result["row"] = shadow_row_ordinal(frame, value["row"])
         return result
 
     ordered = []
