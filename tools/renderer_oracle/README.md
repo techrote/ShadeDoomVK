@@ -168,9 +168,12 @@ recorded frame budget, captures `PREFIX.png` in state mode after presentation
 through the ordinary screenshot writer, writes `PREFIX.renderer.json`, then
 requests ordinary quit. `capture.cfg` has no timed wait, screenshot, freeze or
 quit sequence which could truncate the observation. Defaults are one recorded
-state frame or 120 timing frames, with the recipe's recommended warmup (120
-when unspecified). The bounded interface permits 1–4,096 recorded frames,
-0–100,000 warmup frames and a 1–3,600 second process timeout.
+state frame or 120 timing frames, with each recipe's preregistered correctness
+warmup. Ordinary authored scenes use 120; the 1,056-light shadow-capacity witness
+uses two, enough to cross first-tic camera initialization without spending 120
+software-Vulkan frames on an intentionally extreme shadow workload. This short
+correctness warmup is never a benchmark workload. The bounded interface permits
+1–4,096 recorded frames, 0–100,000 warmup frames and a 1–3,600 second timeout.
 
 The eight new scenes use static authored cameras and no animated/random scene
 actors. Their correctness clock is `static_after_initialization`; timing uses
@@ -200,7 +203,11 @@ Required kinds are checked in every recorded state frame; a previous frame
 cannot cover missing later instrumentation. Context references must equal the
 observed context, and parents must exist at the correct depth. Resource indices
 and generation/epoch/span, samplers, probe sentinels, shadow modes and descriptor
-accounting are validated. Timing mode rejects per-draw state instrumentation.
+accounting are validated. Authored material-semantic assertions require their
+declared ordered prefix. Extra `brightmap-emissive`, `detail` or `glow`
+layers are accepted only when they are the engine's one-pixel lump-0 fallback
+placeholders in canonical order; arbitrary extra material semantics remain a
+failure. Timing mode rejects per-draw state instrumentation.
 
 The native record store preserves order and may coalesce only adjacent equal
 records with the same kind and frame. It retains at most 65,536 records, 16 KiB
@@ -225,15 +232,29 @@ comparison gates. An intentional candidate build comparison uses
 requirements. Keep both immutable source packets and the comparison manifest.
 
 State comparison preserves the ordered record stream and multiplicities,
-semantic decisions, resource generation/epoch/span and aliasing, pipeline fields and fallbacks. Renderer-local live slot numbers are normalized to first-seen identities; raw slots are still validated within each capture.
-After validating context links, only renderer-local context epoch/id/parent
-tokens are normalized. Each parent link is replaced by a SHA-256 of its full
-normalized parent context, recursively including ancestry; equal human-readable
-semantic labels cannot hide different parent flags or lineage. For explicitly
-static scenes, frame/context tic and interpolation-fraction labels are also
-removed. CPU durations and GPU timing records do not enter correctness state
-comparison. No image-mask, light-list sorting, generation reset or arbitrary
-state-field deletion is applied to obtain equivalence.
+semantic decisions, resource generation/epoch/span and aliasing, pipeline fields,
+fallbacks and all resource failure/rejection diagnostics. Renderer-local live
+slot numbers are normalized to first-seen identities; raw slots are still
+validated within each capture. After validating context links, renderer-local
+context epoch/id/parent tokens and the redundant derived `semantic_key` label
+are normalized. Context and frame-view positions/angles/FOV are canonicalized
+only to 1e-9, matching the fixed-camera assertion tolerance; larger motion still
+changes semantic state. Each parent link is replaced by a SHA-256 of its full
+normalized parent context, recursively including ancestry.
+
+Resource records retain every raw counter in the immutable run packet. Semantic
+state equality excludes only process-cumulative/lazy workload telemetry:
+descriptor current/high-water/allocation/reuse/free counts, hardware-texture
+count, lifetime activation/retirement/reset counts, async queued/completed/
+cancelled counts, and staging workload counters. Capacity/limit state, resource
+epochs, page/probe counts, descriptor failures/invalid frees, lifetime stale/
+invalid/duplicate diagnostics, async epoch/ticket rejection diagnostics,
+LevelMesh state and authored sun state remain compared. Timing/baseline reports
+continue to consume the raw counters. For explicitly static scenes, frame/context
+tic and interpolation-fraction labels are also removed. CPU durations and GPU
+timing records do not enter correctness state comparison. No image mask,
+light-list sorting, generation reset or broad state-field deletion is used to
+obtain equivalence.
 
 Image comparison decodes bounded, CRC-checked noninterlaced RGB8 PNG pixels.
 Compressed PNG bytes are not pixel identity. The default `exact-rgb8` policy
