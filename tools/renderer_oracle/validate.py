@@ -56,7 +56,7 @@ def _context(value):
     _availability(value, "context")
     if not value["available"]:
         return None
-    for key in ("semantic_key", "map", "type", "root_type"):
+    for key in ("semantic_key", "producer", "map", "type", "root_type"):
         require(isinstance(value.get(key), str) and value[key], f"Context {key} is missing")
     require(value.get("angle_space") == "hardware-view", "Context angle domain is missing")
     for key in ("epoch", "identity"):
@@ -184,6 +184,9 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                 require([layer.get("binding") for layer in layers] == list(range(len(layers))), "Material layer bindings are missing/duplicate/unordered")
                 for layer in layers:
                     require(isinstance(layer.get("semantic"), str) and layer["semantic"], "Layer semantic is missing")
+                    require(layer.get("role") in ("authored-layer", "fallback-placeholder",
+                                                  "shader-required auxiliary resource, not an authored semantic layer"),
+                            "Material layer role is missing or unknown")
                     _sampler(layer.get("sampler"))
                 _resource(value.get("resource"), "material resource identity")
                 material_frames.add(frame)
@@ -256,13 +259,15 @@ def state_projection(data, *, static_scene=False):
     """Keep decisions/order/counts; normalize only proven context-local tokens.
 
 For a corpus-declared static scene, tic/fraction labels can vary after startup.
-Context/view numeric representation is canonicalized to 1e-9; only the numeric
-suffix of its derived semantic_key label is rebuilt while the portal-kind prefix
-is retained. Renderer-local
-slot numbers are normalized by live identity. Raw resource workload counters remain
-in evidence but process-cumulative/lazy allocation and staging telemetry is excluded
-from semantic equality; capacities, epochs, failure/rejection state, aliasing,
-generation/span, light-list order, pipeline keys and fallbacks remain compared.
+Context/view numeric representation is canonicalized to 1e-9. The redundant
+derived semantic_key text is omitted from equality because its producer is now
+an explicit validated field and its numeric components are compared directly.
+Renderer-local slot numbers are normalized by live identity. Raw resource
+workload counters remain in evidence, but process-cumulative/lazy allocation,
+upload and staging-volume telemetry is excluded from semantic equality;
+capacities, epochs, resets/cancellations, waits/dedicated staging, failure/
+rejection state, aliasing, generation/span, light-list order, pipeline keys and
+fallbacks remain compared.
 """
     observation(data)
     require(data["mode"] == "state", "State comparison requires state-mode observations")
@@ -300,13 +305,9 @@ generation/span, light-list order, pipeline keys and fallbacks remain compared.
                 result.pop(key, None)
             for key in ("position", "angles"):
                 result[key] = comparison_vector(result[key])
-            # The producer label also contains a portal-kind token that is not
-            # otherwise duplicated. Preserve its nonnumeric prefix and rewrite
-            # only the derived position/angle suffix from validated numeric state.
-            label = result["semantic_key"].rsplit(":", 2)
-            if len(label) == 3:
-                result["semantic_key"] = (label[0] + ":" + comparison_vector_label(result["position"])
-                                          + ":" + comparison_vector_label(result["angles"]))
+            # semantic_key is a human-readable derivative of the explicit
+            # producer/context fields and numeric vectors above.
+            result.pop("semantic_key", None)
             if static_scene:
                 result.pop("gametic", None)
                 result.pop("fraction", None)
@@ -352,12 +353,15 @@ generation/span, light-list order, pipeline keys and fallbacks remain compared.
                 row["data"].pop(key, None)
             lifetime = row["data"].get("lifetime")
             if isinstance(lifetime, dict):
-                for key in ("activations", "retirements", "resets"):
+                for key in ("activations", "retirements"):
                     lifetime.pop(key, None)
             uploads = row["data"].get("async_uploads")
             if isinstance(uploads, dict):
-                for key in ("queued", "completed", "cancelled"):
+                for key in ("queued", "completed"):
                     uploads.pop(key, None)
-            row["data"].pop("staging", None)
+            staging = row["data"].get("staging")
+            if isinstance(staging, dict):
+                for key in ("requests", "bytes", "high_water", "reuses"):
+                    staging.pop(key, None)
         ordered.append(row)
     return ordered
