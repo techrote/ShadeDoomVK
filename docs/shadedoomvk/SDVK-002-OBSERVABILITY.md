@@ -71,16 +71,16 @@ An explicit timeout is a failed attempt and its partial output remains failed.
 
 State and timing are separate runs. State scenes declare static content after
 initialization and retain the observed simulation tic and interpolation
-fraction. Their comparator removes declared static clock labels, renderer-local
-tokens; view position/angle/FOV representation is canonicalized only to 1e-9.
-The derived context label preserves its nonnumeric portal-kind prefix while only
-its numeric vector suffix is rebuilt from that canonical state. Full normalized parent state is
-hashed into each child. Ordered draw/query records, semantic material decisions,
+fraction. Their comparator removes declared static clock labels, renderer-local tokens; view position/angle/FOV representation is canonicalized
+only to 1e-9. The human-readable derived context label is excluded from equality;
+its actual producer is now an explicit validated field and the numeric context
+state is compared directly. Full normalized parent state is hashed into each child. Ordered draw/query records, semantic material decisions,
 resource generations/epochs/aliasing, failure/rejection diagnostics, light and
 shadow selections, and pipeline fields remain compared. Raw resource-owner
-counters are always retained, but process-cumulative/lazy allocation, upload and
-staging workload counts are excluded from correctness equality and remain
-available to timing/counter evidence instead.
+counters are always retained, but only process-cumulative/lazy allocation,
+upload-volume and staging-volume counts are excluded from correctness equality.
+Resets, cancellations, staging wrap/dedicated state and all failure/rejection
+counters remain correctness-visible.
 
 Image comparison decodes bounded RGB8 PNGs with the accepted PF decoder. Exact
 mode compares RGB bytes, independently of PNG compression/metadata. Tolerant
@@ -116,12 +116,11 @@ driver limitations retained explicitly.
 checks, compiled contracts, new observer/harness negative controls, deterministic
 PF source oracle and two independently generated corpus preparations. The
 software Vulkan CI lane runs real captures and produces complete artifacts;
-preparation or CPU checks alone do not qualify native rendering. The deliberately
-extreme 1,056-light/1,024-shadow-capacity correctness scene uses a two-frame
-warmup rather than the ordinary 120 because the latter exceeded the bounded
-llvmpipe runtime without reaching observation; scene contents, quality settings
-and required 1,056/1,024/32 candidate/selected/dropped counts are unchanged.
-This tractability rule is not used for timing claims.
+preparation or CPU checks alone do not qualify native rendering. The shadow-capacity correctness scene is the smallest true overflow witness:
+1,025 authored candidates, 1,024 selected and one dropped, using one warmup frame
+and the minimum valid 128 shadow-map resolution. This preserves the capacity
+invariant while making CPU Vulkan execution tractable; it is not an image-quality
+or timing claim.
 
 The local native Linux build uses GCC 13.3, authenticated ZMusic dependencies
 and ordinary Vulkan/SDL sources. A private Mesa 25.2.8 llvmpipe capability probe
