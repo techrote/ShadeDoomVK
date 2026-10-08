@@ -355,6 +355,7 @@ class CaptureReceiptTests(unittest.TestCase):
             layer = copy.deepcopy(base)
             layer["binding"] = len(data["records"][1]["data"]["layers"])
             layer["semantic"] = semantic
+            layer["role"] = "fallback-placeholder"
             layer["source"] = {"lump": 0, "width": 1, "height": 1}
             data["records"][1]["data"]["layers"].append(layer)
         run._scene_assertions(data, scene)
@@ -366,6 +367,11 @@ class CaptureReceiptTests(unittest.TestCase):
 
         changed = copy.deepcopy(data)
         changed["records"][1]["data"]["layers"][-1]["semantic"] = "metallic"
+        with self.assertRaises(common.EvidenceError):
+            run._scene_assertions(changed, scene)
+
+        changed = copy.deepcopy(data)
+        changed["records"][1]["data"]["layers"][-1]["role"] = "authored-layer"
         with self.assertRaises(common.EvidenceError):
             run._scene_assertions(changed, scene)
 
