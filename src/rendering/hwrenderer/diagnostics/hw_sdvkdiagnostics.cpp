@@ -174,7 +174,7 @@ std::string Context(const HWDrawInfo* di)
     const std::string semantic = map + ':' + HWRenderContextTypeName(context.rootType) + ':' +
         std::to_string(context.probeFace) + ':' + std::to_string(context.eyeIndex) + ':' +
         std::to_string(context.recursionDepth) + ':' + kind + ':' + std::to_string(group) + ':' + position + ':' + angles;
-    return Object().Bool("available", true).Str("semantic_key", semantic).Str("map", map)
+    return Object().Bool("available", true).Str("semantic_key", semantic).Str("producer", kind).Str("map", map)
         .Str("type", HWRenderContextTypeName(context.type)).Str("root_type", HWRenderContextTypeName(context.rootType))
         .Int("epoch", context.epoch).Int("identity", context.identity).Int("parent_identity", context.parentIdentity)
         .Int("depth", context.recursionDepth).Int("face", context.probeFace).Int("eye", context.eyeIndex).Int("portal_group", group)
