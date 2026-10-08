@@ -113,13 +113,15 @@ struct FSdvkDiagnosticAccess
             {
                 MaterialLayerDiagnostic layer;
                 if (!material->GetLayerDiagnostic(i, layer)) throw std::runtime_error("SDVK bound material layer is unavailable");
+                const bool fallbackPlaceholder = layer.sourceTexture && layer.sourceTexture->GetSourceLump() == 0 &&
+                    layer.sourceTexture->GetWidth() == 1 && layer.sourceTexture->GetHeight() == 1;
                 if (i) layers += ',';
                 layers += Object().Int("binding", i).Str("semantic", MaterialLayerSemanticName(layer.semantic))
                     .Int("custom_index", layer.customIndex).Int("scale_flags", layer.scaleFlags).Int("layer_clamp_flags", layer.clampflags)
                     .Int("requested_sampling", int(layer.sampling)).Raw("sampler", Sampler(fb->GetSamplerManager()->Get(layer.sampling, entry->clampmode)))
                     .Raw("source", layer.sourceTexture ? Object().Int("lump", layer.sourceTexture->GetSourceLump())
                         .Int("width", layer.sourceTexture->GetWidth()).Int("height", layer.sourceTexture->GetHeight()).Json() : Unavailable("placeholder/no source texture"))
-                    .Str("role", "authored-layer").Json();
+                    .Str("role", fallbackPlaceholder ? "fallback-placeholder" : "authored-layer").Json();
             }
             if (indexedMaterial)
             {
