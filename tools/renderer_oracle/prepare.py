@@ -387,10 +387,15 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     model = _Map(floor=32 if is_sun else 0, ceiling=160 if is_sun else 128, sky=is_sun)
     camera = native["camera"]["position"]
     floor = model.records["sector"][0]["heightfloor"]
-    model.thing(1, camera[0], camera[1], tid=2001)
+    yaw = math.radians(native["camera"]["yaw"])
+    # The fixed camera must not coincide with the live player pawn. A coincident
+    # third-person pawn has an undefined view-relative sprite rotation and can
+    # select different PLAYA rotations between otherwise identical captures.
+    player_start = [camera[0] - round(48 * math.cos(yaw)), camera[1] - round(48 * math.sin(yaw))]
+    model.thing(1, player_start[0], player_start[1], tid=2001)
     model.thing(32200, camera[0], camera[1], camera[2] - floor, tid=2002)
     metadata = {"geometry": "authored_udmf", "textures": "generated_rgba_only", "native_executed": False,
-                "camera_actor_tid": 2002, "camera_position_world": camera, "monsters": 0,
+                "camera_actor_tid": 2002, "camera_position_world": camera, "player_start_world": player_start, "monsters": 0,
                 "animated_or_random_actors": 0, "baked_lightmap_members": 0}
     if generator == "compositing":
         points = [(-256, -192), (-256, 192), (256, 192), (256, 64), (256, -64), (256, -192)]
