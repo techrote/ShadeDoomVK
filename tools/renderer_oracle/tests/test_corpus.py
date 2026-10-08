@@ -248,7 +248,7 @@ class AuthoredSceneTests(unittest.TestCase):
             "root_types": ["main", "camera-texture"], "materials": ["SDVCAM"]})
 
     def test_light_workloads_preserve_zero_one_many_and_true_capacity_boundary(self):
-        for name, count in (("lights-zero", 0), ("lights-one", 1), ("lights-many", 64), ("shadow-boundary", 1056)):
+        for name, count in (("lights-zero", 0), ("lights-one", 1), ("lights-many", 64), ("shadow-boundary", 1025)):
             scene = scene_named(name)
             members, _ = prepare.authored_members(scene)
             records = parse_udmf(unpack_wad(members[f'maps/{scene["native"]["map"]}.wad'])["TEXTMAP"])
@@ -270,11 +270,12 @@ class AuthoredSceneTests(unittest.TestCase):
                 self.assertNotIn("light-query", scene["required_state_channels"])
                 self.assertNotIn("shadow", scene["required_state_channels"])
         shadow = scene_named("shadow-boundary")
-        self.assertEqual(shadow["native"]["shadow_capacity_control"]["expected_authored_overflow"], 32)
-        # The capacity witness is correctness-only. Two warmup frames cross the
-        # first-tic camera initialization boundary without asking llvmpipe to
-        # render 120 expensive 1,056-light shadow frames before observation.
-        self.assertEqual(shadow["native"]["recommended_warmup_frames"], 2)
+        self.assertEqual(shadow["native"]["shadow_capacity_control"]["expected_authored_overflow"], 1)
+        # The capacity witness is correctness-only: one light beyond the fixed
+        # 1,024-row boundary is sufficient. Use the lowest valid shadow-map
+        # resolution and one warmup frame so llvmpipe can execute the witness.
+        self.assertEqual(shadow["native"]["recommended_warmup_frames"], 1)
+        self.assertEqual(shadow["native"]["settings"]["gl_shadowmap_quality"], 128)
         self.assertEqual(scene_named("lights-many")["native"]["recommended_warmup_frames"], 120)
         # Mode 1 can reject authored lights unless their influence hits a
         # one-sided back wall. The boundary recipe must request mode 2 so its
