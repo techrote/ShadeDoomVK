@@ -298,6 +298,28 @@ def _numeric_vector_matches(actual, expected, *, tolerance=1e-9):
     return True
 
 
+_DEFAULT_PLACEHOLDER_SEMANTICS = ("brightmap-emissive", "detail", "glow")
+
+
+def _material_semantics_match(value, expected):
+    layers = value.get("layers")
+    if not isinstance(layers, list) or len(layers) < len(expected):
+        return False
+    if [layer.get("semantic") for layer in layers[:len(expected)]] != expected:
+        return False
+    extras = layers[len(expected):]
+    semantics = [layer.get("semantic") for layer in extras]
+    ordered = [name for name in _DEFAULT_PLACEHOLDER_SEMANTICS if name in semantics]
+    if semantics != ordered or len(set(semantics)) != len(semantics):
+        return False
+    for layer in extras:
+        source = layer.get("source")
+        if not (isinstance(source, dict) and source.get("lump") == 0
+                and source.get("width") == source.get("height") == 1):
+            return False
+    return True
+
+
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     camera = scene["native"]["camera"]
@@ -333,7 +355,7 @@ def _scene_assertions(raw, scene):
             for name, expected in assertions.get("material_semantics", {}).items():
                 drawn = [record["data"] for record in records
                          if record["kind"] == "material" and record["data"].get("name") == name]
-                require(drawn and all([layer["semantic"] for layer in value["layers"]] == expected for value in drawn),
+                require(drawn and all(_material_semantics_match(value, expected) for value in drawn),
                         "Required material semantic bindings differ: " + name)
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
@@ -482,7 +504,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated context tokens, static-scene tic/fraction labels and renderer-local live slot numbers only; order/aliasing/generation/epoch/span retained",
+            "normalization": "Validated context tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots; cumulative allocation/upload telemetry excluded; order/aliasing/generation/epoch/span/failures retained",
             "performance_accepted": False}
 
 
