@@ -17,7 +17,7 @@ from test_evidence import png
 
 
 def context(identity=1, *, parent=0, depth=0, semantic="main"):
-    return {"available": True, "semantic_key": semantic, "map": "SDV001", "type": "MainView",
+    return {"available": True, "semantic_key": semantic, "producer": "root", "map": "SDV001", "type": "MainView",
             "root_type": "MainView", "epoch": 1, "identity": identity, "parent_identity": parent,
             "depth": depth, "face": -1, "eye": 0, "portal_group": 0, "line_mirror": False,
             "plane_mirror": False, "mirrored": False, "history_eligible": True,
@@ -36,7 +36,7 @@ def observation():
                "max_lod": 16, "anisotropy": False, "max_anisotropy": 1}
     records = [row("context", {"context": context(), "drawmode": 0}),
                row("material", {"context": context(), "semantic_key": "SYNTHETIC", "name": "SYNTHETIC",
-                                "layers": [{"binding": 0, "semantic": "albedo", "sampler": sampler}],
+                                "layers": [{"binding": 0, "semantic": "albedo", "role": "authored-layer", "sampler": sampler}],
                                 "resource": {"available": True, "index": 16, "generation": 1, "epoch": 1, "span": 1}}),
                row("frame", {"gametic": 100, "map": "SDV001", "cpu_render_view_ms": 2,
                              "camera": {"position": [0, 0, 64], "angles": [0, 0, 0], "hardware_angles": [270, 0, 0], "fraction": .5, "fov": 90},
@@ -203,7 +203,8 @@ class SemanticProjectionTests(unittest.TestCase):
         different_kind = copy.deepcopy(left)
         for record in different_kind["records"]:
             if "context" in record["data"]:
-                record["data"]["context"]["semantic_key"] = "SDV001:MainView:-1:0:0:other-kind:0:[0,0,64]:[0,0,0]"
+                record["data"]["context"]["producer"] = "portal-kind"
+                record["data"]["context"]["semantic_key"] = "arbitrary derived label ignored by projection"
         self.assertNotEqual(validate.state_projection(left), validate.state_projection(different_kind))
 
     def test_resource_workload_telemetry_normalizes_but_health_and_epoch_state_remain(self):
@@ -227,14 +228,18 @@ class SemanticProjectionTests(unittest.TestCase):
         changed = right["records"][-1]["data"]
         changed.update(descriptor_current=11, descriptor_high_water=13, descriptor_allocations=5,
                        descriptor_reuses=3, descriptor_frees=2, hardware_textures=31)
-        changed["lifetime"].update(activations=5, retirements=2, resets=1)
-        changed["async_uploads"].update(queued=6, completed=6, cancelled=1)
-        changed["staging"].update(requests=6, bytes=1200, high_water=1200, reuses=5, wrap_waits=1, dedicated=1)
+        changed["lifetime"].update(activations=5, retirements=2)
+        changed["async_uploads"].update(queued=6, completed=6)
+        changed["staging"].update(requests=6, bytes=1200, high_water=1200, reuses=5)
         self.assertEqual(validate.state_projection(left), validate.state_projection(right))
         for mutate in (
             lambda d: d["records"][-1]["data"].update(descriptor_failures=1),
             lambda d: d["records"][-1]["data"]["lifetime"].update(stale_rejects=1),
+            lambda d: d["records"][-1]["data"]["lifetime"].update(resets=1),
+            lambda d: d["records"][-1]["data"]["async_uploads"].update(cancelled=1),
             lambda d: d["records"][-1]["data"]["async_uploads"].update(manager_epoch_rejects=1),
+            lambda d: d["records"][-1]["data"]["staging"].update(wrap_waits=1),
+            lambda d: d["records"][-1]["data"]["staging"].update(dedicated=1),
             lambda d: d["records"][-1]["data"].update(texture_epoch=2),
             lambda d: d["records"][-1]["data"].update(descriptor_capacity=63),
         ):
