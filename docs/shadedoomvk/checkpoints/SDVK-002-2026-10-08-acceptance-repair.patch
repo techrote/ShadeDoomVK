@@ -1,0 +1,165 @@
+diff --git a/tools/renderer_oracle/README.md b/tools/renderer_oracle/README.md
+index eef67366f..04d6ec9d6 100644
+--- a/tools/renderer_oracle/README.md
++++ b/tools/renderer_oracle/README.md
+@@ -235,8 +235,9 @@ requirements. Keep both immutable source packets and the comparison manifest.
+ State comparison preserves the ordered record stream and multiplicities,
+ semantic decisions, resource generation/epoch/span and aliasing, pipeline fields,
+ fallbacks and all resource failure/rejection diagnostics. Renderer-local live
+-slot numbers are normalized to first-seen identities; raw slots are still
+-validated within each capture. After validating context links, renderer-local
++descriptor slot numbers and selected shadow-map row numbers are normalized to
++first-seen identities; raw values are still validated within each capture. The
++shadow `-1` rejection sentinel and row aliasing remain exact comparison state. After validating context links, renderer-local
+ context epoch/id/parent tokens and the redundant derived `semantic_key` label
+ are normalized. The actual context producer is a separate validated field and is
+ never discarded. Context and frame-view positions/angles/FOV are canonicalized
+diff --git a/tools/renderer_oracle/prepare.py b/tools/renderer_oracle/prepare.py
+index 55c008e27..a7f228c12 100644
+--- a/tools/renderer_oracle/prepare.py
++++ b/tools/renderer_oracle/prepare.py
+@@ -387,10 +387,15 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
+     model = _Map(floor=32 if is_sun else 0, ceiling=160 if is_sun else 128, sky=is_sun)
+     camera = native["camera"]["position"]
+     floor = model.records["sector"][0]["heightfloor"]
+-    model.thing(1, camera[0], camera[1], tid=2001)
++    yaw = math.radians(native["camera"]["yaw"])
++    # The fixed camera must not coincide with the live player pawn. A coincident
++    # third-person pawn has an undefined view-relative sprite rotation and can
++    # select different PLAYA rotations between otherwise identical captures.
++    player_start = [camera[0] - round(48 * math.cos(yaw)), camera[1] - round(48 * math.sin(yaw))]
++    model.thing(1, player_start[0], player_start[1], tid=2001)
+     model.thing(32200, camera[0], camera[1], camera[2] - floor, tid=2002)
+     metadata = {"geometry": "authored_udmf", "textures": "generated_rgba_only", "native_executed": False,
+-                "camera_actor_tid": 2002, "camera_position_world": camera, "monsters": 0,
++                "camera_actor_tid": 2002, "camera_position_world": camera, "player_start_world": player_start, "monsters": 0,
+                 "animated_or_random_actors": 0, "baked_lightmap_members": 0}
+     if generator == "compositing":
+         points = [(-256, -192), (-256, 192), (256, 192), (256, 64), (256, -64), (256, -192)]
+diff --git a/tools/renderer_oracle/run.py b/tools/renderer_oracle/run.py
+index 1c196b006..411716ac6 100644
+--- a/tools/renderer_oracle/run.py
++++ b/tools/renderer_oracle/run.py
+@@ -507,7 +507,7 @@ def compare_runs(left, right, *, allow_build_change=False):
+             "explicit_build_change": allow_build_change, "state_equal": equal,
+             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
+             "first_state_differences": differences(x, y), "image": image,
+-            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
++            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
+             "performance_accepted": False}
+ 
+ 
+diff --git a/tools/renderer_oracle/tests/test_corpus.py b/tools/renderer_oracle/tests/test_corpus.py
+index a81b9f4b5..4a680c7df 100644
+--- a/tools/renderer_oracle/tests/test_corpus.py
++++ b/tools/renderer_oracle/tests/test_corpus.py
+@@ -6,6 +6,7 @@ import copy
+ import hashlib
+ import io
+ import json
++import math
+ from pathlib import Path
+ import re
+ import struct
+@@ -217,6 +218,15 @@ class AuthoredSceneTests(unittest.TestCase):
+                 self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"])
+                 self.assertEqual(camera["id"], expected["actor_tid"])
+                 self.assertEqual(camera["angle"], expected["yaw"])
++                players = [t for t in records["thing"] if t["type"] == 1]
++                self.assertEqual(len(players), 1)
++                player = players[0]
++                self.assertNotEqual([player["x"], player["y"]], [camera["x"], camera["y"]])
++                view = math.radians(expected["yaw"])
++                behind = ((player["x"] - camera["x"]) * math.cos(view)
++                          + (player["y"] - camera["y"]) * math.sin(view))
++                self.assertLess(behind, 0)
++                self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
+                 self.assertLess(metadata["boundary_signed_areas"][0], 0)
+                 self.assertTrue(all(area > 0 for area in metadata["boundary_signed_areas"][1:]))
+                 for path, raw in members.items():
+diff --git a/tools/renderer_oracle/tests/test_validation.py b/tools/renderer_oracle/tests/test_validation.py
+index a19820a4e..cd025e6bf 100644
+--- a/tools/renderer_oracle/tests/test_validation.py
++++ b/tools/renderer_oracle/tests/test_validation.py
+@@ -181,6 +181,29 @@ class SemanticProjectionTests(unittest.TestCase):
+         right["records"][1]["data"]["resource"]["generation"] += 1
+         self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
+ 
++    def test_shadow_rows_normalize_but_aliasing_and_rejection_remain(self):
++        def shadow(light, decision, row_number):
++            return row("shadow", {"caster": "world-geometry", "mode": "dynamic-1d-shadow-map",
++                                  "decision": decision, "row": row_number,
++                                  "light": {"semantic_key": light}})
++
++        left = observation()
++        left["records"][1:1] = [shadow("L0", "selected", 573), shadow("L1", "selected", 404),
++                                 shadow("L2", "capacity-rejected", -1)]
++        recount(left)
++        right = copy.deepcopy(left)
++        right["records"][1]["data"]["row"] = 571
++        right["records"][2]["data"]["row"] = 403
++        self.assertEqual(validate.state_projection(left), validate.state_projection(right))
++
++        aliased = copy.deepcopy(right)
++        aliased["records"][2]["data"]["row"] = 571
++        self.assertNotEqual(validate.state_projection(left), validate.state_projection(aliased))
++
++        rejected = copy.deepcopy(right)
++        rejected["records"][3]["data"].update(decision="selected", row=12)
++        self.assertNotEqual(validate.state_projection(left), validate.state_projection(rejected))
++
+     def test_context_float_noise_and_derived_label_normalize_but_real_motion_remains(self):
+         left, right = observation(), observation()
+         for record in left["records"]:
+diff --git a/tools/renderer_oracle/validate.py b/tools/renderer_oracle/validate.py
+index 44a856428..a924f6994 100644
+--- a/tools/renderer_oracle/validate.py
++++ b/tools/renderer_oracle/validate.py
+@@ -262,8 +262,9 @@ For a corpus-declared static scene, tic/fraction labels can vary after startup.
+ Context/view numeric representation is canonicalized to 1e-9. The redundant
+ derived semantic_key text is omitted from equality because its producer is now
+ an explicit validated field and its numeric components are compared directly.
+-Renderer-local slot numbers are normalized by live identity. Raw resource
+-workload counters remain in evidence, but process-cumulative/lazy allocation,
++Renderer-local descriptor slots and selected shadow-map row numbers are
++normalized by live identity while preserving aliasing and rejection sentinels.
++Raw resource workload counters remain in evidence, but process-cumulative/lazy allocation,
+ upload and staging-volume telemetry is excluded from semantic equality;
+ capacities, epochs, resets/cancellations, waits/dedicated staging, failure/
+ rejection state, aliasing, generation/span, light-list order, pipeline keys and
+@@ -277,6 +278,7 @@ fallbacks remain compared.
+ 
+     normalized_contexts = {}
+     normalized_resources = {}
++    normalized_shadow_rows = {}
+ 
+     def resource_ordinal(resource):
+         token = (resource["index"], resource["generation"], resource["epoch"], resource["span"])
+@@ -284,6 +286,17 @@ fallbacks remain compared.
+             normalized_resources[token] = len(normalized_resources)
+         return normalized_resources[token]
+ 
++    def shadow_row_ordinal(frame, row):
++        # A shadow-map row is an allocator-local frame identity. Keep the -1
++        # rejection sentinel exact and normalize selected rows bijectively so
++        # aliasing changes still fail comparison.
++        if row == -1:
++            return -1
++        token = (frame, row)
++        if token not in normalized_shadow_rows:
++            normalized_shadow_rows[token] = sum(1 for key in normalized_shadow_rows if key[0] == frame)
++        return normalized_shadow_rows[token]
++
+     def comparison_number(value):
+         rounded = round(float(value), 9)
+         return 0.0 if rounded == 0 else rounded
+@@ -327,6 +340,9 @@ fallbacks remain compared.
+         resource = value.get("resource")
+         if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
+             result["runtime_irradiance_index"] = resource_ordinal(resource)
++        if (value.get("caster") == "world-geometry" and "decision" in value
++                and isinstance(value.get("row"), int) and not isinstance(value.get("row"), bool)):
++            result["row"] = shadow_row_ordinal(frame, value["row"])
+         return result
+ 
+     ordered = []
