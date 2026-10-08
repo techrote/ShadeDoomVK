@@ -256,8 +256,9 @@ def state_projection(data, *, static_scene=False):
     """Keep decisions/order/counts; normalize only proven context-local tokens.
 
 For a corpus-declared static scene, tic/fraction labels can vary after startup.
-Context/view numeric representation is canonicalized to 1e-9 and its redundant
-derived semantic_key label is removed after structural validation. Renderer-local
+Context/view numeric representation is canonicalized to 1e-9; only the numeric
+suffix of its derived semantic_key label is rebuilt while the portal-kind prefix
+is retained. Renderer-local
 slot numbers are normalized by live identity. Raw resource workload counters remain
 in evidence but process-cumulative/lazy allocation and staging telemetry is excluded
 from semantic equality; capacities, epochs, failure/rejection state, aliasing,
@@ -285,6 +286,9 @@ generation/span, light-list order, pipeline keys and fallbacks remain compared.
     def comparison_vector(value):
         return [comparison_number(item) for item in value]
 
+    def comparison_vector_label(value):
+        return "[" + ",".join(format(comparison_number(item), ".15g") for item in value) + "]"
+
     def normalized_context(frame, context):
         token = (frame, context["epoch"], context["identity"])
         if token not in normalized_contexts:
@@ -292,10 +296,17 @@ generation/span, light-list order, pipeline keys and fallbacks remain compared.
             parent = context["parent_identity"]
             result["parent_context_sha256"] = sha256(canonical(normalized_context(
                 frame, contexts[(frame, context["epoch"], parent)]))) if parent else None
-            for key in ("epoch", "identity", "parent_identity", "semantic_key"):
+            for key in ("epoch", "identity", "parent_identity"):
                 result.pop(key, None)
             for key in ("position", "angles"):
                 result[key] = comparison_vector(result[key])
+            # The producer label also contains a portal-kind token that is not
+            # otherwise duplicated. Preserve its nonnumeric prefix and rewrite
+            # only the derived position/angle suffix from validated numeric state.
+            label = result["semantic_key"].rsplit(":", 2)
+            if len(label) == 3:
+                result["semantic_key"] = (label[0] + ":" + comparison_vector_label(result["position"])
+                                          + ":" + comparison_vector_label(result["angles"]))
             if static_scene:
                 result.pop("gametic", None)
                 result.pop("fraction", None)
