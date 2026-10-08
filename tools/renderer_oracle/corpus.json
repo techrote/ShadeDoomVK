@@ -2736,7 +2736,7 @@
           "Stationary solid geometry is authored here; moving-occluder invalidation is retained as a CPU adversarial contract until a native transition recipe is qualified."
         ],
         "pk3": "scenes/shadow-boundary/scene.pk3",
-        "recommended_warmup_frames": 120,
+        "recommended_warmup_frames": 2,
         "required_native_evidence": [
           "native map/content compilation",
           "exact executable/IWAD/settings and actually loaded package identities",
