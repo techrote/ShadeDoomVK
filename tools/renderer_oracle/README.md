@@ -57,7 +57,7 @@ The class names in the machine-readable catalog are `sprite_orientation`,
 | `lights-zero` / `SDVL0` | Static room, solid occluder and two marker sprites; zero dynamic lights. | Light/occlusion and shadow fallback. Zero candidates, selected shadows and drops are required. Empty light/shadow decision streams are permitted. |
 | `lights-one` / `SDVL1` | Same room with one colored point light. | Light/occlusion and shadows. Exactly one eligible/selected shadow light and no drops are required; actual decisions and images remain necessary. |
 | `lights-many` / `SDVLMANY` | Same room with 64 deterministic colored point lights. | Light/occlusion and shadows. Exactly 64 eligible/selected shadow lights and no drops are required. |
-| `shadow-boundary` / `SDVSHDW` | 1,056 deterministic point lights around the solid occluder. | Light/occlusion and shadow capacity. Explicit `--include-stress`; requires exactly 1,056 candidates, 1,024 selected and 32 dropped. |
+| `shadow-boundary` / `SDVSHDW` | 1,025 deterministic point lights around the solid occluder. | Light/occlusion and shadow capacity. Explicit `--include-stress`; requires exactly 1,025 candidates, 1,024 selected and one dropped. |
 | `material-stress` / `SDVMAT` | 64 distinct authored wall materials: albedo, normal/specular, PBR and zero-roughness inputs. | Semantic materials and resource stress. Every panel must be observed with its declared albedo, normal/specular or PBR binding sequence; authoring alone cannot pass. Descriptor exhaustion, async races and stale reuse retain their CPU negatives; optional reload metadata is not an executed transition. |
 | `sprite-mirror` / `SDVROT` | Eight stationary authored rotation actors, five asymmetric paired-rotation textures with normal/specular layers, wall/flat/X/Y-flip variants and an east-wall mirror. | Requires actual line-mirror context, all five material bindings and their declared semantics. Supplements the original PF fixed-fraction/linked-portal fixture; it does not relabel that fixture or its IWAD. |
 | `sun-probes` / `SDVSUN` | Raised-floor PBR room, two explicit probes, generated sky, authored sunlight input and a separate point-light/two-marker query control. | Probes/sun and semantic materials. Explicit `--include-stress`; requires at least two published irradiance/prefilter pairs, a live observed probe binding and actual authored sun intensity. Per-surface sunlight visibility and full bake convergence remain outside this receipt. No baked asset, full-bake command or broad bake-robustness claim is supplied. |
@@ -169,10 +169,11 @@ through the ordinary screenshot writer, writes `PREFIX.renderer.json`, then
 requests ordinary quit. `capture.cfg` has no timed wait, screenshot, freeze or
 quit sequence which could truncate the observation. Defaults are one recorded
 state frame or 120 timing frames, with each recipe's preregistered correctness
-warmup. Ordinary authored scenes use 120; the 1,056-light shadow-capacity witness
-uses two, enough to cross first-tic camera initialization without spending 120
-software-Vulkan frames on an intentionally extreme shadow workload. This short
-correctness warmup is never a benchmark workload. The bounded interface permits
+warmup. Ordinary authored scenes use 120; the 1,025-light shadow-capacity witness
+uses one warmup frame and the lowest valid 128 shadow-map resolution. It still
+must prove 1,025 candidates, exactly 1,024 selected and one dropped. This is the
+smallest true capacity-overflow correctness witness and is never an image-quality
+or benchmark-performance claim. The bounded interface permits
 1–4,096 recorded frames, 0–100,000 warmup frames and a 1–3,600 second timeout.
 
 The eight new scenes use static authored cameras and no animated/random scene
@@ -204,10 +205,10 @@ cannot cover missing later instrumentation. Context references must equal the
 observed context, and parents must exist at the correct depth. Resource indices
 and generation/epoch/span, samplers, probe sentinels, shadow modes and descriptor
 accounting are validated. Authored material-semantic assertions require their
-declared ordered prefix. Extra `brightmap-emissive`, `detail` or `glow`
-layers are accepted only when they are the engine's one-pixel lump-0 fallback
-placeholders in canonical order; arbitrary extra material semantics remain a
-failure. Timing mode rejects per-draw state instrumentation.
+declared ordered prefix and must carry the explicit `authored-layer` role.
+Extra `brightmap-emissive`, `detail` or `glow` layers are accepted only when
+the engine reports the explicit `fallback-placeholder` role and their source is
+the canonical one-pixel lump-0 fallback; arbitrary extra semantics remain a failure. Timing mode rejects per-draw state instrumentation.
 
 The native record store preserves order and may coalesce only adjacent equal
 records with the same kind and frame. It retains at most 65,536 records, 16 KiB
@@ -237,7 +238,8 @@ fallbacks and all resource failure/rejection diagnostics. Renderer-local live
 slot numbers are normalized to first-seen identities; raw slots are still
 validated within each capture. After validating context links, renderer-local
 context epoch/id/parent tokens and the redundant derived `semantic_key` label
-are normalized. Context and frame-view positions/angles/FOV are canonicalized
+are normalized. The actual context producer is a separate validated field and is
+never discarded. Context and frame-view positions/angles/FOV are canonicalized
 only to 1e-9, matching the fixed-camera assertion tolerance; larger motion still
 changes semantic state. Each parent link is replaced by a SHA-256 of its full
 normalized parent context, recursively including ancestry.
@@ -245,11 +247,12 @@ normalized parent context, recursively including ancestry.
 Resource records retain every raw counter in the immutable run packet. Semantic
 state equality excludes only process-cumulative/lazy workload telemetry:
 descriptor current/high-water/allocation/reuse/free counts, hardware-texture
-count, lifetime activation/retirement/reset counts, async queued/completed/
-cancelled counts, and staging workload counters. Capacity/limit state, resource
-epochs, page/probe counts, descriptor failures/invalid frees, lifetime stale/
-invalid/duplicate diagnostics, async epoch/ticket rejection diagnostics,
-LevelMesh state and authored sun state remain compared. Timing/baseline reports
+count, lifetime activation/retirement counts, async queued/completed counts, and
+staging request/byte/high-water/reuse counts. Capacity/limit state, resource
+epochs, page/probe counts, descriptor failures/invalid frees, lifetime reset/
+stale/invalid/duplicate diagnostics, async cancellation/epoch/ticket rejection
+diagnostics, staging wrap-waits/dedicated usage, LevelMesh state and authored sun
+state remain compared. Timing/baseline reports
 continue to consume the raw counters. For explicitly static scenes, frame/context
 tic and interpolation-fraction labels are also removed. CPU durations and GPU
 timing records do not enter correctness state comparison. No image mask,
