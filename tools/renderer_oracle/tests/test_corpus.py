@@ -269,7 +269,13 @@ class AuthoredSceneTests(unittest.TestCase):
             if not count:
                 self.assertNotIn("light-query", scene["required_state_channels"])
                 self.assertNotIn("shadow", scene["required_state_channels"])
-        self.assertEqual(scene_named("shadow-boundary")["native"]["shadow_capacity_control"]["expected_authored_overflow"], 32)
+        shadow = scene_named("shadow-boundary")
+        self.assertEqual(shadow["native"]["shadow_capacity_control"]["expected_authored_overflow"], 32)
+        # The capacity witness is correctness-only. Two warmup frames cross the
+        # first-tic camera initialization boundary without asking llvmpipe to
+        # render 120 expensive 1,056-light shadow frames before observation.
+        self.assertEqual(shadow["native"]["recommended_warmup_frames"], 2)
+        self.assertEqual(scene_named("lights-many")["native"]["recommended_warmup_frames"], 120)
         # Mode 1 can reject authored lights unless their influence hits a
         # one-sided back wall. The boundary recipe must request mode 2 so its
         # >1024 claim is testable, then still demand actual native counts.
