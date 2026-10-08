@@ -7,6 +7,7 @@ SPDX-License-Identifier: GPL-3.0-or-later
 from __future__ import annotations
 
 import copy
+import math
 import re
 
 try:
@@ -254,10 +255,13 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
 def state_projection(data, *, static_scene=False):
     """Keep decisions/order/counts; normalize only proven context-local tokens.
 
-For a corpus-declared static scene, tic/fraction labels can vary after startup;
-actual camera, vertices, uniforms, material, light and resource state remain.
-Renderer-local slot numbers are normalized by live identity while generation/epoch/span,
-aliasing, light-list order, pipeline keys and fallbacks remain compared.
+For a corpus-declared static scene, tic/fraction labels can vary after startup.
+Context/view numeric representation is canonicalized to 1e-9 and its redundant
+derived semantic_key label is removed after structural validation. Renderer-local
+slot numbers are normalized by live identity. Raw resource workload counters remain
+in evidence but process-cumulative/lazy allocation and staging telemetry is excluded
+from semantic equality; capacities, epochs, failure/rejection state, aliasing,
+generation/span, light-list order, pipeline keys and fallbacks remain compared.
 """
     observation(data)
     require(data["mode"] == "state", "State comparison requires state-mode observations")
@@ -274,6 +278,13 @@ aliasing, light-list order, pipeline keys and fallbacks remain compared.
             normalized_resources[token] = len(normalized_resources)
         return normalized_resources[token]
 
+    def comparison_number(value):
+        rounded = round(float(value), 9)
+        return 0.0 if rounded == 0 else rounded
+
+    def comparison_vector(value):
+        return [comparison_number(item) for item in value]
+
     def normalized_context(frame, context):
         token = (frame, context["epoch"], context["identity"])
         if token not in normalized_contexts:
@@ -281,8 +292,10 @@ aliasing, light-list order, pipeline keys and fallbacks remain compared.
             parent = context["parent_identity"]
             result["parent_context_sha256"] = sha256(canonical(normalized_context(
                 frame, contexts[(frame, context["epoch"], parent)]))) if parent else None
-            for key in ("epoch", "identity", "parent_identity"):
-                result.pop(key)
+            for key in ("epoch", "identity", "parent_identity", "semantic_key"):
+                result.pop(key, None)
+            for key in ("position", "angles"):
+                result[key] = comparison_vector(result[key])
             if static_scene:
                 result.pop("gametic", None)
                 result.pop("fraction", None)
@@ -311,8 +324,29 @@ aliasing, light-list order, pipeline keys and fallbacks remain compared.
         row = project(record, record["frame"])
         if row["kind"] == "frame":
             row["data"].pop("cpu_render_view_ms", None)
+            camera = row["data"]["camera"]
+            for key in ("position", "angles", "hardware_angles"):
+                camera[key] = comparison_vector(camera[key])
+            camera["fov"] = comparison_number(camera["fov"])
             if static_scene:
                 row["data"].pop("gametic", None)
-                row["data"]["camera"].pop("fraction", None)
+                camera.pop("fraction", None)
+        elif row["kind"] == "resource":
+            # Raw receipts retain these counters. Fresh processes may perform
+            # different lazy allocations/uploads before an otherwise identical
+            # frame, so semantic state equality excludes workload telemetry while
+            # retaining capacities, epochs and all failure/rejection diagnostics.
+            for key in ("descriptor_current", "descriptor_high_water", "descriptor_allocations",
+                        "descriptor_reuses", "descriptor_frees", "hardware_textures"):
+                row["data"].pop(key, None)
+            lifetime = row["data"].get("lifetime")
+            if isinstance(lifetime, dict):
+                for key in ("activations", "retirements", "resets"):
+                    lifetime.pop(key, None)
+            uploads = row["data"].get("async_uploads")
+            if isinstance(uploads, dict):
+                for key in ("queued", "completed", "cancelled"):
+                    uploads.pop(key, None)
+            row["data"].pop("staging", None)
         ordered.append(row)
     return ordered
