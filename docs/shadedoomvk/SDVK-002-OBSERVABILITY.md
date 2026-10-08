@@ -71,11 +71,15 @@ An explicit timeout is a failed attempt and its partial output remains failed.
 
 State and timing are separate runs. State scenes declare static content after
 initialization and retain the observed simulation tic and interpolation
-fraction. Their comparator normalizes only those declared clock labels and
-validated context-local numeric tokens. Full normalized parent state is hashed
-into each child, so coincident context labels cannot erase lineage. Ordered
-draw/query records, semantic layers, actual camera, counters, generations,
-selection decisions and pipeline fields remain compared.
+fraction. Their comparator removes declared static clock labels, renderer-local
+tokens and the already-validated derived context label; view position/angle/FOV
+representation is canonicalized only to 1e-9. Full normalized parent state is
+hashed into each child. Ordered draw/query records, semantic material decisions,
+resource generations/epochs/aliasing, failure/rejection diagnostics, light and
+shadow selections, and pipeline fields remain compared. Raw resource-owner
+counters are always retained, but process-cumulative/lazy allocation, upload and
+staging workload counts are excluded from correctness equality and remain
+available to timing/counter evidence instead.
 
 Image comparison decodes bounded RGB8 PNGs with the accepted PF decoder. Exact
 mode compares RGB bytes, independently of PNG compression/metadata. Tolerant
@@ -111,7 +115,12 @@ driver limitations retained explicitly.
 checks, compiled contracts, new observer/harness negative controls, deterministic
 PF source oracle and two independently generated corpus preparations. The
 software Vulkan CI lane runs real captures and produces complete artifacts;
-preparation or CPU checks alone do not qualify native rendering.
+preparation or CPU checks alone do not qualify native rendering. The deliberately
+extreme 1,056-light/1,024-shadow-capacity correctness scene uses a two-frame
+warmup rather than the ordinary 120 because the latter exceeded the bounded
+llvmpipe runtime without reaching observation; scene contents, quality settings
+and required 1,056/1,024/32 candidate/selected/dropped counts are unchanged.
+This tractability rule is not used for timing claims.
 
 The local native Linux build uses GCC 13.3, authenticated ZMusic dependencies
 and ordinary Vulkan/SDL sources. A private Mesa 25.2.8 llvmpipe capability probe
@@ -139,7 +148,10 @@ The source checkpoint was recovered through the exact GitHub CI source-bundle
 artifact, not reconstructed from chat. PR #121 owns continued qualification.
 The `sprite-mirror` scene adds freely reproducible rotation/mirror coverage while
 leaving all three original PF generators unchanged. Material stress requires all
-64 named panels and their exact semantic layer order. Sun/probe state requires
-actual published pairs, a live draw binding and the authored sunlight intensity.
+64 named panels and their declared authored semantic prefix. The renderer may
+append only its canonical one-pixel lump-0 brightmap/detail/glow placeholders;
+those placeholders are distinguished by actual source identity and arbitrary
+extra semantics still fail. Sun/probe state requires actual published pairs, a
+live draw binding and the authored sunlight intensity.
 A comparison rejects one capture reused under the same path or copied paths.
 These are fail-closed workload/evidence checks, not new renderer features.
