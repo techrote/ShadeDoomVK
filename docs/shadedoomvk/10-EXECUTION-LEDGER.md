@@ -733,7 +733,7 @@ integration follows ordinary PR/check/merge discipline and changes no runtime.
 
 SDVK-002 / #2 starts from verified foundation master
 `a2d2d293d680895bb8daae86466596b05aaef483` on a dedicated branch. The
-[observability contract](SDVK-002-OBSERVABILITY.md) describes ten deterministic
+[observability contract](SDVK-002-OBSERVABILITY.md) describes eleven deterministic
 scene recipes over eight classes, nineteen retained CPU contracts, bounded
 native state/timestamp collection, fixed-camera capture, paired state/image
 comparison and raw-sample benchmark receipts. Existing PF generators, negative
