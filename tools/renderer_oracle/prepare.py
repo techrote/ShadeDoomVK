@@ -212,7 +212,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             raise ValueError(f"Scene {name} cannot accept pixels without state")
         if native.get("generator") == "pf_view" and native.get("generic_capture_supported") is not False:
             raise ValueError("The retained interpolated PF scene needs its own fixed-fraction state driver")
-        if native["generator"] == "lighting" and native.get("authored_light_count") not in (0, 1, 64, 1056):
+        if native["generator"] == "lighting" and native.get("authored_light_count") not in (0, 1, 64, 1025):
             raise ValueError("Lighting fixture must use one of the bounded declared counts")
     if covered != CLASSES:
         raise ValueError("Corpus class coverage is incomplete")
@@ -371,7 +371,7 @@ def _light_positions(count: int) -> list[tuple[int, int]]:
         # Eight complete rows outside the occluder, with no approximate RNG.
         return [(x, y) for y in (-288, -208, -128, -80, 80, 128, 208, 288)
                 for x in (-400, -288, -176, -64, 64, 176, 288, 400)]
-    if count == 1056:
+    if count == 1025:
         candidates = [(x, y) for y in range(-304, 305, 16) for x in range(-432, 433, 16)
                       if not (0 <= x <= 128 and -64 <= y <= 64)]
         # Select a uniformly spread deterministic subsequence of the whole room.
