@@ -138,7 +138,7 @@ struct FSdvkDiagnosticAccess
                     if (binding >= 256) throw std::runtime_error("SDVK custom layer observation limit reached");
                     if (layers.size() > 1) layers += ',';
                     layers += Object().Int("binding", binding++).Str("semantic", "global-custom").Int("custom_index", i)
-                        .Int("requested_sampling", int(global.CustomShaderTextureSampling[i]))
+                        .Int("requested_sampling", int(global.CustomShaderTextureSampling[i])).Str("role", "global-custom")
                         .Raw("sampler", Sampler(fb->GetSamplerManager()->Get(global.CustomShaderTextureSampling[i], entry->clampmode))).Json();
                 }
             }
