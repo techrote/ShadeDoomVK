@@ -1,0 +1,52 @@
+name: Renderer source evidence
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/renderer_source_evidence.yml'
+      - 'src/**'
+      - 'tools/renderer_oracle/**'
+      - 'tools/pf_oracle/**'
+      - 'docs/shadedoomvk/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/renderer_source_evidence.yml'
+      - 'src/**'
+      - 'tools/renderer_oracle/**'
+      - 'tools/pf_oracle/**'
+      - 'docs/shadedoomvk/**'
+
+permissions:
+  contents: read
+
+jobs:
+  source:
+    name: Exact renderer source bundle
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Export committed source and provenance
+      shell: bash
+      run: |
+        set -euo pipefail
+        test -z "$(git status --porcelain)"
+        mkdir -p "$RUNNER_TEMP/sdvk-source"
+        git rev-parse HEAD > "$RUNNER_TEMP/sdvk-source/COMMIT.txt"
+        git rev-parse 'HEAD^{tree}' > "$RUNNER_TEMP/sdvk-source/TREE.txt"
+        git bundle create "$RUNNER_TEMP/sdvk-source/source.bundle" HEAD
+        git bundle verify "$RUNNER_TEMP/sdvk-source/source.bundle"
+        cd "$RUNNER_TEMP/sdvk-source"
+        sha256sum source.bundle COMMIT.txt TREE.txt > SHA256SUMS
+        cat COMMIT.txt TREE.txt SHA256SUMS
+    - uses: actions/upload-artifact@v4
+      with:
+        name: renderer-source-evidence
+        path: ${{ runner.temp }}/sdvk-source
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: error

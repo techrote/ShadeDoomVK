@@ -1,6 +1,7 @@
 
 #include "vk_shadercache.h"
 #include "vulkan/textures/vk_pfviewdiagnostics.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include <zvulkan/cfxtrace.h>
 #include "vulkan/vk_renderdevice.h"
 #include "sha1.h"
@@ -13,7 +14,8 @@
 
 VkShaderCache::VkShaderCache(VulkanRenderDevice* fb) : fb(fb)
 {
-	CacheFilename = Pf020VulkanDiagnostics::CacheFilename("shadercache.zdsc");
+	const auto observedCache = SdvkDiagnostics::ApplicationCacheFilename("shadercache.zdsc");
+	CacheFilename = observedCache.empty() ? Pf020VulkanDiagnostics::CacheFilename("shadercache.zdsc") : FString(observedCache.c_str());
 	CfxTrace::Mark("shader-cache-path", CacheFilename.GetChars());
 	Pf020VulkanDiagnostics::CacheFile("shader", "before-load", CacheFilename, false);
 

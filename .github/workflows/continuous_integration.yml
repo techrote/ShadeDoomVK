@@ -25,7 +25,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: cpu-contract-checks
-        path: build/pf-oracle/*.log
+        path: |
+          build/pf-oracle/*.log
+          build/pf-oracle/renderer-corpus/result.json
+          build/pf-oracle/renderer-corpus/prepare-*/prepared.json
 
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
@@ -72,6 +75,13 @@ jobs:
           deps_cmdline: sudo apt update && sudo apt install clang-15 libsdl2-dev libvpx-dev libwebp-dev
           build_type: Release
 
+        - name: Linux software Vulkan
+          os: ubuntu-24.04
+          extra_options: -DNO_GTK=ON
+          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom
+          build_type: RelWithDebInfo
+          native_renderer: true
+
     steps:
     - uses: actions/checkout@v4
 
@@ -104,6 +114,28 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
+
+    - name: Qualify software Vulkan corpus and timing collection
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_icds[@]}" -eq 1
+        export VK_DRIVER_FILES="${sdvk_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_icds[0]}"
+        export SDL_VIDEODRIVER=x11
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
+
+    - name: Upload complete software Vulkan evidence
+      if: always() && matrix.config.native_renderer
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-software-vulkan
+        path: build/renderer-native
+        compression-level: 9
+        retention-days: 30
 
     - name: Diagnose macOS startup failure
       if: failure() && runner.os == 'macOS'
