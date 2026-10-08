@@ -1,7 +1,6 @@
 # SDVK-002 — Renderer observability and reference corpus
 
-Status: implementation and qualification in progress; issue #2 is not accepted
-until its PR/check/merge/master-verification gates are recorded.
+Status: **ACCEPTED, MERGED AND VERIFIED**. PR #121 merged as `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`; all nine exact-head and all nine post-merge CI jobs passed. [Release acceptance](SDVK-002-RELEASE-ACCEPTANCE.json) pins source, native corpus, timing and retained-failure evidence.
 
 ## Dependency and evidence boundary
 
@@ -155,3 +154,11 @@ extra semantics still fail. Sun/probe state requires actual published pairs, a
 live draw binding and the authored sunlight intensity.
 A comparison rejects one capture reused under the same path or copied paths.
 These are fail-closed workload/evidence checks, not new renderer features.
+
+## Final acceptance
+
+SDVK-002 is accepted at `master@1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`. The merge tree `d12e07da15cccddc7f699c140911a5a6f852c4aa` equals the exact tree exercised by the final PR merge-ref evidence. Final-head CI run 37766168263 and exact post-merge run 37767780123 each passed all nine jobs, including the software-Vulkan lane.
+
+All eight newly authored native workloads completed two independent state/image captures and passing comparisons. The three-process `lights-one` timing baseline also passed with raw CPU samples and resolved named GPU groups. The shadow boundary is the minimal true overflow witness (1,025 candidates, 1,024 selected, one dropped) at 128 shadow-map resolution with one warmup frame; it is correctness evidence only. Historical failed native attempts remain retained.
+
+The accepted scope does **not** claim physical-GPU qualification, a performance improvement, portable exact pixels, whole-frame GPU timing, executed-shader identity or complete LevelMesh per-surface observation. Those limits and exact artifact identities are pinned in the release receipt. SDVK-006 is dependency-ready; SDVK-004/009 still require SDVK-003 and SDVK-014 retains its other declared dependencies.
