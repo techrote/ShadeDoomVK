@@ -184,7 +184,7 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                 require([layer.get("binding") for layer in layers] == list(range(len(layers))), "Material layer bindings are missing/duplicate/unordered")
                 for layer in layers:
                     require(isinstance(layer.get("semantic"), str) and layer["semantic"], "Layer semantic is missing")
-                    require(layer.get("role") in ("authored-layer", "fallback-placeholder",
+                    require(layer.get("role") in ("authored-layer", "fallback-placeholder", "global-custom",
                                                   "shader-required auxiliary resource, not an authored semantic layer"),
                             "Material layer role is missing or unknown")
                     _sampler(layer.get("sampler"))
