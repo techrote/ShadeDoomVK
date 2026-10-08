@@ -1,7 +1,6 @@
 # Renderer observation and evidence ownership
 
-Primary issue: SDVK-002 / #2. Status: implementation; native/release acceptance
-is recorded separately in [the owning contract](../SDVK-002-OBSERVABILITY.md).
+Primary issue: SDVK-002 / #2. Status: **accepted, merged and verified** at `master@1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`. [Owning contract](../SDVK-002-OBSERVABILITY.md) and [release receipt](../SDVK-002-RELEASE-ACCEPTANCE.json) record the bounded native/release evidence and limitations.
 
 ## Entry points
 
