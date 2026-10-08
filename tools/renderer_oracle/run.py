@@ -305,7 +305,9 @@ def _material_semantics_match(value, expected):
     layers = value.get("layers")
     if not isinstance(layers, list) or len(layers) < len(expected):
         return False
-    if [layer.get("semantic") for layer in layers[:len(expected)]] != expected:
+    authored = layers[:len(expected)]
+    if ([layer.get("semantic") for layer in authored] != expected
+            or any(layer.get("role") != "authored-layer" for layer in authored)):
         return False
     extras = layers[len(expected):]
     semantics = [layer.get("semantic") for layer in extras]
@@ -314,8 +316,9 @@ def _material_semantics_match(value, expected):
         return False
     for layer in extras:
         source = layer.get("source")
-        if not (isinstance(source, dict) and source.get("lump") == 0
-                and source.get("width") == source.get("height") == 1):
+        if (layer.get("role") != "fallback-placeholder"
+                or not isinstance(source, dict) or source.get("lump") != 0
+                or source.get("width") != 1 or source.get("height") != 1):
             return False
     return True
 
@@ -504,7 +507,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated context tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots; cumulative allocation/upload telemetry excluded; order/aliasing/generation/epoch/span/failures retained",
+            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
             "performance_accepted": False}
 
 
