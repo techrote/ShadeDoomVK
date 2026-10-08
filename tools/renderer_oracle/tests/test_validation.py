@@ -183,11 +183,15 @@ class SemanticProjectionTests(unittest.TestCase):
 
     def test_context_float_noise_and_derived_label_normalize_but_real_motion_remains(self):
         left, right = observation(), observation()
+        for record in left["records"]:
+            value = record["data"]
+            if "context" in value:
+                value["context"]["semantic_key"] = "SDV001:MainView:-1:0:0:root:0:[0,0,64]:[0,0,0]"
         for record in right["records"]:
             value = record["data"]
             if "context" in value:
                 value["context"]["position"][1] = -1e-14
-                value["context"]["semantic_key"] = "derived-label-with-float-noise"
+                value["context"]["semantic_key"] = "SDV001:MainView:-1:0:0:root:0:[0,-0.00000000000001,64]:[0,0,0]"
             if record["kind"] == "frame":
                 value["camera"]["position"][1] = -1e-14
                 value["camera"]["fov"] = 89.99999999999999
@@ -195,6 +199,12 @@ class SemanticProjectionTests(unittest.TestCase):
         right["records"][0]["data"]["context"]["position"][1] = 1e-6
         right["records"][1]["data"]["context"]["position"][1] = 1e-6
         self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
+
+        different_kind = copy.deepcopy(left)
+        for record in different_kind["records"]:
+            if "context" in record["data"]:
+                record["data"]["context"]["semantic_key"] = "SDV001:MainView:-1:0:0:other-kind:0:[0,0,64]:[0,0,0]"
+        self.assertNotEqual(validate.state_projection(left), validate.state_projection(different_kind))
 
     def test_resource_workload_telemetry_normalizes_but_health_and_epoch_state_remain(self):
         resource = {"scope": "synthetic cumulative owner snapshot",
