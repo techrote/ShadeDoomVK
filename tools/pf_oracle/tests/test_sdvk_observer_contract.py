@@ -94,6 +94,15 @@ class SdvkObserverTests(unittest.TestCase):
         self.assertLess(completion.index("GpuFlag.store(false"), completion.index("M_ScreenShot("))
         self.assertLess(completion.index("M_ScreenShot("), completion.index('AddCommandString("quit")'))
 
+    def test_context_producer_and_fallback_slots_are_explicit(self):
+        hardware = (ROOT / "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp").read_text(encoding="utf-8")
+        vulkan = (ROOT / "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp").read_text(encoding="utf-8")
+        self.assertIn('.Str("producer", kind)', hardware)
+        self.assertIn('"fallback-placeholder"', vulkan)
+        self.assertIn('GetSourceLump() == 0', vulkan)
+        self.assertIn('GetWidth() == 1', vulkan)
+        self.assertIn('GetHeight() == 1', vulkan)
+
 
 if __name__ == "__main__":
     unittest.main()
