@@ -181,6 +181,29 @@ class SemanticProjectionTests(unittest.TestCase):
         right["records"][1]["data"]["resource"]["generation"] += 1
         self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
 
+    def test_shadow_rows_normalize_but_aliasing_and_rejection_remain(self):
+        def shadow(light, decision, row_number):
+            return row("shadow", {"caster": "world-geometry", "mode": "dynamic-1d-shadow-map",
+                                  "decision": decision, "row": row_number,
+                                  "light": {"semantic_key": light}})
+
+        left = observation()
+        left["records"][1:1] = [shadow("L0", "selected", 573), shadow("L1", "selected", 404),
+                                 shadow("L2", "capacity-rejected", -1)]
+        recount(left)
+        right = copy.deepcopy(left)
+        right["records"][1]["data"]["row"] = 571
+        right["records"][2]["data"]["row"] = 403
+        self.assertEqual(validate.state_projection(left), validate.state_projection(right))
+
+        aliased = copy.deepcopy(right)
+        aliased["records"][2]["data"]["row"] = 571
+        self.assertNotEqual(validate.state_projection(left), validate.state_projection(aliased))
+
+        rejected = copy.deepcopy(right)
+        rejected["records"][3]["data"].update(decision="selected", row=12)
+        self.assertNotEqual(validate.state_projection(left), validate.state_projection(rejected))
+
     def test_context_float_noise_and_derived_label_normalize_but_real_motion_remains(self):
         left, right = observation(), observation()
         for record in left["records"]:
