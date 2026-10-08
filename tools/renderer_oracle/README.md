@@ -235,8 +235,9 @@ requirements. Keep both immutable source packets and the comparison manifest.
 State comparison preserves the ordered record stream and multiplicities,
 semantic decisions, resource generation/epoch/span and aliasing, pipeline fields,
 fallbacks and all resource failure/rejection diagnostics. Renderer-local live
-slot numbers are normalized to first-seen identities; raw slots are still
-validated within each capture. After validating context links, renderer-local
+descriptor slot numbers and selected shadow-map row numbers are normalized to
+first-seen identities; raw values are still validated within each capture. The
+shadow `-1` rejection sentinel and row aliasing remain exact comparison state. After validating context links, renderer-local
 context epoch/id/parent tokens and the redundant derived `semantic_key` label
 are normalized. The actual context producer is a separate validated field and is
 never discarded. Context and frame-view positions/angles/FOV are canonicalized

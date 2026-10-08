@@ -507,7 +507,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
+            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
             "performance_accepted": False}
 
 
