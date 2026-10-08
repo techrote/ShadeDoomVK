@@ -72,8 +72,9 @@ An explicit timeout is a failed attempt and its partial output remains failed.
 State and timing are separate runs. State scenes declare static content after
 initialization and retain the observed simulation tic and interpolation
 fraction. Their comparator removes declared static clock labels, renderer-local
-tokens and the already-validated derived context label; view position/angle/FOV
-representation is canonicalized only to 1e-9. Full normalized parent state is
+tokens; view position/angle/FOV representation is canonicalized only to 1e-9.
+The derived context label preserves its nonnumeric portal-kind prefix while only
+its numeric vector suffix is rebuilt from that canonical state. Full normalized parent state is
 hashed into each child. Ordered draw/query records, semantic material decisions,
 resource generations/epochs/aliasing, failure/rejection diagnostics, light and
 shadow selections, and pipeline fields remain compared. Raw resource-owner
