@@ -749,3 +749,18 @@ native capture. The hosted software Vulkan lane is the documented runtime path.
 This entry records implementation progress, not acceptance. Current-head checks,
 native corpus comparisons/baseline, PR merge and verified master must be recorded
 before issue closure or dependent SDVK-004/006/009/014 readiness changes.
+
+### 2026-10-07 — SDVK-003 upstream maintenance checkpoint (not accepted)
+
+- SDVK-001 / #1 confirmed closed and accepted; SDVK-003 began from `master@a2d2d293d680895bb8daae86466596b05aaef483`.
+- Pinned VKDoom, UZDoom and GZDoom heads and examined representative compatibility/build deltas; full cross-lineage differential is **pending**, and cross-repo UZDoom compare to the VKDoom founding commit returned 404.
+- Adapted two UZDoom Crusader target-null guards on dedicated SDVK-003 branch; no broad upstream merge, renderer modification or native GPU run.
+- Created bounded differential/ownership policy and donor entry; full regression verification, review, CI/merge and final acceptance are still required. #3 remains open; SDVK-004/009 remain dependency-blocked.
+
+### 2026-10-08 — SDVK-003 differential acceptance candidate
+
+- Reconciled PR #122 onto current master `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`; the branch preserves SDVK-002 observability/source-evidence infrastructure.
+- Complete untruncated recursive-tree comparison pins VKDoom/UZDoom/GZDoom/recipient commits and tree SHAs. Relative to founding VKDoom, UZDoom records 8260 added/3193 deleted/1530 modified blobs and GZDoom 1331/197/697; exact domain counts and overlap paths are checked in as machine-readable evidence.
+- 86 recipient-owned paths overlap UZDoom and 79 overlap GZDoom; renderer/shader overlap is fail-closed. No PF/CFX supersession is claimed and no renderer donor code is imported.
+- The representative UZDoom Crusader adaptation is bounded to two null-target guards and has a focused CPU/source regression. Root-license and named asset-exception scope were audited; no asset/binary/dependency import is present.
+- Final acceptance requires exact final-head hosted checks, PR merge and post-merge master verification. No physical GPU run is required for this non-renderer import.

@@ -1,0 +1,544 @@
+{
+  "schema": "sdvk-003-upstream-tree-differential/v1",
+  "date": "2026-10-08",
+  "method": {
+    "source": "GitHub recursive Git tree API",
+    "comparison": "exact path plus Git blob SHA against founding VKDoom tree",
+    "rename_note": "Path-level deltas do not infer renames or semantic equivalence; candidate imports require source/history inspection.",
+    "all_trees_untruncated": true
+  },
+  "refs": [
+    {
+      "name": "vkdoom",
+      "repository": "nashmuhandes/VkDoom",
+      "commit": "09634479ab5bf9adf691074fffe85a006a398cd0",
+      "tree": "f4bd8b126a7014df24812c735db57c7ecdc4b8e9",
+      "blob_count": 6783,
+      "truncated": false
+    },
+    {
+      "name": "uzdoom",
+      "repository": "UZDoom/UZDoom",
+      "commit": "809e46c25fe2a2f89430de3fbac89626100df384",
+      "tree": "8b2c774dd44ab9d09d06fdd5c652f2797121fad0",
+      "blob_count": 11850,
+      "truncated": false
+    },
+    {
+      "name": "gzdoom",
+      "repository": "ZDoom/gzdoom",
+      "commit": "c26ce2e6ca2a0c770f140cb25dde0d30073ca8f7",
+      "tree": "48e75d844b8f305e7752d0892aebf2f1b3128e48",
+      "blob_count": 7917,
+      "truncated": false
+    },
+    {
+      "name": "shadedoom_master",
+      "repository": "techrote/ShadeDoomVK",
+      "commit": "1ecc3cf73aa2266a1e741f09078b7d089ba8bf89",
+      "tree": "d12e07da15cccddc7f699c140911a5a6f852c4aa",
+      "blob_count": 7261,
+      "truncated": false
+    }
+  ],
+  "deltas_from_vkd_baseline": {
+    "uzdoom": {
+      "counts": {
+        "added": 8260,
+        "deleted": 3193,
+        "modified": 1530,
+        "identical_path_and_blob": 2060
+      },
+      "domains": {
+        "core_other": {
+          "added": 4547,
+          "deleted": 2964,
+          "modified": 759
+        },
+        "platform_build": {
+          "added": 57,
+          "deleted": 4,
+          "modified": 15
+        },
+        "docs_policy": {
+          "added": 14,
+          "deleted": 2,
+          "modified": 6
+        },
+        "libraries": {
+          "added": 3466,
+          "deleted": 59,
+          "modified": 161
+        },
+        "renderer": {
+          "added": 35,
+          "deleted": 57,
+          "modified": 83
+        },
+        "scripting_resource": {
+          "added": 113,
+          "deleted": 29,
+          "modified": 486
+        },
+        "shaders": {
+          "added": 28,
+          "deleted": 78,
+          "modified": 20
+        }
+      }
+    },
+    "gzdoom": {
+      "counts": {
+        "added": 1331,
+        "deleted": 197,
+        "modified": 697,
+        "identical_path_and_blob": 5889
+      },
+      "domains": {
+        "core_other": {
+          "added": 147,
+          "deleted": 33,
+          "modified": 320
+        },
+        "platform_build": {
+          "added": 22,
+          "deleted": 0,
+          "modified": 11
+        },
+        "libraries": {
+          "added": 1049,
+          "deleted": 20,
+          "modified": 140
+        },
+        "renderer": {
+          "added": 35,
+          "deleted": 57,
+          "modified": 72
+        },
+        "scripting_resource": {
+          "added": 49,
+          "deleted": 7,
+          "modified": 149
+        },
+        "shaders": {
+          "added": 29,
+          "deleted": 78,
+          "modified": 2
+        },
+        "docs_policy": {
+          "added": 0,
+          "deleted": 2,
+          "modified": 3
+        }
+      }
+    },
+    "shadedoom_master": {
+      "counts": {
+        "added": 478,
+        "deleted": 0,
+        "modified": 86,
+        "identical_path_and_blob": 6697
+      },
+      "domains": {
+        "platform_build": {
+          "added": 1,
+          "deleted": 0,
+          "modified": 3
+        },
+        "docs_policy": {
+          "added": 314,
+          "deleted": 0,
+          "modified": 1
+        },
+        "libraries": {
+          "added": 3,
+          "deleted": 0,
+          "modified": 8
+        },
+        "renderer": {
+          "added": 26,
+          "deleted": 0,
+          "modified": 51
+        },
+        "core_other": {
+          "added": 134,
+          "deleted": 0,
+          "modified": 15
+        },
+        "shaders": {
+          "added": 0,
+          "deleted": 0,
+          "modified": 8
+        }
+      }
+    }
+  },
+  "ownership_overlap": {
+    "uzdoom": {
+      "count": 86,
+      "domains": {
+        "core_other": 15,
+        "platform_build": 3,
+        "docs_policy": 1,
+        "libraries": 8,
+        "renderer": 51,
+        "shaders": 8
+      },
+      "paths": [
+        ".gitattributes",
+        ".github/workflows/continuous_integration.yml",
+        ".gitignore",
+        "CMakeLists.txt",
+        "README.md",
+        "libraries/ZVulkan/include/zvulkan/vulkanbuilders.h",
+        "libraries/ZVulkan/include/zvulkan/vulkandevice.h",
+        "libraries/ZVulkan/include/zvulkan/vulkaninstance.h",
+        "libraries/ZVulkan/include/zvulkan/vulkanobjects.h",
+        "libraries/ZVulkan/src/vulkanbuilders.cpp",
+        "libraries/ZVulkan/src/vulkandevice.cpp",
+        "libraries/ZVulkan/src/vulkaninstance.cpp",
+        "libraries/ZVulkan/src/vulkanswapchain.cpp",
+        "src/CMakeLists.txt",
+        "src/common/rendering/hwrenderer/data/hw_aabbtree.cpp",
+        "src/common/rendering/hwrenderer/data/hw_aabbtree.h",
+        "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+        "src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.h",
+        "src/common/rendering/hwrenderer/data/hw_materialstate.h",
+        "src/common/rendering/hwrenderer/data/hw_shadowmap.cpp",
+        "src/common/rendering/hwrenderer/data/hw_shadowmap.h",
+        "src/common/rendering/vulkan/buffers/vk_hwbuffer.cpp",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.h",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h",
+        "src/common/rendering/vulkan/framebuffers/vk_framebuffer.cpp",
+        "src/common/rendering/vulkan/framebuffers/vk_framebuffer.h",
+        "src/common/rendering/vulkan/pipelines/vk_pprenderpass.cpp",
+        "src/common/rendering/vulkan/pipelines/vk_renderpass.cpp",
+        "src/common/rendering/vulkan/pipelines/vk_renderpass.h",
+        "src/common/rendering/vulkan/samplers/vk_samplers.cpp",
+        "src/common/rendering/vulkan/shaders/vk_shader.cpp",
+        "src/common/rendering/vulkan/shaders/vk_shader.h",
+        "src/common/rendering/vulkan/shaders/vk_shadercache.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.h",
+        "src/common/rendering/vulkan/textures/vk_imagetransition.cpp",
+        "src/common/rendering/vulkan/textures/vk_renderbuffers.cpp",
+        "src/common/rendering/vulkan/textures/vk_texture.cpp",
+        "src/common/rendering/vulkan/textures/vk_texture.h",
+        "src/common/rendering/vulkan/vk_levelmesh.cpp",
+        "src/common/rendering/vulkan/vk_lightmapper.cpp",
+        "src/common/rendering/vulkan/vk_lightmapper.h",
+        "src/common/rendering/vulkan/vk_lightprober.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.h",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
+        "src/common/rendering/vulkan/vk_renderstate.h",
+        "src/common/textures/hw_material.cpp",
+        "src/common/textures/hw_material.h",
+        "src/common/utility/gitinfo.cpp",
+        "src/common/utility/zstring.cpp",
+        "src/d_main.cpp",
+        "src/gamemain.cpp",
+        "src/r_data/gldefs.cpp",
+        "src/rendering/hwrenderer/doom_aabbtree.cpp",
+        "src/rendering/hwrenderer/doom_levelmesh.cpp",
+        "src/rendering/hwrenderer/doom_lightprobes.cpp",
+        "src/rendering/hwrenderer/hw_dynlightdata.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/hw_precache.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawcontext.h",
+        "src/rendering/hwrenderer/scene/hw_drawinfo.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawstructs.h",
+        "src/rendering/hwrenderer/scene/hw_portal.h",
+        "src/rendering/hwrenderer/scene/hw_spritelight.cpp",
+        "src/rendering/hwrenderer/scene/hw_sprites.cpp",
+        "src/rendering/r_utility.cpp",
+        "src/toolmain.cpp",
+        "src/version.h",
+        "src/win32/zdoom.rc",
+        "tools/updaterevision/UpdateRevision.cmake",
+        "tools/updaterevision/gitinfo.h.in",
+        "wadsrc/static/shaders/lightmap/frag_copy.glsl",
+        "wadsrc/static/shaders/lightmap/vert_copy.glsl",
+        "wadsrc/static/shaders/scene/frag_main.glsl",
+        "wadsrc/static/shaders/scene/lightmode.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_shared.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/shaders/scene/material_gettexel.glsl"
+      ]
+    },
+    "gzdoom": {
+      "count": 79,
+      "domains": {
+        "platform_build": 3,
+        "core_other": 12,
+        "docs_policy": 1,
+        "libraries": 8,
+        "renderer": 47,
+        "shaders": 8
+      },
+      "paths": [
+        ".github/workflows/continuous_integration.yml",
+        ".gitignore",
+        "CMakeLists.txt",
+        "README.md",
+        "libraries/ZVulkan/include/zvulkan/vulkanbuilders.h",
+        "libraries/ZVulkan/include/zvulkan/vulkandevice.h",
+        "libraries/ZVulkan/include/zvulkan/vulkaninstance.h",
+        "libraries/ZVulkan/include/zvulkan/vulkanobjects.h",
+        "libraries/ZVulkan/src/vulkanbuilders.cpp",
+        "libraries/ZVulkan/src/vulkandevice.cpp",
+        "libraries/ZVulkan/src/vulkaninstance.cpp",
+        "libraries/ZVulkan/src/vulkanswapchain.cpp",
+        "src/CMakeLists.txt",
+        "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+        "src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.h",
+        "src/common/rendering/hwrenderer/data/hw_materialstate.h",
+        "src/common/rendering/hwrenderer/data/hw_shadowmap.cpp",
+        "src/common/rendering/hwrenderer/data/hw_shadowmap.h",
+        "src/common/rendering/vulkan/buffers/vk_hwbuffer.cpp",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.h",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h",
+        "src/common/rendering/vulkan/framebuffers/vk_framebuffer.cpp",
+        "src/common/rendering/vulkan/framebuffers/vk_framebuffer.h",
+        "src/common/rendering/vulkan/pipelines/vk_pprenderpass.cpp",
+        "src/common/rendering/vulkan/pipelines/vk_renderpass.cpp",
+        "src/common/rendering/vulkan/pipelines/vk_renderpass.h",
+        "src/common/rendering/vulkan/samplers/vk_samplers.cpp",
+        "src/common/rendering/vulkan/shaders/vk_shader.cpp",
+        "src/common/rendering/vulkan/shaders/vk_shader.h",
+        "src/common/rendering/vulkan/shaders/vk_shadercache.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.h",
+        "src/common/rendering/vulkan/textures/vk_imagetransition.cpp",
+        "src/common/rendering/vulkan/textures/vk_renderbuffers.cpp",
+        "src/common/rendering/vulkan/textures/vk_texture.cpp",
+        "src/common/rendering/vulkan/textures/vk_texture.h",
+        "src/common/rendering/vulkan/vk_levelmesh.cpp",
+        "src/common/rendering/vulkan/vk_lightmapper.cpp",
+        "src/common/rendering/vulkan/vk_lightmapper.h",
+        "src/common/rendering/vulkan/vk_lightprober.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.h",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
+        "src/common/rendering/vulkan/vk_renderstate.h",
+        "src/common/textures/hw_material.cpp",
+        "src/common/textures/hw_material.h",
+        "src/common/utility/zstring.cpp",
+        "src/d_main.cpp",
+        "src/gamemain.cpp",
+        "src/r_data/gldefs.cpp",
+        "src/rendering/hwrenderer/doom_levelmesh.cpp",
+        "src/rendering/hwrenderer/doom_lightprobes.cpp",
+        "src/rendering/hwrenderer/hw_dynlightdata.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawcontext.h",
+        "src/rendering/hwrenderer/scene/hw_drawinfo.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawstructs.h",
+        "src/rendering/hwrenderer/scene/hw_portal.h",
+        "src/rendering/hwrenderer/scene/hw_spritelight.cpp",
+        "src/rendering/hwrenderer/scene/hw_sprites.cpp",
+        "src/rendering/r_utility.cpp",
+        "src/toolmain.cpp",
+        "src/version.h",
+        "src/win32/zdoom.rc",
+        "tools/updaterevision/UpdateRevision.cmake",
+        "wadsrc/static/shaders/lightmap/frag_copy.glsl",
+        "wadsrc/static/shaders/lightmap/vert_copy.glsl",
+        "wadsrc/static/shaders/scene/frag_main.glsl",
+        "wadsrc/static/shaders/scene/lightmode.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_shared.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/shaders/scene/material_gettexel.glsl"
+      ]
+    },
+    "both_donors": {
+      "count": 79,
+      "domains": {
+        "platform_build": 3,
+        "core_other": 12,
+        "docs_policy": 1,
+        "libraries": 8,
+        "renderer": 47,
+        "shaders": 8
+      },
+      "paths": [
+        ".github/workflows/continuous_integration.yml",
+        ".gitignore",
+        "CMakeLists.txt",
+        "README.md",
+        "libraries/ZVulkan/include/zvulkan/vulkanbuilders.h",
+        "libraries/ZVulkan/include/zvulkan/vulkandevice.h",
+        "libraries/ZVulkan/include/zvulkan/vulkaninstance.h",
+        "libraries/ZVulkan/include/zvulkan/vulkanobjects.h",
+        "libraries/ZVulkan/src/vulkanbuilders.cpp",
+        "libraries/ZVulkan/src/vulkandevice.cpp",
+        "libraries/ZVulkan/src/vulkaninstance.cpp",
+        "libraries/ZVulkan/src/vulkanswapchain.cpp",
+        "src/CMakeLists.txt",
+        "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+        "src/common/rendering/hwrenderer/data/hw_dynlightdata.h",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.h",
+        "src/common/rendering/hwrenderer/data/hw_materialstate.h",
+        "src/common/rendering/hwrenderer/data/hw_shadowmap.cpp",
+        "src/common/rendering/hwrenderer/data/hw_shadowmap.h",
+        "src/common/rendering/vulkan/buffers/vk_hwbuffer.cpp",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.cpp",
+        "src/common/rendering/vulkan/commands/vk_commandbuffer.h",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h",
+        "src/common/rendering/vulkan/framebuffers/vk_framebuffer.cpp",
+        "src/common/rendering/vulkan/framebuffers/vk_framebuffer.h",
+        "src/common/rendering/vulkan/pipelines/vk_pprenderpass.cpp",
+        "src/common/rendering/vulkan/pipelines/vk_renderpass.cpp",
+        "src/common/rendering/vulkan/pipelines/vk_renderpass.h",
+        "src/common/rendering/vulkan/samplers/vk_samplers.cpp",
+        "src/common/rendering/vulkan/shaders/vk_shader.cpp",
+        "src/common/rendering/vulkan/shaders/vk_shader.h",
+        "src/common/rendering/vulkan/shaders/vk_shadercache.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.h",
+        "src/common/rendering/vulkan/textures/vk_imagetransition.cpp",
+        "src/common/rendering/vulkan/textures/vk_renderbuffers.cpp",
+        "src/common/rendering/vulkan/textures/vk_texture.cpp",
+        "src/common/rendering/vulkan/textures/vk_texture.h",
+        "src/common/rendering/vulkan/vk_levelmesh.cpp",
+        "src/common/rendering/vulkan/vk_lightmapper.cpp",
+        "src/common/rendering/vulkan/vk_lightmapper.h",
+        "src/common/rendering/vulkan/vk_lightprober.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.h",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
+        "src/common/rendering/vulkan/vk_renderstate.h",
+        "src/common/textures/hw_material.cpp",
+        "src/common/textures/hw_material.h",
+        "src/common/utility/zstring.cpp",
+        "src/d_main.cpp",
+        "src/gamemain.cpp",
+        "src/r_data/gldefs.cpp",
+        "src/rendering/hwrenderer/doom_levelmesh.cpp",
+        "src/rendering/hwrenderer/doom_lightprobes.cpp",
+        "src/rendering/hwrenderer/hw_dynlightdata.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawcontext.h",
+        "src/rendering/hwrenderer/scene/hw_drawinfo.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawstructs.h",
+        "src/rendering/hwrenderer/scene/hw_portal.h",
+        "src/rendering/hwrenderer/scene/hw_spritelight.cpp",
+        "src/rendering/hwrenderer/scene/hw_sprites.cpp",
+        "src/rendering/r_utility.cpp",
+        "src/toolmain.cpp",
+        "src/version.h",
+        "src/win32/zdoom.rc",
+        "tools/updaterevision/UpdateRevision.cmake",
+        "wadsrc/static/shaders/lightmap/frag_copy.glsl",
+        "wadsrc/static/shaders/lightmap/vert_copy.glsl",
+        "wadsrc/static/shaders/scene/frag_main.glsl",
+        "wadsrc/static/shaders/scene/lightmode.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_shared.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/shaders/scene/material_gettexel.glsl"
+      ]
+    }
+  },
+  "key_capability_paths": {
+    "src/common/rendering/vulkan/vk_lightmapper.cpp": {
+      "vkdoom": "a748ee5e55402b2d3eba51b692ff79fcb928f513",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "655d1f885bcdfd5e68790f656c902b16da93b9ef"
+    },
+    "src/common/rendering/vulkan/vk_lightprober.cpp": {
+      "vkdoom": "eafeecafe4e90c29f4b7c67ef0122f014a25069f",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "b1adb528bc4cbfae2578ad76cce16c8bd39da9e7"
+    },
+    "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp": {
+      "vkdoom": "dd1a3cef6e5cb260895ac47f0cc043f6af3838f0",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "73c20dc1eb0f9a083e036267ea17cdf4d3e900e0"
+    },
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp": {
+      "vkdoom": "f17c1496581e7114a49b8e8bcef08c2a1e632e9f",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "b1399183542fadadf3ccd5438904fec83ee32ae3"
+    },
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp": {
+      "vkdoom": "5f89cc24b0391c738b9267bbe4283709b90b31b5",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "4523cdb6fc5e1b77299bceafdd15f07388a1d1f1"
+    },
+    "wadsrc/static/shaders/lightmap/frag_copy.glsl": {
+      "vkdoom": "41cfc50be261c714cad5426f8210f0168b6e238b",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "113451ea0287d015508799bbd179815ceb0f46d4"
+    },
+    "wadsrc/static/shaders/scene/lightmodel_pbr.glsl": {
+      "vkdoom": "c0024c8862fa20998d8a550b065076b3a60a18ac",
+      "uzdoom": null,
+      "gzdoom": null,
+      "shadedoom_master": "36a3601fd80e925a860d9f1c3ef1f40939bc2034"
+    },
+    "src/rendering/hwrenderer/scene/hw_spritelight.cpp": {
+      "vkdoom": "85588f8f73f88866d6988b1007225a1d884d4a9e",
+      "uzdoom": "1b494e38ba1751b758001e6ddeccc775148c5678",
+      "gzdoom": "55a952198d76b426a9c78be917cf7fac5131e9fd",
+      "shadedoom_master": "f88f791ea0ffd0820e10396ca16ad4a51beabe52"
+    },
+    "src/common/textures/hw_material.cpp": {
+      "vkdoom": "4830efdc77d8a2d79b4af8415b383d92a2d65584",
+      "uzdoom": "a1e1d6e29f696c9ba753746505aa66f11ccda4d8",
+      "gzdoom": "2517c098edcc5b2232e9e61fe111599ec9da230c",
+      "shadedoom_master": "a3c582906ad5a370bff9f1721d073b086cc4f351"
+    },
+    "src/r_data/gldefs.cpp": {
+      "vkdoom": "18e365f383c5a019fb7f77e3179f52a2243ed074",
+      "uzdoom": "45faa739d24b42666d4bb9d211d7a5fd9b21217b",
+      "gzdoom": "99c869b8e2ff5c7d63ab61aa05540137b7723dbe",
+      "shadedoom_master": "9e08f1cef2d1816def83609a71fe700bcee95a2e"
+    }
+  },
+  "selective_import": {
+    "donor": {
+      "repository": "UZDoom/UZDoom",
+      "commit": "809e46c25fe2a2f89430de3fbac89626100df384",
+      "path": "wadsrc/static/zscript/actors/strife/crusader.zs"
+    },
+    "recipient_base": "a2d2d293d680895bb8daae86466596b05aaef483",
+    "adaptation_commit": "2a9b95f32954b6dff8a32d7f37c4d479e6b0465f",
+    "result": "two local target-null guards added before angle mutation/SpawnMissileZAimed; donor FIXME comments and unrelated actor changes not copied"
+  },
+  "licensing": {
+    "vkdoom_gzdoom_shadedoom_root_license_blob": "94a9ed024d3859793618152ea559a168bbcbb5e2",
+    "uzdoom_root_license_blob": "fcb6e0bb123609c79a697020bdf520be9b9fac38",
+    "imported_path_exception_check": "UZDoom root license names branding, wadsrc_bm, wadsrc_extra and wadsrc_widepix exceptions; adapted wadsrc/static/zscript/actors/strife/crusader.zs is outside those named exceptions.",
+    "disposition": "GPL repository notices retained; no third-party asset, dependency or license file imported."
+  },
+  "pf_disposition": {
+    "confirmed_upstream_supersessions": [],
+    "rule": "No PF/CFX renderer change is considered superseded by path overlap alone. Renderer/shader overlap is owned-conflict until equivalent behavior and regression evidence are demonstrated in a focused issue.",
+    "physical_gpu_required_for_this_issue": false
+  }
+}

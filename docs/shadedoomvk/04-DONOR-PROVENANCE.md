@@ -162,3 +162,11 @@ Whenever donor work is materially introduced, record:
 - tests proving the transplanted concept preserves intended meaning in ShadeDoomVK.
 
 When a donor concept is already inherited, record **qualification/fix provenance** separately from donor provenance rather than claiming a new import.
+
+## SDVK-003 selective UZDoom actor-script candidate (2026-10-07)
+
+Donor `UZDoom/UZDoom@809e46c25fe2a2f89430de3fbac89626100df384` (2026-10-04), `wadsrc/static/zscript/actors/strife/crusader.zs`; receiver `ShadeDoomVK@a2d2d293d680895bb8daae86466596b05aaef483`. Recipient sweeps previously lacked local null-target guards. On dedicated `sdvk-003-selective-upstream-policy` branch, adapted two guards only (commit `2a9b95f32954b6dff8a32d7f37c4d479e6b0465f`, recipient blob `10ff41c18a8273d2f47cba2cef70aeb01111e2f1`). No upstream source history cherry-picked, no wholesale script replacement; original GPL notices retained. This is **candidate/unaccepted** until focused Strife transition tests, full CI and review. See [SDVK-003 differential](SDVK-003-UPSTREAM-DIFFERENTIAL.md). No renderer/PF contract is imported or reopened.
+
+## SDVK-003 final pinned differential disposition (2026-10-08)
+
+Exact complete-tree comparison pins VKDoom `09634479ab5bf9adf691074fffe85a006a398cd0`, UZDoom `809e46c25fe2a2f89430de3fbac89626100df384`, GZDoom `c26ce2e6ca2a0c770f140cb25dde0d30073ca8f7` and ShadeDoomVK `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`; all recursive tree responses were untruncated. UZDoom differs from the founding VKDoom tree by 8260 added, 3193 deleted and 1530 modified blobs; GZDoom by 1331/197/697. 86 ShadeDoomVK-owned paths overlap UZDoom and 79 overlap GZDoom, including renderer/shader contracts. No upstream renderer change is accepted as superseding a PF/CFX repair. The only material donor code in #3 remains the two-guard Crusader adaptation already recorded above. UZDoom's root license names branding/wadsrc_bm/wadsrc_extra/wadsrc_widepix exceptions; the adapted `wadsrc/static/zscript/actors/strife/crusader.zs` path is outside those named exceptions. No binary/asset/dependency transplant occurs. See `SDVK-003-UPSTREAM-DIFFERENTIAL.md` and its JSON receipt.
