@@ -52,10 +52,16 @@ their own schemas, validators, input requirements and earlier evidence.
 Ordered state comparison preserves draw/query interleaving and repeated-event
 counts. Only adjacent identical producer rows may coalesce. Context epoch/id
 numbers can be normalized after ancestry validation; the full normalized
-parent state is hashed into the child, not merely its non-unique semantic
-label. Static-scene tic/fraction labels may be normalized only under the
-recipe's declared clock policy. Generation/slot/probe/selection/material
-differences are never erased to obtain a pass.
+parent state is hashed into the child. View position/angle/FOV representation
+is canonicalized only to 1e-9, and the context label retains its nonnumeric
+portal-kind prefix while rebuilding its derived numeric suffix. Static-scene
+tic/fraction labels may be normalized only under the recipe's declared clock
+policy. Renderer-local live slot numbers are normalized to first-seen identities
+while generation/epoch/span and aliasing remain. Raw resource-owner telemetry
+stays in each packet, but process-cumulative/lazy allocation, upload and staging
+workload counters are excluded from semantic equality; capacity state and all
+failure/rejection diagnostics remain compared. Probe/light/shadow/material/
+pipeline decisions are never erased to obtain a pass.
 
 Exact or preregistered tolerant RGB comparison is paired with state. Both
 inputs must share actual device/driver/content/settings; changing a build is an
@@ -67,10 +73,17 @@ native-qualified or unblocking dependent feature work.
 ## Native workload assertions
 
 The catalog's `state_assertions` are checked in every recorded state frame by
-`run.py::_scene_assertions`: required material names and ordered semantic layers,
-root producers, actual line-mirror contexts, published probe pairs/live draw
-bindings, and authored sun intensity. A generated asset is not a draw witness.
+`run.py::_scene_assertions`: required material names and ordered authored semantic
+prefixes, root producers, actual line-mirror contexts, published probe pairs/live
+draw bindings, and authored sun intensity. Extra brightmap/detail/glow layers
+pass only when they are the engine's canonical one-pixel lump-0 placeholders.
+A generated asset is not a draw witness.
 The new static `sprite-mirror` recipe uses authored asymmetric paired rotations
 and the accepted PF line-mirror special. Original PF byte inventories and
 fixed-fraction/IWAD contracts are preserved. Two copies of one capture cannot
 satisfy independent-repeat comparison.
+
+The 1,056-light shadow-capacity correctness witness retains 1,056 candidate,
+1,024 selected and 32 dropped assertions but uses a two-frame warmup on software
+Vulkan. The earlier 120-frame warmup exceeded the bounded llvmpipe run before
+observation and was not a benchmark requirement; timing workloads remain separate.
