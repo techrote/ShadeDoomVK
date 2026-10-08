@@ -2621,7 +2621,7 @@
           "+exec",
           "{capture_script}"
         ],
-        "authored_light_count": 1056,
+        "authored_light_count": 1025,
         "camera": {
           "actor_tid": 2002,
           "camera_height": 0,
@@ -2696,12 +2696,12 @@
         ],
         "frame_assertions": {
           "shadow_candidates": {
-            "maximum": 1056,
-            "minimum": 1056
+            "maximum": 1025,
+            "minimum": 1025
           },
           "shadow_dropped": {
-            "maximum": 32,
-            "minimum": 32
+            "maximum": 1,
+            "minimum": 1
           },
           "shadow_selected": {
             "maximum": 1024,
@@ -2733,10 +2733,11 @@
         },
         "pending_coverage": [
           "Native actual light eligibility, visibility, selected/rejected identities and image effect must be observed.",
+          "The software-Vulkan capacity witness uses exactly one light beyond the 1,024-row limit, the minimum valid 128 shadow-map resolution and one warmup frame. It must still observe 1,025 candidates, 1,024 selected and one dropped; this is correctness-capacity evidence, not an image-quality or performance claim.",
           "Stationary solid geometry is authored here; moving-occluder invalidation is retained as a CPU adversarial contract until a native transition recipe is qualified."
         ],
         "pk3": "scenes/shadow-boundary/scene.pk3",
-        "recommended_warmup_frames": 2,
+        "recommended_warmup_frames": 1,
         "required_native_evidence": [
           "native map/content compilation",
           "exact executable/IWAD/settings and actually loaded package identities",
@@ -2765,7 +2766,7 @@
           "gl_lightprobe": false,
           "gl_lights": true,
           "gl_multisample": 0,
-          "gl_shadowmap_quality": 512,
+          "gl_shadowmap_quality": 128,
           "gl_spritelight": 2,
           "gl_ssao": 0,
           "gl_texture_filter": 0,
@@ -2791,7 +2792,7 @@
           "actual_candidate_and_drop_counts_required": true,
           "capacity": 1024,
           "eligibility_policy": "gl_light_shadows=2 selects all active non-exempt lights; source a_dynlight.cpp hitonesidedback || gl_light_shadows > 1",
-          "expected_authored_overflow": 32
+          "expected_authored_overflow": 1
         },
         "status": "native_qualification_pending"
       },
