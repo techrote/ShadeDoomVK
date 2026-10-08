@@ -749,3 +749,13 @@ native capture. The hosted software Vulkan lane is the documented runtime path.
 This entry records implementation progress, not acceptance. Current-head checks,
 native corpus comparisons/baseline, PR merge and verified master must be recorded
 before issue closure or dependent SDVK-004/006/009/014 readiness changes.
+
+### 8 October 2026 — verified SDVK-002 renderer-observability acceptance
+
+SDVK-002 / #2 substantive implementation PR #121 merged as `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89` from publication head `59cfcaeccbdbd0617e4e032fa153fd91604aa970`. The merge tree `d12e07da15cccddc7f699c140911a5a6f852c4aa` equals the exact final PR tree. Final-head run 37766168263 passed all nine jobs, including the software-Vulkan native lane; exact post-merge run 37767780123 also passed all nine jobs. Source-evidence runs 37766168248 and 37767780437 independently sealed the tested PR merge ref and merged master.
+
+The accepted native corpus runs eight newly authored workloads twice each with exact same-device RGB/state comparisons: compositing, zero/one/many lights, the minimal 1,025-candidate shadow overflow, 64-material stress, sun/probes and sprite/mirror. Every pair passes. Three independent `lights-one` timing processes retain 120 raw CPU samples each plus resolved named GPU timestamp groups; repeatability passes, with no performance-improvement claim. The 1,025-light shadow witness selects 1,024 and drops one at 128 shadow-map resolution with one warmup frame; it is a correctness/capacity witness only.
+
+[SDVK-002 release receipt](SDVK-002-RELEASE-ACCEPTANCE.json) pins PR/master source bundles, CPU/native artifacts and retained failures, including failed run 37677445294. Exact-pixel scope remains same device/driver/profile; software Vulkan is not physical-GPU qualification, named GPU groups are not whole-frame GPU time, and the observer does not claim executed SPIR-V or arbitrary LevelMesh per-surface proof.
+
+**SDVK-002: ACCEPTED, MERGED AND VERIFIED. SDVK-006: DEPENDENCY-READY.** SDVK-004/009 continue to await SDVK-003; SDVK-014 retains its other declared dependencies. Acceptance-documentation integration is documentation-only and changes no renderer/runtime inputs.
