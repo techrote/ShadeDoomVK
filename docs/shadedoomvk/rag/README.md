@@ -16,7 +16,8 @@ These references are compact retrieval aids for autonomous agents. They describe
 8. `08-VULKAN-PIPELINE-CAPABILITIES.md` — Vulkan descriptors/pipelines/capability seams.
 9. `09-POSTPROCESS-HDR-FUTURE-SEAMS.md` — current postprocess/HDR substrate and temporal seams.
 10. `10-KNOWN-TRAPS-DORMANT-PATHS.md` — explicit incomplete, dormant and dangerous assumptions.
-11. `11-RENDERER-OBSERVABILITY.md` — corpus, native diagnostic boundaries, comparison and evidence ownership.\n12. `12-UPSTREAM-SYNC-OWNERSHIP.md` — selective upstream ownership, conflict and supersession policy.
+11. `11-RENDERER-OBSERVABILITY.md` — corpus, native diagnostic boundaries, comparison and evidence ownership.
+12. `12-UPSTREAM-SYNC-OWNERSHIP.md` — selective upstream ownership, conflict and supersession policy.
 
 ## Status vocabulary
 
