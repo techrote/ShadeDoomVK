@@ -181,9 +181,62 @@ class SemanticProjectionTests(unittest.TestCase):
         right["records"][1]["data"]["resource"]["generation"] += 1
         self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
 
+    def test_context_float_noise_and_derived_label_normalize_but_real_motion_remains(self):
+        left, right = observation(), observation()
+        for record in right["records"]:
+            value = record["data"]
+            if "context" in value:
+                value["context"]["position"][1] = -1e-14
+                value["context"]["semantic_key"] = "derived-label-with-float-noise"
+            if record["kind"] == "frame":
+                value["camera"]["position"][1] = -1e-14
+                value["camera"]["fov"] = 89.99999999999999
+        self.assertEqual(validate.state_projection(left), validate.state_projection(right))
+        right["records"][0]["data"]["context"]["position"][1] = 1e-6
+        right["records"][1]["data"]["context"]["position"][1] = 1e-6
+        self.assertNotEqual(validate.state_projection(left), validate.state_projection(right))
+
+    def test_resource_workload_telemetry_normalizes_but_health_and_epoch_state_remain(self):
+        resource = {"scope": "synthetic cumulative owner snapshot",
+                    "descriptor_requested": 64, "descriptor_device_limit": 64, "descriptor_capacity": 64,
+                    "descriptor_dynamic_start": 8, "descriptor_current": 10, "descriptor_high_water": 12,
+                    "descriptor_allocations": 4, "descriptor_reuses": 2, "descriptor_frees": 1,
+                    "descriptor_failures": 0, "descriptor_invalid_frees": 0, "descriptor_limit_source": "device",
+                    "lifetime": {"activations": 4, "retirements": 1, "resets": 0, "stale_rejects": 0,
+                                 "invalid_retires": 0, "duplicate_activations": 0},
+                    "texture_epoch": 1, "lightmap_epoch": 1, "probe_epoch": 1, "async_upload_epoch": 1,
+                    "hardware_textures": 30, "lightmap_pages": 0, "irradiance_maps": 0, "prefilter_maps": 0,
+                    "async_uploads": {"queued": 5, "completed": 5, "cancelled": 0,
+                                      "missing_ticket_rejects": 0, "manager_epoch_rejects": 0, "target_epoch_rejects": 0},
+                    "staging": {"requests": 5, "bytes": 1000, "high_water": 1000, "reuses": 4,
+                                "wrap_waits": 0, "dedicated": 0}}
+        left = observation()
+        left["records"].append(row("resource", resource))
+        recount(left)
+        right = copy.deepcopy(left)
+        changed = right["records"][-1]["data"]
+        changed.update(descriptor_current=11, descriptor_high_water=13, descriptor_allocations=5,
+                       descriptor_reuses=3, descriptor_frees=2, hardware_textures=31)
+        changed["lifetime"].update(activations=5, retirements=2, resets=1)
+        changed["async_uploads"].update(queued=6, completed=6, cancelled=1)
+        changed["staging"].update(requests=6, bytes=1200, high_water=1200, reuses=5, wrap_waits=1, dedicated=1)
+        self.assertEqual(validate.state_projection(left), validate.state_projection(right))
+        for mutate in (
+            lambda d: d["records"][-1]["data"].update(descriptor_failures=1),
+            lambda d: d["records"][-1]["data"]["lifetime"].update(stale_rejects=1),
+            lambda d: d["records"][-1]["data"]["async_uploads"].update(manager_epoch_rejects=1),
+            lambda d: d["records"][-1]["data"].update(texture_epoch=2),
+            lambda d: d["records"][-1]["data"].update(descriptor_capacity=63),
+        ):
+            candidate = copy.deepcopy(left)
+            mutate(candidate)
+            self.assertNotEqual(validate.state_projection(left), validate.state_projection(candidate))
+
     def test_parent_semantic_lineage_survives_token_normalization(self):
         left = observation()
-        left["records"] += [row("context", {"context": context(2, semantic="other-root")}),
+        parent = context(2, semantic="other-root")
+        parent["history_eligible"] = False
+        left["records"] += [row("context", {"context": parent}),
                             row("context", {"context": context(3, parent=1, depth=1, semantic="child")})]
         recount(left)
         right = copy.deepcopy(left)
@@ -276,6 +329,35 @@ class CaptureReceiptTests(unittest.TestCase):
             mutation(changed)
             with self.subTest(mutation=mutation), self.assertRaises(common.EvidenceError):
                 run._scene_assertions(changed, scene)
+
+    def test_material_semantics_allow_only_ordered_one_pixel_engine_placeholders(self):
+        data = observation()
+        scene = {"id": "synthetic", "native": {"camera": {"position": [0, 0, 64], "yaw": 0, "pitch": 0, "roll": 0},
+                 "settings": {}, "state_assertions": {"materials": ["SYNTHETIC"],
+                 "material_semantics": {"SYNTHETIC": ["albedo"]}}}}
+        base = copy.deepcopy(data["records"][1]["data"]["layers"][0])
+        for semantic in ("brightmap-emissive", "detail", "glow"):
+            layer = copy.deepcopy(base)
+            layer["binding"] = len(data["records"][1]["data"]["layers"])
+            layer["semantic"] = semantic
+            layer["source"] = {"lump": 0, "width": 1, "height": 1}
+            data["records"][1]["data"]["layers"].append(layer)
+        run._scene_assertions(data, scene)
+
+        changed = copy.deepcopy(data)
+        changed["records"][1]["data"]["layers"][-1]["source"]["lump"] = 9
+        with self.assertRaises(common.EvidenceError):
+            run._scene_assertions(changed, scene)
+
+        changed = copy.deepcopy(data)
+        changed["records"][1]["data"]["layers"][-1]["semantic"] = "metallic"
+        with self.assertRaises(common.EvidenceError):
+            run._scene_assertions(changed, scene)
+
+        changed = copy.deepcopy(data)
+        changed["records"][1]["data"]["layers"][0]["semantic"] = "normal"
+        with self.assertRaises(common.EvidenceError):
+            run._scene_assertions(changed, scene)
 
     def test_equal_images_do_not_hide_a_state_change(self):
         with tempfile.TemporaryDirectory() as temporary:
