@@ -1,23 +1,56 @@
 {
   "explicit_build_change": false,
   "first_state_differences": [
-    {"left": "PLAYA1", "path": "/4136/data/material", "right": "PLAYA5"},
-    {"left": 6039, "path": "/4137/data/layers/0/source/lump", "right": 6043},
-    {"left": 36, "path": "/4137/data/layers/0/source/width", "right": 38},
-    {"left": "PLAYA1", "path": "/4137/data/name", "right": "PLAYA5"},
-    {"left": "PLAYA1", "path": "/4137/data/semantic_key", "right": "PLAYA5"},
-    {"left": "PLAYA1", "path": "/4138/data/material", "right": "PLAYA5"},
-    {"left": "PLAYA1", "path": "/4139/data/material", "right": "PLAYA5"}
+    {
+      "left": "PLAYA1",
+      "path": "/4136/data/material",
+      "right": "PLAYA5"
+    },
+    {
+      "left": 6039,
+      "path": "/4137/data/layers/0/source/lump",
+      "right": 6043
+    },
+    {
+      "left": 36,
+      "path": "/4137/data/layers/0/source/width",
+      "right": 38
+    },
+    {
+      "left": "PLAYA1",
+      "path": "/4137/data/name",
+      "right": "PLAYA5"
+    },
+    {
+      "left": "PLAYA1",
+      "path": "/4137/data/semantic_key",
+      "right": "PLAYA5"
+    },
+    {
+      "left": "PLAYA1",
+      "path": "/4138/data/material",
+      "right": "PLAYA5"
+    },
+    {
+      "left": "PLAYA1",
+      "path": "/4139/data/material",
+      "right": "PLAYA5"
+    }
   ],
   "image": {
     "changed_pixel_fraction": 0.0,
     "changed_pixels": 0,
-    "extent": [640, 480],
+    "extent": [
+      640,
+      480
+    ],
     "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
     "max_channel_error": 0,
     "mean_channel_error": 0.0,
     "passed": true,
-    "policy": {"metric": "exact-rgb8"},
+    "policy": {
+      "metric": "exact-rgb8"
+    },
     "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
   },
   "left": {
@@ -36,7 +69,7 @@
   "state_equal": false,
   "state_sha256": {
     "left": "e87826f418977fec907580db95f185b2b73d57d42606e3143b4938bf43b3b58e",
-    "right": "86ab097ff0a6cf5592fd06ccebd2ea9314752e82f9a4759c44652fe1fe6404d98"
+    "right": "86ab097ff0a6cf5598b3133636951965e95f6644b5cc050c56bdac933c1835ea"
   },
   "status": "FAIL"
 }
