@@ -29,6 +29,7 @@
 #include "vulkan/descriptorsets/vk_descriptorset.h"
 #include "vulkan/textures/vk_renderbuffers.h"
 #include "vulkan/textures/vk_pfviewdiagnostics.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include "vulkan/samplers/vk_samplers.h"
 #include "vulkan/shaders/vk_shader.h"
 #include "vulkan/buffers/vk_hwbuffer.h"
@@ -87,7 +88,8 @@ static unsigned CalculatePipelineThreadCountTarget()
 
 VkRenderPassManager::VkRenderPassManager(VulkanRenderDevice* fb) : fb(fb)
 {
-	CacheFilename = Pf020VulkanDiagnostics::CacheFilename("pipelinecache.zdpc");
+	const auto observedCache = SdvkDiagnostics::ApplicationCacheFilename("pipelinecache.zdpc");
+	CacheFilename = observedCache.empty() ? Pf020VulkanDiagnostics::CacheFilename("pipelinecache.zdpc") : FString(observedCache.c_str());
 	CfxTrace::Mark("pipeline-cache-path", CacheFilename.GetChars());
 	Pf020VulkanDiagnostics::CacheFile("pipeline", "before-load", CacheFilename, false);
 

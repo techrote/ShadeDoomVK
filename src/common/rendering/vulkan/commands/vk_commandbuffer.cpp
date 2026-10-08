@@ -30,7 +30,9 @@
 #include <zvulkan/vulkanswapchain.h>
 #include <zvulkan/vulkanbuilders.h>
 #include "hw_clock.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include "v_video.h"
+#include <cmath>
 
 extern int rendered_commandbuffers;
 int current_rendered_commandbuffers;
@@ -365,17 +367,65 @@ void VkCommandBufferManager::PopGroup(VulkanCommandBuffer* cmdbuffer)
 void VkCommandBufferManager::UpdateGpuStats()
 {
 	uint64_t timestamps[MaxTimestampQueries];
+	bool timestampResultsReady = true;
 	if (mNextTimestampQuery > 0)
-		mTimestampQueryPool->getResults(0, mNextTimestampQuery, sizeof(uint64_t) * mNextTimestampQuery, timestamps, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
+		timestampResultsReady = mTimestampQueryPool->getResults(0, mNextTimestampQuery, sizeof(uint64_t) * mNextTimestampQuery, timestamps, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT);
 
 	double timestampPeriod = fb->GetDevice()->PhysicalDevice.Properties.Properties.limits.timestampPeriod;
+
+	// Reuse the existing requested profiling readback: never issue an additional
+	// query or wait for diagnostics. These can be nested named groups measured at
+	// COLOR_ATTACHMENT_OUTPUT; they are not a sum or a whole-frame GPU timer.
+	const bool diagnosticsRequested = SdvkDiagnostics::GpuTimingRequested();
+	bool diagnosticQueriesReady = false;
+	uint64_t timestampMask = std::numeric_limits<uint64_t>::max();
+	if (diagnosticsRequested)
+	{
+		const auto* device = fb->GetDevice();
+		const auto& families = device->PhysicalDevice.QueueFamilies;
+		const bool familyKnown = device->GraphicsFamily >= 0 && static_cast<size_t>(device->GraphicsFamily) < families.size();
+		const uint32_t validBits = familyKnown ? families[device->GraphicsFamily].timestampValidBits : 0;
+		const char* unavailable = nullptr;
+		if (!device->GraphicsTimeQueries || (familyKnown && validBits == 0))
+			unavailable = "graphics_queue_timestamp_queries_unsupported";
+		else if (!familyKnown || validBits < 36 || validBits > 64 || !std::isfinite(timestampPeriod) || timestampPeriod <= 0)
+			unavailable = "graphics_queue_timestamp_metadata_invalid";
+		else if (!gpuStatActive)
+			unavailable = "gpu_timestamp_profiler_warmup";
+		else if (!timestampResultsReady)
+			unavailable = "gpu_timestamp_query_results_unavailable";
+		else if (mNextTimestampQuery == 0 || timeElapsedQueries.empty())
+			unavailable = "no_gpu_timestamp_groups_recorded";
+		else if (mNextTimestampQuery >= MaxTimestampQueries || !mGroupStack.empty() ||
+			std::any_of(timeElapsedQueries.begin(), timeElapsedQueries.end(), [&](const TimestampQuery& q)
+				{ return q.endIndex <= q.startIndex || q.endIndex >= static_cast<uint32_t>(mNextTimestampQuery); }))
+			unavailable = "gpu_timestamp_groups_incomplete_or_capacity_reached";
+
+		if (unavailable)
+			SdvkDiagnostics::GpuUnavailable(unavailable);
+		else
+		{
+			diagnosticQueriesReady = true;
+			if (validBits < 64) timestampMask = (uint64_t(1) << validBits) - 1;
+		}
+	}
 
 	gpuStatOutput = "";
 	for (auto& q : timeElapsedQueries)
 	{
-		if (q.endIndex <= q.startIndex)
+		if (!timestampResultsReady || q.endIndex <= q.startIndex)
 			continue;
 
+		if (diagnosticQueriesReady)
+		{
+			// VkQueueFamilyProperties::timestampValidBits defines modulo wrap.
+			// This measures an interval shorter than one full counter period;
+			// timestamps alone cannot disambiguate additional complete wraps.
+			const uint64_t elapsedTicks = (timestamps[q.endIndex] - timestamps[q.startIndex]) & timestampMask;
+			SdvkDiagnostics::GpuGroup(q.name.GetChars(), double(elapsedTicks) * timestampPeriod / 1000000.0);
+		}
+
+		// Preserve the inherited display calculation and rounding independently.
 		int64_t timeElapsed = max(static_cast<int64_t>(timestamps[q.endIndex] - timestamps[q.startIndex]), (int64_t)0);
 		double timeNS = timeElapsed * timestampPeriod;
 
@@ -386,6 +436,6 @@ void VkCommandBufferManager::UpdateGpuStats()
 	timeElapsedQueries.clear();
 	mGroupStack.clear();
 
-	gpuStatActive = keepGpuStatActive;
+	gpuStatActive = keepGpuStatActive || diagnosticsRequested;
 	keepGpuStatActive = false;
 }

@@ -71,6 +71,7 @@ private:
 class VkMaterial : public FMaterial
 {
 	friend struct FIndexedMaterialDiagnosticAccess;
+	friend struct FSdvkDiagnosticAccess;
 public:
 	VkMaterial(VulkanRenderDevice* fb, FGameTexture* tex, int scaleflags);
 	~VkMaterial();

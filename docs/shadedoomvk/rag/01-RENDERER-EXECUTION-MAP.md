@@ -17,6 +17,14 @@ config/content/protocol names and the
 frame/view flow below retain their existing meaning. See
 [SDVK-001 foundation](../SDVK-001-FOUNDATION.md) and [build instructions](../../BUILDING.md).
 
+SDVK-002 adds optional `SdvkDiagnostics` observation around the hardware
+`RenderView` interval, the actual `HWDrawInfo` scene stack and immediate Vulkan
+draw emission. A post-presentation hook closes the bounded interval and uses the
+ordinary screenshot writer after tracing is disabled. State and timing modes
+are separate; the observer does not set simulation tics or interpolation.
+See [renderer observability](11-RENDERER-OBSERVABILITY.md) for actual channel
+scope, retained PF controls, CPU/GPU timing limits and qualification status.
+
 The hardware view enters through `src/rendering/hwrenderer/hw_entrypoint.cpp`.
 
 High-level flow:

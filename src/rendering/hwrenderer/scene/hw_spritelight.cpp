@@ -45,6 +45,7 @@
 #include <cmath>	// needed for std::floor on mac
 #include <vector>
 #include "hw_cvars.h"
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 
 namespace
 {
@@ -210,6 +211,9 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 {
 	if (fullbright || get_gl_spritelight() > 0)
 		return;
+	const bool observing = SdvkDiagnostics::StateEnabled();
+	if (observing && !node)
+		SdvkDiagnostics::LightDecision(this, self, nullptr, portalgroup, x, y, z, "section-list", "query-empty", "actor-cpu-aggregate");
 
 	FDynamicLight *light;
 	float frac, lr, lg, lb;
@@ -235,8 +239,10 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 	while (node)
 	{
 		light=node->lightsource;
+		const char* observationDecision = "actor-policy-rejected";
 		if (light->ShouldLightActor(self))
 		{
+			if (observing) observationDecision = "radius-rejected";
 			float dist;
 			FVector3 L;
 
@@ -262,6 +268,7 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 
 			if (radius > 0 && dist < radius * radius)
 			{
+				if (observing) observationDecision = "visibility-rejected";
 				dist = sqrtf(dist);	// only calculate the square root if we really need it.
 
 				if (light->IsSpot() || light->TraceActors())
@@ -269,6 +276,7 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 
 				if (staticLight.TraceLightVisbility(node, L, dist, light->updated))
 				{
+					if (observing) observationDecision = "attenuation-or-shadow-rejected";
 					if(level.info->lightattenuationmode == ELightAttenuationMode::INVERSE_SQUARE)
 					{
 						frac = (inverseSquareAttenuation(std::max(dist, sqrt(radius) * 2), radius, light->GetStrength(), light->GetLinearity()));
@@ -292,6 +300,7 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 
 					if (frac > 0 && (!light->shadowmapped || (self && light->TraceActors()) || screen->mShadowMap->ShadowTest(light->Pos, { x, y, z })))
 					{
+						if (observing) observationDecision = "selected";
 						lr = light->GetRed() / 255.0f;
 						lg = light->GetGreen() / 255.0f;
 						lb = light->GetBlue() / 255.0f;
@@ -325,6 +334,8 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 				}
 			}
 		}
+		if (observing)
+			SdvkDiagnostics::LightDecision(this, self, light, portalgroup, x, y, z, "section-list", observationDecision, "actor-cpu-aggregate");
 		node = node->nextLight;
 	}
 }
@@ -378,6 +389,7 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	uint64_t duplicates = 0;
 	uint64_t filtered = 0;
 	uint64_t traces = 0;
+	const char* observationSource = "bsp";
 
 	auto processLightList = [&](FLightNode *node, int group, HWGenerationSet<FDynamicLight*>& seen,
 		FDynLightData* output, std::vector<LightQuerySelection>* selections, bool countDiagnostics, bool deduplicate = true)
@@ -390,6 +402,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 			if (!light->ShouldLightActor(self))
 			{
 				if (countDiagnostics) ++filtered;
+				if (countDiagnostics && SdvkDiagnostics::StateEnabled())
+					SdvkDiagnostics::LightDecision(this, self, light, group, x, y, z, observationSource, "actor-policy-rejected");
 				node = node->nextLight;
 				continue;
 			}
@@ -403,6 +417,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 			if (distSquared >= radius * radius)
 			{
 				if (countDiagnostics) ++filtered;
+				if (countDiagnostics && SdvkDiagnostics::StateEnabled())
+					SdvkDiagnostics::LightDecision(this, self, light, group, x, y, z, observationSource, "radius-rejected");
 				node = node->nextLight;
 				continue;
 			}
@@ -410,6 +426,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 			if (deduplicate && !seen.MarkFirst(light))
 			{
 				if (countDiagnostics) ++duplicates;
+				if (countDiagnostics && SdvkDiagnostics::StateEnabled())
+					SdvkDiagnostics::LightDecision(this, self, light, group, x, y, z, observationSource, "duplicate-rejected");
 				node = node->nextLight;
 				continue;
 			}
@@ -425,6 +443,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 
 			if (gl_spritelight > 0 || staticLight.TraceLightVisbility(node, L, dist, light->updated))
 			{
+				if (countDiagnostics && SdvkDiagnostics::StateEnabled())
+					SdvkDiagnostics::LightDecision(this, self, light, group, x, y, z, observationSource, "selected");
 				if (selections)
 					selections->push_back({ light, group, LightQueryClass(light) });
 				if (output)
@@ -433,6 +453,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 			else if (countDiagnostics)
 			{
 				++filtered;
+				if (SdvkDiagnostics::StateEnabled())
+					SdvkDiagnostics::LightDecision(this, self, light, group, x, y, z, observationSource, "visibility-rejected");
 			}
 
 			node = node->nextLight;
@@ -450,6 +472,7 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 
 	if (useLocalSection)
 	{
+		observationSource = "qualified-local-section";
 		LightQueryLocalQueries.fetch_add(1, std::memory_order_relaxed);
 		// AddLightNode keeps one node per (light, section). A qualified query
 		// visits exactly this list once, so only the BSP source needs membership
@@ -517,6 +540,8 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 	LightQueryDuplicates.fetch_add(duplicates, std::memory_order_relaxed);
 	LightQueryFiltered.fetch_add(filtered, std::memory_order_relaxed);
 	LightQueryTraces.fetch_add(traces, std::memory_order_relaxed);
+	if (SdvkDiagnostics::StateEnabled())
+		SdvkDiagnostics::LightQuerySummary(this, self, x, y, z, observationSource, candidates, filtered, duplicates, traces);
 }
 
 void HWDrawInfo::GetDynSpriteLightList(AActor *thing, particle_t *particle, sun_trace_cache_t * traceCache, FDynLightData &modellightdata, bool isModel)
