@@ -157,3 +157,20 @@ PF-010 exposes descriptive `postprocessEligible` and `historyEligible` flags but
 `RenderViewpoint` now samples the render-only visual clock only after classifying and setting up a PF-010 `MainView` root, before stereo-eye fan-out. Camera-texture, probe and save-picture top-level calls never advance it; recursive portals only read a snapshot. The timestamp is `std::chrono::steady_clock`, deliberately independent of simulation `TimeScale` and tic time. `FRenderViewpoint::DiscontinuousView` carries the already-existing pre-frame view-reset signal so a non-main setup cannot accidentally reset the main clock.
 
 Alpha/scale interpolation is a hardware sprite presentation consumer of the accepted tic fraction, not of render delta. On a main-view clock discontinuity the new opt-in properties snap to the authoritative current endpoint for one sample. Position/angle/gameplay state remains on the inherited path. Detailed reset, clamp and context rules are in [SDVK-006-VISUAL-TIME.md](../SDVK-006-VISUAL-TIME.md).
+
+## SDVK-009 many-light execution/scaling seam
+
+The active scene-light path remains consumer-specific. Walls, flats, decals,
+sprites/models and HUD consumers first apply their inherited geometric/actor/
+portal/visibility policy into class-partitioned `FDynLightData`, then each
+immediate Vulkan consumer calls `VkRenderState::UploadLights`. One successful
+upload appends one 16-byte range plus 80 bytes per selected `FDynLightInfo`;
+scene shaders iterate the selected class ranges when `uLightIndex >= 0`.
+Therefore the useful scaling axes are candidate visits, selected records per
+consumer, draw/consumer count, portal-relative variants, traces, uploaded
+ranges/records and shader iterations, not authored-light count alone.
+
+LevelMesh is a separate domain. Its active `Mesh.LightIndexes` data serves
+lightmapper/ray-related consumers, while the inherited screen tile consumer is
+dormant (`frag_main.glsl` forces `uLightIndex=-1`). Do not treat those two list
+ABIs as interchangeable. See [SDVK-009 non-GPU qualification](../SDVK-009-NON-GPU-QUALIFICATION.md).

@@ -1,0 +1,92 @@
+{
+  "schema": "sdvk009-nonphysical-qualification/v1",
+  "dateUtc": "2026-10-09",
+  "status": "NON_PHYSICAL_CANDIDATE_PENDING_EXACT_HEAD_CI",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/9",
+  "startingMaster": "cafbad5c45977327ba507bcf5f2dea9c3661f3d3",
+  "physicalGpuQualified": false,
+  "finalIssueAcceptance": false,
+  "decisionState": "C_PROVISIONAL_NO_CHANGE_PENDING_PHYSICAL_CONFIRMATION",
+  "correctnessRepair": {
+    "surface": "VkRenderState::UploadLights",
+    "defect": "range index guard accepted UploadIndex == MAX_LIGHT_DATA, one past the valid ivec4 table",
+    "repair": "VkLightUploadPolicy::Fits requires uploadIndex < count and overflow-safe data bounds",
+    "normalSemanticsChanged": false
+  },
+  "workloads": {
+    "retainedAuthoredScenes": 11,
+    "newScenes": [
+      {
+        "id": "lights-dense-overlap",
+        "authoredLights": 256,
+        "profile": "mixed-static"
+      },
+      {
+        "id": "lights-dense-dispersed",
+        "authoredLights": 256,
+        "profile": "mixed-static"
+      }
+    ],
+    "fullAuthoredSceneCount": 13,
+    "hostedSoftwareVulkanScenes": 10,
+    "denseSoftwareVulkanTiming": {
+      "processesPerScene": 3,
+      "framesPerProcess": 30,
+      "warmupFrames": 20
+    }
+  },
+  "diagnostics": {
+    "stateOnly": true,
+    "frameLightCensus": true,
+    "actorQueryAggregates": true,
+    "immediateUploadCounters": true,
+    "uploadSizeHistogram": true,
+    "capacityFallbackFailsValidation": true
+  },
+  "candidateDisposition": [
+    {
+      "candidate": "current PF architecture",
+      "status": "LEADING_CONTROL_PHYSICAL_CONFIRMATION_REQUIRED"
+    },
+    {
+      "candidate": "PF-017 temporal reuse/indirection",
+      "status": "REJECTED_ACCEPTED_PHYSICAL_NO_GO"
+    },
+    {
+      "candidate": "inherited copied-record light tiles",
+      "status": "REJECTED_CORRECTNESS_HARD_CAP_16_AND_PORTAL_BLOCKER"
+    },
+    {
+      "candidate": "LevelMesh light-index reuse",
+      "status": "REJECTED_AS_DROP_IN_SEMANTIC_MISMATCH_AND_FOUR_PORTAL_CACHE_ALIAS_RISK"
+    },
+    {
+      "candidate": "ordered indexed tile/forward+ representation",
+      "status": "RESEARCH_ONLY_HOST_PROTOTYPE_NOT_RUNTIME_CANDIDATE"
+    }
+  ],
+  "hostPrototype": {
+    "referenceExtent": [
+      1904,
+      1001
+    ],
+    "tiles64px": 480,
+    "lights": 256,
+    "fullCopiedRecordBytes": 9838080,
+    "indexedOverlapBytes": 519680,
+    "pathologicalOverlapLoopEntries": 122880,
+    "performanceClaim": false
+  },
+  "localQualification": {
+    "focusedContracts": "PASS",
+    "fullCheck": "LOCAL_EXECUTION_WINDOW_EXCEEDED_NO_OBSERVED_TEST_FAILURE",
+    "softwareVulkan": "PENDING_HOSTED_EXACT_HEAD_CI"
+  },
+  "limitations": [
+    "No physical-GPU measurements were performed by this phase.",
+    "Software Vulkan timing is descriptive and cannot establish production GPU performance.",
+    "The indexed-tile host prototype demonstrates representation/order and memory structure only; it does not solve semantic eligibility or prove GPU benefit.",
+    "The generated corpus does not add a new external model asset; accepted PF-016 model-path evidence remains authoritative.",
+    "Issue #9 remains open pending the physical-GPU protocol."
+  ]
+}

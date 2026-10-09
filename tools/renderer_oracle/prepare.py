@@ -231,8 +231,11 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             raise ValueError(f"Scene {name} cannot accept pixels without state")
         if native.get("generator") == "pf_view" and native.get("generic_capture_supported") is not False:
             raise ValueError("The retained interpolated PF scene needs its own fixed-fraction state driver")
-        if native["generator"] == "lighting" and native.get("authored_light_count") not in (0, 1, 64, 1025):
+        if native["generator"] == "lighting" and native.get("authored_light_count") not in (0, 1, 64, 256, 1025):
             raise ValueError("Lighting fixture must use one of the bounded declared counts")
+        if native["generator"] == "lighting" and native.get("authored_light_count") == 256:
+            if native.get("light_layout") not in ("overlap", "dispersed") or native.get("light_profile") != "mixed-static":
+                raise ValueError("SDVK-009 dense lighting fixtures require an explicit layout and mixed-static profile")
     if covered != CLASSES:
         raise ValueError("Corpus class coverage is incomplete")
 
@@ -381,7 +384,7 @@ def _pbr(name: str, kind: str = "texture", roughness: str = "SDVR") -> str:
     return f'material {kind} {name}\n{{\n normal "SDVN"\n metallic "SDVM"\n roughness "{roughness}"\n ao "SDVAO"\n}}\n'
 
 
-def _light_positions(count: int) -> list[tuple[int, int]]:
+def _light_positions(count: int, layout: str = "legacy") -> list[tuple[int, int]]:
     if count == 0:
         return []
     if count == 1:
@@ -390,6 +393,18 @@ def _light_positions(count: int) -> list[tuple[int, int]]:
         # Eight complete rows outside the occluder, with no approximate RNG.
         return [(x, y) for y in (-288, -208, -128, -80, 80, 128, 208, 288)
                 for x in (-400, -288, -176, -64, 64, 176, 288, 400)]
+    if count == 256:
+        if layout == "overlap":
+            # 16x16 compact cluster. Radius 192 below makes this a deliberately
+            # pathological overlap workload without coincident light origins.
+            return [(-240 + x * 8, -60 + y * 8) for y in range(16) for x in range(16)]
+        if layout == "dispersed":
+            # Matched count/profile distributed across the room, keeping every
+            # authored origin outside the central solid occluder.
+            candidates = [(x, y) for y in range(-304, 305, 40) for x in range(-432, 433, 48)
+                          if not (0 <= x <= 128 and -64 <= y <= 64)]
+            return [candidates[i * len(candidates) // count] for i in range(count)]
+        raise ValueError("256-light fixture requires overlap or dispersed layout")
     if count == 1025:
         candidates = [(x, y) for y in range(-304, 305, 16) for x in range(-432, 433, 16)
                       if not (0 <= x <= 128 and -64 <= y <= 64)]
@@ -474,13 +489,19 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
         model.boundary([(-512, -384), (-512, 384), (512, 384), (512, -384)], ["SDVW"] * 4)
         model.boundary([(0, -64), (128, -64), (128, 64), (0, 64)], ["SDVW"] * 4)
         count = native["authored_light_count"]
-        for i, (x, y) in enumerate(_light_positions(count)):
+        layout = native.get("light_layout", "legacy")
+        profile = native.get("light_profile", "point")
+        positions = _light_positions(count, layout)
+        for i, (x, y) in enumerate(positions):
             colour = ((255, 72, 40), (48, 224, 112), (64, 112, 255))[i % 3]
-            model.thing(9800, x, y, 64, tid=3000 + i, arg0=colour[0], arg1=colour[1], arg2=colour[2],
-                        arg3=96, light_noshadowmap=False, light_shadowminquality=1)
+            kind = (9800, 9810, 9820, 9840, 9850, 9860)[i % 6] if profile == "mixed-static" else 9800
+            model.thing(kind, x, y, 64, angle=(i * 37) % 360, tid=3000 + i, arg0=colour[0], arg1=colour[1], arg2=colour[2],
+                        arg3=192 if count == 256 else 96, light_noshadowmap=False, light_shadowminquality=1)
         model.thing(32203, -96, 160, tid=2020)
         model.thing(32203, 224, 160, tid=2021)
-        metadata.update(authored_light_count=count, solid_occluder_xy=[[0, -64], [128, 64]],
+        metadata.update(authored_light_count=count, light_layout=layout, light_profile=profile,
+                        light_types=sorted({thing["type"] for thing in model.records["thing"] if 9800 <= thing["type"] <= 9884}),
+                        solid_occluder_xy=[[0, -64], [128, 64]],
                         shadow_capacity=1024, actual_selection_not_inferred=True)
     elif generator == "material_stress":
         points = [(-512, -384), (-512, 384)] + [(512, 384 - 12 * i) for i in range(65)]

@@ -3,6 +3,8 @@
 #include "diagnostics/hw_sdvkdiagnosticcore.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/vk_renderstate.h"
+#include "vulkan/buffers/vk_buffer.h"
+#include "vulkan/buffers/vk_rsbuffers.h"
 #include "vulkan/textures/vk_hwtexture.h"
 #include "vulkan/textures/vk_texture.h"
 #include "vulkan/descriptorsets/vk_descriptorset.h"
@@ -202,6 +204,8 @@ void VulkanResources(VulkanRenderDevice* device)
         const auto& plan = descriptors->GetBindlessCapacityPlan();
         const auto& uploads = textures->GetAsyncUploadStats();
         const auto& staging = textures->GetUploadStagingPlannerStats();
+        const auto rsbuffers = device->GetBufferManager()->GetRSBuffers();
+        const auto& lightUploads = rsbuffers->Lightbuffer.Observation;
         Object result;
         result.Str("scope", "renderer-owner snapshot after RenderView; allocation counters are cumulative")
             .Int("descriptor_requested", plan.Requested).Int("descriptor_device_limit", plan.DeviceLimit).Int("descriptor_capacity", plan.Effective)
@@ -218,7 +222,23 @@ void VulkanResources(VulkanRenderDevice* device)
                 .Int("cancelled", uploads.PendingCancellations).Int("missing_ticket_rejects", uploads.MissingTicketRejects)
                 .Int("manager_epoch_rejects", uploads.ManagerEpochRejects).Int("target_epoch_rejects", uploads.TargetEpochRejects).Json())
             .Raw("staging", Object().Int("requests", staging.Requests).Int("bytes", staging.BytesRequested).Int("high_water", staging.HighWater)
-                .Int("reuses", staging.Reuses).Int("wrap_waits", staging.WrapWaits).Int("dedicated", staging.DedicatedRequests).Json());
+                .Int("reuses", staging.Reuses).Int("wrap_waits", staging.WrapWaits).Int("dedicated", staging.DedicatedRequests).Json())
+            .Raw("light_uploads", StateEnabled() ? Object().Bool("available", true)
+                .Int("range_capacity", rsbuffers->Lightbuffer.Count).Int("record_capacity", rsbuffers->Lightbuffer.Count)
+                .Int("range_capacity_bytes", uint64_t(rsbuffers->Lightbuffer.Count) * sizeof(int) * 4)
+                .Int("record_capacity_bytes", uint64_t(rsbuffers->Lightbuffer.Count) * sizeof(FDynLightInfo))
+                .Int("range_entries_used", rsbuffers->Lightbuffer.UploadIndex).Int("records_used", rsbuffers->Lightbuffer.DataIndex)
+                .Int("attempts", lightUploads.Attempts).Int("successful", lightUploads.Successful).Int("failed", lightUploads.Failed)
+                .Int("index_capacity_failures", lightUploads.IndexCapacityFailures).Int("data_capacity_failures", lightUploads.DataCapacityFailures)
+                .Int("normal_records", lightUploads.NormalRecords).Int("subtractive_records", lightUploads.SubtractiveRecords)
+                .Int("additive_records", lightUploads.AdditiveRecords).Int("uploaded_bytes", lightUploads.UploadedBytes)
+                .Int("peak_records_per_upload", lightUploads.PeakRecordsPerUpload)
+                .Raw("records_per_upload_histogram", Object().Int("empty", lightUploads.EmptyUploads)
+                    .Int("1_4", lightUploads.Uploads1To4).Int("5_16", lightUploads.Uploads5To16)
+                    .Int("17_64", lightUploads.Uploads17To64).Int("65_256", lightUploads.Uploads65To256)
+                    .Int("257_plus", lightUploads.Uploads257Plus).Json())
+                .Str("scope", "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate").Json()
+                : Unavailable("light upload counters are state-mode only to keep timing mode free of per-upload bookkeeping"));
         if (level.levelMesh)
         {
             const auto& epochs = level.levelMesh->GetMutationEpochs();

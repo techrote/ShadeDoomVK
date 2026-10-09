@@ -186,6 +186,17 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                 _visual_time(value["visual_time"], frame=True)
             require(value.get("state_instrumentation") is (data["mode"] == "state"), "Frame instrumentation/mode mismatch")
             require(value.get("hardware_renderer") is True, "Software game renderer is not a Vulkan renderer observation")
+            light_counter_keys = ("authored_lights", "active_lights", "spot_lights", "subtractive_lights", "additive_lights",
+                                  "actor_light_queries", "actor_light_candidates", "actor_light_selected", "actor_light_filtered",
+                                  "actor_light_duplicates", "actor_light_traces")
+            present_light_counters = [key for key in light_counter_keys if key in value]
+            if present_light_counters:
+                require(value["state_instrumentation"] and len(present_light_counters) == len(light_counter_keys),
+                        "Many-light frame counters must be complete state-mode evidence")
+                for key in light_counter_keys:
+                    integer(value.get(key), key, minimum=0)
+                require(value["actor_light_candidates"] == value["actor_light_selected"] + value["actor_light_filtered"] + value["actor_light_duplicates"],
+                        "Actor-light aggregate partition disagrees")
             integer(value.get("gametic"), "actual simulation tic")
             camera = value.get("camera", {})
             _vector(camera.get("position"), 3, "actual camera position")
@@ -260,6 +271,39 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             high = integer(value.get("descriptor_high_water"), "descriptor high water")
             start = integer(value.get("descriptor_dynamic_start"), "descriptor dynamic start")
             require(start <= capacity and current <= high <= capacity - start, "Descriptor range/high-water accounting disagrees")
+            light_uploads = value.get("light_uploads")
+            if light_uploads is not None:
+                _availability(light_uploads, "dynamic-light uploads")
+                if light_uploads["available"]:
+                    range_capacity = integer(light_uploads.get("range_capacity"), "light range capacity", minimum=1)
+                    record_capacity = integer(light_uploads.get("record_capacity"), "light record capacity", minimum=1)
+                    range_capacity_bytes = integer(light_uploads.get("range_capacity_bytes"), "light range capacity bytes", minimum=16)
+                    record_capacity_bytes = integer(light_uploads.get("record_capacity_bytes"), "light record capacity bytes", minimum=80)
+                    require(range_capacity_bytes == range_capacity * 16 and record_capacity_bytes == record_capacity * 80,
+                            "Dynamic-light capacity byte accounting disagrees")
+                    ranges = integer(light_uploads.get("range_entries_used"), "light range entries used", minimum=0)
+                    records_used = integer(light_uploads.get("records_used"), "light records used", minimum=0)
+                    attempts = integer(light_uploads.get("attempts"), "light upload attempts", minimum=0)
+                    successful = integer(light_uploads.get("successful"), "successful light uploads", minimum=0)
+                    failed = integer(light_uploads.get("failed"), "failed light uploads", minimum=0)
+                    index_failures = integer(light_uploads.get("index_capacity_failures"), "light range-capacity failures", minimum=0)
+                    data_failures = integer(light_uploads.get("data_capacity_failures"), "light data-capacity failures", minimum=0)
+                    classes = [integer(light_uploads.get(key), key, minimum=0) for key in
+                               ("normal_records", "subtractive_records", "additive_records")]
+                    uploaded = integer(light_uploads.get("uploaded_bytes"), "light uploaded bytes", minimum=0)
+                    peak = integer(light_uploads.get("peak_records_per_upload"), "peak records per upload", minimum=0)
+                    require(ranges <= range_capacity and records_used <= record_capacity, "Dynamic-light upload usage exceeds capacity")
+                    require(attempts == successful + failed and ranges == successful, "Dynamic-light upload attempt accounting disagrees")
+                    require(sum(classes) == records_used, "Dynamic-light class totals disagree with uploaded records")
+                    require(uploaded == successful * 16 + records_used * 80, "Dynamic-light upload byte accounting disagrees")
+                    histogram = light_uploads.get("records_per_upload_histogram")
+                    require(isinstance(histogram, dict), "Dynamic-light upload histogram is missing")
+                    bins = [integer(histogram.get(key), "light upload histogram " + key, minimum=0) for key in
+                            ("empty", "1_4", "5_16", "17_64", "65_256", "257_plus")]
+                    require(sum(bins) == successful, "Dynamic-light upload histogram does not cover successful uploads")
+                    require(peak <= records_used and index_failures <= failed and data_failures <= failed,
+                            "Dynamic-light upload peak/failure accounting disagrees")
+                    require(failed == 0, "Dynamic-light upload capacity fallback occurred")
             for key in ("texture_epoch", "lightmap_epoch", "probe_epoch", "async_upload_epoch"):
                 integer(value.get(key), key, minimum=1)
         elif kind == "shadow":

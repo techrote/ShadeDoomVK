@@ -47,6 +47,13 @@ struct Observer
     bool Screenshot = false, GpuRequested = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     uint64_t GpuGroups = 0;
+    // SDVK-009 state-mode aggregates are reset for every retained frame.
+    // They reuse the existing light census/query calls and add no timing-mode
+    // traversal or clock sampling.
+    uint64_t AuthoredLights = 0, ActiveLights = 0, SpotLights = 0;
+    uint64_t SubtractiveLights = 0, AdditiveLights = 0;
+    uint64_t ActorLightQueries = 0, ActorCandidates = 0, ActorSelected = 0;
+    uint64_t ActorFiltered = 0, ActorDuplicates = 0, ActorTraces = 0;
     std::atomic<uint64_t> Frame{0};
     std::string Prefix, Build;
     RecordStore Records;
@@ -282,6 +289,10 @@ void BeginFrame()
         if (observer.StateMode && V_IsHardwareRenderer())
         {
             observer.Lights.clear();
+            observer.AuthoredLights = observer.ActiveLights = observer.SpotLights = 0;
+            observer.SubtractiveLights = observer.AdditiveLights = 0;
+            observer.ActorLightQueries = observer.ActorCandidates = observer.ActorSelected = 0;
+            observer.ActorFiltered = observer.ActorDuplicates = observer.ActorTraces = 0;
             for (auto current : AllLevels())
             {
                 unsigned ordinal = 0;
@@ -289,6 +300,11 @@ void BeginFrame()
                 {
                     Require(observer.Lights.size() < 65536, "SDVK frame light census limit reached");
                     observer.Lights.emplace(light, LightJson(light, current->MapName.GetChars(), ordinal++));
+                    ++observer.AuthoredLights;
+                    if (light->IsActive()) ++observer.ActiveLights;
+                    if (light->IsSpot()) ++observer.SpotLights;
+                    if (light->IsSubtractive()) ++observer.SubtractiveLights;
+                    if (light->IsAdditive()) ++observer.AdditiveLights;
                 }
             }
             StateFlag.store(true, std::memory_order_relaxed);
@@ -337,6 +353,17 @@ void EndFrame()
             .Raw("decals", counter(rendered_decals)).Raw("portals", counter(rendered_portals)).Raw("vertices", counter(vertexcount))
             .Raw("light_wall_considered", counter(iter_dlight)).Raw("light_wall_rendered", counter(draw_dlight))
             .Raw("light_flat_considered", counter(iter_dlightf)).Raw("light_flat_rendered", counter(draw_dlightf))
+            .Raw("authored_lights", observer.StateMode && hardware ? std::to_string(observer.AuthoredLights) : std::string("null"))
+            .Raw("active_lights", observer.StateMode && hardware ? std::to_string(observer.ActiveLights) : std::string("null"))
+            .Raw("spot_lights", observer.StateMode && hardware ? std::to_string(observer.SpotLights) : std::string("null"))
+            .Raw("subtractive_lights", observer.StateMode && hardware ? std::to_string(observer.SubtractiveLights) : std::string("null"))
+            .Raw("additive_lights", observer.StateMode && hardware ? std::to_string(observer.AdditiveLights) : std::string("null"))
+            .Raw("actor_light_queries", observer.StateMode && hardware ? std::to_string(observer.ActorLightQueries) : std::string("null"))
+            .Raw("actor_light_candidates", observer.StateMode && hardware ? std::to_string(observer.ActorCandidates) : std::string("null"))
+            .Raw("actor_light_selected", observer.StateMode && hardware ? std::to_string(observer.ActorSelected) : std::string("null"))
+            .Raw("actor_light_filtered", observer.StateMode && hardware ? std::to_string(observer.ActorFiltered) : std::string("null"))
+            .Raw("actor_light_duplicates", observer.StateMode && hardware ? std::to_string(observer.ActorDuplicates) : std::string("null"))
+            .Raw("actor_light_traces", observer.StateMode && hardware ? std::to_string(observer.ActorTraces) : std::string("null"))
             .Raw("shadow_candidates", counter(ShadowMap::LightsCandidates)).Raw("shadow_selected", counter(ShadowMap::LightsShadowmapped))
             .Raw("shadow_dropped", counter(ShadowMap::LightsDropped)).Json());
         if (screen->IsVulkan()) VulkanResources(static_cast<VulkanRenderDevice*>(screen));
@@ -433,6 +460,13 @@ void LightQuerySummary(const HWDrawInfo* di, const AActor* actor, double x, doub
     try
     {
         Require(filtered <= candidates && duplicates <= candidates - filtered, "Invalid native light-query partition");
+        auto& observer = Get();
+        ++observer.ActorLightQueries;
+        observer.ActorCandidates += candidates;
+        observer.ActorSelected += candidates - filtered - duplicates;
+        observer.ActorFiltered += filtered;
+        observer.ActorDuplicates += duplicates;
+        observer.ActorTraces += traces;
         Emit("light-query", Object().Raw("context", Context(di)).Str("path", "actor-per-pixel-light-list")
             .Int("actor_tid", actor ? actor->tid : 0).Str("actor_class", actor ? actor->GetClass()->TypeName.GetChars() : "particle")
             .Raw("query_position", '[' + Number(x) + ',' + Number(y) + ',' + Number(z) + ']')
