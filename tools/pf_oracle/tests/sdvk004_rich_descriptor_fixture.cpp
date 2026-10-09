@@ -1,6 +1,7 @@
 #include "vk_bindless.h"
 
 #include <cassert>
+#include <cstddef>
 #include <cstdint>
 #include <iostream>
 #include <limits>
@@ -34,7 +35,7 @@ static VkBindlessDeviceLimits MakeLimits(uint32_t value)
 static Group AllocateGroup(VkBindlessSlotAllocator& allocator, int count, int span)
 {
 	Group group;
-	group.reserve(static_cast<size_t>(count));
+	group.reserve(static_cast<std::size_t>(count));
 	for (int i = 0; i < count; ++i)
 	{
 		const int index = allocator.Allocate(span);
@@ -48,7 +49,7 @@ static Group AllocateGroup(VkBindlessSlotAllocator& allocator, int count, int sp
 	return group;
 }
 
-static void RecycleOne(VkBindlessSlotAllocator& allocator, Group& group, size_t position)
+static void RecycleOne(VkBindlessSlotAllocator& allocator, Group& group, std::size_t position)
 {
 	auto& allocation = group.at(position % group.size());
 	const auto old = allocation.Identity;
@@ -133,9 +134,9 @@ int main()
 	constexpr int rebuildCycles = 64;
 	for (int cycle = 0; cycle < rebuildCycles; ++cycle)
 	{
-		RecycleOne(allocator, canvas, static_cast<size_t>(cycle));
-		RecycleOne(allocator, palette, static_cast<size_t>(cycle));
-		RecycleOne(allocator, pbr, static_cast<size_t>(cycle));
+		RecycleOne(allocator, canvas, static_cast<std::size_t>(cycle));
+		RecycleOne(allocator, palette, static_cast<std::size_t>(cycle));
+		RecycleOne(allocator, pbr, static_cast<std::size_t>(cycle));
 	}
 
 	// Sampler invalidation follows ResetHWTextureSets: every live material and
