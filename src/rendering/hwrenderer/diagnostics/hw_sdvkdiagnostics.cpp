@@ -18,6 +18,7 @@
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawcontext.h"
 #include "hwrenderer/scene/hw_portal.h"
+#include "hwrenderer/scene/hw_visualtime.h"
 #include "vulkan/vk_renderdevice.h"
 #include <chrono>
 #include <map>
@@ -158,6 +159,17 @@ std::string LightIdentity(const FDynamicLight* light)
     return found == lights.end() ? Unavailable("light was not present in the current render-frame census") : found->second;
 }
 
+std::string VisualTime(const HWRenderContext& context)
+{
+    const auto visual = GetHWVisualTime(context);
+    const auto& time = visual.Time;
+    return Object().Str("scope", HWVisualTimeScopeName(visual.Scope)).Bool("advances_main_clock", visual.AdvancesMainClock)
+        .Num("delta_seconds", time.DeltaSeconds).Num("accumulated_seconds", time.AccumulatedSeconds)
+        .Int("generation", time.Generation).Int("main_frame", time.MainFrame).Bool("delta_valid", time.DeltaValid)
+        .Bool("interpolation_valid", time.InterpolationValid).Bool("clamped", time.Clamped)
+        .Str("discontinuity", RenderVisualTime::ReasonName(time.Discontinuity)).Json();
+}
+
 std::string Context(const HWDrawInfo* di)
 {
     if (!di || !di->drawctx) return Unavailable("no active HWDrawInfo context");
@@ -180,6 +192,7 @@ std::string Context(const HWDrawInfo* di)
         .Int("depth", context.recursionDepth).Int("face", context.probeFace).Int("eye", context.eyeIndex).Int("portal_group", group)
         .Bool("line_mirror", context.lineMirror).Bool("plane_mirror", context.planeMirror).Bool("mirrored", context.mirrored)
         .Bool("history_eligible", context.historyEligible).Bool("postprocess_eligible", context.postprocessEligible)
+        .Raw("visual_time", VisualTime(context))
         .Raw("position", position).Raw("angles", angles).Str("angle_space", "hardware-view")
         .Num("fraction", vp.TicFrac).Int("gametic", gametic).Json();
 }
@@ -299,7 +312,13 @@ void EndFrame()
         const bool hardware = V_IsHardwareRenderer();
         const auto counter = [hardware](int value) { return hardware ? std::to_string(value) : std::string("null"); };
         ++observer.Collected;
+        const auto& visualTime = RenderVisualTime::RuntimeClock().Snapshot();
         Emit("frame", Object().Int("gametic", gametic).Str("map", level.MapName.GetChars()).Num("cpu_render_view_ms", elapsed)
+            .Raw("visual_time", Object().Str("scope", "main-view-owner").Num("delta_seconds", visualTime.DeltaSeconds)
+                .Num("accumulated_seconds", visualTime.AccumulatedSeconds).Int("generation", visualTime.Generation)
+                .Int("main_frame", visualTime.MainFrame).Bool("delta_valid", visualTime.DeltaValid)
+                .Bool("interpolation_valid", visualTime.InterpolationValid).Bool("clamped", visualTime.Clamped)
+                .Str("discontinuity", RenderVisualTime::ReasonName(visualTime.Discontinuity)).Json())
             .Raw("camera", Object().Raw("position", Vector(r_viewpoint.Pos))
                 .Raw("angles", '[' + Number(r_viewpoint.Angles.Yaw.Degrees()) + ',' + Number(r_viewpoint.Angles.Pitch.Degrees()) + ',' + Number(r_viewpoint.Angles.Roll.Degrees()) + ']')
                 .Raw("hardware_angles", '[' + Number(r_viewpoint.HWAngles.Yaw.Degrees()) + ',' + Number(r_viewpoint.HWAngles.Pitch.Degrees()) + ',' + Number(r_viewpoint.HWAngles.Roll.Degrees()) + ']')

@@ -73,6 +73,7 @@
 #include "doommenu.h"
 #include "a_sharedglobal.h"
 #include "r_utility.h"
+#include "r_visualtime.h"
 #include "p_spec.h"
 #include "serializer_doom.h"
 #include "vm.h"
@@ -1374,6 +1375,7 @@ void G_DoLoadLevel(const FString &nextmapname, int position, bool autosave, bool
 	LocalViewAngle = 0;
 	LocalViewPitch = 0;
 	paused = 0;
+	RenderVisualTime::ResetRuntime(RenderVisualTime::Reason::LevelLoad);
 
 	if (demoplayback || oldgs == GS_STARTUP || oldgs == GS_TITLELEVEL)
 		C_HideConsole();

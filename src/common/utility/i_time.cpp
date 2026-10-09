@@ -37,6 +37,8 @@
 #include <thread>
 #include <assert.h>
 #include "i_time.h"
+#include "r_visualtime.h"
+#include "vm.h"
 
 //==========================================================================
 //
@@ -222,4 +224,30 @@ void I_ResetInputTime()
 {
 	// Reset lastinputtime to current time.
 	lastinputtime = I_msTimeF();
+}
+
+
+// SDVK-006: UI-scope access to the renderer-owned main-view clock. These
+// values are presentation diagnostics/input only, never a gameplay timestep.
+double GetRenderDeltaTime()
+{
+	const auto& sample = RenderVisualTime::RuntimeClock().Snapshot();
+	return sample.DeltaValid ? sample.DeltaSeconds : 0.0;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DObject, GetRenderDeltaTime, GetRenderDeltaTime)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_FLOAT(GetRenderDeltaTime());
+}
+
+double GetRenderVisualTime()
+{
+	return RenderVisualTime::RuntimeClock().Snapshot().AccumulatedSeconds;
+}
+
+DEFINE_ACTION_FUNCTION_NATIVE(DObject, GetRenderVisualTime, GetRenderVisualTime)
+{
+	PARAM_PROLOGUE;
+	ACTION_RETURN_FLOAT(GetRenderVisualTime());
 }

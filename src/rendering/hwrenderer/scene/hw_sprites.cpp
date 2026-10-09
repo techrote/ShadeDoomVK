@@ -50,6 +50,7 @@
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_fakeflat.h"
 #include "hwrenderer/scene/hw_portal.h"
+#include "hwrenderer/scene/hw_visualtime.h"
 #include "flatvertices.h"
 #include "hw_cvars.h"
 #include "hw_clock.h"
@@ -976,8 +977,11 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 
 	const auto &vp = di->Viewpoint;
 	AActor *camera = vp.camera;
+	const auto& renderContext = di->drawctx->portalState.RenderContext;
+	const double visualFraction = HWVisualInterpolationFraction(renderContext, vp.TicFrac);
+	const double visualAlpha = thing->InterpolatedAlpha(visualFraction);
 
-	if (thing->renderflags & RF_INVISIBLE || !thing->RenderStyle.IsVisible(thing->Alpha))
+	if (thing->renderflags & RF_INVISIBLE || !thing->RenderStyle.IsVisible(visualAlpha))
 	{
 		if (!(thing->flags & MF_STEALTH) || !di->isStealthVision() || thing == camera)
 			return;
@@ -990,7 +994,7 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 		return;
 
 	int spritenum = thing->sprite;
-	DVector2 sprscale(thing->Scale.X, thing->Scale.Y);
+	DVector2 sprscale = thing->InterpolatedScale(visualFraction);
 	if (thing->player != nullptr)
 	{
 		P_CheckPlayerSprite(thing, spritenum, sprscale);
@@ -1431,7 +1435,7 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 	translation = thing->Translation;
 
 	OverrideShader = -1;
-	trans = thing->Alpha;
+	trans = visualAlpha;
 	hw_styleflags = STYLEHW_Normal;
 
 	if (RenderStyle.BlendOp >= STYLEOP_Fuzz && RenderStyle.BlendOp <= STYLEOP_FuzzOrRevSub)

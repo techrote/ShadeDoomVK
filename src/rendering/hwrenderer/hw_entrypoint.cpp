@@ -31,6 +31,7 @@
 #include "doomstat.h"
 #include "r_data/r_interpolate.h"
 #include "r_utility.h"
+#include "r_visualtime.h"
 #include "d_player.h"
 #include "i_time.h"
 #include "swrenderer/r_swscene.h"
@@ -165,6 +166,17 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 	const auto contextType = ClassifyHWRenderContext(mainview, toscreen, side);
 
 	R_SetupFrame(mainvp, r_viewwindow, camera, side);
+
+	// Only the visible PF-010 MainView top-level invocation owns renderer time.
+	// Camera textures, probes, save pictures and portal recursion may consume a
+	// snapshot but cannot advance/reset the next main-view delta.
+	if (contextType == HWRenderContextType::MainView)
+	{
+		if (mainvp.DiscontinuousView)
+			RenderVisualTime::ResetRuntime(RenderVisualTime::Reason::CameraCut);
+		RenderVisualTime::RuntimeClock().AdvanceMain(I_nsTime() * 0.000000001,
+			paused != 0, !(cl_capfps || r_NoInterpolate));
+	}
 
 	Pf020ViewDiagnostics::BeginRoot(mainview, toscreen, side, camera->Level->MapName.GetChars());
 	mainvp.TicFrac = Pf020ViewDiagnostics::ActorFraction(mainvp.TicFrac);
