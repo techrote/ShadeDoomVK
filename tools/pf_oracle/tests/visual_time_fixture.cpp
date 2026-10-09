@@ -147,6 +147,6 @@ int main()
 
 	const auto recreatedEpoch = sequence.BeginEpoch();
 	const auto recreatedMain = MakeHWRootRenderContext(HWRenderContextType::MainView, recreatedEpoch, sequence.AllocateIdentity(), -1, 0);
-	assert(GetHWVisualTime(recreatedMain).Time.MainFrame == before.MainFrame);
+	assert(GetHWVisualTime(recreatedMain).Time.MainFrame == nextMain.MainFrame);
 	return 0;
 }
