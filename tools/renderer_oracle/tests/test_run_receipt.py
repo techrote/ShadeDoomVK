@@ -39,6 +39,16 @@ class SyntheticRunReceiptTests(unittest.TestCase):
             with self.subTest(invalid=invalid), self.assertRaises(common.EvidenceError):
                 run.capture_extent(args, native, "timing")
 
+        profile = {"extent": [1904, 1001], "reference_extent": [640, 480]}
+        argv = ["engine", "-width", "1904", "-height", "1001"]
+        self.assertEqual(run.validated_extent(profile, native, argv), [1904, 1001])
+        bad_argv = ["engine", "-width", "640", "-height", "480"]
+        with self.assertRaisesRegex(common.EvidenceError, "extent disagrees"):
+            run.validated_extent(profile, native, bad_argv)
+        legacy_override = {"extent": [1904, 1001]}
+        with self.assertRaises(common.EvidenceError):
+            run.validated_extent(legacy_override, native, argv)
+
     def test_material_semantic_custom_layers_require_explicit_assertion(self):
         authored = [
             {"binding": i, "semantic": semantic, "role": "authored-layer",

@@ -151,6 +151,21 @@ def _console_path(path):
     return value
 
 
+def validated_extent(profile, native, argv):
+    extent = profile.get("extent")
+    reference = profile.get("reference_extent", extent)
+    require(reference == native["extent"], "Preregistered reference extent differs from the retained recipe")
+    require(isinstance(extent, list) and len(extent) == 2 and all(type(value) is int and value > 0 for value in extent),
+            "Preregistered capture extent is malformed")
+    require(extent[0] <= 1920 and extent[1] <= 1080, "Preregistered capture extent exceeds bounded evidence dimensions")
+    require(extent == reference or "reference_extent" in profile,
+            "Legacy capture receipt cannot silently override its retained recipe extent")
+    for flag, value in (("-width", extent[0]), ("-height", extent[1])):
+        require(argv.count(flag) == 1 and argv.index(flag) + 1 < len(argv), "Native request has no unique " + flag)
+        require(argv[argv.index(flag) + 1] == str(value), "Native request extent disagrees with preregistration")
+    return extent
+
+
 def capture_extent(args, native, mode):
     reference = list(native["extent"])
     requested = getattr(args, "extent", None)
@@ -471,8 +486,9 @@ def _validate_run(path):
     profile = data["reproduction"]
     require(profile["recipe_sha256"] == sha256(canonical(scene)), "Recipe identity differs from preregistration")
     require(data["scene"] == profile["scene"] == scene["id"], "Scene identities disagree")
-    for key in ("seed", "extent", "camera", "settings"):
+    for key in ("seed", "camera", "settings"):
         require(profile[key] == scene["native"][key], "Preregistered recipe value differs: " + key)
+    extent = validated_extent(profile, scene["native"], request["argv"])
     require(profile["clock"] == scene["native"]["clock"][data["mode"]], "Clock policy differs from the fixture")
     images.validate_policy(profile["image_policy"])
     require(profile["image_policy"] in (image_policy(scene, "exact"), image_policy(scene, "tolerant")),
@@ -510,13 +526,13 @@ def _validate_run(path):
             "Retained loaded-package inventory differs from actual startup output")
     required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if raw["mode"] == "state" else []
     structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
-                                      expected_frames=request["reproduction"]["frames"], expected_extent=scene["native"]["extent"])
+                                      expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
     if data["mode"] == "state":
         require("native.png" in artifacts, "State capture has no image")
         require(raw["screenshot"]["available"] is True, "Native state capture did not produce its image")
-        extent, _ = images.decode(root / "native.png")
-        require(list(extent) == scene["native"]["extent"], "Image extent differs from the scene")
+        image_extent, _ = images.decode(root / "native.png")
+        require(list(image_extent) == extent, "Image extent differs from the preregistered capture")
     return root, data, raw, structural
 
 
