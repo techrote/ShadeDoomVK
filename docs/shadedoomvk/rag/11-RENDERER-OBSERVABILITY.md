@@ -89,7 +89,7 @@ resolution and one warmup frame. This is the smallest true overflow witness for
 software Vulkan; it does not change the 1,024-row capacity invariant and is not a
 quality or benchmark workload.
 
-## SDVK-004 pressure-observation reuse
+## SDVK-004 accepted pressure-observation reuse
 
 SDVK-004 adds no second renderer diagnostic channel. It consumes the accepted
 SDVK-002 resource event fields for requested/device/effective bindless capacity,
@@ -106,9 +106,7 @@ normalize only as renderer-local
 identities; generation/epoch/span and aliasing remain exact. A generated member
 or authored GLDEFS entry is not a draw witness.
 
-The deterministic 75% pressure number is a CPU contract baseline. Native
-resource events record the actual software-Vulkan workload pressure separately;
-the two must not be conflated.
+The deterministic 75% pressure number is a CPU contract baseline. Native resource events separately recorded the actual llvmpipe workload: `material-stress` reached 438 current/high-water descriptors, 72 allocations, 4 reuses, 4 frees, zero failures/invalid frees and 142 hardware textures. Both independent captures agreed. These numbers must not be conflated with the synthetic 75% capacity fixture. Exact evidence pins are in [SDVK-004 release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json).
 
 ## SDVK-006 visual-time observation
 
