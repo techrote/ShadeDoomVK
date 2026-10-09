@@ -301,7 +301,7 @@ def _numeric_vector_matches(actual, expected, *, tolerance=1e-9):
 _DEFAULT_PLACEHOLDER_SEMANTICS = ("brightmap-emissive", "detail", "glow")
 
 
-def _material_semantics_match(value, expected):
+def _material_semantics_match(value, expected, *, allow_custom=False):
     layers = value.get("layers")
     if not isinstance(layers, list) or len(layers) < len(expected):
         return False
@@ -310,15 +310,34 @@ def _material_semantics_match(value, expected):
             or any(layer.get("role") != "authored-layer" for layer in authored)):
         return False
     extras = layers[len(expected):]
-    semantics = [layer.get("semantic") for layer in extras]
+    placeholders = []
+    customs = []
+    for layer in extras:
+        semantic = layer.get("semantic")
+        if semantic in _DEFAULT_PLACEHOLDER_SEMANTICS:
+            if customs:
+                return False  # PF-008 customs append after fixed fallback slots.
+            placeholders.append(layer)
+        elif semantic == "custom" and allow_custom:
+            customs.append(layer)
+        else:
+            return False
+    semantics = [layer.get("semantic") for layer in placeholders]
     ordered = [name for name in _DEFAULT_PLACEHOLDER_SEMANTICS if name in semantics]
     if semantics != ordered or len(set(semantics)) != len(semantics):
         return False
-    for layer in extras:
+    for layer in placeholders:
         source = layer.get("source")
         if (layer.get("role") != "fallback-placeholder"
                 or not isinstance(source, dict) or source.get("lump") != 0
                 or source.get("width") != 1 or source.get("height") != 1):
+            return False
+    for layer in customs:
+        source = layer.get("source")
+        if (layer.get("role") != "authored-layer"
+                or not isinstance(source, dict)
+                or not isinstance(source.get("width"), int) or source["width"] <= 0
+                or not isinstance(source.get("height"), int) or source["height"] <= 0):
             return False
     return True
 
@@ -372,7 +391,9 @@ def _scene_assertions(raw, scene):
             for name, expected in assertions.get("material_semantics", {}).items():
                 drawn = [record["data"] for record in records
                          if record["kind"] == "material" and record["data"].get("name") == name]
-                require(drawn and all(_material_semantics_match(value, expected) for value in drawn),
+                require(drawn and all(_material_semantics_match(
+                            value, expected, allow_custom=name in assertions.get("material_custom_layers", {}))
+                            for value in drawn),
                         "Required material semantic bindings differ: " + name)
             for name, expected in assertions.get("material_custom_layers", {}).items():
                 drawn = [record["data"] for record in records
