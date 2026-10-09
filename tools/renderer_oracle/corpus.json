@@ -3111,8 +3111,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0003": [
               "albedo",
@@ -3156,8 +3155,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0011": [
               "albedo",
@@ -3201,8 +3199,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0019": [
               "albedo",
@@ -3246,8 +3243,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0027": [
               "albedo",
@@ -3291,8 +3287,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0035": [
               "albedo",
@@ -3336,8 +3331,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0043": [
               "albedo",
@@ -3381,8 +3375,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0051": [
               "albedo",
@@ -3426,8 +3419,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion",
-              "custom"
+              "ambient-occlusion"
             ],
             "SM0059": [
               "albedo",
@@ -3524,7 +3516,65 @@
             "SM0061",
             "SM0062",
             "SM0063"
-          ]
+          ],
+          "material_custom_layers": {
+            "SM0002": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0010": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0018": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0026": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0034": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0042": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0050": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0058": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ]
+          }
         },
         "status": "native_qualification_pending"
       },
