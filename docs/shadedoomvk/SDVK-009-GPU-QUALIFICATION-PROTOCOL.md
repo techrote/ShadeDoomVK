@@ -22,7 +22,7 @@ Do not substitute a different source revision after profiling starts. Any source
 
 ## Required workloads and fixed settings
 
-Use the generated renderer-oracle scenes at **640x480**, exact fixed cameras and the scene-authored settings:
+Use the generated renderer-oracle scenes with their exact fixed cameras and scene-authored settings:
 
 1. `lights-zero` — fixed lower bound;
 2. `lights-one` — accepted timing/control workload;
@@ -31,7 +31,9 @@ Use the generated renderer-oracle scenes at **640x480**, exact fixed cameras and
 5. `lights-dense-overlap` — same 256-light profile concentrated for worst overlap;
 6. `shadow-boundary` — correctness-only 1,025-candidate / 1,024-selected shadow boundary; do not use it as the main many-light timing comparator.
 
-Run the full accepted ten-scene state/image corpus once on the exact physical build before timing so portals, materials, sprites, probes and shadows remain covered. PF-016 retained model evidence remains authoritative; do not add an unpinned third-party model during measurement.
+The accepted corpus reference extent remains **640x480**. First run the full ten-scene paired state/image corpus at that authored extent on the exact physical build so portals, materials, sprites, probes and shadows remain covered. PF-016 retained model evidence remains authoritative; do not add an unpinned third-party model during measurement.
+
+The architecture timing campaign uses **1904x1001**, matching the representative PF-016/PF-017 physical extent closely enough to preserve historical continuity and avoiding a GPU-scaling decision based only on the CI-friendly 640x480 reference. `tools/renderer_oracle/run.py capture --extent 1904x1001` records the override in the reproduction profile, rewrites only the prepared `-width`/`-height` launch values and validates the actual observed extent. Before timing, collect and exact-compare two 1904x1001 state/image captures for `lights-many`, `lights-dense-dispersed` and `lights-dense-overlap`; those high-resolution state packets are the timing-workload selected/upload-count authority.
 
 For the dense timing scenes, keep shadows disabled exactly as authored so light-list/shader scaling is not confounded by shadow-map selection. Do not lower light count, resolution, precision, material quality or effects selectively between runs.
 
@@ -39,6 +41,7 @@ For the dense timing scenes, keep shadows disabled exactly as authored so light-
 
 For each independent timing process:
 
+- use the preregistered **1904x1001** extent override for every zero/one/many/dispersed/overlap timing process;
 - start from the same preregistered application pipeline/shader-cache policy;
 - archive before/after cache identities;
 - use a fresh process and isolated output directory;
@@ -96,16 +99,42 @@ Do not waive a correctness failure because timing looks favorable.
 
 This campaign is a **no-change confirmation**, not an optimization A/B. The current architecture is accepted for SDVK-009 only if all correctness gates pass and its dense scaling does not demonstrate a material architecture problem on the representative device.
 
+For each repetition, derive `work_ratio` from the matched 1904x1001 state evidence as `overlap uploaded_records / many uploaded_records`; if actor-selected records are the dominant changing path, retain that ratio alongside the upload ratio rather than silently substituting it. A zero denominator is a failed/ill-formed comparison, not an infinite-performance result.
+
 Use these preregistered triggers:
 
-- **CPU architecture trigger:** `lights-dense-overlap` median `cpu_render_view_ms` is greater than **2.0x** `lights-many` while its selected/uploaded record count is no more than **4.5x** `lights-many`, or any established setup group exceeds the same normalized 2.0x/4.5x disproportion. This flags super-linear host overhead beyond the expected workload increase.
-- **GPU architecture trigger:** any light-sensitive resolved GPU group grows by more than **20% per selected-light multiple beyond linear scaling** when comparing `lights-many` to `lights-dense-overlap`. Compute `group_ratio / selected_record_ratio`; trigger when this normalized ratio is `>1.20` in at least two of three paired repetitions.
-- **Practical dense-overlap trigger:** median observed render CPU time or a non-nested light-sensitive GPU group exceeds **16.67 ms** on `lights-dense-overlap` in at least two of three repetitions while `lights-many` is below that threshold. This is a research-reopen trigger for the representative device, not a universal 60-fps product guarantee.
-- **Dispersal diagnostic:** if dispersed and overlap have materially different selected/upload record counts, interpret timing through those counts; do not attribute the delta to tile-locality potential without evidence.
+- **CPU architecture trigger:** compute `cpu_ratio = overlap median cpu_render_view_ms / many median cpu_render_view_ms`, then `cpu_normalized = cpu_ratio / work_ratio`. Trigger when `cpu_normalized > 1.20` in at least two of three repetitions. Apply the same normalized rule separately to any established light/setup CPU group; do not compare an unnormalized timing multiplier with a fourfold light-count multiplier.
+- **GPU architecture trigger:** for each non-nested light-sensitive resolved GPU group, compute `gpu_ratio / work_ratio`; trigger when this normalized ratio is `>1.20` in at least two of three repetitions. Do not sum nested groups.
+- **Practical dense-overlap trigger:** at the preregistered **1904x1001** extent, median observed render CPU time or a non-nested light-sensitive GPU group exceeds **16.67 ms** on `lights-dense-overlap` in at least two of three repetitions while `lights-many` is below that threshold. This is a research-reopen trigger for the representative device, not a universal 60-fps product guarantee.
+- **Dispersal diagnostic:** compare `lights-dense-dispersed` against overlap using the same normalized work ratios. If their selected/upload record counts differ materially, interpret timing through those counts; do not attribute a timing delta to tile locality without evidence.
 
 A single threshold crossing does not authorize silently enabling inherited tiles. It changes the #9 disposition from provisional no-change to **architecture research required**, with the semantic-substrate blockers in the non-GPU report remaining mandatory inputs.
 
 If no trigger fires, all correctness checks pass, and raw repetitions are internally coherent, record final **no-change accepted for the measured representative device/workloads**. Do not generalize to untested GPUs, resolutions or arbitrary content.
+
+## Operator command shapes
+
+Prepare once from the accepted source tree, then use fresh output directories for every process. The exact executable/IWAD/prepared paths are packet inputs, not placeholders to vary during the campaign.
+
+Reference physical correctness uses the existing full corpus driver:
+
+```text
+python3 tools/renderer_oracle/native_ci.py --exe <EXE> --iwad <IWAD> --out <FULL_CORPUS_OUT> --full
+```
+
+For each 1904x1001 high-resolution state control (run twice for `lights-many`, `lights-dense-dispersed` and `lights-dense-overlap`):
+
+```text
+python3 tools/renderer_oracle/run.py capture --exe <EXE> --iwad <IWAD> --prepared <PREPARED> --scene <SCENE> --mode state --frames 1 --warmup 120 --include-stress --extent 1904x1001 --out <FRESH_OUT>
+```
+
+For every timing process in the Latin order below:
+
+```text
+python3 tools/renderer_oracle/run.py capture --exe <EXE> --iwad <IWAD> --prepared <PREPARED> --scene <SCENE> --mode timing --frames 120 --warmup 120 --gpu --include-stress --extent 1904x1001 --out <FRESH_OUT>
+```
+
+Use `run.py compare` for each high-resolution state pair and `run.py benchmark` for the three timing processes of each scene. Retain the generated `request.json`, `run.json`, raw renderer JSON, logs, cache identities and benchmark receipts; threshold calculations are a separate machine-readable final summary, not a replacement for raw packets.
 
 ## Minimum hardware matrix
 

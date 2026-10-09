@@ -88,5 +88,32 @@
     "The indexed-tile host prototype demonstrates representation/order and memory structure only; it does not solve semantic eligibility or prove GPU benefit.",
     "The generated corpus does not add a new external model asset; accepted PF-016 model-path evidence remains authoritative.",
     "Issue #9 remains open pending the physical-GPU protocol."
-  ]
+  ],
+  "hardwareQualification": {
+    "referenceStateExtent": [
+      640,
+      480
+    ],
+    "architectureTimingExtent": [
+      1904,
+      1001
+    ],
+    "highResolutionStatePairs": [
+      "lights-many",
+      "lights-dense-dispersed",
+      "lights-dense-overlap"
+    ],
+    "timingScenes": [
+      "lights-zero",
+      "lights-one",
+      "lights-many",
+      "lights-dense-dispersed",
+      "lights-dense-overlap"
+    ],
+    "timingProcessesPerScene": 3,
+    "warmupFrames": 120,
+    "timingFrames": 120,
+    "normalizedArchitectureTrigger": 1.2,
+    "practicalDenseOverlapMilliseconds": 16.67
+  }
 }

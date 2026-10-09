@@ -117,6 +117,6 @@ The prepared SDVK-009 six-scene subset is deterministic and includes zero/one/64
 
 ## Remaining physical boundary
 
-The later operator protocol is [SDVK-009-GPU-QUALIFICATION-PROTOCOL.md](SDVK-009-GPU-QUALIFICATION-PROTOCOL.md). It deliberately tests only the accepted current PF baseline because no alternative passed the off-GPU correctness gate. The campaign retains exact source/build/content/settings/cache/run order, raw CPU and named GPU timestamp distributions, state/image checks and the new light/upload counters.
+The later operator protocol is [SDVK-009-GPU-QUALIFICATION-PROTOCOL.md](SDVK-009-GPU-QUALIFICATION-PROTOCOL.md). It deliberately tests only the accepted current PF baseline because no alternative passed the off-GPU correctness gate. Reference state/image qualification stays at the authored 640x480 extent; architecture timing and matched dense state controls use a preregistered 1904x1001 override to maintain PF-016/PF-017 physical continuity. The campaign retains exact source/build/content/settings/cache/run order, raw CPU and named GPU timestamp distributions, state/image checks and the new light/upload counters, with CPU/GPU scaling normalized by actual uploaded/selected work rather than raw authored-light multiples.
 
 #9 must remain open until that campaign is complete and the result is reconciled into an accepted final disposition.

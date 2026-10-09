@@ -25,6 +25,20 @@ from test_validation import observation, recount, row
 
 
 class SyntheticRunReceiptTests(unittest.TestCase):
+    def test_extent_override_is_bounded_and_rewrites_only_native_extent_flags(self):
+        native = {"extent": [640, 480]}
+        args = argparse.Namespace(extent=None)
+        self.assertEqual(run.capture_extent(args, native, "timing"), [640, 480])
+        args.extent = "1904x1001"
+        self.assertEqual(run.capture_extent(args, native, "timing"), [1904, 1001])
+        argv = run.apply_extent(["engine", "-width", "640", "-height", "480", "+map", "X"], [1904, 1001])
+        self.assertEqual(argv[argv.index("-width") + 1], "1904")
+        self.assertEqual(argv[argv.index("-height") + 1], "1001")
+        for invalid in ("0x480", "1921x1080", "1920x1081", "640,480", "640x"):
+            args.extent = invalid
+            with self.subTest(invalid=invalid), self.assertRaises(common.EvidenceError):
+                run.capture_extent(args, native, "timing")
+
     def test_material_semantic_custom_layers_require_explicit_assertion(self):
         authored = [
             {"binding": i, "semantic": semantic, "role": "authored-layer",
