@@ -884,9 +884,9 @@ void DoomLevelMesh::UploadDynLights(FLevelLocals& doomMap)
 
 	FDynLightInfo* dataptr = (FDynLightInfo*)(indexptr + 4);
 
-	memcpy(dataptr, &lightdata.arrays[0][0], size0 * sizeof(FDynLightInfo));
-	memcpy(dataptr + size0, &lightdata.arrays[1][0], size1 * sizeof(FDynLightInfo));
-	memcpy(dataptr + (size0 + size1), &lightdata.arrays[2][0], size2 * sizeof(FDynLightInfo));
+	if (size0) memcpy(dataptr, lightdata.arrays[0].Data(), size0 * sizeof(FDynLightInfo));
+	if (size1) memcpy(dataptr + size0, lightdata.arrays[1].Data(), size1 * sizeof(FDynLightInfo));
+	if (size2) memcpy(dataptr + (size0 + size1), lightdata.arrays[2].Data(), size2 * sizeof(FDynLightInfo));
 
 	UploadRanges.DynLight.Add(0, sizeof(int) * 4 + totalsize * sizeof(FDynLightInfo));
 	MarkMutation(LevelMeshMutationDomain::Lights);

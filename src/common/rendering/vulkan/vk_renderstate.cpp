@@ -694,9 +694,9 @@ int VkRenderState::UploadLights(const FDynLightData& data)
 		memcpy(indexptr, parmcnt, sizeof(int) * 4);
 
 		FDynLightInfo* dataptr = ((FDynLightInfo*)(((int*)mRSBuffers->Lightbuffer.Data) + (mRSBuffers->Lightbuffer.Count * 4))) + dataindex;
-		memcpy(dataptr, &data.arrays[0][0], size0 * sizeof(FDynLightInfo));
-		memcpy(dataptr + size0, &data.arrays[1][0], size1 * sizeof(FDynLightInfo));
-		memcpy(dataptr + (size0 + size1), &data.arrays[2][0], size2 * sizeof(FDynLightInfo));
+		if (size0) memcpy(dataptr, data.arrays[0].Data(), size0 * sizeof(FDynLightInfo));
+		if (size1) memcpy(dataptr + size0, data.arrays[1].Data(), size1 * sizeof(FDynLightInfo));
+		if (size2) memcpy(dataptr + (size0 + size1), data.arrays[2].Data(), size2 * sizeof(FDynLightInfo));
 
 		return indexindex;
 	}

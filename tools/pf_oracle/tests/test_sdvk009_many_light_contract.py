@@ -31,6 +31,16 @@ class Sdvk009ManyLightTests(unittest.TestCase):
         self.assertNotIn("indexindex <= mRSBuffers->Lightbuffer.Count", body)
         self.assertIn("IndexCapacityFailures", body)
         self.assertIn("DataCapacityFailures", body)
+        self.assertIn("if (size0) memcpy(dataptr, data.arrays[0].Data()", body)
+        self.assertIn("if (size1) memcpy(dataptr + size0, data.arrays[1].Data()", body)
+        self.assertIn("if (size2) memcpy(dataptr + (size0 + size1), data.arrays[2].Data()", body)
+
+    def test_empty_levelmesh_classes_do_not_form_out_of_bounds_array_references(self) -> None:
+        levelmesh = source("src/rendering/hwrenderer/doom_levelmesh.cpp")
+        body = levelmesh.split("void DoomLevelMesh::UploadDynLights", 1)[1].split("TArray<HWWall>& DoomLevelMesh::GetSidePortals", 1)[0]
+        self.assertIn("if (size0) memcpy(dataptr, lightdata.arrays[0].Data()", body)
+        self.assertIn("if (size1) memcpy(dataptr + size0, lightdata.arrays[1].Data()", body)
+        self.assertIn("if (size2) memcpy(dataptr + (size0 + size1), lightdata.arrays[2].Data()", body)
 
     def test_dormant_tile_consumer_cannot_preserve_dense_equivalence(self) -> None:
         shader = source("wadsrc/static/shaders/scene/comp_lighttiles.glsl")
