@@ -248,7 +248,7 @@ retained failures and unmeasured mode1/SW-retirement/performance limits.
 Focused release integration is tracked in #110/#112; PF-020 release and SDVK-001 permission follow the separate
 [freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.
 
-## SDVK-004 rich descriptor lifetime qualification candidate
+## SDVK-004 accepted rich descriptor lifetime qualification
 
 SDVK-004 reuses the PF-002/PF-003 identity model rather than creating another
 resource key. Its deterministic rich workload holds 3,072 of 4,096 dynamic
@@ -267,6 +267,4 @@ the whole configured dynamic range, not the virgin tail, so PF-003 exact-size
 reuse remains legal when `NextIndex` is at capacity. Exhaustion stays explicit;
 no global flush or semantic-resource aliasing is introduced.
 
-Candidate evidence is
-[SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md). Acceptance remains
-pending exact-head hosted/native checks, merge and post-merge verification.
+Accepted evidence is [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) with exact pins in [the release receipt](../SDVK-004-RELEASE-ACCEPTANCE.json). PR #126 and exact merged master both passed source evidence plus all 9 CI jobs, including software Vulkan. The PF-002/PF-003 identity model remains authoritative.
