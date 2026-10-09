@@ -167,5 +167,7 @@
     "No SDVK-005 height/POM, SDVK-006 timing/interpolation, or SDVK-009 many-light architecture work is included.",
     "Historical failed/cancelled attempts remain evidence and are not reclassified."
   ],
-  "acceptanceDocumentation": "This release receipt records the verified substantive implementation. Its documentation-only reconciliation branch must still pass required checks, merge, and be verified on resulting master before final issue closure."
+  "acceptanceDocumentation": "This release receipt records the verified substantive implementation. Its documentation-only reconciliation branch must still pass required checks, merge, and be verified on resulting master before final issue closure.",
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/129",
+  "acceptanceDocumentationBranch": "sdvk-004-acceptance"
 }
