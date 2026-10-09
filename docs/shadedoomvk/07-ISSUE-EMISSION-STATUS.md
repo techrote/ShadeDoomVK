@@ -65,6 +65,6 @@ Canonical issue bodies are stored under `docs/shadedoomvk/issues/`. Live GitHub 
 - SDVK-001 is accepted, merged and verified on master at `7f34f15827f3cc98685d1af303d212ed5edc2b47`; its [foundation/build contract](SDVK-001-FOUNDATION.md) and [release receipt](SDVK-001-RELEASE-ACCEPTANCE.json) record the compatibility boundary and passing PR/master evidence.
 - SDVK-002 / #2 is accepted, merged and verified on repaired `master@a05743fb428c0d7c66defccfb577834d012b4e31`; its [release receipt](SDVK-002-RELEASE-ACCEPTANCE.json) pins the original implementation, reproducibility repair, native corpus, timing evidence and retained failures.
 - SDVK-003 / #3 is accepted, merged and verified through PR #122 / `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`, and its accepted policy is present on the same verified current master.
-- SDVK-004 / #4, SDVK-006 / #6 and SDVK-009 / #9 are dependency-ready. Downstream issues retain the hard dependencies in `05-AUTONOMOUS-ISSUE-GRAPH.md`.
+- SDVK-004 / #4 is accepted, merged and verified through PR #126 / `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; its [release receipt](SDVK-004-RELEASE-ACCEPTANCE.json) records exact-head/post-merge checks, pressure budgets and retained limits. SDVK-005 / #5, SDVK-006 / #6 and SDVK-009 / #9 are dependency-ready. Downstream issues retain the hard dependencies in `05-AUTONOMOUS-ISSUE-GRAPH.md`.
 
 GitHub issue numbers are convenience mappings only. Stable `PF-*` / `SDVK-*` IDs remain authoritative for dependencies and documentation.

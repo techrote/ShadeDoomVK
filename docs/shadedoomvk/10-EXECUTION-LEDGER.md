@@ -800,3 +800,19 @@ This is an implementation/qualification candidate, not acceptance. Required next
 ### 9 October 2026 — SDVK-006 live-master reconciliation after SDVK-004
 
 SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b` while PR #127 was qualifying. #6 was reconciled onto that exact master without taking descriptor/material-stress ownership. The only overlapping path was `rag/11-RENDERER-OBSERVABILITY.md`; both SDVK-004 pressure-observation reuse and SDVK-006 visual-time observation/comparison policy are retained. All SDVK-004 renderer-oracle corpus/prepare/run changes remain from master. Exact-head qualification is restarted on the reconciled merge head.
+
+
+### 9 October 2026 — SDVK-004 rich descriptor lifetime accepted and SDVK-005 unblocked
+
+- SDVK-004 / #4 started from verified `master@c8b6db4dedae5da27249b6738f7628cf3a41b80a` after SDVK-002/003 acceptance.
+- The focused implementation retained PF-002/PF-003 resource identity and fixed one demonstrated failure path: an impossible positive bindless span could grow exact-size free-bucket storage before proving that span could fit. The accepted guard rejects spans larger than the entire configured dynamic range before bucket sizing; normal exact-size reuse, generation/epoch semantics and allocator architecture remain unchanged.
+- Deterministic qualification holds 576 material variants plus 64 probe pairs, reaches 3,072/4,096 dynamic descriptors (75%), performs 64 repeated canvas/palette/PBR recycle cycles, full descriptor rebuild, texture/lightmap/probe epoch invalidation, full 128-page fixed reservation/shrink, device-limit clamping, fragmentation, bounded exhaustion and `INT_MAX` negative controls. Retired identities are deliberately rejected as stale; invalid-free count remains zero.
+- The accepted SDVK-002 `material-stress` corpus was extended with eight real PBR custom-shader texture bindings using binding 8/custom index 0 and alternating nearest/linear requests. State evidence keeps PF-008 fixed layer ordering and asserts custom bindings separately rather than normalizing them into the authored prefix.
+- Historical CI run `37962321008` is retained as failed evidence: a new catalog validator accidentally reused the catalog-wide `seen` set and weakened the duplicate-scene negative control. The fix isolates `seen_custom_layers`; no renderer assertion was weakened.
+- Final PR #126 head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed Renderer source evidence run `37962887608` and Continuous Integration run `37962887060` with 9/9 jobs, including the full software-Vulkan corpus and timing baseline.
+- PR #126 squash-merged as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; merge tree `9ce95e42441744d2270954bbec25b193d2d019ae` exactly equals the tested PR merge-ref tree. Exact merged-master Renderer source evidence run `37974299356` and CI run `37974299316` passed, again 9/9.
+- Retained llvmpipe material-stress pressure: requested/effective 16,536 descriptors, derived device limit 999,985, 438 current/high-water dynamic descriptors, 72 allocations, 4 reuses, 4 frees, zero allocation failures/invalid frees and 142 hardware textures. `sun-probes` observed one lightmap page plus two irradiance and two prefilter resources.
+- The hosted eight-scene lane does not execute the retained `pf-indexed-material` recipe. Translation/palette native correctness remains consumed from accepted PF-110 evidence plus SDVK-004's 128-variant pressure/source contracts; no new llvmpipe indexed claim is manufactured.
+- No physical-GPU qualification or performance improvement is claimed; software Vulkan is bounded correctness/repeatability evidence. No donor renderer code was imported.
+
+**SDVK-004: ACCEPTED, MERGED AND VERIFIED. SDVK-005: DEPENDENCY-READY.** SDVK-006 and SDVK-009 remain independently dependency-ready.

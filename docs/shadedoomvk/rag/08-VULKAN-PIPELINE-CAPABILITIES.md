@@ -157,7 +157,7 @@ CFX diagnostic features remain bounded opt-in evidence tooling, not Vulkan corre
 
 The final #75 synthesis accepts PR #104's descriptor-target lifetime repair on its combined source/physical evidence, not because diagnostics identify a unique faulting shader or instruction. CFX-010 adds practical repaired-build coverage for the selected GTX routes. Repaired P400 behavior and a unique NVIDIA-driver cause remain unproved. Preserve the existing caps, omission reporting and historical STOP guards if these tools are used for future maintenance. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
 
-## SDVK-004 descriptor-capacity candidate
+## SDVK-004 accepted descriptor-capacity qualification
 
 SDVK-004 keeps PF-003's device-limit rule: effective bindless count is
 `min(requested, derived Vulkan/runtime limit)`, with the limiting property
@@ -171,6 +171,4 @@ fragmentation failure and an `INT_MAX` span all take bounded explicit failure
 paths while live identities remain valid. Capacity failure is never permission
 to inflate limits or flush descriptor consumers.
 
-Actual software-Vulkan device limits/counters are supplied by the SDVK-002
-observer on the final native qualification run. Physical-GPU qualification is
-not implied by this CPU/device-plan contract.
+Actual software-Vulkan device limits/counters were supplied by the SDVK-002 observer on both final PR-head and merged-master qualification runs. The retained PR-head material-stress capture reported requested/effective 16,536 descriptors, derived device limit 999,985 from per-stage update-after-bind resources, and 438 current/high-water dynamic descriptors with zero allocation failures or invalid frees. Physical-GPU qualification is not implied.
