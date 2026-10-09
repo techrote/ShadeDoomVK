@@ -230,6 +230,51 @@ class SemanticProjectionTests(unittest.TestCase):
                 record["data"]["context"]["semantic_key"] = "arbitrary derived label ignored by projection"
         self.assertNotEqual(validate.state_projection(left), validate.state_projection(different_kind))
 
+
+    def test_visual_time_validates_context_ownership_but_wall_values_do_not_pollute_scene_equality(self):
+        left, right = observation(), observation()
+        context_visual = {"scope": "main-owner", "advances_main_clock": True, "delta_seconds": 0.01,
+                          "accumulated_seconds": 1.5, "generation": 3, "main_frame": 121,
+                          "delta_valid": True, "interpolation_valid": True, "clamped": False,
+                          "discontinuity": "none"}
+        frame_visual = {"scope": "main-view-owner", "delta_seconds": 0.01,
+                        "accumulated_seconds": 1.5, "generation": 3, "main_frame": 121,
+                        "delta_valid": True, "interpolation_valid": True, "clamped": False,
+                        "discontinuity": "none"}
+        for data in (left, right):
+            for record in data["records"]:
+                if "context" in record["data"]:
+                    record["data"]["context"]["visual_time"] = copy.deepcopy(context_visual)
+                if record["kind"] == "frame":
+                    record["data"]["visual_time"] = copy.deepcopy(frame_visual)
+        right["records"][0]["data"]["context"]["visual_time"].update(
+            delta_seconds=0.017, accumulated_seconds=7.0, generation=9, main_frame=444,
+            delta_valid=True, interpolation_valid=False, discontinuity="interpolation-disabled")
+        right["records"][1]["data"]["context"]["visual_time"].update(
+            delta_seconds=0.017, accumulated_seconds=7.0, generation=9, main_frame=444,
+            delta_valid=True, interpolation_valid=False, discontinuity="interpolation-disabled")
+        right["records"][-1]["data"]["visual_time"].update(
+            delta_seconds=0.017, accumulated_seconds=7.0, generation=9, main_frame=444,
+            delta_valid=True, interpolation_valid=False, discontinuity="interpolation-disabled")
+        validate.observation(left)
+        validate.observation(right)
+        self.assertEqual(validate.state_projection(left), validate.state_projection(right))
+
+        wrong_scope = copy.deepcopy(left)
+        wrong_scope["records"][0]["data"]["context"]["visual_time"].update(
+            scope="non-main-fallback", advances_main_clock=False)
+        with self.assertRaisesRegex(common.EvidenceError, "visual-time scope"):
+            validate.observation(wrong_scope)
+
+        leaking_non_main = copy.deepcopy(left)
+        non_main = leaking_non_main["records"][0]["data"]["context"]
+        non_main.update(type="CameraTexture", root_type="CameraTexture", history_eligible=False,
+                        postprocess_eligible=False)
+        non_main["visual_time"].update(scope="non-main-fallback", advances_main_clock=False,
+                                       delta_seconds=0.01, accumulated_seconds=1.0, delta_valid=True)
+        with self.assertRaisesRegex(common.EvidenceError, "Non-main render context"):
+            validate.observation(leaking_non_main)
+
     def test_resource_workload_telemetry_normalizes_but_health_and_epoch_state_remain(self):
         resource = {"scope": "synthetic cumulative owner snapshot",
                     "descriptor_requested": 64, "descriptor_device_limit": 64, "descriptor_capacity": 64,

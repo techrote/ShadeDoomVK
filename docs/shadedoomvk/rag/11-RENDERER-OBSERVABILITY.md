@@ -93,3 +93,8 @@ quality or benchmark workload.
 ## SDVK-006 visual-time observation
 
 Frame and context records now include nested `visual_time` state. Context records identify `main-owner`, `main-sibling`, `main-portal` or `non-main-fallback` plus whether that context conceptually advances the main clock. Delta, accumulated visual time, generation, main-frame ordinal, validity, interpolation validity, clamp state and discontinuity reason are emitted from the production clock. Non-main fallback is explicitly zero/invalid; merely observing a portal/camera/probe context is side-effect free. This extends SDVK-002 diagnostics rather than creating a second evidence mechanism.
+
+
+### Visual-time comparison policy
+
+Raw native records retain exact visual delta, accumulated visual time, generation/main-frame ordinals, validity, clamp and discontinuity diagnostics. The structural validator checks finite/bounded clock fields and enforces PF-010 scope: only a main eye-0 root is a `main-owner`; main portals/stereo siblings are read-only; non-main roots and descendants must expose zero/invalid fallback state. Cross-process **scene-state** comparison deliberately projects visual-time records to stable scope/ownership only. Wall-clock magnitudes, generations and pacing-dependent discontinuities are evidence but not semantic scene equality, just as CPU frame duration is not compared as renderer state. This prevents driver/scheduler pacing from manufacturing false corpus differences without normalizing away context ownership defects.

@@ -16,6 +16,47 @@ except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
 KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing"}
+VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
+VISUAL_TIME_REASONS = {"none", "first-frame", "explicit-reset", "pause", "resume", "level-load", "wipe",
+                       "camera-cut", "long-frame-clamped", "clock-rollback", "invalid-timestamp",
+                       "repeated-timestamp", "interpolation-disabled"}
+
+
+def _visual_time(value, *, context=None, frame=False):
+    require(isinstance(value, dict), "Visual-time state is missing or malformed")
+    require(value.get("scope") in VISUAL_TIME_SCOPES, "Unknown visual-time scope")
+    delta = number(value.get("delta_seconds"), "visual delta seconds")
+    accumulated = number(value.get("accumulated_seconds"), "accumulated visual seconds")
+    require(0 <= delta <= 0.2 and accumulated >= 0, "Visual-time bounds are invalid")
+    integer(value.get("generation"), "visual-time generation")
+    integer(value.get("main_frame"), "visual-time main frame")
+    for key in ("delta_valid", "interpolation_valid", "clamped"):
+        require(type(value.get(key)) is bool, f"Visual-time {key} must be boolean")
+    require(value.get("discontinuity") in VISUAL_TIME_REASONS, "Unknown visual-time discontinuity")
+    require(value["delta_valid"] or delta == 0, "Invalid visual delta must be zero")
+    require(not value["clamped"] or (abs(delta - 0.2) <= 1e-12 and not value["interpolation_valid"]
+                                     and value["discontinuity"] == "long-frame-clamped"),
+            "Clamped visual-time sample is inconsistent")
+    if frame:
+        require(value["scope"] == "main-view-owner", "Frame visual-time state must describe the main-view owner")
+    if context is not None:
+        require(type(value.get("advances_main_clock")) is bool, "Context visual-time ownership flag is missing")
+        if context["root_type"] != "MainView":
+            expected_scope = "non-main-fallback"
+        elif context["type"] == "Portal":
+            expected_scope = "main-portal"
+        elif context["eye"] == 0:
+            expected_scope = "main-owner"
+        else:
+            expected_scope = "main-sibling"
+        require(value["scope"] == expected_scope, "PF-010 context and visual-time scope disagree")
+        require(value["advances_main_clock"] is (expected_scope == "main-owner"),
+                "PF-010 context visual-time owner is inconsistent")
+        if expected_scope == "non-main-fallback":
+            require(delta == 0 and accumulated == 0 and not value["delta_valid"] and
+                    not value["interpolation_valid"] and not value["clamped"],
+                    "Non-main render context contains main visual-time state")
+    return value
 
 
 def _availability(value, label):
@@ -72,6 +113,8 @@ def _context(value):
     _vector(value.get("angles"), 3, "context angles")
     number(value.get("fraction"), "context tic fraction")
     require(value["fraction"] <= 1, "Context tic fraction exceeds one")
+    if "visual_time" in value:
+        _visual_time(value["visual_time"], context=value)
     return value["epoch"], value["identity"]
 
 
@@ -134,6 +177,8 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             require(frame not in frames and record["count"] == 1, "Duplicate/multiplied native frame sample")
             frames[frame] = value
             number(value.get("cpu_render_view_ms"), "CPU RenderView time")
+            if "visual_time" in value:
+                _visual_time(value["visual_time"], frame=True)
             require(value.get("state_instrumentation") is (data["mode"] == "state"), "Frame instrumentation/mode mismatch")
             require(value.get("hardware_renderer") is True, "Software game renderer is not a Vulkan renderer observation")
             integer(value.get("gametic"), "actual simulation tic")
@@ -307,6 +352,12 @@ fallbacks remain compared.
     def comparison_vector_label(value):
         return "[" + ",".join(format(comparison_number(item), ".15g") for item in value) + "]"
 
+    def visual_time_projection(value):
+        # Raw observations retain wall-clock magnitudes and discontinuity state.
+        # Cross-process scene equality keeps only stable PF-010 ownership so
+        # scheduler/driver pacing cannot become semantic renderer state.
+        return {key: value[key] for key in ("scope", "advances_main_clock") if key in value}
+
     def normalized_context(frame, context):
         token = (frame, context["epoch"], context["identity"])
         if token not in normalized_contexts:
@@ -321,6 +372,8 @@ fallbacks remain compared.
             # semantic_key is a human-readable derivative of the explicit
             # producer/context fields and numeric vectors above.
             result.pop("semantic_key", None)
+            if "visual_time" in result:
+                result["visual_time"] = visual_time_projection(result["visual_time"])
             if static_scene:
                 result.pop("gametic", None)
                 result.pop("fraction", None)
@@ -352,6 +405,8 @@ fallbacks remain compared.
         row = project(record, record["frame"])
         if row["kind"] == "frame":
             row["data"].pop("cpu_render_view_ms", None)
+            if "visual_time" in row["data"]:
+                row["data"]["visual_time"] = visual_time_projection(row["data"]["visual_time"])
             camera = row["data"]["camera"]
             for key in ("position", "angles", "hardware_angles"):
                 camera[key] = comparison_vector(camera[key])
