@@ -159,3 +159,8 @@ producer/main images and paired260-row semantics, with zero requested validation
 findings. No position is rounded or comparison tolerance widened. See the
 [bounded native record](../PF-020-VIEW-MEASUREMENT.json) for immutable identities,
 independent review and explicitly unqualified renderer modes/performance.
+
+
+## SDVK-006 visual-time rule
+
+Portal recursion does not own a renderer clock. A portal rooted in PF-010 `MainView` consumes the exact main-root visual-time snapshot and continuity state; nested portal depth and mirror parity do not advance/reset it. Portals rooted in camera textures, probe faces or save-picture roots remain `non-main-fallback` and receive no main visual delta. This is presentation-time ownership only and does not change portal displacement, mirror transforms, clipping or tic interpolation.

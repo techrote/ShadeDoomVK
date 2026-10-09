@@ -88,3 +88,8 @@ requires 1,024 selected and one dropped, the lowest valid 128 shadow-map
 resolution and one warmup frame. This is the smallest true overflow witness for
 software Vulkan; it does not change the 1,024-row capacity invariant and is not a
 quality or benchmark workload.
+
+
+## SDVK-006 visual-time observation
+
+Frame and context records now include nested `visual_time` state. Context records identify `main-owner`, `main-sibling`, `main-portal` or `non-main-fallback` plus whether that context conceptually advances the main clock. Delta, accumulated visual time, generation, main-frame ordinal, validity, interpolation validity, clamp state and discontinuity reason are emitted from the production clock. Non-main fallback is explicitly zero/invalid; merely observing a portal/camera/probe context is side-effect free. This extends SDVK-002 diagnostics rather than creating a second evidence mechanism.
