@@ -38,7 +38,7 @@ Stress fixtures/results, integration fixes if needed, descriptor-pressure baseli
 ## Blocking / stopping conditions
 If PF lifetime invariants fail, open/reclassify a foundational regression and block SDVK-005 rather than patching around it with a flush or silent resource reduction.
 
-## Implementation candidate — 2026-10-09
+## Accepted implementation — 2026-10-09
 
 Dedicated branch: `sdvk-004-rich-material-descriptor-stress`. PR: #126.
 Starting authority: verified `master@c8b6db4dedae5da27249b6738f7628cf3a41b80a`.
@@ -59,7 +59,12 @@ bindings and state assertions for their `custom` semantic.
 Detailed candidate record:
 [SDVK-004-DESCRIPTOR-STRESS.md](../SDVK-004-DESCRIPTOR-STRESS.md).
 
-**Not accepted yet.** #4 remains open until the final PR head passes all required
-CPU/source/build/software-Vulkan gates, merges, the exact resulting master passes
-post-merge verification, and the durable release/RAG/ledger acceptance record is
-landed.
+PR #126 exact head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed source evidence run
+`37962887608` and all-nine-job CI run `37962887060`. It merged as
+`d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; the merged tree exactly matches the
+tested merge-ref tree and passed source evidence run `37974299356` plus all-nine-job
+CI run `37974299316`, including the complete software-Vulkan corpus/timing packet.
+
+**SDVK-004 is accepted, merged and verified.** SDVK-005 is dependency-ready. The
+durable release evidence is
+[SDVK-004-RELEASE-ACCEPTANCE.json](../SDVK-004-RELEASE-ACCEPTANCE.json).
