@@ -1,6 +1,6 @@
 # SDVK-004 — rich-material descriptor/lifetime stress qualification
 
-Date: 2026-10-09. Owner: SDVK-004 / #4. Status: **implementation candidate; exact-head CI/native qualification pending**.
+Date: 2026-10-09. Owner: SDVK-004 / #4. Status: **accepted substantive implementation, merged and verified through PR #126 / `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`**.
 
 ## Scope and authority
 
@@ -92,11 +92,11 @@ accepted GLDEFS custom-sampling parser contract is likewise retained; SDVK-004's
 new llvmpipe evidence adds an actual rendered custom-shader binding on top of
 that parser contract.
 
-Final SDVK-004 acceptance requires the exact PR head to pass the repository CPU contract suite, deterministic corpus preparation, all hosted builds, exact executable/source identity checks and the full Linux software-Vulkan corpus. The resulting software-Vulkan resource observations will be used as the current native pressure baseline rather than inventing a parallel diagnostic path.
+Final SDVK-004 qualification passed those gates at exact PR head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` and again on merged `master@d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`. PR-head CI run `37962887060` and post-merge CI run `37974299316` each passed 9/9 jobs, including the complete Linux software-Vulkan corpus; source-evidence runs `37962887608` and `37974299356` also passed. The retained software-Vulkan resource observations are the current native pressure baseline rather than a parallel diagnostic path.
 
 ## Pressure budget for later SDVK work
 
-Later material issues should treat these as the initial qualified baseline, subject to exact-head CI confirmation:
+Later material issues should treat these as the accepted initial qualified baseline:
 
 - fixed bindless range ends at descriptor 258 inclusive; dynamic allocations begin at 259;
 - 128 lightmap pages consume the complete fixed 256-descriptor page reservation, never dynamic slots;
@@ -108,14 +108,8 @@ Later material issues should treat these as the initial qualified baseline, subj
 
 ## Acceptance state
 
-Not yet accepted at this checkpoint. Final acceptance must pin:
+Substantive implementation is accepted, merged and verified. The exact evidence pins, retained failed run and gate disposition are recorded in [`SDVK-004-RELEASE-ACCEPTANCE.json`](SDVK-004-RELEASE-ACCEPTANCE.json).
 
-1. exact final PR head;
-2. focused rich-descriptor fixture result;
-3. full `python3 tools/check.py --output ...` result;
-4. exact-head Renderer source evidence and all Continuous Integration jobs;
-5. full software-Vulkan corpus result and retained resource-pressure observations;
-6. merged commit and verified post-merge `master`;
-7. updated RAG/ledger/canonical issue status and durable issue #4 acceptance comment.
+The deterministic fixture reaches 3,072/4,096 dynamic descriptors (75%) with zero invalid frees and explicit stale/exhaustion checks. The native llvmpipe `material-stress` route observed 438 current/high-water descriptors, 72 allocations, 4 reuses, 4 frees, zero failures/invalid frees and 142 hardware textures; both independent captures agreed. Eight custom PBR panels were actually drawn with span 9 and binding 8/custom index 0 using the authored nearest/linear requests. `sun-probes` observed one lightmap page plus two irradiance and two prefilter resources.
 
-Physical-GPU qualification remains optional unless software-Vulkan/native evidence exposes a driver/device-limit defect that cannot be resolved without a finite hardware packet.
+No physical-GPU qualification is claimed. The hosted eight-scene lane still does not execute `pf-indexed-material`; accepted PF-110 evidence remains the native indexed/translation correctness authority consumed by SDVK-004.
