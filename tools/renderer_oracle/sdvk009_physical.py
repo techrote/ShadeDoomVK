@@ -93,8 +93,8 @@ def campaign(args):
                 paths.append(path)
                 receipt["steps"].append({"name": f"reference-{scene}-state-{attempt}", "status": "PASS"})
             comparison = run.compare_runs(paths[0], paths[1])
-            require(comparison["status"] == "PASS", f"Reference state/image comparison failed: {scene}")
             _write(root / f"reference-{scene}-comparison.json", comparison)
+            require(comparison["status"] == "PASS", f"Reference state/image comparison failed: {scene}")
             receipt["steps"].append({"name": f"reference-{scene}-compare", "status": "PASS"})
 
         for scene in HIGHRES_STATE_SCENES:
@@ -107,8 +107,8 @@ def campaign(args):
                 paths.append(path)
                 receipt["steps"].append({"name": f"highres-{scene}-state-{attempt}", "status": "PASS"})
             comparison = run.compare_runs(paths[0], paths[1])
-            require(comparison["status"] == "PASS", f"High-resolution state/image comparison failed: {scene}")
             _write(root / f"highres-{scene}-comparison.json", comparison)
+            require(comparison["status"] == "PASS", f"High-resolution state/image comparison failed: {scene}")
             receipt["steps"].append({"name": f"highres-{scene}-compare", "status": "PASS"})
 
         timing_paths = {scene: [] for scene in TIMING_SCENES}

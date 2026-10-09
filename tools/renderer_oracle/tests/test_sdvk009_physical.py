@@ -78,6 +78,7 @@ class PhysicalCampaignControls(unittest.TestCase):
                     physical.campaign(args)
             self.assertEqual(len(calls), 2)
             self.assertTrue(all(call.mode == "state" for call in calls))
+            self.assertTrue((args.out / "reference-compositing-comparison.json").is_file())
 
     def test_execute_flag_is_mandatory(self):
         with tempfile.TemporaryDirectory(prefix="sdvk009-physical-unit-") as directory:
