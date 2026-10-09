@@ -1,6 +1,6 @@
 # Upstream synchronization ownership and conflict policy
 
-Primary issue: SDVK-003 / #3. Status: **accepted, merged and verified** through PR #122 / `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`, present on verified current `master@a05743fb428c0d7c66defccfb577834d012b4e31`. Evidence: [SDVK-003 upstream differential](../SDVK-003-UPSTREAM-DIFFERENTIAL.md).
+Primary issue: SDVK-003 / #3. Status: **accepted, merged and verified** through PR #122 / `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`, present on verified SDVK-004 substantive `master@d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`. Evidence: [SDVK-003 upstream differential](../SDVK-003-UPSTREAM-DIFFERENTIAL.md).
 
 ## Default ownership rule
 
