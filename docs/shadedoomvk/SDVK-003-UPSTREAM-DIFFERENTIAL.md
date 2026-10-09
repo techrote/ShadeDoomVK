@@ -1,6 +1,6 @@
 # SDVK-003 — pinned upstream differential and selective maintenance policy
 
-Date: 2026-10-08. Owner: SDVK-003 / #3. Status: **acceptance candidate** on PR #122.
+Date: 2026-10-09. Owner: SDVK-003 / #3. Status: **accepted, merged and verified** through PR #122 / `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`; the accepted policy is present on verified current `master@a05743fb428c0d7c66defccfb577834d012b4e31`.
 
 ## Exact pinned identities
 
@@ -97,4 +97,4 @@ Only `A_CrusaderSweepLeft` and `A_CrusaderSweepRight` gained a local `target == 
 - Provenance: donor commit/path/adaptation/license disposition is recorded.
 - GPU scope: no physical GPU run is required because this PR imports no renderer/Vulkan implementation.
 
-Final acceptance is conditional only on final-head CI, merge and post-merge verification.
+Final acceptance is complete. Exact final PR head `cbc8fa1601123e595483a2ab5d8f9997c36c0768` passed Continuous Integration run `37846204348` and Renderer source evidence run `37846204325`; PR #122 merged as `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`. Current verified `master@a05743fb428c0d7c66defccfb577834d012b4e31` is a descendant of that merge and passed Continuous Integration run `37851016492` plus Renderer source evidence run `37851016448`. SDVK-004 and SDVK-009 may consume this accepted ownership/sync policy subject to their other dependencies.

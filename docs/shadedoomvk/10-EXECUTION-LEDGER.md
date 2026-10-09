@@ -764,3 +764,23 @@ before issue closure or dependent SDVK-004/006/009/014 readiness changes.
 - 86 recipient-owned paths overlap UZDoom and 79 overlap GZDoom; renderer/shader overlap is fail-closed. No PF/CFX supersession is claimed and no renderer donor code is imported.
 - The representative UZDoom Crusader adaptation is bounded to two null-target guards and has a focused CPU/source regression. Root-license and named asset-exception scope were audited; no asset/binary/dependency import is present.
 - Final acceptance requires exact final-head hosted checks, PR merge and post-merge master verification. No physical GPU run is required for this non-renderer import.
+
+
+### 9 October 2026 — SDVK-002 accepted after fresh-process reproducibility repair
+
+- Substantive PR #121 merged as `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89` after complete observability/corpus/benchmark qualification.
+- A later acceptance-document run retained a fresh-process `shadow-boundary` comparison failure rather than waiving it. Investigation proved allocator-local selected shadow row numbers and a coincident player/fixed-camera sprite-rotation ambiguity.
+- Repair PR #124 head `584dc4f1f3450069bd5b9679cd2aef2703c1e399` preserves rejection/aliasing/semantic state, normalizes only selected frame-local row identity and moves the generated player start behind the fixed camera. Exact-head source evidence run `37848620578` and CI run `37848620479` passed; all nine CI jobs were green.
+- PR #124 merged as `a05743fb428c0d7c66defccfb577834d012b4e31`. Exact post-merge Renderer source evidence run `37851016448` and Continuous Integration run `37851016492` passed. The software-Vulkan lane completed two captures plus comparison for all eight authored workloads, including the repaired shadow boundary, and the three-process timing baseline passed.
+- Historical failed packets remain retained. Software Vulkan is correctness/repeatability evidence, not physical-GPU performance acceptance.
+
+**SDVK-002: ACCEPTED, MERGED AND VERIFIED. SDVK-004/006/009: dependency-ready subject to their remaining declared dependencies.**
+
+### 9 October 2026 — SDVK-003 upstream policy accepted and gate reconciled
+
+- Exact final PR #122 head `cbc8fa1601123e595483a2ab5d8f9997c36c0768` passed Continuous Integration run `37846204348` and Renderer source evidence run `37846204325`.
+- PR #122 merged as `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`; the bounded Crusader guards, complete pinned donor differential, ownership/conflict policy, provenance and regression evidence are present on current master.
+- Current `master@a05743fb428c0d7c66defccfb577834d012b4e31` is a descendant of the SDVK-003 merge and passed source evidence run `37851016448` plus all-nine-job CI run `37851016492`.
+- No renderer donor code or physical-GPU claim is introduced by SDVK-003. PF/CFX ownership vetoes remain authoritative.
+
+**SDVK-003: ACCEPTED, MERGED AND VERIFIED. SDVK-004/009: upstream-policy dependency satisfied.**

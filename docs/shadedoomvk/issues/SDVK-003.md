@@ -37,3 +37,8 @@ Pinned differential report, upstream ownership/sync policy, representative impor
 
 ## Blocking / stopping conditions
 If upstream lineage or licensing/provenance is ambiguous, or a proposed import overwrites a hardened contract without equivalent evidence, stop that import and record a research/decision issue while continuing independent analysis.
+
+
+## Acceptance record
+
+Accepted, merged and verified. Exact final PR head `cbc8fa1601123e595483a2ab5d8f9997c36c0768` passed Continuous Integration run `37846204348` and Renderer source evidence run `37846204325`; PR #122 merged as `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`. The accepted upstream ownership/sync policy is present on verified current `master@a05743fb428c0d7c66defccfb577834d012b4e31`. Issue #3 is closed completed; SDVK-004 and SDVK-009 may consume the policy subject to their other dependencies.

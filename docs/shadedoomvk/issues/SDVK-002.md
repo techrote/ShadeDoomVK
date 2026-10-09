@@ -37,3 +37,8 @@ Reference scenes/fixtures, diagnostics schema, capture/comparison tooling, bench
 
 ## Blocking / stopping conditions
 Stop if a proposed golden method is inherently unstable across supported hardware/drivers without state-based fallback; do not make CI depend on fragile exact pixels when tolerance/state assertions are required.
+
+
+## Acceptance record
+
+Accepted, merged and verified on repaired `master@a05743fb428c0d7c66defccfb577834d012b4e31`. Substantive implementation PR #121 merged as `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`; fresh-process reproducibility repair PR #124 merged as `a05743fb428c0d7c66defccfb577834d012b4e31`. Exact repair-head CI run `37848620479` and exact post-repair-master CI run `37851016492` each passed all nine jobs, including the complete software-Vulkan native corpus. See `SDVK-002-RELEASE-ACCEPTANCE.json` for artifact identities, retained failures and limitations.

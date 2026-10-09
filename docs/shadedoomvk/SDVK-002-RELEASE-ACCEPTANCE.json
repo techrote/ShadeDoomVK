@@ -1,0 +1,159 @@
+{
+  "schema": "sdvk002-release-acceptance/v2",
+  "dateUtc": "2026-10-09",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/2",
+  "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/121",
+  "reproducibilityRepairPullRequest": "https://github.com/techrote/ShadeDoomVK/pull/124",
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/125",
+  "acceptedStartingMaster": "a2d2d293d680895bb8daae86466596b05aaef483",
+  "implementation": {
+    "publicationHead": "59cfcaeccbdbd0617e4e032fa153fd91604aa970",
+    "mergeCommit": "1ecc3cf73aa2266a1e741f09078b7d089ba8bf89",
+    "finalHeadCI": {
+      "runId": 37766168263,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "postMergeCI": {
+      "runId": 37767780123,
+      "status": "PASS",
+      "jobsPassed": 9
+    }
+  },
+  "repair": {
+    "head": "584dc4f1f3450069bd5b9679cd2aef2703c1e399",
+    "testedTree": "fb1307667161699a09eac20883b6a6ea8b4bd139",
+    "testedMergeRef": "d29fea75de01dc8c4294c46ac39c1a6a50e42905",
+    "mergeCommit": "a05743fb428c0d7c66defccfb577834d012b4e31",
+    "mergeTree": "4dc2bd5d99932e6c8a78b7ade7c55d1412b90765",
+    "finalHead": {
+      "sourceEvidence": {
+        "runId": 37848620578,
+        "artifactId": 11580199474,
+        "artifactBytes": 147510300,
+        "artifactZipSha256": "f5343eb4c1386e70af9b74534243a588ec78673f98e47fa1a05ba02b4eaba593",
+        "sourceBundleSha256": "a4bb6f507e2996df8cf34a50e75c39944b5d198bfe51e7a8fb00b547d577c0af"
+      },
+      "continuousIntegration": {
+        "runId": 37848620479,
+        "status": "PASS",
+        "jobsPassed": 9
+      },
+      "cpuArtifact": {
+        "artifactId": 11580832073,
+        "artifactBytes": 67756,
+        "artifactZipSha256": "63e8e4c1494c0f0f3853c59f5661df9c2e814432b53d9bf9824d33e1a6199a51"
+      },
+      "nativeArtifact": {
+        "artifactId": 11581563650,
+        "artifactBytes": 221162603,
+        "artifactZipSha256": "f436e9a2eb0fd973a45c301bf6610e7f6c55634b63ad661ed7d2d9cbd07f9472"
+      }
+    },
+    "postMerge": {
+      "sourceEvidence": {
+        "runId": 37851016448,
+        "artifactId": 11582090879,
+        "artifactBytes": 147539218,
+        "artifactZipSha256": "fe7d1b77b29d803e7ab1af24c99b75f8b2beaee23bec47557ea920b9647bfdb0",
+        "sourceBundleSha256": "3cffb508f77618ed306dde488e70d47c313ca6777285aa7b91df5de597889fa9"
+      },
+      "continuousIntegration": {
+        "runId": 37851016492,
+        "status": "PASS",
+        "jobsPassed": 9
+      },
+      "cpuArtifact": {
+        "artifactId": 11581947779,
+        "artifactBytes": 67756,
+        "artifactZipSha256": "6d0fdb8f00104a02a2c000af6ced2a7043eca5d0f7073a57eafc60e8dcac3ae9"
+      },
+      "nativeArtifact": {
+        "artifactId": 11582927781,
+        "artifactBytes": 221163654,
+        "artifactZipSha256": "c78736d58928fafb0fa870c46d85ca8fb2a5e8adfefe3e3d276d754c887a51c8"
+      }
+    }
+  },
+  "nativeSoftwareVulkan": {
+    "physicalGpuQualified": false,
+    "performanceAccepted": false,
+    "stateWorkloads": {
+      "compositing": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-zero": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-one": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-many": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "shadow-boundary": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "material-stress": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sun-probes": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sprite-mirror": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    "shadowBoundary": {
+      "candidates": 1025,
+      "selected": 1024,
+      "dropped": 1,
+      "shadowMapResolution": 128,
+      "warmupFrames": 1
+    },
+    "timingBaseline": {
+      "scene": "lights-one",
+      "independentProcesses": 3,
+      "rawCpuSamplesPerProcess": 120,
+      "resolvedNamedGpuGroupsRequired": true,
+      "status": "PASS"
+    }
+  },
+  "retainedFailures": [
+    {
+      "runId": 37677445294,
+      "artifactId": 11510466361,
+      "artifactZipSha256": "f6ad09d51c3c0486e6bb338a4d0ad0fa0c4d978752e93447e671d8886a2c0dab",
+      "disposition": "historical failed native qualification retained"
+    },
+    {
+      "runId": 37778174743,
+      "artifactId": 11551965034,
+      "artifactZipSha256": "def2aa26cf873cc1dd9fe67cf6f6a9403b77c8dd1da3ab8058a3ad188476c3b2",
+      "disposition": "acceptance-document run exposed fresh-process shadow-row/player-camera nondeterminism; retained and repaired by PR #124"
+    }
+  ],
+  "acceptedContracts": {
+    "sceneRecipes": 11,
+    "declaredReferenceClasses": 8,
+    "retainedCpuContracts": 19,
+    "stateComparison": "ordered semantic state with documented run-local identity/representation normalization; shadow rejection/aliasing and semantic decisions retained",
+    "negativeFixturesPreserved": true,
+    "pfSafetyReplaced": false,
+    "rendererFeatureImplemented": false
+  },
+  "companionGate": {
+    "SDVK003": {
+      "status": "ACCEPTED_MERGED_VERIFIED",
+      "finalHead": "cbc8fa1601123e595483a2ab5d8f9997c36c0768",
+      "mergeCommit": "ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7",
+      "finalHeadCI": 37846204348,
+      "finalHeadSourceEvidence": 37846204325,
+      "currentVerifiedMaster": "a05743fb428c0d7c66defccfb577834d012b4e31"
+    }
+  },
+  "gateDisposition": {
+    "SDVK001": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK002": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK003": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK004": "DEPENDENCY_READY",
+    "SDVK006": "DEPENDENCY_READY",
+    "SDVK009": "DEPENDENCY_READY",
+    "SDVK005": "AWAITS_SDVK004",
+    "SDVK010": "AWAITS_SDVK007",
+    "SDVK014": "AWAITS_SDVK005_SDVK009_SDVK010"
+  },
+  "limitations": [
+    "Software Vulkan qualification is not physical-GPU qualification or a production performance claim.",
+    "Named GPU timestamp groups may nest and are not summed into whole-frame GPU time.",
+    "The observer proves emitted renderer state and bounded collection, not arbitrary executed shader identity or complete LevelMesh per-surface consumption.",
+    "Exact pixels are a same-device/driver/profile policy; cross-device acceptance requires owning state assertions and justified tolerance.",
+    "Historical failed and partial attempts remain evidence and are not deleted or reclassified."
+  ],
+  "acceptanceDocumentation": "This receipt becomes the canonical SDVK-002 acceptance record when its documentation-only reconciliation PR passes required checks, merges, and resulting master is verified."
+}
