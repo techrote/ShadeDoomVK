@@ -19,7 +19,7 @@ KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "reso
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 VISUAL_TIME_REASONS = {"none", "first-frame", "explicit-reset", "pause", "resume", "level-load", "wipe",
                        "camera-cut", "long-frame-clamped", "clock-rollback", "invalid-timestamp",
-                       "repeated-timestamp", "interpolation-disabled"}
+                       "repeated-timestamp", "interpolation-disabled", "interpolation-enabled"}
 
 
 def _visual_time(value, *, context=None, frame=False):
