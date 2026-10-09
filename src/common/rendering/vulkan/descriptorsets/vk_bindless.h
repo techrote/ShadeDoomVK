@@ -228,7 +228,12 @@ public:
 
 	int Allocate(int count)
 	{
-		if (count <= 0 || DynamicStart < 0 || Capacity <= DynamicStart)
+		// Reject impossible spans before using count as an exact-size bucket index.
+		// Without this guard an oversized request could resize FreeSlots far beyond
+		// the configured descriptor address space instead of taking the bounded
+		// PF-003 exhaustion path.
+		if (count <= 0 || DynamicStart < 0 || Capacity <= DynamicStart ||
+			count > Capacity - DynamicStart)
 		{
 			Stats.Failures++;
 			return -1;
