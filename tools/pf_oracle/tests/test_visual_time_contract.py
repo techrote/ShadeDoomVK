@@ -39,6 +39,8 @@ class VisualTimeContractTests(unittest.TestCase):
         self.assertIn("contextType == HWRenderContextType::MainView", body)
         self.assertLess(body.index("AdvanceMain("), body.index("for (int eye_ix = 0;"))
         self.assertIn("mainvp.DiscontinuousView", body)
+        self.assertIn("MonotonicTimestampSeconds()", body)
+        self.assertNotIn("I_nsTime() *", body)
 
     def test_non_main_routes_remain_non_owners(self) -> None:
         self.assertIn("context.rootType != HWRenderContextType::MainView", self.context_h)

@@ -1528,13 +1528,13 @@ public:
 	DVector2 InterpolatedScale(double ticFrac) const
 	{
 		return {
-			RenderVisualTime::InterpolateValue(PrevScale.X, Scale.X, ticFrac, !!(renderflags2 & RF2_INTERPOLATESCALE)),
-			RenderVisualTime::InterpolateValue(PrevScale.Y, Scale.Y, ticFrac, !!(renderflags2 & RF2_INTERPOLATESCALE))
+			RenderVisualTime::InterpolateValue(PrevScale.X, Scale.X, ticFrac, !(renderflags & RF_DONTINTERPOLATE) && !!(renderflags2 & RF2_INTERPOLATESCALE)),
+			RenderVisualTime::InterpolateValue(PrevScale.Y, Scale.Y, ticFrac, !(renderflags & RF_DONTINTERPOLATE) && !!(renderflags2 & RF2_INTERPOLATESCALE))
 		};
 	}
 	double InterpolatedAlpha(double ticFrac) const
 	{
-		return RenderVisualTime::InterpolateValue(PrevAlpha, Alpha, ticFrac, !!(renderflags2 & RF2_INTERPOLATEALPHA));
+		return RenderVisualTime::InterpolateValue(PrevAlpha, Alpha, ticFrac, !(renderflags & RF_DONTINTERPOLATE) && !!(renderflags2 & RF2_INTERPOLATEALPHA));
 	}
 	float GetSpriteOffset(bool y) const
 	{

@@ -174,7 +174,7 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 	{
 		if (mainvp.DiscontinuousView)
 			RenderVisualTime::ResetRuntime(RenderVisualTime::Reason::CameraCut);
-		RenderVisualTime::RuntimeClock().AdvanceMain(I_nsTime() * 0.000000001,
+		RenderVisualTime::RuntimeClock().AdvanceMain(RenderVisualTime::MonotonicTimestampSeconds(),
 			paused != 0, !(cl_capfps || r_NoInterpolate));
 	}
 

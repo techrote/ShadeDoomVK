@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 
@@ -189,6 +190,12 @@ private:
 	Reason PendingReason = Reason::None;
 	Sample Current;
 };
+
+inline double MonotonicTimestampSeconds()
+{
+	using namespace std::chrono;
+	return duration<double>(steady_clock::now().time_since_epoch()).count();
+}
 
 inline Clock& RuntimeClock()
 {
