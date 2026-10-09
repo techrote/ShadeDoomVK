@@ -88,3 +88,22 @@ requires 1,024 selected and one dropped, the lowest valid 128 shadow-map
 resolution and one warmup frame. This is the smallest true overflow witness for
 software Vulkan; it does not change the 1,024-row capacity invariant and is not a
 quality or benchmark workload.
+
+## SDVK-004 pressure-observation reuse
+
+SDVK-004 adds no second renderer diagnostic channel. It consumes the accepted
+SDVK-002 resource event fields for requested/device/effective bindless capacity,
+dynamic start, current/high-water allocation, allocation/reuse/free/failure
+counters, lifetime generations/epochs and texture/lightmap/probe owner/resource
+counts.
+
+The existing `material-stress` recipe is extended with eight authored PBR
+custom-shader bindings. Their screenshots remain paired with ordinary material
+events, and `state_assertions.material_semantics` requires `custom` on the
+named panels. Descriptor slot numbers may still normalize only as renderer-local
+identities; generation/epoch/span and aliasing remain exact. A generated member
+or authored GLDEFS entry is not a draw witness.
+
+The deterministic 75% pressure number is a CPU contract baseline. Native
+resource events record the actual software-Vulkan workload pressure separately;
+the two must not be conflated.
