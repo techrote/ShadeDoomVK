@@ -247,3 +247,26 @@ See [source and acceptance scope](../PF-110-IMPLEMENTATION-NOTES.md) and
 retained failures and unmeasured mode1/SW-retirement/performance limits.
 Focused release integration is tracked in #110/#112; PF-020 release and SDVK-001 permission follow the separate
 [freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.
+
+## SDVK-004 rich descriptor lifetime qualification candidate
+
+SDVK-004 reuses the PF-002/PF-003 identity model rather than creating another
+resource key. Its deterministic rich workload holds 3,072 of 4,096 dynamic
+descriptors live (75% pressure), retires/reuses canvas, palette/translation and
+PBR material spans for 64 cycles, rebuilds every material/probe descriptor owner,
+advances texture/lightmap/probe owner epochs, and deliberately validates each
+retired identity as stale. Exact-size reuse must produce a fresh
+generation/epoch identity even when the numeric index is reused.
+
+A demonstrated negative-path defect was narrower than allocator architecture:
+an impossible positive allocation span could size the exact-span free-bucket
+vector before proving that the span fit in the configured dynamic address
+space. The SDVK-004 repair rejects
+`count > Capacity - DynamicStart` before bucket sizing. This is deliberately
+the whole configured dynamic range, not the virgin tail, so PF-003 exact-size
+reuse remains legal when `NextIndex` is at capacity. Exhaustion stays explicit;
+no global flush or semantic-resource aliasing is introduced.
+
+Candidate evidence is
+[SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md). Acceptance remains
+pending exact-head hosted/native checks, merge and post-merge verification.

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <limits>
 
 static VkBindlessDeviceLimits MakeLimits(uint32_t value)
 {
@@ -68,6 +69,17 @@ int main()
 		assert(plan.IsValid());
 		assert(plan.DeviceLimit == 898);
 		assert(plan.DeviceLimitSource == VkBindlessLimitSource::PerStageSampledImages);
+	}
+
+	// SDVK-004: an impossible positive span must fail before exact-size bucket
+	// storage is grown from attacker/workload-controlled arithmetic.
+	{
+		VkBindlessSlotAllocator oversized;
+		oversized.Configure(VkBindlessLayout::DynamicStart, VkBindlessLayout::DynamicStart + 10);
+		assert(oversized.Allocate(std::numeric_limits<int>::max()) == -1);
+		assert(oversized.GetStats().Failures == 1);
+		assert(oversized.GetStats().Allocations == 0);
+		assert(oversized.GetStats().CurrentDescriptors == 0);
 	}
 
 	VkBindlessSlotAllocator allocator;
