@@ -69,9 +69,11 @@ Every retired identity is queried deliberately as a negative control. Current id
 
 No physical GPU claim is made by this candidate.
 
-The existing SDVK-002 software-Vulkan corpus is the native qualification route because it already pairs screenshots with machine-readable semantic state and contains the relevant renderer-visible families:
+The existing SDVK-002 software-Vulkan corpus is the native qualification route because it already pairs screenshots with machine-readable semantic state and contains the relevant renderer-visible families. SDVK-004 extends the existing `material-stress` recipe in place with eight PBR panels that use a real GLDEFS hardware shader and custom texture binding; nearest/linear custom sampling alternates across those panels, and the state assertions require their authored `custom` layer semantic.
 
-- semantic material stress;
+The native route therefore covers:
+
+- semantic material stress, including real custom-shader texture bindings;
 - indexed/palette material paths;
 - compositing/camera texture canvas paths;
 - probe/sun/lightmap paths;
