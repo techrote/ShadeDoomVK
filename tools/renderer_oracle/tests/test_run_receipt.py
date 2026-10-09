@@ -25,6 +25,36 @@ from test_validation import observation, recount, row
 
 
 class SyntheticRunReceiptTests(unittest.TestCase):
+    def test_material_semantic_custom_layers_require_explicit_assertion(self):
+        authored = [
+            {"binding": i, "semantic": semantic, "role": "authored-layer",
+             "source": {"lump": 20 + i, "width": 16, "height": 16}}
+            for i, semantic in enumerate(
+                ["albedo", "normal", "metallic", "roughness", "ambient-occlusion"])
+        ]
+        placeholders = [
+            {"binding": 5 + i, "semantic": semantic, "role": "fallback-placeholder",
+             "source": {"lump": 0, "width": 1, "height": 1}}
+            for i, semantic in enumerate(("brightmap-emissive", "detail", "glow"))
+        ]
+        custom = {"binding": 8, "semantic": "custom", "role": "authored-layer",
+                  "custom_index": 0, "requested_sampling": 1,
+                  "source": {"lump": 99, "width": 16, "height": 16}}
+        value = {"layers": authored + placeholders + [custom]}
+        expected = ["albedo", "normal", "metallic", "roughness", "ambient-occlusion"]
+
+        self.assertFalse(run._material_semantics_match(value, expected))
+        self.assertTrue(run._material_semantics_match(value, expected, allow_custom=True))
+        self.assertTrue(run._material_custom_layers_match(
+            value, [{"binding": 8, "custom_index": 0, "requested_sampling": 1}]))
+        wrong = copy.deepcopy(value)
+        wrong["layers"][-1]["requested_sampling"] = 0
+        self.assertFalse(run._material_custom_layers_match(
+            wrong, [{"binding": 8, "custom_index": 0, "requested_sampling": 1}]))
+        reordered = {"layers": authored + [custom] + placeholders}
+        self.assertFalse(run._material_semantics_match(
+            reordered, expected, allow_custom=True))
+
     def test_capture_validate_and_rehashed_packet_negatives(self):
         original_subprocess_run = subprocess.run
         with tempfile.TemporaryDirectory(prefix="sdvk-synthetic-receipt-") as temporary:
