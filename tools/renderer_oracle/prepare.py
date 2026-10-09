@@ -173,7 +173,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "line_mirror", "published_probes_minimum", "sun_intensity"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "line_mirror", "published_probes_minimum", "sun_intensity"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -201,6 +201,25 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                     or not semantics or not all(isinstance(value, str) and value for value in semantics)
                     or len(set(semantics)) != len(semantics)):
                 raise ValueError(f"Scene {name} must bind semantic assertions to required named materials")
+        custom_assertions = state_assertions.get("material_custom_layers", {})
+        if not isinstance(custom_assertions, dict) or len(custom_assertions) > 256:
+            raise ValueError(f"Scene {name} has invalid custom material assertions")
+        for material, layers in custom_assertions.items():
+            if material not in state_assertions.get("materials", []) or not isinstance(layers, list) or not layers:
+                raise ValueError(f"Scene {name} must bind custom assertions to required named materials")
+            seen = set()
+            for layer in layers:
+                if (not isinstance(layer, dict)
+                        or set(layer) != {"binding", "custom_index", "requested_sampling"}
+                        or type(layer["binding"]) is not int or layer["binding"] < 0
+                        or type(layer["custom_index"]) is not int or layer["custom_index"] < 0
+                        or type(layer["requested_sampling"]) is not int
+                        or layer["requested_sampling"] not in (-1, 0, 1)):
+                    raise ValueError(f"Scene {name} has invalid custom material layer assertion")
+                key = (layer["binding"], layer["custom_index"])
+                if key in seen:
+                    raise ValueError(f"Scene {name} repeats a custom material layer assertion")
+                seen.add(key)
         if native.get("clock", {}).get("timing") != "ordinary_engine_clock":
             raise ValueError(f"Scene {name} may not time the PF fixed-tic clock")
         if not native.get("pending_coverage"):
