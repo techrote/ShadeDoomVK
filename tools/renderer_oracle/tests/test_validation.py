@@ -17,8 +17,8 @@ from test_evidence import png
 
 
 def context(identity=1, *, parent=0, depth=0, semantic="main"):
-    return {"available": True, "semantic_key": semantic, "producer": "root", "map": "SDV001", "type": "main",
-            "root_type": "main", "epoch": 1, "identity": identity, "parent_identity": parent,
+    return {"available": True, "semantic_key": semantic, "producer": "root", "map": "SDV001",
+            "type": "portal" if depth else "main", "root_type": "main", "epoch": 1, "identity": identity, "parent_identity": parent,
             "depth": depth, "face": -1, "eye": 0, "portal_group": 0, "line_mirror": False,
             "plane_mirror": False, "mirrored": False, "history_eligible": True,
             "postprocess_eligible": True, "position": [0, 0, 64], "angles": [0, 0, 0],
