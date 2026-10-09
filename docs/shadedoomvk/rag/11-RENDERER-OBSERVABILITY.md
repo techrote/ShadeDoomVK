@@ -106,6 +106,8 @@ normalize only as renderer-local
 identities; generation/epoch/span and aliasing remain exact. A generated member
 or authored GLDEFS entry is not a draw witness.
 
-The deterministic 75% pressure number is a CPU contract baseline. Native
-resource events record the actual software-Vulkan workload pressure separately;
-the two must not be conflated.
+The deterministic 75% pressure number is a CPU contract baseline. Accepted
+post-merge llvmpipe material stress separately measures 438 current/high-water
+descriptors with zero allocation/invalid-free failures; the two pressure values
+must not be conflated. Exact state/image comparisons and artifact identities are
+pinned in [SDVK-004 release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json).
