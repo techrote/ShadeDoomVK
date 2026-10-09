@@ -150,3 +150,10 @@ PF-010 exposes descriptive `postprocessEligible` and `historyEligible` flags but
 5. PF-010 context is observational: it must not alter transform order, output, postprocess routing or gameplay state.
 6. PF-009 sprite-surface state is descriptive only; existing geometry/material/output paths remain authoritative until their owning later issues explicitly change them.
 7. Any persistent view-dependent cache must use enough PF-010 identity to reject cross-root/cross-recursion reuse; `identity` without `epoch` is insufficient.
+
+
+## SDVK-006 renderer visual-time ownership
+
+`RenderViewpoint` now samples the render-only visual clock only after classifying and setting up a PF-010 `MainView` root, before stereo-eye fan-out. Camera-texture, probe and save-picture top-level calls never advance it; recursive portals only read a snapshot. The timestamp is `std::chrono::steady_clock`, deliberately independent of simulation `TimeScale` and tic time. `FRenderViewpoint::DiscontinuousView` carries the already-existing pre-frame view-reset signal so a non-main setup cannot accidentally reset the main clock.
+
+Alpha/scale interpolation is a hardware sprite presentation consumer of the accepted tic fraction, not of render delta. On a main-view clock discontinuity the new opt-in properties snap to the authoritative current endpoint for one sample. Position/angle/gameplay state remains on the inherited path. Detailed reset, clamp and context rules are in [SDVK-006-VISUAL-TIME.md](../SDVK-006-VISUAL-TIME.md).

@@ -49,6 +49,7 @@
 #include "portal.h"
 #include "bonecomponents.h"
 #include "hw_dynlightdata.h"
+#include "r_visualtime.h"
 
 struct subsector_t;
 struct FBlockNode;
@@ -510,6 +511,8 @@ enum ActorRenderFlag2
 	RF2_SQUAREPIXELS			= 0x0100,	// apply +ROLLSPRITE scaling math so that non rolling sprites get the same scaling
 	RF2_STRETCHPIXELS			= 0x0200,	// don't apply SQUAREPIXELS for ROLLSPRITES
 	RF2_LIGHTMULTALPHA			= 0x0400,	// attached lights use alpha as intensity multiplier
+	RF2_INTERPOLATESCALE			= 0x1000,	// opt-in render-only scale interpolation
+	RF2_INTERPOLATEALPHA			= 0x2000,	// opt-in render-only alpha interpolation
 };
 
 // This translucency value produces the closest match to Heretic's TINTTAB.
@@ -1382,6 +1385,8 @@ public:
 	// [RH] Used to interpolate the view to get >35 FPS
 	DVector3 Prev;
 	DRotator PrevAngles;
+	DVector2 PrevScale;
+	double PrevAlpha;
 	DAngle   PrevFOV;
 	TArray<FDynamicLight *> AttachedLights;
 	TDeletingArray<FLightDefaults *> UserLights;
@@ -1519,6 +1524,17 @@ public:
 		result.Pitch = PrevAngles.Pitch + deltaangle(PrevAngles.Pitch, Angles.Pitch) * ticFrac;
 		result.Roll = PrevAngles.Roll + deltaangle(PrevAngles.Roll, Angles.Roll) * ticFrac;
 		return result;
+	}
+	DVector2 InterpolatedScale(double ticFrac) const
+	{
+		return {
+			RenderVisualTime::InterpolateValue(PrevScale.X, Scale.X, ticFrac, !(renderflags & RF_DONTINTERPOLATE) && !!(renderflags2 & RF2_INTERPOLATESCALE)),
+			RenderVisualTime::InterpolateValue(PrevScale.Y, Scale.Y, ticFrac, !(renderflags & RF_DONTINTERPOLATE) && !!(renderflags2 & RF2_INTERPOLATESCALE))
+		};
+	}
+	double InterpolatedAlpha(double ticFrac) const
+	{
+		return RenderVisualTime::InterpolateValue(PrevAlpha, Alpha, ticFrac, !(renderflags & RF_DONTINTERPOLATE) && !!(renderflags2 & RF2_INTERPOLATEALPHA));
 	}
 	float GetSpriteOffset(bool y) const
 	{

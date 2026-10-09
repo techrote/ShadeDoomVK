@@ -775,6 +775,9 @@ class Object native
 
 	native static uint MSTime();
 	native static double MSTimeF();
+	// Renderer presentation time only: never use as a gameplay/tic clock.
+	native static ui double GetRenderDeltaTime();
+	native static ui double GetRenderVisualTime();
 	native vararg static void ThrowAbortException(String fmt, ...);
 
 	native static Function<void> FindFunction(Class<Object> cls, Name fn);

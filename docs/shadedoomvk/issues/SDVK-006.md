@@ -37,3 +37,8 @@ Visual-time API/diagnostics, interpolation implementation/tests, timing docs/RAG
 
 ## Blocking / stopping conditions
 Stop if an interpolation path modifies authoritative simulation state or if a single clock cannot represent a non-main context safely; use explicit context-local/fallback semantics instead.
+
+
+## Implementation candidate — 9 October 2026
+
+The implementation contract is recorded in [SDVK-006-VISUAL-TIME.md](../SDVK-006-VISUAL-TIME.md). The main clock is PF-010 MainView-owned, uses an unscaled monotonic clock, and gives camera/probe/save roots explicit invalid fallbacks. Main-root portals/stereo eyes consume the same snapshot without advancing it. Load/wipe/pause/cut/rollback/long-stall behavior is explicit and deterministic. Alpha/scale interpolation is opt-in, default-off and presentation-only; `RF_DONTINTERPOLATE` still wins. Acceptance remains pending exact-head CI/software-Vulkan qualification, merge and exact resulting-master verification.

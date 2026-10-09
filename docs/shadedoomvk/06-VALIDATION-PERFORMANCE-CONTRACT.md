@@ -231,3 +231,12 @@ PF-020 must rerun the complete applicable PF corpus and fail closed when:
 ## Acceptance philosophy
 
 The programme optimizes for **correct, inspectable, scalable approximations and trustworthy internal state**. A faster or more spectacular effect is not progress when the renderer cannot demonstrate what data/path produced it.
+
+
+## SDVK-006 renderer visual-time contract
+
+SDVK-006 treats time as renderer presentation evidence, not a gameplay timestep. Acceptance requires a deterministic clock/state-machine fixture and source assertions for PF-010 ownership in addition to the ordinary renderer corpus. Only the visible MainView owner may advance/reset main visual time; later stereo eyes and main-root portals are read-only snapshots; camera textures, light-probe faces, save pictures and their portal descendants expose explicit non-main fallback state and must not consume the next main delta.
+
+Clock qualification includes first/repeated timestamps, finite positive cadence above/below tic rate, long-frame clamp, rollback/non-finite input, pause/resume, level load/restart, wipe/cut and temporary main-view absence. Interpolation qualification includes exact 0/1 endpoints, intermediate monotonic alpha/scale values, disabled/default behavior, `RF_DONTINTERPOLATE`, and a fixed simulation sentinel under different render cadences. A subjective smoothness report cannot replace these state checks.
+
+The hosted software-Vulkan lane remains the routine native qualification path. Physical GPU evidence is optional unless a concrete driver/pacing defect appears; software Vulkan is correctness/repeatability evidence and not a physical-GPU performance claim.

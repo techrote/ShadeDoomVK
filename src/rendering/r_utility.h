@@ -48,6 +48,7 @@ struct FRenderViewpoint
 	double			ScreenProjX;	// Same for X-axis (screenspace)
 
 	double			TicFrac;		// fraction of tic for interpolation
+	bool			DiscontinuousView;	// existing view-reset signal sampled by renderer-only visual time
 	uint32_t		FrameTime;		// current frame's time in tics.
 	
 	int				extralight;		// extralight to be added to this viewpoint

@@ -170,6 +170,7 @@ FRenderViewpoint::FRenderViewpoint()
 	ScreenProj = 0.0;
 	ScreenProjX = 0.0;
 	TicFrac = 0.0;
+	DiscontinuousView = false;
 	FrameTime = 0;
 	extralight = 0;
 	showviewer = false;
@@ -925,6 +926,10 @@ EXTERN_CVAR(Float, chase_height)
 
 void R_SetupFrame(FRenderViewpoint& viewPoint, const FViewWindow& viewWindow, AActor* const actor, int side)
 {
+	// R_ResetViewInterpolation is shared with non-main renders. Capture only
+	// the pre-existing cut signal per viewpoint; PF-010 ownership decides later
+	// whether it is permitted to reset the main renderer clock.
+	viewPoint.DiscontinuousView = NoInterpolateView;
 	viewPoint.TicFrac = I_GetTimeFrac();
 	if (cl_capfps || r_NoInterpolate)
 		viewPoint.TicFrac = 1.0;

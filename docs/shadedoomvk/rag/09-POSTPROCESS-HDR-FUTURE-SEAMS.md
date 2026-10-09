@@ -122,3 +122,8 @@ The swapchain output of `VkPPRenderPassSetup::CreateRenderPass` uses a color `lo
 5. Exposure/tonemap/bloom policy should follow the PF-011 named compatibility light-energy contract rather than arbitrary effect-specific compensation.
 6. PF-011 compatibility scalars do not declare physical units and remain numerically frozen until separately owned calibration work.
 7. Postprocess custom-shader extensibility remains a compatibility surface.
+
+
+## SDVK-006 visual time is not temporal history
+
+SDVK-006 supplies a bounded MainView renderer clock and explicit PF-010 scope, including discontinuity generations. It does **not** create motion vectors, previous matrices, history images, TAA or a cross-frame portal/camera history cache. Later temporal effects may consume the clock only after defining their own persistent history ownership/invalidation. Non-main roots deliberately have no shared main visual timeline.

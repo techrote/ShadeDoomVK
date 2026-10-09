@@ -71,13 +71,13 @@ Disposition: **research/data-layout evidence**, not a blind cherry-pick. PF-016'
 
 Commit: `316b18a4d96b1a120c681d368ac670286234bcc8`
 
-Disposition: later **SDVK-006 adaptation**, after PF-010 gives render-context identity. Gameplay/tic semantics remain authoritative.
+Disposition: **adapted conceptually by SDVK-006**. The bounded-render-delta idea is retained, but the donor global previous-time clock and positive minimum clamp are not transplanted. ShadeDoomVK samples an unscaled steady clock only at the PF-010 MainView owner, uses explicit invalid/repeat/rollback/pause/reset states, bounds only long positive stalls at 0.2 s, and gives non-main roots an invalid fallback. Gameplay/tic semantics remain authoritative. See `SDVK-006-VISUAL-TIME.md`.
 
 ### MrRaveYard/MAD-VKDoom — opt-in scale/alpha interpolation
 
 Commit: `7d1f2df404711986a3cc742dad1f9e6e0ac69cde`
 
-Disposition: later **SDVK-006 adaptation** where compatibility-safe.
+Disposition: **adapted by SDVK-006 where compatibility-safe**. Previous scale/alpha snapshots and opt-in `0x1000/0x2000` flag positions are retained. The recipient adds exact endpoints, finite/fraction sanitization, `RF_DONTINTERPOLATE` precedence and main-view discontinuity gating; defaults remain disabled and no generalized donor animation system is imported. See `SDVK-006-VISUAL-TIME.md`.
 
 ### MrRaveYard/MAD-VKDoom — viewmodel light-level option
 

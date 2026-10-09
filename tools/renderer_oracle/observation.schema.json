@@ -188,6 +188,32 @@
     }
   },
   "$defs": {
+    "visualTime": {
+      "type": "object",
+      "required": [
+        "scope",
+        "delta_seconds",
+        "accumulated_seconds",
+        "generation",
+        "main_frame",
+        "delta_valid",
+        "interpolation_valid",
+        "clamped",
+        "discontinuity"
+      ],
+      "properties": {
+        "scope": {"type": "string", "minLength": 1},
+        "advances_main_clock": {"type": "boolean"},
+        "delta_seconds": {"type": "number", "minimum": 0, "maximum": 0.2},
+        "accumulated_seconds": {"type": "number", "minimum": 0},
+        "generation": {"type": "integer", "minimum": 0},
+        "main_frame": {"type": "integer", "minimum": 0},
+        "delta_valid": {"type": "boolean"},
+        "interpolation_valid": {"type": "boolean"},
+        "clamped": {"type": "boolean"},
+        "discontinuity": {"type": "string", "minLength": 1}
+      }
+    },
     "availability": {
       "type": "object",
       "required": [
@@ -320,6 +346,9 @@
                   "cpu_render_view_ms": {
                     "type": "number",
                     "minimum": 0
+                  },
+                  "visual_time": {
+                    "$ref": "#/$defs/visualTime"
                   },
                   "gametic": {
                     "type": "integer",
