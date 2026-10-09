@@ -335,6 +335,21 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertIn(b'specular "SDVSP"', members["GLDEFS"])
         self.assertIn(b'roughness "SDVZERO"', members["GLDEFS"])
         self.assertIn(b'ao "SDVAO"', members["GLDEFS"])
+        self.assertEqual(metadata["custom_shader_material_names"],
+                         ["SM0002", "SM0010", "SM0018", "SM0026",
+                          "SM0034", "SM0042", "SM0050", "SM0058"])
+        self.assertEqual(set(metadata["custom_shader_filters"].values()), {"nearest", "linear"})
+        self.assertEqual(metadata["custom_shader_binding"], "SDVKExtra")
+        self.assertEqual(metadata["custom_shader_texture"], "SDVCU")
+        self.assertIn("textures/SDVCU.png", members)
+        self.assertIn("shaders/sdvk004.fp", members)
+        self.assertIn(b"texture(SDVKExtra, vTexCoord.st)", members["shaders/sdvk004.fp"])
+        for name in metadata["custom_shader_material_names"]:
+            self.assertIn(f'material texture {name}'.encode(), members["GLDEFS"])
+            self.assertIn("custom", assertions["material_semantics"][name])
+        self.assertIn(b'shader "shaders/sdvk004.fp"', members["GLDEFS"])
+        self.assertIn(b'texture SDVKExtra "SDVCU" { filter nearest }', members["GLDEFS"])
+        self.assertIn(b'texture SDVKExtra "SDVCU" { filter linear }', members["GLDEFS"])
 
     def test_sun_scene_records_raised_floor_inputs_and_remains_unqualified(self):
         scene = scene_named("sun-probes")
