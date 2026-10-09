@@ -1,7 +1,6 @@
 # Renderer observation and evidence ownership
 
-Primary issue: SDVK-002 / #2. Status: implementation; native/release acceptance
-is recorded separately in [the owning contract](../SDVK-002-OBSERVABILITY.md).
+Primary issue: SDVK-002 / #2. Status: **accepted, merged and verified** on repaired `master@a05743fb428c0d7c66defccfb577834d012b4e31`. [Owning contract](../SDVK-002-OBSERVABILITY.md) and [release receipt](../SDVK-002-RELEASE-ACCEPTANCE.json) record the exact evidence and limitations.
 
 ## Entry points
 
@@ -56,8 +55,7 @@ parent state is hashed into the child. View position/angle/FOV representation is
 derived context label is redundant and excluded from equality; an explicit
 validated producer field retains the actual root/portal/camera producer. Static-scene
 tic/fraction labels may be normalized only under the recipe's declared clock
-policy. Renderer-local live slot numbers are normalized to first-seen identities
-while generation/epoch/span and aliasing remain. Raw resource-owner telemetry
+policy. Renderer-local descriptor slot numbers and selected non-negative shadow-map row numbers are normalized bijectively to first-seen frame-local identities while generation/epoch/span, the shadow `-1` rejection sentinel and aliasing remain exact. Raw resource-owner telemetry
 stays in each packet, but process-cumulative/lazy allocation, upload and staging
 workload-volume counters are excluded from semantic equality; capacity state,
 resets, cancellations, staging wrap/dedicated state and all failure/rejection
