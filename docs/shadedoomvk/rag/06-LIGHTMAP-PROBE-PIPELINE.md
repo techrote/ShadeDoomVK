@@ -129,7 +129,7 @@ The retained `CFX_RETAIN_REPLACED_LIGHTMAPS` switch is explicitly experiment-onl
 
 DBP37 succeeds 3/3 on the accepted repair, and original DBP50, DBP50 v1.2 and Sunlust/Champions each qualify 3/3 on the repaired GTX 1650 SUPER. These results do not prove that every historical incident dynamically sampled the removed descriptor or shared one mechanism. Repaired P400 behavior remains untested. PF-020 owns final-source regression/freeze verification of this invariant. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
 
-## SDVK-004 page/probe pressure candidate
+## SDVK-004 accepted page/probe pressure qualification
 
 SDVK-004 exercises the existing ownership/publication rules rather than changing
 them. The deterministic contract publishes the full 128-page fixed reservation,
@@ -144,5 +144,4 @@ advances `LightmapEpoch`; probe-content reset advances `LightProbeEpoch`
 without pretending that retained irradiance/prefilter image owners were
 recreated. Repeated stale-token checks cover both owner epochs.
 
-See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md). No new
-lightmap/probe identity, emergency flush or retention policy is introduced.
+See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and [release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json). Exact PR-head and post-merge gates passed. The native `sun-probes` route observed one lightmap page, two irradiance maps and two prefilter maps. No new lightmap/probe identity, emergency flush or retention policy is introduced.
