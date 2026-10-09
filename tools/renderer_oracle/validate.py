@@ -17,6 +17,8 @@ except ImportError:
 
 KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
+CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
+ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
 VISUAL_TIME_REASONS = {"none", "first-frame", "explicit-reset", "pause", "resume", "level-load", "wipe",
                        "camera-cut", "long-frame-clamped", "clock-rollback", "invalid-timestamp",
                        "repeated-timestamp", "interpolation-disabled", "interpolation-enabled"}
@@ -41,9 +43,9 @@ def _visual_time(value, *, context=None, frame=False):
         require(value["scope"] == "main-view-owner", "Frame visual-time state must describe the main-view owner")
     if context is not None:
         require(type(value.get("advances_main_clock")) is bool, "Context visual-time ownership flag is missing")
-        if context["root_type"] != "MainView":
+        if context["root_type"] != "main":
             expected_scope = "non-main-fallback"
-        elif context["type"] == "Portal":
+        elif context["type"] == "portal":
             expected_scope = "main-portal"
         elif context["eye"] == 0:
             expected_scope = "main-owner"
@@ -99,6 +101,9 @@ def _context(value):
         return None
     for key in ("semantic_key", "producer", "map", "type", "root_type"):
         require(isinstance(value.get(key), str) and value[key], f"Context {key} is missing")
+    require(value["type"] in CONTEXT_TYPES, "Unknown PF-010 context type")
+    require(value["root_type"] in ROOT_CONTEXT_TYPES, "Unknown PF-010 root context type")
+    require((value["type"] == "portal") == (value["depth"] > 0), "PF-010 portal type/depth disagree")
     require(value.get("angle_space") == "hardware-view", "Context angle domain is missing")
     for key in ("epoch", "identity"):
         integer(value.get(key), f"context {key}", minimum=1)

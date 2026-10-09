@@ -17,8 +17,8 @@ from test_evidence import png
 
 
 def context(identity=1, *, parent=0, depth=0, semantic="main"):
-    return {"available": True, "semantic_key": semantic, "producer": "root", "map": "SDV001", "type": "MainView",
-            "root_type": "MainView", "epoch": 1, "identity": identity, "parent_identity": parent,
+    return {"available": True, "semantic_key": semantic, "producer": "root", "map": "SDV001", "type": "main",
+            "root_type": "main", "epoch": 1, "identity": identity, "parent_identity": parent,
             "depth": depth, "face": -1, "eye": 0, "portal_group": 0, "line_mirror": False,
             "plane_mirror": False, "mirrored": False, "history_eligible": True,
             "postprocess_eligible": True, "position": [0, 0, 64], "angles": [0, 0, 0],
@@ -268,7 +268,7 @@ class SemanticProjectionTests(unittest.TestCase):
 
         leaking_non_main = copy.deepcopy(left)
         non_main = leaking_non_main["records"][0]["data"]["context"]
-        non_main.update(type="CameraTexture", root_type="CameraTexture", history_eligible=False,
+        non_main.update(type="camera-texture", root_type="camera-texture", history_eligible=False,
                         postprocess_eligible=False)
         non_main["visual_time"].update(scope="non-main-fallback", advances_main_clock=False,
                                        delta_seconds=0.01, accumulated_seconds=1.0, delta_valid=True)
