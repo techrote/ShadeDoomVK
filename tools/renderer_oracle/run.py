@@ -323,6 +323,20 @@ def _material_semantics_match(value, expected):
     return True
 
 
+def _material_custom_layers_match(value, expected):
+    layers = value.get("layers")
+    if not isinstance(layers, list):
+        return False
+    actual = [
+        {"binding": layer.get("binding"),
+         "custom_index": layer.get("custom_index"),
+         "requested_sampling": layer.get("requested_sampling")}
+        for layer in layers
+        if layer.get("semantic") == "custom" and layer.get("role") == "authored-layer"
+    ]
+    return actual == expected
+
+
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     camera = scene["native"]["camera"]
@@ -360,6 +374,11 @@ def _scene_assertions(raw, scene):
                          if record["kind"] == "material" and record["data"].get("name") == name]
                 require(drawn and all(_material_semantics_match(value, expected) for value in drawn),
                         "Required material semantic bindings differ: " + name)
+            for name, expected in assertions.get("material_custom_layers", {}).items():
+                drawn = [record["data"] for record in records
+                         if record["kind"] == "material" and record["data"].get("name") == name]
+                require(drawn and all(_material_custom_layers_match(value, expected) for value in drawn),
+                        "Required custom material bindings differ: " + name)
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]
