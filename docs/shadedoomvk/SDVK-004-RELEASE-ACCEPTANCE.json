@@ -157,5 +157,11 @@
     "Software Vulkan correctness/repeatability is not a production performance claim.",
     "Historical failed/cancelled runs are retained and not reclassified."
   ],
-  "acceptanceDocumentation": "Substantive SDVK-004 implementation is accepted, merged and verified. This receipt and programme-gate reconciliation become canonical after acceptance PR #128 passes required checks, merges, and the resulting master is verified."
+  "acceptanceDocumentation": "Substantive SDVK-004 implementation is accepted, merged and verified. This receipt and programme-gate reconciliation become canonical after acceptance PR #128 passes required checks, merges, and the resulting master is verified.",
+  "acceptanceReconciliation": {
+    "baseMaster": "39c07d12f59b21c86be86b44f3a0905ffecfd184",
+    "concurrentChange": "SDVK-006 substantive PR #127 merged after the first acceptance-record head was tested",
+    "disposition": "acceptance branch reset onto live master and SDVK-004 documentation reapplied; SDVK-006 ledger and renderer-observability additions retained",
+    "runtimeOverlap": "none; acceptance PR remains documentation/JSON only"
+  }
 }
