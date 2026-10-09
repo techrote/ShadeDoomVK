@@ -202,10 +202,12 @@ The reusable `material-stress` renderer corpus now contains eight PBR panels
 with a real GLDEFS hardware shader and a custom texture binding named
 `SDVKExtra`. The parser maps that authored name to the inherited bindless
 `textureN` slot, and the panels alternate nearest/linear custom sampling.
-Native state assertions require the ordered `custom` semantic on those exact
-materials, so an image cannot pass while the custom resource silently
-disappears. This extends evidence coverage; it does not change GLDEFS syntax,
-shader/material semantics or filtering policy.
+Native state assertions keep the PF-008 fixed authored prefix unchanged and
+assert each custom layer separately at binding 8 with custom index 0 and its
+authored nearest/linear sampling request. An image therefore cannot pass while
+the custom resource silently disappears or its binding is reordered. This
+extends evidence coverage; it does not change GLDEFS syntax, shader/material
+semantics or filtering policy.
 
 See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md). Final
 acceptance remains gated on exact-head software-Vulkan image/state evidence.
