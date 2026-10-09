@@ -72,8 +72,8 @@ class VisualTimeContractTests(unittest.TestCase):
         self.assertNotIn("AdvanceMain", source("src/p_tick.cpp"))
 
     def test_ui_script_access_is_explicitly_render_only(self) -> None:
-        self.assertIn("native ui static double GetRenderDeltaTime()", self.base_zs)
-        self.assertIn("native ui static double GetRenderVisualTime()", self.base_zs)
+        self.assertIn("native static ui double GetRenderDeltaTime()", self.base_zs)
+        self.assertIn("native static ui double GetRenderVisualTime()", self.base_zs)
 
     def test_sdvk_diagnostics_expose_time_scope_and_discontinuity(self) -> None:
         for token in ["visual_time", "scope", "advances_main_clock", "delta_seconds",
