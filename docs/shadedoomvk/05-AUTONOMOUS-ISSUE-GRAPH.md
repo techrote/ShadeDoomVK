@@ -9,7 +9,7 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 
 **SDVK-001 is blocked until PF-020 is accepted, merged and verified on `master`.**
 
-Current gate (2026-10-09): SDVK-001 / #1, SDVK-002 / #2 and SDVK-003 / #3 are accepted, merged and verified. SDVK-002's original observability implementation merged through PR #121 and its fresh-process reproducibility repair merged through PR #124 as current `master@a05743fb428c0d7c66defccfb577834d012b4e31`; exact repair-head and exact post-repair-master CI each passed all nine jobs, including the complete software-Vulkan corpus, and the [SDVK-002 release acceptance](SDVK-002-RELEASE-ACCEPTANCE.json) retains both successful and adverse evidence. SDVK-003 / #3 merged through PR #122 as `ffbd7e1d9f92b8b69b675765472a58ae3e0c7ca7`, passed its exact-head gates, and is present on the same verified current master. SDVK-004 / #4, SDVK-006 / #6 and SDVK-009 / #9 are dependency-ready; later gates retain their declared dependencies.
+Current gate (2026-10-09): SDVK-001 through SDVK-004 are accepted, merged and verified. SDVK-004 final head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed source evidence run `37962887608` and all-nine-job CI run `37962887060`; PR #126 merged as current substantive `master@d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`, whose identical tested tree passed post-merge source evidence `37974299356` and all-nine-job CI `37974299316`. The [SDVK-004 release acceptance](SDVK-004-RELEASE-ACCEPTANCE.json) pins deterministic 75% descriptor stress, measured software-Vulkan pressure and retained failure evidence. SDVK-005, SDVK-006 and SDVK-009 are dependency-ready; later gates retain their declared dependencies.
 
 PF freeze gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; pre-freeze accepted renderer master was `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 is accepted, merged and verified on master at `e185e60b04fe37ec84a18c5a85eec6722b541b71`, with final local/source/review gates and all eight actual final-head plus all eight exact post-merge jobs. [Release acceptance](PF-020-RELEASE-ACCEPTANCE.json) preserves bounded evidence and limitations. SDVK-001 is UNBLOCKED; no SDVK feature is implemented by this freeze. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
 
@@ -105,10 +105,10 @@ Do not intentionally run these implementation combinations concurrently without 
 
 ## SDVK dependency-ready concurrency
 
-With SDVK-002 and SDVK-003 accepted:
+With SDVK-002, SDVK-003 and SDVK-004 accepted:
 
-- **SDVK-004, SDVK-006 and SDVK-009 are dependency-ready and may proceed concurrently** when their implementation files do not materially collide;
-- SDVK-005 waits for accepted SDVK-004, then SDVK-005 → SDVK-007 → SDVK-008 remains serialized material/orientation/relief work;
+- **SDVK-005, SDVK-006 and SDVK-009 are dependency-ready and may proceed concurrently** when their implementation files do not materially collide;
+- SDVK-005 may proceed on the accepted descriptor/material-pressure substrate; SDVK-007 still waits for accepted SDVK-005, so SDVK-005 → SDVK-007 → SDVK-008 remains serialized material/orientation/relief work;
 - SDVK-009 is independent of SDVK-005/007 because PF-016 already established baseline actor-light query correctness/fast paths;
 - SDVK-010 still requires SDVK-007 so actor IBL is evaluated against the accepted sprite orientation/material path;
 - SDVK-014 may perform exploratory work earlier, but cannot accept until SDVK-005, SDVK-009 and SDVK-010 are accepted;
