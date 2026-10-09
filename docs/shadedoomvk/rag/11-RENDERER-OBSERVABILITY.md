@@ -99,8 +99,10 @@ counts.
 
 The existing `material-stress` recipe is extended with eight authored PBR
 custom-shader bindings. Their screenshots remain paired with ordinary material
-events, and `state_assertions.material_semantics` requires `custom` on the
-named panels. Descriptor slot numbers may still normalize only as renderer-local
+events. The fixed semantic prefix remains under `material_semantics`, while
+`material_custom_layers` separately requires the observed custom binding/index
+and requested sampling on the named panels. Descriptor slot numbers may still
+normalize only as renderer-local
 identities; generation/epoch/span and aliasing remain exact. A generated member
 or authored GLDEFS entry is not a draw witness.
 
