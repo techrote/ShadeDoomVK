@@ -1,7 +1,6 @@
 # SDVK-002 — Renderer observability and reference corpus
 
-Status: implementation and qualification in progress; issue #2 is not accepted
-until its PR/check/merge/master-verification gates are recorded.
+Status: **accepted, merged and verified** on repaired `master@a05743fb428c0d7c66defccfb577834d012b4e31`. The [release receipt](SDVK-002-RELEASE-ACCEPTANCE.json) records the original implementation, reproducibility repair, exact-head/post-merge evidence, retained failures and limitations.
 
 ## Dependency and evidence boundary
 
@@ -137,10 +136,7 @@ ordinary timing workload. No physical-GPU baseline, new full bake, exhaustive
 compatibility campaign, LevelMesh shader execution proof or later feature
 acceptance follows from this implementation.
 
-The final issue receipt must identify the publication and merge commits, all
-required CI jobs, the two-run state/image comparisons, raw timing/counter
-baseline, retained failures and verified master. Until then, SDVK-002 and its
-dependent feature gates remain pending.
+The release receipt identifies the publication and repair commits, required CI jobs, two-run state/image comparisons, raw timing/counter baseline, retained failures and verified master. SDVK-002 is accepted; SDVK-004, SDVK-006 and SDVK-009 may consume this oracle subject to their own dependencies and issue contracts.
 
 ## Recovery qualification hardening
 
@@ -155,3 +151,12 @@ extra semantics still fail. Sun/probe state requires actual published pairs, a
 live draw binding and the authored sunlight intensity.
 A comparison rejects one capture reused under the same path or copied paths.
 These are fail-closed workload/evidence checks, not new renderer features.
+
+
+## Final acceptance and fresh-process repair
+
+PR #121 established the substantive observability/reference/benchmark system and merged as `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`. A later documentation-only acceptance run exposed additional fresh-process nondeterminism in the shadow-boundary witness. That failed run is retained rather than reclassified.
+
+PR #124 repaired the evidence contract without weakening semantic comparison: selected shadow-map row numbers are normalized as frame-local allocator identities while the rejection sentinel, aliasing and selected/rejected light decisions remain exact; the generated player start is placed 48 map units behind the fixed camera so view-relative player-sprite rotation is no longer undefined at coincident XY coordinates.
+
+The repair head `584dc4f1f3450069bd5b9679cd2aef2703c1e399` and merge `a05743fb428c0d7c66defccfb577834d012b4e31` each passed the complete nine-job matrix. On exact repaired master all eight authored software-Vulkan scenes complete two independent state captures and a passing state/RGB comparison, including `shadow-boundary`; all three `lights-one` timing processes and the repeatability baseline pass. These software-Vulkan results remain descriptive correctness/repeatability evidence, not physical-GPU performance acceptance.
