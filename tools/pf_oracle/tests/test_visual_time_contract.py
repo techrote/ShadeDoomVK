@@ -67,8 +67,8 @@ class VisualTimeContractTests(unittest.TestCase):
         self.assertIn("HWVisualInterpolationFraction", self.sprites)
         self.assertIn("InterpolatedScale(visualFraction)", self.sprites)
         self.assertIn("InterpolatedAlpha(visualFraction)", self.sprites)
-        self.assertNotIn("RenderVisualTime", source("src/playsim/p_tick.cpp"))
-        self.assertNotIn("AdvanceMain", source("src/playsim/p_tick.cpp"))
+        self.assertNotIn("RenderVisualTime", source("src/p_tick.cpp"))
+        self.assertNotIn("AdvanceMain", source("src/p_tick.cpp"))
 
     def test_ui_script_access_is_explicitly_render_only(self) -> None:
         self.assertIn("native ui static double GetRenderDeltaTime()", self.base_zs)
