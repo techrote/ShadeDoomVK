@@ -784,3 +784,17 @@ before issue closure or dependent SDVK-004/006/009/014 readiness changes.
 - No renderer donor code or physical-GPU claim is introduced by SDVK-003. PF/CFX ownership vetoes remain authoritative.
 
 **SDVK-003: ACCEPTED, MERGED AND VERIFIED. SDVK-004/009: upstream-policy dependency satisfied.**
+
+### 9 October 2026 — SDVK-004 rich descriptor/lifetime acceptance
+
+- SDVK-004 / #4 began from verified `master@c8b6db4dedae5da27249b6738f7628cf3a41b80a` after SDVK-002/003 acceptance.
+- Qualification reused PF-002/PF-003 identity/capacity semantics and the SDVK-002 observer/corpus. The deterministic contract holds 576 material variants plus 64 probe pairs at 3,072/4,096 dynamic descriptors (75%), performs 64 rebuild/reuse cycles, rejects stale identities, exercises 128 reserved lightmap pages, device-limit clamping, fragmentation, exhaustion and allocator restart.
+- One demonstrated PF-003 integration defect was repaired: an impossible positive span could grow exact-size free-bucket bookkeeping before proving the span fit the configured dynamic range. The whole-range pre-bucket guard preserves valid exact-size reuse and makes the pathological request fail explicitly.
+- The existing `material-stress` native recipe now renders eight real PBR custom-shader bindings with alternating nearest/linear custom sampling. Post-merge llvmpipe observes 438 current/high-water descriptors, 72 allocations, 4 reuses, 4 frees, zero failures/invalid frees and 142 hardware textures; `sun-probes` observes one lightmap page and two irradiance/two prefilter maps.
+- Historical CI run `37962321008` is retained: PF/CFX tests passed but a new catalog validator accidentally shadowed the corpus-wide duplicate-scene set; the existing negative test failed and blocked the matrix. The local variable collision was repaired without weakening the negative control.
+- Exact final PR #126 head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed Renderer source evidence run `37962887608` and Continuous Integration run `37962887060` **9/9**. PR #126 merged as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; merge tree `9ce95e42441744d2270954bbec25b193d2d019ae` exactly equals the tested PR merge-ref tree.
+- Exact merged-master Renderer source evidence run `37974299356` passed and Continuous Integration run `37974299316` passed **9/9**, including the complete software-Vulkan corpus and timing baseline. Physical-GPU qualification is not claimed.
+- [SDVK-004 release acceptance](SDVK-004-RELEASE-ACCEPTANCE.json) pins source bundles, CPU/native artifacts, pressure budgets, inherited PF-110 indexed/palette evidence boundary, SDVK-003 ownership reconciliation and limitations.
+
+**SDVK-004: ACCEPTED, MERGED AND VERIFIED. SDVK-005: dependency-ready.** SDVK-006 and SDVK-009 remain dependency-ready independently; SDVK-007 still waits for SDVK-005.
+
