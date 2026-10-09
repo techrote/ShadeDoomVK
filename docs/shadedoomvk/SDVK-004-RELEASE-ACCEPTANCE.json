@@ -4,7 +4,7 @@
   "status": "ACCEPTED_MERGED_VERIFIED",
   "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/4",
   "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/126",
-  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/128",
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/130",
   "startingMaster": "c8b6db4dedae5da27249b6738f7628cf3a41b80a",
   "finalHead": "862ae0f591d60572c2474f0b6f22d44bfbb30e24",
   "testedMergeRef": "e105ba23dd4189fc9291eb98dc717f2b8e8dfe4b",
@@ -157,7 +157,7 @@
     "Software Vulkan correctness/repeatability is not a production performance claim.",
     "Historical failed/cancelled runs are retained and not reclassified."
   ],
-  "acceptanceDocumentation": "Substantive SDVK-004 implementation is accepted, merged and verified. This receipt and programme-gate reconciliation become canonical after acceptance PR #128 passes required checks, merges, and the resulting master is verified.",
+  "acceptanceDocumentation": "Substantive SDVK-004 implementation is accepted, merged and verified. This receipt and programme-gate reconciliation become canonical after acceptance PR #130 passes required checks, merges, and the resulting master is verified.",
   "acceptanceReconciliation": {
     "baseMaster": "39c07d12f59b21c86be86b44f3a0905ffecfd184",
     "concurrentChange": "SDVK-006 substantive PR #127 merged after the first acceptance-record head was tested",
