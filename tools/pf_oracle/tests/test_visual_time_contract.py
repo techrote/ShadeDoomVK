@@ -51,7 +51,8 @@ class VisualTimeContractTests(unittest.TestCase):
 
     def test_reset_hooks_are_explicit_and_bounded(self) -> None:
         for token in ["MaxDeltaSeconds", "ClockRollback", "InvalidTimestamp", "RepeatedTimestamp",
-                      "LongFrameClamped", "Pause", "Resume", "LevelLoad", "Wipe", "CameraCut"]:
+                      "LongFrameClamped", "Pause", "Resume", "LevelLoad", "Wipe", "CameraCut",
+                      "InterpolationEnabled", "InterpolationDisabled"]:
             self.assertIn(token, self.clock_h)
         self.assertIn("RenderVisualTime::Reason::LevelLoad", self.level)
         self.assertIn("RenderVisualTime::Reason::Wipe", self.wipe)

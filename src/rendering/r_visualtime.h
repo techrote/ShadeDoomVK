@@ -21,6 +21,7 @@ enum class Reason : uint8_t
 	InvalidTimestamp,
 	RepeatedTimestamp,
 	InterpolationDisabled,
+	InterpolationEnabled,
 };
 
 inline const char* ReasonName(Reason reason)
@@ -40,6 +41,7 @@ inline const char* ReasonName(Reason reason)
 	case Reason::InvalidTimestamp: return "invalid-timestamp";
 	case Reason::RepeatedTimestamp: return "repeated-timestamp";
 	case Reason::InterpolationDisabled: return "interpolation-disabled";
+	case Reason::InterpolationEnabled: return "interpolation-enabled";
 	}
 	return "unknown";
 }
@@ -68,6 +70,7 @@ public:
 		BumpGeneration();
 		HasPrevious = false;
 		WasPaused = false;
+		HasInterpolationMode = false;
 		PendingReason = reason;
 		Current.DeltaSeconds = 0.0;
 		Current.AccumulatedSeconds = AccumulatedSeconds;
@@ -90,6 +93,10 @@ public:
 		Current.DeltaValid = false;
 		Current.InterpolationValid = false;
 		Current.Clamped = false;
+
+		const bool modeChanged = HasInterpolationMode && PreviousInterpolationEnabled != interpolationEnabled;
+		PreviousInterpolationEnabled = interpolationEnabled;
+		HasInterpolationMode = true;
 
 		if (!std::isfinite(timestampSeconds) || timestampSeconds < 0.0)
 		{
@@ -164,8 +171,16 @@ public:
 		AccumulatedSeconds += rawDelta;
 		Current.DeltaSeconds = rawDelta;
 		Current.AccumulatedSeconds = AccumulatedSeconds;
-		Current.Generation = Generation;
 		Current.DeltaValid = true;
+		if (modeChanged)
+		{
+			BumpGeneration();
+			Current.Generation = Generation;
+			Current.InterpolationValid = false;
+			Current.Discontinuity = interpolationEnabled ? Reason::InterpolationEnabled : Reason::InterpolationDisabled;
+			return Current;
+		}
+		Current.Generation = Generation;
 		Current.InterpolationValid = interpolationEnabled;
 		Current.Discontinuity = rawDelta == 0.0 ? Reason::RepeatedTimestamp :
 			interpolationEnabled ? Reason::None : Reason::InterpolationDisabled;
@@ -187,6 +202,8 @@ private:
 	uint64_t MainFrames = 0;
 	bool HasPrevious = false;
 	bool WasPaused = false;
+	bool HasInterpolationMode = false;
+	bool PreviousInterpolationEnabled = false;
 	Reason PendingReason = Reason::None;
 	Sample Current;
 };

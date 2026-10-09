@@ -32,7 +32,7 @@ Non-main fallback exposes zero/invalid visual delta and zero accumulated visual 
 - **Non-finite or negative timestamp:** zero/invalid delta, prior anchor is discarded, generation advances, reason `invalid-timestamp`.
 - **Pause:** timestamp is continually re-anchored while accumulated visual time is held; the first paused sample advances generation. Paused wall time is never paid back.
 - **Resume:** zero/invalid delta for one sample, new anchor, generation advances, reason `resume`.
-- **Interpolation globally disabled (`cl_capfps` or `r_NoInterpolate`):** the visual delta remains usable, while `interpolation_valid=false` and ordinary actor presentation remains at the authoritative current endpoint.
+- **Interpolation globally disabled (`cl_capfps` or `r_NoInterpolate`):** the visual delta remains usable, while `interpolation_valid=false` and ordinary actor presentation remains at the authoritative current endpoint. A mode transition advances the visual generation. Re-enabling produces one `interpolation-enabled` sample with interpolation still invalid/current-endpoint, then permits interpolation on the following continuous sample; this prevents a toggle from moving presentation backwards within a tic.
 - **Temporary absence of main rendering:** no clock operation occurs. A later main view sees the actual elapsed interval and therefore either resumes normally or takes the explicit long-frame clamp/discontinuity path.
 
 The clock is process/renderer owned rather than Vulkan-device owned. Device/swapchain recreation therefore does not itself destroy the timeline; a long period with no main view is handled by the bounded-stall rule.
@@ -88,6 +88,6 @@ MAD-VKDoom `7d1f2df404711986a3cc742dad1f9e6e0ac69cde` supplied the useful opt-in
 
 ## Deterministic qualification
 
-`tools/pf_oracle/tests/visual_time_fixture.cpp` covers first/repeated/normal/long/rollback/non-finite time, pause/resume, load/wipe/cut resets, endpoint/intermediate/disabled interpolation, varied render cadence with a fixed simulation sentinel, main/stereo/portal context sharing, camera/probe/save fallback, nested non-main portals and context recreation.
+`tools/pf_oracle/tests/visual_time_fixture.cpp` covers first/repeated/normal/long/rollback/non-finite time, pause/resume, load/wipe/cut resets, disable/re-enable transitions, endpoint/intermediate/disabled interpolation, render cadence both above and below the 35 Hz tic rate with a fixed simulation sentinel, main/stereo/portal context sharing, camera/probe/save fallback, nested non-main portals, proof that intervening non-main renders do not consume the next main delta, and context recreation.
 
 `test_visual_time_contract.py` asserts production ownership, reset hooks, opt-in flag plumbing, absence from `p_tick.cpp`, UI-only script declarations and SDVK diagnostic fields. Full `tools/check.py`, native software-Vulkan corpus, source/build identity and hosted CI remain acceptance gates.

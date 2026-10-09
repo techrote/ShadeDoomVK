@@ -41,6 +41,20 @@ int main()
 	sample = clock.AdvanceMain(50.11, false, true);
 	assert(sample.DeltaValid && sample.InterpolationValid);
 
+	// Disabling snaps to current immediately. Re-enabling also snaps for one
+	// sample so presentation cannot jump backwards from a current endpoint to
+	// an older mid-tic value; the following sample may interpolate again.
+	sample = clock.AdvanceMain(50.12, false, false);
+	assert(sample.DeltaValid && !sample.InterpolationValid);
+	assert(sample.Discontinuity == Reason::InterpolationDisabled);
+	const auto disabledGeneration = sample.Generation;
+	sample = clock.AdvanceMain(50.13, false, true);
+	assert(sample.DeltaValid && !sample.InterpolationValid);
+	assert(sample.Discontinuity == Reason::InterpolationEnabled);
+	assert(sample.Generation != disabledGeneration);
+	sample = clock.AdvanceMain(50.14, false, true);
+	assert(sample.DeltaValid && sample.InterpolationValid);
+
 	clock.Reset(Reason::LevelLoad);
 	sample = clock.AdvanceMain(60.0, false, true);
 	assert(!sample.DeltaValid && sample.Discontinuity == Reason::LevelLoad);
@@ -78,6 +92,8 @@ int main()
 	for (int i = 0; i < 20; ++i) sixtyHz.AdvanceMain(100.0 + i / 60.0, false, true);
 	Clock oneFortyFourHz;
 	for (int i = 0; i < 48; ++i) oneFortyFourHz.AdvanceMain(100.0 + i / 144.0, false, true);
+	Clock twentyHz;
+	for (int i = 0; i < 8; ++i) twentyHz.AdvanceMain(100.0 + i / 20.0, false, true);
 	assert(simulationTic == 77);
 
 	RuntimeClock().Reset(Reason::ExplicitReset);
@@ -126,6 +142,8 @@ int main()
 	assert(after.Generation == before.Generation);
 	assert(after.AccumulatedSeconds == before.AccumulatedSeconds);
 	assert(after.DeltaSeconds == before.DeltaSeconds);
+	const auto nextMain = RuntimeClock().AdvanceMain(200.02, false, true);
+	assert(nextMain.DeltaValid && std::abs(nextMain.DeltaSeconds - 0.01) < 1e-12);
 
 	const auto recreatedEpoch = sequence.BeginEpoch();
 	const auto recreatedMain = MakeHWRootRenderContext(HWRenderContextType::MainView, recreatedEpoch, sequence.AllocateIdentity(), -1, 0);
