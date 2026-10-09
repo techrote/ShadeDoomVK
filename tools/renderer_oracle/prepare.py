@@ -207,7 +207,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
         for material, layers in custom_assertions.items():
             if material not in state_assertions.get("materials", []) or not isinstance(layers, list) or not layers:
                 raise ValueError(f"Scene {name} must bind custom assertions to required named materials")
-            seen = set()
+            seen_custom_layers = set()
             for layer in layers:
                 if (not isinstance(layer, dict)
                         or set(layer) != {"binding", "custom_index", "requested_sampling"}
@@ -217,9 +217,9 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                         or layer["requested_sampling"] not in (-1, 0, 1)):
                     raise ValueError(f"Scene {name} has invalid custom material layer assertion")
                 key = (layer["binding"], layer["custom_index"])
-                if key in seen:
+                if key in seen_custom_layers:
                     raise ValueError(f"Scene {name} repeats a custom material layer assertion")
-                seen.add(key)
+                seen_custom_layers.add(key)
         if native.get("clock", {}).get("timing") != "ordinary_engine_clock":
             raise ValueError(f"Scene {name} may not time the PF fixed-tic clock")
         if not native.get("pending_coverage"):
