@@ -3046,7 +3046,7 @@
           ]
         },
         "pending_coverage": [
-          "64 authored materials do not prove all 64 were drawn or allocated; exact material and allocator observations remain required.",
+          "64 authored materials, including eight PBR custom-shader bindings, require exact native material/resource observations; the image alone is not allocation proof.",
           "Near-device-capacity exhaustion, async teardown races and stale reuse remain CPU contracts; this bounded map does not deliberately exhaust a GPU.",
           "Optional same-process reload sequence needs a separate state-qualified capture; no reload has run."
         ],
@@ -3111,7 +3111,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0003": [
               "albedo",
@@ -3155,7 +3156,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0011": [
               "albedo",
@@ -3199,7 +3201,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0019": [
               "albedo",
@@ -3243,7 +3246,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0027": [
               "albedo",
@@ -3287,7 +3291,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0035": [
               "albedo",
@@ -3331,7 +3336,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0043": [
               "albedo",
@@ -3375,7 +3381,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0051": [
               "albedo",
@@ -3419,7 +3426,8 @@
               "normal",
               "metallic",
               "roughness",
-              "ambient-occlusion"
+              "ambient-occlusion",
+              "custom"
             ],
             "SM0059": [
               "albedo",
@@ -3526,7 +3534,8 @@
         "tools/pf_oracle/tests/levelmesh_contract_fixture.cpp",
         "tools/pf_oracle/tests/material_correctness_fixture.cpp",
         "tools/pf_oracle/tests/material_layer_semantics_fixture.cpp",
-        "tools/pf_oracle/tests/resource_generation_fixture.cpp"
+        "tools/pf_oracle/tests/resource_generation_fixture.cpp",
+        "tools/pf_oracle/tests/sdvk004_rich_descriptor_fixture.cpp"
       ],
       "required_state_channels": [
         "context",
@@ -3553,9 +3562,11 @@
         "tools/pf_oracle/tests/test_material_layer_semantics_contract.py",
         "wadsrc/static/mapinfo/common.txt",
         "wadsrc/static/zscript/actors/actor.zs",
-        "wadsrc/static/zscript/actors/player/player.zs"
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "tools/pf_oracle/tests/sdvk004_rich_descriptor_fixture.cpp",
+        "tools/pf_oracle/tests/test_sdvk004_rich_descriptor_contract.py"
       ],
-      "title": "64 authored albedo, legacy-specular and PBR material panels"
+      "title": "64 authored albedo, legacy-specular, PBR and custom-shader material panels"
     },
     {
       "classes": [
