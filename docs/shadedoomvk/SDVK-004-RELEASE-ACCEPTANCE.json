@@ -1,0 +1,161 @@
+{
+  "schema": "sdvk004-release-acceptance/v1",
+  "dateUtc": "2026-10-09",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/4",
+  "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/126",
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/128",
+  "startingMaster": "c8b6db4dedae5da27249b6738f7628cf3a41b80a",
+  "finalHead": "862ae0f591d60572c2474f0b6f22d44bfbb30e24",
+  "testedMergeRef": "e105ba23dd4189fc9291eb98dc717f2b8e8dfe4b",
+  "testedTree": "9ce95e42441744d2270954bbec25b193d2d019ae",
+  "mergeCommit": "d356a311cf6044275e3ccedf7c1ab9e1f7858e9b",
+  "mergeTree": "9ce95e42441744d2270954bbec25b193d2d019ae",
+  "defectRepair": {
+    "surface": "VkBindlessSlotAllocator::Allocate(count)",
+    "defect": "impossible positive span could grow exact-size bucket storage before proving the span fit the configured dynamic range",
+    "repair": "reject count > Capacity - DynamicStart before exact-size bucket sizing",
+    "semantics": "whole configured dynamic range guard preserves PF-003 exact-size reuse; no allocator redesign or global flush"
+  },
+  "deterministicPressure": {
+    "uniqueSemanticMaterials": 576,
+    "probePairs": 64,
+    "dynamicCapacity": 4096,
+    "dynamicHighWater": 3072,
+    "pressurePercent": 75,
+    "rebuildCycles": 64,
+    "lightmapReservationPages": 128,
+    "translatedPaletteVariants": 128,
+    "properties": [
+      "retired descriptor identities reject as stale before exact-size reuse",
+      "texture/lightmap/probe owner epochs advance and reject old tokens",
+      "near-capacity fragmentation and exhaustion fail explicitly",
+      "INT_MAX allocation request fails without unbounded host bookkeeping growth",
+      "device capacity is min(requested, derived runtime/device limit)"
+    ]
+  },
+  "finalHeadEvidence": {
+    "sourceEvidence": {
+      "runId": 37962887608,
+      "mergeRef": "e105ba23dd4189fc9291eb98dc717f2b8e8dfe4b",
+      "tree": "9ce95e42441744d2270954bbec25b193d2d019ae",
+      "artifactId": 11631817389,
+      "artifactBytes": 147748301,
+      "artifactZipSha256": "48f76585b7f92446ee66fb7ac4033c6da9a9eb8fc4ad07df43f33453d81d2c85",
+      "sourceBundleSha256": "f8d1d8f7fe7ee208646d6c9df46e620142bfc78c99f1a983826cba6ffd7bc7a9"
+    },
+    "continuousIntegration": {
+      "runId": 37962887060,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11632261790,
+      "artifactBytes": 69108,
+      "artifactZipSha256": "e50a899d9ddfada092d0d1cb030b9a6252402f8fd04be7d91344bb62fc7d6e1a"
+    },
+    "nativeArtifact": {
+      "artifactId": 11632469023,
+      "artifactBytes": 221246860,
+      "artifactZipSha256": "a68b8e4a14c54c23012199770321e107eced33dc48e259fdeeb5958a1581ee5a"
+    }
+  },
+  "postMergeEvidence": {
+    "sourceEvidence": {
+      "runId": 37974299356,
+      "artifactId": 11637738525,
+      "artifactBytes": 147705988,
+      "artifactZipSha256": "0c5baa4b8db22f3742feec8554b625fb7941b728e53b2636248adc228275e687",
+      "sourceBundleSha256": "2468536397a6cb3ea38274433fc3bcdf2c69c33da2591440eef4b56b46d2237d"
+    },
+    "continuousIntegration": {
+      "runId": 37974299316,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11637603274,
+      "artifactBytes": 69107,
+      "artifactZipSha256": "6bed273fcff7f1fdae9a065b51ab9febe9d01d46be1cce5f6214469980cc4e61"
+    },
+    "nativeArtifact": {
+      "artifactId": 11639071908,
+      "artifactBytes": 221246507,
+      "artifactZipSha256": "d193bf67b3b5f50235159cf1d3f6935086a85ccc6e93a97e2ae7cbfd1f8292a9"
+    }
+  },
+  "softwareVulkan": {
+    "physicalGpuQualified": false,
+    "stateWorkloads": {
+      "compositing": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-zero": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-one": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-many": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "shadow-boundary": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "material-stress": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sun-probes": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sprite-mirror": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    "timingBaseline": {
+      "scene": "lights-one",
+      "independentProcesses": 3,
+      "status": "PASS"
+    },
+    "finalHeadMaterialStress": {
+      "requestedBindlessCount": 16536,
+      "effectiveBindlessCount": 16536,
+      "dynamicStart": 259,
+      "derivedDeviceLimit": 999985,
+      "limitingSource": "per-stage update-after-bind resources",
+      "descriptorCurrent": 438,
+      "descriptorHighWater": 438,
+      "allocations": 72,
+      "reuses": 4,
+      "frees": 4,
+      "failures": 0,
+      "invalidFrees": 0,
+      "hardwareTextures": 142,
+      "customPbrMaterialsDrawn": 8,
+      "customBinding": 8,
+      "customIndex": 0,
+      "descriptorSpan": 9,
+      "customSampling": "alternating nearest/linear"
+    },
+    "sunProbeObservation": {
+      "lightmapPages": 1,
+      "irradianceMaps": 2,
+      "prefilterMaps": 2
+    },
+    "indexedPaletteEvidence": "The hosted eight-scene lane does not run pf-indexed-material. SDVK-004 consumes PF-110 accepted native indexed/translation qualification plus its own 128-variant pressure/source contracts; no new llvmpipe indexed claim is made."
+  },
+  "retainedFailures": [
+    {
+      "runId": 37962321008,
+      "head": "d41adeda85a8c83bda868deb8081f73ee20dbe8c",
+      "cpuArtifactId": 11632101544,
+      "cpuArtifactZipSha256": "0ebb8d9e147ee655c6362b26ea72a62b4f2666f4897273192ddc2bfb13137216",
+      "disposition": "renderer-oracle duplicate-scene negative exposed accidental reuse of catalog-wide 'seen' variable; repaired with independent seen_custom_layers set; build matrix correctly skipped"
+    }
+  ],
+  "upstreamBoundary": {
+    "policy": "SDVK-003 recipient-owned renderer conflict veto preserved",
+    "importedDonorRendererCode": false,
+    "donorSamePathBindlessBlob": false,
+    "donorSamePathDescriptorSetBlob": false
+  },
+  "gateDisposition": {
+    "SDVK004": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK005": "DEPENDENCY_READY",
+    "SDVK006": "DEPENDENCY_READY",
+    "SDVK009": "DEPENDENCY_READY"
+  },
+  "limitations": [
+    "No physical-GPU qualification is claimed.",
+    "The 75% pressure fixture is deterministic CPU contract pressure, not native workload pressure.",
+    "The llvmpipe material-stress workload observed 438 live/high-water descriptors; it is not a deliberate GPU exhaustion test.",
+    "The hosted eight-scene llvmpipe lane does not execute the retained pf-indexed-material recipe.",
+    "Software Vulkan correctness/repeatability is not a production performance claim.",
+    "Historical failed/cancelled runs are retained and not reclassified."
+  ],
+  "acceptanceDocumentation": "Substantive SDVK-004 implementation is accepted, merged and verified. This receipt and programme-gate reconciliation become canonical after acceptance PR #128 passes required checks, merges, and the resulting master is verified."
+}
