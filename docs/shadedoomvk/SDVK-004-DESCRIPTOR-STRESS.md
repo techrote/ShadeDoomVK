@@ -71,16 +71,28 @@ No physical GPU claim is made by this candidate.
 
 The existing SDVK-002 software-Vulkan corpus is the native qualification route because it already pairs screenshots with machine-readable semantic state and contains the relevant renderer-visible families. SDVK-004 extends the existing `material-stress` recipe in place with eight PBR panels that use a real GLDEFS hardware shader and custom texture binding; nearest/linear custom sampling alternates across those panels, and the state assertions require their authored `custom` layer semantic.
 
-The native route therefore covers:
+The current eight-scene software-Vulkan lane therefore covers:
 
 - semantic material stress, including real custom-shader texture bindings;
-- indexed/palette material paths;
 - compositing/camera texture canvas paths;
 - probe/sun/lightmap paths;
 - portal/view isolation;
 - resource-stress state and renderer pressure counters.
 
-Final SDVK-004 acceptance requires the exact PR head to pass the repository CPU contract suite, deterministic corpus preparation, all hosted builds, exact executable/source identity checks and the full Linux software-Vulkan corpus. The resulting software-Vulkan resource observations will be used as the native pressure baseline rather than inventing a parallel diagnostic path.
+The retained `pf-indexed-material` recipe is **not** selected by the hosted
+`native_ci.py` eight-scene lane, so SDVK-004 does not relabel
+translation/palette behavior as new llvmpipe evidence. Under this issue,
+128 translated/palette variants participate in the deterministic descriptor
+pressure/rebuild contract and production source assertions preserve the indexed
+two-resource path and translation identity. Renderer correctness for that path
+is consumed from the already accepted PF-110 qualification: PR #116's recorded
+native evidence independently checked 983,040 indexed pixels with zero
+mismatches, including translation/palette and restart/lifetime cases. The
+accepted GLDEFS custom-sampling parser contract is likewise retained; SDVK-004's
+new llvmpipe evidence adds an actual rendered custom-shader binding on top of
+that parser contract.
+
+Final SDVK-004 acceptance requires the exact PR head to pass the repository CPU contract suite, deterministic corpus preparation, all hosted builds, exact executable/source identity checks and the full Linux software-Vulkan corpus. The resulting software-Vulkan resource observations will be used as the current native pressure baseline rather than inventing a parallel diagnostic path.
 
 ## Pressure budget for later SDVK work
 
