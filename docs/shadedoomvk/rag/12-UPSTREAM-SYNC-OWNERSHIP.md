@@ -35,3 +35,21 @@ Pinned SDVK-003 evidence shows several VKDoom/ShadeDoomVK lightmapper, probe, Le
 ## Verification
 
 Use exact commit/tree pins and path/blob comparison first, then source/history inspection for candidate patches. Run the PF oracle, renderer corpus preparation, full hosted build matrix and renderer source-evidence workflow. SDVK-002 native/GPU gates apply only when an imported change actually touches renderer behavior whose contract requires native evidence.
+
+## SDVK-004 reconciliation
+
+SDVK-004 applies this accepted ownership veto to its only production renderer
+repair. Against the exact SDVK-003 donor pins
+`UZDoom/UZDoom@809e46c25fe2a2f89430de3fbac89626100df384` and
+`ZDoom/gzdoom@c26ce2e6ca2a0c770f140cb25dde0d30073ca8f7`, neither donor exposes a
+same-path blob for
+`src/common/rendering/vulkan/descriptorsets/vk_bindless.h` or
+`vk_descriptorset.cpp`. That path-level result is not a claim that donors lack
+equivalent facilities; it confirms that no same-path donor implementation can
+be treated as a drop-in replacement.
+
+The SDVK-004 impossible-span guard is therefore a focused recipient repair
+against PF-003, not an upstream transplant. The GLDEFS/custom-shader changes in
+SDVK-004 are fixture/evidence authoring only; runtime parser/material semantics
+are unchanged. No donor renderer, shader, asset, dependency or license material
+is imported by the issue.

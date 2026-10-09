@@ -796,3 +796,7 @@ before issue closure or dependent SDVK-004/006/009/014 readiness changes.
 - MAD-VKDoom timing/interpolation commits were reassessed and minimally adapted; the donor global clock/minimum clamp and unrelated animation systems were not imported.
 
 This is an implementation/qualification candidate, not acceptance. Required next gates are complete `tools/check.py`, hosted software-Vulkan/native identity, full exact-head PR CI, merge, exact resulting-master verification and final #6 acceptance record.
+
+### 9 October 2026 — SDVK-006 live-master reconciliation after SDVK-004
+
+SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b` while PR #127 was qualifying. #6 was reconciled onto that exact master without taking descriptor/material-stress ownership. The only overlapping path was `rag/11-RENDERER-OBSERVABILITY.md`; both SDVK-004 pressure-observation reuse and SDVK-006 visual-time observation/comparison policy are retained. All SDVK-004 renderer-oracle corpus/prepare/run changes remain from master. Exact-head qualification is restarted on the reconciled merge head.

@@ -128,3 +128,21 @@ PR #104's publication rule is the accepted lightmap/probe lifetime behavior: cur
 The retained `CFX_RETAIN_REPLACED_LIGHTMAPS` switch is explicitly experiment-only diagnostic infrastructure. Normal production and every accepted repaired/qualified target use retention OFF. The matched retention ON/OFF experiment remains historical causal evidence, not the runtime fix.
 
 DBP37 succeeds 3/3 on the accepted repair, and original DBP50, DBP50 v1.2 and Sunlust/Champions each qualify 3/3 on the repaired GTX 1650 SUPER. These results do not prove that every historical incident dynamically sampled the removed descriptor or shared one mechanism. Repaired P400 behavior remains untested. PF-020 owns final-source regression/freeze verification of this invariant. See [final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+
+## SDVK-004 page/probe pressure candidate
+
+SDVK-004 exercises the existing ownership/publication rules rather than changing
+them. The deterministic contract publishes the full 128-page fixed reservation,
+shrinks to three active pages and requires fallback publication over all formerly
+live reserved pages. Page 128 remains an explicit out-of-range failure and the
+dynamic descriptor range still begins at 259.
+
+Environment probes remain allocator-owned adjacent dynamic pairs. The rich
+workload keeps 64 such pairs live while material pressure is present, then
+retires/rebuilds them through PF-003 generation tracking. Lightmap recreation
+advances `LightmapEpoch`; probe-content reset advances `LightProbeEpoch`
+without pretending that retained irradiance/prefilter image owners were
+recreated. Repeated stale-token checks cover both owner epochs.
+
+See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md). No new
+lightmap/probe identity, emergency flush or retention policy is introduced.

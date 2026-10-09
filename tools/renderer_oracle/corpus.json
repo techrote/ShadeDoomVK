@@ -3046,7 +3046,7 @@
           ]
         },
         "pending_coverage": [
-          "64 authored materials do not prove all 64 were drawn or allocated; exact material and allocator observations remain required.",
+          "64 authored materials, including eight PBR custom-shader bindings, require exact native material/resource observations; the image alone is not allocation proof.",
           "Near-device-capacity exhaustion, async teardown races and stale reuse remain CPU contracts; this bounded map does not deliberately exhaust a GPU.",
           "Optional same-process reload sequence needs a separate state-qualified capture; no reload has run."
         ],
@@ -3516,7 +3516,65 @@
             "SM0061",
             "SM0062",
             "SM0063"
-          ]
+          ],
+          "material_custom_layers": {
+            "SM0002": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0010": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0018": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0026": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0034": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0042": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0050": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0058": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ]
+          }
         },
         "status": "native_qualification_pending"
       },
@@ -3526,7 +3584,8 @@
         "tools/pf_oracle/tests/levelmesh_contract_fixture.cpp",
         "tools/pf_oracle/tests/material_correctness_fixture.cpp",
         "tools/pf_oracle/tests/material_layer_semantics_fixture.cpp",
-        "tools/pf_oracle/tests/resource_generation_fixture.cpp"
+        "tools/pf_oracle/tests/resource_generation_fixture.cpp",
+        "tools/pf_oracle/tests/sdvk004_rich_descriptor_fixture.cpp"
       ],
       "required_state_channels": [
         "context",
@@ -3553,9 +3612,11 @@
         "tools/pf_oracle/tests/test_material_layer_semantics_contract.py",
         "wadsrc/static/mapinfo/common.txt",
         "wadsrc/static/zscript/actors/actor.zs",
-        "wadsrc/static/zscript/actors/player/player.zs"
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "tools/pf_oracle/tests/sdvk004_rich_descriptor_fixture.cpp",
+        "tools/pf_oracle/tests/test_sdvk004_rich_descriptor_contract.py"
       ],
-      "title": "64 authored albedo, legacy-specular and PBR material panels"
+      "title": "64 authored albedo, legacy-specular, PBR and custom-shader material panels"
     },
     {
       "classes": [
