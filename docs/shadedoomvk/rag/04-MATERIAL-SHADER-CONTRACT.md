@@ -190,7 +190,7 @@ Focused release integration is accepted through PR #116 at master
 in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 release and SDVK-001 permission follow the separate
 [freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.
 
-## SDVK-004 rich-material pressure candidate
+## SDVK-004 rich-material pressure qualification
 
 SDVK-004 preserves the PF-008 ordered material-layer and sampler contract while
 qualifying descriptor pressure. The CPU stress model includes ordinary,
@@ -209,5 +209,7 @@ the custom resource silently disappears or its binding is reordered. This
 extends evidence coverage; it does not change GLDEFS syntax, shader/material
 semantics or filtering policy.
 
-See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md). Final
-acceptance remains gated on exact-head software-Vulkan image/state evidence.
+See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and the
+[release receipt](../SDVK-004-RELEASE-ACCEPTANCE.json). Exact-head and post-merge
+software-Vulkan image/state evidence passed; this custom-binding/material-pressure
+coverage is accepted without changing PF-008 layer order or filtering policy.
