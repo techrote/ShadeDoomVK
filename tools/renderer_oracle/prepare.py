@@ -469,18 +469,51 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
         # Edge 2 begins the east wall; all 64 authored panels face the fixed camera.
         model.boundary(points, ["SDVW", "SDVW"] + names + ["SDVW"])
         _material_layers(members)
+        # SDVK-004 extends the existing rich-material native scene rather than
+        # introducing a parallel diagnostic workload. Eight PBR panels bind a
+        # real custom hardware shader texture through the inherited GLDEFS
+        # parser/descriptor path; alternating filter requests exercise both
+        # custom sampler overrides while the observer records semantic/sampler
+        # state beside the image.
+        members["textures/SDVCU.png"] = _texture(
+            16, 16, (255, 64, 24, 255), (24, 96, 255, 255))
+        members["shaders/sdvk004.fp"] = b"""vec4 Process(vec4 color)
+{
+    return texture(SDVKExtra, vTexCoord.st) * color;
+}
+"""
         definitions = []
+        custom_names = []
+        custom_filters = {}
         for i, name in enumerate(names):
             a = ((31 + i * 37) % 256, (91 + i * 19) % 256, (173 + i * 11) % 256, 255)
             b = (255 - a[0], 255 - a[1], 255 - a[2], 255)
             members[f"textures/{name}.png"] = _texture(16, 16, a, b)
             if i % 4 == 1:
                 definitions.append(f'material texture {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
+            elif i % 8 == 2:
+                custom_filter = "nearest" if (i // 8) % 2 == 0 else "linear"
+                definitions.append(
+                    f'material texture {name}\n{{\n'
+                    ' normal "SDVN"\n metallic "SDVM"\n roughness "SDVR"\n ao "SDVAO"\n'
+                    ' shader "shaders/sdvk004.fp"\n'
+                    f' texture SDVKExtra "SDVCU" {{ filter {custom_filter} }}\n'
+                    '}\n')
+                custom_names.append(name)
+                custom_filters[name] = custom_filter
             elif i % 4 >= 2:
                 definitions.append(_pbr(name, roughness="SDVZERO" if i % 4 == 3 else "SDVR"))
         members["GLDEFS"] = "".join(definitions).encode()
-        metadata.update(authored_material_count=64, material_families=["albedo_only", "legacy_normal_specular", "pbr", "pbr_zero_roughness"],
-                        material_names=names, native_visibility_and_allocation_required=True)
+        metadata.update(
+            authored_material_count=64,
+            material_families=["albedo_only", "legacy_normal_specular", "pbr",
+                               "pbr_custom_shader", "pbr_zero_roughness"],
+            material_names=names,
+            custom_shader_material_names=custom_names,
+            custom_shader_binding="SDVKExtra",
+            custom_shader_texture="SDVCU",
+            custom_shader_filters=custom_filters,
+            native_visibility_and_allocation_required=True)
     elif generator == "sun_probes":
         model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
         _material_layers(members)
