@@ -1,6 +1,6 @@
 # SDVK-004 — rich-material descriptor/lifetime stress qualification
 
-Date: 2026-10-09. Owner: SDVK-004 / #4. Status: **implementation candidate; exact-head CI/native qualification pending**.
+Date: 2026-10-09. Owner: SDVK-004 / #4. Status: **accepted, merged and verified** through PR #126 / `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; release evidence is pinned in [SDVK-004-RELEASE-ACCEPTANCE.json](SDVK-004-RELEASE-ACCEPTANCE.json).
 
 ## Scope and authority
 
@@ -67,7 +67,7 @@ Every retired identity is queried deliberately as a negative control. Current id
 
 ## Native and image/state qualification
 
-No physical GPU claim is made by this candidate.
+No physical GPU claim is made by this qualification.
 
 The existing SDVK-002 software-Vulkan corpus is the native qualification route because it already pairs screenshots with machine-readable semantic state and contains the relevant renderer-visible families. SDVK-004 extends the existing `material-stress` recipe in place with eight PBR panels that use a real GLDEFS hardware shader and custom texture binding; nearest/linear custom sampling alternates across those panels, and the state assertions require their authored `custom` layer semantic.
 
@@ -92,11 +92,11 @@ accepted GLDEFS custom-sampling parser contract is likewise retained; SDVK-004's
 new llvmpipe evidence adds an actual rendered custom-shader binding on top of
 that parser contract.
 
-Final SDVK-004 acceptance requires the exact PR head to pass the repository CPU contract suite, deterministic corpus preparation, all hosted builds, exact executable/source identity checks and the full Linux software-Vulkan corpus. The resulting software-Vulkan resource observations will be used as the current native pressure baseline rather than inventing a parallel diagnostic path.
+Those gates passed at exact PR head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` in source-evidence run `37962887608` and all-nine-job CI run `37962887060`. PR #126 merged as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; the merged tree is byte-identical to the tested PR merge-ref tree and passed source-evidence run `37974299356` plus all-nine-job CI run `37974299316`. The software-Vulkan resource observations are therefore the current native pressure baseline rather than a parallel diagnostic path.
 
 ## Pressure budget for later SDVK work
 
-Later material issues should treat these as the initial qualified baseline, subject to exact-head CI confirmation:
+Later material issues should treat these as the accepted qualified baseline:
 
 - fixed bindless range ends at descriptor 258 inclusive; dynamic allocations begin at 259;
 - 128 lightmap pages consume the complete fixed 256-descriptor page reservation, never dynamic slots;
@@ -108,14 +108,18 @@ Later material issues should treat these as the initial qualified baseline, subj
 
 ## Acceptance state
 
-Not yet accepted at this checkpoint. Final acceptance must pin:
+The substantive implementation is accepted, merged and verified.
 
-1. exact final PR head;
-2. focused rich-descriptor fixture result;
-3. full `python3 tools/check.py --output ...` result;
-4. exact-head Renderer source evidence and all Continuous Integration jobs;
-5. full software-Vulkan corpus result and retained resource-pressure observations;
-6. merged commit and verified post-merge `master`;
-7. updated RAG/ledger/canonical issue status and durable issue #4 acceptance comment.
+- exact final PR head: `862ae0f591d60572c2474f0b6f22d44bfbb30e24`;
+- PR #126 tested merge-ref tree: `9ce95e42441744d2270954bbec25b193d2d019ae`;
+- exact-head source evidence: run `37962887608`, PASS;
+- exact-head Continuous Integration: run `37962887060`, **9/9 PASS**;
+- implementation merge: `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`, tree `9ce95e42441744d2270954bbec25b193d2d019ae`;
+- post-merge source evidence: run `37974299356`, PASS;
+- post-merge Continuous Integration: run `37974299316`, **9/9 PASS**;
+- post-merge software-Vulkan `material-stress`: 438 current/high-water descriptors, 72 allocations, 4 reuses, 4 frees, 0 failures and 0 invalid frees;
+- post-merge `sun-probes`: one lightmap page, two irradiance maps and two prefilter maps;
+- all eight authored custom PBR panels are actual draw witnesses with span 9, custom binding 8/index 0 and alternating nearest/linear requests;
+- physical GPU qualification is not claimed and was not required because software-Vulkan/native qualification exposed no unresolved hardware-specific defect.
 
-Physical-GPU qualification remains optional unless software-Vulkan/native evidence exposes a driver/device-limit defect that cannot be resolved without a finite hardware packet.
+The complete hashes, artifact IDs, inherited indexed-material evidence boundary and retained failed run are in [SDVK-004-RELEASE-ACCEPTANCE.json](SDVK-004-RELEASE-ACCEPTANCE.json).
