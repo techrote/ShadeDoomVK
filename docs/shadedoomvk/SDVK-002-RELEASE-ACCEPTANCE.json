@@ -5,7 +5,7 @@
   "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/2",
   "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/121",
   "reproducibilityRepairPullRequest": "https://github.com/techrote/ShadeDoomVK/pull/124",
-  "acceptancePullRequest": null,
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/125",
   "acceptedStartingMaster": "a2d2d293d680895bb8daae86466596b05aaef483",
   "implementation": {
     "publicationHead": "59cfcaeccbdbd0617e4e032fa153fd91604aa970",
