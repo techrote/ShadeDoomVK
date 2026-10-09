@@ -346,7 +346,11 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertIn(b"texture(SDVKExtra, vTexCoord.st)", members["shaders/sdvk004.fp"])
         for name in metadata["custom_shader_material_names"]:
             self.assertIn(f'material texture {name}'.encode(), members["GLDEFS"])
-            self.assertIn("custom", assertions["material_semantics"][name])
+            self.assertNotIn("custom", assertions["material_semantics"][name])
+            expected_sampling = 0 if metadata["custom_shader_filters"][name] == "nearest" else 1
+            self.assertEqual(assertions["material_custom_layers"][name],
+                             [{"binding": 8, "custom_index": 0,
+                               "requested_sampling": expected_sampling}])
         self.assertIn(b'shader "shaders/sdvk004.fp"', members["GLDEFS"])
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter nearest }', members["GLDEFS"])
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter linear }', members["GLDEFS"])
