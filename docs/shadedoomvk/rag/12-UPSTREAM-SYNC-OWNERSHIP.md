@@ -48,8 +48,9 @@ same-path blob for
 equivalent facilities; it confirms that no same-path donor implementation can
 be treated as a drop-in replacement.
 
-The SDVK-004 impossible-span guard is therefore a focused recipient repair
-against PF-003, not an upstream transplant. The GLDEFS/custom-shader changes in
-SDVK-004 are fixture/evidence authoring only; runtime parser/material semantics
-are unchanged. No donor renderer, shader, asset, dependency or license material
-is imported by the issue.
+The SDVK-004 impossible-span guard is therefore an accepted focused recipient
+repair against PF-003, not an upstream transplant. PR #126 and its exact
+post-merge tree passed all required gates. The GLDEFS/custom-shader changes are
+fixture/evidence authoring only; runtime parser/material semantics remain
+unchanged. No donor renderer, shader, asset, dependency or license material was
+imported. See [SDVK-004 release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json).
