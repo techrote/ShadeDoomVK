@@ -38,12 +38,12 @@ Stress fixtures/results, integration fixes if needed, descriptor-pressure baseli
 ## Blocking / stopping conditions
 If PF lifetime invariants fail, open/reclassify a foundational regression and block SDVK-005 rather than patching around it with a flush or silent resource reduction.
 
-## Implementation candidate — 2026-10-09
+## Accepted implementation — 2026-10-09
 
 Dedicated branch: `sdvk-004-rich-material-descriptor-stress`. PR: #126.
 Starting authority: verified `master@c8b6db4dedae5da27249b6738f7628cf3a41b80a`.
 
-The candidate repairs one reproduced bounded-failure defect in PF-003 allocation:
+The accepted implementation repairs one reproduced bounded-failure defect in PF-003 allocation:
 an impossible positive span could grow exact-size free-bucket storage before the
 span was proved to fit the configured dynamic range. The pre-bucket whole-range
 guard preserves normal exact-size reuse.
@@ -56,10 +56,8 @@ sampler, canvas, lightmap/probe and observer integration. The existing native
 material-stress corpus is extended with eight real PBR custom-shader texture
 bindings and state assertions for their `custom` semantic.
 
-Detailed candidate record:
-[SDVK-004-DESCRIPTOR-STRESS.md](../SDVK-004-DESCRIPTOR-STRESS.md).
+Detailed qualification record: [SDVK-004-DESCRIPTOR-STRESS.md](../SDVK-004-DESCRIPTOR-STRESS.md). Canonical release pins: [SDVK-004-RELEASE-ACCEPTANCE.json](../SDVK-004-RELEASE-ACCEPTANCE.json).
 
-**Not accepted yet.** #4 remains open until the final PR head passes all required
-CPU/source/build/software-Vulkan gates, merges, the exact resulting master passes
-post-merge verification, and the durable release/RAG/ledger acceptance record is
-landed.
+PR #126 final head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed Renderer source evidence and all 9 CI jobs, including software Vulkan. It squash-merged as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`; the merge tree exactly equals the tested PR tree. Exact merged-master source evidence run `37974299356` and CI run `37974299316` also passed, 9/9.
+
+**SDVK-004 is accepted, merged and verified.** SDVK-005 becomes dependency-ready when this acceptance-record integration itself is merged and verified. No physical-GPU qualification is claimed.
