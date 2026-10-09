@@ -112,29 +112,26 @@ A single threshold crossing does not authorize silently enabling inherited tiles
 
 If no trigger fires, all correctness checks pass, and raw repetitions are internally coherent, record final **no-change accepted for the measured representative device/workloads**. Do not generalize to untested GPUs, resolutions or arbitrary content.
 
-## Operator command shapes
+## Operator campaign command
 
-Prepare once from the accepted source tree, then use fresh output directories for every process. The exact executable/IWAD/prepared paths are packet inputs, not placeholders to vary during the campaign.
+The hardware operator does not use `native_ci.py`; that driver is intentionally llvmpipe-only and rejects a discrete physical GPU. SDVK-009 provides a dedicated physical campaign driver that reuses the same prepared fixtures, capture receipts, state/image comparison and timing summarization without software-Vulkan preflight assumptions.
 
-Reference physical correctness uses the existing full corpus driver:
-
-```text
-python3 tools/renderer_oracle/native_ci.py --exe <EXE> --iwad <IWAD> --out <FULL_CORPUS_OUT> --full
-```
-
-For each 1904x1001 high-resolution state control (run twice for `lights-many`, `lights-dense-dispersed` and `lights-dense-overlap`):
+Run exactly:
 
 ```text
-python3 tools/renderer_oracle/run.py capture --exe <EXE> --iwad <IWAD> --prepared <PREPARED> --scene <SCENE> --mode state --frames 1 --warmup 120 --include-stress --extent 1904x1001 --out <FRESH_OUT>
+python3 tools/renderer_oracle/sdvk009_physical.py --exe <EXE> --iwad <IWAD> --out <FRESH_CAMPAIGN_OUT> --execute
 ```
 
-For every timing process in the Latin order below:
+The driver creates the preparation itself and then, with **no automatic retries**:
 
-```text
-python3 tools/renderer_oracle/run.py capture --exe <EXE> --iwad <IWAD> --prepared <PREPARED> --scene <SCENE> --mode timing --frames 120 --warmup 120 --gpu --include-stress --extent 1904x1001 --out <FRESH_OUT>
-```
+1. runs two 640x480 state/image captures plus exact comparison for all ten hosted scenes (20 processes);
+2. runs two 1904x1001 state/image captures plus exact comparison for `lights-many`, `lights-dense-dispersed` and `lights-dense-overlap` (6 processes);
+3. only after all correctness comparisons pass, runs the preregistered three-repetition Latin timing order at 1904x1001 for zero/one/many/dispersed/overlap (15 processes);
+4. writes one three-process timing summary per timing scene and an overall `sdvk009-physical-campaign.json` receipt.
 
-Use `run.py compare` for each high-resolution state pair and `run.py benchmark` for the three timing processes of each scene. Retain the generated `request.json`, `run.json`, raw renderer JSON, logs, cache identities and benchmark receipts; threshold calculations are a separate machine-readable final summary, not a replacement for raw packets.
+It requires an identified integrated or discrete Vulkan device (`VkPhysicalDeviceType` 1 or 2), exact build/device continuity across all processes, 120-frame warmup for every retained state/timing launch, 120 retained timing frames, fresh caches/output directories and explicit `--execute`. Any state/image/device/build/capture failure stops the campaign before further timing. Successful collection is recorded as `COLLECTED_PENDING_SDVK009_DECISION` with `physical_gpu_evidence_collected=true`, while `physical_gpu_qualified` and `performance_accepted` remain false until the threshold analysis and final repository gate are completed.
+
+The individual process packets remain ordinary `run.py` receipts. If manual inspection is necessary, use `run.py compare` and `run.py benchmark` against those retained directories; do not hand-edit requests or relabel a failed process.
 
 ## Minimum hardware matrix
 

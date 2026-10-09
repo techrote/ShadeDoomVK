@@ -114,6 +114,11 @@
     "warmupFrames": 120,
     "timingFrames": 120,
     "normalizedArchitectureTrigger": 1.2,
-    "practicalDenseOverlapMilliseconds": 16.67
+    "practicalDenseOverlapMilliseconds": 16.67,
+    "driver": "tools/renderer_oracle/sdvk009_physical.py",
+    "processes": 41,
+    "automaticRetries": 0,
+    "collectionStatus": "COLLECTED_PENDING_SDVK009_DECISION",
+    "collectionDoesNotAwardAcceptance": true
   }
 }
