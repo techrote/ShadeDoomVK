@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing", "sprite-basis"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -121,6 +121,81 @@ def _context(value):
     if "visual_time" in value:
         _visual_time(value["visual_time"], context=value)
     return value["epoch"], value["identity"]
+
+
+def _sprite_basis(value):
+    """SDVK-007: validate the *emitted draw* uniform and PF-009 provenance."""
+    require(value.get("uniform_scope") == "emitted-vulkan-draw-after-apply-surface-uniforms",
+            "Sprite tangent exists only as a proposed buffer value, not emitted draw state")
+    require(type(value.get("indexed")) is bool and not value["indexed"],
+            "Immediate sprite card must be an unindexed quad")
+    integer(value.get("draw_count"), "sprite draw vertex count", minimum=4, maximum=4)
+    integer(value.get("shader"), "sprite material shader")
+    integer(value.get("height_texture_index"), "sprite height semantic index", minimum=-1)
+    require(isinstance(value.get("material"), str), "Sprite material identity absent")
+    surface = value.get("surface")
+    require(isinstance(surface, dict) and surface.get("contract") == "sdvk-007-final-quad/v1" and
+            surface.get("orientation_source") == "pf-009-calculate-vertices",
+            "Sprite tangent claims explicit ownership without PF-009 state")
+    for key in ("source", "presentation", "sprite_type", "actor_sprite", "actor_frame",
+                "source_portal_group", "render_portal_group", "through_portal_mode"):
+        integer(surface.get(key), "sprite surface " + key)
+    require(surface["source"] in (0, 1, 2) and surface["presentation"] in (0, 1, 2, 3, 4),
+            "Sprite tangent may not claim a model/unknown presentation")
+    for key in ("frame_mirrored", "uv_mirror_x", "uv_mirror_y", "portal_mirrored",
+                "xy_billboard", "faces_camera", "basis_valid"):
+        require(type(surface.get(key)) is bool, "Sprite " + key + " missing")
+    require(surface.get("selection") in ("explicit-sprite", "legacy-derivative-fallback"),
+            "Unknown sprite tangent fallback")
+    require(isinstance(surface.get("basis_reason"), str) and surface["basis_reason"],
+            "Missing explicit sprite tangent derivation/fallback reason")
+    _vector(surface.get("uv"), 4, "sprite signed UV endpoints")
+    _vector(surface.get("render_angles"), 3, "sprite render angles")
+    _vector(surface.get("view_angles"), 3, "sprite view angles")
+    _vector(value.get("tangent"), 3, "emitted tangent")
+    _vector(value.get("normal"), 3, "emitted normal")
+    handedness = number(value.get("handedness"), "sprite tangent handedness")
+    u_sign = number(surface.get("u_sign"), "sprite U sign")
+    v_sign = number(surface.get("v_sign"), "sprite V sign")
+    expected_hand = number(surface.get("expected_handedness"), "sprite expected hand")
+    parity = number(surface.get("view_parity"), "sprite parity")
+    explicit = value.get("explicit")
+    require(type(explicit) is bool and explicit is surface["basis_valid"] and
+            (surface["selection"] == "explicit-sprite") is explicit,
+            "Explicit sprite basis state disagrees with source selection")
+    context = value.get("context")
+    require(isinstance(context, dict) and context.get("available") is True and
+            context.get("mirrored") is surface["portal_mirrored"],
+            "Sprite tangent source and active PF-010 mirror context disagree")
+    if explicit:
+        require(u_sign in (-1, 1) and v_sign in (-1, 1) and
+                handedness in (-1, 1) and expected_hand == -u_sign*v_sign and
+                handedness == expected_hand,
+                "Impossible sprite tangent handedness or signed-UV mirror parity")
+        uv = surface["uv"]
+        require((uv[1] - uv[0])*u_sign > 0 and (uv[3] - uv[2])*v_sign > 0,
+                "Sprite tangent was not derived from the selected frame UV endpoints")
+        require(parity == handedness*(-1 if surface["portal_mirrored"] else 1),
+                "Sprite view mirror parity was inverted twice or omitted")
+        # Actor GetSpriteUR->UL is the inherited non-mirror convention.
+        if surface["source"] == 0:
+            require(surface["uv_mirror_x"] is (u_sign > 0) and
+                    surface["uv_mirror_y"] is (v_sign < 0),
+                    "PF-009 actor frame/flip flags disagree with final signed UV axes")
+        tangent, normal = value["tangent"], value["normal"]
+        dot = sum(a*b for a, b in zip(tangent, normal))
+        for axis in (tangent, normal):
+            require(abs(sum(c*c for c in axis) - 1.0) <= 2e-3, "Unnormalized sprite tangent axis")
+        require(abs(dot) <= 2e-3, "Nonorthogonal sprite tangent axes")
+        bitangent = [handedness*(normal[1]*tangent[2]-normal[2]*tangent[1]),
+                     handedness*(normal[2]*tangent[0]-normal[0]*tangent[2]),
+                     handedness*(normal[0]*tangent[1]-normal[1]*tangent[0])]
+        require(abs(sum(c*c for c in bitangent)-1) <= 2e-3,
+                "Degenerate reconstructed sprite bitangent")
+    else:
+        require(handedness == expected_hand == parity == 0 and
+                value["tangent"] == [0, 0, 0] and value["normal"] == [0, 0, 0],
+                "Fallback sprite draw retained stale explicit vectors/handedness")
 
 
 def observation(data, *, required_kinds=(), expected_map=None, expected_frames=None, expected_extent=None):
@@ -260,6 +335,8 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                         "Height semantic binding and shader-visible index disagree")
                 _resource(value.get("resource"), "material resource identity")
                 material_frames.add(frame)
+        elif kind == "sprite-basis":
+            _sprite_basis(value)
         elif kind == "probe":
             require(value.get("mode") == "uniform-environment-pair", "Unknown probe identity domain")
             integer(value.get("authored_index"), "authored probe index", minimum=-1)
