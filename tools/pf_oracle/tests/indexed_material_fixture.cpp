@@ -53,8 +53,8 @@ enum { CTF_Expand = 1, CTF_Upscale = 2, CTF_Indexed = 4, CTF_CheckOnly = 8, CTF_
 enum { CLAMP_NONE = 0, CLAMP_X = 1, CLAMP_Y = 2, CLAMP_XY = 3, CLAMP_XY_NOMIP = 4, CLAMP_NOFILTER = 5, CLAMP_NOFILTER_X = 6, CLAMP_NOFILTER_Y = 7, CLAMP_NOFILTER_XY = 8, CLAMP_CAMTEX = 9 };
 enum { SHADER_Default = 0, SHADER_Specular = 3, SHADER_PBR = 4, SHADER_Paletted = 5, FIRST_USER_SHADER = 15 };
 enum { TEXF_Brightmap = 0x10000, TEXF_Detailmap = 0x20000, TEXF_Glowmap = 0x40000 };
-enum class MaterialLayerSampling { Default, NearestMipLinear, LinearMipLinear };
-enum class MaterialLayerSemantic { Albedo, Normal, LegacySpecular, Metallic, Roughness, AmbientOcclusion, Brightmap, Detail, Glow, Custom };
+enum class MaterialLayerSampling { Default = -1, NearestMipLinear, LinearMipLinear };
+enum class MaterialLayerSemantic { Albedo, Normal, LegacySpecular, Metallic, Roughness, AmbientOcclusion, Brightmap, Detail, Glow, Custom, Height };
 enum class ETextureType { Normal, SWCanvas };
 
 class FTexture;
@@ -175,7 +175,13 @@ public:
 class FWrapperTexture : public FTexture { public: int Format = 0; int GetColorFormat() const { return Format; } };
 struct FakeLayers
 {
-    std::shared_ptr<FTexture> Normal, Specular, Metallic, Roughness, AmbientOcclusion, Detailmap, Glowmap;
+    std::shared_ptr<FTexture> Normal, Specular, Metallic, Roughness, AmbientOcclusion, Detailmap, Glowmap, Height;
+    MaterialLayerSampling NormalSampling = MaterialLayerSampling::Default;
+    MaterialLayerSampling SpecularSampling = MaterialLayerSampling::Default;
+    MaterialLayerSampling MetallicSampling = MaterialLayerSampling::Default;
+    MaterialLayerSampling RoughnessSampling = MaterialLayerSampling::Default;
+    MaterialLayerSampling AmbientOcclusionSampling = MaterialLayerSampling::Default;
+    MaterialLayerSampling HeightSampling = MaterialLayerSampling::LinearMipLinear;
     std::array<std::shared_ptr<FTexture>, 15> CustomShaderTextures{};
     std::array<MaterialLayerSampling, 15> CustomShaderTextureSampling{};
 };
@@ -197,6 +203,7 @@ public:
     int GetClampMode(int mode) const { return mode; }
     bool isValid() const { return Valid; }
     bool expandSprites() const { return true; }
+    MaterialLayerSampling GetBrightmapSampling() const { return MaterialLayerSampling::Default; }
     void CreateDefaultBrightmap() { }
 };
 struct FakeTextureManager
@@ -246,6 +253,12 @@ public:
     int GetShaderIndex() const { return mShaderIndex; }
     int GetScaleFlags() const { return mScaleFlags; }
     MaterialLayerSampling GetLayerFilter(int index) const { return mTextureLayers[index].layerFiltering; }
+    int FindLayer(MaterialLayerSemantic semantic, int customIndex = -1) const
+    {
+        for (int i = 0; i < static_cast<int>(mTextureLayers.Size()); ++i)
+            if (mTextureLayers[i].semantic == semantic && (semantic != MaterialLayerSemantic::Custom || mTextureLayers[i].customIndex == customIndex)) return i;
+        return -1;
+    }
     void AddTextureLayer(FTexture* texture, bool scale, MaterialLayerSampling filter)
     {
         mTextureLayers.Push({texture, scale ? 1 : 0, -1, filter, MaterialLayerSemantic::Custom, -1});
@@ -464,6 +477,7 @@ public:
         int bindlessIndex;
         GlobalShaderAddr globalShaderAddr;
         bool indexed, redIsAlpha;
+        int heightLayerIndex = -1;
         std::unique_ptr<VkTextureImage> IndexedPalette;
         DescriptorEntry(int clamp, intptr_t table, int start, GlobalShaderAddr global, bool palette, bool alpha)
             : clampmode(clamp), remap(table), bindlessIndex(start), globalShaderAddr(global), indexed(palette), redIsAlpha(alpha) { }

@@ -161,7 +161,8 @@ void FGameTexture::AddAutoMaterials()
 	{ "materials/specular/", &FMaterialLayers::Specular },
 	{ "materials/metallic/", &FMaterialLayers::Metallic },
 	{ "materials/roughness/", &FMaterialLayers::Roughness },
-	{ "materials/ao/", &FMaterialLayers::AmbientOcclusion }
+	{ "materials/ao/", &FMaterialLayers::AmbientOcclusion },
+	{ "materials/heightmaps/", &FMaterialLayers::Height }
 	};
 
 	if (flags & GTexf_AutoMaterialsAdded) return; // do this only once

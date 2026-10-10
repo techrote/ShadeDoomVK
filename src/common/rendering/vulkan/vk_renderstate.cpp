@@ -479,7 +479,9 @@ void VkRenderState::ApplySurfaceUniforms()
 			if (source->isHardwareCanvas())
 				static_cast<FCanvasTexture*>(source->GetTexture())->NeedUpdate();
 
-			mSurfaceUniforms.uTextureIndex = static_cast<VkMaterial*>(mMaterial.mMaterial)->GetBindlessIndex(mMaterial);
+			auto vkMaterial = static_cast<VkMaterial*>(mMaterial.mMaterial);
+			mSurfaceUniforms.uTextureIndex = vkMaterial->GetBindlessIndex(mMaterial);
+			mSurfaceUniforms.uHeightTextureIndex = vkMaterial->GetHeightLayerIndex(mMaterial);
 			mSurfaceUniforms.uSpecularMaterial = { source->GetGlossiness(), source->GetSpecularLevel() };
 			mSurfaceUniforms.uDepthFadeThreshold = source->GetDepthFadeThreshold();
 		}
@@ -487,6 +489,7 @@ void VkRenderState::ApplySurfaceUniforms()
 		{
 			mSurfaceUniforms.uDepthFadeThreshold = 0.f;
 			mSurfaceUniforms.uTextureIndex = 0;
+			mSurfaceUniforms.uHeightTextureIndex = -1;
 		}
 		mMaterial.mChanged = false;
 	}

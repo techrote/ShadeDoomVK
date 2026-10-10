@@ -79,6 +79,23 @@ class SyntheticRunReceiptTests(unittest.TestCase):
         self.assertFalse(run._material_semantics_match(
             reordered, expected, allow_custom=True))
 
+        height = {"binding": 9, "semantic": "height", "role": "authored-layer",
+                  "requested_sampling": 1,
+                  "sampler": {"min_filter": 1, "mag_filter": 1, "mipmap_mode": 1},
+                  "source": {"lump": 100, "width": 16, "height": 16}}
+        with_height = {"layers": authored + placeholders + [custom, height], "height_texture_index": 9}
+        self.assertTrue(run._material_semantics_match(
+            with_height, expected, allow_custom=True, allow_height=True))
+        self.assertTrue(run._material_height_layer_match(
+            with_height, {"binding": 9, "requested_sampling": 1}))
+        self.assertTrue(run._material_layer_sampling_match(with_height, [
+            {"semantic": "height", "binding": 9, "requested_sampling": 1,
+             "min_filter": 1, "mag_filter": 1, "mipmap_mode": 1}]))
+        wrong_index = copy.deepcopy(with_height)
+        wrong_index["height_texture_index"] = 8
+        self.assertFalse(run._material_height_layer_match(
+            wrong_index, {"binding": 9, "requested_sampling": 1}))
+
     def test_capture_validate_and_rehashed_packet_negatives(self):
         original_subprocess_run = subprocess.run
         with tempfile.TemporaryDirectory(prefix="sdvk-synthetic-receipt-") as temporary:

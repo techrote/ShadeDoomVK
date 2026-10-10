@@ -268,3 +268,8 @@ reuse remains legal when `NextIndex` is at capacity. Exhaustion stays explicit;
 no global flush or semantic-resource aliasing is introduced.
 
 Accepted evidence is [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) with exact pins in [the release receipt](../SDVK-004-RELEASE-ACCEPTANCE.json). PR #126 and exact merged master both passed source evidence plus all 9 CI jobs, including software Vulkan. The PF-002/PF-003 identity model remains authoritative.
+
+
+## SDVK-005 material-height lifetime
+
+SDVK-005 introduces no new resource identity. Optional height is one trailing member of the existing `VkMaterial` bindless span and is retired/rebuilt with that descriptor entry under PF-002/PF-003 generations and SDVK-004 allocator pressure rules. Global-shader descriptor construction appends material height after global custom textures; indexed/palette routes omit it. No emergency flush, independent durable height index or cross-generation alias is permitted.

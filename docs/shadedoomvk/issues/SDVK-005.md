@@ -37,3 +37,10 @@ Height semantic/authoring support, semantic defaults/docs, fixtures/tests, mater
 
 ## Blocking / stopping conditions
 If height cannot be added without breaking existing layer bindings/custom shaders, introduce an explicit compatibility adapter/versioned authoring extension rather than changing old semantics silently.
+
+
+## Implementation candidate — 2026-10-10
+
+Dedicated branch `sdvk-005-height-semantic` starts from `master@0a2fbad203549d18ac6e5a61bb4747709637bfde`. The design is recorded in [SDVK-005-MATERIAL-HEIGHT.md](../SDVK-005-MATERIAL-HEIGHT.md). Height is appended after all historical fixed/material/global custom bindings and exposed through a dynamic semantic index; existing 5/7/9 custom bindings do not move. The stock material path does not sample height. Existing semantic channels retain their defaults while the author may opt into per-layer nearest/linear sampling. Indexed/palette routes omit height to preserve palette semantics.
+
+Acceptance remains pending exact-head CPU/software-Vulkan/hosted CI, merge and exact resulting-master verification. No physical-GPU gate is implied absent a reproduced hardware-specific defect.

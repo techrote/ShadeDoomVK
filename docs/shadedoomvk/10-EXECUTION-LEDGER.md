@@ -828,3 +828,12 @@ SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f785
 - Added deterministic 256-light overlap and dispersed mixed point/spot normal/additive/subtractive workloads without changing the retained eleven-scene bytes. Hosted `--full` software-Vulkan qualification now includes those state/image routes and three short descriptive timing processes per dense scene, explicitly non-physical.
 - Focused host contracts for light query, compatibility, shadows, portals/sprites, LevelMesh, PF-019 dormant resources, SDVK-009 capacity/indexing, corpus/native orchestration and validation pass locally. A prior aggregate `tools/check.py` attempt exceeded this local execution window before completion; it is retained as an environment limitation, not a test failure. Exact-head hosted CI/software Vulkan remains the release gate.
 - Provisional end state is **C / no-change pending physical confirmation**. All concrete alternatives are already physically rejected or fail off-GPU correctness. The finite later campaign is preregistered in `SDVK-009-GPU-QUALIFICATION-PROTOCOL.md`. #9 remains open; no GPU speedup/no-regression/final acceptance is claimed.
+
+
+### 10 October 2026 — SDVK-005 height-semantic implementation candidate
+
+- Started #5 from live `master@0a2fbad203549d18ac6e5a61bb4747709637bfde` after accepted SDVK-004/006 and merged SDVK-009 nonphysical preparation. No prior SDVK-005 branch/PR/comments existed.
+- Height is added as an optional semantic appended after historical fixed/custom bindings; old custom shader bindings remain unchanged. The Vulkan descriptor entry exposes an actual relative height index and refuses to reinterpret height on indexed/palette routes.
+- Built-in semantic layers gain opt-in nearest/linear/default filter authoring while existing defaults remain unchanged; height defaults to filtered mipmapped linear scalar data. Stock material shading does not consume it.
+- The SDVK-002 material observer records height binding/sampler/resource state and requires the shader-visible height index to agree. Existing material-stress and sprite-mirror authored native workloads are extended for height-present/absent, mixed-filter, custom-shader and sprite evidence.
+- Focused SDVK-005, PF-008, GLDEFS, indexed-material and renderer-oracle contracts are being qualified. This is implementation progress only; exact-head hosted checks, software Vulkan, merge and post-merge verification remain acceptance gates.

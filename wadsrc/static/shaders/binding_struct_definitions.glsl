@@ -118,6 +118,10 @@ struct SurfaceUniforms
 	int uLightProbeIndex;
 	vec3 uActorCenter;
 	float uDepthFadeThreshold;
+	int uHeightTextureIndex;
+	int uMaterialSemanticPad0;
+	int uMaterialSemanticPad1;
+	int uMaterialSemanticPad2;
 };
 
 struct SurfaceLightUniforms

@@ -878,6 +878,26 @@ int VulkanRenderDevice::GetBindlessTextureIndex(FMaterial* material, int clampmo
 	return static_cast<VkMaterial*>(material)->GetBindlessIndex(materialState);
 }
 
+int VulkanRenderDevice::GetBindlessHeightLayerIndex(FMaterial* material, int clampmode, int translation, bool paletteMode)
+{
+	GlobalShaderAddr addr;
+	auto globalshader = GetGlobalShader(material->GetShaderIndex(), nullptr, addr);
+
+	FMaterialState materialState;
+	materialState.mMaterial = material;
+	materialState.mClampMode = clampmode;
+	materialState.mTranslation = translation;
+	materialState.mPaletteMode = paletteMode;
+
+	if(addr.type == 1 && *globalshader)
+	{ // handle per-map global shaders
+		materialState.globalShaderAddr = addr;
+		materialState.mOverrideShader = globalshader->shaderindex;
+	}
+
+	return static_cast<VkMaterial*>(material)->GetHeightLayerIndex(materialState);
+}
+
 int VulkanRenderDevice::GetLevelMeshPipelineID(const MeshApplyData& applyData, const SurfaceUniforms& surfaceUniforms, const FMaterialState& material)
 {
 	if (levelVertexFormatIndex == -1)

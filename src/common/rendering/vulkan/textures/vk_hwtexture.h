@@ -82,6 +82,7 @@ public:
 	std::list<VkMaterial*>::iterator it;
 
 	int GetBindlessIndex(const FMaterialState& state);
+	int GetHeightLayerIndex(const FMaterialState& state);
 
 private:
 	struct DescriptorEntry
@@ -92,6 +93,7 @@ private:
 		GlobalShaderAddr globalShaderAddr;
 		bool indexed;
 		bool redIsAlpha;
+		int heightLayerIndex = -1;
 		std::unique_ptr<VkTextureImage> IndexedPalette;
 
 		DescriptorEntry(int cm, intptr_t f, int index, GlobalShaderAddr addr, bool paletteMode, bool indexedRedIsAlpha)

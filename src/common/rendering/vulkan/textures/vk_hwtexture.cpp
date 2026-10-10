@@ -560,6 +560,11 @@ int VkMaterial::GetBindlessIndex(const FMaterialState& state)
 	return GetDescriptorEntry(state).bindlessIndex;
 }
 
+int VkMaterial::GetHeightLayerIndex(const FMaterialState& state)
+{
+	return GetDescriptorEntry(state).heightLayerIndex;
+}
+
 VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState& state)
 {
 	auto base = Source();
@@ -593,7 +598,12 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 	}
 
 	const GlobalShaderDesc& globalshader = *GetGlobalShader(globalShaderAddr);
+	const int materialHeightLayer = FindLayer(MaterialLayerSemantic::Height);
+	const bool bindHeight = materialHeightLayer >= 0 && !state.mPaletteMode && !indexedMaterial;
 	int numLayersMat = globalshader ? NumNonMaterialLayers() : NumLayers();
+	// Height is appended after every historical material/custom binding. Palette
+	// routes must not reinterpret linear height data as indexed color.
+	if (!globalshader && materialHeightLayer >= 0 && !bindHeight) numLayersMat--;
 	auto descriptors = fb->GetDescriptorSetManager();
 
 	MaterialLayerInfo *layer = nullptr;
@@ -611,6 +621,7 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 				if (texture != nullptr)
 					textureCount++;
 			}
+			if (bindHeight) textureCount++;
 		}
 	}
 	else
@@ -620,6 +631,7 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 
 	int bindlessIndex = descriptors->AllocBindlessSlot(textureCount);
 	int texIndex = bindlessIndex;
+	int heightLayerIndex = (!globalshader && bindHeight) ? materialHeightLayer : -1;
 
 	auto systeximage = indexedMaterial
 		? systex->GetIndexedMaterialImage(layer->layerTexture, state.mTranslation, layer->scaleFlags | paletteFlags)
@@ -649,6 +661,14 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 				}
 				i++;
 			}
+
+			if (bindHeight)
+			{
+				heightLayerIndex = texIndex - bindlessIndex;
+				auto heightTex = static_cast<VkHardwareTexture*>(GetLayer(materialHeightLayer, 0, &layer));
+				auto heightImage = heightTex->GetImage(layer->layerTexture, 0, layer->scaleFlags);
+				descriptors->SetBindlessTexture(texIndex++, heightImage->View.get(), fb->GetSamplerManager()->Get(GetLayerFilter(materialHeightLayer), clampmode), heightImage->Layout);
+			}
 		}
 	}
 	else
@@ -661,6 +681,7 @@ VkMaterial::DescriptorEntry& VkMaterial::GetDescriptorEntry(const FMaterialState
 		I_FatalError("VkMaterial.GetDescriptorEntry: texIndex != bindlessIndex + textureCount");
 
 	mDescriptorSets.emplace_back(clampmode, translationp, bindlessIndex, globalShaderAddr, state.mPaletteMode, indexedRedIsAlpha);
+	mDescriptorSets.back().heightLayerIndex = heightLayerIndex;
 	mDescriptorSets.back().IndexedPalette = std::move(indexedPalette);
 	return mDescriptorSets.back();
 }

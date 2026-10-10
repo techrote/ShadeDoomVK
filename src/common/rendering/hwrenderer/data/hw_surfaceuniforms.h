@@ -48,6 +48,13 @@ struct SurfaceUniforms
 	int uLightProbeIndex;
 	FVector3 uActorCenter;
 	float uDepthFadeThreshold;
+
+	// SDVK-005 semantic descriptor index, relative to uTextureIndex. Appended
+	// so the established SurfaceUniforms field offsets remain unchanged.
+	int uHeightTextureIndex = -1;
+	int uMaterialSemanticPad0;
+	int uMaterialSemanticPad1;
+	int uMaterialSemanticPad2;
 };
 
 struct SurfaceLightUniforms

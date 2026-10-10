@@ -210,3 +210,10 @@ extends evidence coverage; it does not change GLDEFS syntax, shader/material
 semantics or filtering policy.
 
 See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and [release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json). Exact-head and merged-master software-Vulkan image/state gates passed. Eight custom PBR panels were actually drawn with their custom binding/index and requested sampling preserved. The hosted lane does not execute `pf-indexed-material`; accepted PF-110 evidence remains the indexed/translation native authority.
+
+
+## SDVK-005 optional height semantic
+
+SDVK-005 extends PF-008 by appending `MaterialLayerSemantic::Height` after every existing semantic/custom identity. Historical fixed/custom descriptor positions remain authoritative; GLDEFS custom starts stay 5/7/9. `FMaterial::FMaterial` appends height last and does not use it to choose Default/Specular/PBR shader models. Vulkan publishes it only on ordinary true-colour material routes and records the actual relative index in `SurfaceUniforms::uHeightTextureIndex`; indexed/palette routes report `-1`. Stock `SetMaterialProps` does not sample the channel. Custom/later shaders opt in with `HasMaterialHeightMap` / `SampleMaterialHeight`.
+
+Existing built-in channels keep inherited `Default` sampling. The GLDEFS semantic-layer syntax may explicitly request `nearest`, `linear` or `default`; height's new default is linear min/mag + linear mipmap using the existing override sampler. This permits pixel-crisp default albedo with independently filtered data channels. Height is normalized linear scalar data from the red channel. See [SDVK-005 material height contract](../SDVK-005-MATERIAL-HEIGHT.md).

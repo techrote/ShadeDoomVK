@@ -24,6 +24,18 @@ vec3 ProcessMaterialLight(Material material, vec3 color, float sunlightAttenuati
 vec3 ProcessSWLight(Material material, float sunlightAttenuation);
 vec2 GetTexCoord();
 
+// Optional SDVK-005 authoring seam. Height is linear scalar data and is not
+// consumed by the default material path; later relief/custom shaders opt in.
+bool HasMaterialHeightMap()
+{
+	return uHeightTextureIndex >= 0;
+}
+
+float SampleMaterialHeight(vec2 texCoord)
+{
+	return HasMaterialHeightMap() ? texture(uHeightTextureIndex, texCoord).r : 0.0;
+}
+
 Material CreateMaterial()
 {
 	Material material;
