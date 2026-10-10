@@ -164,3 +164,9 @@ independent review and explicitly unqualified renderer modes/performance.
 ## SDVK-006 visual-time rule
 
 Portal recursion does not own a renderer clock. A portal rooted in PF-010 `MainView` consumes the exact main-root visual-time snapshot and continuity state; nested portal depth and mirror parity do not advance/reset it. Portals rooted in camera textures, probe faces or save-picture roots remain `non-main-fallback` and receive no main visual delta. This is presentation-time ownership only and does not change portal displacement, mirror transforms, clipping or tic interpolation.
+
+## SDVK-007 world-space sprite tangent and portal parity
+
+PF-009's `HWSprite::CalculateVertices` owns the final screen-/world-orientation decision. SDVK-007 derives world-space right/up/forward **from that final quad**. Tangent follows the actual signed U edge; bitangent follows increasing V (down), with `handedness = -sign(ur-ul) * sign(vb-vt)`. Doom frame mirroring, actor X/Y flips and camera roll/pitch transform that source before derivation. Neither the fragment shader nor portal setup applies a second frame flip.
+
+PF-010 `lineMirror XOR planeMirror` remains the authoritative view-reflection parity. A mirrored *view* does not re-flip a sprite's already-world-space TBN; `viewParity = handedness * (mirrored ? -1 : +1)` is diagnostic, not an additional world tangent transform. The emitted-draw validator rejects disagreement between the sprite's `RenderSurface.portalMirrored` and its actual PF-010 render-context `mirrored` bit. Unproven/degenerate quads explicitly take the inherited derivative path. No portal clipping, sprite silhouette, position, gameplay or model/world tangent conventions are changed.
