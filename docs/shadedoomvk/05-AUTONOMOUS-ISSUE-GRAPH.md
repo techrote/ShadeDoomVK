@@ -9,7 +9,7 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 
 **SDVK-001 is blocked until PF-020 is accepted, merged and verified on `master`.**
 
-Current gate (2026-10-09): SDVK-001 / #1, SDVK-002 / #2, SDVK-003 / #3 and SDVK-004 / #4 are accepted, merged and verified. SDVK-004 final PR #126 head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed source evidence and all 9 CI jobs; it merged as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`, whose tree exactly equals the tested PR tree, and exact merged-master source evidence run `37974299356` plus CI run `37974299316` also passed 9/9 including software Vulkan. The [SDVK-004 release acceptance](SDVK-004-RELEASE-ACCEPTANCE.json) records pressure budgets, retained failure and limitations. SDVK-005 / #5, SDVK-006 / #6 and SDVK-009 / #9 are dependency-ready; later gates retain their declared dependencies.
+Current gate (2026-10-10): SDVK-001 through SDVK-006 are accepted, merged and verified. SDVK-005 / #5 is qualified through substantive PR #132 and exact merged master `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`; its release receipt records exact-head/post-merge source evidence and 9/9 CI including software Vulkan. SDVK-007 / #7 is dependency-ready when the acceptance reconciliation lands. SDVK-009 / #9 remains independently open for its preregistered physical-GPU confirmation; later hard dependencies remain unchanged.
 
 PF freeze gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; pre-freeze accepted renderer master was `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 is accepted, merged and verified on master at `e185e60b04fe37ec84a18c5a85eec6722b541b71`, with final local/source/review gates and all eight actual final-head plus all eight exact post-merge jobs. [Release acceptance](PF-020-RELEASE-ACCEPTANCE.json) preserves bounded evidence and limitations. SDVK-001 is UNBLOCKED; no SDVK feature is implemented by this freeze. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
 
@@ -105,13 +105,12 @@ Do not intentionally run these implementation combinations concurrently without 
 
 ## SDVK dependency-ready concurrency
 
-With SDVK-002, SDVK-003 and SDVK-004 accepted:
+With SDVK-001 through SDVK-006 accepted:
 
-- **SDVK-005, SDVK-006 and SDVK-009 are dependency-ready and may proceed concurrently** when their implementation files do not materially collide;
-- SDVK-005 now consumes the accepted SDVK-004 pressure/lifetime budget; SDVK-005 → SDVK-007 → SDVK-008 remains serialized material/orientation/relief work;
-- SDVK-009 is independent of SDVK-005/007 because PF-016 already established baseline actor-light query correctness/fast paths;
+- **SDVK-007 is dependency-ready**; SDVK-007 → SDVK-008 remains the serialized orientation/relief lane now that SDVK-005 material semantics are accepted;
+- SDVK-009 remains independent of SDVK-007 and is still open only for its finite physical-GPU confirmation campaign;
 - SDVK-010 still requires SDVK-007 so actor IBL is evaluated against the accepted sprite orientation/material path;
-- SDVK-014 may perform exploratory work earlier, but cannot accept until SDVK-005, SDVK-009 and SDVK-010 are accepted;
+- SDVK-014's SDVK-005 dependency is satisfied, but SDVK-014 cannot accept until SDVK-009 and SDVK-010 are also accepted;
 - compatibility/performance/freeze remain late synthesis gates.
 
 ## Autonomous completion protocol
