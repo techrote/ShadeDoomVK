@@ -1,0 +1,488 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/ShadeDoomVK/blob/master/docs/shadedoomvk/prepass/SDVK-010/diagnostics.schema.json",
+  "title": "SDVK-010 proposed read-only actor/probe emitted-draw diagnostic; NOT installed into renderer",
+  "type": "object",
+  "required": [
+    "schema",
+    "fixture_id",
+    "capture_id",
+    "events"
+  ],
+  "properties": {
+    "schema": {
+      "const": "sdvk010-actor-probe-observation/v0"
+    },
+    "fixture_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capture_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/draw"
+      }
+    }
+  },
+  "$defs": {
+    "xyz": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "items": {
+        "type": "number"
+      }
+    },
+    "identity": {
+      "type": "object",
+      "required": [
+        "index",
+        "generation",
+        "epoch",
+        "span",
+        "owner"
+      ],
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "generation": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "span": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "required": [
+        "available",
+        "index",
+        "view_type",
+        "identity"
+      ],
+      "properties": {
+        "available": {
+          "type": "boolean"
+        },
+        "index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "view_type": {
+          "enum": [
+            "cube",
+            "none",
+            "unknown"
+          ]
+        },
+        "identity": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/identity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "actor": {
+      "type": "object",
+      "required": [
+        "semantic_actor_id",
+        "surface",
+        "world_position",
+        "sector_present",
+        "sector_id",
+        "authored_probe_index",
+        "material_id",
+        "selection_basis",
+        "basis_mode"
+      ],
+      "properties": {
+        "semantic_actor_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "surface": {
+          "enum": [
+            "sprite",
+            "model",
+            "voxel",
+            "particle",
+            "visual-thinker",
+            "world-wall",
+            "world-flat",
+            "hud"
+          ]
+        },
+        "world_position": {
+          "$ref": "#/$defs/xyz"
+        },
+        "sector_present": {
+          "type": "boolean"
+        },
+        "sector_id": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "authored_probe_index": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "material_id": {
+          "type": "string"
+        },
+        "selection_basis": {
+          "enum": [
+            "sector-authored",
+            "world-lightmap-texel",
+            "none",
+            "unresolved"
+          ]
+        },
+        "basis_mode": {
+          "type": "string"
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "map",
+        "root_type",
+        "view_epoch",
+        "view_identity",
+        "source_portal_group",
+        "render_portal_group",
+        "mirror",
+        "displacement"
+      ],
+      "properties": {
+        "map": {
+          "type": "string"
+        },
+        "root_type": {
+          "enum": [
+            "main",
+            "camera-texture",
+            "light-probe",
+            "save-picture",
+            "portal"
+          ]
+        },
+        "view_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "view_identity": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source_portal_group": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "render_portal_group": {
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "mirror": {
+          "type": "boolean"
+        },
+        "displacement": {
+          "$ref": "#/$defs/xyz"
+        }
+      }
+    },
+    "probe": {
+      "type": "object",
+      "required": [
+        "mode",
+        "runtime_base",
+        "fallback",
+        "fallback_reason",
+        "irradiance",
+        "prefilter",
+        "pair_owner",
+        "probe_epoch",
+        "lightmap_epoch",
+        "levelmesh_epoch",
+        "lightmap_probe_epoch",
+        "bindless_capacity",
+        "dynamic_start",
+        "probe_map_page",
+        "probe_map_value",
+        "publication_phase"
+      ],
+      "properties": {
+        "mode": {
+          "enum": [
+            "uniform",
+            "lightmap-gather",
+            "none"
+          ]
+        },
+        "runtime_base": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "fallback": {
+          "type": "boolean"
+        },
+        "fallback_reason": {
+          "enum": [
+            "none",
+            "missing-sector",
+            "no-authored-probes",
+            "pair-unpublished",
+            "probe-disabled",
+            "reset-cleared",
+            "unencodable",
+            "atlas-unavailable",
+            "unresolved"
+          ]
+        },
+        "irradiance": {
+          "$ref": "#/$defs/resource"
+        },
+        "prefilter": {
+          "$ref": "#/$defs/resource"
+        },
+        "pair_owner": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "probe_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lightmap_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "levelmesh_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "lightmap_probe_epoch": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "bindless_capacity": {
+          "type": "integer",
+          "minimum": 260
+        },
+        "dynamic_start": {
+          "type": "integer",
+          "minimum": 259
+        },
+        "probe_map_page": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "probe_map_value": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "publication_phase": {
+          "enum": [
+            "initial",
+            "cleared",
+            "publishing",
+            "published",
+            "retired"
+          ]
+        }
+      }
+    },
+    "pbr": {
+      "type": "object",
+      "required": [
+        "active",
+        "metallic",
+        "roughness",
+        "ao",
+        "world_normal",
+        "world_view",
+        "world_reflection",
+        "prefilter_lod",
+        "sampler_direction_space"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean"
+        },
+        "metallic": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "roughness": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ao": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "world_normal": {
+          "$ref": "#/$defs/xyz"
+        },
+        "world_view": {
+          "$ref": "#/$defs/xyz"
+        },
+        "world_reflection": {
+          "$ref": "#/$defs/xyz"
+        },
+        "prefilter_lod": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "sampler_direction_space": {
+          "const": "shader-world"
+        }
+      }
+    },
+    "sun": {
+      "type": "object",
+      "required": [
+        "world_direction",
+        "shader_direction",
+        "color",
+        "intensity",
+        "attenuation",
+        "visibility_mode",
+        "visibility_result",
+        "world_query_epoch"
+      ],
+      "properties": {
+        "world_direction": {
+          "$ref": "#/$defs/xyz"
+        },
+        "shader_direction": {
+          "$ref": "#/$defs/xyz"
+        },
+        "color": {
+          "$ref": "#/$defs/xyz"
+        },
+        "intensity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "attenuation": {
+          "type": "number",
+          "minimum": 0
+        },
+        "visibility_mode": {
+          "enum": [
+            "cpu-tracesky",
+            "shader-trace",
+            "lightmap-baked",
+            "unoccluded-proxy",
+            "none",
+            "unknown"
+          ]
+        },
+        "visibility_result": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "world_query_epoch": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "draw": {
+      "type": "object",
+      "required": [
+        "frame",
+        "draw_id",
+        "actor",
+        "context",
+        "probe",
+        "pbr",
+        "sun",
+        "pipeline_sha"
+      ],
+      "properties": {
+        "frame": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "draw_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "actor": {
+          "$ref": "#/$defs/actor"
+        },
+        "context": {
+          "$ref": "#/$defs/context"
+        },
+        "probe": {
+          "$ref": "#/$defs/probe"
+        },
+        "pbr": {
+          "$ref": "#/$defs/pbr"
+        },
+        "sun": {
+          "$ref": "#/$defs/sun"
+        },
+        "pipeline_sha": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  },
+  "description": "Proposed event shape only. Runtime generation and image ownership must be observed, never queried by causing a GetLightProbeTextureIndex allocation. The companion host validator adds cross-field temporal identity checks JSON Schema cannot express."
+}

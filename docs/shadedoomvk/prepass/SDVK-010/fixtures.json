@@ -1,0 +1,387 @@
+{
+  "schema": "sdvk010-actor-probe-fixtures/v0",
+  "status": "design-only-unexecuted",
+  "assessed_master": "08ec183e665e7a3100b6cf3a267f5d3b5b494990",
+  "references": {
+    "sun-probes": "tools/renderer_oracle/prepare.py::authored_members(generator=sun_probes)",
+    "sprite-mirror": "tools/renderer_oracle/prepare.py::authored_members(generator=sprite_mirror)",
+    "material-stress": "tools/renderer_oracle/prepare.py::authored_members(generator=material_stress)",
+    "pf113": "tools/pf_oracle/prepare_pbr_probe_runtime.py"
+  },
+  "native_rule": {
+    "independent_captures": 2,
+    "driver": "same software-Vulkan driver and configuration",
+    "claim": "Must capture actual emitted draw and generated PK3, never substitute this design table for GPU evidence",
+    "golden_policy": "Exact semantic state; same-driver deterministic RGB where established; record explicit tolerance otherwise",
+    "fixed_settings": [
+      "vid_rendermode=4",
+      "gl_texture_filter=0",
+      "gl_tonemap=0",
+      "gl_bloom=0",
+      "gl_ssao=0",
+      "cl_capfps=false",
+      "crosshair=0"
+    ]
+  },
+  "fixtures": [
+    {
+      "id": "F01-uniform-neutral",
+      "base": "sun-probes",
+      "setup": "One sector and one published authored probe; neutral 128/128/128 RGB8 reference; one stationary non-HUD PBR actor",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "actual_sector_authored_target",
+        "live_pair_span_2",
+        "normal_and_reflection_finite",
+        "same_driver_probe_IBL_state_image"
+      ],
+      "unknowns": [
+        "authored reference cube injection cannot be assumed"
+      ]
+    },
+    {
+      "id": "F02-two-sector-targets",
+      "base": "sun-probes",
+      "setup": "Two adjacent sectors; two spatially distinguishable authored probe things and captured warm/cool targets",
+      "actor_positions": [
+        [
+          -80,
+          0,
+          64
+        ],
+        [
+          80,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "sector_target_from_actual_RecalculateLightProbeTargets",
+        "actor_runtime_pair_matches_authored_sector_target",
+        "no_nearest_512_policy_assumption_for_actor"
+      ],
+      "unknowns": [
+        "native sector target boundary and default when sector missing"
+      ]
+    },
+    {
+      "id": "F03-actor-movement",
+      "base": "sun-probes",
+      "setup": "Deterministic actor moves across the native sector boundary with fixed camera; movement script authored after #7",
+      "actor_positions": [
+        [
+          -2,
+          0,
+          64
+        ],
+        [
+          -0.5,
+          0,
+          64
+        ],
+        [
+          0,
+          0,
+          64
+        ],
+        [
+          0.5,
+          0,
+          64
+        ],
+        [
+          2,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "sector_changes_are_emitted",
+        "pair_changes_only_per_authoritative_selection",
+        "stable_identity_between_movements"
+      ],
+      "unknowns": [
+        "actor position interpolation fractions and line ownership"
+      ]
+    },
+    {
+      "id": "F04-lightmap-vs-uniform-boundary",
+      "base": "sun-probes",
+      "setup": "Two published probes and tiled world floor vs actor at same footprint; second subcase four-tap boundary with missing token",
+      "actor_positions": [
+        [
+          -1,
+          0,
+          64
+        ],
+        [
+          1,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "PF012_radius_inclusive_first_candidate_tie",
+        "world_gather_four_tap_weights_order",
+        "actor_uniform_branch_separate",
+        "zero_taps_zero_without_renormalization"
+      ],
+      "unknowns": [
+        "actual copy pass bake completion"
+      ]
+    },
+    {
+      "id": "F05-portal-separation",
+      "base": "sprite-mirror",
+      "setup": "Two physically-near coordinates in distinct link-portal groups; explicit displacements, repeated near actor",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "actor_source_and_render_group",
+        "portal_displacement",
+        "correct_target_no_unrelated_cross_group_reuse"
+      ],
+      "unknowns": [
+        "whether current sector targets group-aware; test must first establish authored target"
+      ]
+    },
+    {
+      "id": "F06-probe-absent",
+      "base": "sun-probes",
+      "setup": "No probe / gl_lightprobe disabled / probe not yet published / zero probe count as independent subcases",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "runtime_zero",
+        "fallback_reason_and_availability",
+        "no_cube_sample_at_zero",
+        "nonzero_sector_or_sun_contribution_allowed"
+      ],
+      "unknowns": [
+        "disabled setting and null-sector may resolve authored0: test separately"
+      ]
+    },
+    {
+      "id": "F07-reset-rebuild",
+      "base": "pf113",
+      "setup": "Publish authored0 and authored1, reset probe content, clear map, rebuild and republish while actor visible",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "LightProbeEpoch_advance",
+        "no_retired_pair_used",
+        "same_slot_can_remain_if_valid_and_cleared",
+        "published_pair_current"
+      ],
+      "unknowns": [
+        "native transition timing"
+      ]
+    },
+    {
+      "id": "F08-sun-direction",
+      "base": "sun-probes",
+      "setup": "Known sun direction/color/intensity; opposing normals and camera; disable independent local light",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "NdotL_sign",
+        "sun_dir_shader_space",
+        "no_negative_direct_sun",
+        "sunlight_attenuation_state"
+      ],
+      "unknowns": [
+        "PBR sun uniform and proxy overlap"
+      ]
+    },
+    {
+      "id": "F09-sun-occlusion",
+      "base": "sun-probes",
+      "setup": "Actor under sky then behind added world occluding wall/roof; mutate Query epoch with stationary actor",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "TraceSky_or_shader_mode",
+        "Query_epoch_cache_invalidation",
+        "portal_group_key",
+        "no_claim_that_all_sun_modes_trace"
+      ],
+      "unknowns": [
+        "gl_spritelight_lightmaps shortcut"
+      ]
+    },
+    {
+      "id": "F10-pbr-matrix",
+      "base": "material-stress",
+      "setup": "Two reflected environment colors, dielectric/metal; roughness 0/0.25/0.75/1; normal-map with unequal X/Y components",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "F0_metallic_mapping",
+        "specular_pair_matches_irradiance",
+        "lod_roughness_times_4",
+        "AO_multiplication",
+        "finite_roughness_zero"
+      ],
+      "unknowns": [
+        "actual sprite material definition required"
+      ]
+    },
+    {
+      "id": "F11-sprite-orientation",
+      "base": "sprite-mirror",
+      "setup": "Selected frame and actor mirror variants; roll/pitch; face XY/wall/flat; real mirror",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "record_accepted_SDVK007_basis_mode",
+        "actual_transformed_N_and_R",
+        "source_vs_render_portal_parity"
+      ],
+      "unknowns": [
+        "ALL_PIXEL_GOLDENS_DEFERRED_UNTIL_SDVK007_ACCEPTANCE"
+      ]
+    },
+    {
+      "id": "F12-3dfloor-linked-mirror",
+      "base": "sprite-mirror",
+      "setup": "3D floor/raised floor and linked/stacked portal as supported; mirror view with actor stationary",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "LevelMesh_Query_and_LightmapProbe_domains",
+        "persistent_pair_unchanged_by_view_mirror",
+        "portal_root_and_child_context"
+      ],
+      "unknowns": [
+        "support matrix and exact level changes"
+      ]
+    },
+    {
+      "id": "F13-resource-pressure",
+      "base": "sun-probes",
+      "setup": "Atlas shrink 128->3 pages, 64 environment pairs, repeated 0<->2 probes and map load cycles",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "typed_removed_page_fallback",
+        "pair_retirement_generations",
+        "no_stale_images",
+        "current_capacity_checks"
+      ],
+      "unknowns": [
+        "extend existing SDVK004 stress, do not duplicate ownership"
+      ]
+    },
+    {
+      "id": "F14-authored-zero-alias",
+      "base": "pf113",
+      "setup": "Explicit authored ordinal0 is published, then actor-sector absent or particle draws with default passed authored0",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "record_actor_source_presence",
+        "authored0_may_resolve_to_live_nonzero_pair",
+        "runtime_zero_remains_only_fallback",
+        "do_not_assume_default0_means_absence"
+      ],
+      "unknowns": [
+        "new explicit actor absence policy requires design"
+      ]
+    },
+    {
+      "id": "F15-camera-only",
+      "base": "sprite-mirror",
+      "setup": "Actor fixed in sector, move camera through controlled positions without actor movement",
+      "actor_positions": [
+        [
+          0,
+          0,
+          64
+        ]
+      ],
+      "camera_positions": [
+        [
+          128,
+          0,
+          64
+        ],
+        [
+          0,
+          128,
+          64
+        ],
+        [
+          -128,
+          0,
+          64
+        ]
+      ],
+      "assert": [
+        "authoritative_authored_target_stays_constant",
+        "R_changes_as_expected_with_view",
+        "billboard_N_may_change_without_probe_selection_mutation"
+      ],
+      "unknowns": [
+        "final accepted #7 basis"
+      ]
+    }
+  ],
+  "prior_verified_base": "cbff1d10b802e60a56d239338f810f7e1e52920d",
+  "sdvk007_status": "PR135 merged into master, issue7 still open; final acceptance pending. No actor orientation goldens until final acceptance."
+}
