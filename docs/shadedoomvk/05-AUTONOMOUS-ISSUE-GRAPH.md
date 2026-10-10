@@ -9,7 +9,7 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 
 **SDVK-001 is blocked until PF-020 is accepted, merged and verified on `master`.**
 
-Current gate (2026-10-09): SDVK-001 / #1, SDVK-002 / #2, SDVK-003 / #3 and SDVK-004 / #4 are accepted, merged and verified. SDVK-004 final PR #126 head `862ae0f591d60572c2474f0b6f22d44bfbb30e24` passed source evidence and all 9 CI jobs; it merged as `d356a311cf6044275e3ccedf7c1ab9e1f7858e9b`, whose tree exactly equals the tested PR tree, and exact merged-master source evidence run `37974299356` plus CI run `37974299316` also passed 9/9 including software Vulkan. The [SDVK-004 release acceptance](SDVK-004-RELEASE-ACCEPTANCE.json) records pressure budgets, retained failure and limitations. SDVK-005 / #5, SDVK-006 / #6 and SDVK-009 / #9 are dependency-ready; later gates retain their declared dependencies.
+Current gate (2026-10-10): SDVK-001 through SDVK-006 are accepted, merged and verified. SDVK-005 substantive PR #132 merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1` with exact tested/merged tree equality and passing exact-head plus post-merge source evidence/9-job CI. Acceptance reconciliation is PR #134. SDVK-007 / #7 is dependency-ready after that reconciliation; SDVK-008 and SDVK-010 retain their declared dependency on accepted SDVK-007. SDVK-009 / #9 remains open for its physical confirmation campaign.
 
 PF freeze gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; pre-freeze accepted renderer master was `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 is accepted, merged and verified on master at `e185e60b04fe37ec84a18c5a85eec6722b541b71`, with final local/source/review gates and all eight actual final-head plus all eight exact post-merge jobs. [Release acceptance](PF-020-RELEASE-ACCEPTANCE.json) preserves bounded evidence and limitations. SDVK-001 is UNBLOCKED; no SDVK feature is implemented by this freeze. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
 
@@ -156,3 +156,8 @@ The first renderer tranche cannot freeze while any unresolved issue can cause:
 - shadow/probe/lightmap state that is visually plausible but semantically mismatched;
 - unsupported hardware to crash rather than use documented fallback;
 - unbounded performance collapse in a declared quality tier.
+
+
+### SDVK-005 accepted gate — 2026-10-10
+
+SDVK-005's optional height semantic is accepted on the verified implementation tree. Historical material/custom bindings remain stable, per-layer sampling is explicit, PF descriptor lifetime ownership is unchanged and software-Vulkan state/image qualification passes. **SDVK-007 is now the next serialized material/orientation task; SDVK-008 and SDVK-010 remain blocked by SDVK-007.**

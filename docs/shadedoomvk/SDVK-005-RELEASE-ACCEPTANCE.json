@@ -1,0 +1,276 @@
+{
+  "schema": "sdvk005-release-acceptance/v1",
+  "dateUtc": "2026-10-10",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/5",
+  "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/132",
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/134",
+  "startingMaster": "0a2fbad203549d18ac6e5a61bb4747709637bfde",
+  "finalHead": "9a87734357d15145ed791d89c4b98db94fb60cb6",
+  "testedMergeRef": "116a45bf47dc4595ead106ce99588723750d4d5d",
+  "testedTree": "28f2ef41a99ea6979145030e807c7798c6e01735",
+  "mergeCommit": "aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1",
+  "mergeTree": "28f2ef41a99ea6979145030e807c7798c6e01735",
+  "treeEquality": true,
+  "implementation": {
+    "heightSemantic": {
+      "name": "height",
+      "enumValue": 10,
+      "optional": true,
+      "dataInterpretation": "normalized scalar from red channel",
+      "colorSpace": "linear-data",
+      "missingDescriptorIndex": -1,
+      "missingExplicitSampleValue": 0,
+      "defaultFiltering": "linear minification + linear magnification",
+      "defaultMipPolicy": "linear mipmap interpolation",
+      "defaultWrapPolicy": "repeat"
+    },
+    "bindingCompatibility": {
+      "strategy": "append height after every historical fixed/material/global-custom binding",
+      "existingSemanticBindingsChanged": false,
+      "historicalCustomStarts": [
+        5,
+        7,
+        9
+      ],
+      "customShaderCompatibility": "PASS",
+      "globalShaderCompatibility": "PASS",
+      "indexedPaletteHeightPublication": false
+    },
+    "renderingEffect": {
+      "defaultHeightConsumer": false,
+      "customShaderConsumerWitness": true,
+      "pomImplemented": false,
+      "displacementImplemented": false,
+      "spriteTangentBasisImplemented": false
+    }
+  },
+  "semanticMatrix": [
+    {
+      "case": "albedo-only",
+      "heightPresent": false,
+      "expectedHeightIndex": -1,
+      "stateResult": "PASS"
+    },
+    {
+      "case": "legacy-normal-specular-height",
+      "heightPresent": true,
+      "heightBinding": 6,
+      "albedoSampling": "nearest",
+      "normalSampling": "linear-miplinear",
+      "heightSampling": "linear-miplinear",
+      "stateResult": "PASS",
+      "imageResult": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    {
+      "case": "pbr-height",
+      "heightPresent": true,
+      "heightBinding": 8,
+      "albedoSampling": "nearest",
+      "pbrDataSampling": "linear-miplinear",
+      "heightSampling": "linear-miplinear",
+      "stateResult": "PASS",
+      "imageResult": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    {
+      "case": "custom-pbr-height",
+      "heightPresent": true,
+      "historicalCustomBinding": 8,
+      "customIndex": 0,
+      "heightBinding": 9,
+      "stateResult": "PASS",
+      "imageResult": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    {
+      "case": "sprite-height",
+      "heightPresent": true,
+      "heightBinding": 6,
+      "stateResult": "PASS",
+      "imageResult": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    }
+  ],
+  "requiredCoverage": {
+    "albedoOnly": "PASS",
+    "legacyNormalSpecular": "PASS",
+    "pbr": "PASS",
+    "pbrWithHeight": "PASS",
+    "heightAbsent": "PASS",
+    "heightInvalid": "PASS_SOURCE_PARSER_NEGATIVE",
+    "pixelAlbedoFilteredData": "PASS_NATIVE_STATE",
+    "translatedPalette": "PASS_INHERITED_PF110_PLUS_CURRENT_SOURCE_CONTRACT",
+    "customShader": "PASS_NATIVE_DRAW_WITNESS",
+    "globalCustomMaterial": "PASS_SOURCE_COMPILED_BINDING_CONTRACT",
+    "samplerOverrides": "PASS_NATIVE_STATE",
+    "materialRebuild": "PASS_INHERITED_SDVK004_CONTRACT_RERUN",
+    "descriptorReuse": "PASS_INHERITED_SDVK004_CONTRACT_RERUN",
+    "worldSurface": "PASS_NATIVE_MATERIAL_STRESS",
+    "spriteOrModel": "PASS_SPRITE_MIRROR"
+  },
+  "descriptorLifetime": {
+    "identityAuthority": "PF-002/PF-003/SDVK-004",
+    "newIdentityDomain": false,
+    "staleIdentityNegativeControls": "PASS",
+    "invalidFreeControls": "PASS",
+    "generationChecks": "PASS",
+    "samplerInvalidation": "PASS",
+    "materialInvalidation": "PASS",
+    "emergencyGlobalFlushIntroduced": false,
+    "pressureFixture": {
+      "source": "SDVK-004-derived contract rerun on SDVK-005 exact head and merged master",
+      "dynamicHighWater": 3072,
+      "dynamicCapacity": 4096,
+      "pressurePercent": 75,
+      "rebuildCycles": 64,
+      "boundedExhaustion": "PASS"
+    }
+  },
+  "equivalence": {
+    "heightAbsentExistingContent": {
+      "semanticBindingContract": "PASS",
+      "stockShaderHeightNeutral": true,
+      "independentCurrentTreeStateImageComparison": "PASS",
+      "historicalMasterCrossTreePixelDiff": "NOT_RUN_NOT_CLAIMED"
+    },
+    "heightAuthored": {
+      "semanticBinding": "PASS",
+      "samplerPolicy": "PASS",
+      "shaderVisibleIndex": "PASS",
+      "customShaderExecutionWitness": "PASS"
+    },
+    "gameplayDeterminismChanged": false
+  },
+  "softwareVulkan": {
+    "physicalGpuQualified": false,
+    "performanceAccepted": false,
+    "stateWorkloads": {
+      "compositing": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-zero": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-one": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-many": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-dense-overlap": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-dense-dispersed": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "shadow-boundary": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "material-stress": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sun-probes": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sprite-mirror": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    "heightBindingWitnesses": {
+      "legacy": {
+        "scene": "material-stress",
+        "material": "SM0001",
+        "binding": 6,
+        "requestedSampling": 1
+      },
+      "pbr": {
+        "scene": "material-stress",
+        "material": "SM0006",
+        "binding": 8,
+        "requestedSampling": 1
+      },
+      "customPbr": {
+        "scene": "material-stress",
+        "material": "SM0002",
+        "customBinding": 8,
+        "customIndex": 0,
+        "heightBinding": 9,
+        "requestedSampling": 1
+      },
+      "sprite": {
+        "scene": "sprite-mirror",
+        "material": "SDVRA1",
+        "binding": 6,
+        "requestedSampling": 1
+      }
+    }
+  },
+  "finalHeadEvidence": {
+    "sourceEvidence": {
+      "runId": 38030309310,
+      "artifactId": 11661084235,
+      "artifactBytes": 148226840,
+      "artifactZipSha256": "09119822f22eaa9b30c19f26702a16e5936422f2fcf8adcd411013e6648d20e7",
+      "sourceBundleSha256": "ce1364229e0c30f339dfa385181cd2004ee3eb7bc76b2eca0a503f63067d8de5"
+    },
+    "continuousIntegration": {
+      "runId": 38030309307,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11661074342,
+      "artifactBytes": 72902,
+      "artifactZipSha256": "507dc5bd806995a364e93fd4477aa02a3e0770a6d2185d10d364b521066041fb"
+    },
+    "nativeArtifact": {
+      "artifactId": 11661879396,
+      "artifactBytes": 406339631,
+      "artifactZipSha256": "a8adbf60c24ad40d5f6dd464327214b8be1e8240a5afb2a4e6d7052b615f6ea8"
+    }
+  },
+  "postMergeEvidence": {
+    "sourceEvidence": {
+      "runId": 38032400496,
+      "artifactId": 11662896184,
+      "artifactBytes": 148182946,
+      "artifactZipSha256": "9a69c630cbe1caa36849e96710ea6f1d93618b37b2ad58cecf794fb49f06771a",
+      "sourceBundleSha256": "2467a51b22d9ff79d6eebf2663bea06b0d6a551d0e635d67c987f6c27c8426f1"
+    },
+    "continuousIntegration": {
+      "runId": 38032400505,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11662242038,
+      "artifactBytes": 72902,
+      "artifactZipSha256": "de08a1933a36748c601ba313e2b6d323c98006a3dff377af86e7dc4c048fba3d"
+    },
+    "nativeArtifact": {
+      "artifactId": 11662978604,
+      "artifactBytes": 406339907,
+      "artifactZipSha256": "63cbaa7e16ab9ec9a983709c796310f8bda2e925b385ab48498bf825e4e2e6a7"
+    }
+  },
+  "retainedFailures": [
+    {
+      "runId": 38024107495,
+      "head": "3eef734f0231bca7b0ae3de9ed1e1e8da9accba8",
+      "disposition": "action_required with zero jobs because bootstrap publication head was github-actions[bot]-authored; not renderer evidence"
+    },
+    {
+      "runId": 38024107513,
+      "head": "3eef734f0231bca7b0ae3de9ed1e1e8da9accba8",
+      "disposition": "action_required with zero jobs because bootstrap publication head was github-actions[bot]-authored; not renderer evidence"
+    },
+    {
+      "runId": 38029659189,
+      "head": "53e040883e91841ac4b61cbec219e554b77f5428",
+      "artifactId": 11661921285,
+      "artifactZipSha256": "d61eaf43641703a9fc9921b1852479cab0291fe84df66b14a05bcc9cbe55eb58",
+      "disposition": "bounded SWCanvas source-extraction wrapper omitted new inert height locals; fixture repaired, production code unchanged, full gate requalified"
+    },
+    {
+      "runId": 38029639621,
+      "head": "53e040883e91841ac4b61cbec219e554b77f5428",
+      "disposition": "duplicate retrigger cancelled by CI concurrency after superseding run"
+    }
+  ],
+  "scopeBoundary": {
+    "sdvk007TbnImplemented": false,
+    "sdvk008PomImplemented": false,
+    "sdvk009ManyLightChanged": false,
+    "sdvk010IblChanged": false,
+    "sdvk016QualityPolicyChanged": false,
+    "physicalGpuRequired": false
+  },
+  "limitations": [
+    "No physical-GPU qualification or performance claim.",
+    "No separate historical-master-vs-SDVK-005 cross-tree pixel-diff campaign was performed; compatibility is established by fixed-binding/source contracts, height-neutral stock shading and repeated current-tree native state/image qualification.",
+    "Near-device-capacity GPU exhaustion and optional same-process native reload are not deliberately exercised; inherited deterministic CPU lifetime/pressure contracts remain the authority."
+  ],
+  "gateDisposition": {
+    "SDVK005": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK007": "DEPENDENCY_READY"
+  },
+  "acceptanceDocumentation": "Acceptance reconciliation PR #134 is documentation/JSON only. Close #5 and activate the SDVK-007 dependency gate only after #134 passes required checks, merges, and its resulting master is verified."
+}

@@ -837,3 +837,18 @@ SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f785
 - Built-in semantic layers gain opt-in nearest/linear/default filter authoring while existing defaults remain unchanged; height defaults to filtered mipmapped linear scalar data. Stock material shading does not consume it.
 - The SDVK-002 material observer records height binding/sampler/resource state and requires the shader-visible height index to agree. Existing material-stress and sprite-mirror authored native workloads are extended for height-present/absent, mixed-filter, custom-shader and sprite evidence.
 - Focused SDVK-005, PF-008, GLDEFS, indexed-material and renderer-oracle contracts are being qualified. This is implementation progress only; exact-head hosted checks, software Vulkan, merge and post-merge verification remain acceptance gates.
+
+
+### 10 October 2026 — SDVK-005 accepted; SDVK-007 dependency unblocked
+
+- SDVK-005 substantive PR #132 final head `9a87734357d15145ed791d89c4b98db94fb60cb6` passed Renderer source evidence run `38030309310` and Continuous Integration run `38030309307` with 9/9 jobs.
+- PR #132 squash-merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`; merged tree `28f2ef41a99ea6979145030e807c7798c6e01735` exactly equals the tested PR-head tree.
+- Exact merged-master source evidence run `38032400496` passed and CI run `38032400505` passed 9/9, including the complete ten-scene software-Vulkan state/image lane.
+- Accepted height semantics are optional linear scalar data appended after historical fixed/custom bindings. Existing GLDEFS custom starts 5/7/9 remain unchanged; stock material shading does not sample height; custom/later shaders use the semantic height helper and shader-visible dynamic index.
+- Native material-stress proves legacy/PBR/custom height bindings and independent sampling; custom PBR retains binding 8 and appends height at 9. Sprite-mirror proves the sprite material route.
+- PF-002/PF-003/SDVK-004 generation/lifetime ownership remains authoritative; the exact-head oracle reruns the 3,072/4,096 descriptor-pressure and rebuild/stale/exhaustion contracts.
+- Initial bot-authored `action_required` runs and the bounded SWCanvas extraction-harness failure are retained; no renderer failure was waived.
+- No physical-GPU qualification was required or claimed.
+- Acceptance reconciliation is PR #134 with [human-readable](SDVK-005-FINAL-ACCEPTANCE.md) and [machine-readable](SDVK-005-RELEASE-ACCEPTANCE.json) evidence.
+
+**SDVK-005: ACCEPTED, MERGED AND VERIFIED after PR #134 reconciliation verification. SDVK-007: DEPENDENCY-READY.**

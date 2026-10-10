@@ -1,6 +1,6 @@
 # SDVK-005 — final acceptance
 
-Date: 2026-10-10. Owner: SDVK-005 / #5. Status: **acceptance reconciliation pending final documentation PR verification**.
+Date: 2026-10-10. Owner: SDVK-005 / #5. Status: **accepted substantive implementation; acceptance reconciliation PR #134 pending its own merge verification**.
 
 ## Disposition and exact implementation identities
 
@@ -8,6 +8,7 @@ SDVK-005 is substantively implemented, merged and verified on the exact implemen
 
 - Starting master: `0a2fbad203549d18ac6e5a61bb4747709637bfde`
 - Substantive PR: #132
+- Acceptance reconciliation PR: #134
 - Final substantive head: `9a87734357d15145ed791d89c4b98db94fb60cb6`
 - Tested PR merge ref: `116a45bf47dc4595ead106ce99588723750d4d5d`
 - Tested tree: `28f2ef41a99ea6979145030e807c7798c6e01735`
