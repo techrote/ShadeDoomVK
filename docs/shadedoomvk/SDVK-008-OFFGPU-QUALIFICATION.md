@@ -2,7 +2,7 @@
 
 Issue [#8](https://github.com/techrote/ShadeDoomVK/issues/8). Implementation [PR #138](https://github.com/techrote/ShadeDoomVK/pull/138). Starting master `adead010aa40d0f4f8d9ffdb51573005b7f9a964`.
 
-**Status: off-GPU implementation candidate. NOT physical-GPU qualified, NOT full #8 acceptance.** Hardware quality/cost evidence is a hard remaining gate. The nine textual prepass assets were copied without modification from `prepass/sdvk-008-relief@34b7a126249aec98168fc188ab113c374a034f80`; the research ZIP and its SHA-256 remain on the archival branch.
+**Status: off-GPU implementation MERGED and PR-head QUALIFIED (9/9 CI, complete software-Vulkan corpus), NOT physical-GPU qualified and NOT full #8 acceptance.** Hardware quality/cost evidence is a hard remaining gate. The nine textual prepass assets were copied without modification from `prepass/sdvk-008-relief@34b7a126249aec98168fc188ab113c374a034f80`; the research ZIP and its SHA-256 remain on the archival branch.
 
 ## Source mapping
 
@@ -27,6 +27,14 @@ Issue [#8](https://github.com/techrote/ShadeDoomVK/issues/8). Implementation [PR
 - Optional height-driven self-occlusion and all sprite shadow casting are deferred pending physically justified cost/quality. No default active visual effect.
 - The [prepass physical protocol](prepass/SDVK-008/SDVK-008-PHYSICAL-GPU-PROTOCOL.md) defines eleven OFF/ON timing variants, raw data, independent processes, quality modes, hardware identity, exact software correctness and final no-go gates. This implementation candidate does not modify or silently waive that protocol.
 
-## Evidence and exit condition
+## Exact off-GPU implementation result (10 October 2026)
 
-Record exact PR-head and post-merge CPU/CI/source/native IDs on this page and issue #8 **after actual completion**. Stop at **OFF_GPU_QUALIFIED; PHYSICAL_COST_PENDING**, keep #8 OPEN, and keep #12 blocked on full accepted #8. Do not claim successful shader compilation, native image comparison, or merged-master verification from the presence of this report alone.
+- Initial SDVK-008 PR implementation head `b99cd70dd0e5355d5232a9f5cc848be77b2577c0` passed all nine CI jobs, including native software-Vulkan. After SDVK-010/#137 independently merged, the nine shared files were reconciled with a three-way merge rather than discarding actor probes or weakening relief assertions.
+- **Final tested PR #138 head:** `6c0d418e82f34de89084b4175d8aafe0bc024e71`, integrated against accepted SDVK-010 `1b8a6ade684f2d0070dd60dd3dcb3291c34ed6af`. Exact-head renderer source evidence [run 38068791101](https://github.com/techrote/ShadeDoomVK/actions/runs/38068791101) **PASS**. Exact-head full CI [run 38068790984](https://github.com/techrote/ShadeDoomVK/actions/runs/38068790984) **9/9 PASS**: CPU contracts, Windows, macOS, Linux, software Vulkan and paired full-corpus state/image checks.
+- **Substantive PR #138 merged** as `master@9536324ce33ea418af5a8efe733b4659f6b4ad9b`; tested/merged tree equality **PASS** (`3123bc7fd3dd9074487cbe3487f9336ef3589003`). Merge-push renderer source evidence [38074510322](https://github.com/techrote/ShadeDoomVK/actions/runs/38074510322) **PASS**. Full post-merge CI [38074510339](https://github.com/techrote/ShadeDoomVK/actions/runs/38074510339) is still pending and cannot be treated as successful until its conclusion is observed.
+- **Artifact trace:** PR source `11676456191`, SHA-256 `03e5d208bc8116174f6547f3d975db1bd76538484d505fc217eb460609c42356`; PR native software-Vulkan `11676530794`, SHA-256 `33708094b70bbdab43c3509ca22185d05810e3bec9148ae87bdf0c87b1861089`; PR CPU `11676376390`, SHA-256 `cf41296aad0ad7351669e0e8cea957ce27576f7947664f526f8f43072f4287bd`; post-merge source `11678427062`, SHA-256 `fe4420762f0ae196bbc7121c305725128cbeabc83771cfa1a6ac9cf626ab2fcb`. Digests are of GitHub artifact ZIPs, not physical-GPU traces.
+- Historical work: MSVC `FFloatCVar` direct-`std::isfinite` compilation failure fixed by scalar conversion; invalid PF-009 `(ul,ur,vt,vb)` versus relief `(ul,vt,ur,vb)` assertion repaired and independent X/Y flip fixtures added; #137/#138 overlap resolved without deleting either actor probes or relief checks. Earlier canceled superseded CI heads are not presented as passing final-head CI.
+- This result proves bounded shader integration and deterministic software-Vulkan draw/state/image behavior under the available corpus, **not** a representative physical-GPU speedup/cost, broad visual usefulness, or final product quality settings. GPU hardware cannot be replaced by llvmpipe or a theoretical 23-sample ceiling.
+- **The physical-GPU correctness and cost gate remains OPEN.** GitHub automatically closed #8 on PR #138 merge; #8 was explicitly reopened. No POM release/defaults/physical performance acceptance has been granted. SDVK-012 remains dependency-blocked on full accepted #8.
+
+Read the immutable [machine-readable off-GPU receipt](SDVK-008-OFFGPU-RELEASE-ACCEPTANCE.json) and the separate [preregistered physical campaign](prepass/SDVK-008/SDVK-008-PHYSICAL-GPU-PROTOCOL.md).
