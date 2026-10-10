@@ -498,7 +498,7 @@ def sprite_basis_row():
     return row("sprite-basis", {
         "context": context(), "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms",
         "indexed": False, "draw_count": 4, "shader": 6, "material": "SYNTHETIC",
-        "height_texture_index": -1, "tangent": [-1, 0, 0],
+        "height_texture_index": -1, "light_index": -1, "tangent": [-1, 0, 0],
         "normal": [0, 0, 1], "handedness": 1, "explicit": True,
         "surface": {
             "contract": "sdvk-007-final-quad/v1", "orientation_source": "pf-009-calculate-vertices",
@@ -547,6 +547,7 @@ class SpriteTangentValidatorTests(unittest.TestCase):
             (("explicit",), False),
             (("uniform_scope",), "generated-offline"),
             (("draw_count",), 6),
+            (("light_index",), -2),
         ]
         for keys, bad in examples:
             state = self.native()

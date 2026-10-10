@@ -107,6 +107,7 @@ struct FSdvkDiagnosticAccess
                 .Num("handedness", tangent.W).Bool("explicit", normal.W > 0.5f)
                 .Str("material", name).Int("shader", material ? material->GetShaderIndex() : -1)
                 .Int("height_texture_index", state->mSurfaceUniforms.uHeightTextureIndex)
+                .Int("light_index", state->mPushConstants.uLightIndex)
                 .Bool("indexed", indexed).Int("draw_count", count)
                 .Str("uniform_scope", "emitted-vulkan-draw-after-apply-surface-uniforms").Json(), true);
         }

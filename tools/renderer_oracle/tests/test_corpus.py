@@ -339,6 +339,11 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual(scene["native"]["state_assertions"]["materials"],
                          metadata["rotation_material_names"] + ["SDVPA0", "SDVLA0"])
         self.assertEqual(metadata["pbr_sprite_material"], "SDVPA0")
+        self.assertEqual(metadata["direction_light_tid"], 4500)
+        self.assertEqual(metadata["per_pixel_sprite_light_mode"], 2)
+        self.assertEqual(scene["native"]["settings"]["gl_spritelight"], 2)
+        self.assertIs(scene["native"]["settings"]["gl_light_sprites"], True)
+        self.assertEqual(len([thing for thing in records["thing"] if thing["type"] == 9800 and thing["id"] == 4500]), 1)
         self.assertEqual(metadata["legacy_unmapped_sprite"], "SDVLA0")
         for name in ("SDVPA0", "SDVLA0"):
             self.assertIn(f"sprites/{name}.png", members)

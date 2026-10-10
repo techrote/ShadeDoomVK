@@ -187,7 +187,8 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
         if sprite_basis is not None:
             if (not isinstance(sprite_basis, dict) or set(sprite_basis) !=
                     {"minimum_draws", "presentations", "material_examples", "requires_frame_mirror",
-                     "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror"}
+                     "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror",
+                     "light_material_examples"}
                     or type(sprite_basis["minimum_draws"]) is not int or
                     not 1 <= sprite_basis["minimum_draws"] <= 1000 or
                     not isinstance(sprite_basis["presentations"], list) or
@@ -196,6 +197,9 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                     not isinstance(sprite_basis["material_examples"], list) or
                     not sprite_basis["material_examples"] or
                     not set(sprite_basis["material_examples"]) <= set(state_assertions.get("materials", [])) or
+                    not isinstance(sprite_basis["light_material_examples"], list) or
+                    not sprite_basis["light_material_examples"] or
+                    not set(sprite_basis["light_material_examples"]) <= set(sprite_basis["material_examples"]) or
                     any(sprite_basis[k] is not True for k in
                         ("requires_frame_mirror", "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror"))):
                 raise ValueError("Unbounded or ungrounded sprite tangent native assertions")
@@ -539,7 +543,11 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
             model.thing(kind, x, y, height, tid=tid)
         model.thing(32215, 128, 150, 0, tid=4305)
         model.thing(32216, 128, -150, 0, tid=4306)
-        metadata.update(pbr_sprite_material="SDVPA0", legacy_unmapped_sprite="SDVLA0",
+        # One fixed coloured light activates actual normal/specular/PBR response
+        # in software Vulkan. The mode-2 per-pixel path is asserted below.
+        model.thing(9800, 96, 0, 64, tid=4500, arg0=255, arg1=142, arg2=74, arg3=256)
+        metadata.update(direction_light_tid=4500, per_pixel_sprite_light_mode=2,
+                        pbr_sprite_material="SDVPA0", legacy_unmapped_sprite="SDVLA0",
                         rotation_material_names=rotation_names, rotation_actor_tids=list(range(4201, 4209)),
                         paired_frame_mirroring=True, mirror_line_id=2040,
                         actual_mirrored_context_and_materials_required=True)

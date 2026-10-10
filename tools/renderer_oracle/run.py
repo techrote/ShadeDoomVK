@@ -497,6 +497,13 @@ def _scene_assertions(raw, scene):
                         "Not all claimed sprite presentations used an explicit draw basis")
                 require(set(sprite["material_examples"]) <= {row["material"] for row in explicit},
                         "Normal/specular, PBR or legacy sprite control not actually emitted")
+                require(all(frame["settings"].get("effective_sprite_light_mode") == 2
+                            and frame.get("active_lights", 0) >= 1 for frame in frames),
+                        "Sprite directional lighting fixture lacked active per-pixel lights")
+                for name in sprite["light_material_examples"]:
+                    require(any(row["material"] == name and row["explicit"] and
+                                row["light_index"] >= 0 and row["shader"] in (3, 4) for row in explicit),
+                            "Normal/specular or PBR sprite lacked an active drawn light range: " + name)
                 for assertion, key in (("requires_frame_mirror", "frame_mirrored"),
                                        ("requires_uv_mirror_x", "uv_mirror_x"),
                                        ("requires_uv_mirror_y", "uv_mirror_y"),

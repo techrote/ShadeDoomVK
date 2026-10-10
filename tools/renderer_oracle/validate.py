@@ -132,6 +132,7 @@ def _sprite_basis(value):
     integer(value.get("draw_count"), "sprite draw vertex count", minimum=4, maximum=4)
     integer(value.get("shader"), "sprite material shader", minimum=-1)
     integer(value.get("height_texture_index"), "sprite height semantic index", minimum=-1)
+    integer(value.get("light_index"), "emitted sprite shader light range", minimum=-1)
     require(isinstance(value.get("material"), str), "Sprite material identity absent")
     surface = value.get("surface")
     require(isinstance(surface, dict) and surface.get("contract") == "sdvk-007-final-quad/v1" and
