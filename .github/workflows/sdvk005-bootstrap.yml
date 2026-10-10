@@ -28,7 +28,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          cat .sdvk005/part00 .sdvk005/part01 .sdvk005/part02 .sdvk005/part03 | base64 -d | gzip -dc > /tmp/sdvk005.patch
+          cat             .sdvk005/part00             .sdvk005/part01             .sdvk005/part02a1x             .sdvk005/part02a1y1a             .sdvk005/part02a1y1b2             .sdvk005/part02a1y2             .sdvk005/part02a2_0             .sdvk005/part02a2_1b             .sdvk005/part02a2_2             .sdvk005/part02a2_3             .sdvk005/part02b             .sdvk005/part03             | base64 -d | gzip -dc > /tmp/sdvk005.patch
           git apply --check /tmp/sdvk005.patch
           git apply /tmp/sdvk005.patch
           rm -rf .sdvk005
