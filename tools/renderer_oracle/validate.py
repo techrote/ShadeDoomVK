@@ -191,12 +191,16 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                                   "actor_light_duplicates", "actor_light_traces")
             present_light_counters = [key for key in light_counter_keys if key in value]
             if present_light_counters:
-                require(value["state_instrumentation"] and len(present_light_counters) == len(light_counter_keys),
-                        "Many-light frame counters must be complete state-mode evidence")
-                for key in light_counter_keys:
-                    integer(value.get(key), key, minimum=0)
-                require(value["actor_light_candidates"] == value["actor_light_selected"] + value["actor_light_filtered"] + value["actor_light_duplicates"],
-                        "Actor-light aggregate partition disagrees")
+                require(len(present_light_counters) == len(light_counter_keys),
+                        "Many-light frame counters must be emitted as one complete group")
+                if value["state_instrumentation"]:
+                    for key in light_counter_keys:
+                        integer(value.get(key), key, minimum=0)
+                    require(value["actor_light_candidates"] == value["actor_light_selected"] + value["actor_light_filtered"] + value["actor_light_duplicates"],
+                            "Actor-light aggregate partition disagrees")
+                else:
+                    require(all(value.get(key) is None for key in light_counter_keys),
+                            "Timing-mode many-light counters must remain null")
             integer(value.get("gametic"), "actual simulation tic")
             camera = value.get("camera", {})
             _vector(camera.get("position"), 3, "actual camera position")
