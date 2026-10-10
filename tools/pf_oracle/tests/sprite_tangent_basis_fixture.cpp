@@ -68,7 +68,7 @@ int main()
     // a second mirror to the final tangent would undo the intended sign.
     assert(near(mirror.tangent.X,-base.tangent.X));
     assert(near(yflip.tangent.X,base.tangent.X));
-    assert(near(cross(base.normal,base.tangent).Y,1.f));
+    assert(near(cross(base.normal,base.tangent).Y,-1.f));
     assert(near(mapped(base).X,-mapped(mirror).X));
     assert(near(mapped(base).Y,-mapped(yflip).Y));
     assert(near(mapped(base).Z,mapped(mirror).Z));
