@@ -254,3 +254,18 @@ Focused release integration is accepted through PR #116 at master
 `1524686e77f1e89dabfb044bf757a2d19566c31c`, with exact-head and post-merge checks
 in [the release receipt](../PF-110-RELEASE-ACCEPTANCE.json). PF-020 release and SDVK-001 permission follow the separate
 [freeze manifest](../PF-FREEZE-MANIFEST.md); focused repair acceptance is not the freeze.
+
+## SDVK-009 trap — inherited light tiles are not an equivalence-preserving fast path
+
+Do not re-enable the dormant Z-min/max/light-tile consumer merely because PF-019
+preserved its source. `comp_lighttiles.glsl` has `maxLights = 16` and copies full
+records into each tile; dense overlap silently truncates beyond sixteen. The
+LevelMesh producer that feeds the dormant buffer still contains an unresolved
+portal-group zero, and its separate active light-index cache has only four
+portal-group entries per source light before `GetLightIndex` returns index zero.
+
+These are architecture blockers, not proposed new caps. A future forward+ or
+clustered attempt must first establish a portal/consumer-correct eligibility
+representation, preserve ordering/classes/shadow state, and then prove that its
+spatial indirection actually reduces physical GPU work. See the SDVK-009
+non-GPU report and physical qualification protocol.

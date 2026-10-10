@@ -2535,6 +2535,584 @@
     },
     {
       "classes": [
+        "lights_occlusion"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_light_query_correctness_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_lighting_compat_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_shadow_visibility_correctness_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "light-query",
+        "lighting-compat",
+        "shadow-visibility"
+      ],
+      "id": "lights-dense-overlap",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV9OVR",
+          "+exec",
+          "{capture_script}"
+        ],
+        "authored_light_count": 256,
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -384,
+            0,
+            64
+          ],
+          "roll": 0,
+          "yaw": 0
+        },
+        "capture_script": "scenes/lights-dense-overlap/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/lights-dense-overlap/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadow_filter",
+          "gl_light_shadow_max_quality",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_multisample",
+          "gl_shadowmap_quality",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_dynlights",
+          "r_drawplayersprites",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "shadow_candidates": {
+            "maximum": 0,
+            "minimum": 0
+          },
+          "shadow_dropped": {
+            "maximum": 0,
+            "minimum": 0
+          },
+          "shadow_selected": {
+            "maximum": 0,
+            "minimum": 0
+          },
+          "sprites": {
+            "minimum": 2
+          }
+        },
+        "generator": "lighting",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "light_layout": "overlap",
+        "light_profile": "mixed-static",
+        "manual_opt_in": false,
+        "map": "SDV9OVR",
+        "map_guard": {
+          "equals": "SDV9OVR",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "SDVK-009 scaling workload: native authored/candidate/selected/upload counters and image/state equality must be observed.",
+          "gl_light_shadows=0 deliberately isolates many-light collection/upload/shader-loop structure; shadow eligibility remains covered by shadow-boundary and the accepted PF shadow contracts.",
+          "This software-Vulkan workload is correctness and descriptive scaling evidence only, not representative physical-GPU performance evidence."
+        ],
+        "pk3": "scenes/lights-dense-overlap/scene.pk3",
+        "recommended_warmup_frames": 20,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadow_filter": 1,
+          "gl_light_shadow_max_quality": 1,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": false,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_shadowmap_quality": 512,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_dynlights": false,
+          "r_drawplayersprites": false,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/light_query_correctness_fixture.cpp",
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "tools/pf_oracle/tests/shadow_visibility_correctness_fixture.cpp"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "light-query",
+        "resource",
+        "pipeline"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/rag/05-LIGHTING-SHADOW-TRUTH-TABLE.md",
+        "src/common/rendering/hwrenderer/data/hw_shadowselection.h",
+        "src/maploader/udmf.cpp",
+        "src/playsim/a_dynlight.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "tools/pf_oracle/tests/light_query_correctness_fixture.cpp",
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "tools/pf_oracle/tests/shadow_visibility_correctness_fixture.cpp",
+        "tools/pf_oracle/tests/test_light_query_correctness_contract.py",
+        "tools/pf_oracle/tests/test_lighting_compat_contract.py",
+        "tools/pf_oracle/tests/test_shadow_visibility_correctness_contract.py",
+        "wadsrc/static/mapinfo/common.txt",
+        "wadsrc/static/zscript/actors/actor.zs",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "wadsrc/static/zscript/actors/shared/dynlights.zs"
+      ],
+      "title": "SDVK-009 256-light pathological overlap workload"
+    },
+    {
+      "classes": [
+        "lights_occlusion"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_light_query_correctness_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_lighting_compat_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_shadow_visibility_correctness_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "light-query",
+        "lighting-compat",
+        "shadow-visibility"
+      ],
+      "id": "lights-dense-dispersed",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV9DSP",
+          "+exec",
+          "{capture_script}"
+        ],
+        "authored_light_count": 256,
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -384,
+            0,
+            64
+          ],
+          "roll": 0,
+          "yaw": 0
+        },
+        "capture_script": "scenes/lights-dense-dispersed/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/lights-dense-dispersed/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadow_filter",
+          "gl_light_shadow_max_quality",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_multisample",
+          "gl_shadowmap_quality",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_dynlights",
+          "r_drawplayersprites",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "shadow_candidates": {
+            "maximum": 0,
+            "minimum": 0
+          },
+          "shadow_dropped": {
+            "maximum": 0,
+            "minimum": 0
+          },
+          "shadow_selected": {
+            "maximum": 0,
+            "minimum": 0
+          },
+          "sprites": {
+            "minimum": 2
+          }
+        },
+        "generator": "lighting",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "light_layout": "dispersed",
+        "light_profile": "mixed-static",
+        "manual_opt_in": false,
+        "map": "SDV9DSP",
+        "map_guard": {
+          "equals": "SDV9DSP",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "SDVK-009 scaling workload: native authored/candidate/selected/upload counters and image/state equality must be observed.",
+          "gl_light_shadows=0 deliberately isolates many-light collection/upload/shader-loop structure; shadow eligibility remains covered by shadow-boundary and the accepted PF shadow contracts.",
+          "This software-Vulkan workload is correctness and descriptive scaling evidence only, not representative physical-GPU performance evidence."
+        ],
+        "pk3": "scenes/lights-dense-dispersed/scene.pk3",
+        "recommended_warmup_frames": 20,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadow_filter": 1,
+          "gl_light_shadow_max_quality": 1,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": false,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_shadowmap_quality": 512,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_dynlights": false,
+          "r_drawplayersprites": false,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/light_query_correctness_fixture.cpp",
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "tools/pf_oracle/tests/shadow_visibility_correctness_fixture.cpp"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "light-query",
+        "resource",
+        "pipeline"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/rag/05-LIGHTING-SHADOW-TRUTH-TABLE.md",
+        "src/common/rendering/hwrenderer/data/hw_shadowselection.h",
+        "src/maploader/udmf.cpp",
+        "src/playsim/a_dynlight.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "tools/pf_oracle/tests/light_query_correctness_fixture.cpp",
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "tools/pf_oracle/tests/shadow_visibility_correctness_fixture.cpp",
+        "tools/pf_oracle/tests/test_light_query_correctness_contract.py",
+        "tools/pf_oracle/tests/test_lighting_compat_contract.py",
+        "tools/pf_oracle/tests/test_shadow_visibility_correctness_contract.py",
+        "wadsrc/static/mapinfo/common.txt",
+        "wadsrc/static/zscript/actors/actor.zs",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "wadsrc/static/zscript/actors/shared/dynlights.zs"
+      ],
+      "title": "SDVK-009 256-light spatially dispersed workload"
+    },
+    {
+      "classes": [
         "lights_occlusion",
         "shadows"
       ],
@@ -3097,6 +3675,64 @@
           "vk_rayquery": false
         },
         "state_assertions": {
+          "material_custom_layers": {
+            "SM0002": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0010": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0018": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0026": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0034": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0042": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ],
+            "SM0050": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 0
+              }
+            ],
+            "SM0058": [
+              {
+                "binding": 8,
+                "custom_index": 0,
+                "requested_sampling": 1
+              }
+            ]
+          },
           "material_semantics": {
             "SM0000": [
               "albedo"
@@ -3516,65 +4152,7 @@
             "SM0061",
             "SM0062",
             "SM0063"
-          ],
-          "material_custom_layers": {
-            "SM0002": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 0
-              }
-            ],
-            "SM0010": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 1
-              }
-            ],
-            "SM0018": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 0
-              }
-            ],
-            "SM0026": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 1
-              }
-            ],
-            "SM0034": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 0
-              }
-            ],
-            "SM0042": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 1
-              }
-            ],
-            "SM0050": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 0
-              }
-            ],
-            "SM0058": [
-              {
-                "binding": 8,
-                "custom_index": 0,
-                "requested_sampling": 1
-              }
-            ]
-          }
+          ]
         },
         "status": "native_qualification_pending"
       },

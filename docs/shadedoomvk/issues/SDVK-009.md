@@ -37,3 +37,31 @@ Many-light research report, prototypes/results, selected architecture implementa
 
 ## Blocking / stopping conditions
 Do not adopt an architecture that only wins by silently dropping eligible lights or changing quality. If candidates do not beat the PF baseline enough to justify complexity, record that result and retain the simpler system.
+
+## Non-physical qualification candidate — 2026-10-09
+
+Dedicated branch: `sdvk-009-many-light-qualification`. Starting live authority:
+`master@cafbad5c45977327ba507bcf5f2dea9c3661f3d3`.
+
+The complete off-GPU audit is recorded in
+[SDVK-009-NON-GPU-QUALIFICATION.md](../SDVK-009-NON-GPU-QUALIFICATION.md), with
+the later physical protocol in
+[SDVK-009-GPU-QUALIFICATION-PROTOCOL.md](../SDVK-009-GPU-QUALIFICATION-PROTOCOL.md).
+
+Current disposition is **State C / provisional no-change**. The inherited tile
+path is not a qualified candidate: it hard-caps each 64x64 tile at 16 copied
+light records, its dormant LevelMesh producer still has unresolved portal-group
+packing, and the existing LevelMesh light-index lists have lightmapper-specific
+eligibility plus a four-portal-copy cache boundary. PF-017's temporal packed-light
+reuse/indirection remains an accepted physical no-go and is not resurrected.
+
+This phase adds bounded state-only many-light diagnostics, two deterministic
+256-light overlap/dispersed workloads, hosted software-Vulkan qualification for
+them, and a correctness repair for a one-past immediate-light range index. No
+quality cap, shadow policy or lighting semantic is changed. A host-only indexed
+tile model is retained as representation research only; it is not a runtime
+candidate or performance claim.
+
+**#9 remains open.** Final acceptance still requires the finite representative
+physical-GPU campaign defined in the protocol unless later repository authority
+changes that requirement.

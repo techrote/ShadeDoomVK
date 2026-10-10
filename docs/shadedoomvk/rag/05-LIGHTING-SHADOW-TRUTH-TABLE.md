@@ -149,3 +149,18 @@ PR #74 restores the original light path after five integrated-source GTX 1650 SU
 CFX-009 changes lifetime safety for reserved lightmap/probe descriptor targets; it does not change dynamic-light selection, shadow selection, light contribution policy or gameplay-visible lighting semantics. Neutral fallback initialization represents zero baked/sunlight contribution and the existing no-probe sentinel while removed reserved slots are no longer backed by a live atlas page.
 
 Safe controls preserve protected scene/output state, and the accepted repaired routes complete without retaining old atlases. No CFX evidence establishes a separate wrong light/shadow selection mechanism for the historical crashes. PF-020 should therefore verify this lifetime invariant alongside, not instead of, the existing lighting/shadow truth-table tests. See [CFX final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+
+## SDVK-009 scalable-light equivalence boundary
+
+A many-light architecture may change representation or culling mechanics only
+after reproducing current consumer semantics: portal-relative source position,
+wall/flat geometric filtering, actor/model eligibility, PF-015 visibility,
+trace mode, first-encounter/class order, point/spot/additive/subtractive packing
+and shadow eligibility/row state. Screen/depth overlap alone is not equivalent.
+
+The inherited compute tile path fails this gate before performance testing: each
+64x64 `LightTileBlock` contains only sixteen `DynLightInfo` records and the
+compute shader stops at that count. Direct reactivation would silently drop
+eligible dense lights. The dormant LevelMesh packer also uses unresolved
+`portalGroup = 0`. SDVK-009 therefore retains the PF path as the provisional
+control and introduces no arbitrary light cap or quality-tier policy.

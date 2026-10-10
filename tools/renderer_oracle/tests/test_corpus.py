@@ -287,6 +287,27 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual(shadow["native"]["recommended_warmup_frames"], 1)
         self.assertEqual(shadow["native"]["settings"]["gl_shadowmap_quality"], 128)
         self.assertEqual(scene_named("lights-many")["native"]["recommended_warmup_frames"], 120)
+
+    def test_sdvk009_dense_light_workloads_are_matched_mixed_static_controls(self):
+        expected_types = {9800, 9810, 9820, 9840, 9850, 9860}
+        positions = {}
+        for name, layout in (("lights-dense-overlap", "overlap"), ("lights-dense-dispersed", "dispersed")):
+            scene = scene_named(name)
+            members, meta = prepare.authored_members(scene)
+            records = parse_udmf(unpack_wad(members[f'maps/{scene["native"]["map"]}.wad'])["TEXTMAP"])
+            lights = [thing for thing in records["thing"] if thing["type"] in expected_types]
+            self.assertEqual(len(lights), 256)
+            self.assertEqual(len({thing["id"] for thing in lights}), 256)
+            self.assertEqual(len({(thing["x"], thing["y"]) for thing in lights}), 256)
+            self.assertEqual({thing["type"] for thing in lights}, expected_types)
+            self.assertEqual(scene["native"]["light_layout"], layout)
+            self.assertEqual(scene["native"]["light_profile"], "mixed-static")
+            self.assertEqual(scene["native"]["settings"]["gl_light_shadows"], 0)
+            self.assertNotIn("shadow", scene["required_state_channels"])
+            self.assertEqual(meta["authored_light_count"], 256)
+            self.assertEqual(set(meta["light_types"]), expected_types)
+            positions[name] = {(thing["x"], thing["y"]) for thing in lights}
+        self.assertNotEqual(positions["lights-dense-overlap"], positions["lights-dense-dispersed"])
         # Mode 1 can reject authored lights unless their influence hits a
         # one-sided back wall. The boundary recipe must request mode 2 so its
         # >1024 claim is testable, then still demand actual native counts.
@@ -412,8 +433,8 @@ class PreparationTests(unittest.TestCase):
             self.assertFalse(first["native_executed"])
             self.assertFalse(first["native_qualified"])
             self.assertEqual(first["status"], "prepared_only")
-            self.assertEqual(len(first["scenes"]), 11)
-            self.assertEqual(len(first["files"]), 33)
+            self.assertEqual(len(first["scenes"]), 13)
+            self.assertEqual(len(first["files"]), 39)
             for path, expected in first["files"].items():
                 raw = (a / path).read_bytes()
                 self.assertEqual(raw, (b / path).read_bytes())

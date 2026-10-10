@@ -23,6 +23,7 @@
 #include "vk_renderstate.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/vk_levelmesh.h"
+#include "vulkan/vk_lightuploadpolicy.h"
 #include "vulkan/commands/vk_commandbuffer.h"
 #include "vulkan/buffers/vk_buffer.h"
 #include "vulkan/pipelines/vk_renderpass.h"
@@ -659,12 +660,33 @@ int VkRenderState::UploadLights(const FDynLightData& data)
 
 	int indexindex = mRSBuffers->Lightbuffer.UploadIndex;
 	int dataindex = mRSBuffers->Lightbuffer.DataIndex;
+	const bool indexFits = indexindex >= 0 && indexindex < mRSBuffers->Lightbuffer.Count;
+	const bool dataFits = dataindex >= 0 && dataindex <= mRSBuffers->Lightbuffer.Count &&
+		totalsize >= 0 && totalsize <= mRSBuffers->Lightbuffer.Count - dataindex;
+	const bool observe = SdvkDiagnostics::StateEnabled();
+	auto& observation = mRSBuffers->Lightbuffer.Observation;
+	if (observe) observation.Attempts++;
 
-	if((indexindex <= mRSBuffers->Lightbuffer.Count) && (dataindex + totalsize <= mRSBuffers->Lightbuffer.Count))
+	if (VkLightUploadPolicy::Fits(mRSBuffers->Lightbuffer.Count, indexindex, dataindex, totalsize))
 	{
 		mRSBuffers->Lightbuffer.UploadIndex++;
 
 		mRSBuffers->Lightbuffer.DataIndex += totalsize;
+		if (observe)
+		{
+			observation.Successful++;
+			observation.NormalRecords += uint64_t(size0);
+			observation.SubtractiveRecords += uint64_t(size1);
+			observation.AdditiveRecords += uint64_t(size2);
+			observation.UploadedBytes += sizeof(int) * 4 + uint64_t(totalsize) * sizeof(FDynLightInfo);
+			if (uint64_t(totalsize) > observation.PeakRecordsPerUpload) observation.PeakRecordsPerUpload = uint64_t(totalsize);
+			if (totalsize == 0) observation.EmptyUploads++;
+			else if (totalsize <= 4) observation.Uploads1To4++;
+			else if (totalsize <= 16) observation.Uploads5To16++;
+			else if (totalsize <= 64) observation.Uploads17To64++;
+			else if (totalsize <= 256) observation.Uploads65To256++;
+			else observation.Uploads257Plus++;
+		}
 
 		int parmcnt[] = { dataindex, dataindex + size0, dataindex + size0 + size1, dataindex + size0 + size1 + size2 };
 
@@ -672,14 +694,20 @@ int VkRenderState::UploadLights(const FDynLightData& data)
 		memcpy(indexptr, parmcnt, sizeof(int) * 4);
 
 		FDynLightInfo* dataptr = ((FDynLightInfo*)(((int*)mRSBuffers->Lightbuffer.Data) + (mRSBuffers->Lightbuffer.Count * 4))) + dataindex;
-		memcpy(dataptr, &data.arrays[0][0], size0 * sizeof(FDynLightInfo));
-		memcpy(dataptr + size0, &data.arrays[1][0], size1 * sizeof(FDynLightInfo));
-		memcpy(dataptr + (size0 + size1), &data.arrays[2][0], size2 * sizeof(FDynLightInfo));
+		if (size0) memcpy(dataptr, data.arrays[0].Data(), size0 * sizeof(FDynLightInfo));
+		if (size1) memcpy(dataptr + size0, data.arrays[1].Data(), size1 * sizeof(FDynLightInfo));
+		if (size2) memcpy(dataptr + (size0 + size1), data.arrays[2].Data(), size2 * sizeof(FDynLightInfo));
 
 		return indexindex;
 	}
 	else
 	{
+		if (observe)
+		{
+			observation.Failed++;
+			if (!indexFits) observation.IndexCapacityFailures++;
+			if (!dataFits) observation.DataCapacityFailures++;
+		}
 		return -1;	// Buffer is full. Since it is being used live at the point of the upload we cannot do much here but to abort.
 	}
 }
@@ -808,6 +836,7 @@ void VkRenderState::BeginFrame()
 	mRSBuffers->Viewpoint.UploadIndex = 0;
 	mRSBuffers->Lightbuffer.UploadIndex = 0;
 	mRSBuffers->Lightbuffer.DataIndex = 0;
+	mRSBuffers->Lightbuffer.Observation = {};
 	mRSBuffers->Bonebuffer.UploadIndex = 0;
 	mRSBuffers->Fogballbuffer.UploadIndex = 0;
 	mRSBuffers->OcclusionQuery.NextIndex = 0;

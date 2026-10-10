@@ -116,3 +116,21 @@ Frame and context records now include nested `visual_time` state. Context record
 ### Visual-time comparison policy
 
 Raw native records retain exact visual delta, accumulated visual time, generation/main-frame ordinals, validity, clamp and discontinuity diagnostics. The structural validator checks finite/bounded clock fields and enforces PF-010 scope: only a main eye-0 root is a `main-owner`; main portals/stereo siblings are read-only; non-main roots and descendants must expose zero/invalid fallback state. Cross-process **scene-state** comparison deliberately projects visual-time records to stable scope/ownership only. Wall-clock magnitudes, generations and pacing-dependent discontinuities are evidence but not semantic scene equality, just as CPU frame duration is not compared as renderer state. This prevents driver/scheduler pacing from manufacturing false corpus differences without normalizing away context ownership defects.
+
+## SDVK-009 many-light observation
+
+State mode now records a bounded light census (authored/active/spot/additive/
+subtractive), aggregate actor-query work (queries/candidates/selected/filtered/
+duplicates/traces) and immediate Vulkan light-upload work. Upload evidence
+includes range/record capacity and usage, capacity bytes, attempts/failures,
+class record totals, transferred logical bytes, peak list size and six bounded
+list-size buckets. Any observed immediate upload capacity failure fails semantic
+validation rather than disappearing as an accepted unlit fallback.
+
+These counters deliberately reuse the existing SDVK-002 state oracle. The light
+census already traverses the state-mode light map; per-upload bookkeeping is
+also state-only. Timing mode reports the upload channel unavailable and keeps
+existing CPU/GPU timing collection free of that per-draw instrumentation.
+The full hosted software-Vulkan lane adds paired state/image checks for the two
+256-light SDVK-009 scenes plus separate short descriptive dense timing receipts;
+those receipts are not physical-GPU performance evidence.

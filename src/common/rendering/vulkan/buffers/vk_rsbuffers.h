@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <cstdint>
+
 #include "vulkan/buffers/vk_hwbuffer.h"
 #include "vulkan/shaders/vk_shader.h"
 
@@ -42,6 +44,30 @@ public:
 		int Count = MAX_LIGHT_DATA;
 		std::unique_ptr<VulkanBuffer> SSO;
 		void* Data = nullptr;
+
+		// SDVK-009 state-observer counters. They are updated only while the
+		// existing default-off state oracle is active, so timing-mode and
+		// ordinary production rendering do not pay per-upload bookkeeping.
+		struct ObservationStats
+		{
+			uint64_t Attempts = 0;
+			uint64_t Successful = 0;
+			uint64_t Failed = 0;
+			uint64_t IndexCapacityFailures = 0;
+			uint64_t DataCapacityFailures = 0;
+			uint64_t NormalRecords = 0;
+			uint64_t SubtractiveRecords = 0;
+			uint64_t AdditiveRecords = 0;
+			uint64_t UploadedBytes = 0;
+			uint64_t PeakRecordsPerUpload = 0;
+			uint64_t EmptyUploads = 0;
+			uint64_t Uploads1To4 = 0;
+			uint64_t Uploads5To16 = 0;
+			uint64_t Uploads17To64 = 0;
+			uint64_t Uploads65To256 = 0;
+			uint64_t Uploads257Plus = 0;
+		};
+		ObservationStats Observation;
 	} Lightbuffer;
 
 	struct

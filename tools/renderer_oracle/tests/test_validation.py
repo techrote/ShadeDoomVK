@@ -67,6 +67,33 @@ class NativeEnvelopeTests(unittest.TestCase):
         self.assertEqual(result["status"], "PASS")
         self.assertIs(result["native_acceptance_awarded"], False)
 
+    def test_many_light_frame_counters_are_state_only_and_timing_nulls_are_valid(self):
+        keys = ("authored_lights", "active_lights", "spot_lights", "subtractive_lights", "additive_lights",
+                "actor_light_queries", "actor_light_candidates", "actor_light_selected", "actor_light_filtered",
+                "actor_light_duplicates", "actor_light_traces")
+        state = observation()
+        frame = next(row["data"] for row in state["records"] if row["kind"] == "frame")
+        frame.update({key: 0 for key in keys})
+        frame.update(authored_lights=4, active_lights=4, actor_light_candidates=3,
+                     actor_light_selected=2, actor_light_filtered=1)
+        self.assertEqual(validate.observation(state)["status"], "PASS")
+
+        timing = observation()
+        timing["mode"] = "timing"
+        timing["availability"]["state"] = {"available": False, "reason": "timing mode"}
+        frame = next(row["data"] for row in timing["records"] if row["kind"] == "frame")
+        frame["state_instrumentation"] = False
+        frame.update({key: None for key in keys})
+        timing["records"] = [row for row in timing["records"] if row["kind"] == "frame"]
+        recount(timing)
+        self.assertEqual(validate.observation(timing)["status"], "PASS")
+
+        broken = copy.deepcopy(timing)
+        frame = next(row["data"] for row in broken["records"] if row["kind"] == "frame")
+        frame["authored_lights"] = 1
+        with self.assertRaisesRegex(common.EvidenceError, "Timing-mode many-light counters"):
+            validate.observation(broken)
+
     def test_failed_truncated_or_misidentified_collection_rejected(self):
         for key, value in (("status", "FAIL"), ("error", "overflow"), ("dropped_records", 1),
                            ("requested_frames", 2), ("requested_frames", True), ("performance_accepted", True)):

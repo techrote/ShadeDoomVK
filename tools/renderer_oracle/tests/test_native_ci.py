@@ -76,7 +76,7 @@ class Controls(unittest.TestCase):
         return args, calls, result, prep, comparison, summary, preflight_mock
 
     def test_default_and_full_process_counts_exact_policy_and_fresh_outputs(self):
-        for full, count, scenes in ((False, 7, 2), (True, 19, 8)):
+        for full, count, scenes, summaries in ((False, 7, 2, 1), (True, 35, 10, 5)):
             with self.subTest(full=full), tempfile.TemporaryDirectory(prefix='sdvk-native-ci-unit-') as directory:
                 args, calls, result, prep, comparison, summary, _ = self.scenario(Path(directory), full=full)
                 self.assertEqual(result['status'], 'PASS')
@@ -84,12 +84,22 @@ class Controls(unittest.TestCase):
                 self.assertEqual(len({str(call.out) for call in calls}), count)
                 self.assertEqual(comparison.call_count, scenes)
                 self.assertTrue(all(not call.kwargs for call in comparison.call_args_list))
-                self.assertEqual(summary.call_args.kwargs, {'minimum_samples': 120})
-                self.assertEqual(len(summary.call_args.args[0]), 3)
+                self.assertEqual(summary.call_count, summaries)
+                minimums = [call.kwargs['minimum_samples'] for call in summary.call_args_list]
+                self.assertEqual(minimums, [120] if not full else [120, 30, 30, 30, 30])
+                self.assertTrue(all(len(call.args[0]) == 3 for call in summary.call_args_list))
                 for call in calls:
                     self.assertEqual(call.image_policy, 'exact')
-                    self.assertEqual(call.frames, 120 if call.mode == 'timing' else 1)
+                    if call.mode == 'state':
+                        self.assertEqual(call.frames, 1)
+                    elif call.scene in native_ci.SDVK009_SCALE_TIMING_SCENES:
+                        self.assertEqual(call.frames, 30)
+                        self.assertEqual(call.warmup, 20)
+                    else:
+                        self.assertEqual(call.frames, 120)
                     self.assertEqual(call.gpu, call.mode == 'timing')
+                self.assertEqual(result['sdvk009_scale_timing_scenes'],
+                                 list(native_ci.SDVK009_SCALE_TIMING_SCENES) if full else [])
                 before = (args.out/'native-ci.json').read_bytes()
                 with self.assertRaises(FileExistsError):
                     native_ci.qualify(args)

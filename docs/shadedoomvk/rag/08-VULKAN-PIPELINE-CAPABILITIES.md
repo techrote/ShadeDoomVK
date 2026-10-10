@@ -172,3 +172,17 @@ paths while live identities remain valid. Capacity failure is never permission
 to inflate limits or flush descriptor consumers.
 
 Actual software-Vulkan device limits/counters were supplied by the SDVK-002 observer on both final PR-head and merged-master qualification runs. The retained PR-head material-stress capture reported requested/effective 16,536 descriptors, derived device limit 999,985 from per-stage update-after-bind resources, and 438 current/high-water dynamic descriptors with zero allocation failures or invalid frees. Physical-GPU qualification is not implied.
+
+## SDVK-009 dormant tile and immediate-upload qualification
+
+PF-019's default-disabled `VkLightTilePolicy` remains correct. The preserved
+Z-min/max/tile shaders, descriptors and pipelines are implementation fragments,
+not a ready scalable-light architecture: the tile ABI copies at most sixteen
+80-byte records per 64x64 tile and its main-scene consumer is disabled.
+Reactivation requires a new semantic-list design and its own correctness packet.
+
+The active immediate-light buffers retain 80,000 range entries and 80,000
+`FDynLightInfo` records. SDVK-009 repairs the range boundary so only indices
+`0..79999` are accepted and exposes state-only range/record capacity, usage,
+bytes, failures, class totals, peak and a bounded per-upload-size histogram.
+Timing mode does not update those per-upload counters.

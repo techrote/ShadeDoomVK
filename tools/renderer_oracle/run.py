@@ -151,6 +151,43 @@ def _console_path(path):
     return value
 
 
+def validated_extent(profile, native, argv):
+    extent = profile.get("extent")
+    reference = profile.get("reference_extent", extent)
+    require(reference == native["extent"], "Preregistered reference extent differs from the retained recipe")
+    require(isinstance(extent, list) and len(extent) == 2 and all(type(value) is int and value > 0 for value in extent),
+            "Preregistered capture extent is malformed")
+    require(extent[0] <= 1920 and extent[1] <= 1080, "Preregistered capture extent exceeds bounded evidence dimensions")
+    require(extent == reference or "reference_extent" in profile,
+            "Legacy capture receipt cannot silently override its retained recipe extent")
+    for flag, value in (("-width", extent[0]), ("-height", extent[1])):
+        require(argv.count(flag) == 1 and argv.index(flag) + 1 < len(argv), "Native request has no unique " + flag)
+        require(argv[argv.index(flag) + 1] == str(value), "Native request extent disagrees with preregistration")
+    return extent
+
+
+def capture_extent(args, native, mode):
+    reference = list(native["extent"])
+    requested = getattr(args, "extent", None)
+    if not requested:
+        return reference
+    match = re.fullmatch(r"([1-9][0-9]{0,4})x([1-9][0-9]{0,4})", requested)
+    require(match is not None, "Extent override must be WIDTHxHEIGHT")
+    extent = [int(match.group(1)), int(match.group(2))]
+    require(extent[0] <= 1920 and extent[1] <= 1080, "Extent override exceeds bounded evidence dimensions")
+    return extent
+
+
+def apply_extent(argv, extent):
+    result = list(argv)
+    for flag, value in (("-width", extent[0]), ("-height", extent[1])):
+        require(result.count(flag) == 1, "Prepared native argv has no unique " + flag)
+        index = result.index(flag)
+        require(index + 1 < len(result), "Prepared native extent flag has no value")
+        result[index + 1] = str(value)
+    return result
+
+
 def capture(args):
     prepared_dir, prepared, scene = prepared_scene(args.prepared, args.scene)
     native = scene["native"]
@@ -158,6 +195,7 @@ def capture(args):
     require(not native.get("manual_opt_in") or args.include_stress,
             "This bounded stress/probe recipe requires the explicit --include-stress selection")
     mode = args.mode
+    extent = capture_extent(args, native, mode)
     frames = args.frames if args.frames is not None else (1 if mode == "state" else 120)
     warmup = args.warmup if args.warmup is not None else native.get("recommended_warmup_frames", 120)
     integer(frames, "requested frames", minimum=1, maximum=4096)
@@ -213,7 +251,7 @@ def capture(args):
                    "iwad_sha256": iwad_pin["sha256"], "scene_sha256": pin(out / "input" / "scene.pk3")["sha256"],
                    "config_sha256": pin(out / "input" / "fixture.ini")["sha256"],
                    "script_sha256": pin(out / "capture.cfg")["sha256"],
-                   "seed": native["seed"], "extent": native["extent"], "camera": native["camera"],
+                   "seed": native["seed"], "extent": extent, "reference_extent": native["extent"], "camera": native["camera"],
                    "settings": native["settings"], "clock": native["clock"][mode],
                    "warmup_frames": warmup, "frames": frames,
                    "application_cache": "fresh-empty-directory-per-process",
@@ -224,7 +262,7 @@ def capture(args):
         substitutions = {"exe": str(exe), "iwad": str(out / "input" / iwad.name),
                          "pk3": str(out / "input" / "scene.pk3"), "config": str(out / "fixture.ini"),
                          "capture_script": str(out / "capture.cfg")}
-        argv = [part.format(**substitutions) for part in native["argv"]]
+        argv = apply_extent([part.format(**substitutions) for part in native["argv"]], extent)
         argv += ["-savedir", str(out / "save"), "-sdvkobserve", prefix,
                  "-sdvkobserveframes", str(frames), "-sdvkobservewarmup", str(warmup),
                  "-sdvkobservemode", mode, "-sdvkobservecache", _console_path(out / "cache"), "-sdvkobservequit"]
@@ -256,7 +294,7 @@ def capture(args):
         raw = read_json(out / "native.renderer.json")
         required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if mode == "state" else []
         structural = validate.observation(raw, required_kinds=required, expected_map=native["map"],
-                                          expected_frames=frames, expected_extent=native["extent"])
+                                          expected_frames=frames, expected_extent=extent)
         require(raw["build"]["commit"] == commit[0] and raw["build"]["working_tree"] == working[0],
                 "Runtime and startup build identities disagree")
         require(raw["build"]["backend"] == "vulkan", "Requested Vulkan backend did not initialize")
@@ -265,7 +303,7 @@ def capture(args):
         _scene_assertions(raw, scene)
         if mode == "state":
             extent, pixels = images.decode(out / "native.png")
-            require(list(extent) == native["extent"] and raw["screenshot"]["available"] is True,
+            require(list(extent) == profile["extent"] and raw["screenshot"]["available"] is True,
                     "Screenshot or actual client extent is missing")
         result.update(status="COLLECTED", error="", reproduction=profile, build=raw["build"],
                       executable=executable, loaded_packages=packages, validation=structural,
@@ -448,8 +486,9 @@ def _validate_run(path):
     profile = data["reproduction"]
     require(profile["recipe_sha256"] == sha256(canonical(scene)), "Recipe identity differs from preregistration")
     require(data["scene"] == profile["scene"] == scene["id"], "Scene identities disagree")
-    for key in ("seed", "extent", "camera", "settings"):
+    for key in ("seed", "camera", "settings"):
         require(profile[key] == scene["native"][key], "Preregistered recipe value differs: " + key)
+    extent = validated_extent(profile, scene["native"], request["argv"])
     require(profile["clock"] == scene["native"]["clock"][data["mode"]], "Clock policy differs from the fixture")
     images.validate_policy(profile["image_policy"])
     require(profile["image_policy"] in (image_policy(scene, "exact"), image_policy(scene, "tolerant")),
@@ -487,13 +526,13 @@ def _validate_run(path):
             "Retained loaded-package inventory differs from actual startup output")
     required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if raw["mode"] == "state" else []
     structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
-                                      expected_frames=request["reproduction"]["frames"], expected_extent=scene["native"]["extent"])
+                                      expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
     if data["mode"] == "state":
         require("native.png" in artifacts, "State capture has no image")
         require(raw["screenshot"]["available"] is True, "Native state capture did not produce its image")
-        extent, _ = images.decode(root / "native.png")
-        require(list(extent) == scene["native"]["extent"], "Image extent differs from the scene")
+        image_extent, _ = images.decode(root / "native.png")
+        require(list(image_extent) == extent, "Image extent differs from the preregistered capture")
     return root, data, raw, structural
 
 
@@ -627,6 +666,7 @@ def main(argv=None):
     capture_parser.add_argument("--gpu", action="store_true", help="request numeric named GPU timestamp groups")
     capture_parser.add_argument("--include-stress", action="store_true")
     capture_parser.add_argument("--image-policy", choices=("exact", "tolerant"), default="exact")
+    capture_parser.add_argument("--extent", help="bounded WIDTHxHEIGHT capture override; recorded in the reproduction profile")
     valid = sub.add_parser("validate")
     valid.add_argument("run", type=Path)
     compare_parser = sub.add_parser("compare")

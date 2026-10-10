@@ -25,7 +25,9 @@ except ImportError:
     from common import pin, read_json, require, write_json
 
 SCENES = ("compositing", "lights-zero", "lights-one", "lights-many",
+          "lights-dense-overlap", "lights-dense-dispersed",
           "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror")
+SDVK009_SCALE_TIMING_SCENES = ("lights-zero", "lights-many", "lights-dense-overlap", "lights-dense-dispersed")
 FEATURES = ("shaderSampledImageArrayNonUniformIndexing",
             "descriptorBindingSampledImageUpdateAfterBind", "descriptorBindingPartiallyBound",
             "descriptorBindingVariableDescriptorCount", "runtimeDescriptorArray")
@@ -140,13 +142,26 @@ def attempt(out, name, operation, accepted=("PASS",)):
     return {"name": name, "status": result["status"], "receipt": pin(receipt, relative_to=out)}
 
 
-def baseline(out, paths):
-    summary = run.summarize_runs(paths, minimum_samples=120)
-    write_json(out / "baseline.json", summary)
+def timing_summary(out, paths, *, filename, minimum_samples, requirement):
+    summary = run.summarize_runs(paths, minimum_samples=minimum_samples)
+    write_json(out / filename, summary)
     gpu = [bool(item["summary"]["gpu_groups"]) for item in summary["runs"]]
     return {"status": "PASS" if all(gpu) and summary["repeatability_evidence"] else "FAIL",
-            "baseline": pin(out / "baseline.json", relative_to=out), "numeric_gpu_groups_per_process": gpu,
-            "requirement": "Three independent 120-frame CPU distributions with actual resolved GPU groups"}
+            "summary": pin(out / filename, relative_to=out), "numeric_gpu_groups_per_process": gpu,
+            "requirement": requirement}
+
+
+def baseline(out, paths):
+    result = timing_summary(out, paths, filename="baseline.json", minimum_samples=120,
+                            requirement="Three independent 120-frame CPU distributions with actual resolved GPU groups")
+    result["baseline"] = result.pop("summary")
+    return result
+
+
+def scale_baseline(out, scene, paths):
+    return timing_summary(out, paths, filename=scene + "-timing.json", minimum_samples=30,
+                          requirement=("Three independent 30-frame software-Vulkan descriptive distributions for "
+                                       + scene + "; not physical-GPU performance acceptance"))
 
 
 def qualify(args):
@@ -156,7 +171,10 @@ def qualify(args):
     steps = []
     result = {"schema": "sdvk-renderer-native-ci/v1", "status": "FAIL", "started_utc": run.utc(),
               "scenes": scenes, "state_processes_per_scene": 2, "timing_scene": "lights-one",
-              "timing_processes": 3, "timing_frames_per_process": 120, "automatic_retries": 0,
+              "timing_processes": 3, "timing_frames_per_process": 120,
+              "sdvk009_scale_timing_scenes": [scene for scene in SDVK009_SCALE_TIMING_SCENES if scene in scenes],
+              "sdvk009_scale_timing_processes_per_scene": 3, "sdvk009_scale_timing_frames_per_process": 30,
+              "automatic_retries": 0,
               "image_policy": "exact-rgb8", "steps": steps, "physical_gpu_qualified": False,
               "performance_accepted": False, "scope": "Same-build software Vulkan state/images and descriptive timing only"}
     try:
@@ -166,10 +184,12 @@ def qualify(args):
             selected = list(dict.fromkeys(scenes + ["lights-one"]))
             steps.append(attempt(out, "prepare", lambda: prepare.prepare(prepared, selected), ("prepared_only",)))
             if steps[-1]["status"] == "PASS":
-                def capture(scene, mode, destination):
+                def capture(scene, mode, destination, *, frames=None, warmup=None):
+                    if frames is None:
+                        frames = 1 if mode == "state" else 120
                     return run.capture(argparse.Namespace(exe=args.exe, iwad=args.iwad, prepared=prepared,
-                        out=destination, scene=scene, mode=mode, frames=1 if mode == "state" else 120,
-                        warmup=None, timeout=600, gpu=mode == "timing", include_stress=True, image_policy="exact"))
+                        out=destination, scene=scene, mode=mode, frames=frames, warmup=warmup,
+                        timeout=600, gpu=mode == "timing", include_stress=True, image_policy="exact"))
                 for scene in scenes:
                     paths = [out / "state" / scene / str(i) for i in (1, 2)]
                     for i, path in enumerate(paths, 1):
@@ -181,6 +201,16 @@ def qualify(args):
                     steps.append(attempt(out, "lights-one-timing-" + str(i),
                                          lambda p=path: capture("lights-one", "timing", p), ("COLLECTED",)))
                 steps.append(attempt(out, "baseline", lambda: baseline(out, paths)))
+                for scene in SDVK009_SCALE_TIMING_SCENES:
+                    if scene not in scenes:
+                        continue
+                    scale_paths = [out / "timing" / (scene + "-" + str(i)) for i in (1, 2, 3)]
+                    for i, path in enumerate(scale_paths, 1):
+                        steps.append(attempt(out, scene + "-timing-" + str(i),
+                                             lambda p=path, s=scene: capture(s, "timing", p, frames=30, warmup=20),
+                                             ("COLLECTED",)))
+                    steps.append(attempt(out, scene + "-timing-summary",
+                                         lambda p=scale_paths, s=scene: scale_baseline(out, s, p)))
         result["status"] = "PASS" if steps and all(step["status"] == "PASS" for step in steps) else "FAIL"
     finally:
         result["finished_utc"] = run.utc()
@@ -195,7 +225,7 @@ def main(argv=None):
     parser.add_argument("--iwad-license", type=Path, help="Copyright/license to retain; defaults to matching installed Freedoom copyright")
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--scene", action="append", choices=SCENES, help="Repeat for authored scenes; default: compositing and lights-one")
-    selection.add_argument("--full", action="store_true", help="All eight newly authored scenes; excludes retained PF recipes")
+    selection.add_argument("--full", action="store_true", help="All ten authored scenes, including SDVK-009 dense-light stress; excludes retained PF recipes")
     args = parser.parse_args(argv)
     try:
         result = qualify(args)

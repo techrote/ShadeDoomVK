@@ -170,3 +170,12 @@ Donor `UZDoom/UZDoom@809e46c25fe2a2f89430de3fbac89626100df384` (2026-10-04), `wa
 ## SDVK-003 final pinned differential disposition (2026-10-08)
 
 Exact complete-tree comparison pins VKDoom `09634479ab5bf9adf691074fffe85a006a398cd0`, UZDoom `809e46c25fe2a2f89430de3fbac89626100df384`, GZDoom `c26ce2e6ca2a0c770f140cb25dde0d30073ca8f7` and ShadeDoomVK `1ecc3cf73aa2266a1e741f09078b7d089ba8bf89`; all recursive tree responses were untruncated. UZDoom differs from the founding VKDoom tree by 8260 added, 3193 deleted and 1530 modified blobs; GZDoom by 1331/197/697. 86 ShadeDoomVK-owned paths overlap UZDoom and 79 overlap GZDoom, including renderer/shader contracts. No upstream renderer change is accepted as superseding a PF/CFX repair. The only material donor code in #3 remains the two-guard Crusader adaptation already recorded above. UZDoom's root license names branding/wadsrc_bm/wadsrc_extra/wadsrc_widepix exceptions; the adapted `wadsrc/static/zscript/actors/strife/crusader.zs` path is outside those named exceptions. No binary/asset/dependency transplant occurs. See `SDVK-003-UPSTREAM-DIFFERENTIAL.md` and its JSON receipt.
+
+## SDVK-009 many-light qualification — no donor import
+
+The 2026-10-09 non-physical SDVK-009 phase does not import code, shaders, assets,
+dependencies or algorithms from an external donor. It audits the recipient's
+inherited dormant Z-min/max/light-tile implementation and accepted PF/SDVK
+history. A small host-only ordered-index model is repository-authored evidence
+for representation/storage reasoning only. No provenance/license delta is
+introduced by this phase.
