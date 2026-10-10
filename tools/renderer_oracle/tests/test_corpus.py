@@ -336,7 +336,21 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertNotEqual(pixels[:4], pixels[60*4:61*4])
             self.assertIn(f"material sprite {name}".encode(), members["GLDEFS"])
         self.assertIs(scene["native"]["state_assertions"]["line_mirror"], True)
-        self.assertEqual(scene["native"]["state_assertions"]["materials"], metadata["rotation_material_names"])
+        self.assertEqual(scene["native"]["state_assertions"]["materials"],
+                         metadata["rotation_material_names"] + ["SDVPA0", "SDVLA0"])
+        self.assertEqual(metadata["pbr_sprite_material"], "SDVPA0")
+        self.assertEqual(metadata["legacy_unmapped_sprite"], "SDVLA0")
+        for name in ("SDVPA0", "SDVLA0"):
+            self.assertIn(f"sprites/{name}.png", members)
+        self.assertIn(b"material sprite SDVPA0", members["GLDEFS"])
+        self.assertNotIn(b"material sprite SDVLA0", members["GLDEFS"])
+        self.assertEqual(sorted(thing["type"] for thing in records["thing"] if thing["type"] in (32215, 32216)), [32215, 32216])
+        normal, pixels = unpack_png(members["textures/SDVN.png"])
+        self.assertEqual((normal["width"], normal["height"]), (16, 16))
+        self.assertNotEqual(pixels[:4], pixels[9*4:10*4])
+        self.assertNotEqual(pixels[0], 128)
+        self.assertNotEqual(pixels[1], 128)
+        self.assertIn("sprite-basis", scene["required_state_channels"])
         self.assertIn(b'height "SDVH" { filter linear }', members["GLDEFS"])
         self.assertEqual(scene["native"]["state_assertions"]["material_height_layers"]["SDVRA1"],
                          {"binding": 6, "requested_sampling": 1})
