@@ -1,0 +1,143 @@
+{
+  "schema": "sdvk007-release-acceptance/v1",
+  "dateUtc": "2026-10-10",
+  "status": "PENDING_POST_MERGE_CI",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/7",
+  "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/135",
+  "startingMaster": "cbff1d10b802e60a56d239338f810f7e1e52920d",
+  "finalHead": "a895dca0a5f356440f79f0631289d2862afe86f3",
+  "testedMergeRef": "880e0f0bc2d92656e3c2c562267c750aa5b79e6a",
+  "testedTree": "8afa7ce6267abdfe8740cc7de4a72e0e9d510661",
+  "mergeCommit": "08ec183e665e7a3100b6cf3a267f5d3b5b494990",
+  "mergeTree": "8afa7ce6267abdfe8740cc7de4a72e0e9d510661",
+  "treeEquality": true,
+  "basisConvention": {
+    "version": "sdvk-007-final-quad/v1",
+    "source": "PF-009 HWSprite::CalculateVertices final submitted vertex positions and signed UV endpoints",
+    "coordinateSpace": "shader world XYZ",
+    "localAxes": "right = normalize(P1-P0); up = -orthonormalize(P2-P0,right); forward = cross(right,up)",
+    "tangent": "sign(ur-ul)*right",
+    "bitangent": "-sign(vb-vt)*up",
+    "handedness": "-sign(ur-ul)*sign(vb-vt)",
+    "fragmentBitangent": "handedness*cross(normal,tangent)",
+    "mirrorComposition": "frame and actor flips represented once by signed UV; PF-010 line/plane mirror XOR retained as separate view parity, never a second world normal inversion",
+    "fallback": "legacy derivative on nonfinite/degenerate/nonplanar sprite quads and unchanged world/model/non-sprite paths",
+    "std140Abi": "two vec4 uniforms appended after accepted SDVK-005 height fields; existing descriptor/material/custom bindings unchanged"
+  },
+  "fixtureCoverage": {
+    "nativeScenes": 10,
+    "staticStateCapturesPerScene": 2,
+    "nativeSpritePresentations": [
+      "FaceYAxis",
+      "Wall",
+      "Flat"
+    ],
+    "nativeFrameMirrors": 6,
+    "nativeEffectiveUvFlipXDraws": 8,
+    "nativeEffectiveUvFlipYDraws": 2,
+    "nativePortalMirrorDraws": 15,
+    "nativeOrdinaryContextDraws": 15,
+    "nativeExplicitBasisDrawsPerCapture": 30,
+    "nativeLitSpecularSpriteDraws": 7,
+    "nativeLitPbrSpriteDraws": 2,
+    "nativeLegacyUnmappedControlDraws": 2,
+    "nativeActiveLights": 1,
+    "nativeSpriteLightMode": 2,
+    "independentRgbImageComparison": "PASS_EXACT_RGB8_ZERO_CHANGED_PIXELS",
+    "yawRotations": "EIGHT_DIRECTIONS_NATIVE_AND_CPU",
+    "pitchRoll": "FOCUSED_CPU_FINAL_QUAD_TRANSFORM; NO SEPARATE_NATIVE_PITCH_ROLL_SCENE",
+    "planeMirrorAndNestedContexts": "INHERITED_PF010_CPU_FIXTURE; NATIVE_LINE_MIRROR",
+    "materialHeight": "SPRITE_LEGACY_BINDING_6_HEIGHT_UNUSED_FOR_RELIEF",
+    "customMaterials": "INHERITED_SDVK005_AND_NATIVE_MATERIAL_STRESS",
+    "nonSprite": "UNCHANGED_VERTEX_TANGENT_PATHS_AND_FULL_CORPUS_COMPATIBILITY"
+  },
+  "nativeMatrix": "docs/shadedoomvk/SDVK-007-NATIVE-STATE.json",
+  "legacyEquivalence": {
+    "noNormalMapShaderBranchUnchanged": true,
+    "legacyUnmappedNativeControl": true,
+    "historicalMasterCrossTreePixelDiff": "NOT_RUN_NOT_CLAIMED",
+    "nonSpriteDerivativeFallbackPreserved": true,
+    "gameplayStateChanged": false
+  },
+  "finalHeadEvidence": {
+    "sourceEvidence": {
+      "runId": 38049863197,
+      "status": "PASS",
+      "artifactId": 11668818325,
+      "artifactBytes": 148534137,
+      "artifactZipSha256": "1ee60659340a0cbf314f3e98df7cf40866e1f2aece0cbce3345609fb832e7d6f",
+      "sourceBundleSha256": "672c74c732d744ff590fc7088da0f52a20099069dcb1890a8ca793042bd45aa8"
+    },
+    "continuousIntegration": {
+      "runId": 38049863166,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "id": 11668953116,
+      "bytes": 74433,
+      "zipSha256": "a2dc5926a03f46bcf3ee9a07a2404b424529f83b5480486fc87a2b6c70afe7eb"
+    },
+    "softwareVulkan": {
+      "id": 11668954978,
+      "bytes": 406685258,
+      "zipSha256": "8529d0e157a91ad59430081e57b2c2bd2d6fa24eb58ffc23a443c408104aef95",
+      "stateSceneComparison": "ALL_TEN_SCENES_PASS_TWO_CAPTURES_AND_COMPARISON",
+      "timeQualification": "PASS",
+      "physicalGpuQualified": false
+    }
+  },
+  "postMergeEvidence": {
+    "sourceEvidence": {
+      "runId": 38051697523,
+      "status": "PASS",
+      "artifactId": 11669274109,
+      "artifactBytes": 148521374,
+      "artifactZipSha256": "732a473d93bbc14487e22b4bcb3006376473a4225997cc257120864132e75eec",
+      "sourceBundleSha256": "c8e065afa8e6c6b0227387ea942b6e4232b1a7ad057af6a6d4c6fdcdc71773ae"
+    },
+    "continuousIntegration": {
+      "runId": 38051697394,
+      "status": "IN_PROGRESS",
+      "jobsPassed": null
+    },
+    "cpuArtifact": null,
+    "softwareVulkan": null
+  },
+  "retainedFailures": [
+    {
+      "runId": 38047322260,
+      "disposition": "new validator rejected legitimate signed -1 UV/tangent parity via nonnegative numeric helper; repaired without weakening signed/orthogonal negative controls"
+    },
+    {
+      "runId": 38047456941,
+      "disposition": "first validator wrongly accepted an orthogonal but differently oriented normal; repaired by exact PF-009 source-axes versus emitted-draw uniform comparison"
+    },
+    {
+      "runId": 38047737451,
+      "artifactId": 11668782676,
+      "artifactZipSha256": "843046c4a824f981399f2e07766d2002f2934c9dad28f685a24d1ba114121674",
+      "disposition": "8/9 PASS; native sprite-mirror PBR expected 'ao' but actual correct semantic was 'ambient-occlusion'; repaired fixture expectation, renderer unchanged"
+    },
+    {
+      "disposition": "Intermediate concurrent PR CI runs superseded by newer heads are cancelled and never counted as qualification evidence."
+    }
+  ],
+  "scopeBoundary": {
+    "sdvk008Pom": false,
+    "sdvk009ManyLightChanged": false,
+    "sdvk010ActorIblChanged": false,
+    "sdvk012ShadowsChanged": false,
+    "sdvk016QualityPolicyChanged": false,
+    "globalModelWorldTangentsChanged": false,
+    "physicalGpuRequired": false,
+    "physicalGpuQualified": false,
+    "performanceQualified": false,
+    "donorImport": false
+  },
+  "downstreamGateDisposition": {
+    "SDVK007": "PENDING_ACCEPTANCE_RECONCILIATION",
+    "SDVK008": "BLOCKED_UNTIL_SDVK007_FINAL_ACCEPTANCE",
+    "SDVK010": "BLOCKED_UNTIL_SDVK007_FINAL_ACCEPTANCE"
+  }
+}
