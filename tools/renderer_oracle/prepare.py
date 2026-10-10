@@ -31,7 +31,7 @@ GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
-CHANNELS = {"context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "sprite-basis"}
+CHANNELS = {"context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief"}
 
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle import prepare_freeze_view_fixture as pf_view

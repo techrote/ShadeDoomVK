@@ -291,7 +291,8 @@
             "resource",
             "pipeline",
             "timing",
-            "sprite-basis"
+            "sprite-basis",
+            "sprite-relief"
           ]
         },
         "frame": {
