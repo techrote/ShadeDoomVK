@@ -103,3 +103,10 @@ CPU/source contracts retain PF-008 enum identities, historical 5/7/9 custom bind
 Software Vulkan is sufficient for SDVK-005 because this issue owns semantic/resource correctness rather than a hardware-performance result. A physical GPU is required only if qualification exposes a concrete hardware/driver-specific defect that cannot be resolved from CPU contracts and software Vulkan.
 
 Final acceptance must publish `SDVK-005-FINAL-ACCEPTANCE.md` and `SDVK-005-RELEASE-ACCEPTANCE.json`, pin exact PR/master trees and artifacts, retain adverse attempts, and mark SDVK-007 dependency-ready only after merged-master verification.
+
+
+## Verified final disposition
+
+The implementation described above is accepted through substantive PR #132. Exact-head source evidence and CI passed; the resulting master `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1` has the identical tested tree and passed exact post-merge source evidence plus **9/9** CI including software Vulkan. See [SDVK-005-FINAL-ACCEPTANCE.md](SDVK-005-FINAL-ACCEPTANCE.md) and [SDVK-005-RELEASE-ACCEPTANCE.json](SDVK-005-RELEASE-ACCEPTANCE.json) for the pinned evidence, retained failures and limitations.
+
+No POM/displacement/TBN behavior is accepted by this issue. No physical-GPU gate remains for the height semantic itself.
