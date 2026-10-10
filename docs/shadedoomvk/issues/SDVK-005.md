@@ -44,3 +44,12 @@ If height cannot be added without breaking existing layer bindings/custom shader
 Dedicated branch `sdvk-005-height-semantic` starts from `master@0a2fbad203549d18ac6e5a61bb4747709637bfde`. The design is recorded in [SDVK-005-MATERIAL-HEIGHT.md](../SDVK-005-MATERIAL-HEIGHT.md). Height is appended after all historical fixed/material/global custom bindings and exposed through a dynamic semantic index; existing 5/7/9 custom bindings do not move. The stock material path does not sample height. Existing semantic channels retain their defaults while the author may opt into per-layer nearest/linear sampling. Indexed/palette routes omit height to preserve palette semantics.
 
 Acceptance remains pending exact-head CPU/software-Vulkan/hosted CI, merge and exact resulting-master verification. No physical-GPU gate is implied absent a reproduced hardware-specific defect.
+
+
+## Final acceptance — 2026-10-10
+
+**ACCEPTED, MERGED AND VERIFIED.** Substantive PR #132 final head `9a87734357d15145ed791d89c4b98db94fb60cb6` qualified on tested merge ref `116a45bf47dc4595ead106ce99588723750d4d5d`; source evidence and Continuous Integration passed, including the complete software-Vulkan state/image corpus. It squash-merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`. The merged tree `28f2ef41a99ea6979145030e807c7798c6e01735` exactly equals the qualified PR tree, and exact merged-master source evidence run `38032400496` plus CI run `38032400505` passed **9/9**.
+
+Height is a compatibility-preserving optional semantic: existing fixed/custom bindings do not move, height appends last, indexed/palette routes omit it, the stock material path remains height-neutral, and custom/later shaders may explicitly consume it. Native material-stress and sprite-mirror state evidence verifies actual height descriptor bindings and independent sampler policy on drawn materials. PF-002/PF-003/SDVK-004 descriptor identity/lifetime ownership remains unchanged.
+
+Final human-readable and machine-readable evidence is in [SDVK-005-FINAL-ACCEPTANCE.md](../SDVK-005-FINAL-ACCEPTANCE.md) and [SDVK-005-RELEASE-ACCEPTANCE.json](../SDVK-005-RELEASE-ACCEPTANCE.json). No physical-GPU gate remains for SDVK-005. Once this acceptance reconciliation itself is merged and verified, #5 closes and **SDVK-007 is dependency-ready**.
