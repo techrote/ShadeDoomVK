@@ -837,3 +837,15 @@ SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f785
 - Built-in semantic layers gain opt-in nearest/linear/default filter authoring while existing defaults remain unchanged; height defaults to filtered mipmapped linear scalar data. Stock material shading does not consume it.
 - The SDVK-002 material observer records height binding/sampler/resource state and requires the shader-visible height index to agree. Existing material-stress and sprite-mirror authored native workloads are extended for height-present/absent, mixed-filter, custom-shader and sprite evidence.
 - Focused SDVK-005, PF-008, GLDEFS, indexed-material and renderer-oracle contracts are being qualified. This is implementation progress only; exact-head hosted checks, software Vulkan, merge and post-merge verification remain acceptance gates.
+
+
+### 10 October 2026 — SDVK-005 accepted, merged and verified
+
+- Substantive PR #132 final head `9a87734357d15145ed791d89c4b98db94fb60cb6` passed Renderer source evidence run `38030309310` and Continuous Integration run `38030309307` (**9/9 PASS**), including the complete software-Vulkan corpus.
+- PR #132 squash-merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`. Its tree `28f2ef41a99ea6979145030e807c7798c6e01735` exactly equals the tested PR tree.
+- Exact merged-master Renderer source evidence run `38032400496` passed. Exact merged-master CI run `38032400505` passed **9/9**, including software Vulkan. Native artifact `11662978604` is retained with ZIP SHA-256 `63cbaa7e16ab9ec9a983709c796310f8bda2e925b385ab48498bf825e4e2e6a7`.
+- Accepted semantics: optional linear scalar height data; height appended after historical fixed/custom bindings; actual relative height descriptor index exposed separately; indexed/palette routes omit height; existing semantic defaults remain unchanged; height defaults to linear+miplinear sampling; stock material shading does not consume height.
+- Native material-stress proves legacy/PBR/custom height bindings, preserved custom binding 8 for custom PBR, height binding 9 after it, and nearest albedo coexisting with independently filtered normal/PBR/height data. Sprite-mirror proves a height-authored sprite route.
+- Descriptor/lifetime ownership remains PF-002/PF-003 plus accepted SDVK-004 pressure/rebuild semantics; no new identity domain or emergency flush is introduced.
+- Retained adverse evidence includes bot-authored publication `action_required` zero-job runs and the bounded SWCanvas extraction-harness failure on CI run `38029659189`; the latter was repaired without changing production material code.
+- Final evidence: `SDVK-005-FINAL-ACCEPTANCE.md` and `SDVK-005-RELEASE-ACCEPTANCE.json`. No physical-GPU qualification is required. Acceptance reconciliation will make SDVK-007 dependency-ready after its own merge/master verification.
