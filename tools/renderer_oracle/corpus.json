@@ -4573,7 +4573,8 @@
         },
         "pending_coverage": [
           "ZDRayInfo requests sunlight on a tiny generated map; actual lightmap/probe convergence and sunlight visibility are unqualified.",
-          "No pretrained/baked lightmap bytes, full-bake command, hardware timing result or broad bake-robustness claim is included."
+          "No pretrained/baked lightmap bytes, full-bake command, hardware timing result or broad bake-robustness claim is included.",
+          "SDVK-010 requires actual emitted live PBR actor probe ordinals 0 and 1; world sunlight occlusion and linked-portal group provenance still require separate qualification."
         ],
         "pk3": "scenes/sun-probes/scene.pk3",
         "query_control": {
@@ -4639,7 +4640,39 @@
         },
         "state_assertions": {
           "published_probes_minimum": 2,
-          "sun_intensity": 1
+          "sun_intensity": 1,
+          "actor_probe": {
+            "minimum_draws": 2,
+            "required_indices": [
+              0,
+              1
+            ],
+            "material_examples": [
+              "SDVOA0",
+              "SDVQA0"
+            ],
+            "require_live": true
+          },
+          "materials": [
+            "SDVOA0",
+            "SDVQA0"
+          ],
+          "material_semantics": {
+            "SDVOA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SDVQA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          }
         },
         "status": "native_qualification_pending",
         "sun_input": {
@@ -5075,6 +5108,12 @@
               "SDVLA0"
             ],
             "requires_mirrored_view": true
+          },
+          "actor_probe": {
+            "minimum_draws": 2,
+            "required_indices": [],
+            "material_examples": [],
+            "require_live": false
           }
         },
         "status": "native_qualification_pending"

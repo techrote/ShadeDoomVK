@@ -145,3 +145,7 @@ without pretending that retained irradiance/prefilter image owners were
 recreated. Repeated stale-token checks cover both owner epochs.
 
 See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and [release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json). Exact PR-head and post-merge gates passed. The native `sun-probes` route observed one lightmap page, two irradiance maps and two prefilter maps. No new lightmap/probe identity, emergency flush or retention policy is introduced.
+
+## SDVK-010 actor-card probe selection (candidate)
+
+Unlike world lightmap probe-map texels (PF-012), an ordinary actor sprite emits its **authored ordinal** into Vulkan surface state. `HWActorProbeSelection::Resolve` selects an in-range nearest source-level authored probe within the inclusive 512-unit bound, keyed on interpolated actor pose, deterministic first tie, and no hidden temporal interpolation; ambiguous portal-group/through-portal cards preserve a validated sector target. No authored probe is **-1** (authored zero is valid). `VkRenderState::ApplySurfaceUniforms` checks ordinal range before calling the immutable PF-113 pair producer; the runtime zero sentinel still means missing irradiance/pre-filter and both PBR sample functions return zero IBL. Models remain on inherited sector selection. A full PBR native fixture and actual linked-portal/sun occlusion qualification remain pending, so this is implementation description rather than acceptance. [Detailed contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).

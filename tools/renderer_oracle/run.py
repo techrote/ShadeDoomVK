@@ -537,6 +537,33 @@ def _scene_assertions(raw, scene):
                 if relief["requires_mirrored_view"]:
                     require(any(row["eligible_draw"] and row["context"]["mirrored"] for row in draws),
                             "No mirrored-context height-bearing sprite relief emitted draw")
+            actor_probe = assertions.get("actor_probe")
+            if actor_probe:
+                selections = [record["data"] for record in records if record["kind"] == "probe"
+                              and record["data"].get("actor_selection", {}).get("available") is True]
+                require(len(selections) >= actor_probe["minimum_draws"],
+                        "Too few actual emitted actor probe draw decisions")
+                require(set(actor_probe["required_indices"]) <=
+                        {row["actor_selection"]["authored_index"] for row in selections},
+                        "Required separate actor probe ordinals were not drawn")
+                require(set(actor_probe["material_examples"]) <=
+                        {row["material"] for row in selections},
+                        "Required PBR actor probe material not drawn")
+                if actor_probe["require_live"]:
+                    for ordinal in actor_probe["required_indices"]:
+                        require(any(row["actor_selection"]["authored_index"] == ordinal and
+                                    row["actor_selection"]["policy"] == "spatial-nearest" and
+                                    row["runtime_irradiance_index"] > 0 and
+                                    row["resource"]["available"] for row in selections),
+                                "Authored actor probe has no actually published descriptor pair")
+                    for material in actor_probe["material_examples"]:
+                        require(any(row["material"] == material and not row["fallback"] and
+                                    row["actor_selection"]["selected"] for row in selections),
+                                "PBR actor material did not consume a live probe pair")
+                else:
+                    require(any(row["actor_selection"]["policy"] == "no-probes" and
+                                row["authored_index"] == -1 and row["fallback"] for row in selections),
+                            "No-probe actor sprite failed to expose explicit zero IBL fallback")
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]

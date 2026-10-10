@@ -38,3 +38,9 @@ Actor probe/environment qualification fixes/tests, transition/fallback contract,
 
 ## Blocking / stopping conditions
 If PF-012 plumbing is found unsound, classify as foundational regression and block this issue rather than compensating in actor shading. Do not invent interpolation/blending aesthetics without a documented design decision.
+
+## 10 October 2026 — implementation/qualification candidate
+
+The dedicated branch `sdvk-010-actor-probe-environment` consumes accepted SDVK-007, PF-012 and PF-113 and defines its explicit [actor environment v1 contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md). The bounded source-space nearest authored-probe policy uses interpolated actor positions, a 512-unit radius and deterministic tie/fallback semantics. Linked/ambiguous portal group presentation remains conservative sector-target selection; invalid/unpublished indices yield zero IBL via the existing unchanged PF-113 producer. World/model, gameplay, sunlight tracing and PBR BRDF/binding semantics are not changed.
+
+Positive/negative compiled fixtures, state-only emitted Vulkan draw diagnostics and new PBR actor/probe corpus controls are implemented. Full local CPU contract checks passed. **This is not issue acceptance**: exact-head hosted source/CI, live native `sun-probes` qualification, actual sunlight occlusion, linked-portal transition proof, release review and verified master are outstanding. Do not close #10 or claim general actor-environment correctness based on the preparatory checks alone.
