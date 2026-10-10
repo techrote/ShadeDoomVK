@@ -337,6 +337,9 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertIn(f"material sprite {name}".encode(), members["GLDEFS"])
         self.assertIs(scene["native"]["state_assertions"]["line_mirror"], True)
         self.assertEqual(scene["native"]["state_assertions"]["materials"], metadata["rotation_material_names"])
+        self.assertIn(b'height "SDVH" { filter linear }', members["GLDEFS"])
+        self.assertEqual(scene["native"]["state_assertions"]["material_height_layers"]["SDVRA1"],
+                         {"binding": 6, "requested_sampling": 1})
         self.assertEqual(scene["native"]["frame_assertions"]["portals"]["minimum"], 1)
         for flag in (b"+WALLSPRITE", b"+FLATSPRITE", b"+XFLIP", b"+YFLIP"):
             self.assertIn(flag, members["ZSCRIPT"])
@@ -365,6 +368,9 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertIn("textures/SDVCU.png", members)
         self.assertIn("shaders/sdvk004.fp", members)
         self.assertIn(b"texture(SDVKExtra, vTexCoord.st)", members["shaders/sdvk004.fp"])
+        self.assertIn(b"SampleMaterialHeight(vTexCoord.st)", members["shaders/sdvk004.fp"])
+        self.assertIn("textures/SDVH.png", members)
+        self.assertEqual(metadata["height_texture"], "SDVH")
         for name in metadata["custom_shader_material_names"]:
             self.assertIn(f'material texture {name}'.encode(), members["GLDEFS"])
             self.assertNotIn("custom", assertions["material_semantics"][name])
@@ -372,6 +378,14 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertEqual(assertions["material_custom_layers"][name],
                              [{"binding": 8, "custom_index": 0,
                                "requested_sampling": expected_sampling}])
+            self.assertEqual(assertions["material_height_layers"][name],
+                             {"binding": 9, "requested_sampling": 1})
+        self.assertEqual(set(metadata["height_material_names"]), set(assertions["material_height_layers"]))
+        self.assertEqual(assertions["material_height_layers"]["SM0001"], {"binding": 6, "requested_sampling": 1})
+        self.assertEqual(assertions["material_height_layers"]["SM0004"], {"binding": 4, "requested_sampling": 1})
+        self.assertEqual(assertions["material_height_layers"]["SM0006"], {"binding": 8, "requested_sampling": 1})
+        self.assertEqual(assertions["material_layer_sampling"]["SM0001"][0]["min_filter"], 0)
+        self.assertEqual(assertions["material_layer_sampling"]["SM0001"][1]["min_filter"], 1)
         self.assertIn(b'shader "shaders/sdvk004.fp"', members["GLDEFS"])
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter nearest }', members["GLDEFS"])
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter linear }', members["GLDEFS"])

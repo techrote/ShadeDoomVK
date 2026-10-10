@@ -143,6 +143,20 @@ struct FSdvkDiagnosticAccess
                         .Int("requested_sampling", int(global.CustomShaderTextureSampling[i])).Str("role", "global-custom")
                         .Raw("sampler", Sampler(fb->GetSamplerManager()->Get(global.CustomShaderTextureSampling[i], entry->clampmode))).Json();
                 }
+
+                if (entry->heightLayerIndex >= 0)
+                {
+                    MaterialLayerDiagnostic height;
+                    const int sourceHeight = material->FindLayer(MaterialLayerSemantic::Height);
+                    if (!material->GetLayerDiagnostic(sourceHeight, height)) throw std::runtime_error("SDVK height layer is unavailable");
+                    if (layers.size() > 1) layers += ',';
+                    layers += Object().Int("binding", entry->heightLayerIndex).Str("semantic", "height")
+                        .Int("custom_index", -1).Int("scale_flags", height.scaleFlags).Int("layer_clamp_flags", height.clampflags)
+                        .Int("requested_sampling", int(height.sampling)).Raw("sampler", Sampler(fb->GetSamplerManager()->Get(height.sampling, entry->clampmode)))
+                        .Raw("source", height.sourceTexture ? Object().Int("lump", height.sourceTexture->GetSourceLump())
+                            .Int("width", height.sourceTexture->GetWidth()).Int("height", height.sourceTexture->GetHeight()).Json() : Unavailable("height source unavailable"))
+                        .Str("role", "authored-layer").Json();
+                }
             }
             layers += ']';
             SdvkDiagnostics::Emit("material", Object().Raw("context", context).Str("semantic_key", name).Str("name", name)
@@ -151,6 +165,7 @@ struct FSdvkDiagnosticAccess
                 .Raw("global_shader", Object().Int("number", entry->globalShaderAddr.num).Int("type", entry->globalShaderAddr.type)
                     .Str("scope_name", entry->globalShaderAddr.type == 1 || entry->globalShaderAddr.type == 2 ? FName(ENamedName(entry->globalShaderAddr.name)).GetChars() : "global").Json())
                 .Raw("resource", Identity(fb->GetDescriptorSetManager()->GetBindlessIdentity(state->mSurfaceUniforms.uTextureIndex)))
+                .Int("height_texture_index", state->mSurfaceUniforms.uHeightTextureIndex)
                 .Raw("layers", layers).Json(), true);
         }
         else SdvkDiagnostics::Emit("material", Object().Raw("context", context).Raw("material", Unavailable("draw has no material")).Json(), true);

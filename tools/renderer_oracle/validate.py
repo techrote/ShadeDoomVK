@@ -253,6 +253,11 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                                                   "shader-required auxiliary resource, not an authored semantic layer"),
                             "Material layer role is missing or unknown")
                     _sampler(layer.get("sampler"))
+                height_layers = [layer for layer in layers if layer.get("semantic") == "height" and layer.get("role") == "authored-layer"]
+                height_index = integer(value.get("height_texture_index", -1), "height texture index", minimum=-1)
+                require(len(height_layers) <= 1, "Material has duplicate height semantic bindings")
+                require(height_index == (height_layers[0]["binding"] if height_layers else -1),
+                        "Height semantic binding and shader-visible index disagree")
                 _resource(value.get("resource"), "material resource identity")
                 material_frames.add(frame)
         elif kind == "probe":

@@ -339,7 +339,7 @@ def _numeric_vector_matches(actual, expected, *, tolerance=1e-9):
 _DEFAULT_PLACEHOLDER_SEMANTICS = ("brightmap-emissive", "detail", "glow")
 
 
-def _material_semantics_match(value, expected, *, allow_custom=False):
+def _material_semantics_match(value, expected, *, allow_custom=False, allow_height=False):
     layers = value.get("layers")
     if not isinstance(layers, list) or len(layers) < len(expected):
         return False
@@ -350,6 +350,7 @@ def _material_semantics_match(value, expected, *, allow_custom=False):
     extras = layers[len(expected):]
     placeholders = []
     customs = []
+    heights = []
     for layer in extras:
         semantic = layer.get("semantic")
         if semantic in _DEFAULT_PLACEHOLDER_SEMANTICS:
@@ -357,7 +358,13 @@ def _material_semantics_match(value, expected, *, allow_custom=False):
                 return False  # PF-008 customs append after fixed fallback slots.
             placeholders.append(layer)
         elif semantic == "custom" and allow_custom:
+            if heights:
+                return False
             customs.append(layer)
+        elif semantic == "height" and allow_height:
+            if heights:
+                return False
+            heights.append(layer)
         else:
             return False
     semantics = [layer.get("semantic") for layer in placeholders]
@@ -370,7 +377,7 @@ def _material_semantics_match(value, expected, *, allow_custom=False):
                 or not isinstance(source, dict) or source.get("lump") != 0
                 or source.get("width") != 1 or source.get("height") != 1):
             return False
-    for layer in customs:
+    for layer in customs + heights:
         source = layer.get("source")
         if (layer.get("role") != "authored-layer"
                 or not isinstance(source, dict)
@@ -378,6 +385,36 @@ def _material_semantics_match(value, expected, *, allow_custom=False):
                 or not isinstance(source.get("height"), int) or source["height"] <= 0):
             return False
     return True
+
+
+def _material_layer_sampling_match(value, expected):
+    layers = value.get("layers")
+    if not isinstance(layers, list):
+        return False
+    for requirement in expected:
+        matches = [layer for layer in layers
+                   if layer.get("semantic") == requirement["semantic"]
+                   and layer.get("binding") == requirement["binding"]
+                   and layer.get("requested_sampling") == requirement["requested_sampling"]]
+        if len(matches) != 1 or matches[0].get("role") != "authored-layer":
+            return False
+        sampler = matches[0].get("sampler", {})
+        for key in ("min_filter", "mag_filter", "mipmap_mode"):
+            if key in requirement and sampler.get(key) != requirement[key]:
+                return False
+    return True
+
+
+def _material_height_layer_match(value, expected):
+    layers = value.get("layers")
+    if not isinstance(layers, list):
+        return False
+    actual = [
+        {"binding": layer.get("binding"), "requested_sampling": layer.get("requested_sampling")}
+        for layer in layers
+        if layer.get("semantic") == "height" and layer.get("role") == "authored-layer"
+    ]
+    return len(actual) == 1 and actual[0] == expected and value.get("height_texture_index") == expected["binding"]
 
 
 def _material_custom_layers_match(value, expected):
@@ -430,14 +467,25 @@ def _scene_assertions(raw, scene):
                 drawn = [record["data"] for record in records
                          if record["kind"] == "material" and record["data"].get("name") == name]
                 require(drawn and all(_material_semantics_match(
-                            value, expected, allow_custom=name in assertions.get("material_custom_layers", {}))
+                            value, expected, allow_custom=name in assertions.get("material_custom_layers", {}),
+                            allow_height=name in assertions.get("material_height_layers", {}))
                             for value in drawn),
                         "Required material semantic bindings differ: " + name)
+            for name, expected in assertions.get("material_layer_sampling", {}).items():
+                drawn = [record["data"] for record in records
+                         if record["kind"] == "material" and record["data"].get("name") == name]
+                require(drawn and all(_material_layer_sampling_match(value, expected) for value in drawn),
+                        "Required material sampler bindings differ: " + name)
             for name, expected in assertions.get("material_custom_layers", {}).items():
                 drawn = [record["data"] for record in records
                          if record["kind"] == "material" and record["data"].get("name") == name]
                 require(drawn and all(_material_custom_layers_match(value, expected) for value in drawn),
                         "Required custom material bindings differ: " + name)
+            for name, expected in assertions.get("material_height_layers", {}).items():
+                drawn = [record["data"] for record in records
+                         if record["kind"] == "material" and record["data"].get("name") == name]
+                require(drawn and all(_material_height_layer_match(value, expected) for value in drawn),
+                        "Required height material binding differs: " + name)
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]

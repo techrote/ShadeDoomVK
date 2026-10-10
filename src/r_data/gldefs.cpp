@@ -1742,9 +1742,16 @@ class GLDefsParser
 		float speed = 1.f;
 
 		MaterialLayers mlay = { -1000, -1000 };
-		FGameTexture* textures[6] = {};
-		const char *keywords[7] = { "brightmap", "normal", "specular", "metallic", "roughness", "ao", nullptr };
-		const char *notFound[6] = { "Brightmap", "Normalmap", "Specular texture", "Metallic texture", "Roughness texture", "Ambient occlusion texture" };
+		FGameTexture* textures[7] = {};
+		MaterialLayerSampling textureSampling[7] =
+		{
+			MaterialLayerSampling::Default, MaterialLayerSampling::Default,
+			MaterialLayerSampling::Default, MaterialLayerSampling::Default,
+			MaterialLayerSampling::Default, MaterialLayerSampling::Default,
+			MaterialLayerSampling::LinearMipLinear
+		};
+		const char *keywords[8] = { "brightmap", "normal", "specular", "metallic", "roughness", "ao", "height", nullptr };
+		const char *notFound[7] = { "Brightmap", "Normalmap", "Specular texture", "Metallic texture", "Roughness texture", "Ambient occlusion texture", "Height texture" };
 		
 		FGameTexture* tex = nullptr;
 
@@ -2165,6 +2172,23 @@ class GLDefsParser
 							textures[i] = TexMan.FindGameTexture(sc.String, ETextureType::Any, FTextureManager::TEXMAN_TryAny);
 							if (!textures[i])
 								Printf("%s '%s' not found in texture '%s'\n", notFound[i], sc.String, tex? tex->GetName().GetChars() : "(null)");
+
+							// SDVK-005 extends the existing custom-texture sampling syntax to
+							// semantic material layers without changing legacy defaults.
+							if (sc.CheckToken('{'))
+							{
+								while (!sc.CheckToken('}'))
+								{
+									sc.MustGetString();
+									if (!sc.Compare("filter"))
+										sc.ScriptError("Unknown semantic-layer property '%s' in texture '%s'", sc.String, tex ? tex->GetName().GetChars() : "(null)");
+									sc.MustGetString();
+									if (sc.Compare("nearest")) textureSampling[i] = MaterialLayerSampling::NearestMipLinear;
+									else if (sc.Compare("linear")) textureSampling[i] = MaterialLayerSampling::LinearMipLinear;
+									else if (sc.Compare("default")) textureSampling[i] = (i == 6) ? MaterialLayerSampling::LinearMipLinear : MaterialLayerSampling::Default;
+									else sc.ScriptError("Unexpected '%s' when reading filter property in texture '%s'", sc.String, tex ? tex->GetName().GetChars() : "(null)");
+								}
+							}
 							break;
 						}
 					}
@@ -2352,20 +2376,32 @@ class GLDefsParser
 
 			tex->SetNoMipmap(no_mipmap);
 
-			FGameTexture **bindings[6] =
+			FGameTexture **bindings[7] =
 			{
 				&mlay.Brightmap,
 				&mlay.Normal,
 				&mlay.Specular,
 				&mlay.Metallic,
 				&mlay.Roughness,
-				&mlay.AmbientOcclusion
+				&mlay.AmbientOcclusion,
+				&mlay.Height
+			};
+			MaterialLayerSampling *samplingBindings[7] =
+			{
+				&mlay.BrightmapSampling,
+				&mlay.NormalSampling,
+				&mlay.SpecularSampling,
+				&mlay.MetallicSampling,
+				&mlay.RoughnessSampling,
+				&mlay.AmbientOcclusionSampling,
+				&mlay.HeightSampling
 			};
 			for (int i = 0; keywords[i] != nullptr; i++)
 			{
 				if (textures[i])
 				{
 					*bindings[i] = textures[i];
+					*samplingBindings[i] = textureSampling[i];
 				}
 			}
 

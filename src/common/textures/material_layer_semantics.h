@@ -18,6 +18,8 @@ enum class MaterialLayerSemantic : uint8_t
 	Detail,
 	Glow,
 	Custom,
+	// Appended after PF-008 identities so existing enum values remain stable.
+	Height,
 };
 
 struct MaterialLayerSemanticKey
@@ -47,6 +49,7 @@ constexpr const char* MaterialLayerSemanticName(MaterialLayerSemantic semantic)
 	case MaterialLayerSemantic::Detail: return "detail";
 	case MaterialLayerSemantic::Glow: return "glow";
 	case MaterialLayerSemantic::Custom: return "custom";
+	case MaterialLayerSemantic::Height: return "height";
 	}
 	return "unknown";
 }

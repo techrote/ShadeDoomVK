@@ -208,9 +208,12 @@ def generated_header(*, original: bool) -> str:
         "[[maybe_unused]] const int translation = 0;\n"
         "FMaterialState state;\n"
         "const GlobalShaderDesc globalshader;\n"
+        "[[maybe_unused]] const int materialHeightLayer = -1;\n"
+        "[[maybe_unused]] const bool bindHeight = false;\n"
         "const int numLayersMat = NumLayers();\n"
         "const int bindlessIndex = 259, clampmode = 3;\n"
-        "int texIndex = bindlessIndex;\n" + parts["material"] +
+        "int texIndex = bindlessIndex;\n"
+        "[[maybe_unused]] int heightLayerIndex = -1;\n" + parts["material"] +
         "\nreturn texIndex - bindlessIndex;\n}",
         "#endif",
     ]

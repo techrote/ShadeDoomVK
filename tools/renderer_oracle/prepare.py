@@ -173,7 +173,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "line_mirror", "published_probes_minimum", "sun_intensity"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -201,6 +201,23 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                     or not semantics or not all(isinstance(value, str) and value for value in semantics)
                     or len(set(semantics)) != len(semantics)):
                 raise ValueError(f"Scene {name} must bind semantic assertions to required named materials")
+        sampling_assertions = state_assertions.get("material_layer_sampling", {})
+        if not isinstance(sampling_assertions, dict) or len(sampling_assertions) > 256:
+            raise ValueError(f"Scene {name} has invalid material sampling assertions")
+        for material, layers in sampling_assertions.items():
+            if material not in state_assertions.get("materials", []) or not isinstance(layers, list) or not layers:
+                raise ValueError(f"Scene {name} must bind sampler assertions to required named materials")
+            for layer in layers:
+                if (not isinstance(layer, dict)
+                        or not {"semantic", "binding", "requested_sampling"} <= set(layer)
+                        or not set(layer) <= {"semantic", "binding", "requested_sampling", "min_filter", "mag_filter", "mipmap_mode"}
+                        or not isinstance(layer["semantic"], str) or not layer["semantic"]
+                        or type(layer["binding"]) is not int or layer["binding"] < 0
+                        or type(layer["requested_sampling"]) is not int
+                        or layer["requested_sampling"] not in (-1, 0, 1)
+                        or any(type(layer[key]) is not int for key in ("min_filter", "mag_filter", "mipmap_mode") if key in layer)):
+                    raise ValueError(f"Scene {name} has invalid material sampling layer assertion")
+
         custom_assertions = state_assertions.get("material_custom_layers", {})
         if not isinstance(custom_assertions, dict) or len(custom_assertions) > 256:
             raise ValueError(f"Scene {name} has invalid custom material assertions")
@@ -220,6 +237,16 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                 if key in seen_custom_layers:
                     raise ValueError(f"Scene {name} repeats a custom material layer assertion")
                 seen_custom_layers.add(key)
+        height_assertions = state_assertions.get("material_height_layers", {})
+        if not isinstance(height_assertions, dict) or len(height_assertions) > 256:
+            raise ValueError(f"Scene {name} has invalid height material assertions")
+        for material, layer in height_assertions.items():
+            if (material not in state_assertions.get("materials", []) or not isinstance(layer, dict)
+                    or set(layer) != {"binding", "requested_sampling"}
+                    or type(layer["binding"]) is not int or layer["binding"] < 0
+                    or type(layer["requested_sampling"]) is not int
+                    or layer["requested_sampling"] not in (-1, 0, 1)):
+                raise ValueError(f"Scene {name} has invalid height material layer assertion")
         if native.get("clock", {}).get("timing") != "ordinary_engine_clock":
             raise ValueError(f"Scene {name} may not time the PF fixed-tic clock")
         if not native.get("pending_coverage"):
@@ -376,7 +403,8 @@ def _base_members() -> dict[str, bytes]:
 def _material_layers(members: dict[str, bytes]) -> None:
     for name, rgba in {"SDVN": (128, 128, 255, 255), "SDVSP": (160, 160, 160, 255),
                        "SDVM": (64, 64, 64, 255), "SDVR": (128, 128, 128, 255),
-                       "SDVZERO": (0, 0, 0, 255), "SDVAO": (255, 255, 255, 255)}.items():
+                       "SDVZERO": (0, 0, 0, 255), "SDVAO": (255, 255, 255, 255),
+                       "SDVH": (192, 192, 192, 255)}.items():
         members[f"textures/{name}.png"] = png_rgba(16, 16, bytes(rgba) * 256)
 
 
@@ -474,7 +502,10 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
                            for channel in (colour if x < 20 or (y < 20 and x < 48)
                                            else (235, 225, 190, 255)))
             members[f"sprites/{name}.png"] = png_rgba(64, 64, pixels, offset=(32, 64))
-            definitions.append(f'material sprite {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
+            if i == 0:
+                definitions.append(f'material sprite {name}\n{{\n normal "SDVN" {{ filter linear }}\n specular "SDVSP"\n height "SDVH" {{ filter linear }}\n}}\n')
+            else:
+                definitions.append(f'material sprite {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
         members["GLDEFS"] = "".join(definitions).encode()
         for k, (x, y) in enumerate((x, y) for x in (0, 64) for y in (-72, -24, 24, 72)):
             yaw = (math.degrees(math.atan2(y - camera[1], x - camera[0])) - ((2*k + .5)*22.5 - 202.5)) % 360
@@ -519,7 +550,8 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
             16, 16, (255, 64, 24, 255), (24, 96, 255, 255))
         members["shaders/sdvk004.fp"] = b"""vec4 Process(vec4 color)
 {
-    return texture(SDVKExtra, vTexCoord.st) * color;
+    float height = SampleMaterialHeight(vTexCoord.st);
+    return texture(SDVKExtra, vTexCoord.st) * color * vec4(vec3(0.75 + 0.25 * height), 1.0);
 }
 """
         definitions = []
@@ -529,18 +561,26 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
             a = ((31 + i * 37) % 256, (91 + i * 19) % 256, (173 + i * 11) % 256, 255)
             b = (255 - a[0], 255 - a[1], 255 - a[2], 255)
             members[f"textures/{name}.png"] = _texture(16, 16, a, b)
-            if i % 4 == 1:
-                definitions.append(f'material texture {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
+            if i == 4:
+                definitions.append(f'material texture {name}\n{{\n height "SDVH" {{ filter linear }}\n}}\n')
+            elif i % 4 == 1:
+                if i == 1:
+                    definitions.append(f'material texture {name}\n{{\n normal "SDVN" {{ filter linear }}\n specular "SDVSP"\n height "SDVH" {{ filter linear }}\n}}\n')
+                else:
+                    definitions.append(f'material texture {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
             elif i % 8 == 2:
                 custom_filter = "nearest" if (i // 8) % 2 == 0 else "linear"
                 definitions.append(
                     f'material texture {name}\n{{\n'
-                    ' normal "SDVN"\n metallic "SDVM"\n roughness "SDVR"\n ao "SDVAO"\n'
+                    ' normal "SDVN" { filter linear }\n metallic "SDVM" { filter linear }\n roughness "SDVR" { filter linear }\n ao "SDVAO" { filter linear }\n'
+                    ' height "SDVH" { filter linear }\n'
                     ' shader "shaders/sdvk004.fp"\n'
                     f' texture SDVKExtra "SDVCU" {{ filter {custom_filter} }}\n'
                     '}\n')
                 custom_names.append(name)
                 custom_filters[name] = custom_filter
+            elif i == 6:
+                definitions.append(f'material texture {name}\n{{\n normal "SDVN" {{ filter linear }}\n metallic "SDVM" {{ filter linear }}\n roughness "SDVR" {{ filter linear }}\n ao "SDVAO" {{ filter linear }}\n height "SDVH" {{ filter linear }}\n}}\n')
             elif i % 4 >= 2:
                 definitions.append(_pbr(name, roughness="SDVZERO" if i % 4 == 3 else "SDVR"))
         members["GLDEFS"] = "".join(definitions).encode()
@@ -553,6 +593,8 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
             custom_shader_binding="SDVKExtra",
             custom_shader_texture="SDVCU",
             custom_shader_filters=custom_filters,
+            height_material_names=["SM0001", "SM0002", "SM0004", "SM0006", "SM0010", "SM0018", "SM0026", "SM0034", "SM0042", "SM0050", "SM0058"],
+            height_texture="SDVH",
             native_visibility_and_allocation_required=True)
     elif generator == "sun_probes":
         model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)

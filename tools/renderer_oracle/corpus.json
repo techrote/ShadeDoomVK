@@ -4152,7 +4152,157 @@
             "SM0061",
             "SM0062",
             "SM0063"
-          ]
+          ],
+          "material_height_layers": {
+            "SM0001": {
+              "binding": 6,
+              "requested_sampling": 1
+            },
+            "SM0002": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0004": {
+              "binding": 4,
+              "requested_sampling": 1
+            },
+            "SM0006": {
+              "binding": 8,
+              "requested_sampling": 1
+            },
+            "SM0010": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0018": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0026": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0034": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0042": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0050": {
+              "binding": 9,
+              "requested_sampling": 1
+            },
+            "SM0058": {
+              "binding": 9,
+              "requested_sampling": 1
+            }
+          },
+          "material_layer_sampling": {
+            "SM0001": [
+              {
+                "semantic": "albedo",
+                "binding": 0,
+                "requested_sampling": -1,
+                "min_filter": 0,
+                "mag_filter": 0,
+                "mipmap_mode": 0
+              },
+              {
+                "semantic": "normal",
+                "binding": 1,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "height",
+                "binding": 6,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              }
+            ],
+            "SM0006": [
+              {
+                "semantic": "albedo",
+                "binding": 0,
+                "requested_sampling": -1,
+                "min_filter": 0,
+                "mag_filter": 0,
+                "mipmap_mode": 0
+              },
+              {
+                "semantic": "normal",
+                "binding": 1,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "metallic",
+                "binding": 2,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "roughness",
+                "binding": 3,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "ambient-occlusion",
+                "binding": 4,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "height",
+                "binding": 8,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              }
+            ],
+            "SM0002": [
+              {
+                "semantic": "albedo",
+                "binding": 0,
+                "requested_sampling": -1,
+                "min_filter": 0,
+                "mag_filter": 0,
+                "mipmap_mode": 0
+              },
+              {
+                "semantic": "normal",
+                "binding": 1,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "height",
+                "binding": 9,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              }
+            ]
+          }
         },
         "status": "native_qualification_pending"
       },
@@ -4774,7 +4924,38 @@
           ],
           "root_types": [
             "main"
-          ]
+          ],
+          "material_height_layers": {
+            "SDVRA1": {
+              "binding": 6,
+              "requested_sampling": 1
+            }
+          },
+          "material_layer_sampling": {
+            "SDVRA1": [
+              {
+                "semantic": "albedo",
+                "binding": 0,
+                "requested_sampling": -1
+              },
+              {
+                "semantic": "normal",
+                "binding": 1,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              },
+              {
+                "semantic": "height",
+                "binding": 6,
+                "requested_sampling": 1,
+                "min_filter": 1,
+                "mag_filter": 1,
+                "mipmap_mode": 1
+              }
+            ]
+          }
         },
         "status": "native_qualification_pending"
       },

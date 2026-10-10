@@ -45,17 +45,29 @@ enum class MaterialLayerSampling
 
 struct MaterialLayers
 {
-	float Glossiness;
-	float SpecularLevel;
-	FGameTexture* Brightmap;
-	FGameTexture* Normal;
-	FGameTexture* Specular;
-	FGameTexture* Metallic;
-	FGameTexture* Roughness;
-	FGameTexture* AmbientOcclusion;
-	FGameTexture* CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES];
+	float Glossiness = -1000.f;
+	float SpecularLevel = -1000.f;
+	FGameTexture* Brightmap = nullptr;
+	FGameTexture* Normal = nullptr;
+	FGameTexture* Specular = nullptr;
+	FGameTexture* Metallic = nullptr;
+	FGameTexture* Roughness = nullptr;
+	FGameTexture* AmbientOcclusion = nullptr;
+	FGameTexture* Height = nullptr;
 
-	MaterialLayerSampling CustomShaderTextureSampling[MAX_CUSTOM_HW_SHADER_TEXTURES];
+	// Existing semantic channels retain the inherited global/default sampler
+	// unless the author explicitly overrides them. Height is new in SDVK-005
+	// and defaults to filtered mipmapped linear data.
+	MaterialLayerSampling BrightmapSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling NormalSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling SpecularSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling MetallicSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling RoughnessSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling AmbientOcclusionSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling HeightSampling = MaterialLayerSampling::LinearMipLinear;
+
+	FGameTexture* CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES] = {};
+	MaterialLayerSampling CustomShaderTextureSampling[MAX_CUSTOM_HW_SHADER_TEXTURES] = {};
 };
 
 enum EGameTexFlags
@@ -84,8 +96,16 @@ struct FMaterialLayers
 	RefCountedPtr<FTexture> Metallic;						// Metalness texture for the physically based rendering (PBR) light model
 	RefCountedPtr<FTexture> Roughness;						// Roughness texture for PBR
 	RefCountedPtr<FTexture> AmbientOcclusion;				// Ambient occlusion texture for PBR
-	RefCountedPtr<FTexture> CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES]; // Custom texture maps for custom hardware shaders
+	RefCountedPtr<FTexture> Height;						// Optional scalar linear-data height map (SDVK-005)
 
+	MaterialLayerSampling NormalSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling SpecularSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling MetallicSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling RoughnessSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling AmbientOcclusionSampling = MaterialLayerSampling::Default;
+	MaterialLayerSampling HeightSampling = MaterialLayerSampling::LinearMipLinear;
+
+	RefCountedPtr<FTexture> CustomShaderTextures[MAX_CUSTOM_HW_SHADER_TEXTURES]; // Custom texture maps for custom hardware shaders
 	MaterialLayerSampling CustomShaderTextureSampling[MAX_CUSTOM_HW_SHADER_TEXTURES];
 };
 
@@ -135,6 +155,7 @@ class FGameTexture
 	// Material layers. These are shared so reference counting is used.
 	RefCountedPtr<FTexture> Base;
 	RefCountedPtr<FTexture> Brightmap;
+	MaterialLayerSampling BrightmapSampling = MaterialLayerSampling::Default;
 	std::unique_ptr<FMaterialLayers> Layers;
 
 	FString Name;
@@ -268,9 +289,13 @@ public:
 		// Only update layers that have something defind.
 		if (lay.Glossiness > -1000) Glossiness = lay.Glossiness;
 		if (lay.SpecularLevel > -1000) SpecularLevel = lay.SpecularLevel;
-		if (lay.Brightmap) Brightmap = lay.Brightmap->GetTexture();
+		if (lay.Brightmap)
+		{
+			Brightmap = lay.Brightmap->GetTexture();
+			BrightmapSampling = lay.BrightmapSampling;
+		}
 
-		bool needlayers = (lay.Normal || lay.Specular || lay.Metallic || lay.Roughness || lay.AmbientOcclusion);
+		bool needlayers = (lay.Normal || lay.Specular || lay.Metallic || lay.Roughness || lay.AmbientOcclusion || lay.Height);
 		for (int i = 0; i < MAX_CUSTOM_HW_SHADER_TEXTURES && !needlayers; i++)
 		{
 			if (lay.CustomShaderTextures[i]) needlayers = true;
@@ -279,11 +304,12 @@ public:
 		{
 			Layers = std::make_unique<FMaterialLayers>();
 
-			if (lay.Normal) Layers->Normal = lay.Normal->GetTexture();
-			if (lay.Specular) Layers->Specular = lay.Specular->GetTexture();
-			if (lay.Metallic) Layers->Metallic = lay.Metallic->GetTexture();
-			if (lay.Roughness) Layers->Roughness = lay.Roughness->GetTexture();
-			if (lay.AmbientOcclusion) Layers->AmbientOcclusion = lay.AmbientOcclusion->GetTexture();
+			if (lay.Normal) { Layers->Normal = lay.Normal->GetTexture(); Layers->NormalSampling = lay.NormalSampling; }
+			if (lay.Specular) { Layers->Specular = lay.Specular->GetTexture(); Layers->SpecularSampling = lay.SpecularSampling; }
+			if (lay.Metallic) { Layers->Metallic = lay.Metallic->GetTexture(); Layers->MetallicSampling = lay.MetallicSampling; }
+			if (lay.Roughness) { Layers->Roughness = lay.Roughness->GetTexture(); Layers->RoughnessSampling = lay.RoughnessSampling; }
+			if (lay.AmbientOcclusion) { Layers->AmbientOcclusion = lay.AmbientOcclusion->GetTexture(); Layers->AmbientOcclusionSampling = lay.AmbientOcclusionSampling; }
+			if (lay.Height) { Layers->Height = lay.Height->GetTexture(); Layers->HeightSampling = lay.HeightSampling; }
 			for (int i = 0; i < MAX_CUSTOM_HW_SHADER_TEXTURES; i++)
 			{
 				if (lay.CustomShaderTextures[i])
@@ -397,7 +423,7 @@ public:
 		}
 		if (Layers)
 		{
-			for (auto tex : { Layers->Detailmap.get(), Layers->Glowmap.get(), Layers->Normal.get(), Layers->Specular.get(), Layers->Metallic.get(), Layers->Roughness.get(), Layers->AmbientOcclusion.get() })
+			for (auto tex : { Layers->Detailmap.get(), Layers->Glowmap.get(), Layers->Normal.get(), Layers->Specular.get(), Layers->Metallic.get(), Layers->Roughness.get(), Layers->AmbientOcclusion.get(), Layers->Height.get() })
 			{
 				if (tex != nullptr) layers.Push(tex);
 			}
@@ -460,6 +486,12 @@ public:
 		if (!Layers) return nullptr;
 		return Layers->AmbientOcclusion.get();
 	}
+	FTexture* GetHeightmap()
+	{
+		if (!Layers) return nullptr;
+		return Layers->Height.get();
+	}
+	MaterialLayerSampling GetBrightmapSampling() const { return BrightmapSampling; }
 
 	void SetGlowmap(FTexture *T)
 	{
@@ -480,6 +512,11 @@ public:
 	{
 		if (!Layers) Layers = std::make_unique<FMaterialLayers>();
 		Layers->Specular = T;
+	}
+	void SetHeightmap(FTexture* T)
+	{
+		if (!Layers) Layers = std::make_unique<FMaterialLayers>();
+		Layers->Height = T;
 	}
 
 };

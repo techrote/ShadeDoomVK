@@ -38,9 +38,10 @@ class MaterialLayerSemanticsContractTests(unittest.TestCase):
             "MaterialLayerSemantic::Detail",
             "MaterialLayerSemantic::Glow",
             "MaterialLayerSemantic::Custom",
+            "MaterialLayerSemantic::Height",
         ]:
             self.assertIn(token, self.material_cpp)
-        self.assertNotIn("Height", self.semantic_h)
+        self.assertIn('case MaterialLayerSemantic::Height: return "height";', self.semantic_h)
         self.assertNotIn("Parallax", self.semantic_h)
         self.assertNotIn("POM", self.semantic_h)
 
@@ -107,7 +108,8 @@ class MaterialLayerSemanticsContractTests(unittest.TestCase):
         self.assertIn("GetLayer(i, 0, &layer)", self.vk_material_cpp)
         self.assertIn("GetLayerFilter(i), clampmode", self.vk_material_cpp)
         self.assertNotIn("GetLayerSemantic(", self.vk_material_cpp)
-        self.assertNotIn("FindLayer(", self.vk_material_cpp)
+        self.assertIn("FindLayer(MaterialLayerSemantic::Height)", self.vk_material_cpp)
+        self.assertIn("for (int i = 1; i < numLayersMat; i++)", self.vk_material_cpp)
 
     def test_compiled_semantic_key_boundary_fixture(self) -> None:
         run_fixture("tools/pf_oracle/tests/material_layer_semantics_fixture.cpp",

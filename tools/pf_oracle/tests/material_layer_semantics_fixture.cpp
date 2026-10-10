@@ -17,6 +17,9 @@ int main()
 	static_assert(std::string_view(MaterialLayerSemanticName(Semantic::Detail)) == "detail");
 	static_assert(std::string_view(MaterialLayerSemanticName(Semantic::Glow)) == "glow");
 	static_assert(std::string_view(MaterialLayerSemanticName(Semantic::Custom)) == "custom");
+	static_assert(std::string_view(MaterialLayerSemanticName(Semantic::Height)) == "height");
+	static_assert(static_cast<unsigned>(Semantic::Custom) == 9);
+	static_assert(static_cast<unsigned>(Semantic::Height) == 10);
 	static_assert(std::string_view(MaterialLayerSemanticName(static_cast<Semantic>(255))) == "unknown");
 
 	// Non-custom channels are identified solely by semantic meaning. The custom

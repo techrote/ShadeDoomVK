@@ -113,16 +113,16 @@ FMaterial::FMaterial(FGameTexture * tx, int scaleflags)
 		// Note that the material takes no ownership of the texture!
 		else if (tx->Layers && tx->Layers->Normal.get() && tx->Layers->Specular.get())
 		{
-			mTextureLayers.Push({ tx->Layers->Normal.get(), 0, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::Normal, -1 });
-			mTextureLayers.Push({ tx->Layers->Specular.get(), 0, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::LegacySpecular, -1 });
+			mTextureLayers.Push({ tx->Layers->Normal.get(), 0, -1, tx->Layers->NormalSampling, MaterialLayerSemantic::Normal, -1 });
+			mTextureLayers.Push({ tx->Layers->Specular.get(), 0, -1, tx->Layers->SpecularSampling, MaterialLayerSemantic::LegacySpecular, -1 });
 			mShaderIndex = SHADER_Specular;
 		}
 		else if (tx->Layers && tx->Layers->Normal.get() && tx->Layers->Metallic.get() && tx->Layers->Roughness.get() && tx->Layers->AmbientOcclusion.get())
 		{
-			mTextureLayers.Push({ tx->Layers->Normal.get(), 0, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::Normal, -1 });
-			mTextureLayers.Push({ tx->Layers->Metallic.get(), 0, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::Metallic, -1 });
-			mTextureLayers.Push({ tx->Layers->Roughness.get(), 0, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::Roughness, -1 });
-			mTextureLayers.Push({ tx->Layers->AmbientOcclusion.get(), 0, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::AmbientOcclusion, -1 });
+			mTextureLayers.Push({ tx->Layers->Normal.get(), 0, -1, tx->Layers->NormalSampling, MaterialLayerSemantic::Normal, -1 });
+			mTextureLayers.Push({ tx->Layers->Metallic.get(), 0, -1, tx->Layers->MetallicSampling, MaterialLayerSemantic::Metallic, -1 });
+			mTextureLayers.Push({ tx->Layers->Roughness.get(), 0, -1, tx->Layers->RoughnessSampling, MaterialLayerSemantic::Roughness, -1 });
+			mTextureLayers.Push({ tx->Layers->AmbientOcclusion.get(), 0, -1, tx->Layers->AmbientOcclusionSampling, MaterialLayerSemantic::AmbientOcclusion, -1 });
 			mShaderIndex = SHADER_PBR;
 		}
 
@@ -131,7 +131,7 @@ FMaterial::FMaterial(FGameTexture * tx, int scaleflags)
 		auto placeholder = TexMan.GameByIndex(1);
 		if (tx->Brightmap.get())
 		{
-			mTextureLayers.Push({ tx->Brightmap.get(), scaleflags, -1, MaterialLayerSampling::Default, MaterialLayerSemantic::Brightmap, -1 });
+			mTextureLayers.Push({ tx->Brightmap.get(), scaleflags, -1, tx->GetBrightmapSampling(), MaterialLayerSemantic::Brightmap, -1 });
 			mLayerFlags |= TEXF_Brightmap;
 		}
 		else	
@@ -199,6 +199,14 @@ FMaterial::FMaterial(FGameTexture * tx, int scaleflags)
 					mShaderIndex = globalshader->shaderindex;
 				}
 			}
+		}
+
+		// SDVK-005 compatibility rule: height is always appended after every
+		// historical fixed/custom binding. This gives new shaders semantic
+		// access without renumbering any existing custom texture.
+		if (tx->Layers && tx->Layers->Height.get())
+		{
+			mTextureLayers.Push({ tx->Layers->Height.get(), 0, -1, tx->Layers->HeightSampling, MaterialLayerSemantic::Height, -1 });
 		}
 	}
 	mScaleFlags = scaleflags;
