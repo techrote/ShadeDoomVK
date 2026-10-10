@@ -104,7 +104,8 @@
     "physical POM visual utility versus OFF under representative loads and GPU drivers",
     "all alpha/atlas/NPOT/texture subrects and all portal modes outside existing fixture",
     "final quality tiers and defaults; global relief remains OFF",
-    "sprite shadows, world displacement, self-occlusion"
+    "sprite shadows, world displacement, self-occlusion",
+    "Isolated same-commit OFF/ON per-pixel image-difference and perceptual POM-effect qualification"
   ],
   "retainedFailures": [
     {
@@ -137,5 +138,21 @@
   "downstream": {
     "SDVK012": "BLOCKED_PENDING_FINAL_ACCEPTED_SDVK008"
   },
-  "acceptanceBoundary": "OFF_GPU_QUALIFIED; hardware-gated issue remains open; physical-GPU qualification cannot be inferred from CI/llvmpipe or theoretical shader work bounds"
+  "acceptanceBoundary": "OFF_GPU_QUALIFIED; hardware-gated issue remains open; physical-GPU qualification cannot be inferred from CI/llvmpipe or theoretical shader work bounds",
+  "nativeDrawWitness": {
+    "scene": "sprite-mirror",
+    "captures": 2,
+    "spriteReliefRecordsPerCapture": 30,
+    "reliefEligiblePerCapture": 7,
+    "mirroredAndReliefEligiblePerCapture": 5,
+    "configuredQuality": 2,
+    "eligibleDrawHeightReadCeiling": 15,
+    "normalHeightlessControlsExcluded": true,
+    "nativeRgb8Size": [
+      640,
+      480
+    ],
+    "independentCapturesSamePngSha256": "9a0df9366fdfff3fa64cf89ad787872362c384bbddf43fdba23ce94054793a67",
+    "remark": "Submitted uniform/eligibility evidence and identical software-Vulkan renders. No isolated same-build OFF-versus-ON pixel-difference experiment, no per-fragment count and no physical-GPU cost/quality claim."
+  }
 }
