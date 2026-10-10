@@ -25,6 +25,7 @@ class ActorProbeContract(unittest.TestCase):
         self.assertIn("probes.Size(), [&](std::size_t i)", draw)
         self.assertIn("HWActorProbeSelection::Resolve(", draw)
         self.assertIn("p.position.X, p.position.Y, p.position.Z, p.index", draw)
+        self.assertIn("di->Level->Displacements.size > 1", draw)
         self.assertIn("RenderSurface.sourcePortalGroup != RenderSurface.renderPortalGroup", draw)
         self.assertIn("RenderSurface.throughPortalMode != 0", draw)
         self.assertIn("if (modelframe)", draw)

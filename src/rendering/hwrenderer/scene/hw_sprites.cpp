@@ -157,7 +157,10 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 		{
 			const auto actorPos = actor->InterpolatedPosition(vp.TicFrac);
 			const auto& probes = di->Level->lightProbes;
-			const bool portalAmbiguous = RenderSurface.throughPortalMode != 0 ||
+			// Authored probes carry no portal-group ownership; if multiple
+			// groups exist, do not infer connectivity from level-global XY.
+			const bool portalAmbiguous = di->Level->Displacements.size > 1 ||
+				RenderSurface.throughPortalMode != 0 ||
 				RenderSurface.sourcePortalGroup != RenderSurface.renderPortalGroup;
 			const auto selection = HWActorProbeSelection::Resolve(actorPos.X, actorPos.Y, actorPos.Z,
 				probes.Size(), [&](std::size_t i) {
