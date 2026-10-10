@@ -4,6 +4,8 @@
 #include <string>
 
 struct HWDrawInfo;
+struct HWSpriteRenderSurfaceState;
+struct HWSpriteTangentBasis;
 struct FDynamicLight;
 class AActor;
 struct FLevelLocals;
@@ -36,6 +38,10 @@ void LightDecision(const HWDrawInfo* di, const AActor* actor, const FDynamicLigh
 void LightQuerySummary(const HWDrawInfo* di, const AActor* actor, double x, double y, double z,
     const char* source, uint64_t candidates, uint64_t filtered, uint64_t duplicates, uint64_t traces);
 void ShadowDecision(const FLevelLocals* level, const FDynamicLight* light, const char* decision, int row);
+// State-only PF-009 provenance is coupled with actual draw uniforms on emission.
+void SpriteBasisSelected(const HWSpriteRenderSurfaceState& surface, const HWSpriteTangentBasis& basis);
+void ClearSpriteBasis();
+std::string CurrentSpriteBasisJson();
 void VulkanDraw(VkRenderState* state, int count, bool indexed);
 void VulkanResources(VulkanRenderDevice* device);
 std::string VulkanBuild(VulkanRenderDevice* device);

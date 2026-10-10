@@ -19,6 +19,8 @@
 #include "hwrenderer/scene/hw_drawcontext.h"
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/scene/hw_visualtime.h"
+#include "hwrenderer/scene/hw_drawstructs.h"
+#include "hwrenderer/scene/hw_sprite_tangent.h"
 #include "vulkan/vk_renderdevice.h"
 #include <chrono>
 #include <map>
@@ -66,6 +68,7 @@ Observer& Get() { static Observer observer; return observer; }
 std::string& CacheRoot() { static std::string path; return path; }
 struct SceneEntry { const HWDrawInfo* Owner; std::string Json; };
 thread_local std::vector<SceneEntry> Scenes;
+thread_local std::string ActiveSpriteBasis;
 
 template<class V> std::string Vector(const V& value)
 {
@@ -250,6 +253,39 @@ void Dump(bool complete)
 
 namespace SdvkDiagnostics
 {
+void SpriteBasisSelected(const HWSpriteRenderSurfaceState& s, const HWSpriteTangentBasis& b)
+{
+    if (!StateEnabled()) return;
+    try
+    {
+        using namespace SdvkObservation;
+        ActiveSpriteBasis = Object().Str("contract", "sdvk-007-final-quad/v1")
+            .Str("orientation_source", "pf-009-calculate-vertices")
+            .Int("source", int(s.source)).Int("presentation", int(s.presentation))
+            .Int("sprite_type", s.spriteType).Int("actor_sprite", s.actorSprite)
+            .Int("actor_frame", s.actorFrame)
+            .Int("source_portal_group", s.sourcePortalGroup)
+            .Int("render_portal_group", s.renderPortalGroup)
+            .Int("through_portal_mode", s.throughPortalMode)
+            .Bool("frame_mirrored", s.frameMirrored)
+            .Bool("uv_mirror_x", s.uvMirrorX).Bool("uv_mirror_y", s.uvMirrorY)
+            .Bool("portal_mirrored", s.portalMirrored)
+            .Bool("xy_billboard", s.xyBillboard).Bool("faces_camera", s.facesCamera)
+            .Raw("uv", '[' + Number(s.ul) + ',' + Number(s.ur) + ',' + Number(s.vt) + ',' + Number(s.vb) + ']')
+            .Raw("render_angles", '[' + Number(s.renderAngles.Yaw.Degrees()) + ',' + Number(s.renderAngles.Pitch.Degrees()) + ',' + Number(s.renderAngles.Roll.Degrees()) + ']')
+            .Raw("view_angles", '[' + Number(s.viewYaw) + ',' + Number(s.viewPitch) + ',' + Number(s.viewRoll) + ']')
+            .Num("u_sign", b.uSign).Num("v_sign", b.vSign)
+            .Num("expected_handedness", b.handedness)
+            .Num("view_parity", b.valid ? b.handedness * (s.portalMirrored ? -1.f : 1.f) : 0.f)
+            .Bool("basis_valid", b.valid).Str("basis_reason", b.reason)
+            .Str("selection", b.valid ? "explicit-sprite" : "legacy-derivative-fallback").Json();
+    }
+    catch (const std::exception& error) { ActiveSpriteBasis.clear(); Fail(error.what()); }
+}
+
+void ClearSpriteBasis() { ActiveSpriteBasis.clear(); }
+std::string CurrentSpriteBasisJson() { return StateEnabled() ? ActiveSpriteBasis : std::string(); }
+
 std::string ApplicationCacheFilename(const char* leaf)
 {
     if (!Args || !Args->CheckParm("-sdvkobserve") || !Args->CheckParm("-sdvkobservecache")) return {};
