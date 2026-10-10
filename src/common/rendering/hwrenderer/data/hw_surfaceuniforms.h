@@ -60,6 +60,12 @@ struct SurfaceUniforms
 	// explicit; tangent.W = +/-1 handedness. Appended after SDVK-005.
 	FVector4 uSpriteTangent = {};
 	FVector4 uSpriteNormal = {};
+
+	// SDVK-008: opt-in bounded per-sprite relief contract. Depth (UV units),
+	// quality [0,3], candidate enable; raw signed quad UV endpoints.
+	// Only authored height and a valid SDVK-007 basis can activate shading.
+	FVector4 uSpriteReliefParams = {};  // scale, quality, 0, candidate-enable
+	FVector4 uSpriteReliefBounds = {};  // ul, vt, ur, vb (before TextureMatrix)
 };
 
 struct SurfaceLightUniforms
