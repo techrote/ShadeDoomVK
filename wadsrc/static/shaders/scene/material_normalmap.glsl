@@ -24,7 +24,21 @@ vec3 ApplyNormalMap(vec2 texcoord)
 	map.y = -map.y;
 	#endif
 
-	mat3 tbn = cotangent_frame(interpolatedNormal, pixelpos.xyz, vTexCoord.st);
+	// SDVK-007/v1: the four final PF-009 sprite vertices determine the
+	// stable UV-aligned world basis. All world/model/LevelMesh paths retain
+	// the exact derivative implementation. Height/alpha are not involved.
+	mat3 tbn;
+	if (uSpriteNormal.w > 0.5)
+	{
+		vec3 normal = uSpriteNormal.xyz;
+		vec3 tangent = uSpriteTangent.xyz;
+		vec3 bitangent = cross(normal, tangent) * uSpriteTangent.w;
+		tbn = mat3(tangent, bitangent, normal);
+	}
+	else
+	{
+		tbn = cotangent_frame(interpolatedNormal, pixelpos.xyz, vTexCoord.st);
+	}
 	vec3 bumpedNormal = normalize(tbn * map);
 	return bumpedNormal;
 }
