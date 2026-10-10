@@ -158,7 +158,7 @@ def baseline(out, paths):
     return result
 
 
-def dense_baseline(out, scene, paths):
+def scale_baseline(out, scene, paths):
     return timing_summary(out, paths, filename=scene + "-timing.json", minimum_samples=30,
                           requirement=("Three independent 30-frame software-Vulkan descriptive distributions for "
                                        + scene + "; not physical-GPU performance acceptance"))
@@ -172,8 +172,8 @@ def qualify(args):
     result = {"schema": "sdvk-renderer-native-ci/v1", "status": "FAIL", "started_utc": run.utc(),
               "scenes": scenes, "state_processes_per_scene": 2, "timing_scene": "lights-one",
               "timing_processes": 3, "timing_frames_per_process": 120,
-              "sdvk009_dense_timing_scenes": [scene for scene in SDVK009_DENSE_SCENES if scene in scenes],
-              "sdvk009_dense_timing_processes_per_scene": 3, "sdvk009_dense_timing_frames_per_process": 30,
+              "sdvk009_scale_timing_scenes": [scene for scene in SDVK009_SCALE_TIMING_SCENES if scene in scenes],
+              "sdvk009_scale_timing_processes_per_scene": 3, "sdvk009_scale_timing_frames_per_process": 30,
               "automatic_retries": 0,
               "image_policy": "exact-rgb8", "steps": steps, "physical_gpu_qualified": False,
               "performance_accepted": False, "scope": "Same-build software Vulkan state/images and descriptive timing only"}
@@ -201,16 +201,16 @@ def qualify(args):
                     steps.append(attempt(out, "lights-one-timing-" + str(i),
                                          lambda p=path: capture("lights-one", "timing", p), ("COLLECTED",)))
                 steps.append(attempt(out, "baseline", lambda: baseline(out, paths)))
-                for scene in SDVK009_DENSE_SCENES:
+                for scene in SDVK009_SCALE_TIMING_SCENES:
                     if scene not in scenes:
                         continue
-                    dense_paths = [out / "timing" / (scene + "-" + str(i)) for i in (1, 2, 3)]
-                    for i, path in enumerate(dense_paths, 1):
+                    scale_paths = [out / "timing" / (scene + "-" + str(i)) for i in (1, 2, 3)]
+                    for i, path in enumerate(scale_paths, 1):
                         steps.append(attempt(out, scene + "-timing-" + str(i),
                                              lambda p=path, s=scene: capture(s, "timing", p, frames=30, warmup=20),
                                              ("COLLECTED",)))
                     steps.append(attempt(out, scene + "-timing-summary",
-                                         lambda p=dense_paths, s=scene: dense_baseline(out, s, p)))
+                                         lambda p=scale_paths, s=scene: scale_baseline(out, s, p)))
         result["status"] = "PASS" if steps and all(step["status"] == "PASS" for step in steps) else "FAIL"
     finally:
         result["finished_utc"] = run.utc()
