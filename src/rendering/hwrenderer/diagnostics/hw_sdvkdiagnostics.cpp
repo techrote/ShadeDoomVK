@@ -274,6 +274,8 @@ void SpriteBasisSelected(const HWSpriteRenderSurfaceState& s, const HWSpriteTang
             .Raw("uv", '[' + Number(s.ul) + ',' + Number(s.ur) + ',' + Number(s.vt) + ',' + Number(s.vb) + ']')
             .Raw("render_angles", '[' + Number(s.renderAngles.Yaw.Degrees()) + ',' + Number(s.renderAngles.Pitch.Degrees()) + ',' + Number(s.renderAngles.Roll.Degrees()) + ']')
             .Raw("view_angles", '[' + Number(s.viewYaw) + ',' + Number(s.viewPitch) + ',' + Number(s.viewRoll) + ']')
+            .Raw("expected_tangent", '[' + Number(b.tangent.X) + ',' + Number(b.tangent.Y) + ',' + Number(b.tangent.Z) + ']')
+            .Raw("expected_normal", '[' + Number(b.normal.X) + ',' + Number(b.normal.Y) + ',' + Number(b.normal.Z) + ']')
             .Num("u_sign", b.uSign).Num("v_sign", b.vSign)
             .Num("expected_handedness", b.handedness)
             .Num("view_parity", b.valid ? b.handedness * (s.portalMirrored ? -1.f : 1.f) : 0.f)

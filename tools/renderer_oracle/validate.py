@@ -152,6 +152,8 @@ def _sprite_basis(value):
     _vector(surface.get("uv"), 4, "sprite signed UV endpoints")
     _vector(surface.get("render_angles"), 3, "sprite render angles")
     _vector(surface.get("view_angles"), 3, "sprite view angles")
+    _vector(surface.get("expected_tangent"), 3, "PF-009 expected tangent")
+    _vector(surface.get("expected_normal"), 3, "PF-009 expected normal")
     _vector(value.get("tangent"), 3, "emitted tangent")
     _vector(value.get("normal"), 3, "emitted normal")
     handedness = number(value.get("handedness"), "sprite tangent handedness", minimum=-1)
@@ -183,6 +185,10 @@ def _sprite_basis(value):
                     surface["uv_mirror_y"] is (v_sign < 0),
                     "PF-009 actor frame/flip flags disagree with final signed UV axes")
         tangent, normal = value["tangent"], value["normal"]
+        require(all(abs(a-b) <= 2e-5 for emitted, expected in
+                    ((tangent, surface["expected_tangent"]), (normal, surface["expected_normal"]))
+                    for a, b in zip(emitted, expected)),
+                "Emitted sprite axis differs from PF-009 computed final-quad direction")
         dot = sum(a*b for a, b in zip(tangent, normal))
         for axis in (tangent, normal):
             require(abs(sum(c*c for c in axis) - 1.0) <= 2e-3, "Unnormalized sprite tangent axis")
@@ -194,7 +200,9 @@ def _sprite_basis(value):
                 "Degenerate reconstructed sprite bitangent")
     else:
         require(handedness == expected_hand == parity == 0 and
-                value["tangent"] == [0, 0, 0] and value["normal"] == [0, 0, 0],
+                value["tangent"] == [0, 0, 0] and value["normal"] == [0, 0, 0] and
+                surface["expected_tangent"] == [0, 0, 0] and
+                surface["expected_normal"] == [0, 0, 0],
                 "Fallback sprite draw retained stale explicit vectors/handedness")
 
 

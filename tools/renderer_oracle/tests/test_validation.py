@@ -510,6 +510,7 @@ def sprite_basis_row():
             "selection": "explicit-sprite", "uv": [1, 0, 0, 1], "render_angles": [0, 0, 0],
             "view_angles": [0, 0, 0], "u_sign": -1, "v_sign": 1,
             "expected_handedness": 1, "view_parity": 1,
+            "expected_tangent": [-1, 0, 0], "expected_normal": [0, 0, 1],
         }
     })
 
@@ -562,7 +563,8 @@ class SpriteTangentValidatorTests(unittest.TestCase):
         v.update(tangent=[0,0,0], normal=[0,0,0], handedness=0, explicit=False)
         v["surface"].update(basis_valid=False, selection="legacy-derivative-fallback",
                             basis_reason="nonplanar sprite quad", u_sign=0, v_sign=0,
-                            expected_handedness=0, view_parity=0)
+                            expected_handedness=0, view_parity=0,
+                            expected_tangent=[0,0,0], expected_normal=[0,0,0])
         self.assertEqual(validate.observation(state)["status"], "PASS")
         v["tangent"] = [1,0,0]
         with self.assertRaisesRegex(common.EvidenceError, "stale explicit"):
