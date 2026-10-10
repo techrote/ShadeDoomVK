@@ -423,12 +423,21 @@ class AuthoredSceneTests(unittest.TestCase):
         lights = [t for t in records["thing"] if t["type"] == 9800]
         markers = [t for t in records["thing"] if t["type"] == 32203]
         self.assertEqual([t["id"] for t in lights], [3000])
-        self.assertEqual([t["id"] for t in markers], [2020, 2021])
+        self.assertEqual([t["id"] for t in markers], [2020])
+        self.assertEqual([t["id"] for t in records["thing"] if t["type"] == 32217], [2021])
+        self.assertEqual(meta["actor_probe_tids"], [2020, 2021])
+        self.assertIn(b"32217 = SDVKProbeMetal", members["MAPINFO"])
+        self.assertIn(b"material texture SDVQA0", members["GLDEFS"])
+        self.assertIn(b"material texture SDVOA0", members["GLDEFS"])
         self.assertEqual(scene["native"]["frame_assertions"]["sprites"], {"minimum": 2})
         self.assertEqual(scene["native"]["settings"]["gl_spritelight"], 2)
         self.assertIs(scene["native"]["settings"]["gl_light_sprites"], True)
         self.assertIs(scene["native"]["settings"]["gl_lights"], True)
-        self.assertEqual(scene["native"]["state_assertions"], {"published_probes_minimum": 2, "sun_intensity": 1})
+        self.assertEqual(scene["native"]["state_assertions"]["published_probes_minimum"], 2)
+        self.assertEqual(scene["native"]["state_assertions"]["sun_intensity"], 1)
+        self.assertEqual(scene["native"]["state_assertions"]["actor_probe"]["required_indices"], [0, 1])
+        self.assertTrue(scene["native"]["state_assertions"]["actor_probe"]["require_live"])
+        self.assertEqual(set(scene["native"]["state_assertions"]["materials"]), {"SDVOA0", "SDVQA0"})
         self.assertFalse(meta["full_bake_qualified"])
         self.assertEqual(meta["baked_lightmap_members"], 0)
 
