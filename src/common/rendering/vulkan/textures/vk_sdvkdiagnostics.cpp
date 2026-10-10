@@ -189,10 +189,14 @@ struct FSdvkDiagnosticAccess
         else SdvkDiagnostics::Emit("material", Object().Raw("context", context).Raw("material", Unavailable("draw has no material")).Json(), true);
 
         const int runtimeProbe = state->mSurfaceUniforms.uLightProbeIndex;
+        const auto actorProbe = SdvkDiagnostics::CurrentActorProbeSelectionJson();
         auto textures = fb->GetTextureManager();
         SdvkDiagnostics::Emit("probe", Object().Raw("context", context).Str("material", name)
             .Str("mode", "uniform-environment-pair").Int("authored_index", state->mLightProbeIndex).Int("runtime_irradiance_index", runtimeProbe)
-            .Bool("fallback", runtimeProbe == 0).Raw("resource", runtimeProbe ? Identity(fb->GetDescriptorSetManager()->GetBindlessIdentity(runtimeProbe)) : Unavailable("zero is the no-probe sentinel"))
+            .Bool("fallback", runtimeProbe == 0)
+            .Raw("actor_selection", actorProbe.empty() ? Unavailable("not an actor sprite card") : actorProbe)
+            .Int("probe_epoch", textures->GetLightProbeEpoch().Generation)
+            .Raw("resource", runtimeProbe ? Identity(fb->GetDescriptorSetManager()->GetBindlessIdentity(runtimeProbe)) : Unavailable("zero is the no-probe sentinel"))
             .Int("published_irradiance", textures->Irradiancemaps.size()).Int("published_prefilter", textures->Prefiltermaps.size())
             .Raw("irradiance_sampler", Sampler(fb->GetSamplerManager()->IrradiancemapSampler.get()))
             .Raw("prefilter_sampler", Sampler(fb->GetSamplerManager()->PrefiltermapSampler.get()))
