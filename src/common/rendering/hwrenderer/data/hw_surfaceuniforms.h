@@ -55,6 +55,11 @@ struct SurfaceUniforms
 	int uMaterialSemanticPad0;
 	int uMaterialSemanticPad1;
 	int uMaterialSemanticPad2;
+
+	// SDVK-007/v1: per-draw sprite-only world TBN. Normal.W = 1 iff
+	// explicit; tangent.W = +/-1 handedness. Appended after SDVK-005.
+	FVector4 uSpriteTangent = {};
+	FVector4 uSpriteNormal = {};
 };
 
 struct SurfaceLightUniforms

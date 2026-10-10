@@ -93,6 +93,24 @@ struct FSdvkDiagnosticAccess
         const auto material = static_cast<VkMaterial*>(state->mMaterial.mMaterial);
         const std::string name = material && material->Source() ? material->Source()->GetName().GetChars() : "";
         const auto pipeline = Pipeline(state->mPipelineKey);
+        const auto spriteSurface = SdvkDiagnostics::CurrentSpriteBasisJson();
+        if (!spriteSurface.empty())
+        {
+            // Emitted draw's uploaded SurfaceUniforms, rather than merely
+            // an offline/generated tangent value.
+            const auto& tangent = state->mSurfaceUniforms.uSpriteTangent;
+            const auto& normal = state->mSurfaceUniforms.uSpriteNormal;
+            SdvkDiagnostics::Emit("sprite-basis", Object().Raw("context", context)
+                .Raw("surface", spriteSurface)
+                .Raw("tangent", '[' + Number(tangent.X) + ',' + Number(tangent.Y) + ',' + Number(tangent.Z) + ']')
+                .Raw("normal", '[' + Number(normal.X) + ',' + Number(normal.Y) + ',' + Number(normal.Z) + ']')
+                .Num("handedness", tangent.W).Bool("explicit", normal.W > 0.5f)
+                .Str("material", name).Int("shader", material ? material->GetShaderIndex() : -1)
+                .Int("height_texture_index", state->mSurfaceUniforms.uHeightTextureIndex)
+                .Int("light_index", state->mPushConstants.uLightIndex)
+                .Bool("indexed", indexed).Int("draw_count", count)
+                .Str("uniform_scope", "emitted-vulkan-draw-after-apply-surface-uniforms").Json(), true);
+        }
         SdvkDiagnostics::Emit("pipeline", Object().Raw("context", context).Str("material", name)
             .Raw("key", pipeline).Bool("indexed", indexed).Int("draw_count", count)
             .Int("target_width", state->mRenderTarget.Width).Int("target_height", state->mRenderTarget.Height)

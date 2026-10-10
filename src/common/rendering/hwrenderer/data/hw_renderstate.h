@@ -219,6 +219,7 @@ public:
 		mSurfaceUniforms.uLightLevel = -1.0f;
 		mSurfaceUniforms.uDepthFadeThreshold = 0.0f;
 		mSurfaceUniforms.uHeightTextureIndex = -1;
+		ClearSpriteTangentBasis();
 		mLightProbeIndex = 0;
 		mSpecialEffect = EFF_NONE;
 		mLightIndex = -1;
@@ -254,6 +255,20 @@ public:
 		mSurfaceUniforms.uNpotEmulation = { 0,0,0,0 };
 #endif
 		ClearClipSplit();
+	}
+
+	// Only non-model sprite-card draws set this. All other producers keep the
+	// inherited normal and derivative-based tangent path.
+	void SetSpriteTangentBasis(FVector3 tangent, FVector3 normal, float handedness)
+	{
+		mSurfaceUniforms.uSpriteTangent = { tangent.X, tangent.Y, tangent.Z, handedness };
+		mSurfaceUniforms.uSpriteNormal = { normal.X, normal.Y, normal.Z, 1.f };
+	}
+
+	void ClearSpriteTangentBasis()
+	{
+		mSurfaceUniforms.uSpriteTangent = { 0.f, 0.f, 0.f, 0.f };
+		mSurfaceUniforms.uSpriteNormal = { 0.f, 0.f, 0.f, 0.f };
 	}
 
 	void SetNormal(FVector3 norm)

@@ -486,6 +486,34 @@ def _scene_assertions(raw, scene):
                          if record["kind"] == "material" and record["data"].get("name") == name]
                 require(drawn and all(_material_height_layer_match(value, expected) for value in drawn),
                         "Required height material binding differs: " + name)
+            sprite = assertions.get("sprite_basis")
+            if sprite:
+                draws = [record["data"] for record in records if record["kind"] == "sprite-basis"]
+                require(len(draws) >= sprite["minimum_draws"], "Too few actual emitted sprite-basis draws")
+                explicit = [row for row in draws if row["explicit"]]
+                require(explicit and all(row["surface"]["basis_valid"] for row in explicit),
+                        "No qualified explicit sprite normal basis used by emitted Vulkan draws")
+                require(set(sprite["presentations"]) <= {row["surface"]["presentation"] for row in explicit},
+                        "Not all claimed sprite presentations used an explicit draw basis")
+                require(set(sprite["material_examples"]) <= {row["material"] for row in explicit},
+                        "Normal/specular, PBR or legacy sprite control not actually emitted")
+                require(all(frame["settings"].get("effective_sprite_light_mode") == 2
+                            and frame.get("active_lights", 0) >= 1 for frame in frames),
+                        "Sprite directional lighting fixture lacked active per-pixel lights")
+                for name in sprite["light_material_examples"]:
+                    require(any(row["material"] == name and row["explicit"] and
+                                row["light_index"] >= 0 and row["shader"] in (3, 4) for row in explicit),
+                            "Normal/specular or PBR sprite lacked an active drawn light range: " + name)
+                for assertion, key in (("requires_frame_mirror", "frame_mirrored"),
+                                       ("requires_uv_mirror_x", "uv_mirror_x"),
+                                       ("requires_uv_mirror_y", "uv_mirror_y"),
+                                       ("requires_portal_mirror", "portal_mirrored")):
+                    if sprite[assertion]:
+                        require(any(row["surface"][key] for row in explicit),
+                                "Required actual sprite TBN mirror/flip state absent: " + key)
+                require(all(row["height_texture_index"] == (6 if row["material"] == "SDVRA1" else -1)
+                            for row in draws if row["material"] in {"SDVRA1", "SDVPA0", "SDVLA0"}),
+                        "Height-bearing sprite unexpectedly changed height binding semantics")
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]

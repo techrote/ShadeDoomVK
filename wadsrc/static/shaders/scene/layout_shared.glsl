@@ -60,6 +60,8 @@
 #define uColormapIndex data[uDataIndex].uColormapIndex
 #define uDepthFadeThreshold data[uDataIndex].uDepthFadeThreshold
 #define uHeightTextureIndex data[uDataIndex].uHeightTextureIndex
+#define uSpriteTangent data[uDataIndex].uSpriteTangent
+#define uSpriteNormal data[uDataIndex].uSpriteNormal
 #define uActorCenter data[uDataIndex].uActorCenter
 #define uLightProbeIndex data[uDataIndex].uLightProbeIndex
 

@@ -328,6 +328,23 @@
       "kind": "cpu_contract",
       "native_rendering_proof": false,
       "test_path": "tools/pf_oracle/tests/test_freeze_view_fixture.py"
+    },
+    "sprite-tangent": {
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sprite_tangent_contract.py",
+      "retained_fixture": "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp",
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sprite_tangent_contract.py",
+        "-v"
+      ]
     }
   },
   "cvar_sources": {
@@ -4702,12 +4719,24 @@
           "-p",
           "test_swcanvas_layout_contract.py",
           "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sprite_tangent_contract.py",
+          "-v"
         ]
       ],
       "cpu_contracts": [
         "render-context",
         "sprite-surface",
-        "swcanvas"
+        "swcanvas",
+        "sprite-tangent"
       ],
       "id": "sprite-mirror",
       "native": {
@@ -4774,10 +4803,12 @@
           "gl_lens",
           "gl_levelmesh",
           "gl_light_shadows",
+          "gl_light_sprites",
           "gl_lightprobe",
           "gl_mirrors",
           "gl_multisample",
           "gl_portals",
+          "gl_spritelight",
           "gl_ssao",
           "gl_texture_filter",
           "gl_texture_filter_anisotropic",
@@ -4835,7 +4866,9 @@
         },
         "pending_coverage": [
           "Actual native mirrored context, five distinct paired-rotation textures and bound normal/specular semantics are required; preparation alone is not coverage.",
-          "This static freely reproducible recipe supplements rather than replaces the retained PF interpolated/linked-portal fixture and its exact original IWAD contract."
+          "This static freely reproducible recipe supplements rather than replaces the retained PF interpolated/linked-portal fixture and its exact original IWAD contract.",
+          "A generated normal map and passing CPU fixture do not establish shader consumption: the native sprite-basis channel must witness applied Vulkan draw uniforms. Pitch/roll and nested/plane-mirror views retain separate PF evidence.",
+          "A fixed coloured light and mode-2 per-pixel sprite lighting qualify the active normal/specular/PBR draw path; directional lobe evidence uses asymmetric normals and signed-UV CPU fixtures, not a symmetric screenshot."
         ],
         "pk3": "scenes/sprite-mirror/scene.pk3",
         "recommended_warmup_frames": 120,
@@ -4884,7 +4917,9 @@
           "vid_maxfps": 0,
           "vid_rendermode": 4,
           "vid_vsync": false,
-          "vk_rayquery": false
+          "vk_rayquery": false,
+          "gl_spritelight": 2,
+          "gl_light_sprites": true
         },
         "state_assertions": {
           "line_mirror": true,
@@ -4913,6 +4948,16 @@
               "albedo",
               "normal",
               "legacy-specular"
+            ],
+            "SDVPA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ],
+            "SDVLA0": [
+              "albedo"
             ]
           },
           "materials": [
@@ -4920,7 +4965,9 @@
             "SDVRA2A8",
             "SDVRA3A7",
             "SDVRA4A6",
-            "SDVRA5"
+            "SDVRA5",
+            "SDVPA0",
+            "SDVLA0"
           ],
           "root_types": [
             "main"
@@ -4955,6 +5002,27 @@
                 "mipmap_mode": 1
               }
             ]
+          },
+          "sprite_basis": {
+            "minimum_draws": 8,
+            "presentations": [
+              0,
+              3,
+              4
+            ],
+            "material_examples": [
+              "SDVRA1",
+              "SDVPA0",
+              "SDVLA0"
+            ],
+            "requires_frame_mirror": true,
+            "requires_uv_mirror_x": true,
+            "requires_uv_mirror_y": true,
+            "requires_portal_mirror": true,
+            "light_material_examples": [
+              "SDVRA1",
+              "SDVPA0"
+            ]
           }
         },
         "status": "native_qualification_pending"
@@ -4962,13 +5030,15 @@
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
         "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
-        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp"
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp"
       ],
       "required_state_channels": [
         "context",
         "material",
         "resource",
-        "pipeline"
+        "pipeline",
+        "sprite-basis"
       ],
       "source_refs": [
         "docs/shadedoomvk/rag/01-RENDERER-EXECUTION-MAP.md",
@@ -4989,7 +5059,10 @@
         "wadsrc/static/mapinfo/common.txt",
         "wadsrc/static/zscript/actors/actor.zs",
         "wadsrc/static/zscript/actors/player/player.zs",
-        "wadsrc/static/zscript/actors/shared/decal.zs"
+        "wadsrc/static/zscript/actors/shared/decal.zs",
+        "src/rendering/hwrenderer/scene/hw_sprite_tangent.h",
+        "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp",
+        "tools/pf_oracle/tests/test_sprite_tangent_contract.py"
       ],
       "title": "Authored eight rotations, paired mirrored frames, wall/flat sprites and line mirror"
     }

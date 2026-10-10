@@ -51,6 +51,7 @@
 #include "hwrenderer/scene/hw_fakeflat.h"
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/scene/hw_visualtime.h"
+#include "hwrenderer/scene/hw_sprite_tangent.h"
 #include "flatvertices.h"
 #include "hw_cvars.h"
 #include "hw_clock.h"
@@ -63,6 +64,7 @@
 
 #include "p_visualthinker.h"
 #include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 
 extern TArray<spritedef_t> sprites;
 extern TArray<spriteframe_t> SpriteFrames;
@@ -112,6 +114,9 @@ CVARD(Bool, r_showhitbox, false, CVAR_GLOBALCONFIG | CVAR_CHEAT, "show actor hit
 
 void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
+	// Never inherit a sprite basis from a preceding card, view or model.
+	state.ClearSpriteTangentBasis();
+	SdvkDiagnostics::ClearSpriteBasis();
 	bool paletteModeDisabled = false;
 	if ((OverrideShader != -1 || RenderStyle.BlendOp >= STYLEOP_Fuzz) && !V_IsTrueColor()) // We can't do these in palette mode with current shaders
 	{
@@ -348,6 +353,8 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 				state.Draw(DT_TriangleStrip, vertexindex, 4);
 				state.SetTextureMode(TM_NORMAL);
 			}
+			state.ClearSpriteTangentBasis();
+			SdvkDiagnostics::ClearSpriteBasis();
 			state.SetLightNoNormals(false);
 			state.SetUseSpriteCenter(false);
 		}
@@ -773,6 +780,22 @@ void HWSprite::CreateVertices(HWDrawInfo *di, FRenderState& state)
 		vp[1].Set(v[1][0], v[1][1], v[1][2], ur, vt);
 		vp[2].Set(v[2][0], v[2][1], v[2][2], ul, vb);
 		vp[3].Set(v[3][0], v[3][1], v[3][2], ur, vb);
+		// The only orientation derivation is from these *actual* final
+		// positions/UVs. No new game angle or portal transform is applied.
+		const float quad[4][3] = {
+			{v[0][0], v[0][1], v[0][2]}, {v[1][0], v[1][1], v[1][2]},
+			{v[2][0], v[2][1], v[2][2]}, {v[3][0], v[3][1], v[3][2]}
+		};
+		const auto basis = ResolveHWSpriteTangentBasis(quad, ul, ur, vt, vb);
+		if (basis.valid)
+		{
+			state.SetSpriteTangentBasis(
+				FVector3(basis.tangent.X, basis.tangent.Y, basis.tangent.Z),
+				FVector3(basis.normal.X, basis.normal.Y, basis.normal.Z), basis.handedness);
+		}
+		else state.ClearSpriteTangentBasis();
+		if (SdvkDiagnostics::StateEnabled())
+			SdvkDiagnostics::SpriteBasisSelected(RenderSurface, basis);
 		Pf020ViewDiagnostics::SpriteVertices(di, this, vp);
 	}
 

@@ -290,7 +290,8 @@
             "shadow",
             "resource",
             "pipeline",
-            "timing"
+            "timing",
+            "sprite-basis"
           ]
         },
         "frame": {

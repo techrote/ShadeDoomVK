@@ -31,7 +31,7 @@ GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
-CHANNELS = {"context", "material", "light-query", "probe", "shadow", "resource", "pipeline"}
+CHANNELS = {"context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "sprite-basis"}
 
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle import prepare_freeze_view_fixture as pf_view
@@ -173,7 +173,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -183,6 +183,26 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                 raise ValueError(f"Scene {name} requires distinct named state assertions")
             if key == "root_types" and not set(values) <= {"main", "camera-texture", "light-probe", "save-picture", "portal"}:
                 raise ValueError(f"Scene {name} names an unsupported root context")
+        sprite_basis = state_assertions.get("sprite_basis")
+        if sprite_basis is not None:
+            if (not isinstance(sprite_basis, dict) or set(sprite_basis) !=
+                    {"minimum_draws", "presentations", "material_examples", "requires_frame_mirror",
+                     "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror",
+                     "light_material_examples"}
+                    or type(sprite_basis["minimum_draws"]) is not int or
+                    not 1 <= sprite_basis["minimum_draws"] <= 1000 or
+                    not isinstance(sprite_basis["presentations"], list) or
+                    not sprite_basis["presentations"] or
+                    any(type(v) is not int or v not in range(5) for v in sprite_basis["presentations"]) or
+                    not isinstance(sprite_basis["material_examples"], list) or
+                    not sprite_basis["material_examples"] or
+                    not set(sprite_basis["material_examples"]) <= set(state_assertions.get("materials", [])) or
+                    not isinstance(sprite_basis["light_material_examples"], list) or
+                    not sprite_basis["light_material_examples"] or
+                    not set(sprite_basis["light_material_examples"]) <= set(sprite_basis["material_examples"]) or
+                    any(sprite_basis[k] is not True for k in
+                        ("requires_frame_mirror", "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror"))):
+                raise ValueError("Unbounded or ungrounded sprite tangent native assertions")
         if "line_mirror" in state_assertions and state_assertions["line_mirror"] is not True:
             raise ValueError(f"Scene {name} requires an explicit positive line-mirror assertion")
         if "published_probes_minimum" in state_assertions:
@@ -490,10 +510,15 @@ class SDVKWall : SDVKRotated { Default { +WALLSPRITE } }
 class SDVKFlat : SDVKRotated { Default { +FLATSPRITE } }
 class SDVKFlipX : SDVKRotated { Default { +XFLIP } }
 class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
+class SDVKPBR : SDVKRotated { States { Spawn: SDVP A -1; Stop; } }
+class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
 """
         rotation_names = ["SDVRA1", "SDVRA2A8", "SDVRA3A7", "SDVRA4A6", "SDVRA5"]
         _material_layers(members)
-        members["textures/SDVN.png"] = png_rgba(16, 16, bytes((196, 128, 234, 255)) * 256)
+        # Directionally asymmetric RG, never an ambiguous blue-only normal.
+        normal_pixels = bytes(ch for y in range(16) for x in range(16)
+                              for ch in ((216, 76, 219, 255) if x < 8 else (81, 185, 235, 255)))
+        members["textures/SDVN.png"] = png_rgba(16, 16, normal_pixels)
         definitions = []
         for i, name in enumerate(rotation_names):
             # Deliberately asymmetric authored pixels expose mirrored frames.
@@ -506,6 +531,9 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
                 definitions.append(f'material sprite {name}\n{{\n normal "SDVN" {{ filter linear }}\n specular "SDVSP"\n height "SDVH" {{ filter linear }}\n}}\n')
             else:
                 definitions.append(f'material sprite {name}\n{{\n normal "SDVN"\n specular "SDVSP"\n}}\n')
+        members["sprites/SDVPA0.png"] = _texture(64, 64, (85, 156, 224, 255), (234, 194, 74, 255), offset=(32, 64))
+        members["sprites/SDVLA0.png"] = _texture(64, 64, (210, 130, 108, 255), (65, 92, 175, 255), offset=(32, 64))
+        definitions.append(_pbr("SDVPA0", kind="sprite"))
         members["GLDEFS"] = "".join(definitions).encode()
         for k, (x, y) in enumerate((x, y) for x in (0, 64) for y in (-72, -24, 24, 72)):
             yaw = (math.degrees(math.atan2(y - camera[1], x - camera[0])) - ((2*k + .5)*22.5 - 202.5)) % 360
@@ -513,7 +541,14 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
         for kind, x, y, height, tid in ((32211, 96, -112, 32, 4301), (32212, 96, 112, 8, 4302),
                                        (32213, 128, -48, 0, 4303), (32214, 128, 48, 0, 4304)):
             model.thing(kind, x, y, height, tid=tid)
-        metadata.update(rotation_material_names=rotation_names, rotation_actor_tids=list(range(4201, 4209)),
+        model.thing(32215, 128, 150, 0, tid=4305)
+        model.thing(32216, 128, -150, 0, tid=4306)
+        # One fixed coloured light activates actual normal/specular/PBR response
+        # in software Vulkan. The mode-2 per-pixel path is asserted below.
+        model.thing(9800, 96, 0, 64, tid=4500, arg0=255, arg1=142, arg2=74, arg3=256)
+        metadata.update(direction_light_tid=4500, per_pixel_sprite_light_mode=2,
+                        pbr_sprite_material="SDVPA0", legacy_unmapped_sprite="SDVLA0",
+                        rotation_material_names=rotation_names, rotation_actor_tids=list(range(4201, 4209)),
                         paired_frame_mirroring=True, mirror_line_id=2040,
                         actual_mirrored_context_and_materials_required=True)
     elif generator == "lighting":
@@ -622,7 +657,7 @@ class SDVKFlipY : SDVKRotated { Default { +YFLIP } }
                           ' 32202 = SDVKGlass\n 32203 = SDVKMarker\n}\n').encode()
     if generator == "sprite_mirror":
         members["MAPINFO"] += ("DoomEdNums\n{\n 32210 = SDVKRotated\n 32211 = SDVKWall\n"
-                               " 32212 = SDVKFlat\n 32213 = SDVKFlipX\n 32214 = SDVKFlipY\n}\n").encode()
+                               " 32212 = SDVKFlat\n 32213 = SDVKFlipX\n 32214 = SDVKFlipY\n 32215 = SDVKPBR\n 32216 = SDVKLegacy\n}\n").encode()
     textmap = model.text().encode()
     members[f"maps/{map_name}.wad"] = pf_indexed.wad([(map_name, b""), ("TEXTMAP", textmap), ("ENDMAP", b"")])
     metadata["counts"] = {kind: len(rows) for kind, rows in model.records.items()}

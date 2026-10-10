@@ -494,5 +494,83 @@ class CaptureReceiptTests(unittest.TestCase):
             self.assertFalse(result["state_equal"])
 
 
+def sprite_basis_row():
+    return row("sprite-basis", {
+        "context": context(), "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms",
+        "indexed": False, "draw_count": 4, "shader": 6, "material": "SYNTHETIC",
+        "height_texture_index": -1, "light_index": -1, "tangent": [-1, 0, 0],
+        "normal": [0, 0, 1], "handedness": 1, "explicit": True,
+        "surface": {
+            "contract": "sdvk-007-final-quad/v1", "orientation_source": "pf-009-calculate-vertices",
+            "source": 0, "presentation": 0, "sprite_type": 0, "actor_sprite": 1,
+            "actor_frame": 0, "source_portal_group": 0, "render_portal_group": 0,
+            "through_portal_mode": 0, "frame_mirrored": False, "uv_mirror_x": False,
+            "uv_mirror_y": False, "portal_mirrored": False, "xy_billboard": False,
+            "faces_camera": False, "basis_valid": True, "basis_reason": "explicit-final-quad",
+            "selection": "explicit-sprite", "uv": [1, 0, 0, 1], "render_angles": [0, 0, 0],
+            "view_angles": [0, 0, 0], "u_sign": -1, "v_sign": 1,
+            "expected_handedness": 1, "view_parity": 1,
+            "expected_tangent": [-1, 0, 0], "expected_normal": [0, 0, 1],
+        }
+    })
+
+
+class SpriteTangentValidatorTests(unittest.TestCase):
+    def native(self):
+        data = observation()
+        data["records"].append(sprite_basis_row())
+        return recount(data)
+
+    def test_exact_draw_snapshot_accepted_and_required(self):
+        self.assertEqual(validate.observation(self.native(), required_kinds=["sprite-basis"])["status"], "PASS")
+        unbound = self.native()
+        unbound["records"].pop()
+        with self.assertRaisesRegex(common.EvidenceError, "Required observation channels missing"):
+            validate.observation(recount(unbound), required_kinds=["sprite-basis"])
+
+    def test_directional_tangent_and_mirror_counterexamples_fail_closed(self):
+        examples = [
+            (("handedness",), -1),
+            (("normal",), [0, 1, 0]),
+            (("normal",), [1, 0, 0]),
+            (("tangent",), [0, 0, 0]),
+            (("tangent",), [1, 0, 1]),
+            (("tangent",), [float("nan"), 0, 0]),
+            (("surface", "u_sign"), 1),
+            (("surface", "v_sign"), -1),
+            (("surface", "view_parity"), -1),
+            (("surface", "portal_mirrored"), True),
+            (("surface", "uv_mirror_x"), True),
+            (("surface", "uv_mirror_y"), True),
+            (("surface", "orientation_source"), "guess-from-yaw"),
+            (("surface", "presentation"), 5),
+            (("explicit",), False),
+            (("uniform_scope",), "generated-offline"),
+            (("draw_count",), 6),
+            (("light_index",), -2),
+        ]
+        for keys, bad in examples:
+            state = self.native()
+            victim = state["records"][-1]["data"]
+            for key in keys[:-1]:
+                victim = victim[key]
+            victim[keys[-1]] = bad
+            with self.subTest(keys=keys,bad=bad), self.assertRaises(common.EvidenceError):
+                validate.observation(state)
+
+    def test_fallback_must_zero_all_gpu_uniforms(self):
+        state = self.native()
+        v = state["records"][-1]["data"]
+        v.update(tangent=[0,0,0], normal=[0,0,0], handedness=0, explicit=False)
+        v["surface"].update(basis_valid=False, selection="legacy-derivative-fallback",
+                            basis_reason="nonplanar sprite quad", u_sign=0, v_sign=0,
+                            expected_handedness=0, view_parity=0,
+                            expected_tangent=[0,0,0], expected_normal=[0,0,0])
+        self.assertEqual(validate.observation(state)["status"], "PASS")
+        v["tangent"] = [1,0,0]
+        with self.assertRaisesRegex(common.EvidenceError, "stale explicit"):
+            validate.observation(state)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -852,3 +852,11 @@ SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f785
 - Acceptance reconciliation is PR #134 with [human-readable](SDVK-005-FINAL-ACCEPTANCE.md) and [machine-readable](SDVK-005-RELEASE-ACCEPTANCE.json) evidence.
 
 **SDVK-005: ACCEPTED, MERGED AND VERIFIED after PR #134 reconciliation verification. SDVK-007: DEPENDENCY-READY.**
+
+### 10 October 2026 — SDVK-007 implementation and qualification in progress
+
+- Start `master@cbff1d10b802e60a56d239338f810f7e1e52920d`; SDVK-005 accepted and reconciled, PF-009/014 orientation/portal prerequisites accepted. Dedicated `sdvk-007-explicit-sprite-tangent-basis` branch, substantive PR #135.
+- Pre-implementation trace captured the degenerate inherited sprite normal-map baseline (`SetNormal(0,0,0)` + derivative `cotangent_frame`) and pinned the final PF-009 quad/signed-UV/portal-parity substrate in `SDVK-007-BASIS-ARCHITECTURE.md`.
+- Adds sprite-only T/N/sign/enable surface uniforms and GLSL selection with no new vertex/interpolator or height/POM work; all normal-free, non-sprite and model routes retain inherited behavior.
+- Read-only Vulkan emitted-draw diagnostics and finite/orthogonal/mirror parity validators; directional 8-rotation/flip/camera fixtures; extends existing native `sprite-mirror` with directional normal, PBR, height and unmapped controls.
+- **Not an acceptance record.** Exact-head source/full 9-job CI, complete software-Vulkan state/image and exact merged-master reconciliation remain gates; downstream SDVK-008/010 are still blocked until they pass. No physical-GPU run is required for this issue.
