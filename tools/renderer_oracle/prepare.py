@@ -173,7 +173,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -203,6 +203,20 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                     any(sprite_basis[k] is not True for k in
                         ("requires_frame_mirror", "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror"))):
                 raise ValueError("Unbounded or ungrounded sprite tangent native assertions")
+        relief = state_assertions.get("sprite_relief")
+        if relief is not None:
+            if (not isinstance(relief, dict) or set(relief) !=
+                    {"depth", "quality", "minimum_candidates", "eligible_materials",
+                     "height_absent_materials", "requires_mirrored_view"}
+                    or type(relief["depth"]) not in (int, float) or not 0 < relief["depth"] <= 0.0200
+                    or type(relief["quality"]) is not int or relief["quality"] not in (1, 2, 3)
+                    or type(relief["minimum_candidates"]) is not int or not 1 <= relief["minimum_candidates"] <= 1000
+                    or not isinstance(relief["eligible_materials"], list) or not relief["eligible_materials"]
+                    or not isinstance(relief["height_absent_materials"], list) or not relief["height_absent_materials"]
+                    or type(relief["requires_mirrored_view"]) is not bool
+                    or not set(relief["eligible_materials"] + relief["height_absent_materials"]) <=
+                         set(state_assertions.get("materials", []))):
+                raise ValueError("Unbounded or ungrounded native sprite relief assertions")
         if "line_mirror" in state_assertions and state_assertions["line_mirror"] is not True:
             raise ValueError(f"Scene {name} requires an explicit positive line-mirror assertion")
         if "published_probes_minimum" in state_assertions:
