@@ -1,0 +1,141 @@
+{
+  "schema": "sdvk008-offgpu-release/v1",
+  "dateUtc": "2026-10-10",
+  "status": "OFF_GPU_IMPLEMENTATION_MERGED_QUALIFIED_PHYSICAL_PENDING",
+  "issue": "https://github.com/techrote/ShadeDoomVK/issues/8",
+  "issueState": "OPEN_PHYSICAL_QUALITY_AND_COST_OUTSTANDING",
+  "pullRequest": "https://github.com/techrote/ShadeDoomVK/pull/138",
+  "originalStartingMaster": "adead010aa40d0f4f8d9ffdb51573005b7f9a964",
+  "integrationBaseAfterSdvk010": "1b8a6ade684f2d0070dd60dd3dcb3291c34ed6af",
+  "prepassSource": {
+    "branch": "prepass/sdvk-008-relief",
+    "head": "34b7a126249aec98168fc188ab113c374a034f80",
+    "textualFilesPreserved": 9,
+    "referenceCases": 1620,
+    "unitTests": 11,
+    "zipSha256": "efec30fd4c14740a188b52b5f1ce0ca00c88f07102382f448409d2b16a91ab92"
+  },
+  "finalHead": "6c0d418e82f34de89084b4175d8aafe0bc024e71",
+  "substantiveMergeCommit": "9536324ce33ea418af5a8efe733b4659f6b4ad9b",
+  "testedAndMergedTree": "3123bc7fd3dd9074487cbe3487f9336ef3589003",
+  "exactTreeEquality": true,
+  "compatibleSdvk010": true,
+  "shaderContract": {
+    "optInDefaultDepth": 0,
+    "qualityDefault": 2,
+    "validDepthUvRange": "0 < depth <= 0.02",
+    "fixedTraversalSteps": {
+      "low": 8,
+      "medium": 12,
+      "high": 20
+    },
+    "maximumHeightReadsIncludingFrontAndRefinement": {
+      "low": 10,
+      "medium": 15,
+      "high": 23
+    },
+    "maximumUvExcursion": 0.05,
+    "grazingFallbackViewZ": 0.2,
+    "heightSemantic": "SDVK-005 optional red scalar, missing index -1",
+    "basisSemantic": "SDVK-007 final sprite quad signed UV tangent/normal/handedness",
+    "portalMirror": "PF-010 view reflection parity observed but never applied twice",
+    "framebufferGeometryUnchanged": true,
+    "noNormalAndNoHeightFallback": true,
+    "nonSpriteModelCustomShaderNotRewritten": true,
+    "guards": [
+      "nonfinite or degenerate basis/UV",
+      "missing/invalid authored height",
+      "texture transform/atlas footprint unsafe",
+      "NPOT/paletted/incompatible shader",
+      "grazing/back-facing view",
+      "UV frame escape",
+      "alpha-edge escape"
+    ]
+  },
+  "finalHeadEvidence": {
+    "rendererSource": {
+      "runId": 38068791101,
+      "status": "PASS",
+      "artifactId": 11676456191,
+      "bytes": 148694685,
+      "artifactZipSha256": "03e5d208bc8116174f6547f3d975db1bd76538484d505fc217eb460609c42356"
+    },
+    "continuousIntegration": {
+      "runId": 38068790984,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11676376390,
+      "bytes": 76144,
+      "artifactZipSha256": "cf41296aad0ad7351669e0e8cea957ce27576f7947664f526f8f43072f4287bd"
+    },
+    "nativeArtifact": {
+      "artifactId": 11676530794,
+      "bytes": 407592234,
+      "artifactZipSha256": "33708094b70bbdab43c3509ca22185d05810e3bec9148ae87bdf0c87b1861089"
+    }
+  },
+  "postMergeEvidence": {
+    "rendererSource": {
+      "runId": 38074510322,
+      "status": "PASS",
+      "artifactId": 11678427062,
+      "bytes": 148688390,
+      "artifactZipSha256": "fe4420762f0ae196bbc7121c305725128cbeabc83771cfa1a6ac9cf626ab2fcb"
+    },
+    "continuousIntegration": {
+      "runId": 38074510339,
+      "status": "IN_PROGRESS",
+      "jobsPassed": null
+    },
+    "cpuArtifact": null,
+    "nativeArtifact": null
+  },
+  "validatedScope": [
+    "native ten-scene software-Vulkan paired state and image corpus",
+    "emitted Vulkan sprite-relief candidate/height/basis parity and heightless negative controls",
+    "host/reference bound math and negative fixtures",
+    "successful compilation on all CI target toolchains",
+    "source and explicit ABI constraints"
+  ],
+  "unqualified": [
+    "physical GPU timing, sample throughput and actual performance costs",
+    "physical POM visual utility versus OFF under representative loads and GPU drivers",
+    "all alpha/atlas/NPOT/texture subrects and all portal modes outside existing fixture",
+    "final quality tiers and defaults; global relief remains OFF",
+    "sprite shadows, world displacement, self-occlusion"
+  ],
+  "retainedFailures": [
+    {
+      "stage": "premerge-intermediate",
+      "issue": "MSVC FFloatCVar wrapper is not copyable by std::isfinite(self)",
+      "fix": "explicit float conversion",
+      "disposition": "requalified in exact green final-head CI"
+    },
+    {
+      "stage": "premerge-review",
+      "issue": "validator initially compared (ul,ur,vt,vb) to (ul,vt,ur,vb)",
+      "fix": "validate canonical UV-to-corner mapping including X/Y flips",
+      "disposition": "negative fixture checks and CI passed"
+    },
+    {
+      "stage": "branch-integration",
+      "issue": "SDVK-010 PR #137 merged while POM branch was under qualification",
+      "fix": "three-way merge preserves both actor probe and relief semantics across nine shared paths",
+      "disposition": "combined exact tested and merged tree equality"
+    },
+    {
+      "stage": "pr-merge",
+      "issue": "GitHub automatically closed issue #8 despite physical acceptance pending",
+      "fix": "issue explicitly reopened",
+      "disposition": "OPEN"
+    }
+  ],
+  "hardwareProtocol": "docs/shadedoomvk/prepass/SDVK-008/SDVK-008-PHYSICAL-GPU-PROTOCOL.md",
+  "hardwareGate": "PENDING: exact-build finite representative GPU visual correctness and preregistered OFF/ON timing matrix, including raw GPU/CPU frame distributions",
+  "downstream": {
+    "SDVK012": "BLOCKED_PENDING_FINAL_ACCEPTED_SDVK008"
+  },
+  "acceptanceBoundary": "OFF_GPU_QUALIFIED; hardware-gated issue remains open; physical-GPU qualification cannot be inferred from CI/llvmpipe or theoretical shader work bounds"
+}
