@@ -6,16 +6,23 @@ on:
       - sdvk-005-height-semantic
     paths:
       - .github/workflows/sdvk005-bootstrap.yml
+  pull_request:
+    branches:
+      - master
+    paths:
+      - .github/workflows/sdvk005-bootstrap.yml
 
 permissions:
   contents: write
 
 jobs:
   apply:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: sdvk-005-height-semantic
           fetch-depth: 0
       - name: Apply exact SDVK-005 patch and publish implementation
         shell: bash
