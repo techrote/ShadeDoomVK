@@ -4,7 +4,7 @@
   "status": "ACCEPTED_MERGED_VERIFIED",
   "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/5",
   "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/132",
-  "acceptancePullRequest": null,
+  "acceptancePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/133",
   "startingMaster": "0a2fbad203549d18ac6e5a61bb4747709637bfde",
   "finalHead": "9a87734357d15145ed791d89c4b98db94fb60cb6",
   "testedMergeRef": "116a45bf47dc4595ead106ce99588723750d4d5d",
@@ -378,8 +378,8 @@
   ],
   "acceptanceReconciliation": {
     "branch": "sdvk-005-acceptance",
-    "pullRequest": null,
-    "state": "PENDING_ACCEPTANCE_RECORD_PR"
+    "pullRequest": "https://github.com/techrote/ShadeDoomVK/pull/133",
+    "state": "PENDING_EXACT_HEAD_CHECKS_MERGE_AND_MASTER_VERIFICATION"
   },
   "gateDisposition": {
     "SDVK005": "ACCEPTED_MERGED_VERIFIED",
