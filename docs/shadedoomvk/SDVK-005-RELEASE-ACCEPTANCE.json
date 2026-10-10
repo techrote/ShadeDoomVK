@@ -1,0 +1,388 @@
+{
+  "schema": "sdvk005-release-acceptance/v1",
+  "dateUtc": "2026-10-10",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/5",
+  "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/132",
+  "acceptancePullRequest": null,
+  "startingMaster": "0a2fbad203549d18ac6e5a61bb4747709637bfde",
+  "finalHead": "9a87734357d15145ed791d89c4b98db94fb60cb6",
+  "testedMergeRef": "116a45bf47dc4595ead106ce99588723750d4d5d",
+  "testedTree": "28f2ef41a99ea6979145030e807c7798c6e01735",
+  "mergeCommit": "aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1",
+  "mergeTree": "28f2ef41a99ea6979145030e807c7798c6e01735",
+  "treeEquality": true,
+  "implementation": {
+    "heightSemantic": {
+      "name": "height",
+      "optional": true,
+      "dataInterpretation": "normalized scalar sampled from the red channel; authoring data is linear rather than color",
+      "colorSpace": "linear-data",
+      "textureFormatExpectation": "ordinary supported game texture; no dedicated height-image format or precision requirement introduced by SDVK-005",
+      "fallback": "no height descriptor is published, uHeightTextureIndex is -1, and SampleMaterialHeight returns 0.0 only when an opt-in shader calls it",
+      "defaultFiltering": "linear minification and magnification",
+      "defaultMipPolicy": "linear mipmap selection",
+      "defaultWrapPolicy": "repeat, inherited from MaterialLayerSampling override samplers"
+    },
+    "authoring": {
+      "gldefsKeyword": "height",
+      "automaticLookup": "materials/heightmaps/<material-name>",
+      "semanticFilterValues": [
+        "default",
+        "nearest",
+        "linear"
+      ],
+      "malformedPolicy": "unknown semantic-layer properties and invalid filter values are ScriptError paths; a missing referenced height texture is reported and not bound"
+    },
+    "bindingCompatibility": {
+      "strategy": "append height after every historical fixed/material/custom binding and expose its actual relative descriptor index separately",
+      "existingSemanticBindingsChanged": false,
+      "customSemanticEnumValue": 9,
+      "heightSemanticEnumValue": 10,
+      "historicalCustomBindingStarts": [
+        5,
+        7,
+        9
+      ],
+      "customShaderCompatibility": "PASS_NATIVE_AND_FULL_CI",
+      "globalShaderCompatibility": "PASS_SOURCE_AND_FULL_CI_NO_DEDICATED_NATIVE_HEIGHT_GLOBAL_FIXTURE",
+      "indexedPaletteHeightBound": false
+    },
+    "renderingEffect": {
+      "defaultHeightConsumer": false,
+      "shaderOptInHelpers": [
+        "HasMaterialHeightMap",
+        "SampleMaterialHeight"
+      ],
+      "pomImplemented": false,
+      "displacementImplemented": false,
+      "spriteTbnImplemented": false,
+      "lightingRecalibrated": false
+    }
+  },
+  "semanticMatrix": [
+    {
+      "case": "albedo-only / no height",
+      "heightPresent": false,
+      "expectedHeightBinding": -1,
+      "policy": "existing albedo/default sampler semantics unchanged",
+      "evidence": "native software-Vulkan material-stress plus universal material observer invariant",
+      "result": "PASS"
+    },
+    {
+      "case": "legacy normal+specular+height",
+      "heightPresent": true,
+      "expectedHeightBinding": 6,
+      "policy": "height appended after historical fixed legacy-specular bindings",
+      "evidence": "native software-Vulkan material-stress SM0001",
+      "result": "PASS"
+    },
+    {
+      "case": "PBR+height",
+      "heightPresent": true,
+      "expectedHeightBinding": 8,
+      "policy": "height appended after albedo/normal/metallic/roughness/AO and fixed placeholders",
+      "evidence": "native software-Vulkan material-stress SM0006",
+      "result": "PASS"
+    },
+    {
+      "case": "custom PBR+height",
+      "heightPresent": true,
+      "expectedCustomBinding": 8,
+      "expectedHeightBinding": 9,
+      "policy": "historical custom binding remains 8; height appends after it",
+      "evidence": "native software-Vulkan material-stress SM0002/10/18/26/34/42/50/58",
+      "result": "PASS"
+    },
+    {
+      "case": "pixel-crisp albedo + filtered normal/PBR/height",
+      "heightPresent": true,
+      "samplingPolicy": {
+        "albedo": "nearest under gl_texture_filter=0",
+        "normal": "linear min/mag + linear mipmap",
+        "pbrData": "linear min/mag + linear mipmap where explicitly authored",
+        "height": "linear min/mag + linear mipmap"
+      },
+      "evidence": "native material-stress SM0001/SM0006/SM0002 sampler observations",
+      "result": "PASS"
+    },
+    {
+      "case": "height-authored sprite",
+      "heightPresent": true,
+      "expectedHeightBinding": 6,
+      "policy": "sprite legacy material retains existing orientation/material path; height remains optional trailing input",
+      "evidence": "native software-Vulkan sprite-mirror SDVRA1",
+      "result": "PASS"
+    },
+    {
+      "case": "indexed/palette material",
+      "heightPresent": false,
+      "expectedHeightBinding": -1,
+      "policy": "height is deliberately omitted so linear height data cannot be reinterpreted as palette indices",
+      "evidence": "production-source contract plus inherited indexed/palette PF fixtures in the full oracle",
+      "result": "PASS"
+    },
+    {
+      "case": "malformed/invalid height declaration",
+      "heightPresent": null,
+      "expectedHeightBinding": null,
+      "policy": "unknown semantic property / invalid filter is rejected; missing height resource is reported and remains unbound",
+      "evidence": "deterministic parser/source contract; no separate native malformed-load process",
+      "result": "PASS_WITH_RECORDED_NATIVE_LIMIT"
+    }
+  ],
+  "requiredCoverage": {
+    "albedoOnly": "PASS_NATIVE",
+    "legacyNormalSpecular": "PASS_NATIVE",
+    "pbr": "PASS_NATIVE",
+    "pbrWithHeight": "PASS_NATIVE",
+    "heightAbsent": "PASS_NATIVE_UNIVERSAL_OBSERVER_INVARIANT",
+    "heightInvalid": "PASS_DETERMINISTIC_PARSER_SOURCE_CONTRACT",
+    "pixelAlbedoFilteredData": "PASS_NATIVE",
+    "translatedPalette": "PASS_FULL_PF_ORACLE_HEIGHT_OMITTED_BY_PRODUCTION_CONTRACT",
+    "customShader": "PASS_NATIVE_HEIGHT_CONSUMER",
+    "globalCustomMaterial": "PASS_SOURCE_AND_FULL_BUILD_NO_DEDICATED_NATIVE_HEIGHT_GLOBAL_FIXTURE",
+    "samplerOverrides": "PASS_NATIVE",
+    "materialRebuild": "PASS_INHERITED_SDVK004_LIFETIME_CONTRACT_AND_FULL_PF_ORACLE",
+    "descriptorReuse": "PASS_INHERITED_PF003_SDVK004_CONTRACT_AND_FULL_PF_ORACLE",
+    "worldSurface": "PASS_NATIVE_MATERIAL_STRESS",
+    "spriteOrModel": "PASS_NATIVE_SPRITE; no new model asset was added"
+  },
+  "descriptorLifetime": {
+    "identityModel": "PF-002/PF-003 unchanged",
+    "heightOwnership": "trailing member of the existing VkMaterial bindless descriptor span; no independent durable height index",
+    "inheritedSdvk004Stress": {
+      "dynamicDescriptorCapacity": 4096,
+      "highWaterDescriptors": 3072,
+      "pressureFraction": 0.75,
+      "rebuildCycles": 64,
+      "staleGenerationChecks": "PASS",
+      "exactSizeReuseGenerationChecks": "PASS",
+      "exhaustionBehavior": "explicit failure; no global flush"
+    },
+    "sdvk005Qualification": {
+      "fullPfOracle": "PASS_EXACT_HEAD_AND_POST_MERGE",
+      "nativeMaterialResourceObservation": "PASS",
+      "descriptorRangeAccounting": "PASS",
+      "newEmergencyFlush": false,
+      "newDescriptorIdentityDomain": false
+    }
+  },
+  "equivalence": {
+    "heightAbsentExistingContent": {
+      "semanticContract": "PASS",
+      "stockShaderConsumesHeight": false,
+      "heightIndexWhenAbsent": -1,
+      "historicalFixedAndCustomBindingsChanged": false,
+      "sameHeadNativeStateComparison": "PASS",
+      "sameHeadNativeImageComparison": "PASS_EXACT_RGB_POLICY",
+      "crossRevisionImageComparison": "NOT_RUN",
+      "rationale": "compatibility is established by unchanged existing semantic identities/binding order/default shader consumption plus the complete current native corpus; no pre/post screenshot pair is represented as evidence"
+    },
+    "heightAuthored": {
+      "semanticBinding": "PASS_NATIVE",
+      "shaderVisibleIndexMatchesObservedBinding": "PASS_NATIVE_EVERY_OBSERVED_MATERIAL_FRAME",
+      "samplerPolicy": "PASS_NATIVE",
+      "customShaderConsumption": "PASS_NATIVE",
+      "resourceIdentity": "PASS_NATIVE"
+    },
+    "gameplayDeterminismChanged": false
+  },
+  "focusedTests": [
+    {
+      "name": "SDVK-005 height semantic/binding contracts",
+      "result": "PASS"
+    },
+    {
+      "name": "PF-008 material semantic identity",
+      "result": "PASS"
+    },
+    {
+      "name": "PF-003 bindless/lifetime contracts",
+      "result": "PASS"
+    },
+    {
+      "name": "SDVK-004 rich descriptor stress",
+      "result": "PASS"
+    },
+    {
+      "name": "PF-013 material correctness",
+      "result": "PASS"
+    },
+    {
+      "name": "indexed/palette material contracts",
+      "result": "PASS"
+    },
+    {
+      "name": "GLDEFS custom sampling contracts",
+      "result": "PASS"
+    },
+    {
+      "name": "SWCanvas extracted material/layout contract",
+      "result": "PASS_AFTER_HARNESS_RECONCILIATION"
+    },
+    {
+      "name": "renderer corpus preparation/validation",
+      "result": "PASS"
+    }
+  ],
+  "softwareVulkan": {
+    "physicalGpuQualified": false,
+    "performanceAccepted": false,
+    "comparisonPolicy": "same-device same-driver paired state plus exact-RGB image comparison unless a scene preregisters otherwise",
+    "stateWorkloads": {
+      "compositing": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-zero": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-one": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-many": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-dense-overlap": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "lights-dense-dispersed": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "shadow-boundary": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "material-stress": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sun-probes": "PASS_TWO_CAPTURES_AND_COMPARISON",
+      "sprite-mirror": "PASS_TWO_CAPTURES_AND_COMPARISON"
+    },
+    "heightBindingWitnesses": [
+      {
+        "scene": "material-stress",
+        "material": "SM0001",
+        "materialClass": "legacy-specular",
+        "heightBinding": 6,
+        "heightRequestedSampling": "LinearMipLinear",
+        "actualSampler": {
+          "minFilter": "linear",
+          "magFilter": "linear",
+          "mipmapMode": "linear"
+        }
+      },
+      {
+        "scene": "material-stress",
+        "material": "SM0006",
+        "materialClass": "PBR",
+        "heightBinding": 8,
+        "heightRequestedSampling": "LinearMipLinear",
+        "actualSampler": {
+          "minFilter": "linear",
+          "magFilter": "linear",
+          "mipmapMode": "linear"
+        }
+      },
+      {
+        "scene": "material-stress",
+        "material": "SM0002",
+        "materialClass": "custom PBR",
+        "historicalCustomBinding": 8,
+        "heightBinding": 9,
+        "heightRequestedSampling": "LinearMipLinear",
+        "customShaderSamplesHeight": true
+      },
+      {
+        "scene": "sprite-mirror",
+        "material": "SDVRA1",
+        "materialClass": "sprite legacy-specular",
+        "heightBinding": 6,
+        "heightRequestedSampling": "LinearMipLinear",
+        "actualSampler": {
+          "minFilter": "linear",
+          "magFilter": "linear",
+          "mipmapMode": "linear"
+        }
+      }
+    ]
+  },
+  "finalHeadEvidence": {
+    "sourceEvidence": {
+      "runId": 38030309310,
+      "artifactId": 11661084235,
+      "artifactBytes": 148226840,
+      "artifactZipSha256": "09119822f22eaa9b30c19f26702a16e5936422f2fcf8adcd411013e6648d20e7",
+      "sourceBundleSha256": "ce1364229e0c30f339dfa385181cd2004ee3eb7bc76b2eca0a503f63067d8de5",
+      "testedCommit": "116a45bf47dc4595ead106ce99588723750d4d5d",
+      "testedTree": "28f2ef41a99ea6979145030e807c7798c6e01735"
+    },
+    "continuousIntegration": {
+      "runId": 38030309307,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11661074342,
+      "artifactBytes": 72902,
+      "artifactZipSha256": "507dc5bd806995a364e93fd4477aa02a3e0770a6d2185d10d364b521066041fb"
+    },
+    "nativeArtifact": {
+      "artifactId": 11661879396,
+      "artifactBytes": 406339631,
+      "artifactZipSha256": "a8adbf60c24ad40d5f6dd464327214b8be1e8240a5afb2a4e6d7052b615f6ea8"
+    }
+  },
+  "postMergeEvidence": {
+    "sourceEvidence": {
+      "runId": 38032400496,
+      "artifactId": 11662896184,
+      "artifactBytes": 148182946,
+      "artifactZipSha256": "9a69c630cbe1caa36849e96710ea6f1d93618b37b2ad58cecf794fb49f06771a",
+      "sourceBundleSha256": "2467a51b22d9ff79d6eebf2663bea06b0d6a551d0e635d67c987f6c27c8426f1",
+      "testedCommit": "aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1",
+      "testedTree": "28f2ef41a99ea6979145030e807c7798c6e01735"
+    },
+    "continuousIntegration": {
+      "runId": 38032400505,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpuArtifact": {
+      "artifactId": 11662242038,
+      "artifactBytes": 72902,
+      "artifactZipSha256": "de08a1933a36748c601ba313e2b6d323c98006a3dff377af86e7dc4c048fba3d"
+    },
+    "nativeArtifact": {
+      "artifactId": 11662978604,
+      "artifactBytes": 406339907,
+      "artifactZipSha256": "63cbaa7e16ab9ec9a983709c796310f8bda2e925b385ab48498bf825e4e2e6a7"
+    }
+  },
+  "retainedFailures": [
+    {
+      "runs": [
+        38024107495,
+        38024107513
+      ],
+      "head": "3eef734f0231bca7b0ae3de9ed1e1e8da9accba8",
+      "disposition": "publication-mechanics anomaly: bot-authored bootstrap result caused action_required with zero jobs; source tree was republished tree-identically under a normal user-authored commit"
+    },
+    {
+      "runId": 38029659189,
+      "head": "53e040883e91841ac4b61cbec219e554b77f5428",
+      "artifactId": 11661921285,
+      "artifactZipSha256": "d61eaf43641703a9fc9921b1852479cab0291fe84df66b14a05bcc9cbe55eb58",
+      "disposition": "bounded SWCanvas source-extraction harness omitted new inert height locals; production renderer code was not implicated; harness context repaired in 9a87734357d15145ed791d89c4b98db94fb60cb6"
+    }
+  ],
+  "scopeBoundary": {
+    "sdvk007TbnImplemented": false,
+    "sdvk008PomImplemented": false,
+    "sdvk009ManyLightChanged": false,
+    "sdvk010IblChanged": false,
+    "sdvk016QualityPolicyChanged": false,
+    "physicalGpuRequired": false,
+    "physicalGpuQualified": false
+  },
+  "limitations": [
+    "No physical-GPU performance or visual-smoothness claim is made or required for SDVK-005.",
+    "No dedicated native malformed-height load was run; malformed/missing authoring behavior is covered by deterministic parser/source contracts.",
+    "Global-shader height publication is covered by source contracts and full cross-platform builds, but there is no dedicated native global-height fixture.",
+    "The new native non-world consumer witness is a sprite; no new model-height asset was added.",
+    "No pre-SDVK-005 versus post-SDVK-005 screenshot pair was run. Same-head native captures compare exactly under the corpus policy; compatibility with height-absent content is additionally established by preserved semantic identities/bindings and the height-neutral stock shader path.",
+    "The optional same-process material-stress reload sequence remains outside the hosted native lane; descriptor rebuild/reuse authority is inherited from accepted PF-003/SDVK-004 contracts."
+  ],
+  "acceptanceReconciliation": {
+    "branch": "sdvk-005-acceptance",
+    "pullRequest": null,
+    "state": "PENDING_ACCEPTANCE_RECORD_PR"
+  },
+  "gateDisposition": {
+    "SDVK005": "ACCEPTED_MERGED_VERIFIED",
+    "SDVK007": "DEPENDENCY_READY_ON_ACCEPTANCE_RECONCILIATION_MERGE"
+  }
+}
