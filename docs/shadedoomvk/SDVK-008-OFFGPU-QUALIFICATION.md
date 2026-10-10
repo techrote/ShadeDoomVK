@@ -37,4 +37,10 @@ Issue [#8](https://github.com/techrote/ShadeDoomVK/issues/8). Implementation [PR
 - This result proves bounded shader integration and deterministic software-Vulkan draw/state/image behavior under the available corpus, **not** a representative physical-GPU speedup/cost, broad visual usefulness, or final product quality settings. GPU hardware cannot be replaced by llvmpipe or a theoretical 23-sample ceiling.
 - **The physical-GPU correctness and cost gate remains OPEN.** GitHub automatically closed #8 on PR #138 merge; #8 was explicitly reopened. No POM release/defaults/physical performance acceptance has been granted. SDVK-012 remains dependency-blocked on full accepted #8.
 
+### Direct retained native witness and visual-efficacy boundary
+
+The exact PR-head software-Vulkan archive `11676530794` contains **two** independent `sprite-mirror` captures at 640×480. Each records 30 emitted `sprite-relief` draws, **seven eligible height-bearing draws**, five of those eligible in mirrored views, and explicit missing-height fallback on PBR/no-normal-map controls. The seven eligible draws all report quality 2 and a **15-read theoretical per-fragment ceiling**; there is **no actual fragment-count or GPU time measurement**. Both captured native RGB images are byte-identical (SHA-256 `9a0df9366fdfff3fa64cf89ad787872362c384bbddf43fdba23ce94054793a67`). This independently supports deterministic native execution and the off-GPU scope.
+
+It does **not** establish perceptually meaningful relief. The retained inherited-baseline image comes from a **different implementation/source tree** (before actor-probe #10 integration), so even a source-to-source RGB difference cannot be attributed solely to #8. No same-binary OFF-versus-ON directional pixel-difference or representative physical POM image-quality campaign has been conducted. Those are explicit **hardware-gate prerequisites**, not quietly accepted results.
+
 Read the immutable [machine-readable off-GPU receipt](SDVK-008-OFFGPU-RELEASE-ACCEPTANCE.json) and the separate [preregistered physical campaign](prepass/SDVK-008/SDVK-008-PHYSICAL-GPU-PROTOCOL.md).
