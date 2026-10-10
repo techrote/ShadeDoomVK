@@ -34,7 +34,7 @@ The strict validator rejects:
 - nonzero runtime descriptor with no authored probe; nonzero draw descriptor without a published pair and inconsistent resource identity;
 - missing actual actor/PBR material witness in the full software-Vulkan corpus.
 
-The positive fixture samples two distinct dielectric/metallic actor cards near separate authored probe positions, in the same map sector, with actual asymmetric normal-map/PBR semantic bindings; the no-probe `sprite-mirror` corpus asserts runtime zero. A compiled production-header C++ fixture qualifies deterministic movement within one sector, stable ties, radius boundary, mirror/portal grouping fallback, NaNs, stale indices and unrepresentable deltas.
+The positive fixture samples two distinct dielectric (zero-metallic/high-roughness) and metallic (near-full-metallic/low-roughness) actor cards near separate authored probe positions with non-neutral directional normal data, in the same map sector, with actual asymmetric normal-map/PBR semantic bindings; the no-probe `sprite-mirror` corpus asserts runtime zero. A compiled production-header C++ fixture qualifies deterministic movement within one sector, stable ties, radius boundary, mirror/portal grouping fallback, NaNs, stale indices and unrepresentable deltas.
 
 ## Evidence and explicit limits
 

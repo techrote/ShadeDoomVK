@@ -651,8 +651,13 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
         # SDVK-010: two distinct, actually drawn PBR actor sprites in the
         # same sector, each nearest to a different authored probe. Source
         # colors/normal components distinguish dielectric vs metallic paths.
-        members["GLDEFS"] = (_pbr("SDVW") + _pbr("SDVFL", "flat") + _pbr("SDVOA0") +
+        members["GLDEFS"] = (_pbr("SDVW") + _pbr("SDVFL", "flat") +
+            'material texture SDVOA0\n{\n normal "SDVN"\n metallic "SDVZERO"\n roughness "SDVROUG"\n ao "SDVAO"\n}\n' +
             'material texture SDVQA0\n{\n normal "SDVN"\n metallic "SDVMET"\n roughness "SDVROUGH"\n ao "SDVAO"\n}\n').encode()
+        # Non-neutral signed-direction tangent normal actually sampled by
+        # both probe-lit actors (not merely a material declaration).
+        members["textures/SDVN.png"] = png_rgba(16, 16, bytes((207, 91, 220, 255)) * 256)
+        members["textures/SDVROUG.png"] = png_rgba(16, 16, bytes((220, 220, 220, 255)) * 256)
         members["textures/SDVMET.png"] = png_rgba(16, 16, bytes((250, 250, 250, 255)) * 256)
         members["textures/SDVROUGH.png"] = png_rgba(16, 16, bytes((55, 55, 55, 255)) * 256)
         members["sprites/SDVQA0.png"] = _texture(64, 64, (220, 80, 70, 255), (80, 130, 220, 255), offset=(32, 64))
