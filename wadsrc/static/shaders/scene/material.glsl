@@ -2,6 +2,7 @@
 #ifndef SIMPLE3D
 	#include "shaders/scene/material_gettexel.glsl"
 	#include "shaders/scene/material_normalmap.glsl"
+	#include "shaders/scene/material_relief.glsl"
 #endif
 
 struct Material
@@ -64,7 +65,22 @@ Material CreateMaterial()
 				texCoord.t = period + mod(texCoord.t, uNpotEmulation.y);
 			}
 		#endif	
-			material.Base = getTexel(texCoord.st); 
+			// Opt-in SDVK-008 sprite relief samples only existing material layers.
+			// Original alpha remains authoritative for the rasterized silhouette.
+			bool reliefApplied = false;
+			vec2 relieved = SDVKResolveSpriteReliefUV(texCoord.st, reliefApplied);
+			if (reliefApplied)
+			{
+				vec4 baseTexel = getTexel(texCoord.st);
+				vec4 reliefTexel = getTexel(relieved);
+				if (reliefTexel.a > uAlphaThreshold)
+				{
+					material.Base = vec4(reliefTexel.rgb, baseTexel.a);
+					texCoord = relieved;
+				}
+				else material.Base = baseTexel;
+			}
+			else material.Base = getTexel(texCoord.st);
 			material.Normal = ApplyNormalMap(texCoord.st);
 			
 		// OpenGL doesn't care, but Vulkan pukes all over the place if these texture samplings are included in no-texture shaders, even though never called.

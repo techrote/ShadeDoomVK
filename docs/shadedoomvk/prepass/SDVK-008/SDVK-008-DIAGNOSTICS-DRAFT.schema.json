@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/techrote/ShadeDoomVK/blob/prepass/sdvk-008-relief/docs/shadedoomvk/prepass/SDVK-008/SDVK-008-DIAGNOSTICS-DRAFT.schema.json",
+  "title": "SDVK-008 proposed per-emitted-draw relief observation (NOT active)",
+  "description": "Prepass proposal only. Runtime fields/producer require acceptance and implementation after SDVK-007.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "view_identity", "sprite_identity", "material_identity", "height_present", "algorithm", "enabled", "basis_mode", "mirror_parity", "uv_mirror", "authored_scale", "effective_scale", "quality_work", "work_available", "max_uv_excursion", "fallback_reason", "silhouette_geometry_unchanged"],
+  "properties": {
+    "schema": {"const": "sdvk008-relief-draw/v1-draft"},
+    "view_identity": {"type": "object", "required": ["epoch", "identity"], "properties": {"epoch": {"type": "integer", "minimum": 1}, "identity": {"type": "integer", "minimum": 1}}, "additionalProperties": true},
+    "sprite_identity": {"type": "string", "minLength": 1},
+    "material_identity": {"type": "object", "required": ["name", "shader", "height_semantic", "height_texture_index"], "properties": {"name": {"type": "string"}, "shader": {"type": "string"}, "height_semantic": {"enum": ["height", "absent"]}, "height_texture_index": {"type": "integer", "minimum": -1}}, "additionalProperties": true},
+    "height_present": {"type": "boolean"},
+    "algorithm": {"enum": ["none", "sdvk008-shallow-pom/v1"]},
+    "enabled": {"type": "boolean"},
+    "basis_mode": {"enum": ["explicit-accepted", "legacy-fallback", "unsupported", "degenerate"]},
+    "mirror_parity": {"type": "integer", "enum": [-1, 1]},
+    "uv_mirror": {"type": "object", "required": ["u", "v"], "properties": {"u": {"type": "boolean"}, "v": {"type": "boolean"}}, "additionalProperties": false},
+    "authored_scale": {"type": "number", "minimum": 0},
+    "effective_scale": {"type": "number", "minimum": 0, "maximum": 0.02},
+    "quality_work": {"type": "object", "required": ["profile", "max_traversal", "max_refinement", "max_height_samples"], "properties": {"profile": {"enum": ["off", "low", "medium", "high"]}, "max_traversal": {"type": "integer", "minimum": 0, "maximum": 20}, "max_refinement": {"type": "integer", "minimum": 0, "maximum": 2}, "max_height_samples": {"type": "integer", "minimum": 0, "maximum": 23}}, "additionalProperties": false},
+    "work_available": {"type": "boolean"},
+    "measured_height_samples": {"type": ["integer", "null"], "minimum": 0, "maximum": 23},
+    "work_unavailable_reason": {"type": ["string", "null"]},
+    "max_uv_excursion": {"type": "number", "minimum": 0, "maximum": 0.050000001},
+    "fallback_reason": {"type": "string", "minLength": 1},
+    "silhouette_geometry_unchanged": {"const": true},
+    "source_shader_hash": {"type": "string"},
+    "debug_fragment_count": {"type": ["integer", "null"], "minimum": 0}
+  }
+}

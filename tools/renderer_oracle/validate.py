@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing", "sprite-basis"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -254,6 +254,49 @@ def _sprite_basis(value):
                 "Fallback sprite draw retained stale explicit vectors/handedness")
 
 
+def _sprite_relief(value):
+    """SDVK-008: exact emitted-draw eligibility, never measured GPU cost."""
+    require(value.get("uniform_scope") == "emitted-vulkan-draw-after-apply-surface-uniforms",
+            "Relief metadata is not observed emitted-draw state")
+    require(value.get("measurement") == "shader-sample-upper-bound-not-actual-fragment-work",
+            "Relief draw claims unobserved per-fragment GPU work")
+    require(isinstance(value.get("material"), str), "Missing relief material identity")
+    shader = integer(value.get("shader"), "relief shader", minimum=-1)
+    height = integer(value.get("height_texture_index"), "relief height descriptor", minimum=-1)
+    quality = integer(value.get("quality"), "relief quality", maximum=3)
+    reads = integer(value.get("height_reads_max"), "relief sample ceiling", maximum=23)
+    depth = number(value.get("depth"), "relief depth")
+    _vector(value.get("uv_bounds"), 4, "relief signed UV endpoints")
+    surface = value.get("surface")
+    require(isinstance(surface, dict) and surface.get("contract") == "sdvk-007-final-quad/v1"
+            and surface.get("orientation_source") == "pf-009-calculate-vertices",
+            "Relief requires accepted canonical PF-009 orientation")
+    _vector(surface.get("uv"), 4, "source sprite signed UV")
+    # #7 records (ul,ur,vt,vb); #8 shader uniforms publish two UV
+    # corner pairs (ul,vt,ur,vb). Reorder, do not flip or infer angles.
+    source_uv = surface["uv"]
+    expected_bounds = [source_uv[0], source_uv[2], source_uv[1], source_uv[3]]
+    require(all(abs(a-b) <= 1e-6 for a,b in zip(value["uv_bounds"],expected_bounds)) or
+            value["uv_bounds"] == [0, 0, 0, 0],
+            "Relief UV bounds differ from PF-009 final sprite UV")
+    for key in ("basis_valid", "candidate", "eligible_draw"):
+        require(type(value.get(key)) is bool, "Relief " + key + " must be boolean")
+    require(value["basis_valid"] is surface.get("basis_valid"),
+            "Relief basis eligibility and final sprite basis disagree")
+    expected_eligible = (value["candidate"] and value["basis_valid"] and height >= 0 and shader in (0, 3, 4))
+    require(value["eligible_draw"] is expected_eligible, "Relief candidate/descriptor/shader mismatch")
+    if value["candidate"]:
+        require(0 < depth <= 0.0200 and quality in (1,2,3) and value["basis_valid"],
+                "Invalid active depth/quality or tangent basis")
+        require(all(abs(a-b) <= 1e-6 for a,b in zip(value["uv_bounds"],expected_bounds)),
+                "Candidate bound UV mismatch")
+    else:
+        require(depth == 0 and quality == 0 and value["uv_bounds"] == [0,0,0,0],
+                "Relief fallback retained stale per-draw options")
+    require(reads == ({1:10,2:15,3:23}[quality] if expected_eligible else 0),
+            "Relief sample upper bound disagrees with shader cap")
+    _context(value.get("context"))
+
 def observation(data, *, required_kinds=(), expected_map=None, expected_frames=None, expected_extent=None):
     try:
         return _observation(data, required_kinds=required_kinds, expected_map=expected_map,
@@ -393,6 +436,8 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                 material_frames.add(frame)
         elif kind == "sprite-basis":
             _sprite_basis(value)
+        elif kind == "sprite-relief":
+            _sprite_relief(value)
         elif kind == "probe":
             require(value.get("mode") == "uniform-environment-pair", "Unknown probe identity domain")
             integer(value.get("authored_index"), "authored probe index", minimum=-1)

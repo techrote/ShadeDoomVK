@@ -220,6 +220,7 @@ public:
 		mSurfaceUniforms.uDepthFadeThreshold = 0.0f;
 		mSurfaceUniforms.uHeightTextureIndex = -1;
 		ClearSpriteTangentBasis();
+		ClearSpriteRelief();
 		mLightProbeIndex = 0;
 		mSpecialEffect = EFF_NONE;
 		mLightIndex = -1;
@@ -269,6 +270,18 @@ public:
 	{
 		mSurfaceUniforms.uSpriteTangent = { 0.f, 0.f, 0.f, 0.f };
 		mSurfaceUniforms.uSpriteNormal = { 0.f, 0.f, 0.f, 0.f };
+	}
+
+	void SetSpriteRelief(float depth, int quality, float ul, float vt, float ur, float vb)
+	{
+		mSurfaceUniforms.uSpriteReliefParams = { depth, float(quality), 0.f, 1.f };
+		mSurfaceUniforms.uSpriteReliefBounds = { ul, vt, ur, vb };
+	}
+
+	void ClearSpriteRelief()
+	{
+		mSurfaceUniforms.uSpriteReliefParams = { 0.f, 0.f, 0.f, 0.f };
+		mSurfaceUniforms.uSpriteReliefBounds = { 0.f, 0.f, 0.f, 0.f };
 	}
 
 	void SetNormal(FVector3 norm)

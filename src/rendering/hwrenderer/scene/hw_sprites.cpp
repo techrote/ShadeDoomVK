@@ -62,6 +62,7 @@
 #include "hw_renderstate.h"
 #include "hw_drawcontext.h"
 #include "quaternion.h"
+#include <cmath>
 
 #include "p_visualthinker.h"
 #include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
@@ -89,6 +90,16 @@ EXTERN_CVAR(Bool, gl_aalines)
 
 CVAR(Bool, gl_usecolorblending, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 CVAR(Bool, gl_sprite_blend, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
+// SDVK-008: conservative default OFF. Height authoring is per-material;
+// these controls opt into and bound its sprite-only visual shading effect.
+CUSTOM_CVAR(Float, gl_sprite_relief_depth, 0.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (!std::isfinite(float(self)) || self < 0.f || self > 0.0200f) self = 0.f;
+}
+CUSTOM_CVAR(Int, gl_sprite_relief_quality, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
+{
+	if (self < 0 || self > 3) self = 0;
+}
 CVAR(Int, gl_spriteclip, 2, CVAR_ARCHIVE)
 CVAR(Bool, r_debug_nolimitanamorphoses, false, 0)
 CVAR(Float, r_spriteclipanamorphicminbias, 0.6, CVAR_ARCHIVE)
@@ -117,6 +128,7 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 {
 	// Never inherit a sprite basis from a preceding card, view or model.
 	state.ClearSpriteTangentBasis();
+	state.ClearSpriteRelief();
 	SdvkDiagnostics::ClearSpriteBasis();
 	SdvkDiagnostics::ClearActorProbeSelection();
 	// Restore diagnostic isolation even when this draw returns early. Keep the
@@ -392,6 +404,7 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 				state.SetTextureMode(TM_NORMAL);
 			}
 			state.ClearSpriteTangentBasis();
+			state.ClearSpriteRelief();
 			SdvkDiagnostics::ClearSpriteBasis();
 			state.SetLightNoNormals(false);
 			state.SetUseSpriteCenter(false);
@@ -832,6 +845,18 @@ void HWSprite::CreateVertices(HWDrawInfo *di, FRenderState& state)
 				FVector3(basis.normal.X, basis.normal.Y, basis.normal.Z), basis.handedness);
 		}
 		else state.ClearSpriteTangentBasis();
+		// Height-only cards have the same #7 basis authority as normal-mapped
+		// cards. Disable until bound height semantic and safe shader confirm.
+		// Native non-sprite, model, custom, warp and palette routes are not
+		// altered. The fragment independently checks the height descriptor.
+		const int materialShader = state.getShaderIndex();
+		const bool builtInMaterial = materialShader == 0 || materialShader == 3 || materialShader == 4;
+		const float depth = gl_sprite_relief_depth;
+		const int quality = gl_sprite_relief_quality;
+		if (basis.valid && actor && texture && builtInMaterial &&
+			depth > 0.f && depth <= 0.0200f && std::isfinite(depth) && quality >= 1 && quality <= 3)
+			state.SetSpriteRelief(depth, quality, ul, vt, ur, vb);
+		else state.ClearSpriteRelief();
 		if (SdvkDiagnostics::StateEnabled())
 			SdvkDiagnostics::SpriteBasisSelected(RenderSurface, basis);
 		Pf020ViewDiagnostics::SpriteVertices(di, this, vp);

@@ -124,6 +124,8 @@ struct SurfaceUniforms
 	int uMaterialSemanticPad2;
 	vec4 uSpriteTangent;
 	vec4 uSpriteNormal;
+	vec4 uSpriteReliefParams;
+	vec4 uSpriteReliefBounds;
 };
 
 struct SurfaceLightUniforms

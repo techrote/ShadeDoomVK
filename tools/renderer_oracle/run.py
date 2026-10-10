@@ -514,6 +514,29 @@ def _scene_assertions(raw, scene):
                 require(all(row["height_texture_index"] == (6 if row["material"] == "SDVRA1" else -1)
                             for row in draws if row["material"] in {"SDVRA1", "SDVPA0", "SDVLA0"}),
                         "Height-bearing sprite unexpectedly changed height binding semantics")
+            relief = assertions.get("sprite_relief")
+            if relief:
+                draws = [r["data"] for r in records if r["kind"] == "sprite-relief"]
+                require(draws, "Native emitted sprite-relief draws absent")
+                require(all(row["measurement"] == "shader-sample-upper-bound-not-actual-fragment-work"
+                            for row in draws), "GPU cost incorrectly inferred from shader upper bound")
+                candidates = [row for row in draws if row["candidate"]]
+                require(len(candidates) >= relief["minimum_candidates"], "No configured relief candidate reached draw path")
+                require(all(row["quality"] == relief["quality"] and
+                            abs(row["depth"] - relief["depth"]) < 1e-5 for row in candidates),
+                        "Observed sprite relief quality/depth disagrees with fixed fixture settings")
+                require(set(relief["eligible_materials"]) <=
+                        {row["material"] for row in draws if row["eligible_draw"]},
+                        "Height-bearing sprite POM was not eligible at actual Vulkan draw")
+                require(all(row["height_reads_max"] == ({1:10,2:15,3:23}[relief["quality"]])
+                            for row in draws if row["eligible_draw"]), "Incorrect upper sample work bound")
+                for name in relief["height_absent_materials"]:
+                    require(any(row["material"] == name and not row["eligible_draw"] and
+                                row["height_texture_index"] == -1 for row in draws),
+                            "Height-absent sprite unexpectedly eligible for POM: " + name)
+                if relief["requires_mirrored_view"]:
+                    require(any(row["eligible_draw"] and row["context"]["mirrored"] for row in draws),
+                            "No mirrored-context height-bearing sprite relief emitted draw")
             actor_probe = assertions.get("actor_probe")
             if actor_probe:
                 selections = [record["data"] for record in records if record["kind"] == "probe"

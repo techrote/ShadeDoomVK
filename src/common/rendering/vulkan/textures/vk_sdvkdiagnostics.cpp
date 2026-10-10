@@ -110,6 +110,25 @@ struct FSdvkDiagnosticAccess
                 .Int("light_index", state->mPushConstants.uLightIndex)
                 .Bool("indexed", indexed).Int("draw_count", count)
                 .Str("uniform_scope", "emitted-vulkan-draw-after-apply-surface-uniforms").Json(), true);
+            const auto& rp = state->mSurfaceUniforms.uSpriteReliefParams;
+            const auto& rb = state->mSurfaceUniforms.uSpriteReliefBounds;
+            const int height = state->mSurfaceUniforms.uHeightTextureIndex;
+            const int shader = material ? material->GetShaderIndex() : -1;
+            const bool candidate = rp.W > 0.5f;
+            const bool eligible = candidate && normal.W > 0.5f && height >= 0 &&
+                (shader == 0 || shader == 3 || shader == 4);
+            // Draw-bound shader eligibility, NOT an unmeasured fragment count
+            // or physical GPU cost. Per-pixel grazing/alpha may still fall back.
+            SdvkDiagnostics::Emit("sprite-relief", Object().Raw("context", context)
+                .Raw("surface", spriteSurface).Str("material", name)
+                .Int("shader", shader).Int("height_texture_index", height)
+                .Raw("uv_bounds", '[' + Number(rb.X) + ',' + Number(rb.Y) + ',' + Number(rb.Z) + ',' + Number(rb.W) + ']')
+                .Num("depth", rp.X).Int("quality", int(rp.Y))
+                .Bool("candidate", candidate).Bool("eligible_draw", eligible)
+                .Bool("basis_valid", normal.W > 0.5f)
+                .Int("height_reads_max", eligible ? (rp.Y < 1.5f ? 10 : (rp.Y < 2.5f ? 15 : 23)) : 0)
+                .Str("measurement", "shader-sample-upper-bound-not-actual-fragment-work")
+                .Str("uniform_scope", "emitted-vulkan-draw-after-apply-surface-uniforms").Json(), true);
         }
         SdvkDiagnostics::Emit("pipeline", Object().Raw("context", context).Str("material", name)
             .Raw("key", pipeline).Bool("indexed", indexed).Int("draw_count", count)

@@ -345,6 +345,22 @@
         "test_sprite_tangent_contract.py",
         "-v"
       ]
+    },
+    "sprite-relief": {
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk008_relief_contract.py",
+        "-v"
+      ]
     }
   },
   "cvar_sources": {
@@ -475,6 +491,12 @@
     ],
     "vk_rayquery": [
       "src/common/rendering/vulkan/vk_renderdevice.cpp"
+    ],
+    "gl_sprite_relief_depth": [
+      "src/rendering/hwrenderer/scene/hw_sprites.cpp"
+    ],
+    "gl_sprite_relief_quality": [
+      "src/rendering/hwrenderer/scene/hw_sprites.cpp"
     ]
   },
   "native_execution_policy": "Preparation never launches an engine. All native recipes remain unqualified for SDVK-002 until actual recorded runs. Preserve historical CFX/P400/PF STOP scopes.",
@@ -4763,13 +4785,25 @@
           "-p",
           "test_sprite_tangent_contract.py",
           "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk008_relief_contract.py",
+          "-v"
         ]
       ],
       "cpu_contracts": [
         "render-context",
         "sprite-surface",
         "swcanvas",
-        "sprite-tangent"
+        "sprite-tangent",
+        "sprite-relief"
       ],
       "id": "sprite-mirror",
       "native": {
@@ -4841,6 +4875,8 @@
           "gl_mirrors",
           "gl_multisample",
           "gl_portals",
+          "gl_sprite_relief_depth",
+          "gl_sprite_relief_quality",
           "gl_spritelight",
           "gl_ssao",
           "gl_texture_filter",
@@ -4901,7 +4937,8 @@
           "Actual native mirrored context, five distinct paired-rotation textures and bound normal/specular semantics are required; preparation alone is not coverage.",
           "This static freely reproducible recipe supplements rather than replaces the retained PF interpolated/linked-portal fixture and its exact original IWAD contract.",
           "A generated normal map and passing CPU fixture do not establish shader consumption: the native sprite-basis channel must witness applied Vulkan draw uniforms. Pitch/roll and nested/plane-mirror views retain separate PF evidence.",
-          "A fixed coloured light and mode-2 per-pixel sprite lighting qualify the active normal/specular/PBR draw path; directional lobe evidence uses asymmetric normals and signed-UV CPU fixtures, not a symmetric screenshot."
+          "A fixed coloured light and mode-2 per-pixel sprite lighting qualify the active normal/specular/PBR draw path; directional lobe evidence uses asymmetric normals and signed-UV CPU fixtures, not a symmetric screenshot.",
+          "SDVK-008 draw eligibility does not count actual fragment invocations; software Vulkan validates emitted height-bearing and mirror candidates, while physical cost/quality remains unqualified."
         ],
         "pk3": "scenes/sprite-mirror/scene.pk3",
         "recommended_warmup_frames": 120,
@@ -4952,7 +4989,9 @@
           "vid_vsync": false,
           "vk_rayquery": false,
           "gl_spritelight": 2,
-          "gl_light_sprites": true
+          "gl_light_sprites": true,
+          "gl_sprite_relief_depth": 0.012,
+          "gl_sprite_relief_quality": 2
         },
         "state_assertions": {
           "line_mirror": true,
@@ -5057,6 +5096,19 @@
               "SDVPA0"
             ]
           },
+          "sprite_relief": {
+            "depth": 0.012,
+            "quality": 2,
+            "minimum_candidates": 1,
+            "eligible_materials": [
+              "SDVRA1"
+            ],
+            "height_absent_materials": [
+              "SDVPA0",
+              "SDVLA0"
+            ],
+            "requires_mirrored_view": true
+          },
           "actor_probe": {
             "minimum_draws": 2,
             "required_indices": [],
@@ -5077,7 +5129,8 @@
         "material",
         "resource",
         "pipeline",
-        "sprite-basis"
+        "sprite-basis",
+        "sprite-relief"
       ],
       "source_refs": [
         "docs/shadedoomvk/rag/01-RENDERER-EXECUTION-MAP.md",
@@ -5101,7 +5154,10 @@
         "wadsrc/static/zscript/actors/shared/decal.zs",
         "src/rendering/hwrenderer/scene/hw_sprite_tangent.h",
         "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp",
-        "tools/pf_oracle/tests/test_sprite_tangent_contract.py"
+        "tools/pf_oracle/tests/test_sprite_tangent_contract.py",
+        "src/common/rendering/hwrenderer/data/hw_surfaceuniforms.h",
+        "wadsrc/static/shaders/scene/material_relief.glsl",
+        "tools/pf_oracle/tests/test_sdvk008_relief_contract.py"
       ],
       "title": "Authored eight rotations, paired mirrored frames, wall/flat sprites and line mirror"
     }

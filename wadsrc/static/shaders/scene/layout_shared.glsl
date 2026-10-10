@@ -62,6 +62,8 @@
 #define uHeightTextureIndex data[uDataIndex].uHeightTextureIndex
 #define uSpriteTangent data[uDataIndex].uSpriteTangent
 #define uSpriteNormal data[uDataIndex].uSpriteNormal
+#define uSpriteReliefParams data[uDataIndex].uSpriteReliefParams
+#define uSpriteReliefBounds data[uDataIndex].uSpriteReliefBounds
 #define uActorCenter data[uDataIndex].uActorCenter
 #define uLightProbeIndex data[uDataIndex].uLightProbeIndex
 
