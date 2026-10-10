@@ -27,7 +27,7 @@ except ImportError:
 SCENES = ("compositing", "lights-zero", "lights-one", "lights-many",
           "lights-dense-overlap", "lights-dense-dispersed",
           "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror")
-SDVK009_DENSE_SCENES = ("lights-dense-overlap", "lights-dense-dispersed")
+SDVK009_SCALE_TIMING_SCENES = ("lights-zero", "lights-many", "lights-dense-overlap", "lights-dense-dispersed")
 FEATURES = ("shaderSampledImageArrayNonUniformIndexing",
             "descriptorBindingSampledImageUpdateAfterBind", "descriptorBindingPartiallyBound",
             "descriptorBindingVariableDescriptorCount", "runtimeDescriptorArray")
