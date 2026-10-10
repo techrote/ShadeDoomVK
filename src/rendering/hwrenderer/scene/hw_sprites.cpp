@@ -93,7 +93,7 @@ CVAR(Bool, gl_sprite_blend, true, CVAR_ARCHIVE | CVAR_GLOBALCONFIG);
 // these controls opt into and bound its sprite-only visual shading effect.
 CUSTOM_CVAR(Float, gl_sprite_relief_depth, 0.0f, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
-	if (!std::isfinite(self) || self < 0.f || self > 0.0200f) self = 0.f;
+	if (!std::isfinite(float(self)) || self < 0.f || self > 0.0200f) self = 0.f;
 }
 CUSTOM_CVAR(Int, gl_sprite_relief_quality, 2, CVAR_ARCHIVE | CVAR_GLOBALCONFIG)
 {
