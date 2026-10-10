@@ -52,6 +52,7 @@
 #include "hwrenderer/scene/hw_portal.h"
 #include "hwrenderer/scene/hw_visualtime.h"
 #include "hwrenderer/scene/hw_sprite_tangent.h"
+#include "hwrenderer/scene/hw_actor_probe_selection.h"
 #include "flatvertices.h"
 #include "hw_cvars.h"
 #include "hw_clock.h"
@@ -117,6 +118,13 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 	// Never inherit a sprite basis from a preceding card, view or model.
 	state.ClearSpriteTangentBasis();
 	SdvkDiagnostics::ClearSpriteBasis();
+	SdvkDiagnostics::ClearActorProbeSelection();
+	// Restore diagnostic isolation even when this draw returns early. Keep the
+	// accepted PF-009 final-quad snapshot region unchanged byte-for-byte.
+	struct ActorProbeObservationScope
+	{
+		~ActorProbeObservationScope() { SdvkDiagnostics::ClearActorProbeSelection(); }
+	} actorProbeObservationScope;
 	bool paletteModeDisabled = false;
 	if ((OverrideShader != -1 || RenderStyle.BlendOp >= STYLEOP_Fuzz) && !V_IsTrueColor()) // We can't do these in palette mode with current shaders
 	{
@@ -134,7 +142,37 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 	int rel = fullbright ? 0 : getExtraLight();
 	auto &vp = di->Viewpoint;	
 
-	state.SetLightProbeIndex(actor && actor->Sector ? actor->Sector->lightProbe.index : 0);
+	// SDVK-010: PF-009 source-space actor pose, not the view-translated
+	// presentation quad. Non-actor cards have no authored probe; ordinal 0
+	// must not be confused with the PF-113 runtime descriptor sentinel 0.
+	int authoredProbe = -1;
+	if (actor && actor->Sector)
+	{
+		if (modelframe)
+		{
+			// Preserve the independent model path's inherited sector target.
+			authoredProbe = actor->Sector->lightProbe.index;
+		}
+		else
+		{
+			const auto actorPos = actor->InterpolatedPosition(vp.TicFrac);
+			const auto& probes = di->Level->lightProbes;
+			// Authored probes carry no portal-group ownership; if multiple
+			// groups exist, do not infer connectivity from level-global XY.
+			const bool portalAmbiguous = di->Level->Displacements.size > 1 ||
+				RenderSurface.throughPortalMode != 0 ||
+				RenderSurface.sourcePortalGroup != RenderSurface.renderPortalGroup;
+			const auto selection = HWActorProbeSelection::Resolve(actorPos.X, actorPos.Y, actorPos.Z,
+				probes.Size(), [&](std::size_t i) {
+					const auto& p = probes[static_cast<unsigned>(i)];
+					return HWActorProbeSelection::Candidate{p.position.X, p.position.Y, p.position.Z, p.index};
+				}, actor->Sector->lightProbe.index, portalAmbiguous);
+			authoredProbe = selection.authoredIndex;
+			SdvkDiagnostics::ActorProbeSelected(selection, RenderSurface,
+				actorPos.X, actorPos.Y, actorPos.Z);
+		}
+	}
+	state.SetLightProbeIndex(authoredProbe);
 
 	if (translucent)
 	{

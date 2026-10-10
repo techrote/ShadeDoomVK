@@ -6,6 +6,7 @@
 struct HWDrawInfo;
 struct HWSpriteRenderSurfaceState;
 struct HWSpriteTangentBasis;
+namespace HWActorProbeSelection { struct Result; }
 struct FDynamicLight;
 class AActor;
 struct FLevelLocals;
@@ -41,6 +42,11 @@ void ShadowDecision(const FLevelLocals* level, const FDynamicLight* light, const
 // State-only PF-009 provenance is coupled with actual draw uniforms on emission.
 void SpriteBasisSelected(const HWSpriteRenderSurfaceState& surface, const HWSpriteTangentBasis& basis);
 void ClearSpriteBasis();
+// Read-only source-space actor probe selection attached to emitted draws.
+void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWSpriteRenderSurfaceState& surface,
+    double x, double y, double z);
+void ClearActorProbeSelection();
+std::string CurrentActorProbeSelectionJson();
 std::string CurrentSpriteBasisJson();
 void VulkanDraw(VkRenderState* state, int count, bool indexed);
 void VulkanResources(VulkanRenderDevice* device);

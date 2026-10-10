@@ -21,6 +21,7 @@
 #include "hwrenderer/scene/hw_visualtime.h"
 #include "hwrenderer/scene/hw_drawstructs.h"
 #include "hwrenderer/scene/hw_sprite_tangent.h"
+#include "hwrenderer/scene/hw_actor_probe_selection.h"
 #include "vulkan/vk_renderdevice.h"
 #include <chrono>
 #include <map>
@@ -69,6 +70,7 @@ std::string& CacheRoot() { static std::string path; return path; }
 struct SceneEntry { const HWDrawInfo* Owner; std::string Json; };
 thread_local std::vector<SceneEntry> Scenes;
 thread_local std::string ActiveSpriteBasis;
+thread_local std::string ActiveActorProbe;
 
 template<class V> std::string Vector(const V& value)
 {
@@ -287,6 +289,31 @@ void SpriteBasisSelected(const HWSpriteRenderSurfaceState& s, const HWSpriteTang
 
 void ClearSpriteBasis() { ActiveSpriteBasis.clear(); }
 std::string CurrentSpriteBasisJson() { return StateEnabled() ? ActiveSpriteBasis : std::string(); }
+
+void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWSpriteRenderSurfaceState& surface,
+    double x, double y, double z)
+{
+    if (!StateEnabled()) return;
+    try
+    {
+        using namespace SdvkObservation;
+        ActiveActorProbe = Object().Bool("available", true).Str("contract", "sdvk-010-actor-ordinal/v1")
+            .Str("policy", selected.policy).Bool("selected", selected.selected).Bool("spatial", selected.spatial)
+            .Int("authored_index", selected.authoredIndex).Int("sector_target", selected.sectorTarget)
+            .Int("candidate_count", selected.candidateCount).Num("distance_squared", selected.distanceSquared)
+            .Raw("actor_position", '[' + Number(x) + ',' + Number(y) + ',' + Number(z) + ']')
+            .Int("source_portal_group", surface.sourcePortalGroup)
+            .Int("render_portal_group", surface.renderPortalGroup)
+            .Int("through_portal_mode", surface.throughPortalMode)
+            .Bool("portal_mirrored", surface.portalMirrored)
+            .Str("coordinate_space", "source-level-doom-xyz")
+            .Str("publication_policy", "PF-113 zero when selected pair absent; no alternate probe")
+            .Json();
+    }
+    catch (const std::exception& error) { ActiveActorProbe.clear(); Fail(error.what()); }
+}
+void ClearActorProbeSelection() { ActiveActorProbe.clear(); }
+std::string CurrentActorProbeSelectionJson() { return StateEnabled() ? ActiveActorProbe : std::string(); }
 
 std::string ApplicationCacheFilename(const char* leaf)
 {

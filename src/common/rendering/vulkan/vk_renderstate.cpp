@@ -469,7 +469,13 @@ void VkRenderState::ApplySurfaceUniforms()
 		mSurfaceUniforms.uColormapIndex = 0;
 	}
 
-	mSurfaceUniforms.uLightProbeIndex = fb->GetDescriptorSetManager()->GetLightProbeTextureIndex(mLightProbeIndex);
+	// SDVK-010: authored ordinal -1 (no probe), and stale positive ordinals,
+	// must not enter the PF-113-pinned descriptor producer or resize its cache.
+	// Runtime index 0 is the accepted missing-pair fallback; authored probe 0
+	// remains a valid candidate and must be forwarded to the producer.
+	mSurfaceUniforms.uLightProbeIndex = (mLightProbeIndex >= 0 &&
+		static_cast<size_t>(mLightProbeIndex) < level.lightProbes.Size())
+		? fb->GetDescriptorSetManager()->GetLightProbeTextureIndex(mLightProbeIndex) : 0;
 
 	if (mMaterial.mChanged)
 	{

@@ -173,7 +173,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "actor_probe"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -203,6 +203,20 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                     any(sprite_basis[k] is not True for k in
                         ("requires_frame_mirror", "requires_uv_mirror_x", "requires_uv_mirror_y", "requires_portal_mirror"))):
                 raise ValueError("Unbounded or ungrounded sprite tangent native assertions")
+        actor_probe = state_assertions.get("actor_probe")
+        if actor_probe is not None:
+            if (not isinstance(actor_probe, dict) or set(actor_probe) !=
+                    {"minimum_draws", "required_indices", "material_examples", "require_live"} or
+                    type(actor_probe["minimum_draws"]) is not int or not 1 <= actor_probe["minimum_draws"] <= 1000 or
+                    not isinstance(actor_probe["required_indices"], list) or
+                    any(type(i) is not int or i < 0 or i > 32768 for i in actor_probe["required_indices"]) or
+                    len(set(actor_probe["required_indices"])) != len(actor_probe["required_indices"]) or
+                    not isinstance(actor_probe["material_examples"], list) or
+                    any(not isinstance(x, str) or not x for x in actor_probe["material_examples"]) or
+                    type(actor_probe["require_live"]) is not bool):
+                raise ValueError(f"Scene {name} has invalid actor probe draw assertions")
+            if actor_probe["require_live"] and not actor_probe["required_indices"]:
+                raise ValueError(f"Scene {name} asserts live probes without an authored index witness")
         if "line_mirror" in state_assertions and state_assertions["line_mirror"] is not True:
             raise ValueError(f"Scene {name} requires an explicit positive line-mirror assertion")
         if "published_probes_minimum" in state_assertions:
@@ -634,7 +648,26 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
     elif generator == "sun_probes":
         model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
         _material_layers(members)
-        members["GLDEFS"] = (_pbr("SDVW") + _pbr("SDVFL", "flat")).encode()
+        # SDVK-010: two distinct, actually drawn PBR actor sprites in the
+        # same sector, each nearest to a different authored probe. Source
+        # colors/normal components distinguish dielectric vs metallic paths.
+        members["GLDEFS"] = (_pbr("SDVW") + _pbr("SDVFL", "flat") +
+            'material texture SDVOA0\n{\n normal "SDVN"\n metallic "SDVZERO"\n roughness "SDVROUG"\n ao "SDVAO"\n}\n' +
+            'material texture SDVQA0\n{\n normal "SDVN"\n metallic "SDVMET"\n roughness "SDVROUGH"\n ao "SDVAO"\n}\n').encode()
+        # Non-neutral signed-direction tangent normal actually sampled by
+        # both probe-lit actors (not merely a material declaration).
+        members["textures/SDVN.png"] = png_rgba(16, 16, bytes((207, 91, 220, 255)) * 256)
+        members["textures/SDVROUG.png"] = png_rgba(16, 16, bytes((220, 220, 220, 255)) * 256)
+        members["textures/SDVMET.png"] = png_rgba(16, 16, bytes((250, 250, 250, 255)) * 256)
+        members["textures/SDVROUGH.png"] = png_rgba(16, 16, bytes((55, 55, 55, 255)) * 256)
+        members["sprites/SDVQA0.png"] = _texture(64, 64, (220, 80, 70, 255), (80, 130, 220, 255), offset=(32, 64))
+        members["ZSCRIPT"] += b"""
+class SDVKProbeMetal : Actor
+{
+    Default { Radius 8; Height 64; +NOGRAVITY +NOBLOCKMAP }
+    States { Spawn: SDVQ A -1; Stop; }
+}
+"""
         members["textures/SDVSKY.png"] = _texture(256, 128, (120, 156, 194, 255), (180, 194, 210, 255))
         model.thing(9890, 0, 0, angle=0, pitch=45, lm_suncolor=16774336, lm_sunintensity=1, lm_sampledist=64)
         # The current 9892 parser stores the authored Z directly as probe world Z.
@@ -645,8 +678,9 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
         # their presence is not evidence that sunlight or probe sampling works.
         model.thing(9800, 0, 0, 64, tid=3000, arg0=160, arg1=160, arg2=160, arg3=96)
         model.thing(32203, 0, -64, 0, tid=2020)
-        model.thing(32203, 96, 96, 0, tid=2021)
-        metadata.update(authored_probe_positions=[[-96, -96, 80], [96, 96, 112]],
+        model.thing(32217, 96, 96, 0, tid=2021)
+        metadata.update(actor_probe_materials={"dielectric": "SDVOA0", "metallic": "SDVQA0"},
+                        actor_probe_tids=[2020, 2021], authored_probe_positions=[[-96, -96, 80], [96, 96, 112]],
                         query_control_light_tid=3000, query_marker_tids=[2020, 2021],
                         sunlight=copy.deepcopy(native["sun_input"]), full_bake_qualified=False)
     else:
@@ -655,6 +689,8 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
     members["MAPINFO"] = (f'map {map_name} "SDVK {scene["id"]}" {{ nointermission{sky} }}\n'
                           'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32201 = SDVKCanvasCamera\n'
                           ' 32202 = SDVKGlass\n 32203 = SDVKMarker\n}\n').encode()
+    if generator == "sun_probes":
+        members["MAPINFO"] += "DoomEdNums\n{\n 32217 = SDVKProbeMetal\n}\n".encode()
     if generator == "sprite_mirror":
         members["MAPINFO"] += ("DoomEdNums\n{\n 32210 = SDVKRotated\n 32211 = SDVKWall\n"
                                " 32212 = SDVKFlat\n 32213 = SDVKFlipX\n 32214 = SDVKFlipY\n 32215 = SDVKPBR\n 32216 = SDVKLegacy\n}\n").encode()

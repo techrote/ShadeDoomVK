@@ -123,6 +123,53 @@ def _context(value):
     return value["epoch"], value["identity"]
 
 
+def _actor_probe_selection(value, authored, runtime):
+    """SDVK-010: validate actual emitted actor source-space probe selection."""
+    _availability(value, "actor probe selection")
+    if not value["available"]:
+        return
+    require(value.get("contract") == "sdvk-010-actor-ordinal/v1", "Wrong actor probe selector contract")
+    require(value.get("coordinate_space") == "source-level-doom-xyz", "Actor probe used wrong coordinate space")
+    require(value.get("publication_policy") == "PF-113 zero when selected pair absent; no alternate probe",
+            "Actor probe silently substituted a different published probe")
+    require(value.get("policy") in ("no-probes", "invalid-position", "portal-sector-conservative",
+                                   "spatial-nearest", "no-probe-in-radius"), "Unknown actor probe policy")
+    for key in ("selected", "spatial", "portal_mirrored"):
+        require(type(value.get(key)) is bool, f"Actor probe {key} must be boolean")
+    count = integer(value.get("candidate_count"), "actor probe candidate count", minimum=0)
+    assigned = integer(value.get("authored_index"), "selected actor probe", minimum=-1)
+    sector = integer(value.get("sector_target"), "actor sector probe", minimum=-1)
+    source_group = integer(value.get("source_portal_group"), "actor source portal group", minimum=-1)
+    render_group = integer(value.get("render_portal_group"), "actor render portal group", minimum=-1)
+    thru = integer(value.get("through_portal_mode"), "actor through-portal mode")
+    _vector(value.get("actor_position"), 3, "actor source-space position")
+    distance = number(value.get("distance_squared"), "actor probe distance squared", minimum=-1)
+    require(assigned == authored, "Actor probe selected ordinal differs from emitted uniform ordinal")
+    require(value["selected"] == (assigned >= 0), "Actor probe selection and ordinal disagree")
+    require(not value["selected"] or assigned < count, "Actor probe selected a stale/out-of-range ordinal")
+    require(value["selected"] or runtime == 0, "Absent actor probe sampled nonzero runtime descriptor")
+    portal = thru != 0 or source_group != render_group
+    if portal:
+        require(value["policy"] == "portal-sector-conservative" or count == 0,
+                "Actor probe crossed a portal without source-space authority")
+    if value["policy"] == "portal-sector-conservative":
+        require(portal and not value["spatial"] and distance == -1,
+                "Portal actor probe incorrectly used global XY nearest")
+        require(not value["selected"] or assigned == sector,
+                "Portal actor probe ignored sector target")
+    elif value["policy"] == "spatial-nearest":
+        require(not portal and value["spatial"] and value["selected"] and
+                0 <= distance <= 512.0**2, "Spatial actor probe outside PF-012 radius")
+    elif value["policy"] == "no-probe-in-radius":
+        require(not portal and value["spatial"] and not value["selected"] and count > 0 and distance == -1,
+                "Actor probe no-nearby fallback is malformed")
+    elif value["policy"] == "no-probes":
+        require(count == 0 and not value["selected"] and not value["spatial"] and distance == -1,
+                "No-probe fallback inconsistent with published candidates")
+    elif value["policy"] == "invalid-position":
+        require(False, "Nonfinite actor pose may not enter emitted draw evidence")
+
+
 def _sprite_basis(value):
     """SDVK-007: validate the *emitted draw* uniform and PF-009 provenance."""
     require(value.get("uniform_scope") == "emitted-vulkan-draw-after-apply-surface-uniforms",
@@ -356,6 +403,17 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                 require(value["resource"]["index"] == value["runtime_irradiance_index"], "Probe uniform/resource indices disagree")
             require(not value["fallback"] or value["resource"]["available"] is False,
                     "No-probe sentinel unexpectedly has a live resource")
+            if "actor_selection" in value:
+                _actor_probe_selection(value["actor_selection"], value["authored_index"],
+                                       value["runtime_irradiance_index"])
+            if not value["fallback"]:
+                published_irrad = integer(value.get("published_irradiance"), "probe cube count", minimum=1)
+                published_pref = integer(value.get("published_prefilter"), "probe prefilter count", minimum=1)
+                require(0 <= value["authored_index"] < published_irrad and
+                        value["authored_index"] < published_pref,
+                        "Emitted live probe ordinal is not backed by published pair")
+            if "probe_epoch" in value:
+                integer(value["probe_epoch"], "probe resource epoch", minimum=1)
         elif kind == "pipeline":
             require(isinstance(value.get("key"), dict) and isinstance(value["key"].get("shader"), dict)
                     and value["key"]["shader"], "Pipeline/shader field identity is missing")
