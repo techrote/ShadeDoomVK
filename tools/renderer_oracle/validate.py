@@ -130,7 +130,7 @@ def _sprite_basis(value):
     require(type(value.get("indexed")) is bool and not value["indexed"],
             "Immediate sprite card must be an unindexed quad")
     integer(value.get("draw_count"), "sprite draw vertex count", minimum=4, maximum=4)
-    integer(value.get("shader"), "sprite material shader")
+    integer(value.get("shader"), "sprite material shader", minimum=-1)
     integer(value.get("height_texture_index"), "sprite height semantic index", minimum=-1)
     require(isinstance(value.get("material"), str), "Sprite material identity absent")
     surface = value.get("surface")
@@ -139,7 +139,7 @@ def _sprite_basis(value):
             "Sprite tangent claims explicit ownership without PF-009 state")
     for key in ("source", "presentation", "sprite_type", "actor_sprite", "actor_frame",
                 "source_portal_group", "render_portal_group", "through_portal_mode"):
-        integer(surface.get(key), "sprite surface " + key)
+        integer(surface.get(key), "sprite surface " + key, minimum=-2147483648)
     require(surface["source"] in (0, 1, 2) and surface["presentation"] in (0, 1, 2, 3, 4),
             "Sprite tangent may not claim a model/unknown presentation")
     for key in ("frame_mirrored", "uv_mirror_x", "uv_mirror_y", "portal_mirrored",
@@ -154,11 +154,11 @@ def _sprite_basis(value):
     _vector(surface.get("view_angles"), 3, "sprite view angles")
     _vector(value.get("tangent"), 3, "emitted tangent")
     _vector(value.get("normal"), 3, "emitted normal")
-    handedness = number(value.get("handedness"), "sprite tangent handedness")
-    u_sign = number(surface.get("u_sign"), "sprite U sign")
-    v_sign = number(surface.get("v_sign"), "sprite V sign")
-    expected_hand = number(surface.get("expected_handedness"), "sprite expected hand")
-    parity = number(surface.get("view_parity"), "sprite parity")
+    handedness = number(value.get("handedness"), "sprite tangent handedness", minimum=-1)
+    u_sign = number(surface.get("u_sign"), "sprite U sign", minimum=-1)
+    v_sign = number(surface.get("v_sign"), "sprite V sign", minimum=-1)
+    expected_hand = number(surface.get("expected_handedness"), "sprite expected hand", minimum=-1)
+    parity = number(surface.get("view_parity"), "sprite parity", minimum=-1)
     explicit = value.get("explicit")
     require(type(explicit) is bool and explicit is surface["basis_valid"] and
             (surface["selection"] == "explicit-sprite") is explicit,
