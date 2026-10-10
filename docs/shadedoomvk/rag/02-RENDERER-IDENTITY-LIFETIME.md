@@ -273,3 +273,10 @@ Accepted evidence is [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.
 ## SDVK-005 material-height lifetime
 
 SDVK-005 introduces no new resource identity. Optional height is one trailing member of the existing `VkMaterial` bindless span and is retired/rebuilt with that descriptor entry under PF-002/PF-003 generations and SDVK-004 allocator pressure rules. Global-shader descriptor construction appends material height after global custom textures; indexed/palette routes omit it. No emergency flush, independent durable height index or cross-generation alias is permitted.
+
+
+### SDVK-005 verified acceptance
+
+SDVK-005's height layer introduces no independent lifetime domain. The accepted substantive tree `28f2ef41a99ea6979145030e807c7798c6e01735` passed the full PF contract oracle at PR head and again on exact merged master, including inherited PF-002/PF-003/SDVK-004 generation, stale-identity, rebuild, exhaustion and 3,072/4,096 deterministic descriptor-pressure controls. Height is retired with the owning material descriptor span; indexed/palette routes do not publish it. No global flush, persistent height slot or alternate generation scheme is accepted.
+
+See [SDVK-005 final acceptance](../SDVK-005-FINAL-ACCEPTANCE.md) and [release receipt](../SDVK-005-RELEASE-ACCEPTANCE.json).

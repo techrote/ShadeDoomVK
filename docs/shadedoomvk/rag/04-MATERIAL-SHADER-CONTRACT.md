@@ -217,3 +217,10 @@ See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and [release 
 SDVK-005 extends PF-008 by appending `MaterialLayerSemantic::Height` after every existing semantic/custom identity. Historical fixed/custom descriptor positions remain authoritative; GLDEFS custom starts stay 5/7/9. `FMaterial::FMaterial` appends height last and does not use it to choose Default/Specular/PBR shader models. Vulkan publishes it only on ordinary true-colour material routes and records the actual relative index in `SurfaceUniforms::uHeightTextureIndex`; indexed/palette routes report `-1`. Stock `SetMaterialProps` does not sample the channel. Custom/later shaders opt in with `HasMaterialHeightMap` / `SampleMaterialHeight`.
 
 Existing built-in channels keep inherited `Default` sampling. The GLDEFS semantic-layer syntax may explicitly request `nearest`, `linear` or `default`; height's new default is linear min/mag + linear mipmap using the existing override sampler. This permits pixel-crisp default albedo with independently filtered data channels. Height is normalized linear scalar data from the red channel. See [SDVK-005 material height contract](../SDVK-005-MATERIAL-HEIGHT.md).
+
+
+### SDVK-005 verified acceptance
+
+The optional height contract above is accepted on substantive merge `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`. PR-head and exact merged-master Renderer source evidence pass, and both corresponding Continuous Integration runs pass 9/9 including software Vulkan. Native material-stress assertions prove actual height bindings 6/8/9 across legacy/PBR/custom cases, preserve custom PBR binding 8, and prove nearest albedo can coexist with linear+miplinear normal/PBR/height data. Sprite-mirror proves the semantic on a real sprite material route. Stock material shading remains height-neutral.
+
+See [final acceptance](../SDVK-005-FINAL-ACCEPTANCE.md) and [release receipt](../SDVK-005-RELEASE-ACCEPTANCE.json). SDVK-007 may consume this material contract after acceptance reconciliation PR #134 is verified.

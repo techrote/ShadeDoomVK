@@ -1,6 +1,6 @@
 # SDVK-005 — semantic height authoring and per-layer policy
 
-Status: implementation/qualification candidate on `sdvk-005-height-semantic`. Final acceptance requires exact-head hosted CI/software-Vulkan qualification, merge, exact resulting-master verification and the release receipt.
+Status: **accepted substantive implementation** through PR #132 / `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`; exact implementation and merged-master qualification passed. Final programme reconciliation is recorded by `SDVK-005-FINAL-ACCEPTANCE.md`, `SDVK-005-RELEASE-ACCEPTANCE.json` and acceptance PR #134.
 
 ## Authority and scope
 
@@ -103,3 +103,10 @@ CPU/source contracts retain PF-008 enum identities, historical 5/7/9 custom bind
 Software Vulkan is sufficient for SDVK-005 because this issue owns semantic/resource correctness rather than a hardware-performance result. A physical GPU is required only if qualification exposes a concrete hardware/driver-specific defect that cannot be resolved from CPU contracts and software Vulkan.
 
 Final acceptance must publish `SDVK-005-FINAL-ACCEPTANCE.md` and `SDVK-005-RELEASE-ACCEPTANCE.json`, pin exact PR/master trees and artifacts, retain adverse attempts, and mark SDVK-007 dependency-ready only after merged-master verification.
+
+
+## Verified acceptance
+
+PR #132 final head `9a87734357d15145ed791d89c4b98db94fb60cb6` passed Renderer source evidence run `38030309310` and Continuous Integration run `38030309307` with 9/9 jobs. It squash-merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`; the merged tree `28f2ef41a99ea6979145030e807c7798c6e01735` exactly equals the tested PR-head tree. Exact merged-master Renderer source evidence run `38032400496` and CI run `38032400505` passed, again 9/9 including the complete software-Vulkan corpus.
+
+No physical-GPU requirement was triggered. See [final acceptance](SDVK-005-FINAL-ACCEPTANCE.md) and the [machine-readable release receipt](SDVK-005-RELEASE-ACCEPTANCE.json).

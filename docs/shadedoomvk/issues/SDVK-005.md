@@ -44,3 +44,23 @@ If height cannot be added without breaking existing layer bindings/custom shader
 Dedicated branch `sdvk-005-height-semantic` starts from `master@0a2fbad203549d18ac6e5a61bb4747709637bfde`. The design is recorded in [SDVK-005-MATERIAL-HEIGHT.md](../SDVK-005-MATERIAL-HEIGHT.md). Height is appended after all historical fixed/material/global custom bindings and exposed through a dynamic semantic index; existing 5/7/9 custom bindings do not move. The stock material path does not sample height. Existing semantic channels retain their defaults while the author may opt into per-layer nearest/linear sampling. Indexed/palette routes omit height to preserve palette semantics.
 
 Acceptance remains pending exact-head CPU/software-Vulkan/hosted CI, merge and exact resulting-master verification. No physical-GPU gate is implied absent a reproduced hardware-specific defect.
+
+
+## Verified acceptance — 2026-10-10
+
+**SDVK-005 substantive implementation is accepted, merged and verified.**
+
+- Final implementation PR: #132.
+- Final head: `9a87734357d15145ed791d89c4b98db94fb60cb6`.
+- Tested PR merge ref: `116a45bf47dc4595ead106ce99588723750d4d5d`.
+- Tested tree: `28f2ef41a99ea6979145030e807c7798c6e01735`.
+- Merge/resulting master: `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`.
+- Merged tree: `28f2ef41a99ea6979145030e807c7798c6e01735`; exact tree equality: PASS.
+- PR-head source evidence run `38030309310`: PASS.
+- PR-head CI run `38030309307`: 9/9 PASS including software Vulkan.
+- Exact merged-master source evidence run `38032400496`: PASS.
+- Exact merged-master CI run `38032400505`: 9/9 PASS including software Vulkan.
+- Height remains optional and output-neutral for stock shading; historical fixed/custom bindings remain unchanged; indexed/palette routes omit height; mixed nearest albedo + filtered normal/PBR/height sampling is natively asserted.
+- No physical-GPU gate was required or claimed.
+
+Retained failures/anomalies are preserved in [SDVK-005 final acceptance](../SDVK-005-FINAL-ACCEPTANCE.md) and [release receipt](../SDVK-005-RELEASE-ACCEPTANCE.json). Acceptance reconciliation PR #134 is documentation-only. After that reconciliation itself merges and its resulting master is verified, close #5 and treat SDVK-007 / #7 as dependency-ready.
