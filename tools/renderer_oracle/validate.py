@@ -225,7 +225,11 @@ def _sprite_relief(value):
             and surface.get("orientation_source") == "pf-009-calculate-vertices",
             "Relief requires accepted canonical PF-009 orientation")
     _vector(surface.get("uv"), 4, "source sprite signed UV")
-    require(all(abs(a-b) <= 1e-6 for a,b in zip(value["uv_bounds"],surface["uv"])) or
+    # #7 records (ul,ur,vt,vb); #8 shader uniforms publish two UV
+    # corner pairs (ul,vt,ur,vb). Reorder, do not flip or infer angles.
+    source_uv = surface["uv"]
+    expected_bounds = [source_uv[0], source_uv[2], source_uv[1], source_uv[3]]
+    require(all(abs(a-b) <= 1e-6 for a,b in zip(value["uv_bounds"],expected_bounds)) or
             value["uv_bounds"] == [0, 0, 0, 0],
             "Relief UV bounds differ from PF-009 final sprite UV")
     for key in ("basis_valid", "candidate", "eligible_draw"):
@@ -237,7 +241,8 @@ def _sprite_relief(value):
     if value["candidate"]:
         require(0 < depth <= 0.0200 and quality in (1,2,3) and value["basis_valid"],
                 "Invalid active depth/quality or tangent basis")
-        require(value["uv_bounds"] == surface["uv"], "Candidate bound UV mismatch")
+        require(all(abs(a-b) <= 1e-6 for a,b in zip(value["uv_bounds"],expected_bounds)),
+                "Candidate bound UV mismatch")
     else:
         require(depth == 0 and quality == 0 and value["uv_bounds"] == [0,0,0,0],
                 "Relief fallback retained stale per-draw options")

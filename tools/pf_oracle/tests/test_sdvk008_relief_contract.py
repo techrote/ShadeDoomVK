@@ -99,6 +99,17 @@ class SpriteReliefOffGpuTests(unittest.TestCase):
     def test_emitted_draw_validator_positive_and_negative(self):
         good=row()
         validate._sprite_relief(good)
+        # PF-009 uses (ul,ur,vt,vb); #8's ray/rect uniform uses two
+        # vertex corners (ul,vt,ur,vb). Both independent mirrors must PASS.
+        for source_uv, bounds in (
+            ([0,1,0,1],[0,0,1,1]),  # positive U after X/frame mirror
+            ([1,0,1,0],[1,1,0,0]),  # inverted V actor Y flip
+            ([0,1,1,0],[0,1,1,0]),  # both axes flipped
+        ):
+            mirrored=copy.deepcopy(good)
+            mirrored["surface"]["uv"]=source_uv
+            mirrored["uv_bounds"]=bounds
+            validate._sprite_relief(mirrored)
         candidates=[("depth",.021),("depth",-1),("depth",float("nan")),
                     ("quality",4),("height_reads_max",16),("candidate",False),
                     ("eligible_draw",False),("basis_valid",False),("uv_bounds",[0,0,1,1]),
