@@ -1,0 +1,144 @@
+{
+  "schema": "sdvk007-native-evidence/v1",
+  "scope": "Final substantive PR-head software Vulkan; physical GPU not qualified",
+  "source": {
+    "pullRequest": 135,
+    "finalHead": "a895dca0a5f356440f79f0631289d2862afe86f3",
+    "testedTree": "8afa7ce6267abdfe8740cc7de4a72e0e9d510661",
+    "ciRun": 38049863166,
+    "artifactId": 11668954978,
+    "artifactZipSha256": "8529d0e157a91ad59430081e57b2c2bd2d6fa24eb58ffc23a443c408104aef95"
+  },
+  "spriteMirror": {
+    "scene": "sprite-mirror",
+    "capturedMap": "SDVROT",
+    "captures": [
+      {
+        "number": 1,
+        "stateFileSha256": "46ee3050c18ae3dfd420e49c989a7679648fe259ee8e7a46d8e45a6d1eee4e74",
+        "rawPngSha256": "3064050f6be35ccee5dbba2fa6bef5450c77cc1419245609ff26a8bbb8e4b965",
+        "basisRecords": 30,
+        "explicitBasisRecords": 30,
+        "presentationCounts": {
+          "0": 26,
+          "3": 2,
+          "4": 2
+        },
+        "frameMirrorDraws": 6,
+        "effectiveUvMirrorXDraws": 8,
+        "effectiveUvMirrorYDraws": 2,
+        "portalMirrorDraws": 15,
+        "otherContextDraws": 15,
+        "effectiveSpriteLightMode": 2,
+        "activeLights": 1,
+        "actorLightSelections": 30,
+        "materials": {
+          "SDVRA1": {
+            "draws": 7,
+            "shaderModels": [
+              3
+            ],
+            "heightTextureIndices": [
+              6
+            ],
+            "allLightIndicesNonnegative": true,
+            "allExplicit": true
+          },
+          "SDVPA0": {
+            "draws": 2,
+            "shaderModels": [
+              4
+            ],
+            "heightTextureIndices": [
+              -1
+            ],
+            "allLightIndicesNonnegative": true,
+            "allExplicit": true
+          },
+          "SDVLA0": {
+            "draws": 2,
+            "shaderModels": [
+              0
+            ],
+            "heightTextureIndices": [
+              -1
+            ],
+            "allLightIndicesNonnegative": true,
+            "allExplicit": true
+          }
+        }
+      },
+      {
+        "number": 2,
+        "stateFileSha256": "26bb912d257b963644008c6f0ddd61de19c8ae21fe69c87f58be4ceea04d55a8",
+        "rawPngSha256": "3064050f6be35ccee5dbba2fa6bef5450c77cc1419245609ff26a8bbb8e4b965",
+        "basisRecords": 30,
+        "explicitBasisRecords": 30,
+        "presentationCounts": {
+          "0": 26,
+          "3": 2,
+          "4": 2
+        },
+        "frameMirrorDraws": 6,
+        "effectiveUvMirrorXDraws": 8,
+        "effectiveUvMirrorYDraws": 2,
+        "portalMirrorDraws": 15,
+        "otherContextDraws": 15,
+        "effectiveSpriteLightMode": 2,
+        "activeLights": 1,
+        "actorLightSelections": 30,
+        "materials": {
+          "SDVRA1": {
+            "draws": 7,
+            "shaderModels": [
+              3
+            ],
+            "heightTextureIndices": [
+              6
+            ],
+            "allLightIndicesNonnegative": true,
+            "allExplicit": true
+          },
+          "SDVPA0": {
+            "draws": 2,
+            "shaderModels": [
+              4
+            ],
+            "heightTextureIndices": [
+              -1
+            ],
+            "allLightIndicesNonnegative": true,
+            "allExplicit": true
+          },
+          "SDVLA0": {
+            "draws": 2,
+            "shaderModels": [
+              0
+            ],
+            "heightTextureIndices": [
+              -1
+            ],
+            "allLightIndicesNonnegative": true,
+            "allExplicit": true
+          }
+        }
+      }
+    ],
+    "comparison": {
+      "passed": true,
+      "extent": [
+        640,
+        480
+      ],
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "changedPixels": 0,
+      "changedPixelFraction": 0,
+      "maxChannelError": 0,
+      "meanChannelError": 0,
+      "leftRgbSha256": "41dc7f2658bdfc4748cde153a0c1f67c13c3540f937fac879f3dea9be2adf14a",
+      "rightRgbSha256": "41dc7f2658bdfc4748cde153a0c1f67c13c3540f937fac879f3dea9be2adf14a"
+    }
+  }
+}
