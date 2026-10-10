@@ -2,7 +2,7 @@
 
 Date: 2026-10-10  
 Owner: SDVK-005 / #5  
-Disposition: **ACCEPTED, MERGED AND VERIFIED** for the substantive implementation. This record becomes the durable programme acceptance receipt when its acceptance-reconciliation PR is itself merged and verified.
+Disposition: **ACCEPTED, MERGED AND VERIFIED** for the substantive implementation. Acceptance reconciliation is published as PR #133; this record becomes the durable programme acceptance receipt when PR #133 is itself merged and verified.
 
 ## Exact integration identity
 
@@ -14,7 +14,7 @@ Disposition: **ACCEPTED, MERGED AND VERIFIED** for the substantive implementatio
 - Substantive merge/resulting master: `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1`
 - Resulting master tree: `28f2ef41a99ea6979145030e807c7798c6e01735`
 - Exact tested-tree / merged-tree equality: **PASS**
-- Acceptance-reconciliation PR: **pending publication of this record**.
+- Acceptance-reconciliation PR: **#133**.
 
 ## Height semantic contract
 
