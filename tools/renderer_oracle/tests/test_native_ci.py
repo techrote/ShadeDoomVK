@@ -98,8 +98,8 @@ class Controls(unittest.TestCase):
                     else:
                         self.assertEqual(call.frames, 120)
                     self.assertEqual(call.gpu, call.mode == 'timing')
-                self.assertEqual(result['sdvk009_dense_timing_scenes'],
-                                 list(native_ci.SDVK009_DENSE_SCENES) if full else [])
+                self.assertEqual(result['sdvk009_scale_timing_scenes'],
+                                 list(native_ci.SDVK009_SCALE_TIMING_SCENES) if full else [])
                 before = (args.out/'native-ci.json').read_bytes()
                 with self.assertRaises(FileExistsError):
                     native_ci.qualify(args)
