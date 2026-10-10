@@ -1,0 +1,159 @@
+{
+  "schema": "sdvk007-release-acceptance/v1",
+  "dateUtc": "2026-10-10",
+  "status": "ACCEPTED_MERGED_VERIFIED",
+  "owningIssue": "https://github.com/techrote/ShadeDoomVK/issues/7",
+  "substantivePullRequest": "https://github.com/techrote/ShadeDoomVK/pull/135",
+  "documentationBranch": "sdvk-007-final-acceptance-reconciliation",
+  "startingMaster": "cbff1d10b802e60a56d239338f810f7e1e52920d",
+  "finalHead": "a895dca0a5f356440f79f0631289d2862afe86f3",
+  "testedTree": "8afa7ce6267abdfe8740cc7de4a72e0e9d510661",
+  "substantiveMergeCommit": "08ec183e665e7a3100b6cf3a267f5d3b5b494990",
+  "mergedMasterTree": "8afa7ce6267abdfe8740cc7de4a72e0e9d510661",
+  "treeEquality": true,
+  "basis": {
+    "authority": "PF-009 final quad and signed UV; PF-010 portal parity diagnostic only",
+    "tangent": "worldRight * sign(ur-ul)",
+    "normal": "cross(worldRight,worldUp)",
+    "handedness": "-sign(ur-ul)*sign(vb-vt)",
+    "bitangent": "handedness * cross(normal,tangent)",
+    "shaderUniforms": [
+      "uSpriteTangent",
+      "uSpriteNormal"
+    ],
+    "appendedAfterSdvk005Height": true,
+    "historicalBindingRenumbering": false,
+    "normalMappedSpriteOnly": true,
+    "preserved": [
+      "legacy without normal map",
+      "non-sprite/model/LevelMesh",
+      "height without POM",
+      "palette and translation",
+      "gameplay state"
+    ],
+    "fallback": "nonfinite, degenerate, nonplanar or invalid UV => disable explicit frame; derivative reconstruction"
+  },
+  "qualification": {
+    "compiledBasisFixture": "PASS_8_ROTATIONS_FLIPS_YAW_PITCH_ROLL_FLAT_AND_NEGATIVES",
+    "asymmetricDirectionalNormal": "PASS",
+    "expectedTangentAndNormalEmittedDraw": "PASS",
+    "pf009Pf010MirrorParity": "PASS",
+    "fallbackAndStaleAxisNegatives": "PASS",
+    "litLegacySpecularAndPbrSpriteControls": "PASS_ACTUAL_NATIVE_DRAW",
+    "negativeValidationControls": "PASS",
+    "unchangedNoMapAndNonSpritePolicy": "PASS_SOURCE_AND_SAME_TREE_NATIVE_REPEATS",
+    "historicalMasterCrossTreeFullPixelDiff": "NOT_RUN_NOT_CLAIMED",
+    "physicalGpuQualified": false,
+    "performanceAccepted": false
+  },
+  "nativeSoftwareVulkan": {
+    "status": "PASS_FULL_HOSTED_CORPUS",
+    "repeatedStateAndImageComparison": true,
+    "scenes": [
+      "compositing",
+      "lights-zero",
+      "lights-one",
+      "lights-many",
+      "lights-dense-overlap",
+      "lights-dense-dispersed",
+      "shadow-boundary",
+      "material-stress",
+      "sun-probes",
+      "sprite-mirror"
+    ],
+    "spriteMirror": [
+      "asymmetric directional normal",
+      "legacy normal/specular",
+      "PBR",
+      "height present no relief",
+      "no normal map",
+      "per-pixel lit witness"
+    ],
+    "softwareOnly": true
+  },
+  "finalHeadEvidence": {
+    "source": {
+      "runId": 38049863197,
+      "status": "PASS",
+      "artifactId": 11668818325,
+      "bytes": 148534137,
+      "zipSha256": "1ee60659340a0cbf314f3e98df7cf40866e1f2aece0cbce3345609fb832e7d6f"
+    },
+    "continuousIntegration": {
+      "runId": 38049863166,
+      "status": "PASS",
+      "jobsPassed": 9
+    },
+    "cpu": {
+      "artifactId": 11668953116,
+      "bytes": 74433,
+      "zipSha256": "a2dc5926a03f46bcf3ee9a07a2404b424529f83b5480486fc87a2b6c70afe7eb"
+    },
+    "native": {
+      "artifactId": 11668954978,
+      "bytes": 406685258,
+      "zipSha256": "8529d0e157a91ad59430081e57b2c2bd2d6fa24eb58ffc23a443c408104aef95"
+    }
+  },
+  "postMergeEvidence": {
+    "source": {
+      "runId": 38051697523,
+      "status": "PASS",
+      "artifactId": 11669274109,
+      "bytes": 148521374,
+      "zipSha256": "732a473d93bbc14487e22b4bcb3006376473a4225997cc257120864132e75eec"
+    },
+    "continuousIntegration": {
+      "runId": 38051697394,
+      "attempt": 2,
+      "status": "PASS",
+      "jobsPassed": 9,
+      "rerunWindowsDebugJobId": 114218926544,
+      "executableIdentityCommit": "08ec183e665e7a3100b6cf3a267f5d3b5b494990",
+      "executableWorkingTree": "clean"
+    },
+    "cpu": {
+      "artifactId": 11669274200,
+      "bytes": 74432,
+      "zipSha256": "4dd42635032ac59b896dc23f45d0d070a7253d4616cd5ebea4d3c5b4c7ecc60f"
+    },
+    "native": {
+      "artifactId": 11670441947,
+      "bytes": 406683267,
+      "zipSha256": "532dade0c0e0dd28b9962a0eb199ec9a3b7c33ef3227162dc46c7b1882282ae5"
+    }
+  },
+  "retainedFailures": [
+    {
+      "runId": 38047322260,
+      "disposition": "incorrect default numeric min rejected valid signed-U; validator repaired and requalified"
+    },
+    {
+      "runId": 38047456941,
+      "disposition": "incorrect but orthogonal tangent direction accepted; compare independent exact expected vectors"
+    },
+    {
+      "runId": 38047737451,
+      "disposition": "AO shorthand fixture mismatched actual ambient-occlusion semantic; fixture corrected"
+    },
+    {
+      "runId": 38051697394,
+      "attempt": 1,
+      "failedJobId": 114212185190,
+      "disposition": "Windows Debug vktool version command 20 second timeout after vkdoom identity passed; failure not waived; exact SHA successfully rerun on attempt 2"
+    }
+  ],
+  "limitations": [
+    "No physical-GPU fidelity/performance campaign",
+    "No cross-tree full pixel diff vs historical master",
+    "No height/POM, actor environment IBL/probes, sprite shadows or many-light code",
+    "Degenerate cases remain derivative fallback"
+  ],
+  "gateDisposition": {
+    "SDVK007": "ACCEPTED_MERGED_VERIFIED_ON_SUBSTANTIVE_MASTER",
+    "SDVK008": "DEPENDENCY_READY_AFTER_ACCEPTANCE_DOC_RECONCILIATION",
+    "SDVK010": "DEPENDENCY_READY_AFTER_ACCEPTANCE_DOC_RECONCILIATION",
+    "SDVK009": "INDEPENDENT_PHYSICAL_CAMPAIGN_OPEN"
+  },
+  "documentationGate": "Documentation-only reconciliation itself must pass required checks, merge and have resulting master verified before issue #7 is closed."
+}
