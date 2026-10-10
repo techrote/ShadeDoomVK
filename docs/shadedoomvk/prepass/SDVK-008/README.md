@@ -1,21 +1,13 @@
-# SDVK-008 bounded relief — preparatory checkpoint
+# SDVK-008 preparatory checkpoint (NOT production or acceptance)
 
-**Research and standalone CPU-oracle evidence ONLY. Not production implementation, acceptance, or physical-GPU qualification. Do not merge as #8 implementation.**
+The complete research package is retained as the ZIP beside this index: `SDVK-008-PREPASS-PACKAGE.zip`. Extract it at repository root; paths inside the archive are `docs/shadedoomvk/prepass/SDVK-008/` and `tools/prepass/sdvk008/`. Individual source/report text files live **inside the archive** because this is a preservational checkpoint, not an implementation branch. `CHECKSUMS.sha256` in the archive lists every file's exact SHA-256. The package must not be interpreted as modifications to active renderer code or a merged #8 implementation.
 
-- Owner: [SDVK-008 / issue #8](https://github.com/techrote/ShadeDoomVK/issues/8).
-- Assessed `master`: `cbff1d10b802e60a56d239338f810f7e1e52920d` (tree `cfc567883e299dd555e1010ce547f3fc0fae5970`).
-- Prerequisite: SDVK-007 / PR #135 was open/unmerged at prepass time. Its final basis representation/API is **not accepted here**.
-- The [complete reproducible ZIP](SDVK-008-PREPASS-PACKAGE.zip) contains, under their future isolated repository paths, `SDVK-008-PREPASS.md`, the proposed relief diagnostics JSON schema, fixture manifest/generator, 1,620-case CPU results, proposed #8/#9-compatible physical-GPU packet, host reference and 11 unit tests. Extract at repo root. `CHECKSUMS.sha256` inside proves each member.
-- ZIP SHA-256: `efec30fd4c14740a188b52b5f1ce0ca00c88f07102382f448409d2b16a91ab92`.
+Start with `SDVK-008-PREPASS.md` in the extracted docs directory; companion files include a physical-GPU preregistration document, proposed runtime diagnostic JSON schema, asset-generator hash manifest and 1,620-case CPU receipt. The CPU prototype, deterministic PNM fixture generator and unit tests are under `tools/prepass/sdvk008/` within the archive. Use Python 3.10+ and standard library only.
 
-Verification after extracting the archive:
-
-```sh
+```
 python3 -m unittest discover -s tools/prepass/sdvk008 -p test_reference.py -v
 python3 tools/prepass/sdvk008/test_reference.py --receipt /tmp/sdvk008-grid.json
-python3 tools/prepass/sdvk008/fixtures.py --out /tmp/sdvk008-fixtures --size 32
+python3 tools/prepass/sdvk008/fixtures.py --out /tmp/sdvk008-new-pnm --size 32
 ```
 
-**CPU result**: 11/11 unit tests, 1,620 deterministic cases, 0 anomalies, <=23 height samples, <=0.05 UV Euclidean excursion. These do not constitute hardware performance, shader correctness, native sprite rendering or SDVK-008 acceptance.
-
-**Handoff**: after #7 acceptance, revalidate exact T/B/N world-space and handedness/portal conventions, normal-map and height-only sprite eligibility, signed effective UV/TextureMatrix coordinates, authored sprite subrect and alpha edge rules, derivative availability and emitted-draw diagnostic seam; then implement and qualify #8 separately. Leave #8 open and production unchanged.
+At checkpoint preparation, `master` was `cbff1d10b802e60a56d239338f810f7e1e52920d`; #7 PR #135 was open/unaccepted, and #8 was open/unimplemented. **Do not apply this archive to production shaders or treat its basis representation as accepted.** When #7 is accepted, verify the semantic T/B/N/parity, height-only card eligibility, UV/alpha mapping and portal/mirror semantics against its final implementation before starting #8. Physical performance has **not** been measured. #8 must remain open.

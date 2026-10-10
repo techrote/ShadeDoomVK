@@ -1,0 +1,311 @@
+{
+  "anchors": [
+    {
+      "height": "ramp",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 7,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 10,
+        "intersection_depth": 0.5019843144665973,
+        "max_excursion": 0.0031548573660309664,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.4977410705849003,
+          0.4984940470566002
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "mound",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 1,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 4,
+        "intersection_depth": 0.053835594512529325,
+        "max_excursion": 0.0004506939094329952,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.4997577398246936,
+          0.4998384932164624
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "asymmetric_wedge",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 8,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 11,
+        "intersection_depth": 0.626197696296053,
+        "max_excursion": 0.0036055512754639926,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.49718211036666776,
+          0.49812140691111184
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "stepped",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 6,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 9,
+        "intersection_depth": 0.4980392156862745,
+        "max_excursion": 0.002704163456597971,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.49775882352941175,
+          0.4985058823529412
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "checker",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 7,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 10,
+        "intersection_depth": 0.5071127502634352,
+        "max_excursion": 0.0031548573660309664,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.49771799262381455,
+          0.4984786617492097
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "thin_feature",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 7,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 10,
+        "intersection_depth": 0.5628167268219763,
+        "max_excursion": 0.0031548573660309664,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.4974673247293011,
+          0.49831154981953407
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "constant_0",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 12,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 15,
+        "intersection_depth": 1.0,
+        "max_excursion": 0.005408326913195989,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.4955,
+          0.497
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "constant_05",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 6,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "NONE",
+        "height_samples": 9,
+        "intersection_depth": 0.4980392156862745,
+        "max_excursion": 0.002704163456597971,
+        "numerical_anomaly": false,
+        "refined": true,
+        "relief_applied": true,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.49775882352941175,
+          0.4985058823529412
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    },
+    {
+      "height": "constant_1",
+      "mirror_uv_axes": [
+        1,
+        1
+      ],
+      "policy": "medium",
+      "result": {
+        "actual_steps": 0,
+        "alpha_samples": 0,
+        "derived_lod": 0.0,
+        "effective_scale": 0.015,
+        "fallback_reason": "TOP_PLANE",
+        "height_samples": 1,
+        "intersection_depth": 0.0,
+        "max_excursion": 0.0,
+        "numerical_anomaly": false,
+        "refined": false,
+        "relief_applied": false,
+        "requested_steps": 12,
+        "scale_capped": false,
+        "uv": [
+          0.5,
+          0.5
+        ]
+      },
+      "uv": [
+        0.5,
+        0.5
+      ],
+      "view": "modest"
+    }
+  ],
+  "case_order": "height/view/mirror/UV/policy",
+  "cases": 1620,
+  "excursion_ceiling": 0.05,
+  "fallback_counts": {
+    "FRONT_ON": 324,
+    "GRAZING_OR_BACKFACE": 648,
+    "TOP_PLANE": 96
+  },
+  "fixture_source": "tools/prepass/sdvk008/fixtures.py",
+  "hash_input": "canonical JSON full ordered result grid; payload regenerated rather than checked in",
+  "height_sample_ceiling": 23,
+  "max_height_samples": 23,
+  "numerical_anomalies": 0,
+  "physical_gpu_evidence": false,
+  "renderer_implementation": false,
+  "resolved_count": 552,
+  "schema": "sdvk008-host-grid/v1",
+  "sha256": "c9d64aab54740ad8376bdbbda579d5dc904da8d808833f2df30f8622f14b85d4",
+  "status": "PASS_CPU_REFERENCE_ONLY"
+}

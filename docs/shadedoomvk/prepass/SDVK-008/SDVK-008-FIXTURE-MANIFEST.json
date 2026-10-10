@@ -1,0 +1,28 @@
+{
+  "assets": {
+    "albedo_directional.ppm": "65520cae59e3bc0bf0963cf4b051af1d78730f07533c912a0e71f0af242682e0",
+    "alpha_holes.pgm": "a77cdd901646787c3c15576ca8ef3e1451f34f9043220757da4bd2bbb6fb33e2",
+    "height_asymmetric_wedge.pgm": "b7bc87ac73f020b79a937d69947e64ea8e8704df388e4f472c56d31bc3efb7ce",
+    "height_checker.pgm": "fe2c7163dd9b8f4067467b2f74854d0a79374b99206b5c9b1c1f4e6bc829f7b7",
+    "height_constant_0.pgm": "508e595a3c39ad85b5e0d1c813c3bf8b0816c27ae8a5866feb83ae22ad8c05b1",
+    "height_constant_05.pgm": "1486673811049367a8337a41254ce513f983232c929a462178cdde7ce2c34d2e",
+    "height_constant_1.pgm": "ee235929658f81fc42719edb5614f4ae6d335778cf30be3d93541481fd47818b",
+    "height_mound.pgm": "969980aa7ce34c4c7f29e296fc3fa07a424f835e2ee3cda2b3b841f8f2aefe83",
+    "height_ramp.pgm": "a028b6432159688c98ea2aa9518b32ef4b14e4bc2591ce583d4238d5eb55ab83",
+    "height_stepped.pgm": "f7c3dbaaa51776120019fcb463f98682444b0a02b3fc34e22ea6a10dddf795d4",
+    "height_thin_feature.pgm": "c41a23fc9ad95adc6329cf60df9ac31d554e0be368a18682883e046bd0d59f7e",
+    "normal_directional.ppm": "bd9fa5d39b14af61371425668f00a6f656aaeb46bfbb048f54443d0fe316f183",
+    "pbr_ao.pgm": "c57b7a3d82f1d5e6b68dd35ffbcfa2a80010d63f8331c0ecb26bf1acae9a2a05",
+    "pbr_metallic.pgm": "89b911261041bcbe6fceb1f237ac1cb5b28af10b2d64ca8c2b3f23046a97f9fd",
+    "pbr_roughness.pgm": "5f319474223e50af29cff6f9cfb967229d5355721cdcdc631073b2611405642a"
+  },
+  "interpretation": "height red/gray linear UNORM; normal directional; albedo nearest; independent height linear+mipmap",
+  "non_image_negative_cases": [
+    "height missing",
+    "malformed dimensions",
+    "nonfinite scalar",
+    "invalid scale"
+  ],
+  "schema": "sdvk008-pnm-fixtures/v1",
+  "size": 32
+}
