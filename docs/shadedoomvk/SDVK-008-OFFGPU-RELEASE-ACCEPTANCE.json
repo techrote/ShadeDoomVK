@@ -86,11 +86,21 @@
     },
     "continuousIntegration": {
       "runId": 38074510339,
-      "status": "IN_PROGRESS",
-      "jobsPassed": null
+      "status": "PASS",
+      "runAttempt": 1,
+      "jobsPassed": 9,
+      "exactHead": "9536324ce33ea418af5a8efe733b4659f6b4ad9b"
     },
-    "cpuArtifact": null,
-    "nativeArtifact": null
+    "cpuArtifact": {
+      "artifactId": 11677363559,
+      "bytes": 76139,
+      "artifactZipSha256": "4f435555f7c66a35732e3aa3b864661a407bb215736168a5d32b99c1adf8b410"
+    },
+    "nativeArtifact": {
+      "artifactId": 11678369180,
+      "bytes": 407592352,
+      "artifactZipSha256": "57b7eb2d88d55900cca78f1be4f189ec5ebd6e539705b26c87fe92d5af296473"
+    }
   },
   "validatedScope": [
     "native ten-scene software-Vulkan paired state and image corpus",
@@ -154,5 +164,18 @@
     ],
     "independentCapturesSamePngSha256": "9a0df9366fdfff3fa64cf89ad787872362c384bbddf43fdba23ce94054793a67",
     "remark": "Submitted uniform/eligibility evidence and identical software-Vulkan renders. No isolated same-build OFF-versus-ON pixel-difference experiment, no per-fragment count and no physical-GPU cost/quality claim."
-  }
+  },
+  "incompleteLocalAttempts": [
+    {
+      "command": "python3 tools/check.py --output build/sdvk008-final-check",
+      "result": "TIME_LIMIT_INCONCLUSIVE; terminated during PF test stage",
+      "qualificationAuthority": "Full hosted CPU oracle and software-Vulkan CI both PASS",
+      "focusedLocalResults": {
+        "prepass_reference": 11,
+        "production_relief_contract": 5,
+        "renderer_validator": 29,
+        "corpus_contracts": 22
+      }
+    }
+  ]
 }
