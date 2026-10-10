@@ -4949,7 +4949,7 @@
               "normal",
               "metallic",
               "roughness",
-              "ao"
+              "ambient-occlusion"
             ],
             "SDVLA0": [
               "albedo"
