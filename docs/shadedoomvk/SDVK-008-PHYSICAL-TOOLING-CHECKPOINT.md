@@ -124,6 +124,64 @@ is neither pixel-correspondence proof nor general UV correctness, depth,
 usefulness, mirror/portal parity or PBR coherence. Those broader gates remain
 unqualified; this audit does not adapt the expected sign to rendered results.
 
+The next hosted control, workflow `38102402396` at submitted head `95404ea8`,
+retained two completed alpha-background captures and failed
+`sdvk008-alpha-off/1` with `Required material semantic bindings differ:
+SDVEA0`. Its emitted renderer identity is
+`44f7b52280315889321788ab74f48c9f02bcfeab`; native observation SHA-256 is
+`4457fef11ee2633424d98294ded1c78f46841202e65cb16216b640244132d6a2`.
+The renderer exited successfully, but the run remains an oracle **FAIL**.
+The original 80-file control archive remains retained separately, ZIP SHA-256
+`7eabb8a61afbd0e08456ac368a350e35bc2c5ffea017fd5c13677e2b2e97cab5`.
+An unmodified copy of its SDVEA0 material record is retained as a CPU negative
+fixture; it reproduces the old semantic assertion failure. No old packet is
+rewritten or awarded acceptance.
+
+Material assertion revision `sdvk008-material-bindings-v3` corrects the recipe
+to require the authored height binding even while relief is OFF. The binding
+order follows `FMaterial` in `hw_material.cpp`: authored base/normal/PBR prefix,
+three fixed fallback slots (brightmap, detail, glow), then appended height.
+Height is not part of the contiguous authored prefix. Every required material
+now has an exact total layer count, positive authored texture extent and explicit
+requested and actual sampler checks. The existing generic semantic validator
+still requires ordered 1×1 lump-zero fallback placeholders; it is not relaxed.
+
+| Fixture material | Authored prefix | Height binding | Total layers |
+| --- | --- | --- | --- |
+| Plain height-bearing SDVEA0 | albedo | 4 | 5 |
+| PBR SDVEA0 | albedo, normal, metallic, roughness, AO | 8 | 9 |
+| Heightless SDVEA0 | albedo | absent | 4 |
+| Mirror SDVRA1 | albedo, normal, legacy specular | 6 | 7 |
+| Other mirror SDVR frames | albedo, normal, legacy specular | absent | 6 |
+| Mirror SDVPA0 | albedo, normal, metallic, roughness, AO | absent | 8 |
+| Mirror SDVLA0 | albedo | absent | 4 |
+| No-card background SDVW/SDVFL | albedo | absent | 4 |
+
+Generated SDVE channels and every relief height channel must be 128×128.
+Inherited mirror albedos remain 64×64 and their non-height material channels
+16×16; background channels remain 16×16. All albedos request default sampling
+(-1) with actual nearest min/mag/mipmap (0/0/0), because the recipe selects
+`gl_texture_filter=0`. Height, the generated PBR channels and SDVRA1's explicitly
+linear normal request 1 and require actual linear min/mag/mipmap (1/1/1), as
+selected by `VkSamplerManager`'s `LinearMipLinear` override. Other inherited
+mirror channels retain their authored default/nearest policy. Source lump
+ordinals are not pinned across package loads; positive authored lump identity,
+exact dimensions, semantic roles, package hashes and sampler state are checked.
+
+CPU regressions apply the corrected assertions to the retained material record,
+derive all 25 recipe layouts independently from their actual GLDEFS/PNG member
+bytes, and reject missing height/fallback/PBR channels, wrong binding/index,
+placeholder substitutions, wrong extent, wrong filter and removed recipe
+requirements. Heightless and unmapped mirror controls continue to reject height.
+All 25 original PK3 identities remain required by the existing golden-byte test.
+The new recipe/source hashes require a fresh prepared packet. Authored content,
+camera, oracle image thresholds and renderer source are unchanged; fresh native
+and physical qualification remain outstanding.
+Local validation passes all 147 renderer-oracle CPU tests, including the MSVC
+production-angle fixture and unchanged-package checks. The retained alpha-off
+observation and both completed background observations also satisfy the new
+scene assertions in an offline check; their original receipts remain unchanged.
+
 The frozen SDVK-008 renderer does not emit an ordinary immediate-scene GPU
 timestamp span. Its CPU and available postprocess GPU distributions remain
 descriptive; they cannot establish sprite POM scene cost. `timing_analysis`

@@ -9,6 +9,7 @@ from __future__ import annotations
 import copy
 
 FIXTURE_REVISION = "sdvk008-camera-bam-v2"
+MATERIAL_ASSERTION_REVISION = "sdvk008-material-bindings-v3"
 
 
 def canonical_view_angle(degrees: int) -> float:
@@ -62,6 +63,57 @@ MISSING_GATES = ("mirror-direction",
                  "atlas-and-filter-footprint", "semantic-pbr-uv-coherence")
 REQUIRED_GATES = AVAILABLE_GATES + MISSING_GATES
 FAMILIES = {"single", "multiple", "grazing", "grazing-fallback", "pbr", "heightless", "alpha", "alpha-background", "mirror", "flipx", "flipy"}
+
+
+def material_assertions(family: str) -> dict:
+    """Exact authored prefixes and appended height from FMaterial's layout.
+
+    The three intervening engine placeholders are checked by run.py semantics
+    and the exact total count. They are not authored bright/detail/glow layers.
+    Source lump ordinals vary with loaded packages; only positive authored lump
+    identity and the generated channel dimensions are part of this contract.
+    """
+    if family not in FAMILIES:
+        raise ValueError("Unknown SDVK-008 fixture family")
+    pbr = ["albedo", "normal", "metallic", "roughness", "ambient-occlusion"]
+    spec = ["albedo", "normal", "legacy-specular"]
+    prefixes = {"SDVEA0": pbr if family == "pbr" else ["albedo"]}
+    if family == "alpha-background":
+        prefixes = {"SDVW": ["albedo"], "SDVFL": ["albedo"]}
+    elif family == "mirror":
+        prefixes = {name: spec for name in ("SDVRA1", "SDVRA2A8", "SDVRA3A7", "SDVRA4A6", "SDVRA5")}
+        prefixes.update(SDVPA0=pbr, SDVLA0=["albedo"])
+    heights = {} if family in ("heightless", "alpha-background") else {
+        "SDVRA1" if family == "mirror" else "SDVEA0": {"binding": 6 if family == "mirror" else 8 if family == "pbr" else 4,
+                                                       "requested_sampling": 1}}
+    sampling, counts = {}, {}
+    for name, prefix in prefixes.items():
+        requirements = []
+        for binding, semantic in enumerate(prefix):
+            extent = 16 if family == "alpha-background" else 128 if family != "mirror" else 64 if binding == 0 else 16
+            linear = (family == "pbr" and binding > 0) or (family == "mirror" and name == "SDVRA1" and semantic == "normal")
+            requirements.append({"semantic": semantic, "binding": binding,
+                "requested_sampling": 1 if linear else -1,
+                "min_filter": int(linear), "mag_filter": int(linear), "mipmap_mode": int(linear),
+                "source_extent": [extent, extent]})
+        if name in heights:
+            requirements.append({"semantic": "height", **heights[name],
+                "min_filter": 1, "mag_filter": 1, "mipmap_mode": 1, "source_extent": [128, 128]})
+        sampling[name] = requirements
+        counts[name] = len(prefix) + 3 + int(name in heights)
+    return {"material_semantics": prefixes, "material_height_layers": heights,
+            "material_layer_sampling": sampling, "material_layer_count": counts}
+
+
+def validate_material_assertions(native: dict) -> None:
+    if native.get("material_assertion_revision") != MATERIAL_ASSERTION_REVISION:
+        raise ValueError("SDVK-008 material assertion revision differs")
+    expected = material_assertions(native["relief_family"])
+    actual = native.get("state_assertions", {})
+    if any(actual.get(key) != value for key, value in expected.items()):
+        raise ValueError("SDVK-008 material assertions differ from authored binding contract")
+    if set(actual.get("materials", [])) != set(expected["material_semantics"]):
+        raise ValueError("SDVK-008 material assertions require every authored material")
 
 
 def red_marker_direction(off_rgb: bytes, on_rgb: bytes, width: int, height: int) -> dict:
@@ -142,6 +194,7 @@ def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
     family = native["relief_family"]
     if family not in FAMILIES:
         raise ValueError("Unknown SDVK-008 fixture family")
+    validate_material_assertions(native)
     if family == "mirror":
         inherited = copy.deepcopy(scene)
         inherited["native"]["generator"] = "sprite_mirror"
@@ -151,6 +204,7 @@ def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
         members["textures/SDVH.png"] = prep.png_rgba(128, 128, pixels("height"))
         metadata.update(relief_family=family, height_surface="asymmetric-nonflat",
                         fixture_revision=FIXTURE_REVISION, authored_camera_angles=authored_angles,
+                        material_assertion_revision=MATERIAL_ASSERTION_REVISION,
                         directional_native_qualified=False)
         return members, metadata
     model = prep._Map(ceiling=256)
@@ -205,6 +259,7 @@ class SDVKReliefCard : Actor
     return members, {"geometry": "authored_udmf", "textures": "generated_rgba_only",
         "native_executed": False, "relief_family": family, "camera_actor_tid": 2002,
         "fixture_revision": FIXTURE_REVISION, "authored_camera_angles": authored_angles,
+        "material_assertion_revision": MATERIAL_ASSERTION_REVISION,
         "camera_position_world": camera["position"], "player_start_world": [cx-48,cy],
         "authored_relief_card_count": len(cards), "relief_card_tids": list(range(4600,4600+len(cards))),
         "height_surface": "asymmetric-nonflat", "card_angles": [c[2] for c in cards],

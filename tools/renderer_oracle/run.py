@@ -434,6 +434,13 @@ def _material_layer_sampling_match(value, expected):
         for key in ("min_filter", "mag_filter", "mipmap_mode"):
             if key in requirement and sampler.get(key) != requirement[key]:
                 return False
+        if "source_extent" in requirement:
+            source = matches[0].get("source", {})
+            if (not isinstance(source, dict)
+                    or [source.get("width"), source.get("height")] != requirement["source_extent"]
+                    or any(type(source.get(key)) is not int for key in ("width", "height"))
+                    or type(source.get("lump")) is not int or source["lump"] <= 0):
+                return False
     return True
 
 
@@ -508,6 +515,11 @@ def _scene_assertions(raw, scene):
                          if record["kind"] == "material" and record["data"].get("name") == name]
                 require(drawn and all(_material_layer_sampling_match(value, expected) for value in drawn),
                         "Required material sampler bindings differ: " + name)
+            for name, expected in assertions.get("material_layer_count", {}).items():
+                drawn = [record["data"] for record in records
+                         if record["kind"] == "material" and record["data"].get("name") == name]
+                require(drawn and all(len(value.get("layers", [])) == expected for value in drawn),
+                        "Required material layer count differs: " + name)
             for name, expected in assertions.get("material_custom_layers", {}).items():
                 drawn = [record["data"] for record in records
                          if record["kind"] == "material" and record["data"].get("name") == name]
