@@ -15,19 +15,59 @@ CORRECTNESS_PAIRS = [
     {"id": "heightless", "off": "sdvk008-heightless-off", "on": "sdvk008-heightless-on", "oracle": "exact"},
     *({"id": "single-" + q, "off": "sdvk008-s0", "on": "sdvk008-s" + q, "oracle": "effect"}
       for q in ("l", "m", "h")),
-    {"id": "alpha", "off": "sdvk008-alpha-off", "on": "sdvk008-alpha-on", "oracle": "silhouette"},
+    {"id": "alpha", "off": "sdvk008-alpha-off", "on": "sdvk008-alpha-on", "oracle": "silhouette",
+     "background": "sdvk008-alpha-background"},
     {"id": "mirror", "off": "sdvk008-mirror-off", "on": "sdvk008-mirror-on", "oracle": "mirror"},
     {"id": "pbr", "off": "sdvk008-p0", "on": "sdvk008-pm", "oracle": "effect"},
     {"id": "grazing", "off": "sdvk008-g0", "on": "sdvk008-gh", "oracle": "effect"},
 ]
 AVAILABLE_GATES = ("default-off-equivalence", "heightless-equivalence", "visible-effect",
-                   "same-build-repeatability", "emitted-basis-and-material-state")
-MISSING_GATES = ("directional-displacement", "alpha-silhouette-matte", "mirror-direction",
+                   "same-build-repeatability", "emitted-basis-and-material-state",
+                   "directional-displacement", "alpha-silhouette-matte")
+MISSING_GATES = ("mirror-direction",
                  "portal-relief-parity", "invalid-height-native-fallback",
                  "invalid-view-native-fallback", "grazing-and-distance-bounds",
                  "atlas-and-filter-footprint", "semantic-pbr-uv-coherence")
 REQUIRED_GATES = AVAILABLE_GATES + MISSING_GATES
-FAMILIES = {"single", "multiple", "grazing", "pbr", "heightless", "alpha", "mirror"}
+FAMILIES = {"single", "multiple", "grazing", "pbr", "heightless", "alpha", "alpha-background", "mirror"}
+
+
+def red_marker_direction(off_rgb: bytes, on_rgb: bytes, width: int, height: int) -> dict:
+    """Preregistered signed centroid witness for the single fixed wall card.
+
+    Increasing texture U follows the card edge, increasing V follows down.
+    Camera (-160,-80,96), card front (-X), and yaw atan(1/2) give a ray toward
+    screen right/up. POM samples original-depth*ray: authored marks therefore
+    move right/up. Never infer the expected sign from the measured images.
+    This is a marker direction witness, not a depth or usefulness metric.
+    """
+    if type(width) is not int or type(height) is not int or width <= 0 or height <= 0:
+        raise ValueError("Invalid marker extent")
+    if len(off_rgb) != width*height*3 or len(on_rgb) != width*height*3:
+        raise ValueError("Marker witness needs matched RGB8 images")
+    def centroid(raw):
+        count = sx = sy = 0
+        for i in range(width*height):
+            r,g,b = raw[3*i:3*i+3]
+            # The stripe is red; generated room/blue/yellow sprite areas fail
+            # this dominance predicate even under the fixed warm direct light.
+            if r >= 80 and r >= 1.8*g and r >= 1.35*b:
+                count += 1
+                sx += i % width
+                sy += i // width
+        return (count, sx/count if count else None, sy/count if count else None)
+    off,on = centroid(off_rgb),centroid(on_rgb)
+    result = {"status":"UNAVAILABLE", "off_pixels":off[0], "on_pixels":on[0],
+              "delta_x_px":None, "delta_y_px":None, "expected_sign":[1,-1],
+              "minimum_centroid_shift_px":0.05,
+              "scope":"single-fixed-wall-card-red-stripe-centroid"}
+    if min(off[0],on[0]) < 8:
+        result["reason"] = "Authored marker has fewer than eight visible pixels"
+        return result
+    dx,dy = on[1]-off[1],on[2]-off[2]
+    result.update(delta_x_px=dx,delta_y_px=dy,
+                  status="PASS" if dx >= .05 and dy <= -.05 else "FAIL")
+    return result
 
 
 def pixels(kind: str) -> bytes:
@@ -89,7 +129,7 @@ def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
     members["textures/SDVW.png"] = prep.png_rgba(16, 16, bytes((42, 47, 53, 255))*256)
     members["flats/SDVFL.png"] = prep.png_rgba(16, 16, bytes((26, 31, 37, 255))*256)
     members["sprites/SDVEA0.png"] = prep.png_rgba(128, 128,
-        pixels("alpha" if family == "alpha" else "albedo"), offset=(64, 128))
+        pixels("alpha" if family in ("alpha", "alpha-background") else "albedo"), offset=(64, 128))
     members["textures/SDVEH.png"] = prep.png_rgba(128, 128, pixels("height"))
     members["textures/SDVEN.png"] = prep.png_rgba(128, 128, pixels("normal"))
     members["textures/SDVER.png"] = prep.png_rgba(128, 128, pixels("roughness"))
@@ -108,6 +148,8 @@ class SDVKReliefCard : Actor
                   ' roughness "SDVER" { filter linear }\n ao "SDVEAO" { filter linear }\n') + layers
     members["GLDEFS"] = ("material sprite SDVEA0\n{\n" + layers + "}\n").encode() if layers else b""
     cards = [(0, 0, 180)]
+    if family == "alpha-background":
+        cards = []
     if family == "multiple":
         cards = [(i*10, (i%3-1)*20, 180) for i in range(8)]
     if family == "grazing":
@@ -117,7 +159,8 @@ class SDVKReliefCard : Actor
     # Same constant direct light within every matched family; enables PBR path.
     model.thing(9800, -96, -96, 128, tid=4500, arg0=255, arg1=208, arg2=156, arg3=256)
     map_name = native["map"]
-    members["MAPINFO"] = (f'map {map_name} "SDVK008 {family}" {{ nointermission }}\n'
+    title_family = "alpha" if family == "alpha-background" else family
+    members["MAPINFO"] = (f'map {map_name} "SDVK008 {title_family}" {{ nointermission }}\n'
         'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32218 = SDVKReliefCard\n}\n').encode()
     members[f"maps/{map_name}.wad"] = prep.pf_indexed.wad(
         [(map_name,b""),("TEXTMAP",model.text().encode()),("ENDMAP",b"")])

@@ -82,6 +82,31 @@ class PhysicalFixtureTests(unittest.TestCase):
         self.assertTrue(set(fixtures.MISSING_GATES).isdisjoint(fixtures.AVAILABLE_GATES))
         self.assertEqual(set(fixtures.REQUIRED_GATES),set(fixtures.MISSING_GATES)|set(fixtures.AVAILABLE_GATES))
 
+    def test_direction_oracle_rejects_wrong_stationary_and_unavailable_markers(self):
+        def image(dx=0,dy=0):
+            data=bytearray(bytes((20,30,40))*400)
+            for y in range(8+dy,12+dy):
+                for x in range(8+dx,12+dx):
+                    at=(y*20+x)*3
+                    data[at:at+3]=bytes((220,40,60))
+            return bytes(data)
+        self.assertEqual(fixtures.red_marker_direction(image(),image(1,-1),20,20)['status'],'PASS')
+        for moved in (image(),image(-1,1),image(1,1),image(-1,-1)):
+            self.assertEqual(fixtures.red_marker_direction(image(),moved,20,20)['status'],'FAIL')
+        self.assertEqual(fixtures.red_marker_direction(bytes(1200),bytes(1200),20,20)['status'],'UNAVAILABLE')
+        with self.assertRaises(ValueError):
+            fixtures.red_marker_direction(b'bad',b'bad',20,20)
+
+    def test_background_matte_changes_only_card_placement_in_content(self):
+        _,off,_=prepare.scene_assets(self.scenes['sdvk008-alpha-off'])
+        _,bg,_=prepare.scene_assets(self.scenes['sdvk008-alpha-background'])
+        self.assertEqual(set(off),set(bg))
+        differences=[key for key in off if off[key]!=bg[key]]
+        self.assertEqual(differences,['maps/SRLALPHA.wad'])
+        for members,count in ((off,1),(bg,0)):
+            rows=parse_udmf(unpack_wad(members['maps/SRLALPHA.wad'])['TEXTMAP'])['thing']
+            self.assertEqual(len([t for t in rows if t['type']==32218]),count)
+
     def test_preparation_authenticates_generated_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'prepared'
