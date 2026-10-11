@@ -1,0 +1,61 @@
+{
+  "source_commit": "264d07e7dfdf9026b79cfe592ab3bc0a6aee4999",
+  "production_source_sha256": "7c641e20cf23c1718d9373e7bad123b1c0f8fca984f2288bc2354a1495690c50",
+  "production_function_sha256": {
+    "constructor": "81c95f63fe26d71b465f46163c9b3c64042726891d2db0941df8d9e524a60898",
+    "leaf": "ff1a190aff54fa1b71c192b50e5c715d7bdb48ecdb3f9fc0b17d4863f7485fc1",
+    "scalar": "680b9cb3394593ea830a7454199de31b4f2bd585186c57cd83c20edc683392e4",
+    "sse-debug": "b56d09a56e96ef4b6e85fcc7c708138617313fb3b7fd9eacad97bf1d4badf3b8"
+  },
+  "functions_identical_at_revisions": {
+    "0a2fbad203549d18ac6e5a61bb4747709637bfde": {
+      "constructor": true,
+      "leaf": true,
+      "scalar": true,
+      "sse-debug": true
+    },
+    "322925d8fa1486d62db0d072310a50748bc0b1ce": {
+      "constructor": true,
+      "leaf": true,
+      "scalar": true,
+      "sse-debug": true
+    }
+  },
+  "compiler": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.44.35207\\bin\\HostX64\\x64\\cl.EXE",
+  "compiler_flags": "/std:c++17 /EHsc /W4 /WX /UNDEBUG; inherited C4189/C4458 suppressed only around extracted production functions",
+  "instrumentation": "Only centroids[triangles[i]] replaced by logical range/identity checker; throws before unpopulated read",
+  "scenarios": [
+    "no-hole",
+    "leading-hole",
+    "interior-hole",
+    "all-degenerate",
+    "trailing-hole"
+  ],
+  "results": {
+    "scalar": [
+      "CASE no-hole",
+      "SUMMARY reads=16 wrong_identity=0 outside_populated=0 guarded_stop=0 centroids_size=4 centroids_capacity=4",
+      "CASE leading-hole",
+      "SUMMARY reads=3 wrong_identity=2 outside_populated=1 guarded_stop=1 centroids_size=3 centroids_capacity=4",
+      "CASE interior-hole",
+      "SUMMARY reads=3 wrong_identity=1 outside_populated=1 guarded_stop=1 centroids_size=3 centroids_capacity=4",
+      "CASE all-degenerate",
+      "SUMMARY reads=0 wrong_identity=0 outside_populated=0 guarded_stop=0 centroids_size=0 centroids_capacity=4",
+      "CASE trailing-hole",
+      "SUMMARY reads=10 wrong_identity=0 outside_populated=0 guarded_stop=0 centroids_size=3 centroids_capacity=4"
+    ],
+    "sse-debug": [
+      "CASE no-hole",
+      "SUMMARY reads=32 wrong_identity=0 outside_populated=0 guarded_stop=0 centroids_size=4 centroids_capacity=4",
+      "CASE leading-hole",
+      "SUMMARY reads=3 wrong_identity=2 outside_populated=1 guarded_stop=1 centroids_size=3 centroids_capacity=4",
+      "CASE interior-hole",
+      "SUMMARY reads=3 wrong_identity=1 outside_populated=1 guarded_stop=1 centroids_size=3 centroids_capacity=4",
+      "CASE all-degenerate",
+      "SUMMARY reads=0 wrong_identity=0 outside_populated=0 guarded_stop=0 centroids_size=0 centroids_capacity=4",
+      "CASE trailing-hole",
+      "SUMMARY reads=20 wrong_identity=0 outside_populated=0 guarded_stop=0 centroids_size=3 centroids_capacity=4"
+    ]
+  },
+  "meaning": "Expected logical-index negatives, guarded before unpopulated read; no renderer/GPU execution; not physical fault causality"
+}

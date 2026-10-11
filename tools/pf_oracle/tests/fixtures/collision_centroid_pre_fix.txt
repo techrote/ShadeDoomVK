@@ -1,0 +1,61 @@
+/*
+**  Level mesh collision detection
+**  Copyright (c) 2018 Magnus Norddahl
+**
+**  This software is provided 'as-is', without any express or implied
+**  warranty.  In no event will the authors be held liable for any damages
+**  arising from the use of this software.
+**
+**  Permission is granted to anyone to use this software for any purpose,
+**  including commercial applications, and to alter it and redistribute it
+**  freely, subject to the following restrictions:
+**
+**  1. The origin of this software must not be misrepresented; you must not
+**     claim that you wrote the original software. If you use this software
+**     in a product, an acknowledgment in the product documentation would be
+**     appreciated but is not required.
+**  2. Altered source versions must be plainly marked as such, and must not be
+**     misrepresented as being the original software.
+**  3. This notice may not be removed or altered from any source distribution.
+**
+*/
+// Exact historical pre-fix constructor; logical centroid failure retained.
+CPUBottomLevelAccelStruct::CPUBottomLevelAccelStruct(const FFlatVertex *vertices, int num_vertices, const unsigned int *elements, int num_elements, AccelStructScratchBuffer& scratch)
+	: vertices(vertices), num_vertices(num_vertices), elements(elements), num_elements(num_elements)
+{
+	int num_triangles = num_elements / 3;
+	if (num_triangles <= 0)
+		return;
+
+	cycle_t timer;
+	timer.ResetAndClock();
+
+	scratch.leafs.clear();
+	scratch.leafs.reserve(num_triangles);
+	scratch.centroids.clear();
+	scratch.centroids.reserve(num_triangles);
+	int active_triangles = 0;
+	for (int i = 0; i < num_triangles; i++)
+	{
+		int element_index = i * 3;
+		int a = elements[element_index + 0];
+		int b = elements[element_index + 1];
+		int c = elements[element_index + 2];
+		if (a == b)
+			continue;
+
+		FVector3 centroid = (vertices[a].fPos() + vertices[b].fPos() + vertices[c].fPos()) * (1.0f / 3.0f);
+		scratch.leafs.push_back(i);
+		scratch.centroids.push_back(FVector4(centroid, 1.0f));
+		active_triangles++;
+	}
+
+	size_t neededbuffersize = active_triangles * 2;
+	if (scratch.workbuffer.size() < neededbuffersize)
+		scratch.workbuffer.resize(neededbuffersize);
+
+	root = Subdivide(scratch.leafs.data(), (int)scratch.leafs.size(), scratch.centroids.data(), scratch.workbuffer.data());
+
+	timer.Unclock();
+	buildtime = timer.TimeMS();
+}

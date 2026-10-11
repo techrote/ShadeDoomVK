@@ -113,6 +113,23 @@ root; a single instance has no parent link to rewrite. CPU graph tests execute
 the production export and prove valid links/original triangle membership for
 single-node, nonzero-root, multi-instance and empty cases. This does not diagnose
 the retained physical shadow-boundary fault or clear its hardware stop. Sparse
-BLAS slots and skipped-triangle centroid identity remain separate unqualified
-follow-ups. [Audit and exact reproducer outlines](../SDVK-009-COLLISION-ROOT-AUDIT.md).
+BLAS slot export/TLAS membership remain separate unqualified follow-ups.
+[Audit and exact reproducer outlines](../SDVK-009-COLLISION-ROOT-AUDIT.md).
+
+## SDVK-009 sparse-triangle centroid identity candidate — 2026-10-11
+
+`CPUBottomLevelAccelStruct` retains original triangle IDs after skipping
+`a == b` triangles. Its centroid table must therefore have original-triangle
+index extent; both scalar and SSE debug `Subdivide` address it by those IDs.
+The constructor initializes that extent and writes `centroids[i]`, while active
+leaves and exported original element offsets remain unchanged. Freed geometry
+can leave zeroed index holes through `LevelMesh::FreeGeometry`.
+
+Production-extracted CPU regression covers leading/interior holes and no-hole,
+all-degenerate and trailing-hole controls; the exact pre-fix constructor remains
+a required negative. This bounded source repair has no evidence of physical
+fault causality and does not clear the hardware STOP. Sparse/null BLAS slot
+identity remains unresolved. See the [bounded audit](../SDVK-009-COLLISION-ROOT-AUDIT.md)
+and `tools/pf_oracle/tests/test_collision_centroid_identity.py`; hosted candidate
+verification and review remain required before acceptance.
 
