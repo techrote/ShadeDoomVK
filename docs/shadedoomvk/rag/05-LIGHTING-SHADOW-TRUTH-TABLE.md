@@ -165,8 +165,6 @@ eligible dense lights. The dormant LevelMesh packer also uses unresolved
 `portalGroup = 0`. SDVK-009 therefore retains the PF path as the provisional
 control and introduces no arbitrary light cap or quality-tier policy.
 
-## SDVK-010 actor sunlight and probe scope (candidate)
-
 The 11 October frozen SDVK-009 physical campaign retained six exact state/image
 pairs then stopped on `shadow-boundary` device-fault output and a Windows driver
 event, before all timing. Root cause is undetermined; partial light counts are
@@ -180,5 +178,7 @@ temperature was 50 C at restored 90 W, and a new NVIDIA driver event corroborate
 the fault. The monitor retained failure and stopped before any timing or second
 shadow capture. The two CPU collision repairs do not establish physical fault
 resolution. Hardware STOP is reinstated; architecture remains inconclusive.
+
+## SDVK-010 actor sunlight and probe scope (candidate)
 
 `HWSprite::DrawSprite` resolves authored source-space environment probe ordinal independently of dynamic-light eligibility. `HWDrawInfo::GetDynSpriteLightList` retains the PF-016/017 sunlight/world visibility and portal-group trace decisions, while shader `ProcessMaterialLight` separately applies the existing sun cosine/occlusion response. Probe diffuse/specular IBL uses PF-113 valid irradiance/prefilter descriptor pair or zero, never a substitute nearest published pair. The new software-Vulkan corpus asserts **actual emitted PBR actor probe selection**; `sun-probes` without a full bake does **not** prove shadow-world occlusion or actor sunlight compatibility. No new many-light shadow algorithm is imported. [Boundary and pending evidence](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
