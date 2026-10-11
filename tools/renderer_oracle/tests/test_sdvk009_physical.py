@@ -21,7 +21,7 @@ class PhysicalCampaignControls(unittest.TestCase):
                 "executable": {"sha256": "a" * 64}, "reproduction": {"iwad_sha256": "b" * 64},
                 "loaded_packages": [{"path": "runtime/vkdoom.pk3", "sha256": "c" * 64, "bytes": 12, "lumps": 1}]}
 
-    def _run(self, root, *, device_type=2, compare_status="PASS", mutate=None):
+    def _run(self, root, *, device_type=2, compare_status="PASS", mutate=None, coverage=None):
         args = Namespace(exe=Path("engine"), iwad=Path("iwad"), out=root / "campaign", timeout=600, execute=True)
         captures = []
 
@@ -36,7 +36,7 @@ class PhysicalCampaignControls(unittest.TestCase):
         summary = {"schema": "sdvk-renderer-baseline/v1", "status": "DESCRIPTIVE", "runs": []}
         with patch.object(physical.prepare, "prepare", return_value={"status": "prepared_only"}), \
              patch.object(physical, "_pin_runtime", return_value={"synthetic": True}), \
-             patch.object(physical, "_timing_integrity", return_value={"status": "COMPLETE_GROUPS_SCOPE_UNQUALIFIED"}), \
+             patch.object(physical, "_timing_integrity", return_value=coverage or {"status": "COMPLETE_GROUPS_SCOPE_UNQUALIFIED"}), \
              patch.object(physical.run, "capture", side_effect=capture), \
              patch.object(physical.run, "compare_runs", return_value={"status": compare_status}), \
              patch.object(physical.run, "summarize_runs", return_value=summary), \
@@ -51,6 +51,8 @@ class PhysicalCampaignControls(unittest.TestCase):
         self.assertTrue(result["physical_gpu_evidence_collected"])
         self.assertFalse(result["physical_gpu_qualified"])
         self.assertFalse(result["performance_accepted"])
+        self.assertFalse(result["gpu_scene_timing_complete"])
+        self.assertEqual(result["gpu_architecture_decision"], "INCONCLUSIVE_NO_LIGHT_SENSITIVE_SCENE_TIMESTAMP_GROUP")
         self.assertEqual(len(captures), 41)
         reference = captures[:20]
         highres = captures[20:26]
@@ -154,6 +156,22 @@ class PhysicalCampaignControls(unittest.TestCase):
             raw["records"].append({"kind": "timing", "frame": 120,
                                    "data": {"available": False, "reason": "query unavailable"}})
             self.assertEqual(check()["status"], "INCONCLUSIVE")
+
+    def test_complete_scene_timestamps_only_enable_later_analysis_not_acceptance(self):
+        coverage = {"status": "COMPLETE_GROUPS_SCOPE_UNQUALIFIED", "groups": {
+            "scene.immediate": {"frames": 120, "samples_per_frame": [1]}}}
+        with tempfile.TemporaryDirectory() as directory:
+            _, receipt = self._run(Path(directory), coverage=coverage)
+        self.assertTrue(receipt["gpu_scene_timing_complete"])
+        self.assertEqual(receipt["gpu_architecture_decision"], "PENDING_THRESHOLD_ANALYSIS")
+        self.assertFalse(receipt["physical_gpu_qualified"])
+        self.assertFalse(receipt["performance_accepted"])
+        for invalid in ({"frames": 119, "samples_per_frame": [1]},
+                        {"frames": 120, "samples_per_frame": [2]}):
+            coverage["groups"]["scene.immediate"] = invalid
+            with self.subTest(invalid=invalid), tempfile.TemporaryDirectory() as directory:
+                _, receipt = self._run(Path(directory), coverage=coverage)
+            self.assertFalse(receipt["gpu_scene_timing_complete"])
 
     def test_execute_flag_is_mandatory(self):
         with tempfile.TemporaryDirectory(prefix="sdvk009-physical-unit-") as directory:

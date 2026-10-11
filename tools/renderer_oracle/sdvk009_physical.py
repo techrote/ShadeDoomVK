@@ -197,10 +197,18 @@ def campaign(args):
         receipt["physical_gpu_evidence_collected"] = True
         receipt["physical_gpu_qualified"] = False
         receipt["performance_accepted"] = False
-        if receipt["expected_renderer_commit"] == EXPECTED_RENDERER_COMMIT:
+        timing_steps = [step for step in receipt["steps"] if step["name"].startswith("timing-r")]
+        receipt["gpu_scene_timing_complete"] = len(timing_steps) == 15 and all(
+            step["gpu_coverage"].get("status") == "COMPLETE_GROUPS_SCOPE_UNQUALIFIED" and
+            step["gpu_coverage"].get("groups", {}).get("scene.immediate") ==
+            {"frames": 120, "samples_per_frame": [1]} for step in timing_steps)
+        if receipt["gpu_scene_timing_complete"]:
+            receipt["gpu_architecture_decision"] = "PENDING_THRESHOLD_ANALYSIS"
+        else:
             receipt["gpu_architecture_decision"] = "INCONCLUSIVE_NO_LIGHT_SENSITIVE_SCENE_TIMESTAMP_GROUP"
             receipt["gpu_scope_limitation"] = (
-                "Frozen source timestamps postprocess/lightmapping and dormant tile work only; "
+                "Complete scene.immediate intervals were not established. The original frozen source "
+                "timestamps postprocess/lightmapping and dormant tile work only; "
                 "resolved postprocess groups do not measure immediate world/sprite light shading. "
                 "A separately preregistered instrumentation revision or external GPU profiler is required.")
     except (OSError, ValueError, EvidenceError) as error:
