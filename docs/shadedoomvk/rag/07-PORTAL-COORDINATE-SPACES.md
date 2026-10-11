@@ -178,3 +178,10 @@ SDVK-007's [final release acceptance](../SDVK-007-RELEASE-ACCEPTANCE.json) pins 
 The SDVK-008 ray is the world-space PF-010 `uCameraPos - pixelpos.xyz` vector projected onto **the accepted PF-009 sprite final-quad** T and B, with B reconstructed once using SDVK-007 tangent handedness. Neither line-mirror nor portal mirror parity triggers another UV sign flip or new basis derivation; the PF-009 signed U/V endpoints are the only texture-orientation authority. The bounds are transformed once with the **actual** `TextureMatrix` that produced `vTexCoord`; shader reject/fallback applies to non-axis-aligned, negative/warped/perspective/NPOT or unsafe subrect mappings without perturbing portal clipping or gameplay state.
 
 A mirrored/rotated sprite can enter relief only if its current emitted draw has an explicit valid basis, height descriptor and safe frame rectangle. Its PF-010 context identity is diagnosed independently by the existing `sprite-basis` and new `sprite-relief` records. Invalid view/UV, grazing, alpha escape or a boundary-crossing height lookup disables only the pixel's pseudo-depth, not the sprite or portal. This contract is bounded, off-GPU and not a claim of physical performance or universal portal content support.
+
+The new SDVK-008 fixture tooling authors independent X/Y flip controls with
+emitted signed-UV and directional witnesses. These do not substitute for portal
+parity or general frame rotation. The inherited mirror pair is descriptive;
+portal-relief parity and mirror-direction remain explicit missing gates and
+block the full physical driver. The bounded hosted smoke exercises no portal
+acceptance claim. [Current tooling boundary](../SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
