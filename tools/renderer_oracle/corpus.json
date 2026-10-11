@@ -5561,7 +5561,10 @@
         "src/common/rendering/vulkan/vk_renderdevice.cpp",
         "src/common/rendering/vulkan/vk_postprocess.cpp",
         "wadsrc/static/shaders/scene/vert_main.glsl",
-        "src/common/utility/matrix.cpp"
+        "src/common/utility/matrix.cpp",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "tools/renderer_oracle/tests/fixtures/sdvk008_emitted_reset_38107775940.json"
       ],
       "title": "SDVK-008 single s0"
     },
@@ -5965,7 +5968,10 @@
         "src/common/rendering/vulkan/vk_renderdevice.cpp",
         "src/common/rendering/vulkan/vk_postprocess.cpp",
         "wadsrc/static/shaders/scene/vert_main.glsl",
-        "src/common/utility/matrix.cpp"
+        "src/common/utility/matrix.cpp",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "tools/renderer_oracle/tests/fixtures/sdvk008_emitted_reset_38107775940.json"
       ],
       "title": "SDVK-008 single sl"
     },
@@ -6369,7 +6375,10 @@
         "src/common/rendering/vulkan/vk_renderdevice.cpp",
         "src/common/rendering/vulkan/vk_postprocess.cpp",
         "wadsrc/static/shaders/scene/vert_main.glsl",
-        "src/common/utility/matrix.cpp"
+        "src/common/utility/matrix.cpp",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "tools/renderer_oracle/tests/fixtures/sdvk008_emitted_reset_38107775940.json"
       ],
       "title": "SDVK-008 single sm"
     },
@@ -6773,7 +6782,10 @@
         "src/common/rendering/vulkan/vk_renderdevice.cpp",
         "src/common/rendering/vulkan/vk_postprocess.cpp",
         "wadsrc/static/shaders/scene/vert_main.glsl",
-        "src/common/utility/matrix.cpp"
+        "src/common/utility/matrix.cpp",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "tools/renderer_oracle/tests/fixtures/sdvk008_emitted_reset_38107775940.json"
       ],
       "title": "SDVK-008 single sh"
     },
@@ -10024,7 +10036,10 @@
         "src/common/rendering/vulkan/vk_renderdevice.cpp",
         "src/common/rendering/vulkan/vk_postprocess.cpp",
         "wadsrc/static/shaders/scene/vert_main.glsl",
-        "src/common/utility/matrix.cpp"
+        "src/common/utility/matrix.cpp",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "tools/renderer_oracle/tests/fixtures/sdvk008_emitted_reset_38107775940.json"
       ],
       "title": "SDVK-008 single default-off"
     },

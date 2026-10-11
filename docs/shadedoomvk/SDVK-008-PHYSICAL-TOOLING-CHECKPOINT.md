@@ -363,3 +363,41 @@ Final host validation passes all 160 renderer-oracle tests in 55.445 seconds
 with MSVC 14.44.35207, including the compiled 361-angle production conversion,
 all 25 original PK3 identities, ten new marker controls and campaign failure
 precedence. No renderer process was launched for this revision.
+
+Fresh hosted workflow `38107775940`, submitted head `5813871bc`, completed all
+16 captures and eight strict repeats; default-OFF, heightless and active-alpha
+controls passed. The projected medium witness was **UNAVAILABLE** because its
+state guard incorrectly demanded configured quality 2 in the disabled draw's
+uniform. The fifth campaign remains failed; its raw packet and public receipt
+are preserved separately. This is an oracle state-contract defect, not evidence
+of wrong renderer behavior or an image-direction failure.
+
+Production `HWSprite::CreateVertices` calls `ClearSpriteRelief()` at depth zero.
+`hw_renderstate.h` zeros every relief parameter and bound. The emitted Vulkan
+diagnostic (`textures/vk_sdvkdiagnostics.cpp`) therefore correctly records OFF
+depth 0, quality 0, candidate false, eligible false, zero bounds and read ceiling
+0, while the configured/read-back `gl_sprite_relief_quality` CVar remains 2.
+The bounded repair requires those exact reset values, including exactly zero
+OFF depth; ON still requires configured quality and the source ceiling 10/15/23
+for low/medium/high, candidate true and eligible true. No projection, authored
+package, camera, material/sampler contract, RGB predicate, expected sign or
+0.05-pixel threshold changes. Tooling/source inventory hashes identify the repair;
+the preregistered stripe algorithm and revision remain unchanged.
+
+The prior synthetic OFF CPU state incorrectly repeated the configured quality.
+It now models the production reset and is supplemented with complete unchanged
+frame, SDVEA0 basis and relief records from the fresh OFF/ON attempts, with their
+original raw observation hashes and renderer identity retained in a CPU fixture.
+Positive actual reset/active controls and mutations of OFF quality, candidate,
+eligibility, bounds, nonzero depth and read ceiling fail closed. Active-quality
+and read-ceiling negatives cover all three quality levels.
+
+Both fresh retained attempts also pass every remaining source-projected state
+precondition. Diagnostic offline replay with the original retained recipe files
+matches all 22 preregistered edge sections in each attempt, still (+0.5,-0.1818182)
+pixels. No image was used to alter any assumption or boundary. This replay does
+not modify or accept the fifth failed campaign; fresh hosted validation remains
+required. Physical launches remain stopped, and this repair launches no renderer.
+Validation passes 48 focused marker/driver tests and all 162 renderer-oracle
+tests in 54.261 seconds with MSVC 14.44.35207, including all 25 unchanged PK3
+identities and the compiled canonical camera checks.
