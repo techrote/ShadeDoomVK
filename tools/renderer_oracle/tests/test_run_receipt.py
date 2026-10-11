@@ -122,6 +122,7 @@ class SyntheticRunReceiptTests(unittest.TestCase):
             scene = next(s for s in prepare.load_catalog()["scenes"] if s["id"] == "lights-zero")
             native = scene["native"]
             commit = None
+            version_state = "clean"
 
             def synthetic_engine(argv, *positional, **kwargs):
                 if str(argv[0]) != str(exe):
@@ -131,7 +132,7 @@ class SyntheticRunReceiptTests(unittest.TestCase):
                 calls.append(list(argv))
                 if argv[1:] == ["--version"]:
                     # Windows CRT uses CRLF even when stdout is a binary pipe.
-                    version = f"ShadeDoomVK SYNTHETIC receipt test\r\nCommit: {commit}\r\nWorking tree: clean\r\n"
+                    version = f"ShadeDoomVK SYNTHETIC receipt test\r\nCommit: {commit}\r\nWorking tree: {version_state}\r\n"
                     return subprocess.CompletedProcess(argv, 0, version.encode(), b"")
                 request = common.read_json(out / "request.json")
                 self.assertEqual(Path(kwargs["cwd"]), out)
@@ -177,8 +178,36 @@ class SyntheticRunReceiptTests(unittest.TestCase):
             with mock.patch.object(run.subprocess, "run", side_effect=synthetic_engine):
                 manifest = prepare.prepare(prepared, ["lights-zero"])
                 commit = manifest["source_identity"]["git_commit"]
+                pins = {"executable": common.pin(exe), "iwad": common.pin(iwad),
+                        "engine_packages": {"vkdoom.pk3": common.pin(root / "vkdoom.pk3")}}
+                for field in ("executable", "package"):
+                    args.runtime_pins = copy.deepcopy(pins)
+                    target = args.runtime_pins["executable"] if field == "executable" else args.runtime_pins["engine_packages"]["vkdoom.pk3"]
+                    target["sha256"] = "0" * 64
+                    args.out = root / ("changed-" + field)
+                    with self.assertRaisesRegex(common.EvidenceError, "changed after physical preregistration"):
+                        run.capture(args)
+                    self.assertEqual(calls, [])  # reject bytes before even --version
+                    self.assertEqual(common.read_json(args.out / "run.json")["status"], "FAIL")
+                args.runtime_pins = pins
+                args.expected_commit = "f" * 40 if commit != "f" * 40 else "e" * 40
+                args.require_clean = True
+                args.out = root / "wrong-source"
+                with self.assertRaisesRegex(common.EvidenceError, "commit differs"):
+                    run.capture(args)
+                self.assertEqual(len(calls), 1)  # --version only, no renderer launch
+                self.assertEqual(common.read_json(args.out / "run.json")["status"], "FAIL")
+                args.expected_commit = commit
+                version_state = "modified"
+                args.out = root / "dirty-source"
+                with self.assertRaisesRegex(common.EvidenceError, "clean renderer build"):
+                    run.capture(args)
+                self.assertEqual(len(calls), 2)  # another --version only
+                self.assertEqual(common.read_json(args.out / "run.json")["status"], "FAIL")
+                version_state = "clean"
+                args.out = out
                 collected = run.capture(args)
-            self.assertEqual(len(calls), 2)  # --version and the synthetic producer.
+            self.assertEqual(len(calls), 4)  # two rejected versions, version and synthetic producer.
             self.assertTrue(any(command[1:3] == ["cat-file", "-e"] for command in delegated_git))
             self.assertEqual(collected["status"], "COLLECTED")
             validated_root, receipt, raw, result = run.validate_run(out)
