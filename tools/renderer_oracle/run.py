@@ -248,6 +248,14 @@ def capture(args):
         expected = {str((exe.parent / name).resolve()): pin(exe.parent / name) for name in PACKAGES
                     if (exe.parent / name).is_file()}
         require((exe.parent / "vkdoom.pk3").is_file(), "Executable runtime has no vkdoom.pk3")
+        runtime_pins = getattr(args, "runtime_pins", None)
+        if runtime_pins is not None:
+            require(executable == runtime_pins["executable"] and iwad_pin == runtime_pins["iwad"],
+                    "Executable or IWAD changed after physical preregistration")
+            actual_engine = {name: expected[str((exe.parent / name).resolve())] for name in PACKAGES
+                             if (exe.parent / name).is_file()}
+            require(actual_engine == runtime_pins["engine_packages"],
+                    "Engine package bytes changed after physical preregistration")
         for path in (out / "input" / iwad.name, out / "input" / "scene.pk3"):
             expected[str(path)] = pin(path)
         version = subprocess.run([str(exe), "--version"], cwd=out, stdout=subprocess.PIPE,
@@ -256,6 +264,11 @@ def capture(args):
         (out / "version-stderr.txt").write_bytes(version.stderr)
         require(version.returncode == 0, "Executable --version failed")
         source_commit, working_tree = version_identity(version.stdout)
+        expected_commit = getattr(args, "expected_commit", None)
+        if expected_commit is not None:
+            require(source_commit == expected_commit, "Executable commit differs from the preregistered physical baseline")
+        if getattr(args, "require_clean", False):
+            require(working_tree == "clean", "Physical campaign requires a clean renderer build")
         profile = {"scene": scene["id"], "recipe_sha256": sha256(canonical(scene)),
                    "iwad_sha256": iwad_pin["sha256"], "scene_sha256": pin(out / "input" / "scene.pk3")["sha256"],
                    "config_sha256": pin(out / "input" / "fixture.ini")["sha256"],
