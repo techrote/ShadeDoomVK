@@ -22,17 +22,19 @@ CORRECTNESS_PAIRS = [
     {"id": "grazing", "off": "sdvk008-g0", "on": "sdvk008-gh", "oracle": "effect"},
     {"id": "grazing-fallback", "off": "sdvk008-grazing-fallback-off",
      "on": "sdvk008-grazing-fallback-on", "oracle": "exact"},
+    *({"id":"single-" + flip, "off":"sdvk008-"+flip+"-off",
+       "on":"sdvk008-"+flip+"-on", "oracle":"effect"} for flip in ("flipx","flipy")),
 ]
 AVAILABLE_GATES = ("default-off-equivalence", "heightless-equivalence", "visible-effect",
                    "same-build-repeatability", "emitted-basis-and-material-state",
                    "directional-displacement", "alpha-silhouette-matte",
-                   "grazing-hard-fallback-equivalence")
+                   "grazing-hard-fallback-equivalence", "actor-x-y-mirror-direction")
 MISSING_GATES = ("mirror-direction",
                  "portal-relief-parity", "invalid-height-native-fallback",
                  "invalid-view-native-fallback", "grazing-and-distance-bounds",
                  "atlas-and-filter-footprint", "semantic-pbr-uv-coherence")
 REQUIRED_GATES = AVAILABLE_GATES + MISSING_GATES
-FAMILIES = {"single", "multiple", "grazing", "grazing-fallback", "pbr", "heightless", "alpha", "alpha-background", "mirror"}
+FAMILIES = {"single", "multiple", "grazing", "grazing-fallback", "pbr", "heightless", "alpha", "alpha-background", "mirror", "flipx", "flipy"}
 
 
 def red_marker_direction(off_rgb: bytes, on_rgb: bytes, width: int, height: int) -> dict:
@@ -148,6 +150,10 @@ class SDVKReliefCard : Actor
     States { Spawn: SDVE A -1; Stop; }
 }
 '''
+    if family in ("flipx", "flipy"):
+        flag = "+XFLIP" if family == "flipx" else "+YFLIP"
+        members["ZSCRIPT"] = members["ZSCRIPT"].replace(
+            b"+WALLSPRITE }\n    States { Spawn: SDVE", ("+WALLSPRITE " + flag + " }\n    States { Spawn: SDVE").encode())
     layers = '' if family == "heightless" else ' height "SDVEH" { filter linear }\n'
     if family == "pbr":
         layers = (' normal "SDVEN" { filter linear }\n metallic "SDVEM" { filter linear }\n'

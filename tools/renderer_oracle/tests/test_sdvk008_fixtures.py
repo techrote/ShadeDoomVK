@@ -125,6 +125,13 @@ class PhysicalFixtureTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'authored integers'):
             prepare.scene_assets(scene)
 
+    def test_signed_uv_actor_flags_are_independently_authored(self):
+        for family,flag in (('flipx',b'+XFLIP'),('flipy',b'+YFLIP')):
+            _,members,_=prepare.scene_assets(self.scenes['sdvk008-'+family+'-on'])
+            card=members['ZSCRIPT'].split(b'class SDVKReliefCard')[1]
+            self.assertIn(flag,card)
+            self.assertIn(b'+WALLSPRITE',card)
+
     def test_preparation_authenticates_generated_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'prepared'
