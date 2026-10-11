@@ -185,7 +185,8 @@ class FixtureAndIdentityRules(unittest.TestCase):
 
 
 class CampaignControls(unittest.TestCase):
-    def execute(self, root, *, partial=False, incomplete=False, compare_status="PASS", crash=False, software=False):
+    def execute(self, root, *, partial=False, incomplete=False, compare_status="PASS", crash=False, software=False,
+                image_status="PASS"):
         exe, iwad = root / "engine.exe", root / "iwad.wad"
         exe.write_bytes(b"not executed")
         iwad.write_bytes(b"private fixture")
@@ -225,7 +226,7 @@ class CampaignControls(unittest.TestCase):
              patch.object(physical.run, "compare_runs", return_value={"status": compare_status}), \
              patch.object(physical, "controlled_pair"), \
              patch.object(physical, "relief_draw_witness", return_value={}), \
-             patch.object(physical, "image_pair", return_value={"status": "PASS"}), \
+             patch.object(physical, "image_pair", return_value={"status": image_status}), \
              patch.object(physical.run, "summarize_runs", return_value=summary()):
             try:
                 result = physical.campaign(args)
@@ -272,6 +273,28 @@ class CampaignControls(unittest.TestCase):
         self.assertTrue(all(ns.mode == "state" and ns.extent == "640x480" and not ns.gpu for ns in captures))
         self.assertEqual(len(captures), 4)
         self.assertTrue(all(ns.expected_commit == "b" * 40 and ns.require_clean for ns in captures))
+
+    def test_inconclusive_software_witness_fails_and_is_retained(self):
+        with tempfile.TemporaryDirectory() as directory:
+            args, captures, result = self.execute(Path(directory), partial=True, incomplete=True, software=True,
+                                                   image_status="INCONCLUSIVE")
+            physical.verify_checksums(args.out)
+            self.assertTrue(list(args.out.rglob("retained.log")))
+        self.assertEqual(result["status"], "FAIL")
+        self.assertEqual(result["incomplete_image_pairs"], ["single-m"])
+        self.assertEqual([row["status"] for row in result["image_pairs"]["single-m"]], ["INCONCLUSIVE"] * 2)
+        self.assertFalse(result["software_vulkan_evidence_collected"])
+        self.assertFalse(result["physical_gpu_evidence_collected"])
+        self.assertTrue(all(ns.mode == "state" for ns in captures))
+
+    def test_physical_partial_inconclusive_witness_remains_explicit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            _, captures, result = self.execute(Path(directory), partial=True, incomplete=True,
+                                               image_status="INCONCLUSIVE")
+        self.assertEqual(result["status"], "PARTIAL_CORRECTNESS_COLLECTED")
+        self.assertEqual(result["incomplete_image_pairs"], ["single"])
+        self.assertFalse(result["physical_gpu_qualified"])
+        self.assertTrue(all(ns.mode == "state" for ns in captures))
 
     def test_failure_is_retained_without_retry_or_timing(self):
         for crash in (False, True):

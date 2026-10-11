@@ -440,6 +440,10 @@ def campaign(args):
             require(all(row["status"] != "FAIL" for row in witnesses), "OFF/ON image witness failed: " + pair["id"])
         receipt["incomplete_image_pairs"] = [name for name, rows in receipt["image_pairs"].items()
                                              if any(row["status"] != "PASS" for row in rows)]
+        if software:
+            require(not receipt["incomplete_image_pairs"],
+                    "Software fixture control has incomplete image/direction/alpha witnesses: "
+                    + ", ".join(receipt["incomplete_image_pairs"]))
         receipt["physical_gpu_evidence_collected"] = not software
         receipt["software_vulkan_evidence_collected"] = software
         if args.correctness_only:
