@@ -127,13 +127,17 @@ jobs:
         export VK_ICD_FILENAMES="${sdvk_icds[0]}"
         export SDL_VIDEODRIVER=x11
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
+        sdvk_control_device=$(python3 -c 'from pathlib import Path; from tools.renderer_oracle.native_ci import fields; print(fields(Path("build/renderer-native/provenance/vulkaninfo-summary.txt").read_text(), "deviceName")[0])')
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/sdvk008_physical.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-sdvk008-control --device-name "$sdvk_control_device" --vulkan-summary build/renderer-native/provenance/vulkaninfo-summary.txt --expected-commit "$(git rev-parse HEAD)" --iwad-license /usr/share/doc/freedoom/copyright --execute --correctness-only --software-fixture-control
 
     - name: Upload complete software Vulkan evidence
       if: always() && matrix.config.native_renderer
       uses: actions/upload-artifact@v4
       with:
         name: renderer-software-vulkan
-        path: build/renderer-native
+        path: |
+          build/renderer-native
+          build/renderer-sdvk008-control
         compression-level: 9
         retention-days: 30
 

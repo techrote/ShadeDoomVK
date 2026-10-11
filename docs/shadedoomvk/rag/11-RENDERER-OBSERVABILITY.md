@@ -151,3 +151,17 @@ State-mode `VkRenderState` emits `sprite-relief` after the actual sprite Vulkan 
 ## SDVK-010 emitted actor probe evidence (candidate)
 
 The state-only Vulkan observer's existing `probe` draw record adds `actor_selection` with interpolated actor source XYZ, PF-009 portal context, candidate count, sector target, selected ordinal, policy, distance and fallback. The same record retains the **actual** emitted surface uniform's authored/runtime descriptor, bindless generation/resource identity, published pairs and texture-owner epoch. Strict state validation enforces ordinal bounds, portal-conservative selection, radius/finiteness, correct zero IBL and publication backing. New `sun-probes` positive native scene and `sprite-mirror` zero-probe control are required; their successful **hosted** execution and the independent sunlight/linked-portal world-occlusion gate are still unproven. This evidence must not be promoted to IBL/sun acceptance based only on an offline fixture. [Policy](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+
+## SDVK-008 independent campaign tooling checkpoint
+
+`sdvk008_physical.py` and `sdvk008_fixtures.py` keep authored content/tooling
+hashes distinct from the frozen SDVK-008 renderer build. The wrapper authenticates
+actual emitted relief eligibility/read ceilings and X/Y signed-UV witnesses;
+image oracles separately check OFF equality, a preregistered marker direction and
+binary-alpha masks against a no-card background. These finite witnesses do not
+prove general portal, atlas, invalid-input or material-UV correctness. Missing
+fixture gates block full physical timing before launch. The explicit hosted CPU
+llvmpipe smoke has a distinct software-only receipt and cannot award physical
+evidence or acceptance. Raw failed attempts and checksums are retained. See the
+[tooling checkpoint](../SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md); the local physical
+programme is stopped after the separately recorded SDVK-009 GPU fault.

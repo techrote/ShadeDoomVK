@@ -892,3 +892,16 @@ SDVK-004 / PR #126 merged independently as `d356a311cf6044275e3ccedf7c1ab9e1f785
 - Substantive squash merge `master@9536324ce33ea418af5a8efe733b4659f6b4ad9b`; tested-PR and merged-master tree **equal** (`3123bc7fd3dd9074487cbe3487f9336ef3589003`). Merge-push source-evidence **38074510322 PASS**; merge-push full CI **38074510339 PASS (9/9)** on exact merged commit (Linux software Vulkan and all platforms).
 - Production remains opt-in **OFF by default**, with bounded shallow POM, shader path and actual draw eligibility diagnostics. Earlier MSVC CVar and X/Y UV tuple-control failures were repaired and retained; direct hardware scene/image and GPU timing/quality were **not performed**.
 - Hardware correctness/cost remains the **hard #8 acceptance gate** under [preregistered SDVK-008 physical-GPU protocol](prepass/SDVK-008/SDVK-008-PHYSICAL-GPU-PROTOCOL.md). Machine-readable [off-GPU evidence](SDVK-008-OFFGPU-RELEASE-ACCEPTANCE.json) and [off-GPU report](SDVK-008-OFFGPU-QUALIFICATION.md) pin immutable artifact/source identities. GitHub automatically closed #8 on merge; it was explicitly reopened, as final acceptance is outstanding. SDVK-012 remains BLOCKED.
+
+### SDVK-008 physical tooling checkpoint — 2026-10-11 (acceptance unchanged)
+
+Dedicated `sdvk008_physical.py` and deterministic finite fixture recipes implement
+bounded collection, exact source/content/device continuity, OFF/ON witnesses and
+preregistered timing statistics. Full mode refuses incomplete advanced fixture
+gates; partial correctness is explicit and never reaches timing. A separate
+hosted CPU-llvmpipe smoke is added for real fixture grammar/effect/direction/alpha
+validation, with a distinct receipt and all physical flags false. Host tests do
+not count as native or physical evidence. The local physical session is stopped
+after the programme owner's SDVK-009 GPU fault; this tooling lane launched no
+local GPU workload. #8 remains OPEN, no mode/default is accepted, and #12 remains
+blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
