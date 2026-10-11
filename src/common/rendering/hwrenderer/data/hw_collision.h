@@ -115,6 +115,8 @@ private:
 	int Subdivide(int* instances, int numInstances, const FVector4* centroids, int* workBuffer);
 	std::unique_ptr<CPUBottomLevelAccelStruct> CreateBLAS(int indexStart, int indexCount);
 	void Upload();
+	void DumpSnapshot(unsigned int phase);
+	unsigned int SnapshotObjectId = 0;
 
 	LevelMesh* Mesh = nullptr;
 
