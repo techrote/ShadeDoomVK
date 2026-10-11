@@ -78,7 +78,7 @@ jobs:
         - name: Linux software Vulkan
           os: ubuntu-24.04
           extra_options: -DNO_GTK=ON
-          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom
+          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
           build_type: RelWithDebInfo
           native_renderer: true
 
@@ -130,15 +130,27 @@ jobs:
         sdvk_control_device=$(python3 -c 'from pathlib import Path; from tools.renderer_oracle.native_ci import fields; print(fields(Path("build/renderer-native/provenance/vulkaninfo-summary.txt").read_text(), "deviceName")[0])')
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/sdvk008_physical.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-sdvk008-control --device-name "$sdvk_control_device" --vulkan-summary build/renderer-native/provenance/vulkaninfo-summary.txt --expected-commit "$(git rev-parse HEAD)" --iwad-license /usr/share/doc/freedoom/copyright --execute --correctness-only --software-fixture-control
 
+    - name: Package complete software Vulkan evidence losslessly
+      if: always() && matrix.config.native_renderer
+      shell: bash
+      run: |
+        sdvk_evidence_dirs=()
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control; do
+          if [[ -d "build/$sdvk_evidence_dir" ]]; then
+            sdvk_evidence_dirs+=("$sdvk_evidence_dir")
+          fi
+        done
+        if [[ "${#sdvk_evidence_dirs[@]}" -gt 0 ]]; then
+          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
+        fi
+
     - name: Upload complete software Vulkan evidence
       if: always() && matrix.config.native_renderer
       uses: actions/upload-artifact@v4
       with:
         name: renderer-software-vulkan
-        path: |
-          build/renderer-native
-          build/renderer-sdvk008-control
-        compression-level: 9
+        path: build/renderer-software-vulkan.tar.xz
+        compression-level: 0
         retention-days: 30
 
     - name: Diagnose macOS startup failure

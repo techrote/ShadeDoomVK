@@ -489,3 +489,13 @@ physical evidence/qualification/performance flag stays false. CI retains the
 full raw attempts beside the inherited software-Vulkan packet. This can expose
 content grammar or image-oracle defects while a physical session is stopped;
 it cannot substitute for #8's physical quality/cost programme.
+
+The `renderer-software-vulkan` Actions artifact contains one lossless
+`renderer-software-vulkan.tar.xz` archive. Its 64 MiB xz dictionary compresses
+repeated IWAD/input bytes across process packets without removing any logical
+raw file, license or checksum. Packaging runs even after a failed native step
+and includes whichever of the known `renderer-native` and
+`renderer-sdvk008-control` directories exists. Original runner packets are left
+intact; artifact retention remains 30 days. Extract after downloading the
+artifact with `tar -xJf renderer-software-vulkan.tar.xz` into a fresh directory
+to recover the original packet trees and verify their retained checksums.
