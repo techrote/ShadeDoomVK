@@ -149,3 +149,9 @@ versions fail closed. The decimal/hex raw, NVIDIA, Intel Windows and standard
 Vulkan formatted encodings follow the
 [vulkaninfo display formats](https://github.com/KhronosGroup/Vulkan-Tools/blob/main/vulkaninfo/vulkaninfo.h#L1934).
 These tool-only guards do not revise any previously sealed physical packet.
+
+Packet inventory generation and verification exclude only the root
+`checksums.json`, whose bytes cannot hash themselves. Nested files with the
+same name remain authenticated artifacts; changing or adding one fails the
+packet check. The regression uses temporary files on the CPU and launches no
+renderer. This integrity correction grants no physical or performance status.

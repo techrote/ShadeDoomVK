@@ -468,7 +468,30 @@ class CampaignControls(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 physical.campaign(args)
 
+    def test_only_root_checksum_manifest_is_excluded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / "receipt.json").write_bytes(b"{}")
+            (root / "checksums.json").write_bytes(b"previous root manifest")
+            nested = root / "state" / "checksums.json"
+            nested.parent.mkdir()
+            nested.write_bytes(b"retained nested manifest")
+            inventory = physical.checksum_inventory(root)
+            self.assertEqual([row["path"] for row in inventory["files"]],
+                             ["receipt.json", "state/checksums.json"])
+            (root / "checksums.json").write_bytes(canonical(inventory))
+            physical.verify_checksums(root)
+            nested.write_bytes(b"tampered nested manifest")
+            with self.assertRaisesRegex(EvidenceError, "identity changed"):
+                physical.verify_checksums(root)
+            nested.write_bytes(b"retained nested manifest")
+            physical.verify_checksums(root)
+            added = root / "state" / "extra" / "checksums.json"
+            added.parent.mkdir()
+            added.write_bytes(b"unregistered nested manifest")
+            with self.assertRaisesRegex(EvidenceError, "inventory changed"):
+                physical.verify_checksums(root)
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
-

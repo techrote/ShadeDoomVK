@@ -411,13 +411,20 @@ def timing_analysis(summaries, *, anomaly=False):
             "physical_gpu_qualified": False, "performance_accepted": False, "quality_modes_accepted": []}
 
 
+def checksum_inventory(root):
+    root = Path(root)
+    return {"schema": "sdvk008-packet-checksums/v1", "files": [pin(path, relative_to=root)
+        for path in sorted(root.rglob("*"))
+        if path.is_file() and path.relative_to(root).as_posix() != "checksums.json"]}
+
+
 def verify_checksums(root):
     manifest = read_json(Path(root) / "checksums.json")
     require(manifest.get("schema") == "sdvk008-packet-checksums/v1", "Unknown packet checksum schema")
     names = {row["path"] for row in manifest["files"]}
     require(len(names) == len(manifest["files"]), "Duplicate packet checksum entries")
     actual = {path.relative_to(root).as_posix() for path in Path(root).rglob("*")
-              if path.is_file() and path.name != "checksums.json"}
+              if path.is_file() and path.relative_to(root).as_posix() != "checksums.json"}
     require(names == actual, "Packet file inventory changed")
     for row in manifest["files"]:
         checked(root, row)
@@ -574,9 +581,7 @@ def campaign(args):
     finally:
         receipt_name = "sdvk008-software-fixture-control.json" if software else "sdvk008-physical-campaign.json"
         (root / receipt_name).write_bytes(canonical(receipt))
-        inventory = {"schema": "sdvk008-packet-checksums/v1", "files": [pin(path, relative_to=root)
-            for path in sorted(root.rglob("*")) if path.is_file()]}
-        (root / "checksums.json").write_bytes(canonical(inventory))
+        (root / "checksums.json").write_bytes(canonical(checksum_inventory(root)))
     verify_checksums(root)
     require(receipt["status"] != "FAIL", "SDVK-008 campaign failed; retain packet: " + receipt.get("error", "unknown"))
     return receipt
