@@ -947,3 +947,23 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   [receipt](evidence/sdvk009-reboot-v2-20261011.json) pin all identities and limits.
   #8/#9/#10 remain open; #11/#12/#14 remain blocked. No new physical launch or
   hardware-setting change is authorized by this reconciliation.
+
+### 11 October 2026 — CPU-proven sparse BLAS and empty-root repair candidate
+
+- After the second retained physical failure, exact production CPU reproduction
+  proves null-slot TLAS membership duplication/null access and compressed BLAS
+  export offsets. Keep original slot identities and active-only membership with
+  slot-indexed centroids; preserve no-hole graphs and original triangle offsets.
+- Connected empty-tree guards return the existing miss sentinel. Independent
+  review caught discarded zero-length ranges suppressing the Vulkan root header;
+  one initialized unreachable storage node now publishes root `-1` through the
+  existing range/header transfer path. Initial-empty and live-to-empty CPU
+  publication regressions retain old failures and verify exact planned bytes.
+- Exact pre-fix functions/shader, sparse controls and source-control-flow tests
+  are retained in Git and local CPU evidence. Independent focused MSVC tests pass
+  14/14; complete local and hosted source/build/native CI are required before
+  merge. [Audit and limits](SDVK-009-COLLISION-ROOT-AUDIT.md).
+- Neither failed capture proves its actual collision graph. GPU consumption,
+  physical fault causality/resolution, full update lifecycle and general
+  deep-stack safety remain unqualified. Hardware STOP and all issue/dependency
+  gates remain unchanged; this repair authorizes no new physical launch.

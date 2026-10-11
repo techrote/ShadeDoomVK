@@ -194,3 +194,13 @@ access or shader causality. Hardware stop and failed raw evidence are retained
 in [the report](../SDVK-009-PHYSICAL-20261011.md). The baseline lacks an ordinary
 scene GPU timestamp group; the separate opt-in `scene.immediate` candidate needs
 a new immutable build and campaign before any scaling claim.
+
+The separately preregistered post-restart diagnostic on `a7c5df6f7` includes the
+opt-in scene timestamp implementation but again faulted on shadow-boundary before
+timing; it supplies no scaling measurement and reinstates the hardware STOP.
+The independent sparse-BLAS repair keeps original slot/triangle identities and
+adds empty-root misses to software traversal. Empty exports upload one initialized
+unreachable storage node with root `-1`, allowing unchanged `UploadNodes` and
+`GetTransferSize` to publish the header through a nonempty dirty range. Exact CPU
+range/uploader tests verify staging intent and transfer accounting, not GPU
+execution. Hardware ray-query routing is unchanged. [Collision audit](../SDVK-009-COLLISION-ROOT-AUDIT.md).
