@@ -1,0 +1,121 @@
+{
+  "archive": {
+    "bytes": 9437352,
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-software-vulkan.tar.xz",
+    "sha256": "7eabb8a61afbd0e08456ac368a350e35bc2c5ffea017fd5c13677e2b2e97cab5"
+  },
+  "artifact_id": 11689170953,
+  "artifact_zip_bytes": 9437528,
+  "artifact_zip_sha256": "e087ff13e409c4aef3f02ddf7d4521d63aff2cb8b1dbb3721caaf34da8a0862f",
+  "automatic_retries": 0,
+  "ci_run": 38102402396,
+  "completed_control_processes": 2,
+  "correction_status": "PENDING_SOURCE_QUALIFIED_FIXTURE_ASSERTIONS",
+  "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+  "device_type": 4,
+  "durable_remote_storage": false,
+  "error": "Required material semantic bindings differ: SDVEA0",
+  "expected_semantics": [
+    "albedo"
+  ],
+  "failed_control_processes": 1,
+  "height_texture_index": 4,
+  "native_full_corpus": "PASS before separate control",
+  "observed_semantics": [
+    {
+      "binding": 0,
+      "role": "authored-layer",
+      "semantic": "albedo",
+      "size": [
+        128,
+        128
+      ]
+    },
+    {
+      "binding": 1,
+      "role": "fallback-placeholder",
+      "semantic": "brightmap-emissive",
+      "size": [
+        1,
+        1
+      ]
+    },
+    {
+      "binding": 2,
+      "role": "fallback-placeholder",
+      "semantic": "detail",
+      "size": [
+        1,
+        1
+      ]
+    },
+    {
+      "binding": 3,
+      "role": "fallback-placeholder",
+      "semantic": "glow",
+      "size": [
+        1,
+        1
+      ]
+    },
+    {
+      "binding": 4,
+      "role": "authored-layer",
+      "semantic": "height",
+      "size": [
+        128,
+        128
+      ]
+    }
+  ],
+  "performance_accepted": false,
+  "physical_gpu_evidence_collected": false,
+  "physical_gpu_qualified": false,
+  "pr": 141,
+  "pr_head": "95404ea8044805d5954b78ba3e9d7660fe2d7d66",
+  "raw_local_directory": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure",
+  "remote_retention": "Actions artifact 30 days",
+  "renderer_commit": "44f7b52280315889321788ab74f48c9f02bcfeab",
+  "retained": [
+    {
+      "bytes": 14817,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\checksums.json",
+      "sha256": "5bad6158cc475b153622907d997f0a2f3eb99b7fc4e59e9ad7a34815a39a3faa"
+    },
+    {
+      "bytes": 2667,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-off\\1\\run.json",
+      "sha256": "f1a71c444d6c76f73ae03ab60ec76aa1639d3a905897c0ed5b6a198f85300a5a"
+    },
+    {
+      "bytes": 9570,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-off\\1\\recipe.json",
+      "sha256": "da292d6156c1f3a59b15a70c8b0c9885890c9206bcbf3201fa95c2b2a27038bc"
+    },
+    {
+      "bytes": 76683,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-off\\1\\native.renderer.json",
+      "sha256": "4457fef11ee2633424d98294ded1c78f46841202e65cb16216b640244132d6a2"
+    },
+    {
+      "bytes": 32521,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-off\\1\\native.png",
+      "sha256": "105989f0c731998f22be24a653c18ce8ffe1b63b2200466b04fbe6bd750e7262"
+    },
+    {
+      "bytes": 4781,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-off\\1\\stdout.log",
+      "sha256": "b994faceb0c12af64c302990dfb7639d487e49b3e86e51ba3951dc463787c0af"
+    },
+    {
+      "bytes": 92,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-reviewed-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-off\\1\\stderr.log",
+      "sha256": "40d1be44a93d0b505eb7579666e7a87b81ffdd2400eb48e54ab6fad21ff9ead3"
+    }
+  ],
+  "scene": "sdvk008-alpha-off",
+  "schema": "sdvk008-software-control-failure/v1",
+  "software_fixture_control_qualified": false,
+  "source_run": 38102402399,
+  "status": "FAILED_MATERIAL_BINDING_EXPECTATION"
+}
