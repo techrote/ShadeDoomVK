@@ -1,0 +1,69 @@
+{
+  "artifact_id": 11687298674,
+  "artifact_zip_bytes": 419288308,
+  "artifact_zip_sha256": "6c17780f6a70bf1f36f00b873e535ac7221633d6e68cbd5229f13a20583b008c",
+  "automatic_retries": 0,
+  "ci_run": 38100312264,
+  "completed_control_processes": 0,
+  "correction": "Separate unchanged authored integer angles from source-proven normalized BAM expected pose; strict comparison tolerance and generated map bytes preserved",
+  "durable_remote_storage": false,
+  "error": "Actual camera angles differ from the fixture",
+  "expected_angles": [
+    27,
+    0,
+    0
+  ],
+  "failed_control_processes": 1,
+  "native_full_corpus": "PASS before the separate control",
+  "observed_angles": [
+    26.999999983236194,
+    0,
+    0
+  ],
+  "partial_native_capture_retained": true,
+  "performance_accepted": false,
+  "physical_gpu_evidence_collected": false,
+  "physical_gpu_qualified": false,
+  "pr": 141,
+  "pr_head": "2d2444fc8c9719c4f02c0df05f1b97fa7e06c892",
+  "raw_local_directory": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure",
+  "remote_retention": "GitHub Actions artifact, 30 days; not durable raw storage",
+  "renderer_commit": "b4dff1fcb07044bc4b41d7f427bf62b84c6d9138",
+  "renderer_identity_scope": "GitHub PR merge-ref software build; never the frozen physical renderer",
+  "retained": [
+    {
+      "bytes": 8262,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure\\renderer-sdvk008-control\\checksums.json",
+      "sha256": "b7a23a585ef2e852034fd7cc4b51b6428af2e0cdf78c9afa9e436c32c28d3668"
+    },
+    {
+      "bytes": 2668,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-background\\1\\run.json",
+      "sha256": "aa7de0eaafafa078d4cfeebb340bb243f0f63ce0983c77a0db3325d96bee1f0d"
+    },
+    {
+      "bytes": 59940,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-background\\1\\native.renderer.json",
+      "sha256": "f427397adb77b8df0dab3ad647c114bad1e26de2da3093e50785b82fc104f01d"
+    },
+    {
+      "bytes": 20511,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-background\\1\\native.png",
+      "sha256": "b90073057e7896343d3a6ba620da3807c6d329744e6979e31a200e8149ba601d"
+    },
+    {
+      "bytes": 4816,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-background\\1\\stdout.log",
+      "sha256": "d2b1cfe5c6568d71a17b2b69b7df993060d3a8e85ce4ace95dc165b5d0015807"
+    },
+    {
+      "bytes": 92,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-first-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-background\\1\\stderr.log",
+      "sha256": "40d1be44a93d0b505eb7579666e7a87b81ffdd2400eb48e54ab6fad21ff9ead3"
+    }
+  ],
+  "scene": "sdvk008-alpha-background",
+  "schema": "sdvk008-software-control-failure/v1",
+  "software_fixture_control_qualified": false,
+  "status": "FAILED_CAMERA_EXPECTATION"
+}
