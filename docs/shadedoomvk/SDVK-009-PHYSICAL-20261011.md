@@ -47,6 +47,13 @@ CPU/GPU scaling, thresholds and quality/performance decisions are **UNMEASURED**
 No architecture trigger can be evaluated. The inherited truncated tile path and
 PF-017 rejected reuse candidate remain rejected.
 
+Offline CPU graph tests separately reproduced a single-instance TLAS root
+export defect. Its bounded repair and the outstanding sparse-geometry audit
+observations are recorded in [the collision audit](SDVK-009-COLLISION-ROOT-AUDIT.md).
+The failed packet does not establish that it exercised this edge case. The
+repair is a new source candidate, not proof that the device fault is resolved;
+the hardware stop remains active.
+
 ## Tooling correction and future measurement identity
 
 The Windows CRT emits CRLF in `--version`; identity parsing now accepts logical

@@ -106,3 +106,13 @@ See `docs/shadedoomvk/PF-018-RUNTIME-EVIDENCE.md` for the paired runtime qualifi
 CFX-007 found a real transfer-publication defect in the LevelMesh uploader: transfer writes needed visibility to vertex attribute and index reads as well as shader reads. That separate correctness defect was repaired and safe synchronization validation became clean, but the DBP37 primary crash remained reproducible afterward. Direct-LevelMesh-off and pipeline discriminators also prevent a universal LevelMesh-required crash explanation.
 
 Later matching-PDB CPU snapshot checks found no invalid logical index, reachable tree cycle, non-finite referenced geometry or traversal-stack overflow (peak pending stack 18/64). Those post-error CPU checks do not prove submitted GPU bytes. The final CFX repair is the separate lightmap/probe descriptor-target publication lifetime fix; do not attach the historical crash causality to LevelMesh. See [CFX final synthesis](../CFX-FINAL-PROGRAMME-SYNTHESIS.md).
+## SDVK-009 offline single-instance collision export repair — 2026-10-11
+
+`CPUAccelStruct::Upload` redirects a leaf TLAS root directly to its exported BLAS
+root; a single instance has no parent link to rewrite. CPU graph tests execute
+the production export and prove valid links/original triangle membership for
+single-node, nonzero-root, multi-instance and empty cases. This does not diagnose
+the retained physical shadow-boundary fault or clear its hardware stop. Sparse
+BLAS slots and skipped-triangle centroid identity remain separate unqualified
+follow-ups. [Audit and exact reproducer outlines](../SDVK-009-COLLISION-ROOT-AUDIT.md).
+
