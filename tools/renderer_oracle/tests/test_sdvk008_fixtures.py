@@ -119,6 +119,12 @@ class PhysicalFixtureTests(unittest.TestCase):
         self.assertLess(maximum_vz,.20)
         self.assertGreater(maximum_vz,0)
 
+    def test_fractional_camera_angle_rejected_before_native_parse(self):
+        scene=copy.deepcopy(self.scenes['sdvk008-s0'])
+        scene['native']['camera']['yaw']=26.5
+        with self.assertRaisesRegex(ValueError,'authored integers'):
+            prepare.scene_assets(scene)
+
     def test_preparation_authenticates_generated_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:
             out=Path(tmp)/'prepared'

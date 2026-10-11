@@ -5285,7 +5285,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-s0/capture.cfg",
         "clock": {
@@ -5615,7 +5615,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-sl/capture.cfg",
         "clock": {
@@ -5945,7 +5945,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-sm/capture.cfg",
         "clock": {
@@ -6275,7 +6275,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-sh/capture.cfg",
         "clock": {
@@ -6605,7 +6605,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-m0/capture.cfg",
         "clock": {
@@ -6935,7 +6935,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-mm/capture.cfg",
         "clock": {
@@ -7265,7 +7265,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-mh/capture.cfg",
         "clock": {
@@ -7595,7 +7595,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-g0/capture.cfg",
         "clock": {
@@ -7925,7 +7925,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-gh/capture.cfg",
         "clock": {
@@ -8255,7 +8255,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-p0/capture.cfg",
         "clock": {
@@ -8589,7 +8589,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-pm/capture.cfg",
         "clock": {
@@ -8923,7 +8923,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-default-off/capture.cfg",
         "clock": {
@@ -9252,7 +9252,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-heightless-off/capture.cfg",
         "clock": {
@@ -9582,7 +9582,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-heightless-on/capture.cfg",
         "clock": {
@@ -9912,7 +9912,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-alpha-off/capture.cfg",
         "clock": {
@@ -10242,7 +10242,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-alpha-on/capture.cfg",
         "clock": {
@@ -11432,7 +11432,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 26.565051177
+          "yaw": 27
         },
         "capture_script": "scenes/sdvk008-alpha-background/capture.cfg",
         "clock": {
@@ -11747,7 +11747,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 87.13759477388825
+          "yaw": 87
         },
         "capture_script": "scenes/sdvk008-grazing-fallback-off/capture.cfg",
         "clock": {
@@ -12077,7 +12077,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 87.13759477388825
+          "yaw": 87
         },
         "capture_script": "scenes/sdvk008-grazing-fallback-on/capture.cfg",
         "clock": {

@@ -39,7 +39,7 @@ def red_marker_direction(off_rgb: bytes, on_rgb: bytes, width: int, height: int)
     """Preregistered signed centroid witness for the single fixed wall card.
 
     Increasing texture U follows the card edge, increasing V follows down.
-    Camera (-160,-80,96), card front (-X), and yaw atan(1/2) give a ray toward
+    Camera (-160,-80,96), card front (-X), and yaw 27 degrees give a ray toward
     screen right/up. POM samples original-depth*ray: authored marks therefore
     move right/up. Never infer the expected sign from the measured images.
     This is a marker direction witness, not a depth or usefulness metric.
@@ -125,6 +125,9 @@ def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
     model = prep._Map(ceiling=256)
     model.boundary([(-384, -256), (-384, 256), (384, 256), (384, -256)], ["SDVW"]*4)
     camera = native["camera"]
+    # UDMF things use CheckInt for angle/pitch/roll, not a float camera pose.
+    if any(type(camera[key]) is not int for key in ("yaw", "pitch", "roll")):
+        raise ValueError("SDVK-008 UDMF camera angles must be authored integers")
     cx, cy, cz = camera["position"]
     model.thing(1, cx-48, cy, tid=2001)
     model.thing(32200, cx, cy, cz, angle=camera["yaw"], pitch=camera["pitch"], tid=2002)
