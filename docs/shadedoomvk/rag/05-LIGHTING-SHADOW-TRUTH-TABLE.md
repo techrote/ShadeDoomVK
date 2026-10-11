@@ -167,4 +167,10 @@ control and introduces no arbitrary light cap or quality-tier policy.
 
 ## SDVK-010 actor sunlight and probe scope (candidate)
 
+The 11 October frozen SDVK-009 physical campaign retained six exact state/image
+pairs then stopped on `shadow-boundary` device-fault output and a Windows driver
+event, before all timing. Root cause is undetermined; partial light counts are
+not normalized scaling evidence. No many-light acceptance or algorithm change
+follows. [Failure report](../SDVK-009-PHYSICAL-20261011.md).
+
 `HWSprite::DrawSprite` resolves authored source-space environment probe ordinal independently of dynamic-light eligibility. `HWDrawInfo::GetDynSpriteLightList` retains the PF-016/017 sunlight/world visibility and portal-group trace decisions, while shader `ProcessMaterialLight` separately applies the existing sun cosine/occlusion response. Probe diffuse/specular IBL uses PF-113 valid irradiance/prefilter descriptor pair or zero, never a substitute nearest published pair. The new software-Vulkan corpus asserts **actual emitted PBR actor probe selection**; `sun-probes` without a full bake does **not** prove shadow-world occlusion or actor sunlight compatibility. No new many-light shadow algorithm is imported. [Boundary and pending evidence](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).

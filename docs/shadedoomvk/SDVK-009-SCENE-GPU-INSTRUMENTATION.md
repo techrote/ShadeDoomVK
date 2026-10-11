@@ -1,7 +1,9 @@
 # SDVK-009 scene GPU timestamp instrumentation candidate
 
-This is a separately identified instrumentation revision based on frozen
-`0a2fbad203549d18ac6e5a61bb4747709637bfde`. It does not modify the frozen source or
+This is a separately identified instrumentation candidate, first developed on frozen
+`0a2fbad203549d18ac6e5a61bb4747709637bfde` and integrated onto verified
+`master@41340ac5790c9cbf690fcd0c49338b5bb6c84927` (including the later SDVK-008/010
+implementations). It does not modify the frozen source or
 claim physical qualification. The original baseline lacks an ordinary scene
 timestamp span: postprocess/lightmapper/dormant tile groups cannot establish
 many-light shader scaling. A new exact build, preregistration, source/CI gates

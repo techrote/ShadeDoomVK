@@ -161,3 +161,13 @@ The first renderer tranche cannot freeze while any unresolved issue can cause:
 ### SDVK-005 accepted gate — 2026-10-10
 
 SDVK-005's optional height semantic is accepted on the verified implementation tree. Historical material/custom bindings remain stable, per-layer sampling is explicit, PF descriptor lifetime ownership is unchanged and software-Vulkan state/image qualification passes. **SDVK-007 is now the next serialized material/orientation task; SDVK-008 and SDVK-010 remain blocked by SDVK-007.**
+
+### Current gate reconciliation — 2026-10-11
+
+The historical SDVK-005 note above is superseded by SDVK-007 acceptance and the
+merged SDVK-008/010 implementations. #8 still needs full physical relief/cost
+acceptance; #10 still needs world-sun occlusion and linked-portal actor transition
+qualification. #9's first frozen GTX 1650 SUPER campaign stopped on a retained
+device fault after six passing image/state pairs, before timing. See
+[physical failure report](SDVK-009-PHYSICAL-20261011.md). None of these three issues
+is accepted. #11/#14 remain blocked by #9/#10; #12 remains blocked by #8/#9.

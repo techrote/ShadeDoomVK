@@ -1,0 +1,1059 @@
+{
+  "schema": "sdvk-local-raw-packet/v1",
+  "scope": "Complete stopped campaign, inputs, application caches and supervision",
+  "remote_storage": false,
+  "files": {
+    "campaign-01/prepared/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/prepared/scenes/compositing/capture.cfg": {
+      "bytes": 1046,
+      "sha256": "f6a1a4c7a59e22a307e59964afa5a165baa746f66926b19e46f297407f23055b"
+    },
+    "campaign-01/prepared/scenes/compositing/fixture.ini": {
+      "bytes": 591,
+      "sha256": "10a5d850346172951ffe799068e0e3abdbf4b58ccec8071bb7fd50c86cfed5ac"
+    },
+    "campaign-01/prepared/scenes/compositing/scene.pk3": {
+      "bytes": 74904,
+      "sha256": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95"
+    },
+    "campaign-01/prepared/scenes/lights-dense-dispersed/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/prepared/scenes/lights-dense-dispersed/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/prepared/scenes/lights-dense-dispersed/scene.pk3": {
+      "bytes": 145166,
+      "sha256": "a5f8c59ab22b64cc64f54a7b5cd38c21d2be56dd5040ac129e395efeaeb21c86"
+    },
+    "campaign-01/prepared/scenes/lights-dense-overlap/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/prepared/scenes/lights-dense-overlap/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/prepared/scenes/lights-dense-overlap/scene.pk3": {
+      "bytes": 145148,
+      "sha256": "d39f0f8a64494434e97d1035ab6b77a99cf3bf253eadcd54bfc53c9ea842ee91"
+    },
+    "campaign-01/prepared/scenes/lights-many/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "90cb7c3b661de452b023bcb68e800ed6670e91381051bef178a2ac94b7f9b442"
+    },
+    "campaign-01/prepared/scenes/lights-many/fixture.ini": {
+      "bytes": 725,
+      "sha256": "4bc2f82f6dc7aba32dc12e0aa77c1cb7703b8131cff821706aef44824775ba42"
+    },
+    "campaign-01/prepared/scenes/lights-many/scene.pk3": {
+      "bytes": 88689,
+      "sha256": "555954805d3be1ccaa06ae376bee57950b46c312a5a90b3e9a35d746972eff15"
+    },
+    "campaign-01/prepared/scenes/lights-one/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "90cb7c3b661de452b023bcb68e800ed6670e91381051bef178a2ac94b7f9b442"
+    },
+    "campaign-01/prepared/scenes/lights-one/fixture.ini": {
+      "bytes": 725,
+      "sha256": "4bc2f82f6dc7aba32dc12e0aa77c1cb7703b8131cff821706aef44824775ba42"
+    },
+    "campaign-01/prepared/scenes/lights-one/scene.pk3": {
+      "bytes": 70231,
+      "sha256": "a3b2a10522a5402613b8ac14dbb2de6a4800b416820e0619e2b429b4d80f2b18"
+    },
+    "campaign-01/prepared/scenes/lights-zero/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/prepared/scenes/lights-zero/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/prepared/scenes/lights-zero/scene.pk3": {
+      "bytes": 69940,
+      "sha256": "3da443f441178403c402c444e0aed7e4bd00b110ebf013533f24815b392fd5d6"
+    },
+    "campaign-01/prepared/scenes/material-stress/capture.cfg": {
+      "bytes": 1046,
+      "sha256": "f6a1a4c7a59e22a307e59964afa5a165baa746f66926b19e46f297407f23055b"
+    },
+    "campaign-01/prepared/scenes/material-stress/fixture.ini": {
+      "bytes": 591,
+      "sha256": "10a5d850346172951ffe799068e0e3abdbf4b58ccec8071bb7fd50c86cfed5ac"
+    },
+    "campaign-01/prepared/scenes/material-stress/scene.pk3": {
+      "bytes": 169496,
+      "sha256": "03bab5f0064b436ce4d93eb67012b7f85cafa34d763fa8b3ae42e9c34994f820"
+    },
+    "campaign-01/prepared/scenes/shadow-boundary/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "51da6967380238796b862dc5032fd5cd359070bde1d317c6a601ae41a29b30d6"
+    },
+    "campaign-01/prepared/scenes/shadow-boundary/fixture.ini": {
+      "bytes": 725,
+      "sha256": "aa711a2493aba461401a71ac527f50221e58287203a83e7d90f05782ebe42e5c"
+    },
+    "campaign-01/prepared/scenes/shadow-boundary/scene.pk3": {
+      "bytes": 370067,
+      "sha256": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116"
+    },
+    "campaign-01/prepared/scenes/sprite-mirror/capture.cfg": {
+      "bytes": 1148,
+      "sha256": "182803fdf103b4f6ef15ea0843090df05cac0a04869478b57ea64cc8cddfc0da"
+    },
+    "campaign-01/prepared/scenes/sprite-mirror/fixture.ini": {
+      "bytes": 645,
+      "sha256": "765c220c2488381bb6ab039f9fd0d3ae5b6729d5c720e84636f7573d9ff11380"
+    },
+    "campaign-01/prepared/scenes/sprite-mirror/scene.pk3": {
+      "bytes": 162762,
+      "sha256": "6df0c6bd0000aee9bdad268af9c419c80bf30ad065e05c824b5bb7696ff045e9"
+    },
+    "campaign-01/prepared/scenes/sun-probes/capture.cfg": {
+      "bytes": 1264,
+      "sha256": "0eedd77d19c3887f589349944af1590711987d6bfcbc8df5c415e38d7b18963d"
+    },
+    "campaign-01/prepared/scenes/sun-probes/fixture.ini": {
+      "bytes": 710,
+      "sha256": "ef9346e3a41e287fafdd5adabdc08dd76050a9f0c87a09afba95d73044860125"
+    },
+    "campaign-01/prepared/scenes/sun-probes/scene.pk3": {
+      "bytes": 209254,
+      "sha256": "96e9060e75093253c8296e26264a263c181614311e780fb25be1c2f7b4424f00"
+    },
+    "campaign-01/reference-compositing-comparison.json": {
+      "bytes": 1687,
+      "sha256": "1b97c55a3a32337bc5799cbd6d64c1fe29745d40fa1cf2bcc5b2580ef451cada"
+    },
+    "campaign-01/reference-lights-dense-dispersed-comparison.json": {
+      "bytes": 1709,
+      "sha256": "7f57a4bae9eadb3601b911791b5fe1d38229d816a2466895a6491b9d34363aac"
+    },
+    "campaign-01/reference-lights-dense-overlap-comparison.json": {
+      "bytes": 1705,
+      "sha256": "e7e36ae829388a38dd7f9bfd49e34e63f2c9a0584e038e40c6b611b3112c5bff"
+    },
+    "campaign-01/reference-lights-many-comparison.json": {
+      "bytes": 1687,
+      "sha256": "fa753e6a5a804dbf9230b3af9601a11f6195d9efe23772667af9b68f88840567"
+    },
+    "campaign-01/reference-lights-one-comparison.json": {
+      "bytes": 1685,
+      "sha256": "0faf52f43c4f6561c2b42f7bf8c4e3152bff7de047e2c8fd91644759d5725b55"
+    },
+    "campaign-01/reference-lights-zero-comparison.json": {
+      "bytes": 1687,
+      "sha256": "23425af841c55a0b8fbc4ca5bbaa085f53e6cc6ec80850e72c280057ef3db161"
+    },
+    "campaign-01/reference-state/compositing/1/cache/pipelinecache.zdpc": {
+      "bytes": 1661947,
+      "sha256": "b40c609594d705f300879fcd9f8efaa752a743ebccc56302d61e610f580d165a"
+    },
+    "campaign-01/reference-state/compositing/1/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "e40cd262b982ab50941779122af710b3aaf389bf5c5d6cdcacb0027900240e3a"
+    },
+    "campaign-01/reference-state/compositing/1/capture.cfg": {
+      "bytes": 1046,
+      "sha256": "f6a1a4c7a59e22a307e59964afa5a165baa746f66926b19e46f297407f23055b"
+    },
+    "campaign-01/reference-state/compositing/1/fixture.ini": {
+      "bytes": 15853,
+      "sha256": "1b2079df6121ce8ec2135efb6d5c491afc44ab8802bc53a5f625d27b15c2275a"
+    },
+    "campaign-01/reference-state/compositing/1/input/fixture.ini": {
+      "bytes": 591,
+      "sha256": "10a5d850346172951ffe799068e0e3abdbf4b58ccec8071bb7fd50c86cfed5ac"
+    },
+    "campaign-01/reference-state/compositing/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/compositing/1/input/scene.pk3": {
+      "bytes": 74904,
+      "sha256": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95"
+    },
+    "campaign-01/reference-state/compositing/1/native.png": {
+      "bytes": 57852,
+      "sha256": "65acd397e233c3dd36d6e1e2f8144e3bef0c2d79f90672c12de637d4ecbc75d4"
+    },
+    "campaign-01/reference-state/compositing/1/native.renderer.json": {
+      "bytes": 159468,
+      "sha256": "f3f6b21905518403222e830d7d818f117f6d10ccac868e647c359ed6ccae1574"
+    },
+    "campaign-01/reference-state/compositing/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/compositing/1/recipe.json": {
+      "bytes": 7424,
+      "sha256": "e3ac3ddd176a93536649621ee1cf1092218234a73614fe71abf8e58b144f8aa9"
+    },
+    "campaign-01/reference-state/compositing/1/request.json": {
+      "bytes": 6958,
+      "sha256": "e86cee7abae170fa145a2b4ee75a593b691a59fe376bc47e77f002475007957d"
+    },
+    "campaign-01/reference-state/compositing/1/run.json": {
+      "bytes": 9027,
+      "sha256": "bec2142e935d362a66a60fffdfd9e25c860c016af6acb208d98599e910c43362"
+    },
+    "campaign-01/reference-state/compositing/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/compositing/1/stdout.log": {
+      "bytes": 4498,
+      "sha256": "bce48dec1d311c9cbcd1167d6b3c26123eaa74b4bc0b7481233104b2157d651c"
+    },
+    "campaign-01/reference-state/compositing/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/compositing/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/compositing/2/cache/pipelinecache.zdpc": {
+      "bytes": 1661947,
+      "sha256": "b40c609594d705f300879fcd9f8efaa752a743ebccc56302d61e610f580d165a"
+    },
+    "campaign-01/reference-state/compositing/2/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "7dbcd4685e80ad07985969fad48a93ff4c893149a489922e2754748704b8eae0"
+    },
+    "campaign-01/reference-state/compositing/2/capture.cfg": {
+      "bytes": 1046,
+      "sha256": "f6a1a4c7a59e22a307e59964afa5a165baa746f66926b19e46f297407f23055b"
+    },
+    "campaign-01/reference-state/compositing/2/fixture.ini": {
+      "bytes": 15853,
+      "sha256": "3cd00ad7592b0f68d7cf6e9274c3ca469b31519d626d15add5787fd550234455"
+    },
+    "campaign-01/reference-state/compositing/2/input/fixture.ini": {
+      "bytes": 591,
+      "sha256": "10a5d850346172951ffe799068e0e3abdbf4b58ccec8071bb7fd50c86cfed5ac"
+    },
+    "campaign-01/reference-state/compositing/2/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/compositing/2/input/scene.pk3": {
+      "bytes": 74904,
+      "sha256": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95"
+    },
+    "campaign-01/reference-state/compositing/2/native.png": {
+      "bytes": 57852,
+      "sha256": "65acd397e233c3dd36d6e1e2f8144e3bef0c2d79f90672c12de637d4ecbc75d4"
+    },
+    "campaign-01/reference-state/compositing/2/native.renderer.json": {
+      "bytes": 159427,
+      "sha256": "52d90c3153b83361a409a2e4f5b3822a795b548ad6ed2f545918819be0ba9703"
+    },
+    "campaign-01/reference-state/compositing/2/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/compositing/2/recipe.json": {
+      "bytes": 7424,
+      "sha256": "e3ac3ddd176a93536649621ee1cf1092218234a73614fe71abf8e58b144f8aa9"
+    },
+    "campaign-01/reference-state/compositing/2/request.json": {
+      "bytes": 6958,
+      "sha256": "91c0dc984d58923dcc706af4462467fc0497db1292ae685c824c578698bb167c"
+    },
+    "campaign-01/reference-state/compositing/2/run.json": {
+      "bytes": 9027,
+      "sha256": "8ffa3fd6cde2db83b57dd7609e0623d9823905bb4725b4006cf0a0f6bdabaa8d"
+    },
+    "campaign-01/reference-state/compositing/2/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/compositing/2/stdout.log": {
+      "bytes": 4498,
+      "sha256": "843342e23ecd4857f03c2185309bc24438774145a1c414df4d5688d75216d741"
+    },
+    "campaign-01/reference-state/compositing/2/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/compositing/2/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/cache/pipelinecache.zdpc": {
+      "bytes": 1041206,
+      "sha256": "a0c86bd91b1e09cfc965c48557c6694ff3792ccd7bc7a610dc73f1bf0cad9a60"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "25a5c27912f2e4691bd4f0dcdca9362d522ab60fd9a290b94e2a0cf79d556b24"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "51245937d1ff9d38e0ce65d5d62c398a4b1f0721a2b870ae053e8de30061dc30"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/input/scene.pk3": {
+      "bytes": 145166,
+      "sha256": "a5f8c59ab22b64cc64f54a7b5cd38c21d2be56dd5040ac129e395efeaeb21c86"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/native.png": {
+      "bytes": 165058,
+      "sha256": "17b79781a5b8fbffbc63614363eced61e6676fa7b004a995ca3448f842660457"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/native.renderer.json": {
+      "bytes": 1076302,
+      "sha256": "0eea97eca59a520e110766e0fe883d63f381dd3d5b5185d485aace15e43796ac"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/recipe.json": {
+      "bytes": 8216,
+      "sha256": "7ec99fc80064b1687dd0b3a8014471542bd72389270c79fa37d780bec9442ec8"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/request.json": {
+      "bytes": 7297,
+      "sha256": "d35824e85943684510828a2aaf61eb124ebfba695feca15c9a06f7c9e5c86f8d"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/run.json": {
+      "bytes": 9490,
+      "sha256": "de7e638916a07e2f17921255065579f823b080fee7452f8ed00c6faa215d48f9"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/stdout.log": {
+      "bytes": 4828,
+      "sha256": "721496bdc6b93bdee90bc6c4c98b8bc3783f8886fb8894ed1c4905dc0c51aa4e"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/cache/pipelinecache.zdpc": {
+      "bytes": 1041206,
+      "sha256": "a0c86bd91b1e09cfc965c48557c6694ff3792ccd7bc7a610dc73f1bf0cad9a60"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "4ca6dd25c123ab77774f13f355b31bc8f408f7bc6a172aa0b6762c61f7281fe4"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "625af8e833b2c936ccc207e98dcfd0610ae19df2929fc4110826874046836552"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/input/scene.pk3": {
+      "bytes": 145166,
+      "sha256": "a5f8c59ab22b64cc64f54a7b5cd38c21d2be56dd5040ac129e395efeaeb21c86"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/native.png": {
+      "bytes": 165058,
+      "sha256": "17b79781a5b8fbffbc63614363eced61e6676fa7b004a995ca3448f842660457"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/native.renderer.json": {
+      "bytes": 1076302,
+      "sha256": "0ca7e725a9a5800a5ff37f95ca5a72cec8231e9f0d9320044422fc2efebae80a"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/recipe.json": {
+      "bytes": 8216,
+      "sha256": "7ec99fc80064b1687dd0b3a8014471542bd72389270c79fa37d780bec9442ec8"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/request.json": {
+      "bytes": 7297,
+      "sha256": "c97fc8a3d6a85d3925843a9f201255f5f3dc521e73f02cc198414d7ee5bf2065"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/run.json": {
+      "bytes": 9491,
+      "sha256": "af001520c722142669a62d7da76633799a5c9b3fc6681c65ea8110222ce65b4b"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/stdout.log": {
+      "bytes": 4828,
+      "sha256": "639568799c8a796dad4adaab7c1776eed69c3b9d2fb6c91cb8a13add8def5765"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-dispersed/2/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/cache/pipelinecache.zdpc": {
+      "bytes": 1041206,
+      "sha256": "a0c86bd91b1e09cfc965c48557c6694ff3792ccd7bc7a610dc73f1bf0cad9a60"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "4dd5d08d5176764a8ac8b711ac49432cf14c0065a79d2b5be9eaf73e8605fa0e"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "d4181f63562c6f634723f4f7e806340359709147a9fbbb057fb6bc8210d53fc7"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/input/scene.pk3": {
+      "bytes": 145148,
+      "sha256": "d39f0f8a64494434e97d1035ab6b77a99cf3bf253eadcd54bfc53c9ea842ee91"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/native.png": {
+      "bytes": 68833,
+      "sha256": "f0611fb6f7ca8d73184ef35636b39da2b7fb8f785bb0d9bfab395d468b90655c"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/native.renderer.json": {
+      "bytes": 1073528,
+      "sha256": "4b354e0c1f545b9842ba1f8e333c5cb09a7d061ccdfd599f4b2df0b669430f4b"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/recipe.json": {
+      "bytes": 8207,
+      "sha256": "b2e2307b0302cfe8b7a43c8f38d3a53d236ddb7a5f2dafdd961c05ea0e944c5f"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/request.json": {
+      "bytes": 7271,
+      "sha256": "901e5ea2f4e13e37d41233b7bfee48878fafdb1c633f50cd8c643d5f4350b070"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/run.json": {
+      "bytes": 9480,
+      "sha256": "bd1fdf10d3e436b67fbd09c766082d3ce20a1b6610da9b175072d4e16abfb5d3"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/stdout.log": {
+      "bytes": 4818,
+      "sha256": "e26d12df40e6b0e5f7e08d246ae4d3939ad5aede2e9bec7bc5b015cee875e44c"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/cache/pipelinecache.zdpc": {
+      "bytes": 1041206,
+      "sha256": "a0c86bd91b1e09cfc965c48557c6694ff3792ccd7bc7a610dc73f1bf0cad9a60"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "5efeb549dc17f8ab23353d08ef3b304a1f6720d32770c581efe832760b257aee"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "a8482aa1837ebc2f1ce42fa201cd72065363de5b608866b2a2e2b791b02f688a"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/input/scene.pk3": {
+      "bytes": 145148,
+      "sha256": "d39f0f8a64494434e97d1035ab6b77a99cf3bf253eadcd54bfc53c9ea842ee91"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/native.png": {
+      "bytes": 68833,
+      "sha256": "f0611fb6f7ca8d73184ef35636b39da2b7fb8f785bb0d9bfab395d468b90655c"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/native.renderer.json": {
+      "bytes": 1074337,
+      "sha256": "69e3889137421884af72bbf6bff4ebcb03535b664a147c378ab835ecb430ba4d"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/recipe.json": {
+      "bytes": 8207,
+      "sha256": "b2e2307b0302cfe8b7a43c8f38d3a53d236ddb7a5f2dafdd961c05ea0e944c5f"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/request.json": {
+      "bytes": 7271,
+      "sha256": "2a9bd92352f9da785dd19be7c445e1cac388d108adfd87deab6256e8d797ecab"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/run.json": {
+      "bytes": 9480,
+      "sha256": "806ec28c614132a6a6cac2714f45832b9682c3a1133b16466ba359c0b506367a"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/stdout.log": {
+      "bytes": 4818,
+      "sha256": "c394bc1ae92fe769a5861f9e34b44747140bafa1451ab71522bb08bad47c1745"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-dense-overlap/2/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-many/1/cache/pipelinecache.zdpc": {
+      "bytes": 1070965,
+      "sha256": "6934e30e848655fb66c9783725c0032b2466dc266f88666943127414de2a029a"
+    },
+    "campaign-01/reference-state/lights-many/1/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "49ebb701e9a6fb2bcb981ed60ee550d1dd9f65cd3fddbfbf24506c0a8429540f"
+    },
+    "campaign-01/reference-state/lights-many/1/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "90cb7c3b661de452b023bcb68e800ed6670e91381051bef178a2ac94b7f9b442"
+    },
+    "campaign-01/reference-state/lights-many/1/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "3b29231e6fbca5f846730c0f5539dfc8774d677ab28a50f78f1c319f1feab42c"
+    },
+    "campaign-01/reference-state/lights-many/1/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "4bc2f82f6dc7aba32dc12e0aa77c1cb7703b8131cff821706aef44824775ba42"
+    },
+    "campaign-01/reference-state/lights-many/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-many/1/input/scene.pk3": {
+      "bytes": 88689,
+      "sha256": "555954805d3be1ccaa06ae376bee57950b46c312a5a90b3e9a35d746972eff15"
+    },
+    "campaign-01/reference-state/lights-many/1/native.png": {
+      "bytes": 138866,
+      "sha256": "9676cfbebf3bb526c28a1d3df15d5b2145eee04d354f7004b1c24c265ed7c3dd"
+    },
+    "campaign-01/reference-state/lights-many/1/native.renderer.json": {
+      "bytes": 363402,
+      "sha256": "44eeb5004ee7f51afa7a975f06ca7ed06cf5049ce9e842e86b5093e1359a064b"
+    },
+    "campaign-01/reference-state/lights-many/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-many/1/recipe.json": {
+      "bytes": 8264,
+      "sha256": "32ab600dabfcab9a0acb088aa486c80243ddd13edaa72e241cabcd096bdab32a"
+    },
+    "campaign-01/reference-state/lights-many/1/request.json": {
+      "bytes": 7154,
+      "sha256": "d08204187b23eadfc1a178c67b4e4221f96550f44d4d016214d6662a36a62b17"
+    },
+    "campaign-01/reference-state/lights-many/1/run.json": {
+      "bytes": 9431,
+      "sha256": "d966dc30aa9fef33f3edd738856f090b7d82707ce94e68835712732a336d3170"
+    },
+    "campaign-01/reference-state/lights-many/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-many/1/stdout.log": {
+      "bytes": 4774,
+      "sha256": "6fec368406aac0dc230bfe95707a27aceb66d8377ca18a9e6e2801ef22399874"
+    },
+    "campaign-01/reference-state/lights-many/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-many/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-many/2/cache/pipelinecache.zdpc": {
+      "bytes": 1070965,
+      "sha256": "6934e30e848655fb66c9783725c0032b2466dc266f88666943127414de2a029a"
+    },
+    "campaign-01/reference-state/lights-many/2/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "9b9041c4674c2c0dfb8f510c1808b5e75f881c38680c2439e04d687a602c53e6"
+    },
+    "campaign-01/reference-state/lights-many/2/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "90cb7c3b661de452b023bcb68e800ed6670e91381051bef178a2ac94b7f9b442"
+    },
+    "campaign-01/reference-state/lights-many/2/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "f8a3d961eb0df1a32767775fa88f9d963eb78420e7bddebf071a1c512161d874"
+    },
+    "campaign-01/reference-state/lights-many/2/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "4bc2f82f6dc7aba32dc12e0aa77c1cb7703b8131cff821706aef44824775ba42"
+    },
+    "campaign-01/reference-state/lights-many/2/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-many/2/input/scene.pk3": {
+      "bytes": 88689,
+      "sha256": "555954805d3be1ccaa06ae376bee57950b46c312a5a90b3e9a35d746972eff15"
+    },
+    "campaign-01/reference-state/lights-many/2/native.png": {
+      "bytes": 138866,
+      "sha256": "9676cfbebf3bb526c28a1d3df15d5b2145eee04d354f7004b1c24c265ed7c3dd"
+    },
+    "campaign-01/reference-state/lights-many/2/native.renderer.json": {
+      "bytes": 363402,
+      "sha256": "3e1ee2bd296d36573889dc3e3764ea10f0d79ffc7255c232cceb9bd48490a33c"
+    },
+    "campaign-01/reference-state/lights-many/2/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-many/2/recipe.json": {
+      "bytes": 8264,
+      "sha256": "32ab600dabfcab9a0acb088aa486c80243ddd13edaa72e241cabcd096bdab32a"
+    },
+    "campaign-01/reference-state/lights-many/2/request.json": {
+      "bytes": 7154,
+      "sha256": "c1aae92b27b8f4173d60b9e869b99f8442489601ad8f8753211ae46cae06d0c0"
+    },
+    "campaign-01/reference-state/lights-many/2/run.json": {
+      "bytes": 9432,
+      "sha256": "58e1d870dbd0f89886916aeba0fe769d703e089b2cdc35989cb9a2e335a0f8fc"
+    },
+    "campaign-01/reference-state/lights-many/2/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-many/2/stdout.log": {
+      "bytes": 4774,
+      "sha256": "a5a6aee524bbd5382ff9d1ccf484d603afc89111d9aa36d3901473af44ecc1e3"
+    },
+    "campaign-01/reference-state/lights-many/2/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-many/2/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-one/1/cache/pipelinecache.zdpc": {
+      "bytes": 1070965,
+      "sha256": "6934e30e848655fb66c9783725c0032b2466dc266f88666943127414de2a029a"
+    },
+    "campaign-01/reference-state/lights-one/1/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "6e6e764f45a607d696c3c9e5e9406615a303a201468f0bf9832e5ba44e592f4c"
+    },
+    "campaign-01/reference-state/lights-one/1/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "90cb7c3b661de452b023bcb68e800ed6670e91381051bef178a2ac94b7f9b442"
+    },
+    "campaign-01/reference-state/lights-one/1/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "b6264e974548e89c771e92b20fdea3487f5ef82ae5fa4c194efad63b231f3815"
+    },
+    "campaign-01/reference-state/lights-one/1/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "4bc2f82f6dc7aba32dc12e0aa77c1cb7703b8131cff821706aef44824775ba42"
+    },
+    "campaign-01/reference-state/lights-one/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-one/1/input/scene.pk3": {
+      "bytes": 70231,
+      "sha256": "a3b2a10522a5402613b8ac14dbb2de6a4800b416820e0619e2b429b4d80f2b18"
+    },
+    "campaign-01/reference-state/lights-one/1/native.png": {
+      "bytes": 73026,
+      "sha256": "0f1ab1e0a29198514478a8e6f9f37ffac9d6d0c22cdc86e182d4d80b7a4e37ed"
+    },
+    "campaign-01/reference-state/lights-one/1/native.renderer.json": {
+      "bytes": 83139,
+      "sha256": "43cb47e5f347ca7d4cc816565f4848e20d0f07b88deafcdb34df2908792487c0"
+    },
+    "campaign-01/reference-state/lights-one/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-one/1/recipe.json": {
+      "bytes": 8250,
+      "sha256": "d5128d8df62445326be140c7361e29eb7aa2424ab1d9d1a6d026b205f39d3436"
+    },
+    "campaign-01/reference-state/lights-one/1/request.json": {
+      "bytes": 7138,
+      "sha256": "872d840bdf161acc5906a31b1db5c707dc64b1ebb57b44e0ba76af595017df41"
+    },
+    "campaign-01/reference-state/lights-one/1/run.json": {
+      "bytes": 9424,
+      "sha256": "b7202481a36e3f7886b9717e7ec9468d11112a8499f4f82b283cd4c40f21de26"
+    },
+    "campaign-01/reference-state/lights-one/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-one/1/stdout.log": {
+      "bytes": 4766,
+      "sha256": "2d4b742de2e8f7c85d4bfcacadca7f1fe2d764eab55ef032d1d8fcedbb20cac0"
+    },
+    "campaign-01/reference-state/lights-one/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-one/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-one/2/cache/pipelinecache.zdpc": {
+      "bytes": 1070965,
+      "sha256": "6934e30e848655fb66c9783725c0032b2466dc266f88666943127414de2a029a"
+    },
+    "campaign-01/reference-state/lights-one/2/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "657eb86c1f84043688203046a2330a6ff874e33e4c46b84be7871e21b59df1b4"
+    },
+    "campaign-01/reference-state/lights-one/2/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "90cb7c3b661de452b023bcb68e800ed6670e91381051bef178a2ac94b7f9b442"
+    },
+    "campaign-01/reference-state/lights-one/2/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "aa6f3a323ae574bacf4b7b5b440aecc3f51bed14ad593598fede3d494476b0ab"
+    },
+    "campaign-01/reference-state/lights-one/2/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "4bc2f82f6dc7aba32dc12e0aa77c1cb7703b8131cff821706aef44824775ba42"
+    },
+    "campaign-01/reference-state/lights-one/2/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-one/2/input/scene.pk3": {
+      "bytes": 70231,
+      "sha256": "a3b2a10522a5402613b8ac14dbb2de6a4800b416820e0619e2b429b4d80f2b18"
+    },
+    "campaign-01/reference-state/lights-one/2/native.png": {
+      "bytes": 73026,
+      "sha256": "0f1ab1e0a29198514478a8e6f9f37ffac9d6d0c22cdc86e182d4d80b7a4e37ed"
+    },
+    "campaign-01/reference-state/lights-one/2/native.renderer.json": {
+      "bytes": 83183,
+      "sha256": "c7ed3bdc7ddcb8501f167ff7cf824ff8ac57fda229d7ce5ae8e2c33b04b53d35"
+    },
+    "campaign-01/reference-state/lights-one/2/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-one/2/recipe.json": {
+      "bytes": 8250,
+      "sha256": "d5128d8df62445326be140c7361e29eb7aa2424ab1d9d1a6d026b205f39d3436"
+    },
+    "campaign-01/reference-state/lights-one/2/request.json": {
+      "bytes": 7138,
+      "sha256": "86cc32921bf811336a44a950c78cebf6e6d832e5d0b38ef8a42d632ecf1fe0f8"
+    },
+    "campaign-01/reference-state/lights-one/2/run.json": {
+      "bytes": 9424,
+      "sha256": "cf7cfe71ed8147e40727207498cd2bcd0c869f60d2012cfc4e135a87fe0ea707"
+    },
+    "campaign-01/reference-state/lights-one/2/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-one/2/stdout.log": {
+      "bytes": 4766,
+      "sha256": "13aba1ee1635e18b973f0cb6bed01b347a86622b3d94bba6666c1a3303b04065"
+    },
+    "campaign-01/reference-state/lights-one/2/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-one/2/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-zero/1/cache/pipelinecache.zdpc": {
+      "bytes": 1041206,
+      "sha256": "a0c86bd91b1e09cfc965c48557c6694ff3792ccd7bc7a610dc73f1bf0cad9a60"
+    },
+    "campaign-01/reference-state/lights-zero/1/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "aa51f27a1da03a374ad9128e327f82feabc04074e3531c43c6af4f976b36e6ff"
+    },
+    "campaign-01/reference-state/lights-zero/1/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/reference-state/lights-zero/1/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "5e4288a423e11d9612931994180dbe3d2309cedeeea8a239100a854e1a53237b"
+    },
+    "campaign-01/reference-state/lights-zero/1/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/reference-state/lights-zero/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-zero/1/input/scene.pk3": {
+      "bytes": 69940,
+      "sha256": "3da443f441178403c402c444e0aed7e4bd00b110ebf013533f24815b392fd5d6"
+    },
+    "campaign-01/reference-state/lights-zero/1/native.png": {
+      "bytes": 50726,
+      "sha256": "82c6198618460c613349fad19938988a0f5bc6a3f1ba1dc6332b1fa5963170aa"
+    },
+    "campaign-01/reference-state/lights-zero/1/native.renderer.json": {
+      "bytes": 75677,
+      "sha256": "c36dedab39b2cd48e4247150be2bc4fd76f61f243b2a0c5759d4bb3e1b5aa682"
+    },
+    "campaign-01/reference-state/lights-zero/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-zero/1/recipe.json": {
+      "bytes": 8180,
+      "sha256": "b45e7544cc845ee3905945c98081461c648078021cbd99fdc80e90e6d53972d2"
+    },
+    "campaign-01/reference-state/lights-zero/1/request.json": {
+      "bytes": 7151,
+      "sha256": "5cebfc2983c8221335ed8029aac20543dcf0421382ea2077f445a398fe86baca"
+    },
+    "campaign-01/reference-state/lights-zero/1/run.json": {
+      "bytes": 9409,
+      "sha256": "3daab441f934bc03e22a045896ab44369e05793d11d2afea7a14b731a3cfaf00"
+    },
+    "campaign-01/reference-state/lights-zero/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-zero/1/stdout.log": {
+      "bytes": 4771,
+      "sha256": "e9b028b0e5bb9c54c5e0272daa3b8470a5d1a972c726e23f9c2e43d0fc7f4519"
+    },
+    "campaign-01/reference-state/lights-zero/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-zero/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/lights-zero/2/cache/pipelinecache.zdpc": {
+      "bytes": 1041206,
+      "sha256": "a0c86bd91b1e09cfc965c48557c6694ff3792ccd7bc7a610dc73f1bf0cad9a60"
+    },
+    "campaign-01/reference-state/lights-zero/2/cache/shadercache.zdsc": {
+      "bytes": 1124532,
+      "sha256": "f18dcde204a97f58cd8c70662d6abfe2f7bb08676283f553fbf00e3e84d6b144"
+    },
+    "campaign-01/reference-state/lights-zero/2/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "fb22a2d056ebc5fb624cf8698f0af80a7c1a332c6839d09553221ae0267e6a56"
+    },
+    "campaign-01/reference-state/lights-zero/2/fixture.ini": {
+      "bytes": 15852,
+      "sha256": "15d1a76c8fb684cdc0dfb7564fa36173895830c83a9e5f28b2f4aac4957fd2b2"
+    },
+    "campaign-01/reference-state/lights-zero/2/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "132aa151ca52d1cd82e8a0f3d3f714481ae8410979104e6a215ef9058b577c73"
+    },
+    "campaign-01/reference-state/lights-zero/2/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/lights-zero/2/input/scene.pk3": {
+      "bytes": 69940,
+      "sha256": "3da443f441178403c402c444e0aed7e4bd00b110ebf013533f24815b392fd5d6"
+    },
+    "campaign-01/reference-state/lights-zero/2/native.png": {
+      "bytes": 50726,
+      "sha256": "82c6198618460c613349fad19938988a0f5bc6a3f1ba1dc6332b1fa5963170aa"
+    },
+    "campaign-01/reference-state/lights-zero/2/native.renderer.json": {
+      "bytes": 75639,
+      "sha256": "0c9fe4581e5cfe7d3fada89435f1264f2a1d1a708515b517013af10885f0a8bd"
+    },
+    "campaign-01/reference-state/lights-zero/2/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/lights-zero/2/recipe.json": {
+      "bytes": 8180,
+      "sha256": "b45e7544cc845ee3905945c98081461c648078021cbd99fdc80e90e6d53972d2"
+    },
+    "campaign-01/reference-state/lights-zero/2/request.json": {
+      "bytes": 7151,
+      "sha256": "e9ffb9c5b920ac2242446c8211de1b7fc9d2588586030a61a5ad77fb6cba5469"
+    },
+    "campaign-01/reference-state/lights-zero/2/run.json": {
+      "bytes": 9409,
+      "sha256": "daef0c1037bee28710ddd6d7f72bad605e3a18e84794e89c4dfb0425b8253e7c"
+    },
+    "campaign-01/reference-state/lights-zero/2/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-zero/2/stdout.log": {
+      "bytes": 4771,
+      "sha256": "092535627ace8c8185a41ad7961c9232440d339ff45623d96ae59dfb76a4852f"
+    },
+    "campaign-01/reference-state/lights-zero/2/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/lights-zero/2/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/capture.cfg": {
+      "bytes": 1306,
+      "sha256": "51da6967380238796b862dc5032fd5cd359070bde1d317c6a601ae41a29b30d6"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/fixture.ini": {
+      "bytes": 725,
+      "sha256": "aa711a2493aba461401a71ac527f50221e58287203a83e7d90f05782ebe42e5c"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/input/fixture.ini": {
+      "bytes": 725,
+      "sha256": "aa711a2493aba461401a71ac527f50221e58287203a83e7d90f05782ebe42e5c"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/input/freedoom2.wad": {
+      "bytes": 28787748,
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/input/scene.pk3": {
+      "bytes": 370067,
+      "sha256": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/prepared.json": {
+      "bytes": 196084,
+      "sha256": "220fdc601acf0c1174a5429f96b306362b344661337cc57051f473925be7fdda"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/recipe.json": {
+      "bytes": 8607,
+      "sha256": "bf53e2d6a6d1465c8d7a2cd105031c06540d64c67aff419ecb2e118bf1a103f3"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/request.json": {
+      "bytes": 7206,
+      "sha256": "ebf8177ab9fda130f7a9dfc15d0383c1d5cbb894fa9d7a3ccfdd47a30e622ab0"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/run.json": {
+      "bytes": 2304,
+      "sha256": "cedcaf00e35ae4048fc4bbfd1e76b11e27aa790c041cd15c0f7501ffa02dff27"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/stdout.log": {
+      "bytes": 7869,
+      "sha256": "b2189b5470ca7c8d870c3d1d0aea1ac6e29ff2f12d829e8124f1c6e5ed8fb4c4"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/version-stderr.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "campaign-01/reference-state/shadow-boundary/1/version.txt": {
+      "bytes": 257,
+      "sha256": "f34f3cdde36f46c66df5297da03aa54ab6356a81b1b726c07cce9b0c5c51f418"
+    },
+    "campaign-01/sdvk009-physical-campaign.json": {
+      "bytes": 214764,
+      "sha256": "a81bbf900f222d2f3f435618e54f62fbbcca3cac0730c4ba9b1f2e3f33251678"
+    },
+    "preregistration.json": {
+      "bytes": 1490,
+      "sha256": "f0254f8c08014196164b624546400d77fe2521af9781b48440b7cad45acf49a8"
+    },
+    "supervisor-01/request.json": {
+      "bytes": 721,
+      "sha256": "148432f91b584d35f89bb80f89e2c8a0628783f69ac1aea641f0bb602f582203"
+    },
+    "supervisor-01/stderr.log": {
+      "bytes": 123,
+      "sha256": "372eb0f9ed85ef3c91ae75fcf38cc674981aa2762aef23bb1c378cab7db0ce1a"
+    },
+    "supervisor-01/stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "supervisor-01/supervisor.json": {
+      "bytes": 1497,
+      "sha256": "528f4725c23fc8ac840ad2e32d60de0e0148d4c96621422d731809b32f07a4c2"
+    },
+    "supervisor-01/telemetry-preflight.csv": {
+      "bytes": 136,
+      "sha256": "907eddbdcada212872cc2c0f5a40b87bb4e0845ab94dcb0fa6aade9fc6d60639"
+    },
+    "supervisor-01/telemetry.csv": {
+      "bytes": 19119,
+      "sha256": "abd03b7400fd13abecb1f5ab9fe69c1a741e328188faaf15bd08ab335076ae6a"
+    },
+    "tooling.json": {
+      "bytes": 498,
+      "sha256": "293c457cd8013056f54c9a357e40b62ee7cf9b37d4861e3bfc9cf419e4eb064e"
+    }
+  }
+}

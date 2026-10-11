@@ -1,0 +1,175 @@
+OS: Windows 11 (or higher) (NT 10.0) Build 26200
+    
+ShadeDoomVK 0.1.0-dev
+Commit: 0a2fbad203549d18ac6e5a61bb4747709637bfde
+Working tree: clean
+Git description: 0a2fbad20
+VKDoom lineage: nashmuhandes/VkDoom@09634479ab5bf9adf691074fffe85a006a398cd0
+PF-020 freeze: e185e60b04fe37ec84a18c5a85eec6722b541b71
+D_DoomInit: Static RNGseed 2002 set.
+W_Init: Init WADfiles.
+adding C:/ShadeDoomVK/campaign-builds/sdvk009/RelWithDebInfo/vkdoom.pk3, 718 lumps
+adding C:/ShadeDoomVK/campaign-builds/sdvk009/RelWithDebInfo/game_support.pk3, 3308 lumps
+adding C:/ShadeDoomVK/physical-evidence/20261011/SDVK009/gtx1650super/frozen-v1/campaign-01/reference-state/shadow-boundary/1/input/freedoom2.wad, 3610 lumps
+adding C:/ShadeDoomVK/campaign-builds/sdvk009/RelWithDebInfo/lights.pk3, 7 lumps
+adding C:/ShadeDoomVK/campaign-builds/sdvk009/RelWithDebInfo/brightmaps.pk3, 499 lumps
+adding C:/ShadeDoomVK/campaign-builds/sdvk009/RelWithDebInfo/game_widescreen_gfx.pk3, 214 lumps
+adding C:/ShadeDoomVK/physical-evidence/20261011/SDVK009/gtx1650super/frozen-v1/campaign-01/reference-state/shadow-boundary/1/input/scene.pk3, 7 lumps
+I_InitInput
+I_StartupMouse
+I_StartupKeyboard
+I_StartupXInput
+I_StartupRawPS2
+I_StartupDirectInputJoystick
+Vulkan device: NVIDIA GeForce GTX 1650 SUPER
+Vulkan device type: discrete gpu
+Vulkan version: 1.4.351 (api) 616.368.0 (driver)
+Resolution: 1520 x 825
+S_Init: Setting up sound.
+"cl_capfps" is "false" (default: "false")
+"crosshair" is "0" (default: "1")
+"gl_bloom" is "false" (default: "false")
+"gl_customshader" is "true" (default: "true")
+"gl_fxaa" is "0" (default: "0")
+"gl_lens" is "false" (default: "false")
+"gl_levelmesh" is "false" (default: "false")
+"gl_light_shadow_filter" is "1" (default: "1")
+"gl_light_shadow_max_quality" is "1" (default: "1")
+"gl_light_shadows" is "2" (default: "1")
+"gl_light_sprites" is "true" (default: "true")
+"gl_lightprobe" is "false" (default: "true")
+"gl_lights" is "true" (default: "true")
+"gl_multisample" is "0" (default: "4")
+"gl_shadowmap_quality" is "128" (default: "512")
+"gl_spritelight" is "2" (default: "-1")
+"gl_ssao" is "0" (default: "0")
+changes the texture filtering settings
+"gl_texture_filter" is "0" (default: "6")
+changes the texture anisotropy setting
+"gl_texture_filter_anisotropic" is "1" (default: "0")
+"gl_tonemap" is "0" (default: "0")
+"gl_ubershaders" is "false" (default: "true")
+"lm_dynlights" is "false" (default: "false")
+"r_drawplayersprites" is "false" (default: "true")
+"screenblocks" is "12" (default: "10")
+"screenshot_type" is "png" (default: "png")
+enables input from the joystick if it is present
+"use_joystick" is "false" (default: "false")
+"use_mouse" is "false" (default: "true")
+adjusts brightness component of gamma ramp
+"vid_brightness" is "0" (default: "0")
+adjusts contrast component of gamma ramp
+"vid_contrast" is "1" (default: "1")
+"vid_fullscreen" is "false" (default: "true")
+adjusts gamma component of gamma ramp
+"vid_gamma" is "1" (default: "1")
+"vid_maxfps" is "0" (default: "500")
+"vid_rendermode" is "4" (default: "4")
+"vid_vsync" is "false" (default: "false")
+"vk_rayquery" is "false" (default: "true")
+I_Init: Setting up machine state.
+CPU speed: 3600 MHz
+CPU Vendor ID: AuthenticAMD
+  Name: AMD Ryzen 5 2600X Six-Core Processor 
+  Family 23 (23), Model 8, Stepping 2
+  Features: SSE2 SSE3 SSSE3 SSE4.1 SSE4.2 AVX AVX2 F16C FMA3 BMI1 BMI2 HyperThreading
+V_Init: allocate screen.
+ST_Init: Init startup screen.
+Checking cmd-line parameters...
+S_InitData: Load sound definitions.
+G_ParseMapInfo: Load map definitions.
+Texman.Init: Init texture manager.
+ParseTeamInfo: Load team definitions.
+LoadActors: Load actor definitions.
+script parsing took 558.26 ms
+R_Init: Init Doom refresh subsystem.
+DecalLibrary: Load decals.
+Adding dehacked patch freedoom2.wad:DEHACKED
+Patch installed
+M_Init: Init menus.
+P_Init: Init Playloop state.
+ParseSBarInfo: Loading custom status bar definition.
+===========================================================================
+This is Freedoom, the free content first person shooter.
+
+Freedoom is freely redistributable under the terms of the modified BSD
+license. Check out the Freedoom website for more information:
+
+    https://freedoom.github.io/
+============================================================================
+D_CheckNetGame: Checking network game status.
+player 1 of 1 (1 nodes)
+
+----------------------------------------
+
+SDVSHDW - SDVK shadow-boundary
+
+SDVK observation armed: state frames=1 warmup=120; C:/ShadeDoomVK/physical-evidence/20261011/SDVK009/gtx1650super/frozen-v1/campaign-01/reference-state/shadow-boundary/1/native.renderer.json
+[fault] type=4 address=0x20014f5d0 precision=16
+[fault] type=4 address=0x200150b20 precision=16
+[fault] type=4 address=0x20014f560 precision=16
+[fault] type=4 address=0x200152420 precision=16
+[fault] type=4 address=0x200151f40 precision=16
+[fault] type=4 address=0x20014fab0 precision=16
+[fault] type=4 address=0x200150690 precision=16
+[fault] type=4 address=0x20014f860 precision=16
+[fault] type=4 address=0x200150c30 precision=16
+[fault] type=4 address=0x20014f5f0 precision=16
+[fault] type=4 address=0x20014fed0 precision=16
+[fault] type=4 address=0x20014fd40 precision=16
+[fault] type=4 address=0x2001523d0 precision=16
+[fault] type=4 address=0x20014f9d0 precision=16
+[fault] type=4 address=0x200151560 precision=16
+[fault] type=4 address=0x200150e70 precision=16
+[fault] type=4 address=0x200150ae0 precision=16
+[fault] type=4 address=0x20014fc40 precision=16
+[fault] type=4 address=0x20014f840 precision=16
+[fault] type=4 address=0x200151620 precision=16
+[fault] type=4 address=0x2001503f0 precision=16
+[fault] type=4 address=0x20014f6c0 precision=16
+[fault] type=4 address=0x200151710 precision=16
+[fault] type=4 address=0x200151440 precision=16
+[fault] type=4 address=0x2001508d0 precision=16
+[fault] type=4 address=0x200151400 precision=16
+[fault] type=4 address=0x20014f770 precision=16
+[fault] type=4 address=0x200151bb0 precision=16
+[fault] type=4 address=0x200150070 precision=16
+[fault] type=4 address=0x200151530 precision=16
+[fault] type=4 address=0x200152700 precision=16
+[fault] type=4 address=0x200152670 precision=16
+[fault] type=4 address=0x200151b30 precision=16
+[fault] type=4 address=0x200151d10 precision=16
+[fault] type=4 address=0x200150c00 precision=16
+[fault] type=4 address=0x20014f750 precision=16
+[fault] type=4 address=0x200150680 precision=16
+[fault] type=4 address=0x20014fa90 precision=16
+[fault] type=4 address=0x2001523a0 precision=16
+[fault] type=4 address=0x200150190 precision=16
+[fault] type=4 address=0x200151260 precision=16
+[fault] type=4 address=0x200151a50 precision=16
+[fault] type=4 address=0x20014fad0 precision=16
+[fault] type=4 address=0x2001518c0 precision=16
+[fault] type=4 address=0x200151070 precision=16
+[fault] type=4 address=0x200144ca0 precision=16
+[fault] type=4 address=0x20014fa50 precision=16
+[fault] type=4 address=0x200151350 precision=16
+[fault] type=4 address=0x200144b90 precision=16
+[fault] type=4 address=0x200151c10 precision=16
+[fault] type=4 address=0x20014f9b0 precision=16
+[fault] type=4 address=0x200152060 precision=16
+[fault] type=4 address=0x200151990 precision=16
+[fault] type=4 address=0x20014f700 precision=16
+[fault] type=4 address=0x200152a40 precision=16
+[fault] type=4 address=0x2001528f0 precision=16
+[fault] type=4 address=0x20014fe40 precision=16
+[fault] type=4 address=0x200151230 precision=16
+[fault] type=4 address=0x2001530a0 precision=16
+[fault] type=4 address=0x20014fc10 precision=16
+[fault] type=4 address=0x200151980 precision=16
+[fault] type=4 address=0x2001514f0 precision=16
+[fault] type=4 address=0x2001501b0 precision=16
+[fault] type=4 address=0x2001504a0 precision=16
+[fault] type=4 address=0x2001526d0 precision=16
+[fault] type=4 address=0x2001519e0 precision=16
+[fault] type=4 address=0x200150960 precision=16
+[fault] type=4 address=0x2001502e0 precision=16
