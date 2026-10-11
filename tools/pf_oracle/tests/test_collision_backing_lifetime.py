@@ -283,8 +283,10 @@ def build_program(directory, repaired, mode):
     uploader = block((ROOT/'src/common/rendering/vulkan/vk_levelmesh.cpp').read_text(),
         'void VkLevelMeshUploader::UploadRanges(').replace('void VkLevelMeshUploader::UploadRanges(', 'void UploadRanges(')
     uploader = 'template<typename T>\n'+uploader.replace('VulkanBuffer* destbuffer', 'void* destbuffer')
-    warning_start = '\n#ifdef _MSC_VER\n#pragma warning(push)\n#pragma warning(disable: 4189 4458 4018 4267 4244 4127)\n#endif\n'
-    warning_end = '\n#ifdef _MSC_VER\n#pragma warning(pop)\n#endif\n'
+    # Exact legacy production source has unused subdivision locals and mixed
+    # signed/count comparisons. Match the existing extracted collision fixtures.
+    warning_start = '\n#ifdef _MSC_VER\n#pragma warning(push)\n#pragma warning(disable: 4189 4458 4018 4267 4244 4127)\n#else\n#pragma GCC diagnostic push\n#pragma GCC diagnostic ignored "-Wunused-variable"\n#pragma GCC diagnostic ignored "-Wsign-compare"\n#endif\n'
+    warning_end = '\n#ifdef _MSC_VER\n#pragma warning(pop)\n#else\n#pragma GCC diagnostic pop\n#endif\n'
     unit = directory/f'{mode}-{int(repaired)}.cpp'
     unit.write_text(warning_start+vectors+backing+flat+declarations+MESH+mesh_functions+uploader+functions+
         warning_end+(POINTER_MAIN if mode=='pointer' else RESET_MAIN))
