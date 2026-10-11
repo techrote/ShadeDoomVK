@@ -131,7 +131,7 @@ SDVEA0`. Its emitted renderer identity is
 `44f7b52280315889321788ab74f48c9f02bcfeab`; native observation SHA-256 is
 `4457fef11ee2633424d98294ded1c78f46841202e65cb16216b640244132d6a2`.
 The renderer exited successfully, but the run remains an oracle **FAIL**.
-The original 80-file control archive remains retained separately, ZIP SHA-256
+The original 80-file control archive remains retained separately, tar.xz SHA-256
 `7eabb8a61afbd0e08456ac368a350e35bc2c5ffea017fd5c13677e2b2e97cab5`.
 An unmodified copy of its SDVEA0 material record is retained as a CPU negative
 fixture; it reproduces the old semantic assertion failure. No old packet is
@@ -228,3 +228,24 @@ inventory passes. Its lossless archive SHA-256 is
 See [the bounded failure receipt](evidence/sdvk008-software-repeat-failure-20261011.json).
 No generation/epoch normalization, image tolerance change, retry or acceptance
 is authorized by this observation. Source/bootstrap investigation is pending.
+
+Bootstrap revision `sdvk008-no-startup-v1` adds the existing `-nostartup`
+argument to all 25 SDVK-008 recipes, including the inherited mirror family.
+`GetGameStartScreen` in `src/common/startscreen/startscreen.cpp` returns null
+with that argument before startup texture construction. Otherwise its adaptive
+wall-clock progress rendering can recreate the generic 1280×960 RGBA startup
+bitmap: `FGenericStartScreen::DoProgress` calls `CleanHardwareData(true)`,
+which destroys `VkHardwareTexture` and frees its material descriptors;
+`VkTextureManager::RemoveTexture` advances the texture epoch. One such extra
+upload is 4,915,200 bytes, exactly the retained attempt delta, followed by the
+extra slot reuse observed in the floor material. This is a source-supported
+bootstrap repair; a new hosted run must still demonstrate repeatability.
+
+Preparation requires exactly one `-nostartup`; capture and retained-packet
+validation authenticate the actual argv for revisioned recipes. The revision
+is retained in each recipe and the campaign receipt. A CPU fixture compiles the
+actual production factory gate and proves the flag bypasses every startup
+screen factory while the unflagged controls still construct their respective
+screens. All 25 authored PK3 identities remain unchanged. Renderer source,
+generation/epoch comparison, image oracles and every acceptance gate remain
+unchanged; the earlier failed packet remains **FAIL**.

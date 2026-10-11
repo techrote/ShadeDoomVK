@@ -451,6 +451,7 @@ def campaign(args):
         "default_policy": "OFF; SDVK-016 owns final tiers/defaults"}
     try:
         contract = fixture_contract()
+        receipt["bootstrap_revision"] = getattr(contract, "BOOTSTRAP_REVISION", None)
         receipt["missing_gates"] = list(contract.MISSING_GATES)
         receipt["tooling_files"] = [pin(path) for path in
             (Path(__file__), Path(contract.__file__) if hasattr(contract, "__file__") else Path(__file__),

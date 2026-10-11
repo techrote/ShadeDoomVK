@@ -10,6 +10,14 @@ import copy
 
 FIXTURE_REVISION = "sdvk008-camera-bam-v2"
 MATERIAL_ASSERTION_REVISION = "sdvk008-material-bindings-v3"
+BOOTSTRAP_REVISION = "sdvk008-no-startup-v1"
+
+
+def validate_bootstrap(native: dict) -> None:
+    if native.get("bootstrap_revision") != BOOTSTRAP_REVISION:
+        raise ValueError("SDVK-008 bootstrap revision differs")
+    if native.get("argv", []).count("-nostartup") != 1:
+        raise ValueError("SDVK-008 requires exactly one -nostartup before initialization")
 
 
 def canonical_view_angle(degrees: int) -> float:

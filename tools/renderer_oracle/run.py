@@ -210,6 +210,14 @@ def version_identity(stdout):
     return commits[0], states[0]
 
 
+def validate_bootstrap_argv(native, argv):
+    # Older sealed recipes have no bootstrap revision and remain reviewable.
+    if "bootstrap_revision" in native:
+        from tools.renderer_oracle.sdvk008_fixtures import validate_bootstrap
+        validate_bootstrap(native)
+        require(argv.count("-nostartup") == 1, "Native argv differs from the declared no-startup bootstrap")
+
+
 def capture(args):
     prepared_dir, prepared, scene = prepared_scene(args.prepared, args.scene)
     native = scene["native"]
@@ -295,6 +303,7 @@ def capture(args):
                          "pk3": str(out / "input" / "scene.pk3"), "config": str(out / "fixture.ini"),
                          "capture_script": str(out / "capture.cfg")}
         argv = apply_extent([part.format(**substitutions) for part in native["argv"]], extent)
+        validate_bootstrap_argv(native, argv)
         argv += ["-savedir", str(out / "save"), "-sdvkobserve", prefix,
                  "-sdvkobserveframes", str(frames), "-sdvkobservewarmup", str(warmup),
                  "-sdvkobservemode", mode, "-sdvkobservecache", _console_path(out / "cache"), "-sdvkobservequit"]
@@ -650,6 +659,7 @@ def _validate_run(path):
     raw = read_json(root / "native.renderer.json")
     request = read_json(root / "request.json")
     scene = read_json(root / "recipe.json")
+    validate_bootstrap_argv(scene["native"], request["argv"])
     require(request.get("schema") == "sdvk-renderer-request/v1" and request.get("automatic_retries") == 0,
             "Unknown or retried capture request")
     require(request.get("reproduction") == data.get("reproduction"), "Run profile differs from its preregistration")

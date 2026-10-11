@@ -145,11 +145,12 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
         if native.get("generator") not in GENERATORS:
             raise ValueError(f"Unknown generator for {name}")
         if native.get("generator") == "sprite_relief":
-            from tools.renderer_oracle.sdvk008_fixtures import FAMILIES, validate_camera, validate_material_assertions
+            from tools.renderer_oracle.sdvk008_fixtures import FAMILIES, validate_camera, validate_material_assertions, validate_bootstrap
             if native.get("relief_family") not in FAMILIES:
                 raise ValueError("Unknown SDVK-008 relief family")
             validate_camera(native)
             validate_material_assertions(native)
+            validate_bootstrap(native)
         if not re.fullmatch(r"[A-Z0-9_]{1,8}", native.get("map", "")):
             raise ValueError(f"Invalid map name for {name}")
         for key, leaf in (("pk3", "scene.pk3"), ("config", "fixture.ini"), ("capture_script", "capture.cfg")):

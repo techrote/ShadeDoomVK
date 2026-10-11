@@ -8,7 +8,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools.renderer_oracle import prepare, sdvk008_fixtures as fixtures
+from tools.renderer_oracle import prepare, run, sdvk008_fixtures as fixtures
 from tools.renderer_oracle.tests.test_corpus import unpack_png, unpack_wad, parse_udmf
 from tools.pf_oracle import fixture_runner
 
@@ -36,6 +36,67 @@ class PhysicalFixtureTests(unittest.TestCase):
             for key in ("gl_sprite_relief_depth","gl_sprite_relief_quality"):
                 x.pop(key,None);y.pop(key,None)
             self.assertEqual(x,y)
+
+    def test_every_relief_recipe_requires_authenticated_no_startup_bootstrap(self):
+        scenes=[s for s in self.scenes.values() if s['native']['generator']=='sprite_relief']
+        self.assertEqual(len(scenes),25)
+        for scene in scenes:
+            native=scene['native']
+            self.assertEqual(native['bootstrap_revision'],fixtures.BOOTSTRAP_REVISION)
+            fixtures.validate_bootstrap(native)
+            run.validate_bootstrap_argv(native,native['argv'])
+            self.assertIn('src/common/startscreen/startscreen.cpp',scene['source_refs'])
+        for flag_count in (0,2):
+            altered=copy.deepcopy(self.catalog)
+            native=next(s for s in altered['scenes'] if s['id']=='sdvk008-mirror-on')['native']
+            native['argv']=[arg for arg in native['argv'] if arg!='-nostartup']+['-nostartup']*flag_count
+            with self.assertRaisesRegex(ValueError,'exactly one -nostartup'):
+                prepare.validate_catalog(altered)
+        native=self.scenes['sdvk008-s0']['native']
+        with self.assertRaisesRegex(ValueError,'Native argv'):
+            run.validate_bootstrap_argv(native,[arg for arg in native['argv'] if arg!='-nostartup'])
+        # A previously sealed recipe remains independently reviewable.
+        run.validate_bootstrap_argv({},[])
+
+    def test_production_no_startup_gate_bypasses_every_start_screen_factory(self):
+        root=Path(__file__).resolve().parents[3]
+        source=(root/'src/common/startscreen/startscreen.cpp').read_text()
+        gate=source[source.index('FStartScreen* GetGameStartScreen(int max_progress)'):
+                    source.index('FStartScreen::~FStartScreen()')].strip()
+        stubs=r'''
+#include <cassert>
+#include <cstring>
+struct FStartScreen {} screen;
+struct FStartupInfo { enum { Generic, HexenStartup, HereticStartup, StrifeStartup }; };
+struct { int Type; } GameStartupInfo;
+struct Arguments { bool disabled; int CheckParm(const char* name) { return disabled && std::strcmp(name, "-nostartup") == 0 ? 1 : 0; } } arguments;
+Arguments* Args = &arguments;
+struct CRecoverableError { const char* what() const { return "stub"; } };
+void Printf(const char*, const char*) {}
+int factories[4] = {};
+FStartScreen* CreateGenericStartScreen(int) { ++factories[0]; return &screen; }
+FStartScreen* CreateHexenStartScreen(int) { ++factories[1]; return &screen; }
+FStartScreen* CreateHereticStartScreen(int) { ++factories[2]; return &screen; }
+FStartScreen* CreateStrifeStartScreen(int) { ++factories[3]; return &screen; }
+'''
+        checks=r'''
+int main() {
+    for (int type = 0; type < 4; ++type) {
+        GameStartupInfo.Type = type;
+        arguments.disabled = true;
+        assert(GetGameStartScreen(100) == nullptr);
+        for (int calls : factories) assert(calls == 0);
+        arguments.disabled = false;
+        assert(GetGameStartScreen(100) == &screen);
+        assert(factories[type] == 1);
+        factories[type] = 0;
+    }
+}
+'''
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'no_startup_gate.cpp'
+            path.write_text(stubs+gate+checks)
+            fixture_runner.run_fixture(path,root=root,capture_output=True)
 
     def test_bam_revision_preserves_all_original_authored_pk3_bytes(self):
         # Package identities at 44923b9bd, retained before separating
