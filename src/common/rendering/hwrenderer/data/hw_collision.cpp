@@ -58,7 +58,8 @@ TraceHit CPUAccelStruct::FindFirstHit(const FVector3& rayStart, const FVector3& 
 {
 	RayBBox ray(rayStart, rayEnd);
 	TraceHit hit;
-	FindFirstHit(ray, TLAS.Root, &hit);
+	if (TLAS.Root != -1)
+		FindFirstHit(ray, TLAS.Root, &hit);
 	return hit;
 }
 
@@ -172,6 +173,17 @@ void CPUAccelStruct::Upload()
 			count += (unsigned int)blas->GetNodes().size();
 		}
 	}
+	if (count == 0)
+	{
+		// A zero-length dirty range is discarded. Publish the empty root header
+		// through one initialized storage-only node, never reachable from -1.
+		if (Mesh->Mesh.Nodes.Size() == 0)
+			Mesh->Mesh.Nodes.Resize(1);
+		CollisionNode emptyNode = {};
+		emptyNode.left = emptyNode.right = emptyNode.element_index = -1;
+		Mesh->Mesh.Nodes[0] = emptyNode;
+		count = 1;
+	}
 
 	if (Mesh->Mesh.Nodes.Size() < count)
 	{
@@ -204,8 +216,9 @@ void CPUAccelStruct::Upload()
 				info.element_index = node.element_index != -1 ? indexStart + node.element_index : -1;
 				offset++;
 			}
-			instance++;
 		}
+		// Null slots still own their original index partition and TLAS identity.
+		instance++;
 	}
 
 	// A single-instance TLAS has no parent whose child link can be redirected.
@@ -258,18 +271,14 @@ void CPUAccelStruct::CreateTLAS()
 	Scratch.leafs.clear();
 	Scratch.leafs.reserve(InstanceCount);
 	Scratch.centroids.clear();
-	Scratch.centroids.reserve(DynamicBLAS.size());
+	// Subdivide addresses centroids by original BLAS slot, including holes.
+	Scratch.centroids.resize(InstanceCount, FVector4(0.0f, 0.0f, 0.0f, 0.0f));
 	for (int i = 0; i < InstanceCount; i++)
 	{
 		if (DynamicBLAS[i])
 		{
 			Scratch.leafs.push_back(i);
-			Scratch.centroids.push_back(FVector4(DynamicBLAS[i]->GetBBox().Center, 1.0f));
-		}
-		else
-		{
-			Scratch.leafs.push_back(0);
-			Scratch.centroids.push_back(FVector4(-1000000.0f, -1000000.0f, -1000000.0f, 1.0f));
+			Scratch.centroids[i] = FVector4(DynamicBLAS[i]->GetBBox().Center, 1.0f);
 		}
 	}
 

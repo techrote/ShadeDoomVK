@@ -158,8 +158,108 @@ checksum inventory. The original worktree copy remains available under
 reproduction against its unchanged source. Neither location is a claim of durable
 remote evidence storage.
 
-Sparse/null BLAS slot export and TLAS membership observations 1 and 2 remain
-separate unresolved follow-ons. The frozen failed capture has no native collision
+Sparse/null BLAS slot export and TLAS membership observations 1 and 2 were
+subsequently reproduced independently below. The frozen failed capture has no native collision
 state proving degenerate holes occurred. This repair does **not** establish
 physical fault causality or resolution, does not permit a hardware retry, and
 does not lift the host STOP. #9 remains open and physically inconclusive.
+
+## Confirmed sparse BLAS slot and empty traversal repair candidate
+
+After the separate post-reboot `a7c5df6f7a3c529cb2d8f659dade79f45e2dfdaa`
+physical diagnostic also failed on its first shadow-boundary process, a CPU-only
+investigation executed that exact source's `CreateTLAS`, `Subdivide`, `Upload`
+and public `FindFirstHit` wrapper. This isolated repair starts at that revision;
+neither physical packet is modified. No renderer or GPU is launched by the
+reproduction. Neither failure completed native collision state, so the presence
+of sparse BLAS slots in either failed scene remains unestablished.
+
+The exact pre-fix functions and original license are retained in
+`tools/pf_oracle/tests/fixtures/collision_sparse_slots_pre_fix.cpp`;
+`collision_sparse_slots_evidence.json` pins their normalized source/function
+SHA-256 values and original logical-check results. Checked BLAS handles and
+containers throw before null/out-of-range dereferences. Graph walkers reject
+invalid links, cycles, duplicate membership and wrong original triangle offsets.
+The subdivision algorithm itself is unmodified and uninstrumented.
+
+| Original BLAS slots | Pre-fix TLAS construction | Independent pre-fix export |
+|---|---|---|
+| `[live,live,live]` | Correct identities/centroids | Complete correct graph |
+| `[null,live,live]` | Stops before dereferencing null slot 0 | Four wrong leaf element offsets; graph cycle/alias |
+| `[live,null,live]` | Duplicates slot 0; omits slot 2 | Two wrong leaf element offsets; graph cycle/alias |
+| `[null,null,null]` | Stops before dereferencing null slot 0 | Explicit empty graph when independently supplied |
+| `[live,live,null]` | Duplicates slot 0 | Complete correct graph when independently supplied |
+| Zero occupied slots | Empty root -1 | Empty root -1 |
+| `[null,null,live]` | Stops before dereferencing null slot 0 | Two wrong leaf element offsets; invalid graph |
+
+Each live test BLAS has a nonzero root and two distinct original element
+offsets. Export is tested both with production-built TLAS membership and with
+an independently constructed valid TLAS, separating the two defects. Wrong
+copied element offsets are counted before graph traversal, so a bad graph cannot
+mask that independent failure. Five allocated BLAS slots include unused trailing
+capacity; reused centroid capacity is poisoned before construction.
+
+The minimal repair advances the export slot counter for every slot, including
+null entries; only live original slot IDs enter TLAS subdivision; centroid
+storage retains the original occupied slot extent and writes each live slot at
+its own index. Skipped centroid entries are zero and never selected. BLAS
+triangle identities, slot partition size, bounds, subdivision/splitting,
+traversal of nonempty trees, workloads and quality settings are preserved.
+No donor code is imported. No-hole TLAS/export snapshots, including bounds,
+root links and original triangle offsets, must equal the retained pre-fix graph.
+
+Omitting all absent slots exposes the existing empty-root endpoint: the CPU
+query wrapper called traversal with root -1, and both software GLSL entry points
+likewise pushed `nodesRoot == -1`. The connected repair checks this known empty
+sentinel before traversal in CPU `FindFirstHit`, software `TraceAnyHit`, and
+software `find_first_hit`. Empty input now produces the existing no-hit result
+(`false`, or fraction 1 / triangle -1 / zero barycentrics). No hardware-ray-query
+branch, stack policy, bounds algorithm or general invalid-root policy changes.
+
+Independent review found the connected publication boundary: production
+`MeshBufferUploads::Add(0,0)` discards the range, and `VkLevelMeshUploader` neither
+budgets nor uploads the root header without a nonempty node range. An initial
+empty tree could therefore leave an uninitialized GPU header, and a live-to-empty
+transition could retain a stale positive root despite the GLSL guards. For an
+export with zero tree nodes, the repair keeps root -1 and publishes one fully
+initialized **unreachable storage-only node** (zero center/extents/padding,
+left/right/element index -1). The existing positive-range/header upload path then
+publishes the empty sentinel without a new dirty-state lifecycle. This storage
+count of one is not live membership or collision geometry; traversal must still
+perform zero node accesses. No fake node is traversed or read beyond allocation.
+
+`test_collision_sparse_slots.py` compiles old/current exact production functions
+and executes seven cases through construction, independent export, combined
+construction/export and the public CPU query boundary: 56 scenario executions.
+`test_collision_empty_shader.py` compiles the exact two GLSL entry bodies as C++
+with checked node-access/vector stubs: ten executions, preserving original empty
+negatives, empty buffers with stale allocated nodes, nonempty leaf/internal hit
+and miss controls, and zero-distance behavior. All nonempty results and access
+counts must equal pre-fix behavior. The CPU recursive-query stub verifies public
+dispatch and its empty guard, not geometric intersections. The shader test proves
+source control flow, **not GLSL/SPIR-V compilation or GPU execution**. Exact-head
+hosted native software-Vulkan CI must compile and exercise the changed shader.
+`test_collision_empty_publication.py` executes exact production range Clear/Add,
+uploader GetTransferSize/UploadNodes, old/current CPU Upload and real node/header
+member definitions: eight old/new scenarios cover initial empty, live-to-empty,
+empty-to-live-to-empty and hardware-ray-query upload bypass. It requires the old
+missing/stale header, repaired root -1, correct dummy fields and exact transfer
+byte accounting. This is CPU staging/publication evidence, not submitted GPU
+bytes. General Update lifecycle behavior, reconstruction of either failed static
+graph and general invalid-link/deep-stack safety remain outside this evidence.
+
+Assertions-enabled MSVC C++17 focused collision/LevelMesh gate passes 14/14,
+including the earlier root-export and scalar/SSE centroid regressions. Standalone
+generated units, binaries and per-scenario logs are retained locally at
+`C:/ShadeDoomVK/physical-evidence/20261011/sdvk009-null-blas-cpu/`;
+run `python tools/pf_oracle/tests/test_collision_sparse_slots.py --retain PATH`
+in a developer compiler environment to regenerate them. Exact old shader source
+is retained as `collision_empty_shader_pre_fix.glsl`. Local retention is not a
+claim of durable external raw storage.
+
+This is a CPU-proven source repair candidate pending independent review and
+exact-head CI. It is **not a diagnosis or resolution of either physical fault**.
+All hardware remains stopped, #9 remains open/physically inconclusive, and no
+performance, architecture, quality or dependent acceptance gate advances. Any
+future physical experiment requires a separately reviewed, newly pinned source,
+build and shader-package identity; this candidate authorizes no launch or retry.

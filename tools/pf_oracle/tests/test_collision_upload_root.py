@@ -144,7 +144,9 @@ int main(int argc, char** argv) {
         assert(scenario == 4);
         actual.Upload();
         assert(actual.mesh.Mesh.RootNode == -1);
-        assert(actual.mesh.UploadRanges.Node.count == 0);
+        assert(actual.mesh.UploadRanges.Node.count == 1);
+        const auto& dummy = actual.mesh.Mesh.Nodes[0];
+        assert(dummy.left == -1 && dummy.right == -1 && dummy.element_index == -1);
     }
 }
 '''
