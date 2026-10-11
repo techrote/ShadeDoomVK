@@ -53,3 +53,55 @@ capacity and occupied extent, so a static scene does not necessarily have a
 single instance. This repair therefore does **not** establish the cause or
 resolution of the frozen failure. A separate diagnosis and reviewed hardware
 protocol remain necessary before any new GPU launch.
+
+## Follow-on sparse-geometry audit observations
+
+These source observations are outside the single-root repair. No additional
+renderer change or hardware experiment is part of this audit. They require
+independent CPU reproduction and review; the failed packet does not establish
+that any of these conditions occurred in its scene.
+
+1. **BLAS slot identity during export.** In `CPUAccelStruct::Upload`, the
+   `instance` counter advances only inside `if (blas)`. If a null BLAS precedes
+   a valid one, `indexStart` and `blasOffsets[instance]` use its compressed
+   position rather than its original `DynamicBLAS` slot. The TLAS retains
+   original slot identities. A CPU reproducer can extend the existing extracted
+   production Upload fixture with slots `[valid, null, valid]`, an internal TLAS
+   root whose leaves reference slots 0 and 2, and distinct source triangle
+   offsets. Validate every reachable link and require the second BLAS triangle
+   to retain `2 * IndexesPerBLAS + local_element_index`. The current code instead
+   fills the offset for slot 1 and leaves slot 2's offset at its default value.
+
+2. **Absent BLAS membership during TLAS construction.** In
+   `CPUAccelStruct::CreateTLAS`, a missing `DynamicBLAS[i]` adds leaf identity 0
+   and a distant sentinel centroid. `CPUAccelStruct::Subdivide` then dereferences
+   `DynamicBLAS[instances[i]]` for its bounds. This can duplicate slot 0's
+   membership, and slot 0 itself can be absent. A CPU reproducer should extract
+   production `CreateTLAS`, record the identities passed to its subdivision
+   consumer, and require exactly the live slots for `[valid, null, valid]`,
+   `[null, valid]`, and all-null controls. Any subsequent repair must retain
+   centroid indexing by original slot identity and explicitly handle an empty
+   active set.
+
+3. **Triangle identity versus compact centroid storage.**
+   `CPUBottomLevelAccelStruct::CPUBottomLevelAccelStruct` skips triangles whose
+   first two vertex indices are equal. For retained triangles it pushes the
+   original triangle identity `i` into `scratch.leafs`, while compactly appending
+   only retained centroids. Both the SSE and scalar overload bodies of
+   `CPUBottomLevelAccelStruct::Subdivide` read `centroids[triangles[i]]`. With a
+   skipped triangle preceding retained triangles, that identity can exceed the
+   populated centroid range or name another triangle's centroid. A CPU
+   reproducer should execute the exact constructor on an index array with a
+   zeroed first triangle followed by at least two distinct valid triangles;
+   check every requested original triangle identity against the populated
+   centroid table at the subdivision boundary. Repeat with an interior hole
+   and no-hole/all-degenerate controls. Merely checking allocated vector
+   capacity is insufficient: the original `reserve(num_triangles)` can leave
+   such reads inside allocated memory while outside the populated range.
+
+The existing production `LevelMesh::FreeGeometry` explicitly zeroes freed
+indices while retaining the occupied index high-water mark. Thus sparse and
+degenerate ranges are valid lifecycle inputs to investigate, even though their
+presence in the frozen static fixture is unestablished. CPU graph/identity
+validation and source-qualified safety review should precede any future
+hardware protocol. The hardware STOP remains active.
