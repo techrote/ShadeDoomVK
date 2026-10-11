@@ -25,6 +25,17 @@ from test_validation import observation, recount, row
 
 
 class SyntheticRunReceiptTests(unittest.TestCase):
+    def test_device_errors_in_either_stream_override_successful_completion(self):
+        complete = "SDVK_OBSERVATION_COLLECTED: native.renderer.json\n"
+        for marker in ("[vulkan error] invalid descriptor", "Validation Error: VUID-123",
+                       "[fault] type=4 address=0x123", "VK_ERROR_DEVICE_LOST",
+                       "device lost", "device-lost", "Fatal error: stopped"):
+            for stream in ("stdout", "stderr"):
+                with self.subTest(marker=marker, stream=stream), self.assertRaisesRegex(common.EvidenceError, stream):
+                    run.completion_log(complete + (marker if stream == "stdout" else ""),
+                                       marker if stream == "stderr" else "")
+        run.completion_log(complete + "[vulkan warning] advisory\n", "[vulkan info] diagnostic\n")
+
     def test_native_version_accepts_lf_and_crlf_but_rejects_ambiguous_identity(self):
         lines = ["ShadeDoomVK synthetic", "Commit: " + "a" * 40, "Working tree: clean"]
         for newline in ("\n", "\r\n"):
@@ -123,6 +134,7 @@ class SyntheticRunReceiptTests(unittest.TestCase):
             native = scene["native"]
             commit = None
             version_state = "clean"
+            stdout_error, stderr_error = "", ""
 
             def synthetic_engine(argv, *positional, **kwargs):
                 if str(argv[0]) != str(exe):
@@ -169,7 +181,8 @@ class SyntheticRunReceiptTests(unittest.TestCase):
                 lines += [f'"{key}" is "{str(value).lower()}" (default: "synthetic")'
                           for key, value in native["settings"].items()]
                 lines.append("SDVK_OBSERVATION_COLLECTED: " + str(out / "native.renderer.json"))
-                kwargs["stdout"].write(("\n".join(lines) + "\n").encode())
+                kwargs["stdout"].write(("\n".join(lines) + "\n" + stdout_error).encode())
+                kwargs["stderr"].write(stderr_error.encode())
                 return subprocess.CompletedProcess(argv, 0)
 
             args = argparse.Namespace(exe=exe, iwad=iwad, prepared=prepared, scene="lights-zero", out=out,
@@ -207,7 +220,23 @@ class SyntheticRunReceiptTests(unittest.TestCase):
                 version_state = "clean"
                 args.out = out
                 collected = run.capture(args)
-            self.assertEqual(len(calls), 4)  # two rejected versions, version and synthetic producer.
+                successful_out = out
+                for stream, marker in (("stdout", "[fault] type=4 address=0x123\n"),
+                                       ("stderr", "[vulkan error] Validation Error: invalid descriptor\n")):
+                    out = root / ("failed-" + stream)
+                    args.out = out
+                    stdout_error = marker if stream == "stdout" else ""
+                    stderr_error = marker if stream == "stderr" else ""
+                    with self.assertRaisesRegex(common.EvidenceError, "Native process error in " + stream):
+                        run.capture(args)
+                    failed = common.read_json(out / "run.json")
+                    self.assertEqual(failed["status"], "FAIL")
+                    self.assertIn("SDVK_OBSERVATION_COLLECTED:", (out / "stdout.log").read_text())
+                    self.assertIn(marker.strip(), (out / (stream + ".log")).read_text())
+                    self.assertTrue({"stdout.log", "stderr.log", "native.renderer.json"} <= set(failed["artifacts"]))
+                out = successful_out
+                args.out = out
+            self.assertEqual(len(calls), 8)  # two rejected versions, one success, two retained severity failures.
             self.assertTrue(any(command[1:3] == ["cat-file", "-e"] for command in delegated_git))
             self.assertEqual(collected["status"], "COLLECTED")
             validated_root, receipt, raw, result = run.validate_run(out)
@@ -227,7 +256,8 @@ class SyntheticRunReceiptTests(unittest.TestCase):
             with self.assertRaisesRegex(common.EvidenceError, "same process"):
                 run.compare_runs(out, copied)
 
-            names = ("input/scene.pk3", "input/fixture.ini", "capture.cfg", "request.json", "native.renderer.json", "run.json")
+            names = ("input/scene.pk3", "input/fixture.ini", "capture.cfg", "request.json", "native.renderer.json", "run.json",
+                     "stdout.log", "stderr.log")
             originals = {name: (out / name).read_bytes() for name in names}
 
             def repin(changed_receipt, name, payload):
@@ -242,6 +272,10 @@ class SyntheticRunReceiptTests(unittest.TestCase):
                 finally:
                     for name, payload in originals.items():
                         (out / name).write_bytes(payload)
+
+            changed = copy.deepcopy(receipt)
+            repin(changed, "stderr.log", b"[vulkan error] retained validation failure\n")
+            assert_packet_rejected(changed, "Native process error in stderr")
 
             # Rehashing a mutable packet entry cannot replace its preregistered input.
             for name in ("input/scene.pk3", "input/fixture.ini", "capture.cfg"):

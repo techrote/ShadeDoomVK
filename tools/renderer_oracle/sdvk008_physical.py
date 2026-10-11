@@ -62,6 +62,31 @@ def pin_runtime(args):
     return {"executable": pin(exe), "iwad": pin(iwad), "engine_packages": packages}
 
 
+def driver_version_raw(value, vendor_id, driver_id=None):
+    """Decode vulkaninfo's known driverVersion formats to the runtime uint32."""
+    require(isinstance(value, str), "Vulkan preflight driver version is missing")
+    if re.fullmatch(r"(?:0x[0-9a-fA-F]+|[0-9]+)", value):
+        raw = int(value, 16 if value.startswith("0x") else 10)
+    else:
+        require(re.fullmatch(r"[0-9]+(?:\.[0-9]+){1,3}", value),
+                "Vulkan preflight driver version has an unsupported encoding")
+        parts = [int(part) for part in value.split(".")]
+        if driver_id == "DRIVER_ID_NVIDIA_PROPRIETARY" or (driver_id is None and vendor_id == 0x10de):
+            require(len(parts) == 4 and all(part < limit for part, limit in zip(parts, (1024, 256, 256, 64))),
+                    "Vulkan preflight NVIDIA driver version is invalid")
+            raw = (parts[0] << 22) | (parts[1] << 14) | (parts[2] << 6) | parts[3]
+        elif driver_id == "DRIVER_ID_INTEL_PROPRIETARY_WINDOWS":
+            require(len(parts) == 2 and parts[0] < (1 << 18) and parts[1] < (1 << 14),
+                    "Vulkan preflight Intel Windows driver version is invalid")
+            raw = (parts[0] << 14) | parts[1]
+        else:
+            require(len(parts) == 3 and all(part < limit for part, limit in zip(parts, (1024, 1024, 4096))),
+                    "Vulkan preflight driver version is invalid")
+            raw = (parts[0] << 22) | (parts[1] << 12) | parts[2]
+    require(0 <= raw <= 0xffffffff, "Vulkan preflight driver version exceeds uint32")
+    return raw
+
+
 def vulkan_preflight(path, device_name, *, software=False):
     """Authenticate an operator-retained vulkaninfo --summary before launch.
 
@@ -85,9 +110,21 @@ def vulkan_preflight(path, device_name, *, software=False):
                 and selected.get("driverID") == "DRIVER_ID_MESA_LLVMPIPE", "Software fixture control requires one exact llvmpipe ICD")
     require(selected.get("deviceType") in types, "Prelaunch Vulkan software/unidentified device is refused")
     require(all(key in selected for key in ("vendorID", "deviceID", "driverVersion")), "Vulkan preflight identity is incomplete")
+    vendor_id = int(selected["vendorID"], 0)
     return {"summary": pin(path), "device_name": device_name, "device_type": types[selected["deviceType"]],
-            "vendor_id": int(selected["vendorID"], 0), "device_id": int(selected["deviceID"], 0),
-            "driver_version": selected["driverVersion"]}
+            "vendor_id": vendor_id, "device_id": int(selected["deviceID"], 0),
+            "driver_version": selected["driverVersion"],
+            "driver_id": selected.get("driverID"),
+            "driver_version_raw": driver_version_raw(selected["driverVersion"], vendor_id, selected.get("driverID"))}
+
+
+def runtime_vulkan_identity(build, preflight):
+    device = build.get("vulkan", {})
+    require(type(device.get("driver_version_raw")) is int and 0 <= device["driver_version_raw"] <= 0xffffffff,
+            "Renderer Vulkan raw driver version is missing or invalid")
+    require(all(device.get(key) == preflight[key]
+                for key in ("device_type", "vendor_id", "device_id", "driver_version_raw")),
+            "Renderer Vulkan device/driver identity differs from prelaunch Vulkan inventory")
 
 
 def validate_fixtures(contract, catalog, *, correctness_only=False):
@@ -435,9 +472,7 @@ def campaign(args):
             receipt["steps"].append(step)
             result = run.capture(capture_args(args, prepared, path, scene, mode, extent))
             (software_build if software else physical_build)(result["build"], commit=expected_commit, device_name=args.device_name)
-            require(all(result["build"]["vulkan"].get(key) == receipt["vulkan_preflight"][key]
-                        for key in ("device_type", "vendor_id", "device_id")),
-                    "Renderer Vulkan identity differs from prelaunch Vulkan inventory")
+            runtime_vulkan_identity(result["build"], receipt["vulkan_preflight"])
             request = read_json(path / "request.json")
             environment = {key: request[key] for key in ("host", "environment")}
             if reference_environment is None:

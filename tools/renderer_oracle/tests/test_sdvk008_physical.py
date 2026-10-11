@@ -223,12 +223,35 @@ class FixtureAndIdentityRules(unittest.TestCase):
     def test_prelaunch_vulkan_summary_refuses_software_device(self):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "vulkan-summary.txt"
-            text = "GPU0:\n deviceName = test GPU\n deviceType = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU\n vendorID = 0x10de\n deviceID = 0x2187\n driverVersion = 1.2.3\n"
+            text = "GPU0:\n deviceName = test GPU\n deviceType = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU\n vendorID = 0x10de\n deviceID = 0x2187\n driverVersion = 616.92.0.0\n"
             path.write_text(text, encoding="utf-8")
             self.assertEqual(physical.vulkan_preflight(path, "test GPU")["device_id"], 0x2187)
             path.write_text(text.replace("DISCRETE_GPU", "CPU"), encoding="utf-8")
             with self.assertRaisesRegex(EvidenceError, "software"):
                 physical.vulkan_preflight(path, "test GPU")
+
+    def test_driver_version_normalization_and_runtime_mismatch_fail_closed(self):
+        self.assertEqual(physical.driver_version_raw("616.92.0.0", 0x10de), 2585198592)
+        self.assertEqual(physical.driver_version_raw("1.2.3", 0x10005), 4202499)
+        self.assertEqual(physical.driver_version_raw("1.2.3", 0x10de, "DRIVER_ID_MESA_NVK"), 4202499)
+        self.assertEqual(physical.driver_version_raw("31.101", 0x8086, "DRIVER_ID_INTEL_PROPRIETARY_WINDOWS"),
+                         (31 << 14) | 101)
+        for value in ("2585198592", "0x9a170000"):
+            self.assertEqual(physical.driver_version_raw(value, 0x10de), 2585198592)
+        for value in ("unknown", "4294967296", "616.92.0", "1024.0.0.0", "616.256.0.0"):
+            with self.subTest(value=value), self.assertRaises(EvidenceError):
+                physical.driver_version_raw(value, 0x10de)
+        expected = {"device_type": 2, "vendor_id": 0x10de, "device_id": 0x2187,
+                    "driver_version_raw": 2585198592}
+        physical.runtime_vulkan_identity({"vulkan": dict(expected)}, expected)
+        for value in (2585198593, None, "2585198592", True):
+            actual = dict(expected, driver_version_raw=value)
+            with self.subTest(value=value), self.assertRaises(EvidenceError):
+                physical.runtime_vulkan_identity({"vulkan": actual}, expected)
+        absent = dict(expected)
+        del absent["driver_version_raw"]
+        with self.assertRaisesRegex(EvidenceError, "missing"):
+            physical.runtime_vulkan_identity({"vulkan": absent}, expected)
 
     def test_rgb_difference_does_not_claim_direction_or_silhouette(self):
         with patch.object(physical.images, "decode", side_effect=[((1, 1), b"\x00\x00\x00"), ((1, 1), b"\x01\x00\x00")]):
@@ -266,13 +289,13 @@ class FixtureAndIdentityRules(unittest.TestCase):
 
 class CampaignControls(unittest.TestCase):
     def execute(self, root, *, partial=False, incomplete=False, compare_status="PASS", crash=False, software=False,
-                image_status="PASS"):
+                image_status="PASS", runtime_driver=4202499):
         exe, iwad = root / "engine.exe", root / "iwad.wad"
         exe.write_bytes(b"not executed")
         iwad.write_bytes(b"private fixture")
         (root / "vkdoom.pk3").write_bytes(b"runtime fixture")
         vulkan_summary = root / "vulkan-summary.txt"
-        vulkan_summary.write_text("GPU0:\n deviceName = test GPU\n deviceType = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU\n vendorID = 0x10de\n deviceID = 0x2187\n driverVersion = 1.2.3\n", encoding="utf-8")
+        vulkan_summary.write_text("GPU0:\n deviceName = test GPU\n deviceType = PHYSICAL_DEVICE_TYPE_DISCRETE_GPU\n vendorID = 0x10de\n deviceID = 0x2187\n driverVersion = 4202499\n", encoding="utf-8")
         args = Namespace(exe=exe, iwad=iwad, out=root / "campaign", timeout=600,
                          execute=True, correctness_only=partial, device_name="test GPU", vulkan_summary=vulkan_summary)
         contract = fixture_contract(complete=not incomplete)
@@ -282,7 +305,7 @@ class CampaignControls(unittest.TestCase):
             args.device_name = "llvmpipe (host-only-test)"
             args.iwad_license = root / "license.txt"
             args.iwad_license.write_text("test notice", encoding="utf-8")
-            vulkan_summary.write_text("GPU0:\n deviceName = llvmpipe (host-only-test)\n deviceType = PHYSICAL_DEVICE_TYPE_CPU\n driverName = llvmpipe\n driverID = DRIVER_ID_MESA_LLVMPIPE\n vendorID = 0x10de\n deviceID = 0x2187\n driverVersion = 1.2.3\n", encoding="utf-8")
+            vulkan_summary.write_text("GPU0:\n deviceName = llvmpipe (host-only-test)\n deviceType = PHYSICAL_DEVICE_TYPE_CPU\n driverName = llvmpipe\n driverID = DRIVER_ID_MESA_LLVMPIPE\n vendorID = 0x10de\n deviceID = 0x2187\n driverVersion = 4202499\n", encoding="utf-8")
             contract.CORRECTNESS_PAIRS[0]["id"] = "single-m"
         captures = []
 
@@ -295,7 +318,7 @@ class CampaignControls(unittest.TestCase):
                 raise EvidenceError("simulated crash")
             return {"build": {"backend": "vulkan", "working_tree": "clean", "commit": args.expected_commit if software else physical.IMPLEMENTATION_COMMIT,
                     "device": args.device_name, "vulkan": {"available": True, "device_type": 4 if software else 2,
-                    "vendor_id": 0x10de, "device_id": 0x2187}},
+                    "vendor_id": 0x10de, "device_id": 0x2187, "driver_version_raw": runtime_driver}},
                     "executable": {"sha256": "a" * 64}, "loaded_packages": []}
 
         with patch.object(physical, "fixture_contract", return_value=contract), \
@@ -384,6 +407,16 @@ class CampaignControls(unittest.TestCase):
                 self.assertEqual(len(captures), 1 if crash else 2)
                 self.assertEqual(result["status"], "FAIL")
                 self.assertEqual(result["automatic_retries"], 0)
+                self.assertTrue(list(args.out.rglob("retained.log")))
+                physical.verify_checksums(args.out)
+
+    def test_first_runtime_driver_mismatch_or_missing_stops_with_retained_packet(self):
+        for driver in (4202500, None):
+            with self.subTest(driver=driver), tempfile.TemporaryDirectory() as directory:
+                args, captures, result = self.execute(Path(directory), partial=True, runtime_driver=driver)
+                self.assertEqual(len(captures), 1)
+                self.assertEqual(result["status"], "FAIL")
+                self.assertIn("driver", result["error"])
                 self.assertTrue(list(args.out.rglob("retained.log")))
                 physical.verify_checksums(args.out)
 

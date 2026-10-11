@@ -72,3 +72,15 @@ An absent scene span never becomes a zero-cost or acceptance
 claim. The separately proposed instrumentation candidate in PR #140 requires
 a new preregistered renderer/build identity and fresh qualification; it cannot
 silently replace the frozen implementation used by this driver.
+
+The post-review harness rejects retained `[vulkan error]`, validation-error,
+device-fault/device-lost and existing startup/observer failure markers from
+either stdout or stderr, including otherwise successful completion. Failed logs
+and receipts remain archived, with no retry. Retained-packet validation repeats
+the same check. SDVK-008 also converts the preflight driver version to its raw
+uint32 representation and requires the renderer's `driver_version_raw` to agree
+on the first process and every subsequent process. Missing or unsupported driver
+versions fail closed. The decimal/hex raw, NVIDIA, Intel Windows and standard
+Vulkan formatted encodings follow the
+[vulkaninfo display formats](https://github.com/KhronosGroup/Vulkan-Tools/blob/main/vulkaninfo/vulkaninfo.h#L1934).
+These tool-only guards do not revise any previously sealed physical packet.

@@ -134,9 +134,19 @@ def console_settings(text, expected):
     return result
 
 
-def completion_log(text):
-    require(text.count("SDVK_OBSERVATION_COLLECTED:") == 1 and not re.search(
-        r"SDVK_OBSERVATION_(?:FAILED|REJECTED|WRITE_FAILED)|Script error|Execution could not continue|Fatal error|Unknown command", text),
+def process_log_errors(stdout, stderr=""):
+    """Fail closed on retained renderer/device severity errors in either stream."""
+    pattern = (r"\[vulkan error\]|\[fault\]|\bValidation Error\s*:|\bVK_ERROR_DEVICE_LOST\b|"
+               r"\bdevice[ -]lost\b|SDVK_OBSERVATION_(?:FAILED|REJECTED|WRITE_FAILED)|"
+               r"Script error|Execution could not continue|Fatal error|Unknown command")
+    for stream, text in (("stdout", stdout), ("stderr", stderr)):
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        require(match is None, "Native process error in " + stream + ": " + (match[0] if match else ""))
+
+
+def completion_log(text, stderr=""):
+    process_log_errors(text, stderr)
+    require(text.count("SDVK_OBSERVATION_COLLECTED:") == 1,
         "Native observation completion marker missing or startup/observer failed")
 
 
@@ -309,7 +319,7 @@ def capture(args):
         elapsed = time.monotonic() - start
         require(process.returncode == 0, f"Native process exited {process.returncode}")
         text = (out / "stdout.log").read_text(encoding="utf-8", errors="replace")
-        completion_log(text)
+        completion_log(text, (out / "stderr.log").read_text(encoding="utf-8", errors="replace"))
         packages = loaded_packages(text, expected)
         readbacks = console_settings(text, native["settings"])
         require(pin(exe) == executable, "Executable changed while capture was running")
@@ -666,7 +676,7 @@ def _validate_run(path):
             and Path(application_cache.get("path", "")) == Path(request["cwd"]) / "cache",
             "Native application cache did not use the isolated run directory")
     stdout = (root / "stdout.log").read_text(encoding="utf-8", errors="replace")
-    completion_log(stdout)
+    completion_log(stdout, (root / "stderr.log").read_text(encoding="utf-8", errors="replace"))
     require(console_settings(stdout, scene["native"]["settings"]) == data["console_settings"], "Actual setting receipts differ")
     require(loaded_packages(stdout, request["packages"], verify_files=False) == data["loaded_packages"],
             "Retained loaded-package inventory differs from actual startup output")
