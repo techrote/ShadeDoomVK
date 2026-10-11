@@ -427,7 +427,8 @@ CPUBottomLevelAccelStruct::CPUBottomLevelAccelStruct(const FFlatVertex *vertices
 	scratch.leafs.clear();
 	scratch.leafs.reserve(num_triangles);
 	scratch.centroids.clear();
-	scratch.centroids.reserve(num_triangles);
+	// Subdivide indexes centroids by original triangle identity, including holes.
+	scratch.centroids.resize(num_triangles, FVector4(0.0f, 0.0f, 0.0f, 0.0f));
 	int active_triangles = 0;
 	for (int i = 0; i < num_triangles; i++)
 	{
@@ -440,7 +441,7 @@ CPUBottomLevelAccelStruct::CPUBottomLevelAccelStruct(const FFlatVertex *vertices
 
 		FVector3 centroid = (vertices[a].fPos() + vertices[b].fPos() + vertices[c].fPos()) * (1.0f / 3.0f);
 		scratch.leafs.push_back(i);
-		scratch.centroids.push_back(FVector4(centroid, 1.0f));
+		scratch.centroids[i] = FVector4(centroid, 1.0f);
 		active_triangles++;
 	}
 

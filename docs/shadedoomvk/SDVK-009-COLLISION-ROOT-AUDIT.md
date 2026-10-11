@@ -105,3 +105,61 @@ degenerate ranges are valid lifecycle inputs to investigate, even though their
 presence in the frozen static fixture is unestablished. CPU graph/identity
 validation and source-qualified safety review should precede any future
 hardware protocol. The hardware STOP remains active.
+
+## Confirmed sparse-triangle centroid identity repair candidate
+
+The third follow-on observation above was independently reproduced on CPU on
+2026-10-11, then repaired on a separate branch based on verified
+`master@322925d8fa1486d62db0d072310a50748bc0b1ce`. The constructor, leaf builder,
+scalar subdivision and SSE debug subdivision were byte-identical after newline
+normalization at that master and frozen `0a2fbad203549d18ac6e5a61bb4747709637bfde`.
+The retained pre-fix constructor SHA-256 is
+`81c95f63fe26d71b465f46163c9b3c64042726891d2db0941df8d9e524a60898`.
+[Machine-readable original evidence](../../tools/pf_oracle/tests/fixtures/collision_centroid_pre_fix_evidence.json)
+retains the exact function hashes and original CPU result summaries.
+
+The standalone reproducer executes the exact production constructor and both
+subdivision bodies. Its sole access instrumentation replaces each executable
+`centroids[triangles[i]]` with a checker of populated size and the expected
+original triangle's centroid. It logs an in-range identity mismatch, and throws
+before any unpopulated read. This is a logical-index reproduction, not a claim
+that a CPU crash or GPU fault was observed by the fixture.
+
+| Four original triangle slots | Pre-fix scalar and SSE debug result |
+|---|---|
+| No hole: `[0,1,2,3]` | Correct centroid identities; complete valid tree |
+| Leading hole: `[hole,1,2,3]` | Index 1 names original 2; index 2 names original 3; index 3 is outside populated size 3, inside capacity 4 |
+| Interior hole: `[0,hole,2,3]` | Index 2 names original 3; index 3 is outside populated size 3, inside capacity 4 |
+| All degenerate | No centroid reads; empty tree, root -1 |
+| Trailing hole: `[0,1,2,hole]` | Correct centroid identities; complete valid tree |
+
+The bounded repair initializes centroid storage to `num_triangles` entries and
+writes each retained centroid at its original identity `i`. Skipped entries are
+zero initialized and never added to the active leaf list. Original triangle
+identities, leaf element offsets, subdivision/traversal code, degeneracy policy,
+draw/light workload and quality settings are preserved. No donor code is added.
+
+`test_collision_centroid_identity.py` retains the exact pre-fix constructor and
+executes it and the current constructor with the current production scalar/SSE
+subdivision bodies: five cases, two constructors, two paths on x86 (20 scenario
+executions). Reused scratch capacity is poisoned to distinguish populated size
+from allocated capacity. Pre-fix leading/interior negatives are required;
+repaired cases require correct centroids, valid reachable original triangle
+membership, and zero skipped entries. Non-x86 targets test the production scalar
+path. MSVC C++17 assertions-enabled focused collision/LevelMesh tests pass 12/12.
+Hosted build/CI and independent review remain required; this is a repair
+candidate, not an accepted qualification transition.
+
+The original standalone script, generated units, binaries, logs and source hash
+manifest remain separately retained locally at
+`C:/ShadeDoomVK/physical-evidence/20261011/sdvk009-sparse-centroid-cpu/`, with a file
+checksum inventory. The original worktree copy remains available under
+`campaign-worktrees/sdvk009-collision-guard/analysis/sdvk009-sparse-blas/` for
+reproduction against its unchanged source. Neither location is a claim of durable
+remote evidence storage.
+
+Sparse/null BLAS slot export and TLAS membership observations 1 and 2 remain
+separate unresolved follow-ons. The frozen failed capture has no native collision
+state proving degenerate holes occurred. This repair does **not** establish
+physical fault causality or resolution, does not permit a hardware retry, and
+does not lift the host STOP. #9 remains open and physically inconclusive.
