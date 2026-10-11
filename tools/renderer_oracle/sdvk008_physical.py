@@ -25,6 +25,7 @@ else:
 
 IMPLEMENTATION_COMMIT = "9536324ce33ea418af5a8efe733b4659f6b4ad9b"
 IMPLEMENTATION_TREE = "3123bc7fd3dd9074487cbe3487f9336ef3589003"
+IMAGE_ORACLE_REVISION = "sdvk008-image-oracle-v2-alpha-active"
 REFERENCE_EXTENT = "640x480"
 TIMING_EXTENT = "1904x1001"
 TIMING_ORDER = (
@@ -241,7 +242,8 @@ def image_pair(left, right, oracle, *, background=None):
     changed = sum(a[i:i+3] != b[i:i+3] for i in range(0, len(a), 3))
     passed = changed == 0 if oracle == "exact" else changed > 0
     result = {"status": ("PASS" if passed else "FAIL") if oracle in ("exact", "effect") else "DESCRIPTIVE",
-            "oracle": oracle, "extent": list(extent), "changed_pixels": changed,
+            "oracle": oracle, "oracle_revision": IMAGE_ORACLE_REVISION,
+            "extent": list(extent), "changed_pixels": changed,
             "changed_pixel_fraction": changed / (extent[0] * extent[1]),
             "direction_qualified": False, "alpha_silhouette_qualified": False,
             "useful_relief_qualified": False,
@@ -252,10 +254,14 @@ def image_pair(left, right, oracle, *, background=None):
         off_mask = [a[i:i+3] != bg[i:i+3] for i in range(0, len(a), 3)]
         on_mask = [b[i:i+3] != bg[i:i+3] for i in range(0, len(a), 3)]
         mismatch = sum(x != y for x, y in zip(off_mask, on_mask))
-        result.update(status="PASS" if mismatch == 0 and any(off_mask) else "FAIL",
+        # material.glsl retains baseTexel.a while changing relieved RGB. Demand
+        # positive color work in this same fixture so an all-fallback ON image
+        # cannot vacuously establish silhouette preservation under relief.
+        qualified = mismatch == 0 and any(off_mask) and changed > 0
+        result.update(status="PASS" if qualified else "FAIL",
                       silhouette_mask_mismatch_pixels=mismatch, affected_pixels=sum(off_mask),
-                      alpha_silhouette_qualified=mismatch == 0 and any(off_mask),
-                      scope="Exact binary RGB-versus-no-card-background mask; this authored fixture only")
+                      alpha_silhouette_qualified=qualified, alpha_relief_effect_detected=changed > 0,
+                      scope="Exact binary RGB-versus-no-card-background mask plus nonzero OFF/ON RGB effect; this authored fixture only")
     return result
 
 
@@ -429,6 +435,7 @@ def campaign(args):
     root = run.fresh_directory(args.out)
     receipt = {"schema": "sdvk008-software-fixture-control/v1" if software else "sdvk008-physical-campaign/v1", "status": "FAIL", "steps": [],
         "implementation_commit": expected_commit, "implementation_tree": None if software else IMPLEMENTATION_TREE,
+        "image_oracle_revision": IMAGE_ORACLE_REVISION,
         "physical_gpu_evidence_collected": False, "physical_gpu_qualified": False,
         "performance_accepted": False, "automatic_retries": 0,
         "software_fixture_control": software, "software_vulkan_evidence_collected": False,

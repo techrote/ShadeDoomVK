@@ -273,12 +273,35 @@ class FixtureAndIdentityRules(unittest.TestCase):
             result = physical.image_pair("off", "on", "silhouette", background="bg")
         self.assertEqual(result["status"], "PASS")
         self.assertTrue(result["alpha_silhouette_qualified"])
+        self.assertTrue(result["alpha_relief_effect_detected"])
+        self.assertEqual(result["oracle_revision"], physical.IMAGE_ORACLE_REVISION)
         with patch.object(physical.images, "decode", side_effect=[off, escaped, background]):
             result = physical.image_pair("off", "on", "silhouette", background="bg")
         self.assertEqual(result["status"], "FAIL")
         self.assertEqual(result["silhouette_mask_mismatch_pixels"], 1)
         with patch.object(physical.images, "decode", side_effect=[background] * 3):
             self.assertEqual(physical.image_pair("off", "on", "silhouette", background="bg")["status"], "FAIL")
+
+    def test_alpha_preservation_requires_effect_in_the_same_fixture(self):
+        # Two opaque color marks and one background hole. Swapping the opaque
+        # colors is a positive interior effect with an unchanged binary mask.
+        off = ((3, 1), bytes((220, 40, 60, 40, 100, 200, 0, 0, 0)))
+        on = ((3, 1), bytes((40, 100, 200, 220, 40, 60, 0, 0, 0)))
+        background = ((3, 1), bytes(9))
+        with patch.object(physical.images, "decode", side_effect=[off, off, background]):
+            unchanged = physical.image_pair("off", "on", "silhouette", background="bg")
+        self.assertEqual(unchanged["status"], "FAIL")
+        self.assertEqual(unchanged["silhouette_mask_mismatch_pixels"], 0)
+        self.assertEqual(unchanged["changed_pixels"], 0)
+        self.assertFalse(unchanged["alpha_silhouette_qualified"])
+        self.assertFalse(unchanged["alpha_relief_effect_detected"])
+        with patch.object(physical.images, "decode", side_effect=[off, on, background]):
+            shifted = physical.image_pair("off", "on", "silhouette", background="bg")
+        self.assertEqual(shifted["status"], "PASS")
+        self.assertEqual(shifted["silhouette_mask_mismatch_pixels"], 0)
+        self.assertEqual(shifted["changed_pixels"], 2)
+        self.assertTrue(shifted["alpha_silhouette_qualified"])
+        self.assertTrue(shifted["alpha_relief_effect_detected"])
 
     def test_flip_witness_requires_actual_material_signed_uv_state(self):
         raw = {"records": [{"kind": "sprite-basis", "data": {"material": "SDVEA0", "surface": {"uv_mirror_x": True}}}]}

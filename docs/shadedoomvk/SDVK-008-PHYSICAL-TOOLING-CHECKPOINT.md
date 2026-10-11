@@ -99,6 +99,31 @@ Local CPU validation with MSVC 14.44.35207 passes all 130 renderer-oracle tests,
 including the compiled production-angle check and all 25 unchanged package
 identities. No renderer/GPU process was launched for this correction.
 
+Image oracle revision `sdvk008-image-oracle-v2-alpha-active` strengthens the
+alpha fixture gate before fresh hosted results are inspected. The production
+`material.glsl` samples relieved RGB while retaining `baseTexel.a`, and uses the
+original texel when the relieved alpha fails its threshold. Therefore the alpha
+OFF/ON control must retain a nonempty, exactly equal binary RGB-versus-background
+mask **and** exhibit at least one changed RGB pixel in that same fixture. An
+identical OFF/ON image now fails, even when the separate opaque SM fixture shows
+an effect. This avoids vacuous preservation from an entirely inactive or
+fallback alpha path. The receipt and each image witness identify this oracle
+revision. CPU tests retain unchanged-ON failure, interior color-shift success,
+silhouette escape failure and missing-sprite failure. The authored packages,
+poses, image tolerance and direction algorithm are unchanged; previous packets
+retain their original identities and outcomes.
+All 34 targeted SDVK-008 physical-driver CPU tests pass for this revision; no
+renderer or GPU process was launched.
+
+The red-marker check remains a finite aggregate centroid direction witness.
+Its preregistered right/up sign follows the final wall-card tangent, V-down
+bitangent and `original - depth * ray` sampling. It does not match individual
+pixels: marker reshaping or deletion can also move the centroid, including
+retaining only the top-right portion of a stationary marker. A passing centroid
+is neither pixel-correspondence proof nor general UV correctness, depth,
+usefulness, mirror/portal parity or PBR coherence. Those broader gates remain
+unqualified; this audit does not adapt the expected sign to rendered results.
+
 The frozen SDVK-008 renderer does not emit an ordinary immediate-scene GPU
 timestamp span. Its CPU and available postprocess GPU distributions remain
 descriptive; they cannot establish sprite POM scene cost. `timing_analysis`
