@@ -85,3 +85,61 @@ is made. IWAD bytes and the large archive are outside Git.
 
 #8, #9 and #10 remain open. #11/#14 require accepted #9/#10; #12 requires accepted
 #8/#9. No downstream gate is unblocked by partial captures or tooling CI.
+
+## Separate post-restart diagnostic: failed, stop reinstated
+
+After an explicit user restart/resume request, a new experiment was preregistered
+in [issue #9](https://github.com/techrote/ShadeDoomVK/issues/9#issuecomment-6108365501).
+The original frozen experiment above remains sealed and unchanged. New clean
+source `a7c5df6f7a3c529cb2d8f659dade79f45e2dfdaa`, tree
+`377665a654ca0d491a4671ce1eb7df7b5ff52aa4`, was independently built with the same
+MSVC x64 RelWithDebInfo toolchain. Exact-master source run `38112316172` and full
+CI `38112316182` passed; full CI was 9/9. The executable SHA-256 is
+`4a10cf525a5e65e60c035f4f7270a708bf659e64bf5faad9fb920fd0a1475531`.
+
+This source includes the two CPU-proven collision repairs, accepted height/TBN
+changes, implemented opt-in POM and actor probes, and opt-in scene timestamps.
+It is not a same-build comparison with the original baseline. CPU fixture checks
+preserve original compositing, shadow-boundary and all five performance PK3s;
+three updated compatibility fixtures and sprite-mirror settings are explicitly
+enumerated in the preregistration. The reboot reset the previous 90 W limit to
+100 W. Restoring it was denied to the agent by Windows permissions; the user
+restored 90 W from Administrator PowerShell, and actual readback was verified
+before any scene launch. No clock, voltage, BIOS or driver changes were made.
+
+The bounded diagnostic planned one compositing capture followed by two
+shadow-boundary captures, each 640x480, 120 warmup frames and one retained frame.
+Compositing completed and validated the expected source and actual Vulkan GPU.
+The first shadow-boundary capture again emitted type-4 fault records during
+warmup. The strict monitor stopped the experiment and verified executable path,
+SHA-256 and collector parent before terminating only renderer PID 13676. The
+collector finalized failed process/diagnostic receipts. No renderer remained.
+Maximum observed temperature was 50 C at 90 W; NVIDIA event 153, System record
+7671, occurred at `2026-10-11T11:08:48.1048128Z`.
+
+The second shadow capture, full 41-process campaign, all timing, SDVK-008 and
+SDVK-010 launches were not reached. There was no retry or relaxed workload.
+The independently reviewed monitor rejects malformed/missing event evidence,
+nonfinite/80 C temperatures, power changes, device/driver changes and new driver
+events. A stop latch blocks every subsequent capture and executable spawn;
+driver-event baseline continuity crosses diagnostic/campaign stage boundaries.
+Nine CPU guard tests and a deliberate changed-baseline negative passed before
+launch. An initial failed guard test and failed PowerShell event-module probe
+are retained alongside their verified replacements. Monitoring uses bounded
+polling, not instantaneous detection.
+
+**FAILED_DEVICE_FAULT; hardware STOP reinstated.** Restart and the two source
+repairs did not prevent this separate physical failure. They do not establish
+fault causality or resolution. Root cause remains undetermined; scaling is
+unmeasured and architecture inconclusive. Known null-BLAS source hazards remain
+separate offline investigation inputs, not proven conditions of this capture.
+
+[Machine-readable report](evidence/sdvk009-reboot-v2-20261011.json) pins the new
+132-file local packet, runtime/debug symbols, raw diagnostics, preflight and
+operator tools. Archive `C:/ShadeDoomVK/physical-evidence/20261011/post-reboot-v2-raw.zip`
+is 107,689,274 bytes, SHA-256
+`4369b0d3e35b445df1434d249325a830bf3c109555d676222946c487442f0b55`;
+manifest SHA-256
+`cc4a2795287b2b25c77b649063074de3e0a37c394d49c3ad91c75357e0f50d6e`.
+Durable external raw storage remains unavailable. No acceptance or dependent
+gate changes follow, and no further physical launch is authorized by this report.

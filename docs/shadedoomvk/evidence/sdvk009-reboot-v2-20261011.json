@@ -1,0 +1,91 @@
+{
+  "schema": "sdvk009-reboot-v2-physical-report/v1",
+  "experiment": "post-reboot-v2",
+  "registered_issue": "https://github.com/techrote/ShadeDoomVK/issues/9#issuecomment-6108365501",
+  "source": "a7c5df6f7a3c529cb2d8f659dade79f45e2dfdaa",
+  "tree": "377665a654ca0d491a4671ce1eb7df7b5ff52aa4",
+  "exe_sha256": "4a10cf525a5e65e60c035f4f7270a708bf659e64bf5faad9fb920fd0a1475531",
+  "source_ci": 38112316172,
+  "full_ci": 38112316182,
+  "ci_result": "PASS_9_OF_9",
+  "stop": {
+    "schema": "sdvk009-reboot-v2-physical-stop/v1",
+    "status": "FAILED_DEVICE_FAULT",
+    "hardware_stop_active": true,
+    "source_commit": "a7c5df6f7a3c529cb2d8f659dade79f45e2dfdaa",
+    "source_tree": "377665a654ca0d491a4671ce1eb7df7b5ff52aa4",
+    "executable_sha256": "4a10cf525a5e65e60c035f4f7270a708bf659e64bf5faad9fb920fd0a1475531",
+    "completed_scene_processes": 1,
+    "failed_scene_processes": 1,
+    "unlaunched_diagnostic_processes": 1,
+    "campaign_processes": 0,
+    "timing_processes": 0,
+    "sdvk008_processes": 0,
+    "automatic_retries": 0,
+    "failure_scene": "shadow-boundary",
+    "maximum_temperature_c": 50.0,
+    "power_limit_watts": 90,
+    "driver_event": {
+      "provider": "nvlddmkm",
+      "id": 153,
+      "record_id": 7671,
+      "time_utc": "2026-10-11T11:08:48.1048128Z"
+    },
+    "root_cause": "UNDETERMINED; repeated type4 instruction-pointer-unknown fault does not identify shader/resource/read-write/driver causality",
+    "inference": "Restart plus independently CPU/software-qualified collision repairs did not prevent this separate physical failure; neither repair is established as physical fault resolution.",
+    "qualification": false,
+    "performance_accepted": false,
+    "architecture_decision": "INCONCLUSIVE",
+    "scaling": "UNMEASURED",
+    "next_action": "No further physical renderer launches. Investigate source/CPU collision invariants and GPU failure cause offline. Do not weaken/retry the failed fixture or change driver/hardware settings without demonstrated need and explicit authorization."
+  },
+  "supervisor_receipt": {
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\post-reboot-v2\\diagnostic-supervisor\\supervisor.json",
+    "bytes": 1983,
+    "sha256": "765818317ec48d0b1b26a6fa22852f769c5fd3818b2b8dd901ba36b3c5ed0072"
+  },
+  "diagnostic_receipt": {
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\post-reboot-v2\\diagnostic\\diagnostic.json",
+    "bytes": 1650,
+    "sha256": "f2357f43bcaf496bf31f25ae30b7ace8a9d9b72614edcc7e24f5f321e7157987"
+  },
+  "preregistration": {
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\post-reboot-v2\\preregistration-v2.json",
+    "bytes": 10840,
+    "sha256": "f04ef9dc374cbe67d3d9e56bbde7c7faf0acb594d35aa6d30bd4e0ae978aea1c"
+  },
+  "compositing": "COLLECTED_VALIDATED_NO_PAIRED_COMPARISON",
+  "shadow_boundary": "FIRST_CAPTURE_FAILED_NO_NATIVE_STATE_OR_IMAGE",
+  "original_failed_experiment": "SEALED_UNCHANGED",
+  "raw_remote_durable_storage": false,
+  "issues": {
+    "8": "OPEN",
+    "9": "OPEN",
+    "10": "OPEN",
+    "11": "BLOCKED_9_10",
+    "12": "BLOCKED_8_9",
+    "14": "BLOCKED_9_10"
+  },
+  "hardware_action": "User restored prior90W limit after reboot reset100W; no clock/voltage/driver/BIOS changes",
+  "retained_preflight_error": "Initial PowerShell event-module load error retained verbatim; replaced by validated nativewevtutil reader before any scene launch.",
+  "physical_gpu_qualified": false,
+  "performance_accepted": false,
+  "created_utc": "2026-10-11T11:12:39.999132+00:00",
+  "archive": {
+    "schema": "sdvk-local-archive/v1",
+    "archive": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\post-reboot-v2-raw.zip",
+      "bytes": 107689274,
+      "sha256": "4369b0d3e35b445df1434d249325a830bf3c109555d676222946c487442f0b55"
+    },
+    "manifest": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\post-reboot-v2-raw-manifest.json",
+      "bytes": 24531,
+      "sha256": "cc4a2795287b2b25c77b649063074de3e0a37c394d49c3ad91c75357e0f50d6e"
+    },
+    "files": 132,
+    "raw_bytes": 292489362,
+    "remote_storage": false,
+    "physical_gpu_qualified": false
+  }
+}

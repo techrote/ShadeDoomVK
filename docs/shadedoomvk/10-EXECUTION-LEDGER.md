@@ -920,3 +920,30 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - The bounded repair initializes centroid storage by original triangle extent and assigns retained centroids at original IDs. Triangle selection, leaf offsets, subdivision/traversal, workloads and quality controls are unchanged. Exact pre-fix constructor/hash and original result summaries are retained; no donor code is imported.
 - Production-extracted regression executes pre-fix/repaired constructors across leading/interior holes and no-hole/all-degenerate/trailing-hole controls, scalar and SSE debug paths on x86: 20 scenario executions. Focused assertions-enabled MSVC collision/LevelMesh CPU gate passes 12/12. Hosted source/build/CI and independent review remain pending; no merge or acceptance is predeclared.
 - This is **not physical fault causality or resolution**. The frozen failed packet proves no degenerate-hole state; null BLAS export/TLAS membership remain unresolved follow-ons. Hardware STOP remains active, #9 remains open/physically inconclusive, and no performance or dependent-gate transition is claimed. [Exact bounded audit](SDVK-009-COLLISION-ROOT-AUDIT.md).
+
+### 11 October 2026 — separate post-restart diagnostic failed; STOP reinstated
+
+- User restarted the host and explicitly requested continued testing. Separate
+  clean source/build `a7c5df6f7a3c529cb2d8f659dade79f45e2dfdaa`, tree
+  `377665a654ca0d491a4671ce1eb7df7b5ff52aa4`, had verified source `38112316172`
+  and full CI `38112316182` PASS 9/9. The original frozen failure remains sealed.
+  Preregistration explicitly enumerates later source/compatibility-fixture
+  differences and unchanged shadow/scaling inputs; no same-build old/new claim.
+- Reboot reset 90 W to 100 W; agent restoration was denied by Windows, then the
+  user restored 90 W with Administrator PowerShell. Readback verified before
+  launch. Independently reviewed strict monitor, nine CPU guard tests and a
+  changed-event-baseline negative passed. No clocks/voltage/driver/BIOS changes.
+- One compositing capture passed. First shadow-boundary capture again emitted
+  type-4 fault records during warmup. Verified path/hash/collector-parent limited
+  forced termination to PID 13676; collector retained failed receipts. NVIDIA
+  event 153 record 7671 at `2026-10-11T11:08:48.1048128Z`; maximum 50 C at 90 W.
+- Second shadow capture, full 41-process campaign, timings and SDVK-008/010 were
+  NOT LAUNCHED. Zero retries. **FAILED_DEVICE_FAULT; STOP reinstated.** Restart
+  and CPU-qualified collision repairs did not prevent the new failure; root
+  cause remains undetermined, scaling unmeasured, architecture inconclusive.
+- Complete new 132-file raw packet and runtime/debug symbols retained locally;
+  archive SHA-256 `4369b0d3e35b445df1434d249325a830bf3c109555d676222946c487442f0b55`.
+  [Report](SDVK-009-PHYSICAL-20261011.md) and
+  [receipt](evidence/sdvk009-reboot-v2-20261011.json) pin all identities and limits.
+  #8/#9/#10 remain open; #11/#12/#14 remain blocked. No new physical launch or
+  hardware-setting change is authorized by this reconciliation.
