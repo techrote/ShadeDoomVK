@@ -20,16 +20,19 @@ CORRECTNESS_PAIRS = [
     {"id": "mirror", "off": "sdvk008-mirror-off", "on": "sdvk008-mirror-on", "oracle": "mirror"},
     {"id": "pbr", "off": "sdvk008-p0", "on": "sdvk008-pm", "oracle": "effect"},
     {"id": "grazing", "off": "sdvk008-g0", "on": "sdvk008-gh", "oracle": "effect"},
+    {"id": "grazing-fallback", "off": "sdvk008-grazing-fallback-off",
+     "on": "sdvk008-grazing-fallback-on", "oracle": "exact"},
 ]
 AVAILABLE_GATES = ("default-off-equivalence", "heightless-equivalence", "visible-effect",
                    "same-build-repeatability", "emitted-basis-and-material-state",
-                   "directional-displacement", "alpha-silhouette-matte")
+                   "directional-displacement", "alpha-silhouette-matte",
+                   "grazing-hard-fallback-equivalence")
 MISSING_GATES = ("mirror-direction",
                  "portal-relief-parity", "invalid-height-native-fallback",
                  "invalid-view-native-fallback", "grazing-and-distance-bounds",
                  "atlas-and-filter-footprint", "semantic-pbr-uv-coherence")
 REQUIRED_GATES = AVAILABLE_GATES + MISSING_GATES
-FAMILIES = {"single", "multiple", "grazing", "pbr", "heightless", "alpha", "alpha-background", "mirror"}
+FAMILIES = {"single", "multiple", "grazing", "grazing-fallback", "pbr", "heightless", "alpha", "alpha-background", "mirror"}
 
 
 def red_marker_direction(off_rgb: bytes, on_rgb: bytes, width: int, height: int) -> dict:

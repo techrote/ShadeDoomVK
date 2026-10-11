@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import copy
+import math
 from pathlib import Path
 import tempfile
 import unittest
@@ -106,6 +107,17 @@ class PhysicalFixtureTests(unittest.TestCase):
         for members,count in ((off,1),(bg,0)):
             rows=parse_udmf(unpack_wad(members['maps/SRLALPHA.wad'])['TEXTMAP'])['thing']
             self.assertEqual(len([t for t in rows if t['type']==32218]),count)
+
+    def test_hard_grazing_whole_quad_stays_below_point_two(self):
+        scene=self.scenes['sdvk008-grazing-fallback-on']
+        cx,cy,cz=scene['native']['camera']['position']
+        # Card angle180 lies x=0; even the nearest possible point of its
+        # continuous y[-64,64], z[0,128] rectangle has Vz <0.20.
+        nearest_y=max(-64,min(64,cy))
+        nearest_z=max(0,min(128,cz))
+        maximum_vz=-cx/math.sqrt(cx*cx+(cy-nearest_y)**2+(cz-nearest_z)**2)
+        self.assertLess(maximum_vz,.20)
+        self.assertGreater(maximum_vz,0)
 
     def test_preparation_authenticates_generated_bytes(self):
         with tempfile.TemporaryDirectory() as tmp:

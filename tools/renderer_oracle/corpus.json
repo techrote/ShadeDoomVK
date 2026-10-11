@@ -11622,6 +11622,666 @@
         "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
       ],
       "title": "SDVK008 binary-alpha background matte control"
+    },
+    {
+      "classes": [
+        "sprite_orientation",
+        "semantic_materials",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_render_context_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sprite_surface_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_swcanvas_layout_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sprite_tangent_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk008_relief_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "render-context",
+        "sprite-surface",
+        "swcanvas",
+        "sprite-tangent",
+        "sprite-relief"
+      ],
+      "id": "sdvk008-grazing-fallback-off",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SRLGFALL",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -8,
+            -160,
+            96
+          ],
+          "roll": 0,
+          "yaw": 87.13759477388825
+        },
+        "capture_script": "scenes/sdvk008-grazing-fallback-off/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/sdvk008-grazing-fallback-off/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_sprite_relief_depth",
+          "gl_sprite_relief_quality",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_dynlights",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "sprites": {
+            "minimum": 1
+          }
+        },
+        "generator": "sprite_relief",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": false,
+        "map": "SRLGFALL",
+        "map_guard": {
+          "equals": "SRLGFALL",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Authored only: native grammar, emitted state and independently launched images remain unqualified.",
+          "Advanced directional, alpha matte, invalid-height/view, atlas, distance and semantic PBR UV oracles remain missing; this fixture cannot by itself authorize timing or acceptance.",
+          "No actual fragment height-read counter or affected-pixel coverage is available; theoretical bounds are not measured GPU work."
+        ],
+        "pk3": "scenes/sdvk008-grazing-fallback-off/scene.pk3",
+        "recommended_warmup_frames": 120,
+        "relief_family": "grazing-fallback",
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": false,
+          "gl_mirrors": true,
+          "gl_multisample": 0,
+          "gl_portals": true,
+          "gl_sprite_relief_depth": 0,
+          "gl_sprite_relief_quality": 2,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_dynlights": false,
+          "r_drawplayersprites": false,
+          "r_mirror_recursions": 2,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "state_assertions": {
+          "material_semantics": {
+            "SDVEA0": [
+              "albedo"
+            ]
+          },
+          "materials": [
+            "SDVEA0"
+          ],
+          "root_types": [
+            "main"
+          ]
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "resource",
+        "pipeline",
+        "sprite-basis",
+        "sprite-relief"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/rag/01-RENDERER-EXECUTION-MAP.md",
+        "src/common/textures/material_layer_semantics.h",
+        "src/gamedata/decallib.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/a_decals.cpp",
+        "src/r_data/r_canvastexture.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/scene/hw_sprite_surface.h",
+        "tools/pf_oracle/prepare_freeze_view_fixture.py",
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp",
+        "tools/pf_oracle/tests/test_render_context_contract.py",
+        "tools/pf_oracle/tests/test_sprite_surface_contract.py",
+        "tools/pf_oracle/tests/test_swcanvas_layout_contract.py",
+        "wadsrc/static/mapinfo/common.txt",
+        "wadsrc/static/zscript/actors/actor.zs",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "wadsrc/static/zscript/actors/shared/decal.zs",
+        "src/rendering/hwrenderer/scene/hw_sprite_tangent.h",
+        "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp",
+        "tools/pf_oracle/tests/test_sprite_tangent_contract.py",
+        "src/common/rendering/hwrenderer/data/hw_surfaceuniforms.h",
+        "wadsrc/static/shaders/scene/material_relief.glsl",
+        "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
+        "tools/renderer_oracle/sdvk008_fixtures.py",
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+      ],
+      "title": "SDVK008 hard grazing fallback off"
+    },
+    {
+      "classes": [
+        "sprite_orientation",
+        "semantic_materials",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_render_context_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sprite_surface_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_swcanvas_layout_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sprite_tangent_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk008_relief_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "render-context",
+        "sprite-surface",
+        "swcanvas",
+        "sprite-tangent",
+        "sprite-relief"
+      ],
+      "id": "sdvk008-grazing-fallback-on",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SRLGFALL",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -8,
+            -160,
+            96
+          ],
+          "roll": 0,
+          "yaw": 87.13759477388825
+        },
+        "capture_script": "scenes/sdvk008-grazing-fallback-on/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/sdvk008-grazing-fallback-on/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_sprite_relief_depth",
+          "gl_sprite_relief_quality",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_dynlights",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "sprites": {
+            "minimum": 1
+          }
+        },
+        "generator": "sprite_relief",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": false,
+        "map": "SRLGFALL",
+        "map_guard": {
+          "equals": "SRLGFALL",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Authored only: native grammar, emitted state and independently launched images remain unqualified.",
+          "Advanced directional, alpha matte, invalid-height/view, atlas, distance and semantic PBR UV oracles remain missing; this fixture cannot by itself authorize timing or acceptance.",
+          "No actual fragment height-read counter or affected-pixel coverage is available; theoretical bounds are not measured GPU work."
+        ],
+        "pk3": "scenes/sdvk008-grazing-fallback-on/scene.pk3",
+        "recommended_warmup_frames": 120,
+        "relief_family": "grazing-fallback",
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": false,
+          "gl_mirrors": true,
+          "gl_multisample": 0,
+          "gl_portals": true,
+          "gl_sprite_relief_depth": 0.012,
+          "gl_sprite_relief_quality": 2,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_dynlights": false,
+          "r_drawplayersprites": false,
+          "r_mirror_recursions": 2,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "state_assertions": {
+          "material_semantics": {
+            "SDVEA0": [
+              "albedo"
+            ]
+          },
+          "materials": [
+            "SDVEA0"
+          ],
+          "root_types": [
+            "main"
+          ]
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "resource",
+        "pipeline",
+        "sprite-basis",
+        "sprite-relief"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/rag/01-RENDERER-EXECUTION-MAP.md",
+        "src/common/textures/material_layer_semantics.h",
+        "src/gamedata/decallib.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/a_decals.cpp",
+        "src/r_data/r_canvastexture.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/scene/hw_sprite_surface.h",
+        "tools/pf_oracle/prepare_freeze_view_fixture.py",
+        "tools/pf_oracle/tests/render_context_fixture.cpp",
+        "tools/pf_oracle/tests/sprite_surface_policy_fixture.cpp",
+        "tools/pf_oracle/tests/swcanvas_layout_fixture.cpp",
+        "tools/pf_oracle/tests/test_render_context_contract.py",
+        "tools/pf_oracle/tests/test_sprite_surface_contract.py",
+        "tools/pf_oracle/tests/test_swcanvas_layout_contract.py",
+        "wadsrc/static/mapinfo/common.txt",
+        "wadsrc/static/zscript/actors/actor.zs",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "wadsrc/static/zscript/actors/shared/decal.zs",
+        "src/rendering/hwrenderer/scene/hw_sprite_tangent.h",
+        "tools/pf_oracle/tests/sprite_tangent_basis_fixture.cpp",
+        "tools/pf_oracle/tests/test_sprite_tangent_contract.py",
+        "src/common/rendering/hwrenderer/data/hw_surfaceuniforms.h",
+        "wadsrc/static/shaders/scene/material_relief.glsl",
+        "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
+        "tools/renderer_oracle/sdvk008_fixtures.py",
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+      ],
+      "title": "SDVK008 hard grazing fallback on"
     }
   ],
   "schema": "sdvk-renderer-corpus/v1",
