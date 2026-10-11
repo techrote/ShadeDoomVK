@@ -238,6 +238,27 @@ SDVK-008 reuses the accepted SDVK-005 **linear red height** index and independen
 `material_relief.glsl` computes world camera-to-fragment in T/B/N, hard-gates backfaces/grazing `Vz<=0.20`, limits depth `<=0.0200` UV and excursion `<=0.0500`, uses fixed 8/12/20 march plus 1/2 refinement, and at most 10/15/23 height reads including the front-plane sample. Height samples retain their semantic red scalar and are read with explicit LOD from original-UV derivatives before divergence; missing/invalid/unsafe frame subrects/texture footprints return original UV without wrap or alpha-cutout escape. The material then samples normal/specular/PBR/detail layers at **one shared resolved UV** if qualified; original albedo **alpha** remains authoritative and the shifted texel's failed alpha restores the original complete material UV/color. There is no vertex/displacement, fragment-depth, shadow, or gameplay change.
 
 Full off-GPU correctness and fixed source/native acceptance evidence belong in [SDVK-008 off-GPU report](../SDVK-008-OFFGPU-QUALIFICATION.md). Software-Vulkan timers and the theoretical height-read ceiling cannot establish physical-GPU cost or #16 quality tiers; #8 stays open until its separate [physical measurement protocol](../prepass/SDVK-008/SDVK-008-PHYSICAL-GPU-PROTOCOL.md) is satisfied.
+SDVK-008 qualification tooling now lives in `tools/renderer_oracle/sdvk008_physical.py`
+and `sdvk008_fixtures.py`: deterministic eleven-variant families share identical
+OFF/ON package bytes while varying only declared relief controls. RGB effect,
+source-projected interior stripe-edge direction, emitted eligibility and background alpha masks are
+separate witnesses. Authored fixtures and CPU tests alone do not qualify native
+POM usefulness, semantic PBR UV coherence or cost. Missing advanced gates block
+full timing before launch; the separate llvmpipe smoke is bounded correctness
+only. Frozen ordinary-scene GPU timing is absent and explicitly inconclusive.
+No SDVK-008 physical scene was launched after the SDVK-009 host fault. See the
+[tooling checkpoint](../SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md); default remains OFF.
+The former whole-red-marker centroid remains a historical diagnostic, with its
+failed hosted receipt preserved. A CPU constructive counterexample proves that
+area/Jacobian weighting can reverse that centroid despite every source point
+moving right/up. The replacement `sdvk008-source-projected-stripe-v1` checks
+fixed authored interior UV sections, exact projected OFF/ON stripe endpoints,
+and actual emitted unflipped single-card TBN/UV/view state. Its scope is bounded
+stripe-edge motion; it proves neither pixel correspondence nor general UV
+coherence, mirror/portal parity or PBR correctness. Five single-family recipe
+identities change while all 25 authored PK3 bytes remain unchanged. New hosted
+collection is pending; the old campaign remains failed and physical work stopped.
+
 ## SDVK-010 actor/environment PBR candidate
 
 Actor PBR cards retain SDVK-005 semantic normal/metallic/roughness/AO filters and SDVK-007 final-quad normal orientation. A source-level authored actor probe ordinal is selected *before* `VkRenderState::ApplySurfaceUniforms`, then converted through the unchanged PF-113 irradiance/prefilter bindless pair. Actual emitted-draw state captures ordinal, runtime pair, publication epoch and normal/PBR shader identities. Absent authored probes and incomplete published pairs remain zero-radiance IBL; direct/sunlight/shadow response is independent. No POM, BRDF adjustment, alternate cubemap or fake GI. The `sun-probes` dielectric/metallic material witness needs native qualification; linked portals and actual occluded sun response are not yet accepted. [Contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).

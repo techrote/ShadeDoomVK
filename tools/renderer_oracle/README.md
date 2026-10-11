@@ -413,3 +413,108 @@ unsupported hardware, missing channels, instability or unmet workload gates
 as concrete pending evidence. Later SDVK defects should add a minimized
 positive/negative fixture and update the corresponding catalog/source
 references without erasing the old failing evidence.
+
+## SDVK-008 independent physical collection
+
+`sdvk008_physical.py` consumes the finite `sdvk008-*` corpus recipes and the
+original #8 protocol. Its renderer identity is the immutable implementation
+commit `9536324ce33ea418af5a8efe733b4659f6b4ad9b`, tree
+`3123bc7fd3dd9074487cbe3487f9336ef3589003`. Fixture/tooling hashes are recorded
+separately; these newer authored packages do not relabel the renderer build.
+The original #9 driver is independent.
+
+```sh
+python tools/renderer_oracle/sdvk008_physical.py --exe /absolute/frozen/vkdoom --iwad /absolute/private/doom2.wad --out /absolute/fresh/sdvk008-device-packet --device-name "EXACT Vulkan DeviceName" --vulkan-summary /absolute/preflight/vulkaninfo-summary.txt --execute --correctness-only
+```
+
+The operator first verifies Vulkan/device, build, host/driver/thermal and licensed
+IWAD provenance according to the physical protocol. The device name above must
+match the renderer's actual `build.device`; device type must be physical (1/2).
+The retained `vulkaninfo --summary` must identify that unique physical Vulkan
+device before the first renderer process. Actual renderer vendor/device/type
+must subsequently agree. OS/CUDA inventory cannot substitute for this input.
+Every capture authenticates source, executable, engine/IWAD/content, effective
+settings and actual readbacks. Fresh config, saves and application caches are
+isolated by `run.py`; OS/driver caches remain externally controlled.
+
+Default execution without `--correctness-only` fails before any renderer launch
+while `sdvk008_fixtures.MISSING_GATES` is nonempty. The partial option explicitly
+collects available 640×480 correctness pairs twice and all eleven timing variant
+**state** captures twice at 1904×1001. It never collects timing samples or grants
+full correctness. Repeat comparisons use exact state/RGB policies; paired OFF/ON
+images must share package bytes, camera and non-relief settings. Positive RGB
+differences establish a visible effect only. Unimplemented mirror/portal,
+grazing/distance, invalid height/view, atlas and PBR semantic witnesses remain
+explicit acceptance blockers. Descriptive image checks never unlock timing.
+Single-card direction uses the separately revisioned source-projected interior
+stripe-edge oracle in `sdvk008_marker.py`. Fixed authored UV sections, camera
+projection and constant-height intersection predict both OFF/ON endpoints;
+complete unique stripe intervals must match those predictions. Actual emitted
+TBN/UV/view state is authenticated before the unchanged right/up signs and
+0.05-pixel mean edge-motion threshold apply. The old whole-marker centroid is
+retained as a descriptive diagnostic: area changes can reverse its sign even
+when every material point moves right. It no longer controls the hard gate.
+This finite edge witness proves neither pixel correspondence nor general UV
+correctness; actor X/Y mirror direction is again explicitly missing. Unresolved
+or invisible raster motion remains inconclusive. Alpha/cutout
+evidence compares exact OFF/ON masks against an independently repeated
+no-card-background capture. Both witnesses apply only to their finite authored
+fixtures. A missing directional marker is reported inconclusive. Source-level
+`AVAILABLE_GATES` means an oracle is implemented, never that physical evidence
+already passed.
+
+After a complete correctness contract exists, the timing path uses the original
+three 11-variant counterbalanced orders, with exactly 120 warmup and 120 retained
+frames per independent serial process. CPU and each consistently available GPU
+group are evaluated separately: interpolated p50/p90/p95/p99, matched ON−OFF
+milliseconds/ratios, process-median MAD, >5% OFF variability, and the strict
+`max(0.05 ms, 2 × OFF median MAD)` detection threshold. Resolved GPU groups with
+incomplete or repeated unnamed per-frame scopes cannot become an invented
+whole-frame duration. No nested groups are summed or samples discarded. An
+effect below the detection limit is not reported as zero cost.
+
+`sdvk008-physical-campaign.json` and `checksums.json` retain completion/failure
+status and the entire file inventory, including raw attempts and private IWAD
+copies. `verify_checksums(packet_path)` rejects altered, missing or added files.
+Keep the raw packet outside Git; only publish licensed, suitably sized summaries.
+Both complete and partial receipts keep `physical_gpu_qualified=false` and
+`performance_accepted=false`; reviewed physical quality/cost, hosted CI and
+issue-specific acceptance remain separate gates. The global default stays OFF.
+
+The host-only tests launch no renderer:
+
+```sh
+python -m unittest discover -s tools/renderer_oracle/tests -p 'test_sdvk008*.py' -v
+```
+
+The Linux CI lane additionally runs `--software-fixture-control` with explicit
+`--correctness-only`, the exact hosted renderer commit, a retained license and
+one identified CPU (type 4) llvmpipe ICD. This separate smoke covers only
+default-OFF, heightless, medium single-card direction/effect and binary-alpha
+background-mask pairs, twice at 640×480. It collects no timing or high-resolution
+physical variant state. Its distinct `sdvk008-software-fixture-control.json`
+reports `software_vulkan_evidence_collected=true` only after success; every
+physical evidence/qualification/performance flag stays false. CI retains the
+full raw attempts beside the inherited software-Vulkan packet. This can expose
+content grammar or image-oracle defects while a physical session is stopped;
+it cannot substitute for #8's physical quality/cost programme.
+
+An independent retained `vulkaninfo --summary` precedes the smoke. The driver
+authenticates the unique CPU llvmpipe identity and raw driver version before
+launching its 16 bounded state captures. Those captures run before the inherited
+35-process `native_ci.py --full` campaign so authored fixture failures surface
+early. A failed preflight or smoke stops the job; only a passing smoke proceeds
+to every inherited state, image, feature and timing gate. This ordering adds no
+retry and removes no required gate.
+
+The `renderer-software-vulkan` Actions artifact contains one lossless
+`renderer-software-vulkan.tar.xz` archive. Its 64 MiB xz dictionary compresses
+repeated IWAD/input bytes across process packets without removing any logical
+raw file, license or checksum. Packaging runs even after a failed native step
+and includes whichever of the known `renderer-native`,
+`renderer-sdvk008-control` and `renderer-sdvk008-preflight` directories exists,
+including the independent preflight stdout/stderr if it failed before capture.
+Original runner packets are left
+intact; artifact retention remains 30 days. Extract after downloading the
+artifact with `tar -xJf renderer-software-vulkan.tar.xz` into a fresh directory
+to recover the original packet trees and verify their retained checksums.

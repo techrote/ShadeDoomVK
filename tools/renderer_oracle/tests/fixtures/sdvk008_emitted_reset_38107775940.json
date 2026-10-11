@@ -1,0 +1,689 @@
+{
+  "schema": "sdvk008-retained-emitted-reset/v1",
+  "workflow_run": 38107775940,
+  "submitted_head": "5813871bc",
+  "states": {
+    "off": {
+      "records": [
+        {
+          "kind": "sprite-basis",
+          "frame": 1,
+          "count": 1,
+          "data": {
+            "context": {
+              "available": true,
+              "semantic_key": "SRLSING:main:-1:0:0:root:0:[-160,-80,96]:[243,0,0]",
+              "producer": "root",
+              "map": "SRLSING",
+              "type": "main",
+              "root_type": "main",
+              "epoch": 121,
+              "identity": 1,
+              "parent_identity": 0,
+              "depth": 0,
+              "face": -1,
+              "eye": 0,
+              "portal_group": 0,
+              "line_mirror": false,
+              "plane_mirror": false,
+              "mirrored": false,
+              "history_eligible": true,
+              "postprocess_eligible": true,
+              "visual_time": {
+                "scope": "main-owner",
+                "advances_main_clock": true,
+                "delta_seconds": 0.01678033600001072,
+                "accumulated_seconds": 2.3859509259999867,
+                "generation": 3,
+                "main_frame": 121,
+                "delta_valid": true,
+                "interpolation_valid": true,
+                "clamped": false,
+                "discontinuity": "none"
+              },
+              "position": [
+                -160,
+                -80,
+                96
+              ],
+              "angles": [
+                243,
+                0,
+                0
+              ],
+              "angle_space": "hardware-view",
+              "fraction": 0.44297530385950606,
+              "gametic": 105
+            },
+            "surface": {
+              "contract": "sdvk-007-final-quad/v1",
+              "orientation_source": "pf-009-calculate-vertices",
+              "source": 0,
+              "presentation": 3,
+              "sprite_type": 4096,
+              "actor_sprite": 931,
+              "actor_frame": 0,
+              "source_portal_group": 0,
+              "render_portal_group": 0,
+              "through_portal_mode": 0,
+              "frame_mirrored": false,
+              "uv_mirror_x": false,
+              "uv_mirror_y": false,
+              "portal_mirrored": false,
+              "xy_billboard": false,
+              "faces_camera": false,
+              "uv": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "render_angles": [
+                180,
+                0,
+                0
+              ],
+              "view_angles": [
+                243,
+                0,
+                0
+              ],
+              "expected_tangent": [
+                0,
+                0,
+                -1
+              ],
+              "expected_normal": [
+                -1,
+                0,
+                0
+              ],
+              "u_sign": -1,
+              "v_sign": 1,
+              "expected_handedness": 1,
+              "view_parity": 1,
+              "basis_valid": true,
+              "basis_reason": "explicit-final-quad",
+              "selection": "explicit-sprite"
+            },
+            "tangent": [
+              0,
+              0,
+              -1
+            ],
+            "normal": [
+              -1,
+              0,
+              0
+            ],
+            "handedness": 1,
+            "explicit": true,
+            "material": "SDVEA0",
+            "shader": 0,
+            "height_texture_index": 4,
+            "light_index": 0,
+            "indexed": false,
+            "draw_count": 4,
+            "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms"
+          }
+        },
+        {
+          "kind": "sprite-relief",
+          "frame": 1,
+          "count": 1,
+          "data": {
+            "context": {
+              "available": true,
+              "semantic_key": "SRLSING:main:-1:0:0:root:0:[-160,-80,96]:[243,0,0]",
+              "producer": "root",
+              "map": "SRLSING",
+              "type": "main",
+              "root_type": "main",
+              "epoch": 121,
+              "identity": 1,
+              "parent_identity": 0,
+              "depth": 0,
+              "face": -1,
+              "eye": 0,
+              "portal_group": 0,
+              "line_mirror": false,
+              "plane_mirror": false,
+              "mirrored": false,
+              "history_eligible": true,
+              "postprocess_eligible": true,
+              "visual_time": {
+                "scope": "main-owner",
+                "advances_main_clock": true,
+                "delta_seconds": 0.01678033600001072,
+                "accumulated_seconds": 2.3859509259999867,
+                "generation": 3,
+                "main_frame": 121,
+                "delta_valid": true,
+                "interpolation_valid": true,
+                "clamped": false,
+                "discontinuity": "none"
+              },
+              "position": [
+                -160,
+                -80,
+                96
+              ],
+              "angles": [
+                243,
+                0,
+                0
+              ],
+              "angle_space": "hardware-view",
+              "fraction": 0.44297530385950606,
+              "gametic": 105
+            },
+            "surface": {
+              "contract": "sdvk-007-final-quad/v1",
+              "orientation_source": "pf-009-calculate-vertices",
+              "source": 0,
+              "presentation": 3,
+              "sprite_type": 4096,
+              "actor_sprite": 931,
+              "actor_frame": 0,
+              "source_portal_group": 0,
+              "render_portal_group": 0,
+              "through_portal_mode": 0,
+              "frame_mirrored": false,
+              "uv_mirror_x": false,
+              "uv_mirror_y": false,
+              "portal_mirrored": false,
+              "xy_billboard": false,
+              "faces_camera": false,
+              "uv": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "render_angles": [
+                180,
+                0,
+                0
+              ],
+              "view_angles": [
+                243,
+                0,
+                0
+              ],
+              "expected_tangent": [
+                0,
+                0,
+                -1
+              ],
+              "expected_normal": [
+                -1,
+                0,
+                0
+              ],
+              "u_sign": -1,
+              "v_sign": 1,
+              "expected_handedness": 1,
+              "view_parity": 1,
+              "basis_valid": true,
+              "basis_reason": "explicit-final-quad",
+              "selection": "explicit-sprite"
+            },
+            "material": "SDVEA0",
+            "shader": 0,
+            "height_texture_index": 4,
+            "uv_bounds": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "depth": 0,
+            "quality": 0,
+            "candidate": false,
+            "eligible_draw": false,
+            "basis_valid": true,
+            "height_reads_max": 0,
+            "measurement": "shader-sample-upper-bound-not-actual-fragment-work",
+            "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms"
+          }
+        },
+        {
+          "kind": "frame",
+          "frame": 1,
+          "count": 1,
+          "data": {
+            "gametic": 105,
+            "map": "SRLSING",
+            "cpu_render_view_ms": 1.233417,
+            "visual_time": {
+              "scope": "main-view-owner",
+              "delta_seconds": 0.01678033600001072,
+              "accumulated_seconds": 2.3859509259999867,
+              "generation": 3,
+              "main_frame": 121,
+              "delta_valid": true,
+              "interpolation_valid": true,
+              "clamped": false,
+              "discontinuity": "none"
+            },
+            "camera": {
+              "position": [
+                -160,
+                -80,
+                96
+              ],
+              "angles": [
+                26.999999983236194,
+                0,
+                0
+              ],
+              "hardware_angles": [
+                243,
+                0,
+                0
+              ],
+              "fraction": 0.44297530385950606,
+              "fov": 90
+            },
+            "settings": {
+              "vid_rendermode": 4,
+              "gl_levelmesh": false,
+              "gl_ubershaders": false,
+              "gl_lightprobe": false,
+              "vk_rayquery": false,
+              "cl_capfps": false,
+              "r_nointerpolate": false,
+              "gl_texture_filter": 0,
+              "gl_texture_filter_anisotropic": 1,
+              "gl_multisample": 0,
+              "gl_light_shadows": 0,
+              "gl_light_shadow_filter": 1,
+              "effective_sprite_light_mode": 2,
+              "gl_bloom": false,
+              "gl_ssao": 0,
+              "gl_tonemap": 0
+            },
+            "cpu_scope": "RenderView steady-clock interval; excludes later finish/presentation",
+            "state_instrumentation": true,
+            "hardware_renderer": true,
+            "width": 640,
+            "height": 480,
+            "walls": 3,
+            "flats": 2,
+            "sprites": 2,
+            "decals": 0,
+            "portals": 0,
+            "vertices": 12,
+            "light_wall_considered": 3,
+            "light_wall_rendered": 3,
+            "light_flat_considered": 2,
+            "light_flat_rendered": 2,
+            "authored_lights": 1,
+            "active_lights": 1,
+            "spot_lights": 0,
+            "subtractive_lights": 0,
+            "additive_lights": 0,
+            "actor_light_queries": 2,
+            "actor_light_candidates": 2,
+            "actor_light_selected": 2,
+            "actor_light_filtered": 0,
+            "actor_light_duplicates": 0,
+            "actor_light_traces": 0,
+            "shadow_candidates": 0,
+            "shadow_selected": 0,
+            "shadow_dropped": 0
+          }
+        }
+      ]
+    },
+    "on": {
+      "records": [
+        {
+          "kind": "sprite-basis",
+          "frame": 1,
+          "count": 1,
+          "data": {
+            "context": {
+              "available": true,
+              "semantic_key": "SRLSING:main:-1:0:0:root:0:[-160,-80,96]:[243,0,0]",
+              "producer": "root",
+              "map": "SRLSING",
+              "type": "main",
+              "root_type": "main",
+              "epoch": 121,
+              "identity": 1,
+              "parent_identity": 0,
+              "depth": 0,
+              "face": -1,
+              "eye": 0,
+              "portal_group": 0,
+              "line_mirror": false,
+              "plane_mirror": false,
+              "mirrored": false,
+              "history_eligible": true,
+              "postprocess_eligible": true,
+              "visual_time": {
+                "scope": "main-owner",
+                "advances_main_clock": true,
+                "delta_seconds": 0.01949116999992384,
+                "accumulated_seconds": 2.7175235439999823,
+                "generation": 3,
+                "main_frame": 121,
+                "delta_valid": true,
+                "interpolation_valid": true,
+                "clamped": false,
+                "discontinuity": "none"
+              },
+              "position": [
+                -160,
+                -80,
+                96
+              ],
+              "angles": [
+                243,
+                0,
+                0
+              ],
+              "angle_space": "hardware-view",
+              "fraction": 0.3521396147179058,
+              "gametic": 116
+            },
+            "surface": {
+              "contract": "sdvk-007-final-quad/v1",
+              "orientation_source": "pf-009-calculate-vertices",
+              "source": 0,
+              "presentation": 3,
+              "sprite_type": 4096,
+              "actor_sprite": 931,
+              "actor_frame": 0,
+              "source_portal_group": 0,
+              "render_portal_group": 0,
+              "through_portal_mode": 0,
+              "frame_mirrored": false,
+              "uv_mirror_x": false,
+              "uv_mirror_y": false,
+              "portal_mirrored": false,
+              "xy_billboard": false,
+              "faces_camera": false,
+              "uv": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "render_angles": [
+                180,
+                0,
+                0
+              ],
+              "view_angles": [
+                243,
+                0,
+                0
+              ],
+              "expected_tangent": [
+                0,
+                0,
+                -1
+              ],
+              "expected_normal": [
+                -1,
+                0,
+                0
+              ],
+              "u_sign": -1,
+              "v_sign": 1,
+              "expected_handedness": 1,
+              "view_parity": 1,
+              "basis_valid": true,
+              "basis_reason": "explicit-final-quad",
+              "selection": "explicit-sprite"
+            },
+            "tangent": [
+              0,
+              0,
+              -1
+            ],
+            "normal": [
+              -1,
+              0,
+              0
+            ],
+            "handedness": 1,
+            "explicit": true,
+            "material": "SDVEA0",
+            "shader": 0,
+            "height_texture_index": 4,
+            "light_index": 0,
+            "indexed": false,
+            "draw_count": 4,
+            "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms"
+          }
+        },
+        {
+          "kind": "sprite-relief",
+          "frame": 1,
+          "count": 1,
+          "data": {
+            "context": {
+              "available": true,
+              "semantic_key": "SRLSING:main:-1:0:0:root:0:[-160,-80,96]:[243,0,0]",
+              "producer": "root",
+              "map": "SRLSING",
+              "type": "main",
+              "root_type": "main",
+              "epoch": 121,
+              "identity": 1,
+              "parent_identity": 0,
+              "depth": 0,
+              "face": -1,
+              "eye": 0,
+              "portal_group": 0,
+              "line_mirror": false,
+              "plane_mirror": false,
+              "mirrored": false,
+              "history_eligible": true,
+              "postprocess_eligible": true,
+              "visual_time": {
+                "scope": "main-owner",
+                "advances_main_clock": true,
+                "delta_seconds": 0.01949116999992384,
+                "accumulated_seconds": 2.7175235439999823,
+                "generation": 3,
+                "main_frame": 121,
+                "delta_valid": true,
+                "interpolation_valid": true,
+                "clamped": false,
+                "discontinuity": "none"
+              },
+              "position": [
+                -160,
+                -80,
+                96
+              ],
+              "angles": [
+                243,
+                0,
+                0
+              ],
+              "angle_space": "hardware-view",
+              "fraction": 0.3521396147179058,
+              "gametic": 116
+            },
+            "surface": {
+              "contract": "sdvk-007-final-quad/v1",
+              "orientation_source": "pf-009-calculate-vertices",
+              "source": 0,
+              "presentation": 3,
+              "sprite_type": 4096,
+              "actor_sprite": 931,
+              "actor_frame": 0,
+              "source_portal_group": 0,
+              "render_portal_group": 0,
+              "through_portal_mode": 0,
+              "frame_mirrored": false,
+              "uv_mirror_x": false,
+              "uv_mirror_y": false,
+              "portal_mirrored": false,
+              "xy_billboard": false,
+              "faces_camera": false,
+              "uv": [
+                1,
+                0,
+                0,
+                1
+              ],
+              "render_angles": [
+                180,
+                0,
+                0
+              ],
+              "view_angles": [
+                243,
+                0,
+                0
+              ],
+              "expected_tangent": [
+                0,
+                0,
+                -1
+              ],
+              "expected_normal": [
+                -1,
+                0,
+                0
+              ],
+              "u_sign": -1,
+              "v_sign": 1,
+              "expected_handedness": 1,
+              "view_parity": 1,
+              "basis_valid": true,
+              "basis_reason": "explicit-final-quad",
+              "selection": "explicit-sprite"
+            },
+            "material": "SDVEA0",
+            "shader": 0,
+            "height_texture_index": 4,
+            "uv_bounds": [
+              1,
+              0,
+              0,
+              1
+            ],
+            "depth": 0.012000000104308128,
+            "quality": 2,
+            "candidate": true,
+            "eligible_draw": true,
+            "basis_valid": true,
+            "height_reads_max": 15,
+            "measurement": "shader-sample-upper-bound-not-actual-fragment-work",
+            "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms"
+          }
+        },
+        {
+          "kind": "frame",
+          "frame": 1,
+          "count": 1,
+          "data": {
+            "gametic": 116,
+            "map": "SRLSING",
+            "cpu_render_view_ms": 1.211063,
+            "visual_time": {
+              "scope": "main-view-owner",
+              "delta_seconds": 0.01949116999992384,
+              "accumulated_seconds": 2.7175235439999823,
+              "generation": 3,
+              "main_frame": 121,
+              "delta_valid": true,
+              "interpolation_valid": true,
+              "clamped": false,
+              "discontinuity": "none"
+            },
+            "camera": {
+              "position": [
+                -160,
+                -80,
+                96
+              ],
+              "angles": [
+                26.999999983236194,
+                0,
+                0
+              ],
+              "hardware_angles": [
+                243,
+                0,
+                0
+              ],
+              "fraction": 0.3521396147179058,
+              "fov": 90
+            },
+            "settings": {
+              "vid_rendermode": 4,
+              "gl_levelmesh": false,
+              "gl_ubershaders": false,
+              "gl_lightprobe": false,
+              "vk_rayquery": false,
+              "cl_capfps": false,
+              "r_nointerpolate": false,
+              "gl_texture_filter": 0,
+              "gl_texture_filter_anisotropic": 1,
+              "gl_multisample": 0,
+              "gl_light_shadows": 0,
+              "gl_light_shadow_filter": 1,
+              "effective_sprite_light_mode": 2,
+              "gl_bloom": false,
+              "gl_ssao": 0,
+              "gl_tonemap": 0
+            },
+            "cpu_scope": "RenderView steady-clock interval; excludes later finish/presentation",
+            "state_instrumentation": true,
+            "hardware_renderer": true,
+            "width": 640,
+            "height": 480,
+            "walls": 3,
+            "flats": 2,
+            "sprites": 2,
+            "decals": 0,
+            "portals": 0,
+            "vertices": 12,
+            "light_wall_considered": 3,
+            "light_wall_rendered": 3,
+            "light_flat_considered": 2,
+            "light_flat_rendered": 2,
+            "authored_lights": 1,
+            "active_lights": 1,
+            "spot_lights": 0,
+            "subtractive_lights": 0,
+            "additive_lights": 0,
+            "actor_light_queries": 2,
+            "actor_light_candidates": 2,
+            "actor_light_selected": 2,
+            "actor_light_filtered": 0,
+            "actor_light_duplicates": 0,
+            "actor_light_traces": 0,
+            "shadow_candidates": 0,
+            "shadow_selected": 0,
+            "shadow_dropped": 0
+          }
+        }
+      ]
+    }
+  },
+  "provenance": {
+    "off": {
+      "path": "state/640x480/sdvk008-s0/1/native.renderer.json",
+      "raw_sha256": "0c31903eab2b5224e40fea8fc06dc0bc5674ba7f12850abe0b3f0fb3fa195227",
+      "renderer_commit": "8272d2ff6f8820c59c7adb7096bd76323a701de6",
+      "device_type": 4,
+      "record_selection": "complete unchanged frame and SDVEA0 sprite-basis/sprite-relief records"
+    },
+    "on": {
+      "path": "state/640x480/sdvk008-sm/1/native.renderer.json",
+      "raw_sha256": "7f6e3b7f4acc7780feb2e417f8a83c105c71d257a6cafda49344c4552b8829ae",
+      "renderer_commit": "8272d2ff6f8820c59c7adb7096bd76323a701de6",
+      "device_type": 4,
+      "record_selection": "complete unchanged frame and SDVEA0 sprite-basis/sprite-relief records"
+    }
+  }
+}

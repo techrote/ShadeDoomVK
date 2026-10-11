@@ -1,0 +1,88 @@
+{
+  "cache_policy": "fresh isolated application caches; driver cache external uncontrolled",
+  "compiler": "MSVC 19.44.35228.0 toolset 14.44.35207",
+  "configuration": "Visual Studio 17 2022 x64 RelWithDebInfo",
+  "cpu": "Ryzen 5 2600X",
+  "display_extent": [
+    1920,
+    1080
+  ],
+  "driver": "616.92",
+  "experiment": "sdvk008-frozen-build-only-20261011",
+  "files": [
+    {
+      "bytes": 246181,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\brightmaps.pk3",
+      "sha256": "3c59c46d4de871e2a1b54282abe74953cd0aa9ca52f0d7bb3838238b149d485b"
+    },
+    {
+      "bytes": 2381991,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\game_support.pk3",
+      "sha256": "4ac8039a11e0b6401b00db9cbf31458f18b5078013c0af39a5f7243d6cc9330b"
+    },
+    {
+      "bytes": 5565936,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\game_widescreen_gfx.pk3",
+      "sha256": "e76a3785e0c8f694179791e74c29c1a08656aafc53c6a5e317788112e79369cc"
+    },
+    {
+      "bytes": 2603520,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\libsndfile-1.dll",
+      "sha256": "4e3bd2de8e1485110eaebef8e1239471f73d608773831c323bf528e05645655e"
+    },
+    {
+      "bytes": 24059,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\lights.pk3",
+      "sha256": "c06fd62ea45030596a32330707afc9f1c3fbba36ebd4b2c0a7ab22fe6623f0e7"
+    },
+    {
+      "bytes": 2011136,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\openal32.dll",
+      "sha256": "9f7a94d4a1ba3a9c93bfc4ae3ba241885abe0bd5543b789583af5ab9c62d5f70"
+    },
+    {
+      "bytes": 12579840,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\vkdoom.exe",
+      "sha256": "d9edc8a7a3de519ba50567663692f02a40e553f4bd07098ab3b906f3b8a9cfc5"
+    },
+    {
+      "bytes": 4241203,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\vkdoom.pk3",
+      "sha256": "494535b1a81f95434207d8059ed46e99e4cc613b5a782ddc6558f1a30cab0667"
+    },
+    {
+      "bytes": 12577280,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\vktool.exe",
+      "sha256": "77e33d4e7dace714d78bd4daf1899b4663d77ef314b82f38440e944c32467aff"
+    },
+    {
+      "bytes": 2469888,
+      "path": "C:\\ShadeDoomVK\\campaign-builds\\sdvk008\\RelWithDebInfo\\zmusic.dll",
+      "sha256": "b80933e30342945aadb5d37d767b1e6f3ff9c82293305ea8c859d9c9bf9ac37a"
+    }
+  ],
+  "gpu": "Vulkan DISCRETE GPU NVIDIA GeForce GTX 1650 SUPER vendor 0x10de device 0x2187",
+  "issue": 8,
+  "iwad": {
+    "bytes": 28787748,
+    "path": "C:\\ShadeDoomVK\\pf-local-evidence\\pf017\\material-qualification-20260924\\freedoom\\freedoom-0.13.0\\freedoom2.wad",
+    "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+  },
+  "iwad_provenance": "Freedoom 0.13.0 local unmodified release, freely redistributable; licence retained alongside source IWAD. No IWAD bytes committed.",
+  "motherboard": "ASUS TUF B450M-PRO GAMING",
+  "pci": "00000000:07:00.0",
+  "physical_gpu_evidence_collected": false,
+  "physical_gpu_qualified": false,
+  "power_clock_writes": false,
+  "power_limit_watts": 90,
+  "preflight_scope": "CPU build/version/hash verification only; no SDVK-008 renderer scene launched",
+  "ram_bytes": 34359738368,
+  "schema": "sdvk-physical-build-preflight/v1",
+  "source_clean": true,
+  "source_commit": "9536324ce33ea418af5a8efe733b4659f6b4ad9b",
+  "source_tree": "3123bc7fd3dd9074487cbe3487f9336ef3589003",
+  "status": "BUILT_CLEAN_PHYSICAL_LAUNCH_BLOCKED_BY_SDVK009_DEVICE_FAULT",
+  "thermal_stop_c": 80,
+  "version": "ShadeDoomVK 0.1.0-dev\r\nCommit: 9536324ce33ea418af5a8efe733b4659f6b4ad9b\r\nWorking tree: clean\r\nGit description: 9536324ce\r\nVKDoom lineage: nashmuhandes/VkDoom@09634479ab5bf9adf691074fffe85a006a398cd0\r\nPF-020 freeze: e185e60b04fe37ec84a18c5a85eec6722b541b71\r\n",
+  "windows_sdk": "10.0.26100.0"
+}

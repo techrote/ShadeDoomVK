@@ -1,0 +1,105 @@
+{
+  "artifact_id": 11689635848,
+  "artifact_zip_bytes": 8017696,
+  "artifact_zip_sha256": "719971b3ff8766edc0d5f974d7b73036e3bcfa02f2bffb4cd1f003adae4c4a3c",
+  "automatic_retries": 0,
+  "checksum_verified_files": 63,
+  "ci_run": 38104689836,
+  "comparison": {
+    "explicit_build_change": false,
+    "first_state_differences": [
+      {
+        "left": 3,
+        "path": "/16/data/resource/generation",
+        "right": 4
+      },
+      {
+        "left": 3,
+        "path": "/20/data/resource/generation",
+        "right": 4
+      },
+      {
+        "left": 3,
+        "path": "/30/data/texture_epoch",
+        "right": 4
+      }
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "2821ad5fc583c04c350bb4fe721b9df74f3d098df2a2426c5f70b54ee42a595f",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "2821ad5fc583c04c350bb4fe721b9df74f3d098df2a2426c5f70b54ee42a595f"
+    },
+    "left": {
+      "bytes": 9464,
+      "path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk008-control/state/640x480/sdvk008-alpha-background/1/run.json",
+      "sha256": "9f35db2f4c94da50299dabf2f3f13a65d1cd1e7d2ce889f47ba1af5331e79ff0"
+    },
+    "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
+    "performance_accepted": false,
+    "right": {
+      "bytes": 9463,
+      "path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk008-control/state/640x480/sdvk008-alpha-background/2/run.json",
+      "sha256": "2f94e6e525cf074eb744d47e05afc3a70ad93c4a3314c576a36da17f2ce0e0af"
+    },
+    "schema": "sdvk-renderer-comparison/v1",
+    "state_equal": false,
+    "state_sha256": {
+      "left": "886119f694256d896e06f5e04f0ad51c0c954315d4373c4d6b624d021981271e",
+      "right": "0bd6979401b7a9a7f54b07fe2579df03ecd30f794a787906af4a20a4f31bd6b3"
+    },
+    "status": "FAIL"
+  },
+  "completed_control_processes": 2,
+  "completed_image_pair_gates": 0,
+  "correction_status": "PENDING_SOURCE_INVESTIGATION; no generation/epoch normalization or tolerance relaxation",
+  "durable_remote_storage": false,
+  "error": "Independent state/image repeat failed: sdvk008-alpha-background",
+  "failed_repeat_comparisons": 1,
+  "native_full_corpus": "NOT_LAUNCHED: controls run first and failed",
+  "performance_accepted": false,
+  "physical_gpu_evidence_collected": false,
+  "physical_gpu_qualified": false,
+  "pr": 141,
+  "pr_head": "01e75260820659f746417eef0503c9ba8d3c174c",
+  "raw_archive": {
+    "bytes": 8017520,
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-repeat-failure\\renderer-software-vulkan.tar.xz",
+    "sha256": "f1f15ce80534f18b1c3bc4317a2d9b6a0c163dde823929cf71ae028e977ca1af"
+  },
+  "raw_local_directory": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-repeat-failure",
+  "remote_retention": "GitHub Actions artifact expires 2026-11-10; not durable raw storage",
+  "renderer_commit": "cb686388b1c3216a6301db8d383c5bad6064e3d1",
+  "renderer_identity_scope": "GitHub PR merge-ref software build; never the frozen physical renderer",
+  "retained": [
+    {
+      "bytes": 11699,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-repeat-failure\\renderer-sdvk008-control\\checksums.json",
+      "sha256": "eada356c6d602f50ad9a820100974bf2f1cf7fe125ad84af43733473ac96c8aa"
+    },
+    {
+      "bytes": 1939,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-repeat-failure\\renderer-sdvk008-control\\state\\640x480\\sdvk008-alpha-background\\repeat-comparison.json",
+      "sha256": "b5719a6cae8f24886cf2c90a17cd62382b611e3c69006a97c6c5bdc021767ecf"
+    },
+    {
+      "bytes": 194894,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-repeat-failure\\renderer-sdvk008-control\\sdvk008-software-fixture-control.json",
+      "sha256": "1e9f0f78e988206ddcac348cf00e4bdd15ed9d2621163d4c15f88f351e837928"
+    }
+  ],
+  "scene": "sdvk008-alpha-background",
+  "schema": "sdvk008-software-control-failure/v1",
+  "software_fixture_control_qualified": false,
+  "status": "FAILED_PROTECTED_STATE_REPEAT"
+}

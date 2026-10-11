@@ -134,9 +134,19 @@ def console_settings(text, expected):
     return result
 
 
-def completion_log(text):
-    require(text.count("SDVK_OBSERVATION_COLLECTED:") == 1 and not re.search(
-        r"SDVK_OBSERVATION_(?:FAILED|REJECTED|WRITE_FAILED)|Script error|Execution could not continue|Fatal error|Unknown command", text),
+def process_log_errors(stdout, stderr=""):
+    """Fail closed on retained renderer/device severity errors in either stream."""
+    pattern = (r"\[vulkan error\]|\[fault\]|\bValidation Error\s*:|\bVK_ERROR_DEVICE_LOST\b|"
+               r"\bdevice[ -]lost\b|SDVK_OBSERVATION_(?:FAILED|REJECTED|WRITE_FAILED)|"
+               r"Script error|Execution could not continue|Fatal error|Unknown command")
+    for stream, text in (("stdout", stdout), ("stderr", stderr)):
+        match = re.search(pattern, text, flags=re.IGNORECASE)
+        require(match is None, "Native process error in " + stream + ": " + (match[0] if match else ""))
+
+
+def completion_log(text, stderr=""):
+    process_log_errors(text, stderr)
+    require(text.count("SDVK_OBSERVATION_COLLECTED:") == 1,
         "Native observation completion marker missing or startup/observer failed")
 
 
@@ -198,6 +208,14 @@ def version_identity(stdout):
             and re.fullmatch(r"[0-9a-f]{40}", commits[0]) and states[0] in ("clean", "modified"),
             "Executable has no valid SDVK build identity")
     return commits[0], states[0]
+
+
+def validate_bootstrap_argv(native, argv):
+    # Older sealed recipes have no bootstrap revision and remain reviewable.
+    if "bootstrap_revision" in native:
+        from tools.renderer_oracle.sdvk008_fixtures import validate_bootstrap
+        validate_bootstrap(native)
+        require(argv.count("-nostartup") == 1, "Native argv differs from the declared no-startup bootstrap")
 
 
 def capture(args):
@@ -285,6 +303,7 @@ def capture(args):
                          "pk3": str(out / "input" / "scene.pk3"), "config": str(out / "fixture.ini"),
                          "capture_script": str(out / "capture.cfg")}
         argv = apply_extent([part.format(**substitutions) for part in native["argv"]], extent)
+        validate_bootstrap_argv(native, argv)
         argv += ["-savedir", str(out / "save"), "-sdvkobserve", prefix,
                  "-sdvkobserveframes", str(frames), "-sdvkobservewarmup", str(warmup),
                  "-sdvkobservemode", mode, "-sdvkobservecache", _console_path(out / "cache"), "-sdvkobservequit"]
@@ -309,7 +328,7 @@ def capture(args):
         elapsed = time.monotonic() - start
         require(process.returncode == 0, f"Native process exited {process.returncode}")
         text = (out / "stdout.log").read_text(encoding="utf-8", errors="replace")
-        completion_log(text)
+        completion_log(text, (out / "stderr.log").read_text(encoding="utf-8", errors="replace"))
         packages = loaded_packages(text, expected)
         readbacks = console_settings(text, native["settings"])
         require(pin(exe) == executable, "Executable changed while capture was running")
@@ -424,6 +443,13 @@ def _material_layer_sampling_match(value, expected):
         for key in ("min_filter", "mag_filter", "mipmap_mode"):
             if key in requirement and sampler.get(key) != requirement[key]:
                 return False
+        if "source_extent" in requirement:
+            source = matches[0].get("source", {})
+            if (not isinstance(source, dict)
+                    or [source.get("width"), source.get("height")] != requirement["source_extent"]
+                    or any(type(source.get(key)) is not int for key in ("width", "height"))
+                    or type(source.get("lump")) is not int or source["lump"] <= 0):
+                return False
     return True
 
 
@@ -498,6 +524,11 @@ def _scene_assertions(raw, scene):
                          if record["kind"] == "material" and record["data"].get("name") == name]
                 require(drawn and all(_material_layer_sampling_match(value, expected) for value in drawn),
                         "Required material sampler bindings differ: " + name)
+            for name, expected in assertions.get("material_layer_count", {}).items():
+                drawn = [record["data"] for record in records
+                         if record["kind"] == "material" and record["data"].get("name") == name]
+                require(drawn and all(len(value.get("layers", [])) == expected for value in drawn),
+                        "Required material layer count differs: " + name)
             for name, expected in assertions.get("material_custom_layers", {}).items():
                 drawn = [record["data"] for record in records
                          if record["kind"] == "material" and record["data"].get("name") == name]
@@ -628,6 +659,7 @@ def _validate_run(path):
     raw = read_json(root / "native.renderer.json")
     request = read_json(root / "request.json")
     scene = read_json(root / "recipe.json")
+    validate_bootstrap_argv(scene["native"], request["argv"])
     require(request.get("schema") == "sdvk-renderer-request/v1" and request.get("automatic_retries") == 0,
             "Unknown or retried capture request")
     require(request.get("reproduction") == data.get("reproduction"), "Run profile differs from its preregistration")
@@ -666,7 +698,7 @@ def _validate_run(path):
             and Path(application_cache.get("path", "")) == Path(request["cwd"]) / "cache",
             "Native application cache did not use the isolated run directory")
     stdout = (root / "stdout.log").read_text(encoding="utf-8", errors="replace")
-    completion_log(stdout)
+    completion_log(stdout, (root / "stderr.log").read_text(encoding="utf-8", errors="replace"))
     require(console_settings(stdout, scene["native"]["settings"]) == data["console_settings"], "Actual setting receipts differ")
     require(loaded_packages(stdout, request["packages"], verify_files=False) == data["loaded_packages"],
             "Retained loaded-package inventory differs from actual startup output")

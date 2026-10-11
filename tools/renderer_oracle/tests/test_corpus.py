@@ -217,7 +217,8 @@ class AuthoredSceneTests(unittest.TestCase):
                 expected = scene["native"]["camera"]
                 self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"])
                 self.assertEqual(camera["id"], expected["actor_tid"])
-                self.assertEqual(camera["angle"], expected["yaw"])
+                authored = scene["native"].get("authored_camera_angles", expected)
+                self.assertEqual(camera["angle"], authored["yaw"])
                 players = [t for t in records["thing"] if t["type"] == 1]
                 self.assertEqual(len(players), 1)
                 player = players[0]
@@ -481,8 +482,8 @@ class PreparationTests(unittest.TestCase):
             self.assertFalse(first["native_executed"])
             self.assertFalse(first["native_qualified"])
             self.assertEqual(first["status"], "prepared_only")
-            self.assertEqual(len(first["scenes"]), 13)
-            self.assertEqual(len(first["files"]), 39)
+            self.assertEqual(len(first["scenes"]), len(prepare.load_catalog()["scenes"]))
+            self.assertEqual(len(first["files"]), 3 * len(first["scenes"]))
             for path, expected in first["files"].items():
                 raw = (a / path).read_bytes()
                 self.assertEqual(raw, (b / path).read_bytes())
