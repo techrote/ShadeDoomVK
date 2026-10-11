@@ -9,6 +9,10 @@ The physical renderer remains pinned to implementation merge
 separately hashed in each packet. No production renderer/shader source is
 changed. The SDVK-009 campaign and source identity remain independent.
 
+The separate native Windows RelWithDebInfo frozen build passed both executable
+identity checks; [build-only manifest](evidence/sdvk008-build-20261011.json) pins
+the executable/packages, toolchain and host. Its scene rendering was not launched.
+
 `tools/renderer_oracle/sdvk008_physical.py` reuses `run.py` preparation, capture,
 integrity validation, exact repeat comparison and raw distribution summaries.
 It requires explicit execution, fresh output, authenticated Vulkan inventory,
