@@ -113,7 +113,7 @@ root; a single instance has no parent link to rewrite. CPU graph tests execute
 the production export and prove valid links/original triangle membership for
 single-node, nonzero-root, multi-instance and empty cases. This does not diagnose
 the retained physical shadow-boundary fault or clear its hardware stop. Sparse
-BLAS slot export/TLAS membership remain separate unqualified follow-ups.
+BLAS slot export/TLAS membership were subsequently reproduced separately below.
 [Audit and exact reproducer outlines](../SDVK-009-COLLISION-ROOT-AUDIT.md).
 
 ## SDVK-009 sparse-triangle centroid identity candidate — 2026-10-11
@@ -129,7 +129,26 @@ Production-extracted CPU regression covers leading/interior holes and no-hole,
 all-degenerate and trailing-hole controls; the exact pre-fix constructor remains
 a required negative. This bounded source repair has no evidence of physical
 fault causality and does not clear the hardware STOP. Sparse/null BLAS slot
-identity remains unresolved. See the [bounded audit](../SDVK-009-COLLISION-ROOT-AUDIT.md)
+identity is addressed by the separate bounded repair below. See the [bounded audit](../SDVK-009-COLLISION-ROOT-AUDIT.md)
 and `tools/pf_oracle/tests/test_collision_centroid_identity.py`; hosted candidate
 verification and review remain required before acceptance.
+
+## SDVK-009 sparse BLAS slots and empty publication — 2026-10-11
+
+`CPUAccelStruct::CreateTLAS` includes only live original BLAS slots and retains
+centroids indexed by the original occupied slot extent. `Upload` advances the
+original slot identity across null entries, preserving original triangle offsets.
+Empty CPU/software-shader traversal returns the existing no-hit sentinel before
+accessing nodes. An empty software export retains root `-1` and one initialized,
+unreachable storage node: production `MeshBufferUploads::Add` ignores zero-length
+ranges, so this storage range is necessary for the existing Vulkan uploader to
+publish the empty root header. It represents no live geometry or triangle.
+
+Production-extracted regressions retain old sparse/null failures and verify
+no-hole graph equivalence, empty entry behavior, real range semantics and planned
+header/node transfer bytes for initial empty and live-to-empty publication.
+CPU staging tests do not prove GPU consumption, full geometric queries or the
+actual failed scene's graph. General update lifecycle and deep-stack/invalid-link
+safety remain unqualified. Neither physical failure is diagnosed or resolved;
+hardware STOP remains active. [Bounded audit](../SDVK-009-COLLISION-ROOT-AUDIT.md).
 

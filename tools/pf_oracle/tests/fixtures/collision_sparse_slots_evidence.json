@@ -1,0 +1,235 @@
+{
+  "source_commit": "a7c5df6f7a3c529cb2d8f659dade79f45e2dfdaa",
+  "source_path": "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+  "source_sha256_normalized": "97f0bb94598c1b11fca9982a5740e9df4b920f73cafbc6f29e7fa1b06dca509d",
+  "retained_sha256": "4d25639c232469c51c447d4c70c2c32dd715e12098242b8d2f7b106cf4472af1",
+  "functions": {
+    "static FVector3 SwapYZ(": "dec77a8efb6bdd030286f326d6f7b57e372b702eac5b019eba7e95fde3405bb2",
+    "void CPUAccelStruct::Upload()": "7f314d9c7954f1a1380cca4bdc18a489c3251f99ceed45938aba21e68531d70d",
+    "void CPUAccelStruct::CreateTLAS()": "27a577deb14065ccfa97141fe61a61a38fef0f33cb1d3b22fcee6a912bbb00cb",
+    "int CPUAccelStruct::Subdivide(": "7730dbe97c13b645ab8b97c1acda050385c7d18efe24290da990e80fd654a066",
+    "TraceHit CPUAccelStruct::FindFirstHit(const FVector3&": "cae7a5f543c3b09f81bf5c58ebcb6d619cb510294a07a8a324d8d9fe6171d449"
+  },
+  "safety": "Checked containers and BLAS handles stop before invalid dereference; CPU-only logical graph checks. No physical fault causality or resolution claimed.",
+  "shader_source_path": "wadsrc/static/shaders/lightmap/polyfill_rayquery.glsl",
+  "shader_retained_sha256": "5c69f84768890360742b9afe549255c31a7c57bf033c757e41dbf4c350a6759a",
+  "publication_source_functions": {
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp": {
+      "void MeshBufferUploads::Clear()": "08a6bb4d2c3a027fbe7ff552c5b796309676e60aae48ece317e66a8800478e62",
+      "void MeshBufferUploads::Add(": "bd9ec19b2a236577ec1e7c33916dbb24b7a826c7de6fe496abd555cf919b12fc"
+    },
+    "src/common/rendering/vulkan/vk_levelmesh.cpp": {
+      "void VkLevelMeshUploader::UploadNodes()": "33f5c4b5c8e336c8ba14ee2109ee6d0520379398573a381fa24e4a172487ab99",
+      "size_t VkLevelMeshUploader::GetTransferSize()": "7d59576649f297ca9a4a6c488f1f116ffb66d690fb1f07b3f6cb7be445edb819"
+    }
+  },
+  "pre_fix_results": [
+    {
+      "scenario": 0,
+      "mode": "membership",
+      "summary": "no-hole mode=m repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 1,
+      "mode": "membership",
+      "summary": "leading-null mode=m repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 2,
+      "mode": "membership",
+      "summary": "interior-null mode=m repaired=0 guarded_stop=1 reason=TLAS membership mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 3,
+      "mode": "membership",
+      "summary": "all-null mode=m repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 4,
+      "mode": "membership",
+      "summary": "trailing-null mode=m repaired=0 guarded_stop=1 reason=TLAS membership mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 5,
+      "mode": "membership",
+      "summary": "zero-instances mode=m repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 6,
+      "mode": "membership",
+      "summary": "only-slot2 mode=m repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 0,
+      "mode": "export",
+      "summary": "no-hole mode=e repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=0"
+    },
+    {
+      "scenario": 1,
+      "mode": "export",
+      "summary": "leading-null mode=e repaired=0 guarded_stop=1 reason=export cycle/alias",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=4"
+    },
+    {
+      "scenario": 2,
+      "mode": "export",
+      "summary": "interior-null mode=e repaired=0 guarded_stop=1 reason=export cycle/alias",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=2"
+    },
+    {
+      "scenario": 3,
+      "mode": "export",
+      "summary": "all-null mode=e repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=0"
+    },
+    {
+      "scenario": 4,
+      "mode": "export",
+      "summary": "trailing-null mode=e repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=0"
+    },
+    {
+      "scenario": 5,
+      "mode": "export",
+      "summary": "zero-instances mode=e repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=0"
+    },
+    {
+      "scenario": 6,
+      "mode": "export",
+      "summary": "only-slot2 mode=e repaired=0 guarded_stop=1 reason=original triangle offsets mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=2"
+    },
+    {
+      "scenario": 0,
+      "mode": "combined",
+      "summary": "no-hole mode=c repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=0"
+    },
+    {
+      "scenario": 1,
+      "mode": "combined",
+      "summary": "leading-null mode=c repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 2,
+      "mode": "combined",
+      "summary": "interior-null mode=c repaired=0 guarded_stop=1 reason=TLAS membership mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 3,
+      "mode": "combined",
+      "summary": "all-null mode=c repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 4,
+      "mode": "combined",
+      "summary": "trailing-null mode=c repaired=0 guarded_stop=1 reason=TLAS membership mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 5,
+      "mode": "combined",
+      "summary": "zero-instances mode=c repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": "EXPORTED wrong_original_offsets=0"
+    },
+    {
+      "scenario": 6,
+      "mode": "combined",
+      "summary": "only-slot2 mode=c repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 0,
+      "mode": "query",
+      "summary": "no-hole mode=q repaired=0 guarded_stop=0 reason=none",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 1,
+      "mode": "query",
+      "summary": "leading-null mode=q repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 2,
+      "mode": "query",
+      "summary": "interior-null mode=q repaired=0 guarded_stop=1 reason=TLAS membership mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 3,
+      "mode": "query",
+      "summary": "all-null mode=q repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 4,
+      "mode": "query",
+      "summary": "trailing-null mode=q repaired=0 guarded_stop=1 reason=TLAS membership mismatch",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 5,
+      "mode": "query",
+      "summary": "zero-instances mode=q repaired=0 guarded_stop=1 reason=container bounds",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    },
+    {
+      "scenario": 6,
+      "mode": "query",
+      "summary": "only-slot2 mode=q repaired=0 guarded_stop=1 reason=null BLAS access",
+      "returncode": 0,
+      "wrong_original_offsets": null
+    }
+  ],
+  "corrected_scope": "Original BLAS IDs and slot-indexed centroids; empty CPU/shader sentinel; initialized unreachable node publishes empty header through actual positive-range path.",
+  "cpu_verification": {
+    "sparse_old_current_scenarios": 56,
+    "shader_entry_old_current_scenarios": 10,
+    "publication_old_current_scenarios": 8,
+    "focused_msvc_tests": 14,
+    "native_or_gpu_launches": 0,
+    "shader_spirv_compilation_claimed": false,
+    "physical_fault_causality_or_resolution_claimed": false,
+    "hardware_stop_lifted": false
+  }
+}

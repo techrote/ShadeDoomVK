@@ -199,7 +199,7 @@ bool is_leaf(int node_index)
 
 bool TraceAnyHit(vec3 origin, float tmin, vec3 dir, float tmax)
 {
-	if (tmax <= 0.0f)
+	if (tmax <= 0.0f || nodesRoot == -1)
 		return false;
 
 	RayBBox ray = create_ray(origin, origin + dir * tmax);
@@ -247,6 +247,8 @@ TraceHit find_first_hit(RayBBox ray)
 	hit.triangle = -1;
 	hit.b = 0.0;
 	hit.c = 0.0;
+	if (nodesRoot == -1)
+		return hit;
 
 	int stack[64];
 	int stackIndex = 0;
