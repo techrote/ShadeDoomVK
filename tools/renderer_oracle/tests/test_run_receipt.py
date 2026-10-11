@@ -25,6 +25,19 @@ from test_validation import observation, recount, row
 
 
 class SyntheticRunReceiptTests(unittest.TestCase):
+    def test_native_version_accepts_lf_and_crlf_but_rejects_ambiguous_identity(self):
+        lines = ["ShadeDoomVK synthetic", "Commit: " + "a" * 40, "Working tree: clean"]
+        for newline in ("\n", "\r\n"):
+            with self.subTest(newline=repr(newline)):
+                self.assertEqual(run.version_identity((newline.join(lines) + newline).encode()), ("a" * 40, "clean"))
+        invalid = [lines + [lines[1]], lines + [lines[2]],
+                   [lines[0], "Commit: " + "a" * 39, lines[2]],
+                   [lines[0], lines[1], "Working tree: unknown"],
+                   ["Other engine", lines[1], lines[2]]]
+        for value in invalid:
+            with self.subTest(value=value), self.assertRaises(common.EvidenceError):
+                run.version_identity(("\r\n".join(value) + "\r\n").encode())
+
     def test_extent_override_is_bounded_and_rewrites_only_native_extent_flags(self):
         native = {"extent": [640, 480]}
         args = argparse.Namespace(extent=None)
@@ -117,7 +130,8 @@ class SyntheticRunReceiptTests(unittest.TestCase):
                     return original_subprocess_run(argv, *positional, **kwargs)
                 calls.append(list(argv))
                 if argv[1:] == ["--version"]:
-                    version = f"ShadeDoomVK SYNTHETIC receipt test\nCommit: {commit}\nWorking tree: clean\n"
+                    # Windows CRT uses CRLF even when stdout is a binary pipe.
+                    version = f"ShadeDoomVK SYNTHETIC receipt test\r\nCommit: {commit}\r\nWorking tree: clean\r\n"
                     return subprocess.CompletedProcess(argv, 0, version.encode(), b"")
                 request = common.read_json(out / "request.json")
                 self.assertEqual(Path(kwargs["cwd"]), out)
