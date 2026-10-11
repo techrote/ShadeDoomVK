@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
-              "material_stress", "sun_probes", "sprite_mirror"}
+              "material_stress", "sun_probes", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -144,6 +144,10 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             raise ValueError(f"Catalog {name} may not manufacture native qualification")
         if native.get("generator") not in GENERATORS:
             raise ValueError(f"Unknown generator for {name}")
+        if native.get("generator") == "sprite_relief":
+            from tools.renderer_oracle.sdvk008_fixtures import FAMILIES
+            if native.get("relief_family") not in FAMILIES:
+                raise ValueError("Unknown SDVK-008 relief family")
         if not re.fullmatch(r"[A-Z0-9_]{1,8}", native.get("map", "")):
             raise ValueError(f"Invalid map name for {name}")
         for key, leaf in (("pk3", "scene.pk3"), ("config", "fixture.ini"), ("capture_script", "capture.cfg")):
@@ -492,6 +496,9 @@ def _light_positions(count: int, layout: str = "legacy") -> list[tuple[int, int]
 def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
     generator, map_name = native["generator"], native["map"]
+    if generator == "sprite_relief":
+        from tools.renderer_oracle import sdvk008_fixtures
+        return sdvk008_fixtures.authored_members(scene, sys.modules[__name__])
     members = _base_members()
     is_sun = generator == "sun_probes"
     model = _Map(floor=32 if is_sun else 0, ceiling=160 if is_sun else 128, sky=is_sun)
@@ -766,6 +773,8 @@ def _source_inventory(catalog: dict, root: Path) -> dict[str, dict]:
     for scene in catalog["scenes"]:
         names.update(scene["source_refs"])
         names.update(scene["negative_fixtures"])
+        if scene["native"]["generator"] == "sprite_relief":
+            names.add("tools/renderer_oracle/sdvk008_fixtures.py")
     for module in (pf_view, pf_indexed, pf_pbr):
         names.update(module.SOURCE_FILES)
     inventory = {}

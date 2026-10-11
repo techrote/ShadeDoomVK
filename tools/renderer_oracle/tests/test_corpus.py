@@ -481,8 +481,8 @@ class PreparationTests(unittest.TestCase):
             self.assertFalse(first["native_executed"])
             self.assertFalse(first["native_qualified"])
             self.assertEqual(first["status"], "prepared_only")
-            self.assertEqual(len(first["scenes"]), 13)
-            self.assertEqual(len(first["files"]), 39)
+            self.assertEqual(len(first["scenes"]), len(prepare.load_catalog()["scenes"]))
+            self.assertEqual(len(first["files"]), 3 * len(first["scenes"]))
             for path, expected in first["files"].items():
                 raw = (a / path).read_bytes()
                 self.assertEqual(raw, (b / path).read_bytes())
