@@ -213,3 +213,18 @@ Packet inventory generation and verification exclude only the root
 same name remain authenticated artifacts; changing or adding one fails the
 packet check. The regression uses temporary files on the CPU and launches no
 renderer. This integrity correction grants no physical or performance status.
+
+The subsequent hosted run `38104689836`, submitted head
+`01e75260820659f746417eef0503c9ba8d3c174c`, failed the first independent
+`sdvk008-alpha-background` repeat. Both processes completed with exact identical
+640×480 RGB images, but protected resource generations and the texture epoch
+were 3 versus 4. The strict comparison correctly remains **FAIL**; image equality
+does not excuse this protected-state difference. Native full-corpus collection
+was not launched because the earlier controls failed. All eight other full-CI
+jobs and source-evidence run `38104689838` passed; the full workflow failed.
+The new packet is retained separately and its complete control checksum
+inventory passes. Its lossless archive SHA-256 is
+`f1f15ce80534f18b1c3bc4317a2d9b6a0c163dde823929cf71ae028e977ca1af`.
+See [the bounded failure receipt](evidence/sdvk008-software-repeat-failure-20261011.json).
+No generation/epoch normalization, image tolerance change, retry or acceptance
+is authorized by this observation. Source/bootstrap investigation is pending.
