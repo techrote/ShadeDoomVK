@@ -172,6 +172,13 @@ target compiles successfully; its renderer executable is never invoked.
 [Machine-readable evidence index](evidence/sdvk009-offline-shadow-investigation-20261012.json)
 pins the original input checks, independent review and local validation logs.
 Required hosted source/full CI and post-merge verification remain separate gates.
+The initial hosted full run `38185384623` failed the new lifecycle fixture under
+GCC strict warnings before the renderer matrix started. Complete failed logs and
+artifact `11718784467` are retained (ZIP SHA-256
+`ed85ad6041e6013975a83c275b93f77859bd1f9163884725d635638d7378a3d2`).
+The test-only portability correction scopes an inherited partial-initializer
+warning to unchanged `AddEmptyMesh` and braces the generated logical-bounds
+guard. It changes no production function, fixture input, assertion or threshold.
 
 ## Resume disposition and held diagnostic protocol
 

@@ -173,5 +173,31 @@
     "Independent bounded-protocol review",
     "Explicit user authorization to lift physical STOP for diagnostic only",
     "Separate disposition and approval before full campaign"
-  ]
+  ],
+  "attributable_hosted_failures": [
+    {
+      "run": 38185384623,
+      "head": "4e0319c73ea6eb29b13fc2ce4137ac3ba6dc9c76",
+      "job": "PF renderer contract oracle",
+      "result": "FAIL; renderer matrix skipped",
+      "reason": "GCC strict warnings in new fixture: inherited AddEmptyMesh partial initializers and generated CreateBLAS guard indentation.",
+      "repair_scope": "Test-only warning scope around unchanged production AddEmptyMesh; generated guard braced. Inputs/assertions/cases/production remain unchanged.",
+      "log": {
+        "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\pr-initial-failed.log",
+        "bytes": 22057,
+        "sha256": "c3d02d148bb1f2e13efef32e900f141a3dc1921f6d6fbfbf7db7045b5f19a671"
+      },
+      "complete_artifact": {
+        "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\pr-initial-failure-artifact\\cpu-contract-checks.zip",
+        "bytes": 2368,
+        "sha256": "ed85ad6041e6013975a83c275b93f77859bd1f9163884725d635638d7378a3d2"
+      },
+      "github_digest_verified": true
+    }
+  ],
+  "documentation_review": {
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\review\\review-doc-addendum.json",
+    "bytes": 5013,
+    "sha256": "ca8ec3e8cc546d1ee357646daea3706afc0d5fa68f647d61ab6f19cb5e588fed"
+  }
 }

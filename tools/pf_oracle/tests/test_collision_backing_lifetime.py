@@ -274,12 +274,21 @@ def build_program(directory, repaired, mode):
     create = 'std::unique_ptr<CPUBottomLevelAccelStruct> CPUAccelStruct::CreateBLAS(int indexStart, int indexCount)\n{'
     assert functions.count(create)==1
     functions = functions.replace(create, create+'''
-    if(indexStart<0 || indexCount<0 || indexStart>static_cast<int>(Mesh->Mesh.Indexes.Size()) || indexCount>static_cast<int>(Mesh->Mesh.Indexes.Size())-indexStart)
-        throw std::runtime_error("BLAS input outside populated index extent");''')
+	if (indexStart<0 || indexCount<0 || indexStart>static_cast<int>(Mesh->Mesh.Indexes.Size()) || indexCount>static_cast<int>(Mesh->Mesh.Indexes.Size())-indexStart)
+	{
+		throw std::runtime_error("BLAS input outside populated index extent");
+	}''')
     functions = functions.replace('extern cycle_t DynamicBLASTime;', '')
     mesh_functions = '\n'.join([block(mesh_h,'inline GeometryAllocInfo LevelMesh::AllocGeometry('),
         block(mesh_cpp,'void MeshBufferUploads::Clear()'),block(mesh_cpp,'void MeshBufferUploads::Add('),
-        block(mesh_cpp,'void LevelMesh::Reset()'),block(mesh_cpp,'void LevelMesh::AddEmptyMesh()')])
+        block(mesh_cpp,'void LevelMesh::Reset()')])
+    # The unchanged production default mesh intentionally initializes position
+    # only; C++ value-initializes its remaining aggregate fields to zero. Scope
+    # this inherited GCC warning to that exact production function alone.
+    empty_mesh = block(mesh_cpp,'void LevelMesh::AddEmptyMesh()')
+    mesh_functions += '\n#if defined(__GNUC__)\n#pragma GCC diagnostic push\n#pragma GCC diagnostic ignored "-Wmissing-field-initializers"\n#endif\n'
+    mesh_functions += empty_mesh
+    mesh_functions += '\n#if defined(__GNUC__)\n#pragma GCC diagnostic pop\n#endif\n'
     uploader = block((ROOT/'src/common/rendering/vulkan/vk_levelmesh.cpp').read_text(),
         'void VkLevelMeshUploader::UploadRanges(').replace('void VkLevelMeshUploader::UploadRanges(', 'void UploadRanges(')
     uploader = 'template<typename T>\n'+uploader.replace('VulkanBuffer* destbuffer', 'void* destbuffer')
