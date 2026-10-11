@@ -19,6 +19,11 @@ Fresh local records are under
 `input-integrity.json` checks 275 recorded hash/size references, 218 distinct
 files and 38 recursively referenced JSON records, including all four sealed
 archives: zero missing files or mismatches. It does not rewrite original receipts.
+`archive-member-integrity.json` independently checks all 435 manifest entries
+against both archived and local bytes, plus the two original frozen seal members;
+all match. The live #8/#9 anchor bodies match their verified retained drafts.
+The initial verifier's assumption that every member was in the capture manifest
+is retained separately; the frozen packet also contains its STOP and manifest.
 The public anchor is [issuecomment-6109158124](https://github.com/techrote/ShadeDoomVK/issues/9#issuecomment-6109158124).
 The root records have SHA-256:
 
@@ -71,12 +76,15 @@ Raw dumps, driver images and private diagnostic logs remain local.
 
 ## Production path and extraction fidelity
 
-`MapLoader::LoadLevel` parses TEXTMAP via `ParseTextMap`, builds missing nodes via
-`FNodeBuilder`, then builds subsectors/sections/visibility and invokes hardware
+`MapLoader::LoadLevel` parses TEXTMAP via `ParseTextMap`, tries loaded/cached GL
+nodes and builds missing nodes via `FNodeBuilder`, then builds subsectors/sections/visibility and invokes hardware
 VBO/`InitLevelMesh` callbacks. The retained SDVSHDW WAD contains only marker,
 TEXTMAP and ENDMAP: 8 vertices/lines/sides, one sector, 1029 things including1025
 lights. It contains no serialized BSP/GL nodes or collision arrays. Existing
 vktool enters the game loop and is not a CPU-only map bypass.
+Neither failed configuration pins `gennodes`, `gl_cachenodes`, `gl_cachetime` or
+a serialized node cache. Matching authored geometry does not establish the
+failed node-generation/cache path or its fault-frame update history.
 
 `LevelMesh` first creates a twelve-index placeholder and collision structure.
 `DoomLevelMesh::SetLimits` resets the mesh before production wall/flat dispatch.
@@ -135,7 +143,9 @@ only vertices referenced by nondegenerate occupied triangles are read. INDX
 retains every occupied slot including zeroed holes. Unused backing tails,
 unreferenced positions, non-position attributes and native padding are
 **UNKNOWN/UNREAD**, not assumed initialized or zero. Replay allocates the full
-backing extents and poisons unknown data without renumbering consumed identities.
+backing extents without renumbering consumed identities. Newly allocated unknown
+vertex/index entries are poisoned; reused adapter storage can retain earlier
+values. Node padding and backing tails are excluded from comparisons.
 
 `tools/collision_replay.py` validates structure, referenced finite geometry,
 membership/roots/child links, original triangle offsets and worst pending stack,
@@ -146,6 +156,22 @@ Update state are compared per object. Free-range and dirty-publication extents
 are checked; uncovered stale storage is reported explicitly. No hand triangulation
 or synthesized failed scene is used. Tests include deliberately corrupt graph,
 layout/range/identity/stack/empty cases and immutable writer output.
+The qualification parser fails closed above 128 MiB per snapshot, 256 MiB for
+sequence payload/backing budgets, 4,096 events or one million elements per
+bounded domain. These are tooling limits, not new renderer workload limits.
+The replay adapter rejects geometric query use; separate lifecycle regressions
+exercise production scalar intersection/hit behavior. Replay does not establish
+general ray-intersection equivalence or submitted GPU bytes.
+
+The integrated independent focused gate passes 28/28 at
+`897cd59ea415c5eb0111b6271d573a361e0cfa00` (tree
+`741544ce246becbbdb4918e618d953868690f53b`), with stable source hashes. Full local
+CPU checks pass: 744 PF tests, 162 renderer-oracle tests, CFX checks, deterministic
+corpus/oracle and four compiled contracts. The Windows RelWithDebInfo `zdoom`
+target compiles successfully; its renderer executable is never invoked.
+[Machine-readable evidence index](evidence/sdvk009-offline-shadow-investigation-20261012.json)
+pins the original input checks, independent review and local validation logs.
+Required hosted source/full CI and post-merge verification remain separate gates.
 
 ## Resume disposition and held diagnostic protocol
 

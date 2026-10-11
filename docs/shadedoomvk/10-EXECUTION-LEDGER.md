@@ -990,3 +990,23 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   synthetic lifecycle reproducers from the missing failed runtime graph.
   Physical causality remains undetermined; hardware STOP remains active and
   #8/#9/#10 stay open with all physical/dependency acceptance gates unchanged.
+
+### 12 October 2026 — offline production collision reconstruction
+
+- Fresh live issue/PR/master reconciliation and recursive retained-input hashes
+  match the prior authority. All 435 raw-packet manifest members match both ZIP
+  and local bytes; original seal members and public anchor drafts also match.
+  No sealed receipt is edited and no additional generic KD probe is repeated.
+- Default-off production CPU snapshots retain identities, extents, holes and
+  collision Update history. Hosted llvmpipe state captures feed a CPU replay of
+  production collision construction/update, with explicit unknown backing data
+  and bounded graph/layout/dirty-publication checks. Synthetic controls remain
+  distinct from reconstructed hosted production state and missing failed state.
+- Independent integrated focused CPU review passes 28/28, including prior
+  negative controls, immutable serializer and corrupt replay inputs. Full CPU,
+  compile-only and required hosted CI receipts must still pass before merge.
+  [Investigation, hypotheses and held protocol](SDVK-009-OFFLINE-SHADOW-INVESTIGATION.md).
+- No renderer/vktool or Vulkan device is launched locally. No hardware setting
+  changes, physical acceptance, architecture/performance acceptance or issue
+  closure follows. Physical root cause is UNDETERMINED and resume disposition
+  remains HOLD pending a defensible causal discriminator and explicit approval.

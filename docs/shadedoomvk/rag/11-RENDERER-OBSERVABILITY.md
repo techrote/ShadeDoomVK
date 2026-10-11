@@ -179,3 +179,27 @@ The span may contain nested groups; never sum them. Exact 120-frame coverage in
 all fifteen physical timing processes permits threshold analysis, not acceptance.
 This requires a new exact build/preregistered packet and does not supersede or
 relabel the original frozen physical evidence.
+
+### Offline collision reconstruction evidence
+
+For the repeated SDVK-009 shadow-boundary fault, the default-off
+`-sdvkcollisionsnapshot PREFIX` hook records production CPU collision construction
+and dirty/unchanged Update events in exclusive files. Original vertex/index/BLAS
+slot identities, full backing extents, occupied index high-water, free/dirty
+ranges, roots and defined node fields are retained. Unused tails, unreferenced
+positions, other vertex attributes and native padding remain UNKNOWN/UNREAD.
+It refuses hardware-ray-query export and does not change lighting or traversal.
+
+Only hosted shadow-boundary state captures request this option. Timing captures
+keep serialization off. `tools/collision_replay.py` validates bounded snapshots
+and compiles production collision code with CPU adapters to compare constructor
+and sequential Update state. It creates no renderer or Vulkan device locally.
+Parser limits and deliberately corrupt controls are in the
+[offline investigation](../SDVK-009-OFFLINE-SHADOW-INVESTIGATION.md).
+
+Hosted snapshots are reconstructed production state on the identified software
+device. Neither failed physical process exported a graph or native state; the
+authored TEXTMAP also does not pin its BSP/cache or warmup allocation history.
+Passing replay/software correctness does not establish physical equivalence,
+GPU consumption, TDR causality or permission to resume. Hardware STOP remains
+active and #8/#9/#10 remain open.
