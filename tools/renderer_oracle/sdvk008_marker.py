@@ -128,9 +128,15 @@ def _state_reason(off_state, on_state, off_native, on_native):
                 or row.get("normal") != [-1, 0, 0] or row.get("handedness") != 1 or row.get("explicit") is not True):
                 return "Actual basis differs from source projection"
             if kind == "sprite-relief" and (row.get("eligible_draw") is not enabled
+                or row.get("candidate") is not enabled
                 or row.get("uv_bounds") != ([1, 0, 0, 1] if enabled else [0, 0, 0, 0])
-                or row.get("quality") != native.get("settings", {}).get("gl_sprite_relief_quality")
+                # ClearSpriteRelief zeros the entire uniform when depth is OFF;
+                # the configured quality CVar remains unchanged at two.
+                or row.get("quality") != (native["settings"]["gl_sprite_relief_quality"] if enabled else 0)
+                or row.get("height_reads_max") != ({1: 10, 2: 15, 3: 23}[native["settings"]["gl_sprite_relief_quality"]]
+                                                    if enabled else 0)
                 or not isinstance(row.get("depth"), (int, float)) or not math.isfinite(row["depth"])
+                or (not enabled and row["depth"] != 0)
                 or abs(row.get("depth", -1) - (.012 if enabled else 0)) > 1e-8):
                 return "Actual relief controls differ from source projection"
     return None

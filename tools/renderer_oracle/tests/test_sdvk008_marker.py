@@ -1,6 +1,8 @@
 """Independent CPU projection/sampling controls; no native renderer launch."""
 import copy
+import json
 import math
+from pathlib import Path
 import unittest
 
 from tools.renderer_oracle import prepare, sdvk008_marker as marker, sdvk008_fixtures as fixtures
@@ -18,7 +20,9 @@ def state(enabled):
         dict(kind="sprite-basis", data=dict(**common, tangent=[0, 0, -1], normal=[-1, 0, 0],
             handedness=1, explicit=True)),
         dict(kind="sprite-relief", data=dict(**common, eligible_draw=enabled,
-            depth=.012 if enabled else 0, quality=2, uv_bounds=[1, 0, 0, 1] if enabled else [0, 0, 0, 0]))]}
+            candidate=enabled, height_reads_max=15 if enabled else 0,
+            depth=.012 if enabled else 0, quality=2 if enabled else 0,
+            uv_bounds=[1, 0, 0, 1] if enabled else [0, 0, 0, 0]))]}
 
 
 def sampled_plane(depth, *, x_sign=1, y_sign=1):
@@ -133,6 +137,39 @@ class SourceProjectedMarkerTests(unittest.TestCase):
         for row in raw['records'][1:]:
             row['data']['context']['position'] = [-160.00000000000003, -80.00000000000001, 96]
         self.assertEqual(self.check(off_state=raw)['status'], 'PASS')
+
+    def test_retained_actual_off_reset_and_on_uniforms_match_source_contract(self):
+        retained = json.loads((Path(__file__).parent / 'fixtures/sdvk008_emitted_reset_38107775940.json').read_text())
+        off, on = (retained['states'][key] for key in ('off', 'on'))
+        def relief(raw):
+            return next(row['data'] for row in raw['records'] if row['kind'] == 'sprite-relief')
+        self.assertEqual(self.check(off_state=off, on_state=on)['status'], 'PASS')
+        emitted = relief(off)
+        self.assertEqual({key: emitted[key] for key in ('quality', 'depth', 'candidate', 'eligible_draw', 'height_reads_max', 'uv_bounds')},
+            dict(quality=0, depth=0, candidate=False, eligible_draw=False, height_reads_max=0, uv_bounds=[0, 0, 0, 0]))
+        self.assertEqual(self.natives['sdvk008-s0']['settings']['gl_sprite_relief_quality'], 2)
+        self.assertEqual(self.natives['sdvk008-sm']['settings']['gl_sprite_relief_quality'], 2)
+        for key, values in (('quality', (1, 2, 3)), ('candidate', (True,)),
+                            ('eligible_draw', (True,)), ('height_reads_max', (1, 10, 15, 23)),
+                            ('depth', (1e-10, .012)), ('uv_bounds', ([1, 0, 0, 1],))):
+            for value in values:
+                bad = copy.deepcopy(off)
+                relief(bad)[key] = value
+                self.assertEqual(self.check(off_state=bad, on_state=on)['status'], 'UNAVAILABLE', (key, value))
+        for key, values in (('quality', (0, 1, 3)), ('candidate', (False,)),
+                            ('eligible_draw', (False,)), ('height_reads_max', (0, 10, 14, 16, 23))):
+            for value in values:
+                bad = copy.deepcopy(on)
+                relief(bad)[key] = value
+                self.assertEqual(self.check(off_state=off, on_state=bad)['status'], 'UNAVAILABLE', (key, value))
+
+    def test_all_active_quality_ceilings_and_reset_are_distinct_from_configured_cvars(self):
+        for quality, ceiling, scene in ((1, 10, 'sdvk008-sl'), (2, 15, 'sdvk008-sm'), (3, 23, 'sdvk008-sh')):
+            raw = state(True)
+            raw['records'][2]['data'].update(quality=quality, height_reads_max=ceiling)
+            self.assertEqual(self.check(on_state=raw, on_native=self.natives[scene])['status'], 'PASS')
+            raw['records'][2]['data']['height_reads_max'] = ceiling+1
+            self.assertEqual(self.check(on_state=raw, on_native=self.natives[scene])['status'], 'UNAVAILABLE')
 
     def test_area_jacobian_counterexample_invalidates_global_centroid(self):
         def image(on):
