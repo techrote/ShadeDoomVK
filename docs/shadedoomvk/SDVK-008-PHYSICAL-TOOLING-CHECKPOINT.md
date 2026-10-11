@@ -58,3 +58,13 @@ stays OPEN and SDVK-012 remains blocked.
 
 Local host-test results and exact commits belong in the final PR receipt. Hosted
 native control, hosted CI and physical results are not claimed by this document.
+
+The frozen SDVK-008 renderer does not emit an ordinary immediate-scene GPU
+timestamp span. Its CPU and available postprocess GPU distributions remain
+descriptive; they cannot establish sprite POM scene cost. `timing_analysis`
+reports `INCONCLUSIVE_GPU_SCENE_SCOPE` unless every one of the 11×3 processes
+retains exactly 120 raw `scene.immediate` samples and complete retained GPU
+groups. An absent or incomplete span never becomes a zero-cost or acceptance
+claim. The separately proposed instrumentation candidate in PR #140 requires
+a new preregistered renderer/build identity and fresh qualification; it cannot
+silently replace the frozen implementation used by this driver.

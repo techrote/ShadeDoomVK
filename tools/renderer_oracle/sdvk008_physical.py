@@ -281,19 +281,28 @@ def matched_effect(off, on, *, anomaly=False):
 def timing_analysis(summaries, *, anomaly=False):
     require(set(summaries) == set(WORK_CEILINGS), "Incomplete timing matrix")
     per_variant = {}
+    gpu_integrity = {}
     for variant, summary in summaries.items():
         require(summary["independent_processes"] == len(summary["runs"]) == 3,
                 "Timing matrix requires three independent processes per variant")
         per_variant[variant] = []
+        gpu_integrity[variant] = []
         for process in summary["runs"]:
             data = process["summary"]
             require(len(data["raw_cpu_render_view_ms"]) == data["cpu_render_view"]["count"] == 120,
                     "Timing process must retain exactly 120 CPU frames")
             groups = {"cpu_render_view_ms": data["cpu_render_view"]}
+            incomplete = []
             for name, group in data["gpu_groups"].items():
-                require(len(group["samples_ms"]) == group["distribution"]["count"] == 120,
-                        "GPU group does not contain exactly 120 resolved samples: " + name)
+                if not len(group["samples_ms"]) == group["distribution"]["count"] == 120:
+                    incomplete.append(name)
                 groups["gpu:" + name] = group["distribution"]
+            scene = data["gpu_groups"].get("scene.immediate")
+            gpu_integrity[variant].append({
+                "scene_immediate_complete": scene is not None and
+                    len(scene["samples_ms"]) == scene["distribution"]["count"] == 120,
+                "scene_immediate_raw_samples": len(scene["samples_ms"]) if scene else 0,
+                "incomplete_retained_groups": sorted(incomplete)})
             per_variant[variant].append(groups)
     comparisons = {}
     for on, off in MATCHED_OFF.items():
@@ -302,12 +311,21 @@ def timing_analysis(summaries, *, anomaly=False):
         missing = set.union(*group_sets) - groups
         comparisons[on] = {"off": off, "groups": {
             group: matched_effect([row[group]["p50"] for row in per_variant[off]],
-                                  [row[group]["p50"] for row in per_variant[on]], anomaly=anomaly)
+                                  [row[group]["p50"] for row in per_variant[on]],
+                                  anomaly=anomaly or (group.startswith("gpu:") and any(
+                                      group.removeprefix("gpu:") in row["incomplete_retained_groups"]
+                                      for variant in (off, on) for row in gpu_integrity[variant])))
             for group in sorted(groups)}, "unavailable_or_inconsistent_groups": sorted(missing)}
-    return {"schema": "sdvk008-physical-analysis/v1", "comparisons": comparisons,
+    gpu_complete = all(row["scene_immediate_complete"] and not row["incomplete_retained_groups"]
+                       for rows in gpu_integrity.values() for row in rows)
+    return {"schema": "sdvk008-physical-analysis/v1",
+            "status": "DESCRIPTIVE_GPU_SCENE_SCOPE_AVAILABLE" if gpu_complete else "INCONCLUSIVE_GPU_SCENE_SCOPE",
+            "gpu_scene_scope_complete": gpu_complete, "gpu_group_integrity": gpu_integrity,
+            "gpu_scope_limitation": "Requires 120 scene.immediate samples in every one of 33 processes and complete retained groups; postprocess groups cannot substitute for the sprite scene span",
+            "comparisons": comparisons,
             "per_process_distributions": per_variant, "nested_gpu_groups_summed": False,
             "work_ceilings": WORK_CEILINGS, "work_ceiling_is_measured_work": False,
-            "physical_gpu_qualified": False, "quality_modes_accepted": []}
+            "physical_gpu_qualified": False, "performance_accepted": False, "quality_modes_accepted": []}
 
 
 def verify_checksums(root):

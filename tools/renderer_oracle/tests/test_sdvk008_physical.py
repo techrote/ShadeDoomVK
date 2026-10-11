@@ -76,10 +76,54 @@ class StatisticalRules(unittest.TestCase):
         self.assertFalse(result["nested_gpu_groups_summed"])
         self.assertEqual(result["comparisons"]["SM"]["off"], "S0")
         for count in (119, 121):
-            for field in ("cpu_count", "gpu_count"):
-                bad = dict(data, SM=summary(**{field: count}))
-                with self.assertRaisesRegex(EvidenceError, "120"):
-                    physical.timing_analysis(bad)
+            bad = dict(data, SM=summary(cpu_count=count))
+            with self.assertRaisesRegex(EvidenceError, "120"):
+                physical.timing_analysis(bad)
+            bad = dict(data, SM=summary(gpu_count=count))
+            incomplete = physical.timing_analysis(bad)
+            self.assertEqual(incomplete["status"], "INCONCLUSIVE_GPU_SCENE_SCOPE")
+            self.assertFalse(incomplete["gpu_scene_scope_complete"])
+            self.assertEqual(incomplete["gpu_group_integrity"]["SM"][0]["incomplete_retained_groups"], ["opaque"])
+            self.assertEqual(incomplete["comparisons"]["SM"]["groups"]["gpu:opaque"]["status"], "INCONCLUSIVE")
+
+    def test_gpu_postprocess_or_other_spans_cannot_replace_scene_immediate(self):
+        data = {key: summary() for key in physical.WORK_CEILINGS}
+        result = physical.timing_analysis(data)
+        self.assertEqual(result["status"], "INCONCLUSIVE_GPU_SCENE_SCOPE")
+        self.assertFalse(result["gpu_scene_scope_complete"])
+        self.assertIn("gpu:opaque", result["comparisons"]["SM"]["groups"])
+        self.assertIn("cpu_render_view_ms", result["comparisons"]["SM"]["groups"])
+        self.assertFalse(result["performance_accepted"])
+
+    def test_scene_scope_requires_complete_span_in_all_thirty_three_processes(self):
+        data = {key: summary() for key in physical.WORK_CEILINGS}
+        for item in data.values():
+            for process in item["runs"]:
+                groups = process["summary"]["gpu_groups"]
+                groups["scene.immediate"] = groups["opaque"]
+        result = physical.timing_analysis(data)
+        self.assertTrue(result["gpu_scene_scope_complete"])
+        self.assertEqual(result["status"], "DESCRIPTIVE_GPU_SCENE_SCOPE_AVAILABLE")
+        self.assertFalse(result["physical_gpu_qualified"])
+        # Replace one independent process instead of mutating the shared
+        # synthetic summary dictionary used by the other repetitions.
+        data["PM"]["runs"][2] = summary()["runs"][0]
+        result = physical.timing_analysis(data)
+        self.assertFalse(result["gpu_scene_scope_complete"])
+        self.assertEqual(result["status"], "INCONCLUSIVE_GPU_SCENE_SCOPE")
+
+    def test_complete_scene_span_cannot_hide_incomplete_other_group(self):
+        data = {key: summary() for key in physical.WORK_CEILINGS}
+        for item in data.values():
+            for process in item["runs"]:
+                process["summary"]["gpu_groups"]["scene.immediate"] = {
+                    "samples_ms": [1] * 120, "distribution": physical.benchmark.distribution([1] * 120)}
+        data["PM"]["runs"][2] = summary(gpu_count=119)["runs"][0]
+        data["PM"]["runs"][2]["summary"]["gpu_groups"]["scene.immediate"] = {
+            "samples_ms": [1] * 120, "distribution": physical.benchmark.distribution([1] * 120)}
+        result = physical.timing_analysis(data)
+        self.assertFalse(result["gpu_scene_scope_complete"])
+        self.assertEqual(result["gpu_group_integrity"]["PM"][2]["incomplete_retained_groups"], ["opaque"])
 
     def test_inconsistent_gpu_groups_not_fabricated(self):
         data = {key: summary() for key in physical.WORK_CEILINGS}
