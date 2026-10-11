@@ -59,6 +59,46 @@ stays OPEN and SDVK-012 remains blocked.
 Local host-test results and exact commits belong in the final PR receipt. Hosted
 native control, hosted CI and physical results are not claimed by this document.
 
+The first hosted software control at renderer commit
+`b4dff1fcb07044bc4b41d7f427bf62b84c6d9138` failed its first
+`sdvk008-alpha-background` pose assertion: the old recipe expected authored yaw
+27 degrees, while the emitted view was `26.999999983236194`. The failed packet
+remains retained under
+`C:/ShadeDoomVK/physical-evidence/20261011/hosted008-first-failure/renderer-sdvk008-control/state/640x480/sdvk008-alpha-background/1`.
+Its `run.json` remains **FAIL**, SHA-256
+`aa7de0eaafafa078d4cfeebb340bb243f0f63ce0983c77a0db3325d96bee1f0d`;
+`recipe.json` SHA-256 is
+`00180f2c9117bb10e182ecb7c2d2f638555bd34053d3abc0aece55c293328a92`,
+and `native.renderer.json` SHA-256 is
+`f427397adb77b8df0dab3ad647c114bad1e26de2da3093e50785b82fc104f01d`.
+The llvmpipe type-4 observation is software evidence only and receives no
+physical qualification or performance status.
+
+Fixture revision `sdvk008-camera-bam-v2` separates integer
+`native.authored_camera_angles` from `native.camera` expected observed angles.
+The source path is UDMF `CheckInt`/short angle authoring, actor
+`DAngle::fromDeg(mthing->angle)`, then `R_InterpolateView` normalizing each view
+angle via `TAngle::Normalized180` in `vectors.h`. Its `BAMs` uses
+`xs_CRoundToInt` (nearest, ties even), followed by signed BAM times
+`90 / 0x40000000`; it is not a general floor conversion. Thus 27 maps to
+`26.999999983236194`, and 87 maps to `87.00000001117587`. A CPU fixture compiles
+the production header and checks all integer angles from -180 through 180
+against the canonical recipe conversion. Catalog preparation rejects any
+expected pose that differs from that conversion. The existing pose tolerance
+and renderer source remain unchanged.
+
+All 25 authored SDVK-008 PK3 hashes remain identical to the preceding tooling
+revision, including all eight PK3s retained by the failed hosted control. The
+alpha-background package remains SHA-256
+`b9fc66c4628e732fd2e18e2859cdde4046d4796d9e09c5204dffa53dffe624f2`.
+UDMF yaw remains exactly 27 or 87 as originally authored. Recipe/source hashes
+change, so a fresh preparation and new control packet are required; the failed
+packet is neither rewritten nor reclassified. This correction establishes
+expected pose semantics, not successful native rendering or visual gates.
+Local CPU validation with MSVC 14.44.35207 passes all 130 renderer-oracle tests,
+including the compiled production-angle check and all 25 unchanged package
+identities. No renderer/GPU process was launched for this correction.
+
 The frozen SDVK-008 renderer does not emit an ordinary immediate-scene GPU
 timestamp span. Its CPU and available postprocess GPU distributions remain
 descriptive; they cannot establish sprite POM scene cost. `timing_analysis`

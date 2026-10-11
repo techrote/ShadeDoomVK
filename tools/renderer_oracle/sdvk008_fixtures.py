@@ -8,6 +8,33 @@ from __future__ import annotations
 
 import copy
 
+FIXTURE_REVISION = "sdvk008-camera-bam-v2"
+
+
+def canonical_view_angle(degrees: int) -> float:
+    """DAngle::Normalized180: nearest-even BAM, then signed BAM to degrees.
+
+    See vectors.h BAMs/Normalized180 and xs_Float.h xs_CRoundToInt. This is
+    deliberately not floor: authored 87 degrees rounds upward in BAM space.
+    """
+    if type(degrees) is not int or not -32768 <= degrees <= 32767:
+        raise ValueError("SDVK-008 UDMF camera angles must be authored integers in short range")
+    bam = round(degrees * (0x40000000 / 90.0)) & 0xffffffff
+    signed_bam = bam if bam < 0x80000000 else bam - 0x100000000
+    return signed_bam * (90.0 / 0x40000000)
+
+
+def validate_camera(native: dict) -> dict:
+    authored = native.get("authored_camera_angles", {})
+    if set(authored) != {"yaw", "pitch", "roll"}:
+        raise ValueError("SDVK-008 requires separate authored camera angles")
+    if native.get("fixture_revision") != FIXTURE_REVISION:
+        raise ValueError("SDVK-008 camera fixture revision differs")
+    for key, value in authored.items():
+        if native["camera"][key] != canonical_view_angle(value):
+            raise ValueError("SDVK-008 expected camera differs from canonical BAM conversion")
+    return authored
+
 TIMING_VARIANTS = {name: "sdvk008-" + name.lower() for name in
                    ("S0", "SL", "SM", "SH", "M0", "MM", "MH", "G0", "GH", "P0", "PM")}
 CORRECTNESS_PAIRS = [
@@ -111,6 +138,7 @@ def pixels(kind: str) -> bytes:
 
 def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
+    authored_angles = validate_camera(native)
     family = native["relief_family"]
     if family not in FAMILIES:
         raise ValueError("Unknown SDVK-008 fixture family")
@@ -122,17 +150,15 @@ def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
         members, metadata = prep.authored_members(inherited)
         members["textures/SDVH.png"] = prep.png_rgba(128, 128, pixels("height"))
         metadata.update(relief_family=family, height_surface="asymmetric-nonflat",
+                        fixture_revision=FIXTURE_REVISION, authored_camera_angles=authored_angles,
                         directional_native_qualified=False)
         return members, metadata
     model = prep._Map(ceiling=256)
     model.boundary([(-384, -256), (-384, 256), (384, 256), (384, -256)], ["SDVW"]*4)
     camera = native["camera"]
-    # UDMF things use CheckInt for angle/pitch/roll, not a float camera pose.
-    if any(type(camera[key]) is not int for key in ("yaw", "pitch", "roll")):
-        raise ValueError("SDVK-008 UDMF camera angles must be authored integers")
     cx, cy, cz = camera["position"]
     model.thing(1, cx-48, cy, tid=2001)
-    model.thing(32200, cx, cy, cz, angle=camera["yaw"], pitch=camera["pitch"], tid=2002)
+    model.thing(32200, cx, cy, cz, angle=authored_angles["yaw"], pitch=authored_angles["pitch"], tid=2002)
     members = prep._base_members()
     members["textures/SDVW.png"] = prep.png_rgba(16, 16, bytes((42, 47, 53, 255))*256)
     members["flats/SDVFL.png"] = prep.png_rgba(16, 16, bytes((26, 31, 37, 255))*256)
@@ -178,6 +204,7 @@ class SDVKReliefCard : Actor
         [(map_name,b""),("TEXTMAP",model.text().encode()),("ENDMAP",b"")])
     return members, {"geometry": "authored_udmf", "textures": "generated_rgba_only",
         "native_executed": False, "relief_family": family, "camera_actor_tid": 2002,
+        "fixture_revision": FIXTURE_REVISION, "authored_camera_angles": authored_angles,
         "camera_position_world": camera["position"], "player_start_world": [cx-48,cy],
         "authored_relief_card_count": len(cards), "relief_card_tids": list(range(4600,4600+len(cards))),
         "height_surface": "asymmetric-nonflat", "card_angles": [c[2] for c in cards],

@@ -217,7 +217,8 @@ class AuthoredSceneTests(unittest.TestCase):
                 expected = scene["native"]["camera"]
                 self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"])
                 self.assertEqual(camera["id"], expected["actor_tid"])
-                self.assertEqual(camera["angle"], expected["yaw"])
+                authored = scene["native"].get("authored_camera_angles", expected)
+                self.assertEqual(camera["angle"], authored["yaw"])
                 players = [t for t in records["thing"] if t["type"] == 1]
                 self.assertEqual(len(players), 1)
                 player = players[0]

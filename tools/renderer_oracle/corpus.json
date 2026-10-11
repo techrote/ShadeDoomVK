@@ -5285,7 +5285,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-s0/capture.cfg",
         "clock": {
@@ -5444,7 +5444,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -5487,7 +5493,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 single s0"
     },
@@ -5615,7 +5627,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-sl/capture.cfg",
         "clock": {
@@ -5774,7 +5786,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -5817,7 +5835,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 single sl"
     },
@@ -5945,7 +5969,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-sm/capture.cfg",
         "clock": {
@@ -6104,7 +6128,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -6147,7 +6177,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 single sm"
     },
@@ -6275,7 +6311,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-sh/capture.cfg",
         "clock": {
@@ -6434,7 +6470,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -6477,7 +6519,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 single sh"
     },
@@ -6605,7 +6653,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-m0/capture.cfg",
         "clock": {
@@ -6764,7 +6812,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -6807,7 +6861,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 multiple m0"
     },
@@ -6935,7 +6995,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-mm/capture.cfg",
         "clock": {
@@ -7094,7 +7154,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -7137,7 +7203,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 multiple mm"
     },
@@ -7265,7 +7337,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-mh/capture.cfg",
         "clock": {
@@ -7424,7 +7496,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -7467,7 +7545,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 multiple mh"
     },
@@ -7595,7 +7679,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-g0/capture.cfg",
         "clock": {
@@ -7754,7 +7838,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -7797,7 +7887,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 grazing g0"
     },
@@ -7925,7 +8021,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-gh/capture.cfg",
         "clock": {
@@ -8084,7 +8180,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -8127,7 +8229,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 grazing gh"
     },
@@ -8255,7 +8363,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-p0/capture.cfg",
         "clock": {
@@ -8418,7 +8526,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -8461,7 +8575,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 pbr p0"
     },
@@ -8589,7 +8709,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-pm/capture.cfg",
         "clock": {
@@ -8752,7 +8872,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -8795,7 +8921,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 pbr pm"
     },
@@ -8923,7 +9055,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-default-off/capture.cfg",
         "clock": {
@@ -9081,7 +9213,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -9124,7 +9262,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 single default-off"
     },
@@ -9252,7 +9396,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-heightless-off/capture.cfg",
         "clock": {
@@ -9411,7 +9555,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -9454,7 +9604,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 heightless heightless-off"
     },
@@ -9582,7 +9738,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-heightless-on/capture.cfg",
         "clock": {
@@ -9741,7 +9897,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -9784,7 +9946,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 heightless heightless-on"
     },
@@ -9912,7 +10080,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-alpha-off/capture.cfg",
         "clock": {
@@ -10071,7 +10239,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -10114,7 +10288,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 alpha alpha-off"
     },
@@ -10242,7 +10422,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-alpha-on/capture.cfg",
         "clock": {
@@ -10401,7 +10581,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -10444,7 +10630,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 alpha alpha-on"
     },
@@ -10831,7 +11023,13 @@
             "requires_uv_mirror_y": true
           }
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 0,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -10874,7 +11072,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 mirror mirror-off"
     },
@@ -11261,7 +11465,13 @@
             "requires_uv_mirror_y": true
           }
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 0,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -11304,7 +11514,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK-008 mirror mirror-on"
     },
@@ -11432,7 +11648,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-alpha-background/capture.cfg",
         "clock": {
@@ -11579,7 +11795,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -11619,7 +11841,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 binary-alpha background matte control"
     },
@@ -11747,7 +11975,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 87
+          "yaw": 87.00000001117587
         },
         "capture_script": "scenes/sdvk008-grazing-fallback-off/capture.cfg",
         "clock": {
@@ -11906,7 +12134,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 87,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -11949,7 +12183,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 hard grazing fallback off"
     },
@@ -12077,7 +12317,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 87
+          "yaw": 87.00000001117587
         },
         "capture_script": "scenes/sdvk008-grazing-fallback-on/capture.cfg",
         "clock": {
@@ -12236,7 +12476,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 87,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -12279,7 +12525,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 hard grazing fallback on"
     },
@@ -12407,7 +12659,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-flipx-off/capture.cfg",
         "clock": {
@@ -12566,7 +12818,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -12609,7 +12867,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 signed-UV flipx off"
     },
@@ -12737,7 +13001,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-flipx-on/capture.cfg",
         "clock": {
@@ -12896,7 +13160,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -12939,7 +13209,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 signed-UV flipx on"
     },
@@ -13067,7 +13343,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-flipy-off/capture.cfg",
         "clock": {
@@ -13226,7 +13502,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -13269,7 +13551,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 signed-UV flipy off"
     },
@@ -13397,7 +13685,7 @@
             96
           ],
           "roll": 0,
-          "yaw": 27
+          "yaw": 26.999999983236194
         },
         "capture_script": "scenes/sdvk008-flipy-on/capture.cfg",
         "clock": {
@@ -13556,7 +13844,13 @@
             "main"
           ]
         },
-        "status": "native_qualification_pending"
+        "status": "native_qualification_pending",
+        "authored_camera_angles": {
+          "yaw": 27,
+          "pitch": 0,
+          "roll": 0
+        },
+        "fixture_revision": "sdvk008-camera-bam-v2"
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/render_context_fixture.cpp",
@@ -13599,7 +13893,13 @@
         "wadsrc/static/shaders/scene/material_relief.glsl",
         "tools/pf_oracle/tests/test_sdvk008_relief_contract.py",
         "tools/renderer_oracle/sdvk008_fixtures.py",
-        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py"
+        "tools/renderer_oracle/tests/test_sdvk008_fixtures.py",
+        "src/common/utility/vectors.h",
+        "src/common/thirdparty/xs_Float.h",
+        "src/rendering/r_utility.cpp",
+        "src/maploader/udmf.cpp",
+        "src/playsim/p_mobj.cpp",
+        "tools/renderer_oracle/tests/sdvk008_camera_angle_fixture.cpp"
       ],
       "title": "SDVK008 signed-UV flipy on"
     }
