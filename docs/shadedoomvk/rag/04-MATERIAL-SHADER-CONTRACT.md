@@ -241,13 +241,23 @@ Full off-GPU correctness and fixed source/native acceptance evidence belong in [
 SDVK-008 qualification tooling now lives in `tools/renderer_oracle/sdvk008_physical.py`
 and `sdvk008_fixtures.py`: deterministic eleven-variant families share identical
 OFF/ON package bytes while varying only declared relief controls. RGB effect,
-signed marker direction, emitted eligibility and background alpha masks are
+source-projected interior stripe-edge direction, emitted eligibility and background alpha masks are
 separate witnesses. Authored fixtures and CPU tests alone do not qualify native
 POM usefulness, semantic PBR UV coherence or cost. Missing advanced gates block
 full timing before launch; the separate llvmpipe smoke is bounded correctness
 only. Frozen ordinary-scene GPU timing is absent and explicitly inconclusive.
 No SDVK-008 physical scene was launched after the SDVK-009 host fault. See the
 [tooling checkpoint](../SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md); default remains OFF.
+The former whole-red-marker centroid remains a historical diagnostic, with its
+failed hosted receipt preserved. A CPU constructive counterexample proves that
+area/Jacobian weighting can reverse that centroid despite every source point
+moving right/up. The replacement `sdvk008-source-projected-stripe-v1` checks
+fixed authored interior UV sections, exact projected OFF/ON stripe endpoints,
+and actual emitted unflipped single-card TBN/UV/view state. Its scope is bounded
+stripe-edge motion; it proves neither pixel correspondence nor general UV
+coherence, mirror/portal parity or PBR correctness. Five single-family recipe
+identities change while all 25 authored PK3 bytes remain unchanged. New hosted
+collection is pending; the old campaign remains failed and physical work stopped.
 
 ## SDVK-010 actor/environment PBR candidate
 

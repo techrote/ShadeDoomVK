@@ -115,7 +115,7 @@ retain their original identities and outcomes.
 All 34 targeted SDVK-008 physical-driver CPU tests pass for this revision; no
 renderer or GPU process was launched.
 
-The red-marker check remains a finite aggregate centroid direction witness.
+In image oracle v2, the red-marker check was a finite aggregate centroid direction witness.
 Its preregistered right/up sign follows the final wall-card tangent, V-down
 bitangent and `original - depth * ray` sampling. It does not match individual
 pixels: marker reshaping or deletion can also move the centroid, including
@@ -271,3 +271,95 @@ it does not rewrite the original failed campaign receipt or award qualification.
 Source evidence `38105884446` and eight other full-CI jobs passed. Full CI failed,
 native full-corpus collection was not launched, and physical launches remain
 stopped. No threshold, workload or generation comparison was relaxed.
+
+The independent source audit proves a flaw in the **aggregate oracle**, without
+establishing a production rendering defect. Let the OFF marker contain two red
+rectangles, X intervals [10,14) and [80,84), with Y interval [6,12). Move the left
+component by `X'=X+1+(X-10)/4`, the right by `X'=X+1`, and both by `Y'=Y-1`.
+Every material point moves right/up, with no clipping, occlusion or deletion.
+The left component expands from width four to five, changing its area weight:
+the old oracle reports centroid motion (-2.6111111,-1) and fails. Conversely,
+deletion can make the old centroid pass without moving surviving points. Thus
+its sign is not a valid correspondence contract for a variable-height surface.
+The historical `red_marker_direction` algorithm and original negative receipt
+remain callable/unchanged; neither expected sign is reversed.
+
+New image oracle revision `sdvk008-image-oracle-v3-source-projected-stripes`
+uses the separately identified recipe witness
+`sdvk008-source-projected-stripe-v1`. Five single-family recipes carry that
+revision and the projection source inventory. All 25 authored PK3 byte hashes,
+camera poses, material/sampler assertions, renderer controls and image-repeat
+policies remain unchanged. This is a new bounded oracle protocol, pending
+fresh hosted collection; it does not retroactively accept the failed campaign.
+
+The proof is limited to the unflipped single fixed wall card:
+
+- The authored texture coordinates in texel units are `U=64-Y`, `V=128-Z`.
+  The accepted final-quad tangent is shader-space `(0,0,-1)`, normal `(-1,0,0)`,
+  handedness +1, UV endpoints `[1,0,0,1]`; the bitangent is `(0,-1,0)`.
+  Camera Doom coordinates are `(-160,-80,96)`, yaw 27, pitch/roll zero.
+  Consequently `ray.U/scale=(144-U)/160`, `ray.V/scale=(32-V)/160`.
+  Material marks move right everywhere on the card and up only below camera
+  height, where `V>32`. A whole-card upward centroid was never implied.
+- `pixels()` authors height 208 on texels X25..56,Y30..93. The selected vertical
+  stripe U[26,33) uses fixed V40..60 in steps of two; the horizontal stripe
+  V[83,88) uses fixed U40..50 in steps of one. These supports are separated from
+  the red intersection and remain inside that plateau with the bilinear height
+  footprint and traversal bracket. View-normal fade is one, ray length is below
+  its cap, and the magnified 128-square texture has height LOD zero there.
+  Thus the constant-height secant intersection has depth `d=47/255` for each
+  low/medium/high traversal. With `k=d*.012/160`, the forward texel map is
+  `U'=(U+128*144*k)/(1+128*k)`,
+  `V'=(V+128*32*k)/(1+128*k)`.
+- `hw_entrypoint.cpp` fixes the 4:3 FOV ratio at this extent,
+  `hw_vrmodes.cpp::VREyeInfo::GetProjection` derives vertical FOV, and
+  `hw_drawinfo.cpp::SetViewMatrix` applies MAPINFO's default pixel stretch 1.2
+  (`g_mapinfo.cpp`). With `D=160*cos(27)+(Y+80)*sin(27)`, the 640×480 projection is
+  `x=320+320*(160*sin(27)-(Y+80)*cos(27))/D`,
+  `y=240-384*(Z-96)/D`. These fixed source assumptions and authored dimensions
+  include the positive-height Vulkan viewport (`vk_renderstate.cpp`), vertex
+  shader Z-only remapping (`vert_main.glsl`), screenshot presentation
+  (`vk_postprocess.cpp`) and row reversal on RGB readback
+  (`vk_renderdevice.cpp`); `matrix.cpp` fixes matrix conventions. Those sources
+  are inventoried; they are not a claim that fragment execution is observed.
+  The driver authenticates actual extent/FOV/camera and the emitted single
+  test-card normal/tangent/handedness/UV/root-view parity before evaluating RGB.
+  Disabled relief bounds must be zero; active bounds must match the signed quad.
+- Each selected row or column comes from the source UV projection. Horizontal
+  boundary locations intersect the actual chosen column's pixel center;
+  vertical boundary X is independent of row at pitch zero. Nearest albedo
+  sampling predicts the exact complete integer intervals at pixel centers
+  `(x+.5,y+.5)`. Both OFF/ON endpoint pairs must match independently predicted
+  positions, in one contiguous unique red interval away from search boundaries.
+  Missing, deleted, clipped, ambiguous or differently shaped local stripes
+  cannot pass. At least eight distinct sections per axis are required. The
+  original screen-right/up signs and minimum 0.05-pixel signed mean endpoint
+  motion remain fixed; invisible raster motion is inconclusive. Float/raster
+  disagreement is retained as failure/unavailable evidence, never fitted away.
+
+This is a bounded stripe-edge direction witness, **not pixel-correspondence
+proof, general UV correctness, depth/usefulness or semantic PBR coherence**.
+The old global centroid is now descriptive only. Actor X/Y flip direction is
+explicitly missing again because this proof assumes an unflipped quad; its
+authored fixtures and emitted-flip diagnostics remain. All other missing full
+physical gates remain blockers. No production source is changed.
+
+Independent CPU tests invert perspective at each pixel and apply the shader ray
+equation, rather than using the oracle's forward projection helpers. They cover
+correct motion, wrong/stationary axes, missing/deleted/ambiguous markers,
+wrong emitted pose/basis/handedness/UV/parity, old recipe rejection, and the
+constructive area-weight counterexample. Correct local edges also pass when
+unrelated marker expansion reverses the global centroid. A campaign control
+proves that legacy centroid failure is descriptive while the new gate remains
+mandatory, and preserves image-FAIL precedence over unavailable direction.
+
+Only after locking that source-derived design and passing the independent CPU
+controls, diagnostic replay of both retained medium attempts matches all 22
+predicted stripe sections: mean endpoint motion is (+0.5,-0.1818182) pixels.
+That replay explicitly supplies the newly identified recipe contract in memory
+and does not modify any old raw file or receipt. It grants no acceptance and
+cannot substitute for a fresh native campaign. Physical launches remain stopped.
+Final host validation passes all 160 renderer-oracle tests in 55.445 seconds
+with MSVC 14.44.35207, including the compiled 361-angle production conversion,
+all 25 original PK3 identities, ten new marker controls and campaign failure
+precedence. No renderer process was launched for this revision.

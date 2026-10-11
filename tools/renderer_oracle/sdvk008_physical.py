@@ -25,7 +25,7 @@ else:
 
 IMPLEMENTATION_COMMIT = "9536324ce33ea418af5a8efe733b4659f6b4ad9b"
 IMPLEMENTATION_TREE = "3123bc7fd3dd9074487cbe3487f9336ef3589003"
-IMAGE_ORACLE_REVISION = "sdvk008-image-oracle-v2-alpha-active"
+IMAGE_ORACLE_REVISION = "sdvk008-image-oracle-v3-source-projected-stripes"
 REFERENCE_EXTENT = "640x480"
 TIMING_EXTENT = "1904x1001"
 TIMING_ORDER = (
@@ -431,6 +431,25 @@ def verify_checksums(root):
     return manifest
 
 
+def source_projected_direction_witness(left, right, *, raw_pair=None, native_pair=None):
+    """Shared campaign/offline API; offline replay cannot qualify an old packet.
+
+    An explicit native_pair permits CPU diagnosis under a separately identified
+    new contract; production collection always uses its retained recipe files.
+    """
+    contract = fixture_contract()
+    left, right = Path(left), Path(right)
+    if raw_pair is None:
+        raw_pair = controlled_pair(left, right)
+    if native_pair is None:
+        native_pair = [read_json(path / "recipe.json")["native"] for path in (left, right)]
+    extent, off_rgb = images.decode(left / "native.png")
+    other_extent, on_rgb = images.decode(right / "native.png")
+    require(extent == other_extent, "Direction image extents differ")
+    return contract.source_projected_marker_direction(off_rgb, on_rgb, *extent,
+        off_state=raw_pair[0], on_state=raw_pair[1], off_native=native_pair[0], on_native=native_pair[1])
+
+
 def campaign(args):
     require(args.execute, "Physical GPU launches require explicit --execute")
     software = getattr(args, "software_fixture_control", False)
@@ -537,15 +556,16 @@ def campaign(args):
                 witness = image_pair(off, on, pair["oracle"], background=background)
                 if pair["id"] in ("single-flipx", "single-flipy"):
                     witness["emitted_flip"] = flip_witness(*raw_pair, pair["id"][-1])
-                if pair["id"].startswith("single-") and hasattr(contract, "red_marker_direction"):
+                if pair["id"].startswith("single-") and hasattr(contract, "source_projected_marker_direction"):
                     extent, off_rgb = images.decode(off / "native.png")
                     _, on_rgb = images.decode(on / "native.png")
-                    direction = contract.red_marker_direction(off_rgb, on_rgb, *extent)
-                    witness["directional_marker"] = direction
+                    direction = source_projected_direction_witness(off, on, raw_pair=raw_pair)
+                    witness["source_projected_directional_marker"] = direction
+                    witness["legacy_centroid_descriptive"] = contract.red_marker_direction(off_rgb, on_rgb, *extent)
                     witness["direction_qualified"] = direction["status"] == "PASS"
                     if direction["status"] == "FAIL":
                         witness["status"] = "FAIL"
-                    elif direction["status"] != "PASS":
+                    elif direction["status"] != "PASS" and witness["status"] != "FAIL":
                         witness["status"] = "INCONCLUSIVE"
                 witnesses.append(witness)
             receipt["image_pairs"][pair["id"]] = witnesses

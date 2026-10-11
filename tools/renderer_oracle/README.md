@@ -446,8 +446,17 @@ images must share package bytes, camera and non-relief settings. Positive RGB
 differences establish a visible effect only. Unimplemented mirror/portal,
 grazing/distance, invalid height/view, atlas and PBR semantic witnesses remain
 explicit acceptance blockers. Descriptive image checks never unlock timing.
-Single-card direction uses a preregistered red-marker centroid and expected
-screen signs; failures are retained without adapting the sign. Alpha/cutout
+Single-card direction uses the separately revisioned source-projected interior
+stripe-edge oracle in `sdvk008_marker.py`. Fixed authored UV sections, camera
+projection and constant-height intersection predict both OFF/ON endpoints;
+complete unique stripe intervals must match those predictions. Actual emitted
+TBN/UV/view state is authenticated before the unchanged right/up signs and
+0.05-pixel mean edge-motion threshold apply. The old whole-marker centroid is
+retained as a descriptive diagnostic: area changes can reverse its sign even
+when every material point moves right. It no longer controls the hard gate.
+This finite edge witness proves neither pixel correspondence nor general UV
+correctness; actor X/Y mirror direction is again explicitly missing. Unresolved
+or invisible raster motion remains inconclusive. Alpha/cutout
 evidence compares exact OFF/ON masks against an independently repeated
 no-card-background capture. Both witnesses apply only to their finite authored
 fixtures. A missing directional marker is reported inconclusive. Source-level

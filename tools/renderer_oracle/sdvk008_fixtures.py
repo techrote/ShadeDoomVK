@@ -7,6 +7,7 @@ until they have directional oracles and independently reviewed native evidence.
 from __future__ import annotations
 
 import copy
+from .sdvk008_marker import REVISION as DIRECTION_WITNESS_REVISION, source_projected_marker_direction
 
 FIXTURE_REVISION = "sdvk008-camera-bam-v2"
 MATERIAL_ASSERTION_REVISION = "sdvk008-material-bindings-v3"
@@ -18,6 +19,11 @@ def validate_bootstrap(native: dict) -> None:
         raise ValueError("SDVK-008 bootstrap revision differs")
     if native.get("argv", []).count("-nostartup") != 1:
         raise ValueError("SDVK-008 requires exactly one -nostartup before initialization")
+
+
+def validate_direction_witness(native: dict) -> None:
+    if native.get("relief_family") == "single" and native.get("direction_witness_revision") != DIRECTION_WITNESS_REVISION:
+        raise ValueError("SDVK-008 source-projected direction witness revision differs")
 
 
 def canonical_view_angle(degrees: int) -> float:
@@ -64,8 +70,8 @@ CORRECTNESS_PAIRS = [
 AVAILABLE_GATES = ("default-off-equivalence", "heightless-equivalence", "visible-effect",
                    "same-build-repeatability", "emitted-basis-and-material-state",
                    "directional-displacement", "alpha-silhouette-matte",
-                   "grazing-hard-fallback-equivalence", "actor-x-y-mirror-direction")
-MISSING_GATES = ("mirror-direction",
+                   "grazing-hard-fallback-equivalence")
+MISSING_GATES = ("mirror-direction", "actor-x-y-mirror-direction",
                  "portal-relief-parity", "invalid-height-native-fallback",
                  "invalid-view-native-fallback", "grazing-and-distance-bounds",
                  "atlas-and-filter-footprint", "semantic-pbr-uv-coherence")
@@ -125,13 +131,11 @@ def validate_material_assertions(native: dict) -> None:
 
 
 def red_marker_direction(off_rgb: bytes, on_rgb: bytes, width: int, height: int) -> dict:
-    """Preregistered signed centroid witness for the single fixed wall card.
+    """Retained legacy aggregate diagnostic, never a hard direction gate.
 
-    Increasing texture U follows the card edge, increasing V follows down.
-    Camera (-160,-80,96), card front (-X), and yaw 27 degrees give a ray toward
-    screen right/up. POM samples original-depth*ray: authored marks therefore
-    move right/up. Never infer the expected sign from the measured images.
-    This is a marker direction witness, not a depth or usefulness metric.
+    Area/Jacobian changes can reverse a centroid despite uniformly rightward
+    material-point motion. Deletion can also give a false positive. Keep this
+    historical algorithm callable to reproduce the preserved negative receipt.
     """
     if type(width) is not int or type(height) is not int or width <= 0 or height <= 0:
         raise ValueError("Invalid marker extent")
@@ -202,6 +206,7 @@ def authored_members(scene: dict, prep) -> tuple[dict[str, bytes], dict]:
     family = native["relief_family"]
     if family not in FAMILIES:
         raise ValueError("Unknown SDVK-008 fixture family")
+    validate_direction_witness(native)
     validate_material_assertions(native)
     if family == "mirror":
         inherited = copy.deepcopy(scene)

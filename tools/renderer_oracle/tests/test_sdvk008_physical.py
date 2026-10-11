@@ -312,7 +312,7 @@ class FixtureAndIdentityRules(unittest.TestCase):
 
 class CampaignControls(unittest.TestCase):
     def execute(self, root, *, partial=False, incomplete=False, compare_status="PASS", crash=False, software=False,
-                image_status="PASS", runtime_driver=4202499):
+                image_status="PASS", runtime_driver=4202499, direction_status=None):
         exe, iwad = root / "engine.exe", root / "iwad.wad"
         exe.write_bytes(b"not executed")
         iwad.write_bytes(b"private fixture")
@@ -322,6 +322,9 @@ class CampaignControls(unittest.TestCase):
         args = Namespace(exe=exe, iwad=iwad, out=root / "campaign", timeout=600,
                          execute=True, correctness_only=partial, device_name="test GPU", vulkan_summary=vulkan_summary)
         contract = fixture_contract(complete=not incomplete)
+        if direction_status is not None:
+            contract.source_projected_marker_direction = lambda *a, **kw: None
+            contract.red_marker_direction = lambda *a, **kw: {"status": "FAIL", "delta_x_px": -1}
         if software:
             args.software_fixture_control = True
             args.expected_commit = "b" * 40
@@ -354,12 +357,28 @@ class CampaignControls(unittest.TestCase):
              patch.object(physical, "relief_draw_witness", return_value={}), \
              patch.object(physical, "timing_integrity", return_value={"status": "INCONCLUSIVE_GPU_SCENE_SCOPE"}), \
              patch.object(physical, "image_pair", return_value={"status": image_status}), \
+             patch.object(physical.images, "decode", return_value=((640, 480), b"")), \
+             patch.object(physical, "source_projected_direction_witness", return_value={"status": direction_status}), \
              patch.object(physical.run, "summarize_runs", return_value=summary()):
             try:
                 result = physical.campaign(args)
             except EvidenceError:
                 result = read_json(args.out / ("sdvk008-software-fixture-control.json" if software else "sdvk008-physical-campaign.json"))
         return args, captures, result
+
+    def test_new_source_gate_controls_result_and_legacy_centroid_is_descriptive(self):
+        for status in ("PASS", "FAIL", "UNAVAILABLE"):
+            with tempfile.TemporaryDirectory() as directory:
+                _, _, result = self.execute(Path(directory), partial=True, software=True, direction_status=status)
+            self.assertEqual(result["status"], "SOFTWARE_FIXTURE_CONTROL_COLLECTED" if status == "PASS" else "FAIL")
+            row = result["image_pairs"]["single-m"][0]
+            self.assertEqual(row["source_projected_directional_marker"]["status"], status)
+            self.assertEqual(row["legacy_centroid_descriptive"]["status"], "FAIL")
+            self.assertEqual(row["direction_qualified"], status == "PASS")
+        with tempfile.TemporaryDirectory() as directory:
+            _, _, result = self.execute(Path(directory), partial=True, software=True,
+                direction_status="UNAVAILABLE", image_status="FAIL")
+        self.assertEqual(result["image_pairs"]["single-m"][0]["status"], "FAIL")
 
     def test_preregistered_serial_order_and_exact_command_budgets(self):
         with tempfile.TemporaryDirectory() as directory:
