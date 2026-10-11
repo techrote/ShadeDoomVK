@@ -1,0 +1,12 @@
+{
+  "schema": "collision-backing-lifetime-pre-fix/v1",
+  "source_commit": "3b7da0739fa8254c80cb0adaa8ee55b00c95676f",
+  "source_tree": "276b1167db72dcb84d71c4d2248c4c438c737c88",
+  "functions": {
+    "CPUAccelStruct::CPUAccelStruct(": "dcd068f33586a8d47065471f4afb96eff64dec020f94e24a1fa74c7de1fef175",
+    "void CPUAccelStruct::Update()": "e3a9a5e573162a8f8d81f73616dde6fbaf7f4b61cf0893ce65d3d5e800a4789f",
+    "void LevelMesh::Reset()": "8f22569a4d3924cdf241cd56b4e3a06dbac5d41ada17b29fa8e4eacbb25f3753"
+  },
+  "local_original_probe": "C:/ShadeDoomVK/physical-evidence/20261012/offline-shadow-20261012/independent-collision",
+  "causes_physical_fault": false
+}

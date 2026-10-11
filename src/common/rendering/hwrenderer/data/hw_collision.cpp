@@ -39,6 +39,10 @@
 
 CPUAccelStruct::CPUAccelStruct(LevelMesh* mesh) : Mesh(mesh)
 {
+	VertexData = Mesh->Mesh.Vertices.Data();
+	IndexData = Mesh->Mesh.Indexes.Data();
+	VertexCount = Mesh->Mesh.Vertices.Size();
+
 	// Find out how many segments we should split the map into
 	DynamicBLAS.resize(32);
 	IndexesPerBLAS = ((Mesh->Mesh.Indexes.size() + 2) / 3 / DynamicBLAS.size() + 1) * 3;
@@ -96,8 +100,29 @@ void CPUAccelStruct::FindFirstHit(const RayBBox& ray, int a, TraceHit* hit)
 
 extern cycle_t DynamicBLASTime;
 
+void CPUAccelStruct::RebindMeshData()
+{
+	const auto* vertices = Mesh->Mesh.Vertices.Data();
+	const auto* indexes = Mesh->Mesh.Indexes.Data();
+	int vertexCount = Mesh->Mesh.Vertices.Size();
+	if (vertices == VertexData && indexes == IndexData && vertexCount == VertexCount)
+		return;
+
+	// TArray growth preserves element identities but may relocate backing data.
+	// Unchanged BLAS trees keep their bounds/triangles and must use current storage.
+	for (int instance = 0; instance < InstanceCount; instance++)
+	{
+		if (DynamicBLAS[instance])
+			DynamicBLAS[instance]->RebindMeshData(vertices, vertexCount, indexes + instance * IndexesPerBLAS);
+	}
+	VertexData = vertices;
+	IndexData = indexes;
+	VertexCount = vertexCount;
+}
+
 void CPUAccelStruct::Update()
 {
+	RebindMeshData();
 	if (Mesh->UploadRanges.Index.GetRanges().Size() == 0)
 	{
 		DumpSnapshot(2);

@@ -263,3 +263,76 @@ All hardware remains stopped, #9 remains open/physically inconclusive, and no
 performance, architecture, quality or dependent acceptance gate advances. Any
 future physical experiment requires a separately reviewed, newly pinned source,
 build and shader-package identity; this candidate authorizes no launch or retry.
+
+## CPU collision backing and reset lifetime repairs — 2026-10-12
+
+Independent offline source review of verified master
+`3b7da0739fa8254c80cb0adaa8ee55b00c95676f` reproduced two additional lifecycle
+defects. Neither failed physical capture retained its runtime graph, and neither
+reproducer represents that missing graph. These are source defects with no
+established physical fault causality.
+
+`CPUBottomLevelAccelStruct` retains raw vertex/index backing pointers.
+`LevelMesh::AllocGeometry` can grow either real `TArray` without moving live
+element identities. The old `CPUAccelStruct::Update` only rebuilt dirty index
+partitions unless repartitioning was necessary; unchanged BLAS trees retained
+old backing addresses. A legal forced relocation left 16 unchanged BLASs stale
+out of 17 live instances for vertex-only, index-only and joint growth. A
+vertex-only backing relocation with no dirty index range likewise retained all
+16 stale bindings. The production query reached its triangle-intersection
+boundary with stale storage; the CPU fixture stopped before dereferencing it.
+Unchanged, dirty-without-relocation and full-repartition controls passed.
+
+The bounded correction detects backing address or populated vertex-count
+changes before the index-dirty early return. It rebinds each existing live BLAS
+to current vertex storage and its **original slot's** current index start, and
+refreshes the vertex count. It preserves tree nodes, roots, bounds, triangle
+identities, dirty partition selection and subdivision. It does not rebuild
+unchanged trees merely because storage moved. Within the existing lifecycle,
+queries occur after `Update`; it does not add permission to query between
+geometry mutation and that synchronization point.
+
+`LevelMesh::Reset` cleared populated vertex/index arrays but retained
+`Mesh.IndexCount` and pending upload spans. The real base construction order is
+`Reset -> AddEmptyMesh -> CreateCollision`; `DoomLevelMesh::SetLimits` then calls
+`Reset` again before creating real surfaces and recreating collision. The old
+12-index high-water mark survived an empty reset or a three-index replacement;
+the production collision constructor attempted a BLAS span beyond populated
+index storage. Pending base-mesh ranges likewise remained `0..12` for the empty
+or smaller arrays. Separately seeded stale surface/uniform/light/dynamic-light
+spans proved that reset arrays could retain invalid uploader source extents.
+
+Reset now clears `IndexCount` and the ten upload domains for arrays it actually
+clears/resizes: Vertex, UniformIndexes, Index, SurfaceIndex, Surface, Uniforms,
+LightUniforms, Light, LightIndex and DynLight. Node and Portal ranges/storage are
+retained. The existing caller must recreate collision before querying or
+publishing a reset mesh; recreation regenerates and dirties collision nodes.
+No uploader clamp, skipped live update or general invalid-state fallback is
+added. Supported callers recreate collision after Reset before its next query
+or Update; Reset does not promise reuse of an old `Collision` object. Arbitrary
+queries between geometry allocation and collision Update remain unsupported.
+
+`test_collision_backing_lifetime.py` executes exact production scalar collision
+construction, update, export and geometric query functions with real `TArray`,
+allocator, `AllocGeometry`, `Reset`, `AddEmptyMesh` and range functions. The exact
+old constructor/Update/Reset and function hashes remain in
+`collision_backing_lifetime_pre_fix.cpp/.json`. Its 22 old/current scenarios
+require the original stale-binding/high-water/upload-span failures, actual
+current hit/miss results, unchanged-tree snapshots, no-index-dirty handling,
+repartitioning, empty/smaller/same-size reset and base-to-Doom constructor order.
+Production `VkLevelMeshUploader::UploadRanges` byte planning is executed for
+valid spans; a logical source-span checker stops invalid input before pointer
+formation, and a byte sink checks planned source extents. Node/Portal dirty
+ranges must survive reset. Other renderer field types and vector/backend
+interfaces are bounded shape stubs; the fixture is scalar CPU evidence, not
+submitted Vulkan bytes, GPU execution or the actual failed graph.
+
+Assertions-enabled MSVC C++17 focused gate passes 15/15, preserving earlier
+single-root, centroid, sparse-slot, empty traversal/publication and LevelMesh
+negative controls. [Machine-readable candidate evidence](evidence/sdvk009-collision-lifetime-20261012.json)
+pins the source functions, retained local outputs and limits. Original offline
+probes, attributable fixture compiler warning, repaired scenario units/binaries
+and logs remain under
+`C:/ShadeDoomVK/physical-evidence/20261012/offline-shadow-20261012/independent-collision/`.
+Review and complete exact-head hosted CI remain required before merge. Hardware
+STOP stays active; #8/#9/#10 remain open and no physical acceptance advances.

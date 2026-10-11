@@ -967,3 +967,26 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   physical fault causality/resolution, full update lifecycle and general
   deep-stack safety remain unqualified. Hardware STOP and all issue/dependency
   gates remain unchanged; this repair authorizes no new physical launch.
+
+### 12 October 2026 — CPU collision backing/reset lifetime candidates
+
+- Independent offline analysis at verified master `3b7da0739fa8254c80cb0adaa8ee55b00c95676f`
+  proved unchanged BLAS trees retained old vertex/index backing after legal
+  `TArray` relocation. Update now detects relocation/count changes before its
+  early return and rebinds current storage by original BLAS slot, preserving
+  nodes, bounds, triangles and dirty partition selection.
+- Exact Reset/base-construction reproduction also proved stale occupied index
+  high-water and pending spans beyond cleared/smaller populated arrays. Reset
+  clears `IndexCount` and only ten reset-array upload domains; retained Node and
+  Portal state is unchanged. Existing collision recreation remains mandatory
+  before reset-mesh queries/publication. No source-range clamps are added.
+- Retained exact pre-fix functions and 22 old/current CPU scenarios require all
+  original failures, unchanged-tree/hit controls, no-index-dirty relocation,
+  repartition, empty/smaller/same-size reset and actual constructor ordering.
+  Focused MSVC assertions-enabled collision/LevelMesh checks pass 15/15 with
+  earlier PR #140/#142/#143 negative controls preserved. Full hosted CI and
+  independent review remain pending; no merge/acceptance is predeclared.
+- [Audit and machine evidence](SDVK-009-COLLISION-ROOT-AUDIT.md) distinguish
+  synthetic lifecycle reproducers from the missing failed runtime graph.
+  Physical causality remains undetermined; hardware STOP remains active and
+  #8/#9/#10 stay open with all physical/dependency acceptance gates unchanged.
