@@ -63,8 +63,12 @@ The frozen SDVK-008 renderer does not emit an ordinary immediate-scene GPU
 timestamp span. Its CPU and available postprocess GPU distributions remain
 descriptive; they cannot establish sprite POM scene cost. `timing_analysis`
 reports `INCONCLUSIVE_GPU_SCENE_SCOPE` unless every one of the 11×3 processes
-retains exactly 120 raw `scene.immediate` samples and complete retained GPU
-groups. An absent or incomplete span never becomes a zero-cost or acceptance
+retains `scene.immediate` exactly once in each consecutive raw frame 1..120 and
+complete retained GPU groups. Each timing capture authenticates the retained
+native observation before the next launch; unresolved batches, duplicate frames
+and incomplete named groups fail with the packet retained. Raw-coverage metadata
+is carried into analysis; a 120-element summary alone cannot establish scope.
+An absent scene span never becomes a zero-cost or acceptance
 claim. The separately proposed instrumentation candidate in PR #140 requires
 a new preregistered renderer/build identity and fresh qualification; it cannot
 silently replace the frozen implementation used by this driver.

@@ -101,6 +101,8 @@ class StatisticalRules(unittest.TestCase):
             for process in item["runs"]:
                 groups = process["summary"]["gpu_groups"]
                 groups["scene.immediate"] = groups["opaque"]
+                process["gpu_timing_integrity"] = {"status": "COMPLETE_GPU_SCENE_SCOPE",
+                    "scene_immediate_complete": True, "all_retained_groups_complete": True}
         result = physical.timing_analysis(data)
         self.assertTrue(result["gpu_scene_scope_complete"])
         self.assertEqual(result["status"], "DESCRIPTIVE_GPU_SCENE_SCOPE_AVAILABLE")
@@ -124,6 +126,40 @@ class StatisticalRules(unittest.TestCase):
         result = physical.timing_analysis(data)
         self.assertFalse(result["gpu_scene_scope_complete"])
         self.assertEqual(result["gpu_group_integrity"]["PM"][2]["incomplete_retained_groups"], ["opaque"])
+
+    def test_one_hundred_twenty_values_without_raw_frame_attestation_are_inconclusive(self):
+        data = {key: summary() for key in physical.WORK_CEILINGS}
+        for item in data.values():
+            for process in item["runs"]:
+                process["summary"]["gpu_groups"]["scene.immediate"] = {
+                    "samples_ms": [1] * 120, "distribution": physical.benchmark.distribution([1] * 120)}
+        self.assertEqual(physical.timing_analysis(data)["status"], "INCONCLUSIVE_GPU_SCENE_SCOPE")
+
+    def test_raw_gpu_duplicate_and_missing_frame_do_not_cancel(self):
+        raw = {"mode": "timing", "observed_frames": 120, "records": [
+            {"kind": "timing", "frame": frame, "count": 1,
+             "data": {"clock": "gpu", "name": "scene.immediate", "milliseconds": 1}}
+            for frame in range(1, 121)]}
+        with patch.object(physical, "read_json", return_value=raw), patch.object(physical, "pin", return_value={}):
+            self.assertTrue(physical.timing_integrity("packet")["scene_immediate_complete"])
+            raw["records"][60]["frame"] = 60  # 120 values: frame 60 twice, frame 61 absent.
+            with self.assertRaisesRegex(EvidenceError, "duplicate raw per-frame"):
+                physical.timing_integrity("packet")
+
+    def test_raw_gpu_unresolved_batch_and_incomplete_other_group_fail(self):
+        raw = {"mode": "timing", "observed_frames": 120, "records": [
+            {"kind": "timing", "frame": frame, "count": 1,
+             "data": {"clock": "gpu", "name": "scene.immediate", "milliseconds": 1}}
+            for frame in range(1, 121)]}
+        with patch.object(physical, "read_json", return_value=raw), patch.object(physical, "pin", return_value={}):
+            raw["records"].append({"kind": "timing", "frame": 1, "count": 1, "data": {"available": False}})
+            with self.assertRaisesRegex(EvidenceError, "Unresolved GPU"):
+                physical.timing_integrity("packet")
+            raw["records"][-1]["data"] = {"clock": "gpu", "name": "postprocess", "milliseconds": 1}
+            with self.assertRaisesRegex(EvidenceError, "Incomplete or duplicate"):
+                physical.timing_integrity("packet")
+            raw["records"] = []
+            self.assertEqual(physical.timing_integrity("packet")["status"], "INCONCLUSIVE_GPU_SCENE_SCOPE")
 
     def test_inconsistent_gpu_groups_not_fabricated(self):
         data = {key: summary() for key in physical.WORK_CEILINGS}
@@ -270,6 +306,7 @@ class CampaignControls(unittest.TestCase):
              patch.object(physical.run, "compare_runs", return_value={"status": compare_status}), \
              patch.object(physical, "controlled_pair"), \
              patch.object(physical, "relief_draw_witness", return_value={}), \
+             patch.object(physical, "timing_integrity", return_value={"status": "INCONCLUSIVE_GPU_SCENE_SCOPE"}), \
              patch.object(physical, "image_pair", return_value={"status": image_status}), \
              patch.object(physical.run, "summarize_runs", return_value=summary()):
             try:

@@ -278,6 +278,40 @@ def matched_effect(off, on, *, anomaly=False):
             "anomaly": anomaly, "zero_cost_claim": False}
 
 
+def timing_integrity(path):
+    """Authenticate raw per-frame GPU coverage, never infer it from length."""
+    native_path = Path(path) / "native.renderer.json"
+    raw = read_json(native_path)
+    require(raw.get("mode") == "timing" and raw.get("observed_frames") == 120,
+            "Timing integrity requires exactly 120 retained timing frames")
+    groups = {}
+    for row in raw["records"]:
+        if row["kind"] != "timing":
+            continue
+        data = row["data"]
+        require(data.get("available") is not False, "Unresolved GPU batch in retained timing frames")
+        if data.get("clock") != "gpu":
+            continue
+        name = data.get("name")
+        require(isinstance(name, str) and name, "Raw GPU timing group is unnamed")
+        require(row.get("count") == 1, "Raw GPU timestamp records must retain individual samples")
+        frame = row.get("frame")
+        require(type(frame) is int and 1 <= frame <= 120, "GPU timestamp frame lies outside the retained interval")
+        counts = groups.setdefault(name, {})
+        counts[frame] = counts.get(frame, 0) + 1
+    for name, counts in groups.items():
+        require(set(counts) == set(range(1, 121)) and all(value == 1 for value in counts.values()),
+                "Incomplete or duplicate raw per-frame GPU group: " + name)
+    scene_complete = "scene.immediate" in groups
+    return {"schema": "sdvk008-raw-gpu-timing-integrity/v1",
+            "status": "COMPLETE_GPU_SCENE_SCOPE" if scene_complete else "INCONCLUSIVE_GPU_SCENE_SCOPE",
+            "scene_immediate_complete": scene_complete, "all_retained_groups_complete": True,
+            "native_observation": pin(native_path),
+            "groups": {name: {"frame_ordinals": sorted(counts), "samples_per_frame": 1}
+                       for name, counts in sorted(groups.items())},
+            "physical_gpu_qualified": False}
+
+
 def timing_analysis(summaries, *, anomaly=False):
     require(set(summaries) == set(WORK_CEILINGS), "Incomplete timing matrix")
     per_variant = {}
@@ -298,10 +332,16 @@ def timing_analysis(summaries, *, anomaly=False):
                     incomplete.append(name)
                 groups["gpu:" + name] = group["distribution"]
             scene = data["gpu_groups"].get("scene.immediate")
+            raw_integrity = process.get("gpu_timing_integrity", {})
+            attested = (raw_integrity.get("status") == "COMPLETE_GPU_SCENE_SCOPE"
+                        and raw_integrity.get("scene_immediate_complete") is True
+                        and raw_integrity.get("all_retained_groups_complete") is True)
             gpu_integrity[variant].append({
-                "scene_immediate_complete": scene is not None and
+                "scene_immediate_complete": attested and scene is not None and
                     len(scene["samples_ms"]) == scene["distribution"]["count"] == 120,
                 "scene_immediate_raw_samples": len(scene["samples_ms"]) if scene else 0,
+                "raw_frame_integrity": raw_integrity,
+                "raw_frame_coverage_attested": attested,
                 "incomplete_retained_groups": sorted(incomplete)})
             per_variant[variant].append(groups)
     comparisons = {}
@@ -321,7 +361,7 @@ def timing_analysis(summaries, *, anomaly=False):
     return {"schema": "sdvk008-physical-analysis/v1",
             "status": "DESCRIPTIVE_GPU_SCENE_SCOPE_AVAILABLE" if gpu_complete else "INCONCLUSIVE_GPU_SCENE_SCOPE",
             "gpu_scene_scope_complete": gpu_complete, "gpu_group_integrity": gpu_integrity,
-            "gpu_scope_limitation": "Requires 120 scene.immediate samples in every one of 33 processes and complete retained groups; postprocess groups cannot substitute for the sprite scene span",
+            "gpu_scope_limitation": "Requires scene.immediate exactly once in each raw retained frame 1..120 in every one of 33 processes and complete retained groups; lengths or postprocess groups cannot substitute for the sprite scene span",
             "comparisons": comparisons,
             "per_process_distributions": per_variant, "nested_gpu_groups_summed": False,
             "work_ceilings": WORK_CEILINGS, "work_ceiling_is_measured_work": False,
@@ -386,6 +426,7 @@ def campaign(args):
         reference = None
         reference_environment = None
         state_paths = {}
+        raw_timing_integrities = {}
 
         def capture(scene, extent, path, mode):
             nonlocal reference, reference_environment
@@ -414,6 +455,9 @@ def campaign(args):
                     "Campaign input bytes changed")
             if mode == "state":
                 step["relief_draw_witness"] = relief_draw_witness(path)
+            else:
+                step["gpu_timing_integrity"] = timing_integrity(path)
+                raw_timing_integrities[path] = step["gpu_timing_integrity"]
             step["status"] = "PASS"
             return result
 
@@ -476,6 +520,9 @@ def campaign(args):
                     capture(contract.TIMING_VARIANTS[variant], TIMING_EXTENT, path, "timing")
                     timing_paths[variant].append(path)
             summaries = {variant: run.summarize_runs(paths, minimum_samples=120) for variant, paths in timing_paths.items()}
+            for variant, paths in timing_paths.items():
+                for process, path in zip(summaries[variant]["runs"], paths):
+                    process["gpu_timing_integrity"] = raw_timing_integrities[path]
             receipt["analysis"] = timing_analysis(summaries)
             for variant, summary in summaries.items():
                 (root / f"timing-{variant}-summary.json").write_bytes(canonical(summary))
