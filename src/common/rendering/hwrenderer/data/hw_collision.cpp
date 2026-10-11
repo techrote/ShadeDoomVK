@@ -208,6 +208,15 @@ void CPUAccelStruct::Upload()
 		}
 	}
 
+	// A single-instance TLAS has no parent whose child link can be redirected.
+	// Export the BLAS root directly instead of its childless TLAS leaf: shader
+	// traversal identifies leaves by element_index and cannot consume TLAS leaves.
+	if (TLAS.Root >= 0 && TLAS.Nodes[TLAS.Root].blas_index != -1)
+	{
+		int blas_index = TLAS.Nodes[TLAS.Root].blas_index;
+		Mesh->Mesh.RootNode = blasOffsets[blas_index] + DynamicBLAS[blas_index]->GetRoot();
+	}
+
 	// Copy the TLAS nodes and redirect the leafs to the BLAS roots
 	offset = 0;
 	for (const auto& node : TLAS.Nodes)
