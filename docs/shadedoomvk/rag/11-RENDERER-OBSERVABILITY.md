@@ -165,3 +165,17 @@ llvmpipe smoke has a distinct software-only receipt and cannot award physical
 evidence or acceptance. Raw failed attempts and checksums are retained. See the
 [tooling checkpoint](../SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md); the local physical
 programme is stopped after the separately recorded SDVK-009 GPU fault.
+
+### Separate physical scene-timestamp candidate
+
+The original SDVK-009 frozen renderer has no ordinary scene GPU timestamp span.
+Its postprocess/lightmapper groups cannot establish immediate lighting cost.
+The separate [instrumentation candidate](../SDVK-009-SCENE-GPU-INSTRUMENTATION.md)
+adds opt-in `scene.immediate` around top-level immediate MainView scene commands,
+including `EndDrawScene` and excluding later postprocess. Its RAII owner lives in
+`hw_sdvkgpuscope.h`; existing command-group queries/readback are reused. Ordinary
+rendering remains inactive unless `-sdvkobservegpu` is explicitly requested.
+The span may contain nested groups; never sum them. Exact 120-frame coverage in
+all fifteen physical timing processes permits threshold analysis, not acceptance.
+This requires a new exact build/preregistered packet and does not supersede or
+relabel the original frozen physical evidence.

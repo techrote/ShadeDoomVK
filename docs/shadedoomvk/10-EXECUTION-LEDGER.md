@@ -905,3 +905,11 @@ not count as native or physical evidence. The local physical session is stopped
 after the programme owner's SDVK-009 GPU fault; this tooling lane launched no
 local GPU workload. #8 remains OPEN, no mode/default is accepted, and #12 remains
 blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
+
+### 11 October 2026 — SDVK-009 physical failure retained; hardware stop
+
+- Verified starting master `41340ac5790c9cbf690fcd0c49338b5bb6c84927`: source evidence `38081839068` PASS and full CI `38081839116` PASS 9/9. Independently built clean frozen #9 `0a2fbad203549d18ac6e5a61bb4747709637bfde` and #8 `9536324ce33ea418af5a8efe733b4659f6b4ad9b` with separate worktrees/builds/packages.
+- Executed #9 first on actual Vulkan GTX 1650 SUPER / driver 616.92. Twelve renderer processes completed, six exact state/image pairs passed at 640×480. Thirteenth process (`shadow-boundary`, first capture) emitted Vulkan fault records and hung; Windows nvlddmkm event153 corroborates instability. Retained failed process and forced-termination status, zero retries, zero timing processes. Temperature maximum 52°C; existing 90 W limit unchanged.
+- **FAILED_DEVICE_FAULT / architecture INCONCLUSIVE**. No physical scaling, performance acceptance or #9 closure. Root cause undetermined. All later physical launches on this host stopped; #8/#10 hardware not launched. [Report and bounded evidence](SDVK-009-PHYSICAL-20261011.md) pin full local archive/hash and explicitly lack durable remote raw storage.
+- Windows CRLF identity parsing and runtime byte/device continuity tooling are corrected. A separate opt-in scene GPU timestamp instrumentation candidate addresses an audited measurement gap; it is unmeasured and requires a new exact source/build/preregistered experiment.
+- #8/#9/#10 remain OPEN; #11/#12/#14 remain blocked. No accepted architecture, quality/default or dependency transition is inferred from tooling tests or partial physical evidence.

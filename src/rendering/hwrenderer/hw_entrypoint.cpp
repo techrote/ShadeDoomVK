@@ -55,10 +55,12 @@
 #include <vector>
 #include "hwrenderer/diagnostics/hw_pfviewdiagnostics.h"
 #include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
+#include "hwrenderer/diagnostics/hw_sdvkgpuscope.h"
 
 EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Float, r_visibility)
 EXTERN_CVAR(Bool, gl_bandedswlight)
+EXTERN_CVAR(Bool, gl_levelmesh)
 EXTERN_CVAR(Bool, lm_dynlights);
 
 CVAR(Bool, gl_raytrace, false, 0/*CVAR_ARCHIVE | CVAR_GLOBALCONFIG*/)
@@ -253,6 +255,10 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 		di->SetupView(RenderState, vp.Pos.X, vp.Pos.Y, vp.Pos.Z, false, false);
 		Pf020ViewDiagnostics::BeginEye(eye_ix);
 
+		// One outer immediate-scene span per MainView eye; portal draws remain
+		// inside it. Probes, canvases and other backends receive no scene span.
+		SdvkDiagnostics::ScopedSceneGpuGroup sceneGpu(
+			contextType == HWRenderContextType::MainView && !gl_levelmesh && !gl_raytrace);
 		if (gl_raytrace)
 		{
 			VSMatrix viewToWorld;
@@ -273,6 +279,7 @@ sector_t* RenderViewpoint(FRenderViewpoint& mainvp, AActor* camera, IntRect* bou
 		{
 			PostProcess.Clock();
 			if (toscreen) di->EndDrawScene(mainvp.sector, RenderState); // do not call this for camera textures.
+			sceneGpu.End(); // exclude the later postprocess and its 2D callback
 
 			if (RenderState.GetPassType() == GBUFFER_PASS) // Turn off ssao draw buffers
 			{

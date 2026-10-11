@@ -186,3 +186,11 @@ The active immediate-light buffers retain 80,000 range entries and 80,000
 `0..79999` are accepted and exposes state-only range/record capacity, usage,
 bytes, failures, class totals, peak and a bounded per-upload-size histogram.
 Timing mode does not update those per-upload counters.
+
+The frozen physical campaign on GTX 1650 SUPER / Windows driver 616.92 stopped
+after Vulkan fault type4 output, nvlddmkm event153 and a hung shadow-boundary
+process. Type4 denotes unknown instruction pointer, not proven invalid memory
+access or shader causality. Hardware stop and failed raw evidence are retained
+in [the report](../SDVK-009-PHYSICAL-20261011.md). The baseline lacks an ordinary
+scene GPU timestamp group; the separate opt-in `scene.immediate` candidate needs
+a new immutable build and campaign before any scaling claim.
