@@ -249,3 +249,25 @@ screen factory while the unflagged controls still construct their respective
 screens. All 25 authored PK3 identities remain unchanged. Renderer source,
 generation/epoch comparison, image oracles and every acceptance gate remain
 unchanged; the earlier failed packet remains **FAIL**.
+
+Fresh hosted run `38105884447` at head
+`636b62973964983c61c149da21fbfc3e3e8c2ce6` completed all 16 control processes
+and passed all eight strict independent image/state repeats with the no-startup
+revision. The paired default-OFF and heightless controls passed. The medium
+fixture then **FAILED** its preregistered aggregate marker direction check:
+both attempts moved the red centroid by (-1.0313323, -2.5864217) pixels, against
+the expected right/up sign. Each medium image pair changed 4,103 pixels. This
+does not identify a renderer defect or justify reversing the expected sign.
+Independent source/fixture/oracle investigation remains required.
+
+All 308 control files verify against the original checksum inventory. The
+separate lossless archive SHA-256 is
+`a941defeb746d19a7a25df352700a0476f9649a29406d5757fd216fcefd383d0`.
+[The failure receipt](evidence/sdvk008-software-direction-failure-20261011.json)
+also pins the uploaded ZIP and records the preserved negative direction witness.
+Offline evaluation of the already captured alpha pair passes the unchanged
+active-alpha oracle in both attempts (3,587 changed pixels, zero mask mismatch);
+it does not rewrite the original failed campaign receipt or award qualification.
+Source evidence `38105884446` and eight other full-CI jobs passed. Full CI failed,
+native full-corpus collection was not launched, and physical launches remain
+stopped. No threshold, workload or generation comparison was relaxed.

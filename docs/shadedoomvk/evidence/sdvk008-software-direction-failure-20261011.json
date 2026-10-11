@@ -1,0 +1,213 @@
+{
+  "artifact_id": 11689872514,
+  "artifact_zip": {
+    "bytes": 8259124,
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-bootstrap-failure\\github-artifact.zip",
+    "sha256": "f75995815371c776147e023980e360cc22147407ecb748f203f6dedfe1f89a1e"
+  },
+  "automatic_retries": 0,
+  "bootstrap_revision": "sdvk008-no-startup-v1",
+  "checksum_verified_files": 308,
+  "ci_run": 38105884447,
+  "completed_control_processes": 16,
+  "correction_status": "PENDING independent source/fixture/oracle investigation; no sign or threshold relaxation",
+  "durable_remote_storage": false,
+  "error": "OFF/ON image witness failed: single-m",
+  "full_result": "FAIL_8_OF_9_PASS",
+  "independent_repeats_passed": 8,
+  "native_full_corpus": "NOT_LAUNCHED after control failure",
+  "offline_alpha_replay": [
+    {
+      "affected_pixels": 46516,
+      "alpha_relief_effect_detected": true,
+      "alpha_silhouette_qualified": true,
+      "changed_pixel_fraction": 0.011676432291666667,
+      "changed_pixels": 3587,
+      "direction_qualified": false,
+      "extent": [
+        640,
+        480
+      ],
+      "oracle": "silhouette",
+      "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+      "scope": "Exact binary RGB-versus-no-card-background mask plus nonzero OFF/ON RGB effect; this authored fixture only",
+      "silhouette_mask_mismatch_pixels": 0,
+      "status": "PASS",
+      "useful_relief_qualified": false
+    },
+    {
+      "affected_pixels": 46516,
+      "alpha_relief_effect_detected": true,
+      "alpha_silhouette_qualified": true,
+      "changed_pixel_fraction": 0.011676432291666667,
+      "changed_pixels": 3587,
+      "direction_qualified": false,
+      "extent": [
+        640,
+        480
+      ],
+      "oracle": "silhouette",
+      "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+      "scope": "Exact binary RGB-versus-no-card-background mask plus nonzero OFF/ON RGB effect; this authored fixture only",
+      "silhouette_mask_mismatch_pixels": 0,
+      "status": "PASS",
+      "useful_relief_qualified": false
+    }
+  ],
+  "offline_replay_changes_original_receipt": false,
+  "original_image_pairs": {
+    "default-off": [
+      {
+        "alpha_silhouette_qualified": false,
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "direction_qualified": false,
+        "extent": [
+          640,
+          480
+        ],
+        "oracle": "exact",
+        "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+        "scope": "RGB equality/difference only; no fragment execution, alpha-mask, direction or quality inference",
+        "status": "PASS",
+        "useful_relief_qualified": false
+      },
+      {
+        "alpha_silhouette_qualified": false,
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "direction_qualified": false,
+        "extent": [
+          640,
+          480
+        ],
+        "oracle": "exact",
+        "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+        "scope": "RGB equality/difference only; no fragment execution, alpha-mask, direction or quality inference",
+        "status": "PASS",
+        "useful_relief_qualified": false
+      }
+    ],
+    "heightless": [
+      {
+        "alpha_silhouette_qualified": false,
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "direction_qualified": false,
+        "extent": [
+          640,
+          480
+        ],
+        "oracle": "exact",
+        "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+        "scope": "RGB equality/difference only; no fragment execution, alpha-mask, direction or quality inference",
+        "status": "PASS",
+        "useful_relief_qualified": false
+      },
+      {
+        "alpha_silhouette_qualified": false,
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "direction_qualified": false,
+        "extent": [
+          640,
+          480
+        ],
+        "oracle": "exact",
+        "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+        "scope": "RGB equality/difference only; no fragment execution, alpha-mask, direction or quality inference",
+        "status": "PASS",
+        "useful_relief_qualified": false
+      }
+    ],
+    "single-m": [
+      {
+        "alpha_silhouette_qualified": false,
+        "changed_pixel_fraction": 0.013356119791666666,
+        "changed_pixels": 4103,
+        "direction_qualified": false,
+        "directional_marker": {
+          "delta_x_px": -1.0313322716483526,
+          "delta_y_px": -2.586421675919212,
+          "expected_sign": [
+            1,
+            -1
+          ],
+          "minimum_centroid_shift_px": 0.05,
+          "off_pixels": 4508,
+          "on_pixels": 4673,
+          "scope": "single-fixed-wall-card-red-stripe-centroid",
+          "status": "FAIL"
+        },
+        "extent": [
+          640,
+          480
+        ],
+        "oracle": "effect",
+        "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+        "scope": "RGB equality/difference only; no fragment execution, alpha-mask, direction or quality inference",
+        "status": "FAIL",
+        "useful_relief_qualified": false
+      },
+      {
+        "alpha_silhouette_qualified": false,
+        "changed_pixel_fraction": 0.013356119791666666,
+        "changed_pixels": 4103,
+        "direction_qualified": false,
+        "directional_marker": {
+          "delta_x_px": -1.0313322716483526,
+          "delta_y_px": -2.586421675919212,
+          "expected_sign": [
+            1,
+            -1
+          ],
+          "minimum_centroid_shift_px": 0.05,
+          "off_pixels": 4508,
+          "on_pixels": 4673,
+          "scope": "single-fixed-wall-card-red-stripe-centroid",
+          "status": "FAIL"
+        },
+        "extent": [
+          640,
+          480
+        ],
+        "oracle": "effect",
+        "oracle_revision": "sdvk008-image-oracle-v2-alpha-active",
+        "scope": "RGB equality/difference only; no fragment execution, alpha-mask, direction or quality inference",
+        "status": "FAIL",
+        "useful_relief_qualified": false
+      }
+    ]
+  },
+  "performance_accepted": false,
+  "physical_gpu_evidence_collected": false,
+  "physical_gpu_qualified": false,
+  "pr": 141,
+  "pr_head": "636b62973964983c61c149da21fbfc3e3e8c2ce6",
+  "raw_archive": {
+    "bytes": 8258948,
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-bootstrap-failure\\renderer-software-vulkan.tar.xz",
+    "sha256": "a941defeb746d19a7a25df352700a0476f9649a29406d5757fd216fcefd383d0"
+  },
+  "raw_local_directory": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-bootstrap-failure",
+  "remote_retention": "Actions artifact expires 2026-11-10",
+  "renderer_commit": "205902884e3ca72b7bb5a07d0581fa1c9e5d80c2",
+  "renderer_identity_scope": "Hosted merge-ref llvmpipe; never frozen physical renderer",
+  "retained": [
+    {
+      "bytes": 56576,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-bootstrap-failure\\renderer-sdvk008-control\\checksums.json",
+      "sha256": "6b10143c05e044a34e9da04fccde1c989f8e383e444456472ae8a48789ab5c0d"
+    },
+    {
+      "bytes": 208143,
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\hosted008-bootstrap-failure\\renderer-sdvk008-control\\sdvk008-software-fixture-control.json",
+      "sha256": "4610e7b20049e1cd807f260f3cf1cc35be36de85b87242ca51befadeaf9cfbcb"
+    }
+  ],
+  "schema": "sdvk008-software-control-failure/v1",
+  "software_fixture_control_qualified": false,
+  "source_result": "PASS",
+  "source_run": 38105884446,
+  "status": "FAILED_PREREGISTERED_CENTROID_DIRECTION"
+}
