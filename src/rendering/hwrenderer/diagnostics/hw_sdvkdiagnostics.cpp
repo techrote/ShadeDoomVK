@@ -2,6 +2,7 @@
 // diagnostic allocation, formatting and clocks are behind explicit opt-in.
 #include "hw_sdvkdiagnostics.h"
 #include "hw_sdvkdiagnosticcore.h"
+#include "hw_sdvkgpuscope.h"
 #include "c_dispatch.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -23,6 +24,7 @@
 #include "hwrenderer/scene/hw_sprite_tangent.h"
 #include "hwrenderer/scene/hw_actor_probe_selection.h"
 #include "vulkan/vk_renderdevice.h"
+#include "vulkan/commands/vk_commandbuffer.h"
 #include <chrono>
 #include <map>
 #include <set>
@@ -336,6 +338,28 @@ void Emit(const char* kind, const std::string& object, bool deduplicate)
 {
     const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
     if (Enabled() && frame) Get().Records.Add(kind, frame, object, deduplicate);
+}
+
+bool BeginSceneGpuGroup()
+{
+    if (!GpuTimingRequested() || !screen->IsVulkan()) return false;
+    auto commands = static_cast<VulkanRenderDevice*>(screen)->GetCommands();
+    return commands->PushGroup(commands->GetDrawCommands(), "scene.immediate");
+}
+
+void EndSceneGpuGroup() noexcept
+{
+    try
+    {
+        auto commands = static_cast<VulkanRenderDevice*>(screen)->GetCommands();
+        commands->PopGroup(commands->GetDrawCommands());
+    }
+    catch (const std::exception& error)
+    {
+        // Keep the original renderer exception during unwinding. Collection
+        // still fails and retains its packet; never claim a completed span.
+        Fail(error.what());
+    }
 }
 
 void BeginFrame()

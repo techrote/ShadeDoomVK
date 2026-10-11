@@ -188,6 +188,18 @@ def apply_extent(argv, extent):
     return result
 
 
+def version_identity(stdout):
+    """Read native LF or Windows CRT CRLF output without changing retained bytes."""
+    text = stdout.decode("utf-8", errors="strict")
+    lines = text.splitlines()
+    commits = [line.removeprefix("Commit: ") for line in lines if line.startswith("Commit: ")]
+    states = [line.removeprefix("Working tree: ") for line in lines if line.startswith("Working tree: ")]
+    require(lines and lines[0].startswith("ShadeDoomVK ") and len(commits) == len(states) == 1
+            and re.fullmatch(r"[0-9a-f]{40}", commits[0]) and states[0] in ("clean", "modified"),
+            "Executable has no valid SDVK build identity")
+    return commits[0], states[0]
+
+
 def capture(args):
     prepared_dir, prepared, scene = prepared_scene(args.prepared, args.scene)
     native = scene["native"]
@@ -236,6 +248,14 @@ def capture(args):
         expected = {str((exe.parent / name).resolve()): pin(exe.parent / name) for name in PACKAGES
                     if (exe.parent / name).is_file()}
         require((exe.parent / "vkdoom.pk3").is_file(), "Executable runtime has no vkdoom.pk3")
+        runtime_pins = getattr(args, "runtime_pins", None)
+        if runtime_pins is not None:
+            require(executable == runtime_pins["executable"] and iwad_pin == runtime_pins["iwad"],
+                    "Executable or IWAD changed after physical preregistration")
+            actual_engine = {name: expected[str((exe.parent / name).resolve())] for name in PACKAGES
+                             if (exe.parent / name).is_file()}
+            require(actual_engine == runtime_pins["engine_packages"],
+                    "Engine package bytes changed after physical preregistration")
         for path in (out / "input" / iwad.name, out / "input" / "scene.pk3"):
             expected[str(path)] = pin(path)
         version = subprocess.run([str(exe), "--version"], cwd=out, stdout=subprocess.PIPE,
@@ -243,10 +263,12 @@ def capture(args):
         (out / "version.txt").write_bytes(version.stdout)
         (out / "version-stderr.txt").write_bytes(version.stderr)
         require(version.returncode == 0, "Executable --version failed")
-        version_text = version.stdout.decode("utf-8", errors="strict")
-        commit = re.findall(r"(?m)^Commit: ([0-9a-f]{40})$", version_text)
-        working = re.findall(r"(?m)^Working tree: (clean|modified)$", version_text)
-        require(len(commit) == len(working) == 1 and version_text.startswith("ShadeDoomVK "), "Executable has no valid SDVK build identity")
+        source_commit, working_tree = version_identity(version.stdout)
+        expected_commit = getattr(args, "expected_commit", None)
+        if expected_commit is not None:
+            require(source_commit == expected_commit, "Executable commit differs from the preregistered physical baseline")
+        if getattr(args, "require_clean", False):
+            require(working_tree == "clean", "Physical campaign requires a clean renderer build")
         profile = {"scene": scene["id"], "recipe_sha256": sha256(canonical(scene)),
                    "iwad_sha256": iwad_pin["sha256"], "scene_sha256": pin(out / "input" / "scene.pk3")["sha256"],
                    "config_sha256": pin(out / "input" / "fixture.ini")["sha256"],
@@ -274,7 +296,7 @@ def capture(args):
                     "VK_LOADER_DRIVERS_SELECT", "VK_LOADER_DRIVERS_DISABLE", "VK_LOADER_LAYERS_ENABLE",
                     "VK_LOADER_LAYERS_DISABLE", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH")
         preregister = {"schema": "sdvk-renderer-request/v1", "argv": argv, "cwd": str(out), "mode": mode,
-                       "reproduction": profile, "executable": executable, "source_commit": commit[0], "working_tree": working[0],
+                       "reproduction": profile, "executable": executable, "source_commit": source_commit, "working_tree": working_tree,
                        "packages": expected, "timeout_seconds": args.timeout,
                        "prepared_manifest": pin(out / "prepared.json", relative_to=out),
                        "iwad_artifact": "input/" + iwad.name,
@@ -295,7 +317,7 @@ def capture(args):
         required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if mode == "state" else []
         structural = validate.observation(raw, required_kinds=required, expected_map=native["map"],
                                           expected_frames=frames, expected_extent=extent)
-        require(raw["build"]["commit"] == commit[0] and raw["build"]["working_tree"] == working[0],
+        require(raw["build"]["commit"] == source_commit and raw["build"]["working_tree"] == working_tree,
                 "Runtime and startup build identities disagree")
         require(raw["build"]["backend"] == "vulkan", "Requested Vulkan backend did not initialize")
         require(raw["warmup_frames"] == warmup and raw["gpu_timing_requested"] is args.gpu,
@@ -633,9 +655,7 @@ def _validate_run(path):
     require(data["build"] == raw["build"] and data["mode"] == raw["mode"] == request["mode"], "Run/native mode or build mismatch")
     require(raw["build"]["commit"] == request["source_commit"] and raw["build"]["working_tree"] == request["working_tree"],
             "Runtime and preregistered source identities disagree")
-    version_text = (root / "version.txt").read_text(encoding="utf-8")
-    require(re.findall(r"(?m)^Commit: ([0-9a-f]{40})$", version_text) == [request["source_commit"]]
-            and re.findall(r"(?m)^Working tree: (clean|modified)$", version_text) == [request["working_tree"]],
+    require(version_identity((root / "version.txt").read_bytes()) == (request["source_commit"], request["working_tree"]),
             "Retained executable version differs from the native build")
     require(raw["warmup_frames"] == profile["warmup_frames"]
             and raw["gpu_timing_requested"] is profile["gpu_timestamps_requested"],

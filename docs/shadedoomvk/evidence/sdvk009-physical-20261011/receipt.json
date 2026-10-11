@@ -1,0 +1,65 @@
+{
+  "additional_measurement_blocker": "Frozen source lacks light-sensitive immediate-scene GPU timestamps; postprocess groups cannot replace them.",
+  "architecture_decision": "INCONCLUSIVE",
+  "archive": {
+    "archive": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\sdvk009-frozen-v1-raw.zip",
+    "bytes": 219768756,
+    "files": 263,
+    "manifest_sha256": "3bdcc96ad00a3f2a6672c0fa71acbc316cb233e74094810b9d0147df82944418",
+    "physical_gpu_qualified": false,
+    "remote_storage": false,
+    "schema": "sdvk-local-archive/v1",
+    "sha256": "0ec83ad4026b870f00ae753703eb2a7fba0be257ca65ff2df74f931c040fe10b"
+  },
+  "cpu_scaling": "UNMEASURED",
+  "date": "2026-10-11",
+  "downstream": {
+    "SDVK011": "BLOCKED_BY_009_AND_010",
+    "SDVK012": "BLOCKED_BY_008_AND_009",
+    "SDVK014": "BLOCKED_BY_009_AND_010"
+  },
+  "failed_scene": "shadow-boundary",
+  "failed_stage": "first 640x480 state capture",
+  "gpu_scaling": "UNMEASURED",
+  "hardware": {
+    "configuration_changes": false,
+    "cpu": "Ryzen 5 2600X",
+    "driver": "616.92",
+    "gpu": "Vulkan DISCRETE GPU NVIDIA GeForce GTX 1650 SUPER vendor 0x10de device 0x2187",
+    "maximum_temperature_c": 52.0,
+    "motherboard": "ASUS TUF B450M-PRO GAMING",
+    "os": {
+      "BuildNumber": "26200",
+      "Caption": "Microsoft Windows 11 Pro",
+      "TotalVisibleMemorySize": 33462872,
+      "Version": "10.0.26200"
+    },
+    "pci": "00000000:07:00.0",
+    "power_limit_watts": 90,
+    "ram_bytes": 34359738368
+  },
+  "issue": 9,
+  "issue_acceptance": false,
+  "operator_action": "Verified ExecutablePath matched frozen vkdoom.exe; force-terminated that unresponsive process only. Python capture finalized failed receipt and campaign stopped.",
+  "performance_accepted": false,
+  "physical_campaign_complete": false,
+  "physical_gpu_evidence_collected": true,
+  "physical_gpu_qualified": false,
+  "processes": {
+    "automatic_retries": 0,
+    "completed": 12,
+    "failed": 1,
+    "planned": 41,
+    "timing": 0
+  },
+  "raw_packet": "C:\\ShadeDoomVK\\physical-evidence\\20261011\\SDVK009\\gtx1650super\\frozen-v1",
+  "reason": "Vulkan device-fault output plus nvlddmkm event153 and unresponsive shadow-boundary first renderer process",
+  "remote_raw_storage": false,
+  "root_cause": "UNDETERMINED; fault address records do not establish executing shader or causal resource",
+  "schema": "sdvk009-physical-qualification/v1",
+  "source_commit": "0a2fbad203549d18ac6e5a61bb4747709637bfde",
+  "source_tree": "b4824f4498f0f5ac64bc61d9dc60d334f30c4840",
+  "status": "FAILED_DEVICE_FAULT",
+  "stop_scope": "Further physical GPU launches on this host pending offline diagnosis and independently qualified repair",
+  "tooling_commit": "b075b9e32ad734a2450a89b1b8eeec3cbfe7650f"
+}

@@ -1,0 +1,416 @@
+{
+  "compositing": {
+    "comparison_status": "PASS",
+    "counts": {
+      "active_lights": 0,
+      "actor_light_candidates": 0,
+      "actor_light_duplicates": 0,
+      "actor_light_filtered": 0,
+      "actor_light_queries": 0,
+      "actor_light_selected": 0,
+      "actor_light_traces": 0,
+      "additive_lights": 0,
+      "authored_lights": 0,
+      "shadow_candidates": 0,
+      "shadow_dropped": 0,
+      "shadow_selected": 0,
+      "spot_lights": 0,
+      "subtractive_lights": 0
+    },
+    "extent": [
+      640,
+      480
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "32714a34cb543eed44c58e53281600bb0f9fc0e8a33d5e3217a36e6ddb850985",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "32714a34cb543eed44c58e53281600bb0f9fc0e8a33d5e3217a36e6ddb850985"
+    },
+    "interpretation": "State-mode correctness/work observation only; not timing or 1904x1001 scaling authority.",
+    "light_uploads": {
+      "additive_records": 0,
+      "attempts": 0,
+      "available": true,
+      "data_capacity_failures": 0,
+      "failed": 0,
+      "index_capacity_failures": 0,
+      "normal_records": 0,
+      "peak_records_per_upload": 0,
+      "range_capacity": 80000,
+      "range_capacity_bytes": 1280000,
+      "range_entries_used": 0,
+      "record_capacity": 80000,
+      "record_capacity_bytes": 6400000,
+      "records_per_upload_histogram": {
+        "17_64": 0,
+        "1_4": 0,
+        "257_plus": 0,
+        "5_16": 0,
+        "65_256": 0,
+        "empty": 0
+      },
+      "records_used": 0,
+      "scope": "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate",
+      "subtractive_records": 0,
+      "successful": 0,
+      "uploaded_bytes": 0
+    },
+    "state_equal": true
+  },
+  "lights-dense-dispersed": {
+    "comparison_status": "PASS",
+    "counts": {
+      "active_lights": 256,
+      "actor_light_candidates": 768,
+      "actor_light_duplicates": 0,
+      "actor_light_filtered": 381,
+      "actor_light_queries": 3,
+      "actor_light_selected": 387,
+      "actor_light_traces": 0,
+      "additive_lights": 85,
+      "authored_lights": 256,
+      "shadow_candidates": 0,
+      "shadow_dropped": 0,
+      "shadow_selected": 0,
+      "spot_lights": 127,
+      "subtractive_lights": 85
+    },
+    "extent": [
+      640,
+      480
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "7ba40068cd801a976d36b9d75f2931855fda848f83002be8cbf62c338f8d118f",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "7ba40068cd801a976d36b9d75f2931855fda848f83002be8cbf62c338f8d118f"
+    },
+    "interpretation": "State-mode correctness/work observation only; not timing or 1904x1001 scaling authority.",
+    "light_uploads": {
+      "additive_records": 453,
+      "attempts": 9,
+      "available": true,
+      "data_capacity_failures": 0,
+      "failed": 0,
+      "index_capacity_failures": 0,
+      "normal_records": 455,
+      "peak_records_per_upload": 256,
+      "range_capacity": 80000,
+      "range_capacity_bytes": 1280000,
+      "range_entries_used": 9,
+      "record_capacity": 80000,
+      "record_capacity_bytes": 6400000,
+      "records_per_upload_histogram": {
+        "17_64": 0,
+        "1_4": 0,
+        "257_plus": 0,
+        "5_16": 0,
+        "65_256": 9,
+        "empty": 0
+      },
+      "records_used": 1359,
+      "scope": "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate",
+      "subtractive_records": 451,
+      "successful": 9,
+      "uploaded_bytes": 108864
+    },
+    "state_equal": true
+  },
+  "lights-dense-overlap": {
+    "comparison_status": "PASS",
+    "counts": {
+      "active_lights": 256,
+      "actor_light_candidates": 768,
+      "actor_light_duplicates": 0,
+      "actor_light_filtered": 224,
+      "actor_light_queries": 3,
+      "actor_light_selected": 544,
+      "actor_light_traces": 0,
+      "additive_lights": 85,
+      "authored_lights": 256,
+      "shadow_candidates": 0,
+      "shadow_dropped": 0,
+      "shadow_selected": 0,
+      "spot_lights": 127,
+      "subtractive_lights": 85
+    },
+    "extent": [
+      640,
+      480
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "1a3ef747674822f26cc65befbd2bc932e86743cebf2499571244ba9d0227f38d",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "1a3ef747674822f26cc65befbd2bc932e86743cebf2499571244ba9d0227f38d"
+    },
+    "interpretation": "State-mode correctness/work observation only; not timing or 1904x1001 scaling authority.",
+    "light_uploads": {
+      "additive_records": 520,
+      "attempts": 9,
+      "available": true,
+      "data_capacity_failures": 0,
+      "failed": 0,
+      "index_capacity_failures": 0,
+      "normal_records": 527,
+      "peak_records_per_upload": 256,
+      "range_capacity": 80000,
+      "range_capacity_bytes": 1280000,
+      "range_entries_used": 9,
+      "record_capacity": 80000,
+      "record_capacity_bytes": 6400000,
+      "records_per_upload_histogram": {
+        "17_64": 1,
+        "1_4": 0,
+        "257_plus": 0,
+        "5_16": 0,
+        "65_256": 7,
+        "empty": 1
+      },
+      "records_used": 1568,
+      "scope": "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate",
+      "subtractive_records": 521,
+      "successful": 9,
+      "uploaded_bytes": 125584
+    },
+    "state_equal": true
+  },
+  "lights-many": {
+    "comparison_status": "PASS",
+    "counts": {
+      "active_lights": 64,
+      "actor_light_candidates": 192,
+      "actor_light_duplicates": 0,
+      "actor_light_filtered": 158,
+      "actor_light_queries": 3,
+      "actor_light_selected": 34,
+      "actor_light_traces": 0,
+      "additive_lights": 0,
+      "authored_lights": 64,
+      "shadow_candidates": 64,
+      "shadow_dropped": 0,
+      "shadow_selected": 64,
+      "spot_lights": 0,
+      "subtractive_lights": 0
+    },
+    "extent": [
+      640,
+      480
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "3a02bee6c95b7cd28b07ec9c24b086cff16cf2153a7dc0d39991efcef046f760",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "3a02bee6c95b7cd28b07ec9c24b086cff16cf2153a7dc0d39991efcef046f760"
+    },
+    "interpretation": "State-mode correctness/work observation only; not timing or 1904x1001 scaling authority.",
+    "light_uploads": {
+      "additive_records": 0,
+      "attempts": 9,
+      "available": true,
+      "data_capacity_failures": 0,
+      "failed": 0,
+      "index_capacity_failures": 0,
+      "normal_records": 212,
+      "peak_records_per_upload": 64,
+      "range_capacity": 80000,
+      "range_capacity_bytes": 1280000,
+      "range_entries_used": 9,
+      "record_capacity": 80000,
+      "record_capacity_bytes": 6400000,
+      "records_per_upload_histogram": {
+        "17_64": 2,
+        "1_4": 0,
+        "257_plus": 0,
+        "5_16": 7,
+        "65_256": 0,
+        "empty": 0
+      },
+      "records_used": 212,
+      "scope": "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate",
+      "subtractive_records": 0,
+      "successful": 9,
+      "uploaded_bytes": 17104
+    },
+    "state_equal": true
+  },
+  "lights-one": {
+    "comparison_status": "PASS",
+    "counts": {
+      "active_lights": 1,
+      "actor_light_candidates": 3,
+      "actor_light_duplicates": 0,
+      "actor_light_filtered": 3,
+      "actor_light_queries": 3,
+      "actor_light_selected": 0,
+      "actor_light_traces": 0,
+      "additive_lights": 0,
+      "authored_lights": 1,
+      "shadow_candidates": 1,
+      "shadow_dropped": 0,
+      "shadow_selected": 1,
+      "spot_lights": 0,
+      "subtractive_lights": 0
+    },
+    "extent": [
+      640,
+      480
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "5adbdb7a073258c8f4cebc8641efc31560818fe19f812917d9596980303204f5",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "5adbdb7a073258c8f4cebc8641efc31560818fe19f812917d9596980303204f5"
+    },
+    "interpretation": "State-mode correctness/work observation only; not timing or 1904x1001 scaling authority.",
+    "light_uploads": {
+      "additive_records": 0,
+      "attempts": 9,
+      "available": true,
+      "data_capacity_failures": 0,
+      "failed": 0,
+      "index_capacity_failures": 0,
+      "normal_records": 2,
+      "peak_records_per_upload": 1,
+      "range_capacity": 80000,
+      "range_capacity_bytes": 1280000,
+      "range_entries_used": 9,
+      "record_capacity": 80000,
+      "record_capacity_bytes": 6400000,
+      "records_per_upload_histogram": {
+        "17_64": 0,
+        "1_4": 2,
+        "257_plus": 0,
+        "5_16": 0,
+        "65_256": 0,
+        "empty": 7
+      },
+      "records_used": 2,
+      "scope": "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate",
+      "subtractive_records": 0,
+      "successful": 9,
+      "uploaded_bytes": 304
+    },
+    "state_equal": true
+  },
+  "lights-zero": {
+    "comparison_status": "PASS",
+    "counts": {
+      "active_lights": 0,
+      "actor_light_candidates": 0,
+      "actor_light_duplicates": 0,
+      "actor_light_filtered": 0,
+      "actor_light_queries": 0,
+      "actor_light_selected": 0,
+      "actor_light_traces": 0,
+      "additive_lights": 0,
+      "authored_lights": 0,
+      "shadow_candidates": 0,
+      "shadow_dropped": 0,
+      "shadow_selected": 0,
+      "spot_lights": 0,
+      "subtractive_lights": 0
+    },
+    "extent": [
+      640,
+      480
+    ],
+    "image": {
+      "changed_pixel_fraction": 0.0,
+      "changed_pixels": 0,
+      "extent": [
+        640,
+        480
+      ],
+      "left_rgb_sha256": "cd44ffc41367cdf6cc17a19ff0069d1f7dd306a53fbd3b1ba6cbd5afaf4211eb",
+      "max_channel_error": 0,
+      "mean_channel_error": 0.0,
+      "passed": true,
+      "policy": {
+        "metric": "exact-rgb8"
+      },
+      "right_rgb_sha256": "cd44ffc41367cdf6cc17a19ff0069d1f7dd306a53fbd3b1ba6cbd5afaf4211eb"
+    },
+    "interpretation": "State-mode correctness/work observation only; not timing or 1904x1001 scaling authority.",
+    "light_uploads": {
+      "additive_records": 0,
+      "attempts": 0,
+      "available": true,
+      "data_capacity_failures": 0,
+      "failed": 0,
+      "index_capacity_failures": 0,
+      "normal_records": 0,
+      "peak_records_per_upload": 0,
+      "range_capacity": 80000,
+      "range_capacity_bytes": 1280000,
+      "range_entries_used": 0,
+      "record_capacity": 80000,
+      "record_capacity_bytes": 6400000,
+      "records_per_upload_histogram": {
+        "17_64": 0,
+        "1_4": 0,
+        "257_plus": 0,
+        "5_16": 0,
+        "65_256": 0,
+        "empty": 0
+      },
+      "records_used": 0,
+      "scope": "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate",
+      "subtractive_records": 0,
+      "successful": 0,
+      "uploaded_bytes": 0
+    },
+    "state_equal": true
+  }
+}

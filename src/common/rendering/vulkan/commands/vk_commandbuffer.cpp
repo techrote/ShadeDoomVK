@@ -332,10 +332,10 @@ void VkCommandBufferManager::DeleteFrameObjects(bool uploadOnly)
 	}
 }
 
-void VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name)
+bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name)
 {
 	if (!gpuStatActive)
-		return;
+		return false;
 
 	if (mNextTimestampQuery < MaxTimestampQueries && fb->GetDevice()->GraphicsTimeQueries)
 	{
@@ -346,7 +346,9 @@ void VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FSt
 		cmdbuffer->writeTimestamp(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, mTimestampQueryPool.get(), q.startIndex);
 		mGroupStack.push_back(timeElapsedQueries.size());
 		timeElapsedQueries.push_back(q);
+		return true;
 	}
+	return false;
 }
 
 void VkCommandBufferManager::PopGroup(VulkanCommandBuffer* cmdbuffer)

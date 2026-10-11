@@ -151,3 +151,17 @@ State-mode `VkRenderState` emits `sprite-relief` after the actual sprite Vulkan 
 ## SDVK-010 emitted actor probe evidence (candidate)
 
 The state-only Vulkan observer's existing `probe` draw record adds `actor_selection` with interpolated actor source XYZ, PF-009 portal context, candidate count, sector target, selected ordinal, policy, distance and fallback. The same record retains the **actual** emitted surface uniform's authored/runtime descriptor, bindless generation/resource identity, published pairs and texture-owner epoch. Strict state validation enforces ordinal bounds, portal-conservative selection, radius/finiteness, correct zero IBL and publication backing. New `sun-probes` positive native scene and `sprite-mirror` zero-probe control are required; their successful **hosted** execution and the independent sunlight/linked-portal world-occlusion gate are still unproven. This evidence must not be promoted to IBL/sun acceptance based only on an offline fixture. [Policy](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+
+### Separate physical scene-timestamp candidate
+
+The original SDVK-009 frozen renderer has no ordinary scene GPU timestamp span.
+Its postprocess/lightmapper groups cannot establish immediate lighting cost.
+The separate [instrumentation candidate](../SDVK-009-SCENE-GPU-INSTRUMENTATION.md)
+adds opt-in `scene.immediate` around top-level immediate MainView scene commands,
+including `EndDrawScene` and excluding later postprocess. Its RAII owner lives in
+`hw_sdvkgpuscope.h`; existing command-group queries/readback are reused. Ordinary
+rendering remains inactive unless `-sdvkobservegpu` is explicitly requested.
+The span may contain nested groups; never sum them. Exact 120-frame coverage in
+all fifteen physical timing processes permits threshold analysis, not acceptance.
+This requires a new exact build/preregistered packet and does not supersede or
+relabel the original frozen physical evidence.

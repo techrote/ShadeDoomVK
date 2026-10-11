@@ -761,6 +761,7 @@ def _source_inventory(catalog: dict, root: Path) -> dict[str, dict]:
              "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnosticcore.h",
              "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
              "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.h"}
+    names.add("src/rendering/hwrenderer/diagnostics/hw_sdvkgpuscope.h")
     for paths in catalog["cvar_sources"].values():
         names.update(paths)
     for scene in catalog["scenes"]:

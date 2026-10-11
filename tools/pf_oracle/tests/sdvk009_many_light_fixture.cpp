@@ -30,7 +30,7 @@ std::vector<Light> OrderedLights(int count)
 
 std::vector<Light> InheritedTile(const std::vector<Light>& input)
 {
-    return {input.begin(), input.begin() + std::min<int>(InheritedTileCap, input.size())};
+    return {input.begin(), input.begin() + std::min<std::size_t>(InheritedTileCap, input.size())};
 }
 
 std::vector<int> IndexedTile(const std::vector<Light>& input)
