@@ -322,6 +322,26 @@ def validate_witness(root, *, records=None):
     return _validate_records(root, records)
 
 
+def _validate_consumed_dynamic_offsets(entry):
+    """Disturbed bindings remain explicit unknowns until rebound.
+
+    Complete bindings must carry every dynamic offset. A set marked unknown by
+    the witness writer after layout disturbance must carry no invented partial
+    offsets; later scope checks decide whether that unknown binding is relevant
+    to a qualified collision consume.
+    """
+    require(set(entry["sets"]) == set(entry["binds"]), "A bound descriptor was omitted from a consume snapshot")
+    for index, fields in entry["sets"].items():
+        actual = set(entry["offsets"][index])
+        expected = set(range(_number(fields, "dynamic_count")))
+        coverage = fields.get("coverage")
+        if coverage == "complete":
+            require(actual == expected, "Consumed dynamic offsets have incomplete coverage")
+        else:
+            require(coverage == "unknown" and not actual,
+                    "Unknown/disturbed descriptor set exposed partial dynamic offsets")
+
+
 def _validate_records(root, records):
     require(records and len(records) <= MAX_WITNESS_ROWS, "Missing or over-budget witness records")
     allowed = {"resource-create", "resource-name", "resource-destroy", "shader-bytes", "pipeline-created",
@@ -611,10 +631,7 @@ def _validate_records(root, records):
     for command in commands.values():
         require(command["end"] is not None, "Unended recorded command leaves evidence incomplete")
     for entry in consumes.values():
-        require(set(entry["sets"]) == set(entry["binds"]), "A bound descriptor was omitted from a consume snapshot")
-        for index, f in entry["sets"].items():
-            require(set(entry["offsets"][index]) == set(range(_number(f, "dynamic_count"))),
-                    "Consumed dynamic offsets have incomplete coverage")
+        _validate_consumed_dynamic_offsets(entry)
 
     submissions, membership, fences = {}, {}, {}
     for row in groups["submit-command"]:
