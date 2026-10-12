@@ -1,0 +1,128 @@
+name: SDVK-009 Avrea 16-vCPU publication qualification
+
+on:
+  push:
+    branches: [sdvk009-avrea16-publication-qualification-20261012]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdvk009-avrea16-publication-qualification
+  cancel-in-progress: false
+
+jobs:
+  avrea16_publication:
+    name: Avrea 16-vCPU full #146 publication qualification
+    # TEMP AVREA KILL SWITCH: change the next line from true to false to suspend Avrea provisioning.
+    if: ${{ true }}
+    runs-on: avrea-ubuntu-24.04-16-vcpu
+    timeout-minutes: 55
+
+    steps:
+    - name: Checkout qualification harness
+      uses: actions/checkout@v4
+      with:
+        path: diagnostic
+
+    - name: Checkout exact frozen PR 146 renderer source
+      uses: actions/checkout@v4
+      with:
+        ref: 14c2ecefad41374d39a8fb9d369d510251b9dd6e
+        path: renderer
+
+    - name: Verify only the hosted guard changed
+      shell: bash
+      run: |
+        set -euo pipefail
+        git -C diagnostic diff --exit-code 14c2ecefad41374d39a8fb9d369d510251b9dd6e HEAD --           tools/renderer_oracle/sdvk009_publication.py           tools/renderer_oracle/run.py           tools/renderer_oracle/native_ci.py           tools/renderer_oracle/prepare.py
+        test "$(git -C renderer rev-parse HEAD)" = "14c2ecefad41374d39a8fb9d369d510251b9dd6e"
+        test -z "$(git -C renderer status --porcelain --untracked-files=no)"
+
+    - name: Verify requested 16-vCPU execution surface
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 - <<'PY'
+        import os
+        affinity = sorted(os.sched_getaffinity(0))
+        print("runner_name=", os.environ.get("RUNNER_NAME"))
+        print("runner_environment=", os.environ.get("RUNNER_ENVIRONMENT"))
+        print("os_cpu_count=", os.cpu_count())
+        print("allowed_cpu_count=", len(affinity))
+        print("allowed_cpus=", affinity)
+        if len(affinity) != 16:
+            raise SystemExit("expected exactly 16 allowed CPUs before any native renderer launch")
+        PY
+
+    - name: Install software Vulkan dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt update
+        sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth xz-utils
+        (cd renderer && python3 tools/fetch_build_deps.py --platform linux --output build/deps)
+
+    - name: Run CPU-only publication and Avrea contracts
+      shell: bash
+      working-directory: diagnostic
+      run: |
+        set -euo pipefail
+        python3 -m unittest tools.renderer_oracle.tests.test_sdvk009_publication -v
+        python3 -m unittest tools.renderer_oracle.tests.test_sdvk009_timeout_discriminator -v
+        python3 -m unittest tools.renderer_oracle.tests.test_sdvk009_avrea16_timeout -v
+        python3 -m unittest tools.renderer_oracle.tests.test_sdvk009_avrea16_publication -v
+
+    - name: Build exact frozen PR 146 renderer
+      shell: bash
+      run: |
+        set -euo pipefail
+        cmake -S renderer -B renderer/build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/renderer/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        cmake --build renderer/build --config RelWithDebInfo --parallel 3
+        LD_LIBRARY_PATH="${PWD}/renderer/build/deps/zmusic/lib" python3 renderer/tools/check_build_identity.py --build-dir renderer/build --config RelWithDebInfo --expected-state clean
+        test "$(git -C renderer rev-parse HEAD)" = "14c2ecefad41374d39a8fb9d369d510251b9dd6e"
+        test -z "$(git -C renderer status --porcelain --untracked-files=no)"
+
+    - name: Fetch and authenticate matching historical content
+      shell: bash
+      working-directory: diagnostic
+      run: python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+
+    - name: Run full frozen #146 matching-content qualification
+      shell: bash
+      working-directory: diagnostic
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/renderer/build/deps/zmusic/lib
+        SDVK_REQUESTED_RUNNER: avrea-ubuntu-24.04-16-vcpu
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_icds[@]}" -eq 1
+        export VK_DRIVER_FILES="${sdvk_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_icds[0]}"
+        export SDL_VIDEODRIVER=x11
+        test -z "${CFX_TRACE_FILE:-}${CFX_RUN_ID:-}${CFX_RESOURCE_TRACE:-}${CFX_WITNESS_DIR:-}"
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/sdvk009_avrea16_publication.py qualify           --exe "${{ github.workspace }}/renderer/build/vkdoom"           --iwad build/renderer-sdvk009-content/freedoom2.wad           --iwad-license build/renderer-sdvk009-content/COPYING.txt           --out build/renderer-sdvk009-avrea16-publication           --expected-commit 14c2ecefad41374d39a8fb9d369d510251b9dd6e
+
+    - name: Package complete Avrea publication evidence losslessly
+      if: always()
+      shell: bash
+      working-directory: diagnostic
+      run: |
+        set -euo pipefail
+        dirs=()
+        for path in renderer-sdvk009-content renderer-sdvk009-avrea16-publication; do
+          if [[ -d "build/$path" ]]; then dirs+=("$path"); fi
+        done
+        if [[ "${#dirs[@]}" -gt 0 ]]; then
+          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/sdvk009-avrea16-publication.tar.xz -C build "${dirs[@]}"
+        fi
+
+    - name: Upload complete Avrea publication evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk009-avrea16-publication-qualification
+        path: diagnostic/build/sdvk009-avrea16-publication.tar.xz
+        compression-level: 0
+        retention-days: 30
