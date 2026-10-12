@@ -77,7 +77,7 @@ jobs:
 
         - name: Linux software Vulkan
           # Required CI critical path: use Avrea directly; do not duplicate this job on GitHub runners.
-          os: avrea-ubuntu-24.04-32-vcpu
+          os: avrea-ubuntu-24.04-16-vcpu
           extra_options: -DNO_GTK=ON
           deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
           build_type: RelWithDebInfo
@@ -148,7 +148,7 @@ jobs:
         export VK_ICD_FILENAMES="${sdvk_publication_icds[0]}"
         export SDL_VIDEODRIVER=x11
         python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
-        export SDVK_REQUESTED_RUNNER=avrea-ubuntu-24.04-32-vcpu
+        export SDVK_REQUESTED_RUNNER=avrea-ubuntu-24.04-16-vcpu
         cat > build/sdvk009-avrea-ci.py <<'PY'
         import os
         from pathlib import Path
@@ -162,10 +162,10 @@ jobs:
             require(sys.platform == "linux" and os.environ.get("GITHUB_ACTIONS") == "true",
                     "Native publication qualification requires a Linux GitHub Actions runner")
             require(os.environ.get("RUNNER_ENVIRONMENT") == "self-hosted"
-                    and os.environ.get("SDVK_REQUESTED_RUNNER") == "avrea-ubuntu-24.04-32-vcpu",
+                    and os.environ.get("SDVK_REQUESTED_RUNNER") == "avrea-ubuntu-24.04-16-vcpu",
                     "Native publication qualification requires the preregistered Avrea 32-vCPU runner")
-            require(hasattr(os, "sched_getaffinity") and len(os.sched_getaffinity(0)) == 32,
-                    "Avrea publication qualification requires exactly 32 allowed CPUs")
+            require(hasattr(os, "sched_getaffinity") and len(os.sched_getaffinity(0)) == 16,
+                    "Avrea publication qualification requires exactly 16 allowed CPUs")
             names = ("VK_DRIVER_FILES", "VK_ICD_FILENAMES")
             selected = []
             for name in names:
