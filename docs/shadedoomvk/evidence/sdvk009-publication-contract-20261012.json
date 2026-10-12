@@ -1,0 +1,71 @@
+{
+  "schema": "sdvk009-publication-contract-source-proof-v1",
+  "date": "2026-10-12",
+  "issue": 9,
+  "pull_request": 145,
+  "base_master": "eb33998b1e5cb9370dc6dc6a25b9ce78f53ade0c",
+  "base_tree": "14328b184eeb8cdae9d58aea17921d09c522c42c",
+  "first_source_fix_commit": "b03f56ea05ce659ac3a3262427a54ae9f2eb8109",
+  "phase": "production_cpu_packing_and_descriptor_contract",
+  "defect": {
+    "class": "publication_evidence_nondeterminism",
+    "proven_source_behavior": [
+      "software collision root header copied 16 bytes while only root was assigned",
+      "non-empty exported CollisionNode records copied explicit std430 padding not assigned by CPUAccelStruct::Upload"
+    ],
+    "shader_consumes_padding": false,
+    "physical_fault_causality": "UNDETERMINED",
+    "correction": [
+      "value-initialize CollisionNodeBufferHeader before assigning root",
+      "zero explicit CollisionNode padding fields during production export",
+      "pin CPU byte sizes for header, CollisionNode and FFlatVertex"
+    ]
+  },
+  "production_paths": [
+    "src/common/rendering/hwrenderer/data/hw_collision.cpp:CPUAccelStruct::Upload",
+    "src/common/rendering/vulkan/vk_levelmesh.cpp:VkLevelMeshUploader::UploadNodes",
+    "src/common/rendering/vulkan/vk_levelmesh.cpp:VkLevelMeshUploader::UploadRanges",
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp:VkDescriptorSetManager::UpdateFixedSet",
+    "wadsrc/static/shaders/scene/binding_fixed.glsl"
+  ],
+  "controls": {
+    "positive": [
+      "production CPU collision export preserves root/link/original-triangle reachability and defines padding",
+      "production UploadNodes packs root header and node ranges at actual offsets/extents",
+      "production UploadRanges uses typed vertex and index offsets/extents",
+      "regular scene Fixed descriptor resource mapping matches binding_fixed.glsl"
+    ],
+    "negative": [
+      "pre-fix collision-node padding omission fails against pre-seeded backing bytes",
+      "uninitialized collision root header rejected",
+      "missing collision-header offset rejected",
+      "wrong typed stride rejected",
+      "omitted queued copy rejected",
+      "unidentified/stale buffer generation identity rejected",
+      "wrong shader binding rejected"
+    ]
+  },
+  "generation_identity": {
+    "mechanism": "VulkanBuffer::diagnosticId / CfxTrace::NewResourceId",
+    "new_parallel_generation_added": false
+  },
+  "private_incident_evidence": {
+    "available_in_cloud_session": false,
+    "verified_by_this_continuation": false
+  },
+  "ordinary_environment": {
+    "renderer_launched": false,
+    "vulkan_device_created": false,
+    "physical_gpu_work": false
+  },
+  "out_of_scope_pending": [
+    "actual descriptor-set bind identity",
+    "actual pipeline bind identity",
+    "exact SPIR-V stage identity for the bound pipeline",
+    "defined-field destination readback tied to normal last use and submission fence",
+    "pinned hosted software-Vulkan witness",
+    "unchanged matching-content 120-warmup qualification"
+  ],
+  "physical_stop": true,
+  "issues_8_9_10_remain_open": true
+}

@@ -176,3 +176,25 @@ these lifecycle fixes establish no physical fault cause or resume permission.
 See [audit](../SDVK-009-COLLISION-ROOT-AUDIT.md) and
 `tools/pf_oracle/tests/test_collision_backing_lifetime.py`.
 
+## SDVK-009 deterministic collision publication bytes — 2026-10-12
+
+The software shader ABI includes a 16-byte collision root header and 48-byte
+`CollisionNode` records. Explicit padding in those records is not traversal
+state, but the uploader and CFX fingerprint operate on the complete copied byte
+range. Production publication must therefore define those padding bytes before a
+complete-range fingerprint can be compared deterministically.
+
+`CPUAccelStruct::Upload` now writes zero to all three explicit node padding
+fields and `VkLevelMeshUploader::UploadNodes` value-initializes the four-word
+header before assigning `root`. Compile-time checks pin the header, collision
+node and `FFlatVertex` byte sizes to the std430 shader contract. The exact
+pre-fix padding omission is retained as an executable negative by pre-seeding
+destination storage and requiring that mutated production path to fail.
+
+This does not change any shader-consumed field and is not physical-fault
+causality. Actual descriptor/pipeline binds, exact bound SPIR-V identity and
+post-use destination readback remain the next hosted publication-witness gate.
+See PR #145, `tools/pf_oracle/tests/test_collision_upload_root.py`,
+`tools/pf_oracle/tests/test_sdvk009_publication_contract.py` and
+`../SDVK-009-OFFLINE-SHADOW-INVESTIGATION.md`.
+

@@ -1,6 +1,7 @@
 """Execute the production CPU-to-shader collision export without a GPU."""
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
 
@@ -170,16 +171,35 @@ int main(int argc, char** argv) {
 
 
 class CollisionUploadRootTests(unittest.TestCase):
-    def test_exported_root_and_links_reach_original_triangles(self):
+    def _production_upload(self):
         source = (ROOT / "src/common/rendering/hwrenderer/data/hw_collision.cpp").read_text()
-        actual = production_function(source, "static FVector3 SwapYZ(") + "\n" + production_function(
+        return production_function(source, "static FVector3 SwapYZ(") + "\n" + production_function(
             source, "void CPUAccelStruct::Upload()")
+
+    def _run(self, actual, scenario):
         with tempfile.TemporaryDirectory() as directory:
             fixture = Path(directory) / "collision_upload.cpp"
             fixture.write_text(PREFIX + actual + SUFFIX)
-            for scenario in (1, 2, 3, 4):
-                with self.subTest(scenario=scenario):
-                    run_fixture(fixture, args=[str(scenario)])
+            return run_fixture(fixture, args=[str(scenario)])
+
+    def test_exported_root_and_links_reach_original_triangles(self):
+        actual = self._production_upload()
+        for scenario in (1, 2, 3, 4):
+            with self.subTest(scenario=scenario):
+                self._run(actual, scenario)
+
+    def test_prefixed_indeterminate_padding_behavior_is_retained_as_failure(self):
+        actual = self._production_upload()
+        old = actual
+        old = old.replace("info.padding1 = 0.0f;", "/* pre-fix padding1 left indeterminate */")
+        old = old.replace("info.padding2 = 0.0f;", "/* pre-fix padding2 left indeterminate */")
+        old = old.replace("info.padding3 = 0;", "/* pre-fix padding3 left indeterminate */")
+        self.assertNotEqual(old, actual)
+        # Scenario 1 pre-seeds backing padding. The old production export writes
+        # every consumed field but leaves those uploaded bytes untouched, so the
+        # fixture's final defined-padding assertion must fail.
+        with self.assertRaises(subprocess.CalledProcessError):
+            self._run(old, 1)
 
 
 if __name__ == "__main__":

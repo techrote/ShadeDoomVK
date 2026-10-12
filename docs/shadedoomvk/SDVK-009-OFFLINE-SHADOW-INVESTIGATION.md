@@ -215,3 +215,55 @@ Retain preregistration, original/readback inputs, all stdout/stderr, native stat
 images, telemetry/events, PID ownership/termination and collector/supervisor
 receipts, including incomplete output. Zero automatic retries. This document
 does not register or execute that future experiment.
+
+## Production publication-byte contract continuation — 2026-10-12
+
+The first incomplete post-PR144 gate is the production CPU packing/descriptor
+contract, not another retained-incident probe. On the software traversal path,
+`VkLevelMeshUploader::UploadNodes` copies a 16-byte header followed by
+48-byte `CollisionNode` records. Regular scene shadow traversal receives the
+same Node/Vertex/Index resources through Fixed set0 bindings 2/3/4; bindings
+5/6/7 supply SurfaceIndex/Surface/Portal for paths that consume those
+dependencies. `light_shadow.glsl -> light_trace.glsl -> polyfill_rayquery.glsl`
+is the production software traversal chain.
+
+The prior header assigned only `root`, and non-empty CPU collision export
+assigned every traversal field while leaving the three explicit node padding
+fields untouched. Those fields are not shader semantics, but CFX hashes the
+complete staged copy when within its declared budget. A whole-record fingerprint
+therefore included indeterminate host bytes and was not a deterministic witness
+of equivalent semantic publication.
+
+PR #145 makes only those bytes defined: the header is value-initialized and each
+exported collision node writes zero to its explicit std430 padding. Root/link/
+element values, dirty ranges, staging offsets, copy sizes, synchronization and
+shadow policy are unchanged. `static_assert` checks pin the header at 16 bytes,
+`CollisionNode` at 48 bytes and `FFlatVertex`/shader `SurfaceVertex` at 32
+bytes.
+
+The regression lane executes the real production CPU export and real uploader
+packing functions with CPU adapters. Destination padding is pre-seeded so a
+minimized source mutation matching the old omission must fail. Separate
+mutations require failures for an uninitialized header, missing 16-byte node
+prefix, wrong typed stride, omitted queued copy, missing allocation-generation
+identity and wrong scene binding. This establishes source/packing behavior only.
+
+Existing CFX resource IDs are sufficient allocation generations for the next
+join: each real `VulkanBuffer` allocation receives a new
+`CfxTrace::NewResourceId()`, packed uploads and recorded copies carry source/
+destination IDs, and descriptor writes carry the bound buffer ID. No second
+generation system is introduced.
+
+Still missing, and therefore not claimed by this gate, are the **actual command
+bind** of the relevant descriptor set and pipeline, an identity of the exact
+SPIR-V stage bytes used to create that bound pipeline, and defined-field
+destination readback tied to normal last use/submission completion. Cached
+shader-source or SPIR-V validation alone is not execution identity. Readback must
+not introduce a stronger pre-shadow wait and its scheduling perturbation must be
+retained as a limitation. The later hosted run must fail closed on evidence
+truncation/coverage gaps and retain an unchanged uninstrumented control.
+
+No private C-drive incident archive was available for this continuation. Nothing
+here reconstructs or relabels the failed physical runtime state. Physical STOP,
+root-cause UNDETERMINED, and open #8/#9/#10 are unchanged.
+

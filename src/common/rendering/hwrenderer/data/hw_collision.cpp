@@ -366,12 +366,12 @@ void CPUAccelStruct::Upload()
 	for (const auto& node : TLAS.Nodes)
 	{
 		CollisionNode& info = destnodes[offset];
-				// Keep the complete shader-visible record deterministic. These explicit
-				// std430 padding fields are not consumed by traversal, but CFX hashes the
-				// complete uploaded byte range for publication evidence.
-				info.padding1 = 0.0f;
-				info.padding2 = 0.0f;
-				info.padding3 = 0;
+		// Keep the complete shader-visible record deterministic. These explicit
+		// std430 padding fields are not consumed by traversal, but CFX hashes the
+		// complete uploaded byte range for publication evidence.
+		info.padding1 = 0.0f;
+		info.padding2 = 0.0f;
+		info.padding3 = 0;
 		info.center = SwapYZ(node.aabb.Center);
 		info.extents = SwapYZ(node.aabb.Extents);
 

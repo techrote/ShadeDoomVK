@@ -1010,3 +1010,36 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   changes, physical acceptance, architecture/performance acceptance or issue
   closure follows. Physical root cause is UNDETERMINED and resume disposition
   remains HOLD pending a defensible causal discriminator and explicit approval.
+
+### 12 October 2026 — SDVK-009 production publication-byte contract candidate
+
+- Live reconciliation starts from exact `master@eb33998b1e5cb9370dc6dc6a25b9ce78f53ade0c`
+  / tree `14328b184eeb8cdae9d58aea17921d09c522c42c`, with #8/#9/#10 open and
+  no concurrent publication-contract PR. PR #145 carries the bounded offline
+  continuation; its first source checkpoint is
+  `b03f56ea05ce659ac3a3262427a54ae9f2eb8109`.
+- Production software-collision publication copied the complete 16-byte root
+  header and 48-byte node records while leaving their explicit std430 padding
+  indeterminate. CFX resource evidence fingerprints complete uploaded ranges,
+  so those unspecified bytes made otherwise identical publication witnesses
+  nondeterministic. The shader consumes the root and semantic node fields, not
+  the padding; this is an evidence/publication determinism defect, **not** a
+  demonstrated explanation or repair of either retained physical failure.
+- The candidate zero-initializes the header and explicitly defines node padding,
+  while preserving roots, links, element identities, offsets, extents, dirty
+  ranges, copies, barriers and workload. Compile-time assertions pin the header,
+  collision-node and surface-vertex CPU sizes to their shader-visible std430
+  strides.
+- CPU regressions execute the actual production `CPUAccelStruct::Upload()`,
+  `VkLevelMeshUploader::UploadNodes()` and templated `UploadRanges()`.
+  The exact pre-fix omission is retained as a required failure against
+  pre-seeded padding. Mutation controls reject wrong header prefix/offset/stride,
+  missing copies, unidentified buffer generations and wrong scene bindings.
+  Existing monotonic `VulkanBuffer::diagnosticId` remains the allocation
+  generation identity.
+- Private C-drive incident bytes are unavailable in this cloud session and are
+  not claimed verified. No renderer or Vulkan device is launched in the ordinary
+  environment. Hosted CI/review and the later descriptor/pipeline/SPIR-V/readback
+  witness remain separate gates. Physical STOP remains active; root cause is
+  UNDETERMINED and #8/#9/#10 stay open.
+
