@@ -35,7 +35,10 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        git -C diagnostic diff --exit-code 14c2ecefad41374d39a8fb9d369d510251b9dd6e HEAD --           tools/renderer_oracle/sdvk009_publication.py           tools/renderer_oracle/run.py           tools/renderer_oracle/native_ci.py           tools/renderer_oracle/prepare.py
+        cmp diagnostic/tools/renderer_oracle/sdvk009_publication.py renderer/tools/renderer_oracle/sdvk009_publication.py
+        cmp diagnostic/tools/renderer_oracle/run.py renderer/tools/renderer_oracle/run.py
+        cmp diagnostic/tools/renderer_oracle/native_ci.py renderer/tools/renderer_oracle/native_ci.py
+        cmp diagnostic/tools/renderer_oracle/prepare.py renderer/tools/renderer_oracle/prepare.py
         test "$(git -C renderer rev-parse HEAD)" = "14c2ecefad41374d39a8fb9d369d510251b9dd6e"
         test -z "$(git -C renderer status --porcelain --untracked-files=no)"
 
