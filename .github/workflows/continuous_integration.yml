@@ -211,7 +211,7 @@ jobs:
             "--expected-commit", os.environ["GITHUB_SHA"],
         ]))
         PY
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 build/sdvk009-avrea-ci.py
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 build/sdvk009-avrea-ci.py
 
     - name: Package complete software Vulkan evidence losslessly
       if: always() && matrix.config.native_renderer
