@@ -354,6 +354,22 @@ class PublicationControls(unittest.TestCase):
         finally:
             target.write_bytes(original)
 
+    def test_disturbed_dynamic_offsets_are_unknown_not_invented(self):
+        complete = {"binds": {1: {}}, "sets": {1: {"dynamic_count": "2", "coverage": "complete"}},
+                    "offsets": {1: {0: 64, 1: 128}}}
+        publication._validate_consumed_dynamic_offsets(complete)
+        disturbed = {"binds": {1: {}}, "sets": {1: {"dynamic_count": "5", "coverage": "unknown"}},
+                     "offsets": {1: {}}}
+        publication._validate_consumed_dynamic_offsets(disturbed)
+        missing = copy.deepcopy(complete)
+        missing["offsets"][1].pop(1)
+        with self.assertRaisesRegex(EvidenceError, "incomplete coverage"):
+            publication._validate_consumed_dynamic_offsets(missing)
+        partial_unknown = copy.deepcopy(disturbed)
+        partial_unknown["offsets"][1][0] = 64
+        with self.assertRaisesRegex(EvidenceError, "partial dynamic offsets"):
+            publication._validate_consumed_dynamic_offsets(partial_unknown)
+
     def test_exclusive_completion_and_full_frame_coverage(self):
         target = self.root / "publication/publication-witness.complete"
         before = target.read_bytes()
