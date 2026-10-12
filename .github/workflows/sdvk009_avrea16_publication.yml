@@ -86,54 +86,14 @@ jobs:
         ref: 14c2ecefad41374d39a8fb9d369d510251b9dd6e
         path: renderer
 
-    - name: Verify frozen renderer and exact validator correction
+    - name: Verify frozen renderer and pinned validator correction
       shell: bash
       run: |
         set -euo pipefail
         cmp diagnostic/tools/renderer_oracle/run.py renderer/tools/renderer_oracle/run.py
         cmp diagnostic/tools/renderer_oracle/native_ci.py renderer/tools/renderer_oracle/native_ci.py
         cmp diagnostic/tools/renderer_oracle/prepare.py renderer/tools/renderer_oracle/prepare.py
-        python3 - <<'PY'
-        from pathlib import Path
-        base = Path("renderer/tools/renderer_oracle/sdvk009_publication.py").read_text()
-        candidate = Path("diagnostic/tools/renderer_oracle/sdvk009_publication.py").read_text()
-        anchor = "def _validate_records(root, records):\n"
-        helper = '''def _validate_consumed_dynamic_offsets(entry):
-            """Disturbed bindings remain explicit unknowns until rebound.
-
-            Complete bindings must carry every dynamic offset. A set marked unknown by
-            the witness writer after layout disturbance must carry no invented partial
-            offsets; later scope checks decide whether that unknown binding is relevant
-            to a qualified collision consume.
-            """
-            require(set(entry["sets"]) == set(entry["binds"]), "A bound descriptor was omitted from a consume snapshot")
-            for index, fields in entry["sets"].items():
-                actual = set(entry["offsets"][index])
-                expected = set(range(_number(fields, "dynamic_count")))
-                coverage = fields.get("coverage")
-                if coverage == "complete":
-                    require(actual == expected, "Consumed dynamic offsets have incomplete coverage")
-                else:
-                    require(coverage == "unknown" and not actual,
-                            "Unknown/disturbed descriptor set exposed partial dynamic offsets")
-
-
-        '''
-        old = '''    for entry in consumes.values():
-            require(set(entry["sets"]) == set(entry["binds"]), "A bound descriptor was omitted from a consume snapshot")
-            for index, f in entry["sets"].items():
-                require(set(entry["offsets"][index]) == set(range(_number(f, "dynamic_count"))),
-                        "Consumed dynamic offsets have incomplete coverage")
-        '''
-        new = '''    for entry in consumes.values():
-            _validate_consumed_dynamic_offsets(entry)
-        '''
-        if base.count(anchor) != 1 or base.count(old) != 1:
-            raise SystemExit("frozen validator shape changed")
-        expected = base.replace(anchor, helper + anchor, 1).replace(old, new, 1)
-        if candidate != expected:
-            raise SystemExit("qualification harness differs from frozen #146 beyond the reviewed validator correction")
-        PY
+        test "$(git -C diagnostic hash-object tools/renderer_oracle/sdvk009_publication.py)" = "fbab32825874a876752b9bb26f53e8a71feafddd"
         test "$(git -C renderer rev-parse HEAD)" = "14c2ecefad41374d39a8fb9d369d510251b9dd6e"
         test -z "$(git -C renderer status --porcelain --untracked-files=no)"
 
