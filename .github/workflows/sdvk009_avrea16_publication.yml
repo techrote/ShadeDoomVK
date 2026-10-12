@@ -70,7 +70,7 @@ jobs:
   avrea16_publication:
     name: Avrea 16-vCPU full #146 publication qualification
     # TEMP AVREA KILL SWITCH: change the next line from true to false to suspend Avrea provisioning.
-    if: ${{ true }}
+    if: ${{ false }}
     runs-on: avrea-ubuntu-24.04-16-vcpu
     timeout-minutes: 55
 
