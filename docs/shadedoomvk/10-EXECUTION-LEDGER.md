@@ -967,3 +967,46 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   physical fault causality/resolution, full update lifecycle and general
   deep-stack safety remain unqualified. Hardware STOP and all issue/dependency
   gates remain unchanged; this repair authorizes no new physical launch.
+
+### 12 October 2026 — CPU collision backing/reset lifetime candidates
+
+- Independent offline analysis at verified master `3b7da0739fa8254c80cb0adaa8ee55b00c95676f`
+  proved unchanged BLAS trees retained old vertex/index backing after legal
+  `TArray` relocation. Update now detects relocation/count changes before its
+  early return and rebinds current storage by original BLAS slot, preserving
+  nodes, bounds, triangles and dirty partition selection.
+- Exact Reset/base-construction reproduction also proved stale occupied index
+  high-water and pending spans beyond cleared/smaller populated arrays. Reset
+  clears `IndexCount` and only ten reset-array upload domains; retained Node and
+  Portal state is unchanged. Existing collision recreation remains mandatory
+  before reset-mesh queries/publication. No source-range clamps are added.
+- Retained exact pre-fix functions and 22 old/current CPU scenarios require all
+  original failures, unchanged-tree/hit controls, no-index-dirty relocation,
+  repartition, empty/smaller/same-size reset and actual constructor ordering.
+  Focused MSVC assertions-enabled collision/LevelMesh checks pass 15/15 with
+  earlier PR #140/#142/#143 negative controls preserved. Full hosted CI and
+  independent review remain pending; no merge/acceptance is predeclared.
+- [Audit and machine evidence](SDVK-009-COLLISION-ROOT-AUDIT.md) distinguish
+  synthetic lifecycle reproducers from the missing failed runtime graph.
+  Physical causality remains undetermined; hardware STOP remains active and
+  #8/#9/#10 stay open with all physical/dependency acceptance gates unchanged.
+
+### 12 October 2026 — offline production collision reconstruction
+
+- Fresh live issue/PR/master reconciliation and recursive retained-input hashes
+  match the prior authority. All 435 raw-packet manifest members match both ZIP
+  and local bytes; original seal members and public anchor drafts also match.
+  No sealed receipt is edited and no additional generic KD probe is repeated.
+- Default-off production CPU snapshots retain identities, extents, holes and
+  collision Update history. Hosted llvmpipe state captures feed a CPU replay of
+  production collision construction/update, with explicit unknown backing data
+  and bounded graph/layout/dirty-publication checks. Synthetic controls remain
+  distinct from reconstructed hosted production state and missing failed state.
+- Independent integrated focused CPU review passes 28/28, including prior
+  negative controls, immutable serializer and corrupt replay inputs. Full CPU,
+  compile-only and required hosted CI receipts must still pass before merge.
+  [Investigation, hypotheses and held protocol](SDVK-009-OFFLINE-SHADOW-INVESTIGATION.md).
+- No renderer/vktool or Vulkan device is launched locally. No hardware setting
+  changes, physical acceptance, architecture/performance acceptance or issue
+  closure follows. Physical root cause is UNDETERMINED and resume disposition
+  remains HOLD pending a defensible causal discriminator and explicit approval.

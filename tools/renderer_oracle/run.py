@@ -309,6 +309,10 @@ def capture(args):
                  "-sdvkobservemode", mode, "-sdvkobservecache", _console_path(out / "cache"), "-sdvkobservequit"]
         if args.gpu:
             argv.append("-sdvkobservegpu")
+        if getattr(args, "collision_snapshot", False):
+            require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
+            argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
+            profile["collision_snapshot"] = "production-cpu-state; no submitted-GPU-byte claim"
         env_keys = ("VK_ICD_FILENAMES", "VK_DRIVER_FILES", "VK_INSTANCE_LAYERS", "VK_LAYER_PATH", "DISPLAY",
                     "WAYLAND_DISPLAY", "SDL_VIDEODRIVER", "LP_NUM_THREADS", "OMP_NUM_THREADS",
                     "MESA_SHADER_CACHE_DISABLE", "MESA_SHADER_CACHE_DIR", "MESA_LOADER_DRIVER_OVERRIDE",

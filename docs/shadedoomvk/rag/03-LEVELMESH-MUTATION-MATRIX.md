@@ -152,3 +152,27 @@ actual failed scene's graph. General update lifecycle and deep-stack/invalid-lin
 safety remain unqualified. Neither physical failure is diagnosed or resolved;
 hardware STOP remains active. [Bounded audit](../SDVK-009-COLLISION-ROOT-AUDIT.md).
 
+## SDVK-009 CPU collision backing/reset lifetime — 2026-10-12
+
+BLAS geometry references are current-storage bindings, while triangle IDs and
+BLAS slots remain stable identities. `CPUAccelStruct::Update` detects vertex or
+index backing relocation (and populated vertex-count changes) before its dirty
+index early return, and rebinds retained live BLAS pointers at original slot
+offsets. Storage movement alone does not rebuild or change their trees/bounds.
+CPU queries retain the existing requirement to run after collision Update.
+
+`LevelMesh::Reset` clears occupied `IndexCount` and pending spans for its ten
+reset array domains (Vertex, UniformIndexes, Index, SurfaceIndex, Surface,
+Uniforms, LightUniforms, Light, LightIndex, DynLight). Retained Node/Portal
+storage/ranges are unchanged. The caller recreates collision after rebuilding
+geometry before its next query, Update or publication, as `DoomLevelMesh`
+construction already does. Queries between allocation and collision Update
+remain unsupported.
+
+Exact production CPU regressions preserve pre-fix stale-pointer/high-water/span
+negatives, unchanged trees, no-index-dirty and repartition controls, and real
+base-to-Doom reset ordering. Neither failed physical capture supplied its graph;
+these lifecycle fixes establish no physical fault cause or resume permission.
+See [audit](../SDVK-009-COLLISION-ROOT-AUDIT.md) and
+`tools/pf_oracle/tests/test_collision_backing_lifetime.py`.
+

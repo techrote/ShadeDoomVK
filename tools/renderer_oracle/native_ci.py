@@ -189,6 +189,7 @@ def qualify(args):
                         frames = 1 if mode == "state" else 120
                     return run.capture(argparse.Namespace(exe=args.exe, iwad=args.iwad, prepared=prepared,
                         out=destination, scene=scene, mode=mode, frames=frames, warmup=warmup,
+                        collision_snapshot=scene == "shadow-boundary" and mode == "state",
                         timeout=600, gpu=mode == "timing", include_stress=True, image_policy="exact"))
                 for scene in scenes:
                     paths = [out / "state" / scene / str(i) for i in (1, 2)]

@@ -1,0 +1,203 @@
+{
+  "schema": "sdvk009-offline-shadow-investigation/v1",
+  "status": "REVIEWED_CPU_REPAIRS_HOSTED_CI_PENDING",
+  "physical_stop_active": true,
+  "physical_root_cause": "UNDETERMINED",
+  "resume_disposition": "HOLD",
+  "physical_gpu_qualified": false,
+  "physical_performance_acceptance": false,
+  "architecture_acceptance": false,
+  "pom_acceptance": false,
+  "issue_states": {
+    "8": "OPEN",
+    "9": "OPEN",
+    "10": "OPEN"
+  },
+  "authority_base": {
+    "commit": "3b7da0739fa8254c80cb0adaa8ee55b00c95676f",
+    "tree": "276b1167db72dcb84d71c4d2248c4c438c737c88"
+  },
+  "source_review": {
+    "commit": "897cd59ea415c5eb0111b6271d573a361e0cfa00",
+    "tree": "741544ce246becbbdb4918e618d953868690f53b",
+    "focused_tests": 28,
+    "result": "PASS",
+    "review": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\review\\review.json",
+      "bytes": 10952,
+      "sha256": "d0c81052df2ff41e87095859d0b847d6f2d2b786812a463f396221649d8ffe35"
+    }
+  },
+  "lifecycle_candidate_scope": {
+    "commit": "9b65083e1bcb2088fa5bd732e0885176548b101d",
+    "note": "Historical dedicated-branch candidate function hashes exclude subsequently integrated snapshot hooks; not relabelled as final-source hashes.",
+    "record": "sdvk009-collision-lifetime-20261012.json"
+  },
+  "source_defects": [
+    "CPU-BLAS-BACKING-RELOCATION",
+    "LEVELMESH-RESET-EXTENT"
+  ],
+  "previous_repairs_preserved": [
+    "PR140 single-leaf root",
+    "PR142 sparse centroids",
+    "PR143 sparse BLAS membership and empty publication"
+  ],
+  "evidence_classes": {
+    "actual_inputs": "Verified original authored assets, process/monitor/event receipts and saved dumps. No physical native state or graph.",
+    "reconstructed_hosted_production": "Production CPU snapshots generated under explicitly identified hosted software Vulkan, with node/cache/warmup history of those processes only.",
+    "synthetic": "Minimized old/current lifecycle and deliberately corrupt graph controls; no failed-runtime-graph claim."
+  },
+  "integrity": {
+    "recursive_references": 275,
+    "distinct_files": 218,
+    "json_records": 38,
+    "archive_manifest_members": 435,
+    "additional_frozen_seal_members": 2,
+    "mismatches": 0,
+    "root_check": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\input-integrity.json",
+      "bytes": 139153,
+      "sha256": "a6fca355a6b5ab1c70375e91d0a6a3ebe22de8e4ba23e35a034ffcb0cbb658b2"
+    },
+    "archive_check": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\archive-member-integrity.json",
+      "bytes": 117409,
+      "sha256": "ef1d576cf4ff7c02aff5c178a64056dd76ce49c74285cc2c8969fd8edc1a25b0"
+    }
+  },
+  "local_validation": {
+    "no_renderer_or_vktool_launch": true,
+    "no_vulkan_device_created": true,
+    "no_hardware_settings_changed": true,
+    "compile_only": {
+      "target": "zdoom",
+      "configuration": "RelWithDebInfo",
+      "exit_code": 0,
+      "log": {
+        "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\compile-only-integrated.log",
+        "bytes": 7292,
+        "sha256": "7a5e7634c383d38b228408880fa987a46f2caa2eedddef2fe41a56f6e2cb9532"
+      }
+    },
+    "full_cpu_checks": {
+      "status": "PASS",
+      "exit_code": 0,
+      "pf_tests": 744,
+      "renderer_oracle_tests": 162,
+      "logs": [
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\bindless_allocator.log",
+          "bytes": 32,
+          "sha256": "5b5a2fbbc8257af4e13314eb2748ce97236e2337d2e786fc204d1229bdec0c74"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\cfx-tests.log",
+          "bytes": 1061,
+          "sha256": "2b9d45d0dc8e2328753c8439aff939c25418fd6f050a7caad854b5848551d949"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\levelmesh_contract.log",
+          "bytes": 91,
+          "sha256": "fee670f9edfd0838186e799590bb69efe7091b38334eda45aa147d0060463844"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\oracle-a.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\oracle-b.log",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\pf-tests.log",
+          "bytes": 3687,
+          "sha256": "67b9ff8ea31ab9c6f93741893062a0204d5c39191cbf2a942c1fa3d87cb0db7d"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\probe_selection.log",
+          "bytes": 29,
+          "sha256": "1b7cbcd1661a5446daf1b9606ee2fce8b44dc0fa7fd8b0bc534332e7230c97dd"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\renderer-corpus.log",
+          "bytes": 174,
+          "sha256": "ea3c177731b520108747e0ed0b72b5a8796d8a94063e7c8652da8ad0b14d0820"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\renderer-oracle-tests.log",
+          "bytes": 159,
+          "sha256": "acdb2086c54fd3c2e157c83057d50741f65b0aac49c491e1595bce559a416d0d"
+        },
+        {
+          "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks\\resource_generation.log",
+          "bytes": 33,
+          "sha256": "996dc4807a69b244253bc38a180e5209eb5017c4d9b4cb3503addb8f55717cd7"
+        }
+      ],
+      "summary": {
+        "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\integrated-cpu-checks.log",
+        "bytes": 1384,
+        "sha256": "f088faadad9a1a6a8783975dce6ec242c4c75ded324c8e5aa457a06497009490"
+      }
+    }
+  },
+  "limits": [
+    "No exact failed runtime graph, BSP/cache or allocation/update history can be recovered.",
+    "Snapshot excludes unused backing tails, unreferenced positions, non-position attributes and native padding.",
+    "CPU graph and staging intent do not establish submitted/consumed GPU bytes.",
+    "Replay does not execute shaders or prove general ray-intersection equivalence.",
+    "General physical stack/deep-work, resource, driver and hardware hypotheses remain unresolved.",
+    "No new KD probes; proprietary data remains undecoded and local."
+  ],
+  "parser_limits": {
+    "file_bytes": 134217728,
+    "sequence_payload_and_backing_bytes": 268435456,
+    "events": 4096,
+    "elements_per_domain": 1000000
+  },
+  "required_before_merge": [
+    "Independent documentation followup",
+    "Complete CPU checks",
+    "Required source evidence workflow",
+    "Complete nine-job Continuous Integration including identified software Vulkan and production snapshot replay"
+  ],
+  "required_after_merge": [
+    "Exact master commit/tree verification",
+    "Complete exact-master source and nine-job CI"
+  ],
+  "resume_requirements": [
+    "Defensible GPU publication/shader attribution discriminator or justified symbol-qualified evidence",
+    "Fresh immutable source/build/shader/content/operator identity",
+    "Independent bounded-protocol review",
+    "Explicit user authorization to lift physical STOP for diagnostic only",
+    "Separate disposition and approval before full campaign"
+  ],
+  "attributable_hosted_failures": [
+    {
+      "run": 38185384623,
+      "head": "4e0319c73ea6eb29b13fc2ce4137ac3ba6dc9c76",
+      "job": "PF renderer contract oracle",
+      "result": "FAIL; renderer matrix skipped",
+      "reason": "GCC strict warnings in new fixture: inherited AddEmptyMesh partial initializers and generated CreateBLAS guard indentation.",
+      "repair_scope": "Test-only warning scope around unchanged production AddEmptyMesh; generated guard braced. Inputs/assertions/cases/production remain unchanged.",
+      "log": {
+        "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\pr-initial-failed.log",
+        "bytes": 22057,
+        "sha256": "c3d02d148bb1f2e13efef32e900f141a3dc1921f6d6fbfbf7db7045b5f19a671"
+      },
+      "complete_artifact": {
+        "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\pr-initial-failure-artifact\\cpu-contract-checks.zip",
+        "bytes": 2368,
+        "sha256": "ed85ad6041e6013975a83c275b93f77859bd1f9163884725d635638d7378a3d2"
+      },
+      "github_digest_verified": true
+    }
+  ],
+  "documentation_review": {
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\review\\review-doc-addendum.json",
+    "bytes": 5013,
+    "sha256": "ca8ec3e8cc546d1ee357646daea3706afc0d5fa68f647d61ab6f19cb5e588fed"
+  }
+}

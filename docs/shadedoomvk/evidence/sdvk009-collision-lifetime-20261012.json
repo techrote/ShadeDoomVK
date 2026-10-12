@@ -1,0 +1,273 @@
+{
+  "schema": "sdvk009-collision-lifetime-candidate/v1",
+  "source_base": {
+    "commit": "3b7da0739fa8254c80cb0adaa8ee55b00c95676f",
+    "tree": "276b1167db72dcb84d71c4d2248c4c438c737c88"
+  },
+  "status": "CPU_REPRODUCED_REPAIRED_PENDING_HOSTED_CI",
+  "proven_defects": [
+    {
+      "id": "CPU-BLAS-BACKING-RELOCATION",
+      "pre_fix": "Partial Update retained stale raw vertex/index backing in unchanged BLAS slots after legal TArray relocation; no-index-dirty relocation returned before any binding refresh.",
+      "repair": "Detect backing pointer or vertex-count changes, rebind retained live BLASs at original slot offsets before early return. Do not rebuild unchanged trees.",
+      "original_negative_cases": [
+        "vertex-relocation",
+        "index-relocation",
+        "both-relocations",
+        "vertex-only-no-index-dirty"
+      ],
+      "positive_unchanged_controls": [
+        "unchanged",
+        "dirty-no-relocation",
+        "full-repartition",
+        "exact retained tree/root/bounds/element snapshots"
+      ]
+    },
+    {
+      "id": "LEVELMESH-RESET-EXTENT",
+      "pre_fix": "Reset retained 12-index occupied highwater and old dirty ranges despite clearing arrays; empty/3-index rebuild exceeded populated source extents.",
+      "repair": "Reset IndexCount to zero and clear only ten upload domains for arrays Reset clears/resizes.",
+      "reset_upload_domains": [
+        "Vertex",
+        "UniformIndexes",
+        "Index",
+        "SurfaceIndex",
+        "Surface",
+        "Uniforms",
+        "LightUniforms",
+        "Light",
+        "LightIndex",
+        "DynLight"
+      ],
+      "retained_domains": [
+        "Node",
+        "Portals"
+      ],
+      "original_negative_cases": [
+        "empty reset with active old ranges",
+        "smaller reset with active old ranges",
+        "empty reset with clean geometry ranges",
+        "six separately seeded stale reset-array ranges"
+      ],
+      "positive_unchanged_controls": [
+        "same-size reset",
+        "production Reset/AddEmptyMesh/CreateCollision then Doom SetLimits Reset ordering",
+        "retained Node/Portal ranges",
+        "current empty miss/nonempty actual geometric hit"
+      ]
+    }
+  ],
+  "pre_fix_functions": {
+    "CPUAccelStruct::CPUAccelStruct(": "dcd068f33586a8d47065471f4afb96eff64dec020f94e24a1fa74c7de1fef175",
+    "void CPUAccelStruct::Update()": "e3a9a5e573162a8f8d81f73616dde6fbaf7f4b61cf0893ce65d3d5e800a4789f",
+    "void LevelMesh::Reset()": "8f22569a4d3924cdf241cd56b4e3a06dbac5d41ada17b29fa8e4eacbb25f3753"
+  },
+  "candidate_functions": [
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+      "signature": "CPUAccelStruct::CPUAccelStruct(",
+      "sha256_normalized": "eb75bf919237d3b8d1e62119d1e45837e11dd1e6541b72825f74b59e8a9a58ab"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+      "signature": "void CPUAccelStruct::RebindMeshData()",
+      "sha256_normalized": "723679e619059575b5262f50e08325fc6c1470678d85ef24761ae9b9e7bbdea8"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_collision.cpp",
+      "signature": "void CPUAccelStruct::Update()",
+      "sha256_normalized": "52710a85a3f0ed912bf6044fcc96f22069d64c5a8addadca70de0d581c39573f"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+      "signature": "void LevelMesh::Reset()",
+      "sha256_normalized": "3491119e91b2a2fb4090ce0c7480d8bdca68ae601c3a0db5ea2ffeed1cfa738b"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_collision.h",
+      "signature": "void RebindMeshData(const FFlatVertex*",
+      "sha256_normalized": "facaccc5ab011a61cecb2945a670764b3e0e5cc0044920d714d793a72ab9781a"
+    }
+  ],
+  "regression": {
+    "path": "tools/pf_oracle/tests/test_collision_backing_lifetime.py",
+    "scenarios": 22,
+    "runs": [
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 0,
+        "result": "CASE unchanged repaired=0 vertex_relocated=0 index_relocated=0 old_partition=6 partition=6 live=16 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 1,
+        "result": "CASE dirty-no-relocation repaired=0 vertex_relocated=0 index_relocated=0 old_partition=6 partition=6 live=16 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 2,
+        "result": "CASE vertex-relocation repaired=0 vertex_relocated=1 index_relocated=0 old_partition=6 partition=6 live=17 stale_vertex_blas=16 stale_index_blas=0 guarded_query_stop=1 reason=stale vertices hit=-1"
+      },
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 3,
+        "result": "CASE index-relocation repaired=0 vertex_relocated=0 index_relocated=1 old_partition=6 partition=6 live=17 stale_vertex_blas=0 stale_index_blas=16 guarded_query_stop=1 reason=stale indexes hit=-1"
+      },
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 4,
+        "result": "CASE both-relocations repaired=0 vertex_relocated=1 index_relocated=1 old_partition=6 partition=6 live=17 stale_vertex_blas=16 stale_index_blas=16 guarded_query_stop=1 reason=stale vertices hit=-1"
+      },
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 5,
+        "result": "CASE full-repartition repaired=0 vertex_relocated=1 index_relocated=1 old_partition=6 partition=9 live=31 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=30"
+      },
+      {
+        "mode": "pointer",
+        "repaired": false,
+        "scenario": 6,
+        "result": "CASE vertex-only-no-index-dirty repaired=0 vertex_relocated=1 index_relocated=0 old_partition=6 partition=6 live=16 stale_vertex_blas=16 stale_index_blas=0 guarded_query_stop=1 reason=stale vertices hit=-1"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 0,
+        "result": "CASE unchanged repaired=1 vertex_relocated=0 index_relocated=0 old_partition=6 partition=6 live=16 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 1,
+        "result": "CASE dirty-no-relocation repaired=1 vertex_relocated=0 index_relocated=0 old_partition=6 partition=6 live=16 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 2,
+        "result": "CASE vertex-relocation repaired=1 vertex_relocated=1 index_relocated=0 old_partition=6 partition=6 live=17 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 3,
+        "result": "CASE index-relocation repaired=1 vertex_relocated=0 index_relocated=1 old_partition=6 partition=6 live=17 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 4,
+        "result": "CASE both-relocations repaired=1 vertex_relocated=1 index_relocated=1 old_partition=6 partition=6 live=17 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 5,
+        "result": "CASE full-repartition repaired=1 vertex_relocated=1 index_relocated=1 old_partition=6 partition=9 live=31 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=30"
+      },
+      {
+        "mode": "pointer",
+        "repaired": true,
+        "scenario": 6,
+        "result": "CASE vertex-only-no-index-dirty repaired=1 vertex_relocated=1 index_relocated=0 old_partition=6 partition=6 live=16 stale_vertex_blas=0 stale_index_blas=0 guarded_query_stop=0 reason=none hit=0"
+      },
+      {
+        "mode": "reset",
+        "repaired": false,
+        "scenario": 0,
+        "result": "CASE reset-empty repaired=0 after_reset_index_count=12 rebuilt_index_count=12 populated_indexes=0 guard=1 reason=BLAS input outside populated index extent vertex_span=0 index_span=0 uniform_span=0 surface_span=0 other_bad_spans=6 hit=-1"
+      },
+      {
+        "mode": "reset",
+        "repaired": false,
+        "scenario": 1,
+        "result": "CASE reset-smaller repaired=0 after_reset_index_count=12 rebuilt_index_count=12 populated_indexes=3 guard=1 reason=BLAS input outside populated index extent vertex_span=0 index_span=0 uniform_span=0 surface_span=0 other_bad_spans=6 hit=-1"
+      },
+      {
+        "mode": "reset",
+        "repaired": false,
+        "scenario": 2,
+        "result": "CASE reset-same-size repaired=0 after_reset_index_count=12 rebuilt_index_count=12 populated_indexes=12 guard=0 reason=none vertex_span=1 index_span=1 uniform_span=1 surface_span=1 other_bad_spans=6 hit=0"
+      },
+      {
+        "mode": "reset",
+        "repaired": false,
+        "scenario": 3,
+        "result": "CASE reset-empty-clean-ranges repaired=0 after_reset_index_count=12 rebuilt_index_count=12 populated_indexes=0 guard=1 reason=BLAS input outside populated index extent vertex_span=1 index_span=1 uniform_span=1 surface_span=1 other_bad_spans=6 hit=-1"
+      },
+      {
+        "mode": "reset",
+        "repaired": true,
+        "scenario": 0,
+        "result": "CASE reset-empty repaired=1 after_reset_index_count=0 rebuilt_index_count=0 populated_indexes=0 guard=0 reason=none vertex_span=1 index_span=1 uniform_span=1 surface_span=1 other_bad_spans=0 hit=-1"
+      },
+      {
+        "mode": "reset",
+        "repaired": true,
+        "scenario": 1,
+        "result": "CASE reset-smaller repaired=1 after_reset_index_count=0 rebuilt_index_count=3 populated_indexes=3 guard=0 reason=none vertex_span=1 index_span=1 uniform_span=1 surface_span=1 other_bad_spans=0 hit=0"
+      },
+      {
+        "mode": "reset",
+        "repaired": true,
+        "scenario": 2,
+        "result": "CASE reset-same-size repaired=1 after_reset_index_count=0 rebuilt_index_count=12 populated_indexes=12 guard=0 reason=none vertex_span=1 index_span=1 uniform_span=1 surface_span=1 other_bad_spans=0 hit=0"
+      },
+      {
+        "mode": "reset",
+        "repaired": true,
+        "scenario": 3,
+        "result": "CASE reset-empty-clean-ranges repaired=1 after_reset_index_count=0 rebuilt_index_count=0 populated_indexes=0 guard=0 reason=none vertex_span=1 index_span=1 uniform_span=1 surface_span=1 other_bad_spans=0 hit=-1"
+      }
+    ],
+    "focused_tests": 15,
+    "focused_result": "PASS",
+    "compiler": "MSVC 14.44.35207 x64 C++17 /W4 /WX /UNDEBUG",
+    "retained_evidence": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\independent-collision\\repaired-cpu-reviewed\\evidence.json",
+      "bytes": 12398,
+      "sha256": "a60a046bd666c3e68106413f27ca12b6eaff09246c3b4b1900c617eb34a0cbdb"
+    },
+    "focused_log": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\independent-collision\\focused-gate-reviewed.log",
+      "bytes": 3438,
+      "sha256": "d045975f7b23e55b3f105e718da52c2330787cc16f8ec6fb7e16e3d27278b899"
+    },
+    "earlier_warning": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\20261012\\offline-shadow-20261012\\independent-collision\\repaired-cpu-first.log",
+      "bytes": 2118,
+      "sha256": "eb51bb86700bcc0bf48b0705a95d87d0c64f16c4b6f36764442cc98a478b4359"
+    },
+    "earlier_warning_disposition": "Fixture-only static byte sink was unused in pointer variant; make sink external rather than disabling warnings. Original failure retained."
+  },
+  "independent_review": {
+    "source_reviewer": "independent_review subagent",
+    "result": "No blocking issue within existing caller contract; final integrated review remains required."
+  },
+  "lifecycle_contract": "Recreate collision after Reset before next query/Update/publication; query ordinary geometry only after collision Update. No arbitrary mutation-to-Update queries supported.",
+  "evidence_class": "synthetic minimized lifecycle reproducer executing production functions with bounded stubs",
+  "limits": [
+    "No actual failed runtime graph reconstruction",
+    "No Vulkan device or GPU execution",
+    "Scalar query implementation with vector/backend shape stubs",
+    "Logical guards stop before stale backing or invalid source-span access",
+    "Legal forced relocations quarantine old bytes",
+    "CPU upload source extents/planning do not establish submitted or GPU-consumed bytes",
+    "No performance measurement or optimization claim"
+  ],
+  "physical_fault_causality": "UNDETERMINED",
+  "physical_stop_active": true,
+  "physical_resume_authorized": false,
+  "issues_to_keep_open": [
+    8,
+    9,
+    10
+  ],
+  "ci_merge_status": "PENDING_ROOT_INTEGRATION_REQUIRED_CHECKS_AND_EXACT_MASTER_VERIFICATION"
+}

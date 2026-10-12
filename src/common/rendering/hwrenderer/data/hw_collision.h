@@ -115,6 +115,9 @@ private:
 	int Subdivide(int* instances, int numInstances, const FVector4* centroids, int* workBuffer);
 	std::unique_ptr<CPUBottomLevelAccelStruct> CreateBLAS(int indexStart, int indexCount);
 	void Upload();
+	void DumpSnapshot(unsigned int phase);
+	unsigned int SnapshotObjectId = 0;
+	void RebindMeshData();
 
 	LevelMesh* Mesh = nullptr;
 
@@ -141,6 +144,9 @@ private:
 	std::vector<std::unique_ptr<CPUBottomLevelAccelStruct>> DynamicBLAS;
 	int IndexesPerBLAS = 0;
 	int InstanceCount = 0;
+	const FFlatVertex* VertexData = nullptr;
+	const unsigned int* IndexData = nullptr;
+	int VertexCount = 0;
 
 	AccelStructScratchBuffer Scratch;
 };
@@ -159,6 +165,12 @@ public:
 	const CollisionBBox &GetBBox() const { return nodes[root].aabb; }
 
 	TraceHit FindFirstHit(const FVector3 &ray_start, const FVector3 &ray_end);
+	void RebindMeshData(const FFlatVertex* newVertices, int newVertexCount, const unsigned int* newElements)
+	{
+		vertices = newVertices;
+		num_vertices = newVertexCount;
+		elements = newElements;
+	}
 
 	struct Node
 	{
@@ -179,7 +191,7 @@ public:
 
 private:
 	const FFlatVertex* vertices = nullptr;
-	const int num_vertices = 0;
+	int num_vertices = 0;
 	const unsigned int *elements = nullptr;
 	int num_elements = 0;
 

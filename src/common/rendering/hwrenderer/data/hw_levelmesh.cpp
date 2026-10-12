@@ -43,6 +43,20 @@ void LevelMesh::Reset()
 
 	Mesh.Indexes.Clear();
 	Mesh.SurfaceIndexes.Clear();
+	Mesh.IndexCount = 0;
+
+	// Pending spans describe the old populated arrays and cannot survive reset.
+	// Node/portal storage is retained; collision recreation republishes its nodes.
+	UploadRanges.Vertex.Clear();
+	UploadRanges.UniformIndexes.Clear();
+	UploadRanges.Index.Clear();
+	UploadRanges.SurfaceIndex.Clear();
+	UploadRanges.Surface.Clear();
+	UploadRanges.Uniforms.Clear();
+	UploadRanges.LightUniforms.Clear();
+	UploadRanges.Light.Clear();
+	UploadRanges.LightIndex.Clear();
+	UploadRanges.DynLight.Clear();
 
 	FreeLists.Vertex.Reset(Mesh.Vertices.Size());
 	FreeLists.Index.Reset(Mesh.Indexes.Size());

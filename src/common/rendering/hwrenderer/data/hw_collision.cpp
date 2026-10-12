@@ -27,12 +27,22 @@
 #include <algorithm>
 #include <functional>
 #include <cfloat>
+#ifndef SDVK_COLLISION_REPLAY_BUILD
+#include "hw_collision_snapshot.h"
+#include "m_argv.h"
+#include "i_system.h"
+#include <string>
+#endif
 #ifndef NO_SSE
 #include <immintrin.h>
 #endif
 
 CPUAccelStruct::CPUAccelStruct(LevelMesh* mesh) : Mesh(mesh)
 {
+	VertexData = Mesh->Mesh.Vertices.Data();
+	IndexData = Mesh->Mesh.Indexes.Data();
+	VertexCount = Mesh->Mesh.Vertices.Size();
+
 	// Find out how many segments we should split the map into
 	DynamicBLAS.resize(32);
 	IndexesPerBLAS = ((Mesh->Mesh.Indexes.size() + 2) / 3 / DynamicBLAS.size() + 1) * 3;
@@ -48,6 +58,7 @@ CPUAccelStruct::CPUAccelStruct(LevelMesh* mesh) : Mesh(mesh)
 
 	CreateTLAS();
 	Upload();
+	DumpSnapshot(0);
 }
 
 CPUAccelStruct::~CPUAccelStruct()
@@ -89,10 +100,34 @@ void CPUAccelStruct::FindFirstHit(const RayBBox& ray, int a, TraceHit* hit)
 
 extern cycle_t DynamicBLASTime;
 
+void CPUAccelStruct::RebindMeshData()
+{
+	const auto* vertices = Mesh->Mesh.Vertices.Data();
+	const auto* indexes = Mesh->Mesh.Indexes.Data();
+	int vertexCount = Mesh->Mesh.Vertices.Size();
+	if (vertices == VertexData && indexes == IndexData && vertexCount == VertexCount)
+		return;
+
+	// TArray growth preserves element identities but may relocate backing data.
+	// Unchanged BLAS trees keep their bounds/triangles and must use current storage.
+	for (int instance = 0; instance < InstanceCount; instance++)
+	{
+		if (DynamicBLAS[instance])
+			DynamicBLAS[instance]->RebindMeshData(vertices, vertexCount, indexes + instance * IndexesPerBLAS);
+	}
+	VertexData = vertices;
+	IndexData = indexes;
+	VertexCount = vertexCount;
+}
+
 void CPUAccelStruct::Update()
 {
+	RebindMeshData();
 	if (Mesh->UploadRanges.Index.GetRanges().Size() == 0)
+	{
+		DumpSnapshot(2);
 		return;
+	}
 
 	DynamicBLASTime.ResetAndClock();
 	InstanceCount = (Mesh->Mesh.IndexCount + IndexesPerBLAS - 1) / IndexesPerBLAS;
@@ -145,6 +180,96 @@ void CPUAccelStruct::Update()
 
 	CreateTLAS();
 	Upload();
+	DumpSnapshot(1);
+}
+
+void CPUAccelStruct::DumpSnapshot(unsigned int phase)
+{
+#ifndef SDVK_COLLISION_REPLAY_BUILD
+	// Explicit offline-diagnostic option. Ordinary runs perform no serialization.
+	static const char* prefix = Args ? Args->CheckValue("-sdvkcollisionsnapshot") : nullptr;
+	if (!prefix) return;
+	if (screen->IsRayQueryEnabled()) I_FatalError("Collision snapshot requires software collision export");
+	static unsigned int nextObject = 0, nextEvent = 0;
+	if (!SnapshotObjectId) SnapshotObjectId = ++nextObject;
+	const unsigned int event = ++nextEvent;
+	const std::string path = std::string(prefix) + "-" + std::to_string(event) + ".bin";
+	CollisionSnapshotFile file(path.c_str());
+	if (!file.IsOpen()) I_FatalError("Could not create collision snapshot %s", path.c_str());
+	static_assert(sizeof(FFlatVertex) == 32 && sizeof(CollisionNode) == 48, "collision shader ABI changed");
+	if (Mesh->Mesh.IndexCount < 0 || static_cast<size_t>(Mesh->Mesh.IndexCount) > Mesh->Mesh.Indexes.size() || Mesh->Mesh.IndexCount % 3)
+		I_FatalError("Invalid collision snapshot occupied index extent");
+	std::vector<unsigned char> referenced(Mesh->Mesh.Vertices.Size(), 0);
+	unsigned int referencedCount = 0, blasNodeCount = 0;
+	for (int i = 0; i < Mesh->Mesh.IndexCount; i += 3)
+	{
+		if (Mesh->Mesh.Indexes[i] == Mesh->Mesh.Indexes[i + 1]) continue;
+		for (int j = 0; j < 3; j++)
+		{
+			const auto vertex = Mesh->Mesh.Indexes[i + j];
+			if (vertex >= referenced.size()) I_FatalError("Invalid collision snapshot vertex reference");
+			if (!referenced[vertex]) { referenced[vertex] = 1; referencedCount++; }
+		}
+	}
+	for (const auto& blas : DynamicBLAS) if (blas) blasNodeCount += static_cast<unsigned int>(blas->GetNodes().size());
+	const unsigned int exportedCount = std::max(1u, static_cast<unsigned int>(TLAS.Nodes.size()) + blasNodeCount);
+	file.Bytes("SDVKCL01", 8);
+	for (unsigned int value : { 1u, event, SnapshotObjectId, phase, 32u,
+		Mesh->Mesh.Vertices.Size(), Mesh->Mesh.Indexes.Size(), static_cast<unsigned int>(Mesh->Mesh.IndexCount),
+		static_cast<unsigned int>(IndexesPerBLAS), static_cast<unsigned int>(InstanceCount),
+		static_cast<unsigned int>(DynamicBLAS.size()), static_cast<unsigned int>(TLAS.Nodes.size()),
+		static_cast<unsigned int>(TLAS.Root), Mesh->Mesh.Nodes.Size(), static_cast<unsigned int>(Mesh->Mesh.RootNode), 11u }) file.UInt(value);
+	file.Section("VERT", referencedCount, 16);
+	for (unsigned int i = 0; i < referenced.size(); i++) if (referenced[i])
+	{
+		file.UInt(i);
+		file.Float(Mesh->Mesh.Vertices[i].x); file.Float(Mesh->Mesh.Vertices[i].z); file.Float(Mesh->Mesh.Vertices[i].y);
+	}
+	file.Section("INDX", static_cast<unsigned int>(Mesh->Mesh.IndexCount), 4);
+	for (int i = 0; i < Mesh->Mesh.IndexCount; i++) file.UInt(Mesh->Mesh.Indexes[i]);
+	auto ranges = [&file](const char* tag, const auto& items)
+	{
+		file.Section(tag, static_cast<unsigned int>(items.size()), 8);
+		for (const auto& range : items) { file.Int(range.Start); file.Int(range.End); }
+	};
+	ranges("VFRE", Mesh->FreeLists.Vertex.GetFreeRanges());
+	ranges("IFRE", Mesh->FreeLists.Index.GetFreeRanges());
+	ranges("VDIR", Mesh->UploadRanges.Vertex.GetRanges());
+	ranges("IDIR", Mesh->UploadRanges.Index.GetRanges());
+	ranges("NDIR", Mesh->UploadRanges.Node.GetRanges());
+	auto treeNode = [&file](const auto& node, int identity)
+	{
+		for (const auto& v : { node.aabb.min, node.aabb.max, node.aabb.Center, node.aabb.Extents })
+		{ file.Float(v.X); file.Float(v.Y); file.Float(v.Z); }
+		file.Int(node.left); file.Int(node.right); file.Int(identity);
+	};
+	file.Section("TLAS", static_cast<unsigned int>(TLAS.Nodes.size()), 60);
+	for (const auto& node : TLAS.Nodes) treeNode(node, node.blas_index);
+	file.Section("SLOT", static_cast<unsigned int>(DynamicBLAS.size()), 20);
+	unsigned int nodeStart = 0;
+	for (unsigned int i = 0; i < DynamicBLAS.size(); i++)
+	{
+		const auto& blas = DynamicBLAS[i];
+		const auto count = blas ? static_cast<unsigned int>(blas->GetNodes().size()) : 0u;
+		file.UInt(i); file.Int(blas ? blas->GetRoot() : -1); file.UInt(nodeStart); file.UInt(count); file.UInt(i * IndexesPerBLAS);
+		nodeStart += count;
+	}
+	file.Section("BLAS", blasNodeCount, 60);
+	for (const auto& blas : DynamicBLAS) if (blas)
+		for (const auto& node : blas->GetNodes()) treeNode(node, node.element_index);
+	file.Section("NODE", exportedCount, 36);
+	if (exportedCount > Mesh->Mesh.Nodes.Size()) I_FatalError("Collision snapshot export exceeds node backing extent");
+	for (unsigned int i = 0; i < exportedCount; i++)
+	{
+		const auto& node = Mesh->Mesh.Nodes[i];
+		file.Float(node.center.X); file.Float(node.center.Y); file.Float(node.center.Z);
+		file.Float(node.extents.X); file.Float(node.extents.Y); file.Float(node.extents.Z);
+		file.Int(node.left); file.Int(node.right); file.Int(node.element_index);
+	}
+	if (!file.Finish()) I_FatalError("Incomplete collision snapshot %s", path.c_str());
+#else
+	(void)phase;
+#endif
 }
 
 std::unique_ptr<CPUBottomLevelAccelStruct> CPUAccelStruct::CreateBLAS(int indexStart, int indexCount)
