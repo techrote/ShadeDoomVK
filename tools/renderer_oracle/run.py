@@ -44,6 +44,14 @@ def preparation_module():
     return prepare
 
 
+def publication_module():
+    try:
+        from . import sdvk009_publication
+    except ImportError:
+        import sdvk009_publication
+    return sdvk009_publication
+
+
 def utc():
     return datetime.datetime.now(datetime.timezone.utc).isoformat()
 
@@ -313,6 +321,9 @@ def capture(args):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
             profile["collision_snapshot"] = "production-cpu-state; no submitted-GPU-byte claim"
+        diagnostics, process_environment = None, None
+        if getattr(args, "publication_witness", False):
+            diagnostics, process_environment = publication_module().capture_diagnostics(args, out)
         env_keys = ("VK_ICD_FILENAMES", "VK_DRIVER_FILES", "VK_INSTANCE_LAYERS", "VK_LAYER_PATH", "DISPLAY",
                     "WAYLAND_DISPLAY", "SDL_VIDEODRIVER", "LP_NUM_THREADS", "OMP_NUM_THREADS",
                     "MESA_SHADER_CACHE_DISABLE", "MESA_SHADER_CACHE_DIR", "MESA_LOADER_DRIVER_OVERRIDE",
@@ -325,10 +336,15 @@ def capture(args):
                        "iwad_artifact": "input/" + iwad.name,
                        "environment": {key: os.environ[key] for key in env_keys if key in os.environ},
                        "host": host_profile(), "automatic_retries": 0}
+        if diagnostics is not None:
+            preregister["diagnostics"] = diagnostics
+            preregister["environment"].update({key: process_environment[key] for key in
+                ("CFX_TRACE_FILE", "CFX_RUN_ID", "CFX_RESOURCE_TRACE", "CFX_WITNESS_DIR")})
         write_json(out / "request.json", preregister)
         start = time.monotonic()
         with (out / "stdout.log").open("xb") as stdout, (out / "stderr.log").open("xb") as stderr:
-            process = subprocess.run(argv, cwd=out, stdout=stdout, stderr=stderr, timeout=args.timeout, check=False)
+            process = subprocess.run(argv, cwd=out, stdout=stdout, stderr=stderr, timeout=args.timeout,
+                                     check=False, **({"env": process_environment} if diagnostics is not None else {}))
         elapsed = time.monotonic() - start
         require(process.returncode == 0, f"Native process exited {process.returncode}")
         text = (out / "stdout.log").read_text(encoding="utf-8", errors="replace")
@@ -346,6 +362,8 @@ def capture(args):
         require(raw["warmup_frames"] == warmup and raw["gpu_timing_requested"] is args.gpu,
                 "Actual observer warmup/GPU timing mode differs from preregistration")
         _scene_assertions(raw, scene)
+        if diagnostics is not None:
+            publication_module().validate_capture_diagnostics(out, preregister)
         if mode == "state":
             extent, pixels = images.decode(out / "native.png")
             require(list(extent) == profile["extent"] and raw["screenshot"]["available"] is True,
@@ -710,6 +728,8 @@ def _validate_run(path):
     structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
+    if "diagnostics" in request:
+        publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":
         require("native.png" in artifacts, "State capture has no image")
         require(raw["screenshot"]["available"] is True, "Native state capture did not produce its image")

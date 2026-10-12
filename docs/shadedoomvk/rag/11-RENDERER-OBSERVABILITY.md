@@ -203,3 +203,30 @@ authored TEXTMAP also does not pin its BSP/cache or warmup allocation history.
 Passing replay/software correctness does not establish physical equivalence,
 GPU consumption, TDR causality or permission to resume. Hardware STOP remains
 active and #8/#9/#10 remain open.
+
+### Bound publication witness and matching-content software protocol
+
+`CFX_WITNESS_DIR` is an additional bounded opt-in channel alongside CFX resource
+tracing. It records typed recorded command state, exact pipeline stage inputs,
+publication/allocation generations and post-use readback identity. The existing
+observer emits begin/end/present records for all 120 warmup frames and the one
+retained state frame, so process startup cannot be mislabeled as warmup coverage.
+Completion is explicit after the ordinary screenshot and normal waits; missing
+records, writer failure, exhausted bounds, pending commands or a missing exclusive
+completion marker fail qualification. The original SDVKCL01 snapshot stays intact.
+
+`tools/renderer_oracle/sdvk009_publication.py` collects four serial fresh hosted
+CPU llvmpipe processes: compositing control, shadow control, then two shadow
+witnesses. Each uses 640x480, 120 warmup, one retained state/RGB frame and no GPU
+timing. The official Freedoom 0.13.0 IWAD and authored scene/configuration bytes
+must match the historical pins before launch. The separately preregistered
+software timeout is 600 seconds per process, with no automatic retry or later
+threshold relaxation. A failure stops dependent stages and retains raw output.
+
+The read-only validator joins the complete packet and requires the existing
+exact RGB/semantic state match against the uninstrumented shadow control. Copied
+negative receipts exercise missing coverage, stale generations, wrong bytes,
+wrong offsets and completion/order failures without submitting invalid GPU work.
+These are software publication observations, not physical graph equivalence,
+historical shader-load visibility or root-cause attribution. See the
+[evidence contract](../SDVK-009-BOUND-PUBLICATION-WITNESS.md).

@@ -3,8 +3,10 @@
 
 #include "zvulkan/vulkanobjects.h"
 #include "hw_levelmesh.h"
+#include "hw_collision_readback.h"
 #include "common/utility/matrix.h"
 #include <map>
+#include <cstddef>
 
 class VulkanRenderDevice;
 class ShaderIncludeResult;
@@ -21,6 +23,11 @@ struct CollisionNodeBufferHeader
 static_assert(sizeof(CollisionNodeBufferHeader) == sizeof(int) * 4, "Collision node buffer header must match std430 shader layout");
 static_assert(sizeof(CollisionNode) == sizeof(float) * 12, "CollisionNode must match shaders/binding_struct_definitions.glsl std430 layout");
 static_assert(sizeof(FFlatVertex) == sizeof(float) * 8, "FFlatVertex must match shader SurfaceVertex std430 layout");
+static_assert(offsetof(CollisionNode, center) == 0 && offsetof(CollisionNode, extents) == 16 &&
+	offsetof(CollisionNode, left) == 32 && offsetof(CollisionNode, right) == 36 &&
+	offsetof(CollisionNode, element_index) == 40, "Collision semantic readback offsets must match shader layout");
+static_assert(offsetof(FFlatVertex, x) == 0 && offsetof(FFlatVertex, z) == 4 && offsetof(FFlatVertex, y) == 8,
+	"Collision position readback must exclude non-position vertex fields");
 
 struct SurfaceInfo
 {
@@ -100,6 +107,7 @@ public:
 	VulkanBuffer* GetLightIndexBuffer() { return LightIndexBuffer.get(); }
 
 	LevelMesh* GetMesh() { return Mesh; }
+	CollisionReadback::Plan CreatePostUseReadbackPlan() const;
 
 private:
 	struct BLAS

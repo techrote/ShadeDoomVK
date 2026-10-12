@@ -1043,3 +1043,29 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   witness remain separate gates. Physical STOP remains active; root cause is
   UNDETERMINED and #8/#9/#10 stay open.
 
+### 12 October 2026 — SDVK-009 bound publication witness candidate
+
+- Live continuation reconciles the user's exact #9 checkpoint with merged
+  `master@0c0332c47584f2f9d1a49290829b40e43b0d7c7a`, tree
+  `f2a6b87612032e070e4694b01010852ccfe1de51`, green source/all nine post-merge CI
+  jobs and no open PR. The dedicated candidate branch is
+  `sdvk009-bound-publication-witness-20261012`.
+- The optional bounded channel joins existing CPU snapshot/staging/copy and
+  allocation identities to actual typed descriptor/pipeline command state,
+  exact SPIR-V/specialization/library inputs and defined-field post-use readback.
+  Copies append to the same ordinary submission; map/invalidate/export follows
+  its existing successful fence. Diagnostic failure cannot shorten submitted
+  resource lifetime. Existing CFX caps, shader semantics and workloads remain.
+- The [prospective software protocol](SDVK-009-BOUND-PUBLICATION-WITNESS.md)
+  pins the historical Freedoom/content bytes, 640x480, 120 warmup and one retained
+  state/RGB frame in four serial control/witness processes, a 600-second
+  software-only timeout, immutable failed receipts and no automatic retries.
+  CPU and copied-artifact negatives exercise unknown, omitted, stale, malformed
+  and prematurely completed evidence. Hosted qualification and required CI are
+  not predeclared passing; exact run/review disposition belongs in the PR/#9.
+- The code review distinguishes identity/lifetime proof from historical GPU
+  causality: a successful after-use readback cannot establish what every earlier
+  shader load observed. No renderer or Vulkan device is run in the coding
+  environment. Private incident packets remain unavailable here, physical STOP
+  remains active, root cause remains UNDETERMINED, and #8/#9/#10 stay open.
+

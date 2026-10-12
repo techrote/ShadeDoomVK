@@ -15,6 +15,10 @@
 
 namespace CfxTrace
 {
+inline bool WitnessEnabled();
+inline void WitnessMark(const char* event, const char* detail);
+inline void WitnessObject(const char* event, const char* kind, uint64_t id, uint64_t handle, uint64_t size = 0);
+inline void WitnessUpload(uint64_t srcId, uint64_t dstId, uint64_t srcOffset, uint64_t dstOffset, const void* bytes, uint64_t size);
 struct TraceState
 {
 	std::mutex mutex;
@@ -106,6 +110,7 @@ inline void ResourceMark(const char* event, const char* detail)
 inline void Object(const char* event, const char* kind, uint64_t id, uint64_t handle, uint64_t size = 0, const char* name = "")
 {
 	if (!ResourcesEnabled()) return;
+	WitnessObject(event, kind, id, handle, size);
 	char detail[320];
 	std::snprintf(detail, sizeof(detail), "kind=%s id=%llu handle=0x%llx bytes=%llu name=%.120s",
 		kind, (unsigned long long)id, (unsigned long long)handle, (unsigned long long)size, name);
@@ -113,6 +118,7 @@ inline void Object(const char* event, const char* kind, uint64_t id, uint64_t ha
 }
 inline void Upload(uint64_t srcId, uint64_t dstId, uint64_t srcOffset, uint64_t dstOffset, const void* bytes, uint64_t size)
 {
+	WitnessUpload(srcId, dstId, srcOffset, dstOffset, bytes, size);
 	if (!ResourceRecord()) return;
 	// Full FNV-1a byte fingerprint, not a cryptographic/content identity. Never sample
 	// an over-budget upload and label it complete. Reserve before dereferencing bytes.
@@ -156,3 +162,5 @@ private:
 	const char* previous;
 };
 }
+
+#include "cfxwitness.h"

@@ -3,6 +3,7 @@
 #include <zvulkan/vulkandevice.h>
 #include <zvulkan/vulkanobjects.h>
 #include "zstring.h"
+#include "hw_collision_readback.h"
 
 class VulkanRenderDevice;
 
@@ -25,6 +26,7 @@ public:
 
 	void WaitForCommands(bool finish) { WaitForCommands(finish, false); }
 	void WaitForCommands(bool finish, bool uploadOnly);
+	void FinishPublicationWitness();
 
 	bool PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name);
 	void PopGroup(VulkanCommandBuffer* cmdbuffer);
@@ -75,6 +77,17 @@ public:
 
 private:
 	void FlushCommands(VulkanCommandBuffer** commands, size_t count, bool finish, bool lastsubmit);
+	struct CollisionPublicationReadback
+	{
+		uint64_t Id = 0;
+		CollisionReadback::Plan Plan;
+		std::array<VulkanBuffer*, 3> Sources = {};
+		std::unique_ptr<VulkanBuffer> Staging;
+		std::unique_ptr<VulkanCommandBuffer> Commands;
+		CollisionReadback::Completion Completion;
+	};
+	std::unique_ptr<CollisionPublicationReadback> RecordCollisionReadback();
+	void FinishCollisionReadback(unsigned int slot);
 
 	VulkanRenderDevice* fb = nullptr;
 
@@ -88,6 +101,11 @@ private:
 	std::unique_ptr<VulkanSemaphore> mSubmitSemaphore[maxConcurrentSubmitCount];
 	std::unique_ptr<VulkanFence> mSubmitFence[maxConcurrentSubmitCount];
 	VkFence mSubmitWaitFences[maxConcurrentSubmitCount];
+	uint64_t mWitnessSubmissions[maxConcurrentSubmitCount] = {};
+	std::unique_ptr<CollisionPublicationReadback> mCollisionReadbacks[maxConcurrentSubmitCount];
+	std::unique_ptr<CollisionPublicationReadback> mRecordedCollisionReadback;
+	uint32_t mCollisionReadbackCount = 0;
+	uint64_t mCollisionReadbackBytes = 0;
 	int mNextSubmit = 0;
 	struct DiagnosticCheckpoint { char name[96]; };
 	std::vector<std::unique_ptr<DiagnosticCheckpoint>> mCheckpoints;

@@ -184,6 +184,7 @@ public:
 	void SetDebugName(const char *name) { device->SetObjectName(name, (uint64_t)module, VK_OBJECT_TYPE_SHADER_MODULE); }
 
 	VkShaderModule module = VK_NULL_HANDLE;
+	CfxTrace::WitnessShader witness;
 
 private:
 	VulkanDevice *device = nullptr;
@@ -225,6 +226,7 @@ public:
 	VulkanDescriptorPool *pool;
 	VkDescriptorSet set;
 	uint64_t diagnosticId = 0;
+	std::shared_ptr<CfxTrace::WitnessDescriptor> witness;
 
 private:
 	VulkanDescriptorSet(const VulkanDescriptorSet &) = delete;
@@ -312,6 +314,8 @@ public:
 
 	VulkanDevice *device;
 	VkPipeline pipeline;
+	uint64_t diagnosticId = 0;
+	std::shared_ptr<CfxTrace::WitnessPipeline> witness;
 
 private:
 	VulkanPipeline(const VulkanPipeline &) = delete;
@@ -328,6 +332,7 @@ public:
 
 	VulkanDevice *device;
 	VkPipelineLayout layout;
+	uint64_t diagnosticId = 0;
 
 private:
 	VulkanPipelineLayout(const VulkanPipelineLayout &) = delete;
@@ -463,9 +468,11 @@ public:
 
 	VkCommandBuffer buffer = nullptr;
 	uint64_t diagnosticId = 0;
+	uint64_t diagnosticRecording = 0;
 
 private:
 	VulkanCommandPool *pool = nullptr;
+	CfxTrace::WitnessCommand witness;
 
 	VulkanCommandBuffer(const VulkanCommandBuffer &) = delete;
 	VulkanCommandBuffer &operator=(const VulkanCommandBuffer &) = delete;
@@ -680,12 +687,28 @@ inline void VulkanCommandBuffer::begin()
 
 	VkResult result = vkBeginCommandBuffer(buffer, &beginInfo);
 	pool->device->CheckVulkanError(result, "Could not begin recording command buffer");
+	if (CfxTrace::WitnessEnabled())
+	{
+		++diagnosticRecording;
+		witness.Begin();
+		char detail[160];
+		std::snprintf(detail, sizeof(detail), "cmd_id=%llu recording=%llu frame=%llu", (unsigned long long)diagnosticId,
+			(unsigned long long)diagnosticRecording, (unsigned long long)CfxTrace::State().frame.load());
+		CfxTrace::WitnessMark("command-begin", detail);
+	}
 }
 
 inline void VulkanCommandBuffer::end()
 {
 	VkResult result = vkEndCommandBuffer(buffer);
 	pool->device->CheckVulkanError(result, "Could not end command buffer recording");
+	if (CfxTrace::WitnessEnabled())
+	{
+		char detail[160];
+		std::snprintf(detail, sizeof(detail), "cmd_id=%llu recording=%llu ordinal=%llu", (unsigned long long)diagnosticId,
+			(unsigned long long)diagnosticRecording, (unsigned long long)witness.ordinal);
+		CfxTrace::WitnessMark("command-end", detail);
+	}
 }
 
 inline void VulkanCommandBuffer::debugFullPipelineBarrier()
@@ -730,12 +753,14 @@ inline void VulkanCommandBuffer::debugFullPipelineBarrier()
 
 inline void VulkanCommandBuffer::bindPipeline(VkPipelineBindPoint pipelineBindPoint, VulkanPipeline *pipeline)
 {
-	bindPipeline(pipelineBindPoint, pipeline->pipeline);
+	vkCmdBindPipeline(buffer, pipelineBindPoint, pipeline->pipeline);
+	witness.BindPipeline(diagnosticId, diagnosticRecording, (uint32_t)pipelineBindPoint, pipeline->witness);
 }
 
 inline void VulkanCommandBuffer::bindPipeline(VkPipelineBindPoint pipelineBindPoint, VkPipeline pipeline)
 {
 	vkCmdBindPipeline(buffer, pipelineBindPoint, pipeline);
+	witness.BindPipeline(diagnosticId, diagnosticRecording, (uint32_t)pipelineBindPoint, {});
 }
 
 inline void VulkanCommandBuffer::setViewport(uint32_t firstViewport, uint32_t viewportCount, const VkViewport* pViewports)
@@ -785,12 +810,21 @@ inline void VulkanCommandBuffer::setStencilReference(VkStencilFaceFlags faceMask
 
 inline void VulkanCommandBuffer::bindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VulkanPipelineLayout *layout, uint32_t setIndex, VulkanDescriptorSet *descriptorSet, uint32_t dynamicOffsetCount, const uint32_t* pDynamicOffsets)
 {
-	bindDescriptorSets(pipelineBindPoint, layout->layout, setIndex, 1, &descriptorSet->set, dynamicOffsetCount, pDynamicOffsets);
+	vkCmdBindDescriptorSets(buffer, pipelineBindPoint, layout->layout, setIndex, 1, &descriptorSet->set, dynamicOffsetCount, pDynamicOffsets);
+	witness.BindSet(diagnosticId, diagnosticRecording, (uint32_t)pipelineBindPoint, layout->diagnosticId,
+		setIndex, descriptorSet->witness, dynamicOffsetCount, pDynamicOffsets);
 }
 
 inline void VulkanCommandBuffer::bindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, uint32_t firstSet, uint32_t descriptorSetCount, const VkDescriptorSet* pDescriptorSets, uint32_t dynamicOffsetCount, const uint32_t* pDynamicOffsets)
 {
 	vkCmdBindDescriptorSets(buffer, pipelineBindPoint, layout, firstSet, descriptorSetCount, pDescriptorSets, dynamicOffsetCount, pDynamicOffsets);
+	if (CfxTrace::WitnessEnabled())
+	{
+		if (firstSet >= CfxTrace::WitnessSetLimit || descriptorSetCount > CfxTrace::WitnessSetLimit - firstSet)
+			CfxTrace::WitnessFail("raw-descriptor-set-range");
+		else for (uint32_t i = 0; i < descriptorSetCount; ++i)
+			witness.BindSet(diagnosticId, diagnosticRecording, (uint32_t)pipelineBindPoint, 0, firstSet + i, {}, 0, nullptr);
+	}
 }
 
 inline void VulkanCommandBuffer::bindIndexBuffer(VkBuffer buffer, VkDeviceSize offset, VkIndexType indexType)
@@ -806,31 +840,52 @@ inline void VulkanCommandBuffer::bindVertexBuffers(uint32_t firstBinding, uint32
 inline void VulkanCommandBuffer::draw(uint32_t vertexCount, uint32_t instanceCount, uint32_t firstVertex, uint32_t firstInstance)
 {
 	vkCmdDraw(buffer, vertexCount, instanceCount, firstVertex, firstInstance);
+	if (CfxTrace::WitnessEnabled())
+	{
+		char detail[150];
+		std::snprintf(detail, sizeof(detail), "vertices=%u instances=%u first_vertex=%u first_instance=%u", vertexCount, instanceCount, firstVertex, firstInstance);
+		witness.Consume(diagnosticId, diagnosticRecording, VK_PIPELINE_BIND_POINT_GRAPHICS, "draw", detail);
+	}
 }
 
 inline void VulkanCommandBuffer::drawIndexed(uint32_t indexCount, uint32_t instanceCount, uint32_t firstIndex, int32_t vertexOffset, uint32_t firstInstance)
 {
 	vkCmdDrawIndexed(buffer, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+	if (CfxTrace::WitnessEnabled())
+	{
+		char detail[180];
+		std::snprintf(detail, sizeof(detail), "indices=%u instances=%u first_index=%u vertex_offset=%d first_instance=%u", indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
+		witness.Consume(diagnosticId, diagnosticRecording, VK_PIPELINE_BIND_POINT_GRAPHICS, "draw-indexed", detail);
+	}
 }
 
 inline void VulkanCommandBuffer::drawIndirect(VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
 {
 	vkCmdDrawIndirect(this->buffer, buffer, offset, drawCount, stride);
+	witness.Consume(diagnosticId, diagnosticRecording, VK_PIPELINE_BIND_POINT_GRAPHICS, "draw-indirect", "arguments=unavailable");
 }
 
 inline void VulkanCommandBuffer::drawIndexedIndirect(VkBuffer buffer, VkDeviceSize offset, uint32_t drawCount, uint32_t stride)
 {
 	vkCmdDrawIndexedIndirect(this->buffer, buffer, offset, drawCount, stride);
+	witness.Consume(diagnosticId, diagnosticRecording, VK_PIPELINE_BIND_POINT_GRAPHICS, "draw-indexed-indirect", "arguments=unavailable");
 }
 
 inline void VulkanCommandBuffer::dispatch(uint32_t x, uint32_t y, uint32_t z)
 {
 	vkCmdDispatch(buffer, x, y, z);
+	if (CfxTrace::WitnessEnabled())
+	{
+		char detail[100];
+		std::snprintf(detail, sizeof(detail), "x=%u y=%u z=%u", x, y, z);
+		witness.Consume(diagnosticId, diagnosticRecording, VK_PIPELINE_BIND_POINT_COMPUTE, "dispatch", detail);
+	}
 }
 
 inline void VulkanCommandBuffer::dispatchIndirect(VkBuffer buffer, VkDeviceSize offset)
 {
 	vkCmdDispatchIndirect(this->buffer, buffer, offset);
+	witness.Consume(diagnosticId, diagnosticRecording, VK_PIPELINE_BIND_POINT_COMPUTE, "dispatch-indirect", "arguments=unavailable");
 }
 
 inline void VulkanCommandBuffer::copyBuffer(VulkanBuffer *srcBuffer, VulkanBuffer *dstBuffer, VkDeviceSize srcOffset, VkDeviceSize dstOffset, VkDeviceSize size)
@@ -846,6 +901,12 @@ inline void VulkanCommandBuffer::copyBuffer(VulkanBuffer *srcBuffer, VulkanBuffe
 			(unsigned long long)diagnosticId, (void*)buffer, (unsigned long long)srcBuffer->diagnosticId,
 			(unsigned long long)dstBuffer->diagnosticId, (unsigned long long)srcOffset, (unsigned long long)dstOffset, (unsigned long long)region.size);
 		CfxTrace::ResourceMark("buffer-copy-recorded", line);
+		char witnessLine[420];
+		std::snprintf(witnessLine, sizeof(witnessLine), "cmd_id=%llu recording=%llu src_id=%llu dst_id=%llu src_offset=%llu dst_offset=%llu bytes=%llu",
+			(unsigned long long)diagnosticId, (unsigned long long)diagnosticRecording,
+			(unsigned long long)srcBuffer->diagnosticId, (unsigned long long)dstBuffer->diagnosticId,
+			(unsigned long long)srcOffset, (unsigned long long)dstOffset, (unsigned long long)region.size);
+		CfxTrace::WitnessMark("buffer-copy-recorded", witnessLine);
 	}
 	copyBuffer(srcBuffer->buffer, dstBuffer->buffer, 1, &region);
 }
@@ -1034,10 +1095,16 @@ inline void VulkanCommandBuffer::SetDebugName(const char *name)
 
 inline VulkanShader::VulkanShader(VulkanDevice *device, VkShaderModule module) : module(module), device(device)
 {
+	if (CfxTrace::WitnessEnabled())
+	{
+		witness.id = CfxTrace::NewResourceId();
+		CfxTrace::WitnessObject("resource-create", "shader", witness.id, (uint64_t)module);
+	}
 }
 
 inline VulkanShader::~VulkanShader()
 {
+	CfxTrace::WitnessObject("resource-destroy", "shader", witness.id, (uint64_t)module);
 	vkDestroyShaderModule(device->device, module, nullptr);
 }
 
@@ -1057,11 +1124,17 @@ inline VulkanDescriptorSetLayout::~VulkanDescriptorSetLayout()
 inline VulkanDescriptorSet::VulkanDescriptorSet(VulkanDevice *device, VulkanDescriptorPool *pool, VkDescriptorSet set) : device(device), pool(pool), set(set)
 {
 	diagnosticId = CfxTrace::NewResourceId();
+	if (CfxTrace::WitnessEnabled())
+	{
+		witness = std::make_shared<CfxTrace::WitnessDescriptor>();
+		witness->id = diagnosticId;
+	}
 	CfxTrace::Object("resource-create", "descriptor-set", diagnosticId, (uint64_t)set);
 }
 
 inline VulkanDescriptorSet::~VulkanDescriptorSet()
 {
+	if (witness) witness->alive.store(false);
 	CfxTrace::Object("resource-destroy", "descriptor-set", diagnosticId, (uint64_t)set);
 	vkFreeDescriptorSets(device->device, pool->pool, 1, &set);
 }
@@ -1224,10 +1297,19 @@ inline VulkanAccelerationStructure::~VulkanAccelerationStructure()
 
 inline VulkanPipeline::VulkanPipeline(VulkanDevice *device, VkPipeline pipeline) : device(device), pipeline(pipeline)
 {
+	if (CfxTrace::WitnessEnabled())
+	{
+		diagnosticId = CfxTrace::NewResourceId();
+		witness = std::make_shared<CfxTrace::WitnessPipeline>();
+		witness->id = diagnosticId;
+		CfxTrace::WitnessObject("resource-create", "pipeline", diagnosticId, (uint64_t)pipeline);
+	}
 }
 
 inline VulkanPipeline::~VulkanPipeline()
 {
+	if (witness) witness->alive.store(false);
+	CfxTrace::WitnessObject("resource-destroy", "pipeline", diagnosticId, (uint64_t)pipeline);
 	vkDestroyPipeline(device->device, pipeline, nullptr);
 }
 
@@ -1235,10 +1317,16 @@ inline VulkanPipeline::~VulkanPipeline()
 
 inline VulkanPipelineLayout::VulkanPipelineLayout(VulkanDevice *device, VkPipelineLayout layout) : device(device), layout(layout)
 {
+	if (CfxTrace::WitnessEnabled())
+	{
+		diagnosticId = CfxTrace::NewResourceId();
+		CfxTrace::WitnessObject("resource-create", "pipeline-layout", diagnosticId, (uint64_t)layout);
+	}
 }
 
 inline VulkanPipelineLayout::~VulkanPipelineLayout()
 {
+	CfxTrace::WitnessObject("resource-destroy", "pipeline-layout", diagnosticId, (uint64_t)layout);
 	vkDestroyPipelineLayout(device->device, layout, nullptr);
 }
 

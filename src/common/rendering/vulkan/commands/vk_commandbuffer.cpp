@@ -25,6 +25,7 @@
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/vk_renderstate.h"
 #include "vulkan/vk_postprocess.h"
+#include "vulkan/vk_levelmesh.h"
 #include "vulkan/framebuffers/vk_framebuffer.h"
 #include "vulkan/descriptorsets/vk_descriptorset.h"
 #include <zvulkan/vulkanswapchain.h>
@@ -32,6 +33,7 @@
 #include "hw_clock.h"
 #include "diagnostics/hw_sdvkdiagnostics.h"
 #include "v_video.h"
+#include "i_system.h"
 #include <cmath>
 
 extern int rendered_commandbuffers;
@@ -77,6 +79,139 @@ VkCommandBufferManager::VkCommandBufferManager(VulkanRenderDevice* fb) : fb(fb)
 
 VkCommandBufferManager::~VkCommandBufferManager()
 {
+	if (mRecordedCollisionReadback) CfxTrace::WitnessFail("unsubmitted-collision-readback-at-shutdown");
+	for (const auto& pending : mCollisionReadbacks)
+		if (pending) CfxTrace::WitnessFail("incomplete-collision-readback-at-shutdown");
+}
+
+std::unique_ptr<VkCommandBufferManager::CollisionPublicationReadback> VkCommandBufferManager::RecordCollisionReadback()
+{
+	try
+	{
+		using namespace CollisionReadback;
+		Require(CfxTrace::WitnessEnabled(), "readback-without-witness");
+		auto* mesh = fb->GetLevelMesh();
+		Require(mesh && mesh->GetMesh(), "readback-without-level-mesh");
+		auto pending = std::make_unique<CollisionPublicationReadback>();
+		pending->Plan = mesh->CreatePostUseReadbackPlan();
+		Require(mCollisionReadbackCount < MaxPlans && pending->Plan.Bytes <= MaxRunBytes - mCollisionReadbackBytes,
+			"readback-run-budget");
+		pending->Id = ++mCollisionReadbackCount;
+		mCollisionReadbackBytes += pending->Plan.Bytes;
+		pending->Sources = {{ mesh->GetNodeBuffer(), mesh->GetVertexBuffer(), mesh->GetIndexBuffer() }};
+		pending->Staging = BufferBuilder().Size(static_cast<size_t>(pending->Plan.Bytes))
+			.Usage(VK_BUFFER_USAGE_TRANSFER_DST_BIT, VMA_MEMORY_USAGE_GPU_TO_CPU)
+			.DebugName("CollisionPostUseReadback").Create(fb->GetDevice());
+		Require(pending->Staging && pending->Staging->diagnosticId, "readback-staging-allocation-unidentified");
+		pending->Commands = mCommandPool->createBuffer();
+		pending->Commands->SetDebugName("CollisionPostUseReadbackCommands");
+		pending->Commands->begin();
+		pending->Completion.Record(pending->Commands->diagnosticId, pending->Commands->diagnosticRecording);
+
+		// This separate command buffer is appended AFTER every ordinary transfer,
+		// draw and thread command in the existing submit. No new submit or wait is
+		// introduced. Buffer-scoped barriers order all preceding uses/publications.
+		PipelineBarrier()
+			.AddBuffer(pending->Sources[0], VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT, VK_ACCESS_TRANSFER_READ_BIT)
+			.AddBuffer(pending->Sources[1], VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT, VK_ACCESS_TRANSFER_READ_BIT)
+			.AddBuffer(pending->Sources[2], VK_ACCESS_TRANSFER_WRITE_BIT | VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_INDEX_READ_BIT, VK_ACCESS_TRANSFER_READ_BIT)
+			.Execute(pending->Commands.get(), VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT);
+
+		char detail[720];
+		const auto& plan = pending->Plan;
+		std::snprintf(detail, sizeof(detail), "readback_id=%llu snapshot_object=%u snapshot_event=%u exported_count=%u root=%d node_id=%llu vertex_id=%llu index_id=%llu staging_id=%llu cmd_id=%llu recording=%llu bytes=%llu ranges=%zu reachable_count=%zu occupied_count=%u referenced_count=%zu",
+			(unsigned long long)pending->Id, plan.State.Object, plan.State.Event, plan.State.ExportedCount, plan.State.Root,
+			(unsigned long long)plan.Sources[0].Id, (unsigned long long)plan.Sources[1].Id, (unsigned long long)plan.Sources[2].Id,
+			(unsigned long long)pending->Staging->diagnosticId, (unsigned long long)pending->Completion.Command,
+			(unsigned long long)pending->Completion.Recording, (unsigned long long)plan.Bytes, plan.Regions.size(),
+			plan.ReachableNodes.size(), plan.State.OccupiedCount, plan.ReferencedVertices.size());
+		CfxTrace::WitnessMark("postuse-plan", detail);
+		for (const auto& region : plan.Regions)
+		{
+			const auto source = static_cast<unsigned int>(region.Buffer);
+			std::snprintf(detail, sizeof(detail), "readback_id=%llu kind=%s identity=%u src_id=%llu src_offset=%llu dst_offset=%llu bytes=%llu",
+				(unsigned long long)pending->Id, FieldName(region.Semantic), region.Identity,
+				(unsigned long long)plan.Sources[source].Id, (unsigned long long)region.SrcOffset,
+				(unsigned long long)region.DstOffset, (unsigned long long)region.Bytes);
+			CfxTrace::WitnessMark("postuse-range", detail);
+			pending->Commands->copyBuffer(pending->Sources[source], pending->Staging.get(), region.SrcOffset, region.DstOffset, region.Bytes);
+		}
+		// Fence completion does not replace device-to-host memory visibility.
+		PipelineBarrier().AddBuffer(pending->Staging.get(), VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_HOST_READ_BIT)
+			.Execute(pending->Commands.get(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_HOST_BIT);
+		pending->Commands->end();
+		return pending;
+	}
+	catch (const std::exception& error)
+	{
+		CfxTrace::WitnessFail(error.what());
+		I_FatalError("Collision publication readback failed: %s", error.what());
+	}
+	return {};
+}
+
+void VkCommandBufferManager::FinishCollisionReadback(unsigned int slot)
+{
+	auto& pending = mCollisionReadbacks[slot];
+	if (!pending) return;
+	try
+	{
+		using namespace CollisionReadback;
+		// Called only after VK_SUCCESS from an ALREADY REQUIRED recycle/frame
+		// fence wait, before fence reset and before either retirement list clears.
+		const FenceIdentity fence = { mWitnessSubmissions[slot], (uint64_t)mSubmitFence[slot]->fence, slot };
+		pending->Completion.Complete(fence, true);
+		pending->Completion.RequireReadable();
+		// A failed evidence recorder disables new plans, never pending Vulkan
+		// lifetime handling. Retire only here, after the original fence; do not
+		// map/export or dereference source owners for an already failed witness.
+		if (!CfxTrace::WitnessEnabled()) { pending.reset(); return; }
+		std::array<Allocation, 3> current;
+		for (unsigned int i = 0; i < current.size(); ++i)
+			current[i] = { pending->Sources[i]->diagnosticId, pending->Sources[i]->size };
+		Validate(pending->Plan, current);
+		char detail[320];
+		std::snprintf(detail, sizeof(detail), "readback_id=%llu submission=%llu fence_slot=%u fence=0x%llx",
+			(unsigned long long)pending->Id, (unsigned long long)fence.Submission, slot, (unsigned long long)fence.Handle);
+		CfxTrace::WitnessMark("postuse-fence", detail);
+		if (!CfxTrace::WitnessEnabled()) { pending.reset(); return; }
+		const auto bytes = static_cast<size_t>(pending->Plan.Bytes);
+		const void* mapped = pending->Staging->Map(0, bytes);
+		Require(mapped != nullptr, "readback-map-failed");
+		uint64_t hash = 14695981039346656037ull;
+		const std::string filename = "readback-" + std::to_string(pending->Id) + ".bin";
+		try
+		{
+			// VMA rounds non-coherent invalidation to nonCoherentAtomSize. Do not
+			// dereference or fingerprint mapped bytes until this checked success.
+			const VkResult invalidated = vmaInvalidateAllocation(fb->GetDevice()->allocator, pending->Staging->allocation, 0, bytes);
+			Require(invalidated == VK_SUCCESS, "readback-invalidate-failed");
+			const auto* data = static_cast<const unsigned char*>(mapped);
+			for (size_t i = 0; i < bytes; ++i) { hash ^= data[i]; hash *= 1099511628211ull; }
+			const auto path = CfxTrace::WitnessFilePath(filename.c_str());
+			std::FILE* file = nullptr;
+#ifdef _MSC_VER
+			fopen_s(&file, path.c_str(), "wbx");
+#else
+			file = std::fopen(path.c_str(), "wbx");
+#endif
+			Require(file != nullptr, "readback-file-create-failed");
+			const bool written = std::fwrite(data, 1, bytes, file) == bytes;
+			const bool closed = std::fclose(file) == 0;
+			Require(written && closed, "readback-file-write-or-close-failed");
+		}
+		catch (...) { pending->Staging->Unmap(); throw; }
+		pending->Staging->Unmap();
+		std::snprintf(detail, sizeof(detail), "readback_id=%llu bytes=%llu fnv1a64=0x%llx file=%s",
+			(unsigned long long)pending->Id, (unsigned long long)pending->Plan.Bytes, (unsigned long long)hash, filename.c_str());
+		CfxTrace::WitnessMark("postuse-readback", detail);
+		pending.reset();
+	}
+	catch (const std::exception& error)
+	{
+		CfxTrace::WitnessFail(error.what());
+		I_FatalError("Collision publication readback failed: %s", error.what());
+	}
 }
 
 VulkanCommandBuffer* VkCommandBufferManager::GetTransferCommands()
@@ -177,6 +312,14 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 			CfxTrace::Mark("vk-return", "vkWaitForFences/recycle", static_cast<int>(result));
 			fb->GetDevice()->CheckVulkanError(result, "Could not wait for commands");
 		} while (result != VK_SUCCESS);
+		if (CfxTrace::WitnessEnabled())
+		{
+			char detail[160];
+			std::snprintf(detail, sizeof(detail), "submission=%llu fence_slot=%d fence=0x%llx wait=recycle result=0",
+				(unsigned long long)mWitnessSubmissions[currentIndex], currentIndex, (unsigned long long)(uint64_t)mSubmitFence[currentIndex]->fence);
+			CfxTrace::WitnessMark("fence-complete", detail);
+		}
+		FinishCollisionReadback(static_cast<unsigned int>(currentIndex));
 
 		CfxTrace::Mark("vk-enter", "vkResetFences/recycle");
 		result = vkResetFences(fb->GetDevice()->device, 1, &mSubmitFence[currentIndex]->fence);
@@ -184,7 +327,7 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 		fb->GetDevice()->CheckVulkanError(result, "Could not reset fence");
 	}
 
-	if (CfxTrace::Enabled())
+	if (CfxTrace::Enabled() || CfxTrace::WitnessEnabled() || mRecordedCollisionReadback)
 	{
 		CfxTrace::NextSubmission();
 		char detail[100];
@@ -221,6 +364,34 @@ void VkCommandBufferManager::FlushCommands(VulkanCommandBuffer** commands, size_
 	CfxTrace::Mark("vk-enter", "vkQueueSubmit");
 	submit.Execute(fb->GetDevice(), fb->GetDevice()->GraphicsQueue, mSubmitFence[currentIndex].get());
 	CfxTrace::Mark("vk-return", "vkQueueSubmit", 0);
+	const auto submission = CfxTrace::State().submission.load();
+	if (CfxTrace::WitnessEnabled() || mRecordedCollisionReadback)
+		mWitnessSubmissions[currentIndex] = submission;
+	if (CfxTrace::WitnessEnabled())
+	{
+		for (size_t i = 0; i < count; ++i)
+		{
+			char detail[256];
+			std::snprintf(detail, sizeof(detail), "cmd_id=%llu recording=%llu submission=%llu fence=0x%llx fence_slot=%d index=%zu buffers=%zu",
+				(unsigned long long)commands[i]->diagnosticId, (unsigned long long)commands[i]->diagnosticRecording,
+				(unsigned long long)submission, (unsigned long long)(uint64_t)mSubmitFence[currentIndex]->fence, currentIndex, i, count);
+			CfxTrace::WitnessMark("submit-command", detail);
+		}
+	}
+	if (mRecordedCollisionReadback)
+	{
+		CollisionReadback::Require(!mCollisionReadbacks[currentIndex] && count &&
+			commands[count - 1] == mRecordedCollisionReadback->Commands.get(), "readback-not-last-command-or-fence-slot-busy");
+		const CollisionReadback::FenceIdentity fence = { submission, (uint64_t)mSubmitFence[currentIndex]->fence, static_cast<unsigned int>(currentIndex) };
+		mRecordedCollisionReadback->Completion.Submit(commands[count - 1]->diagnosticId, commands[count - 1]->diagnosticRecording, fence);
+		char detail[256];
+		std::snprintf(detail, sizeof(detail), "readback_id=%llu submission=%llu fence_slot=%d fence=0x%llx cmd_id=%llu recording=%llu",
+			(unsigned long long)mRecordedCollisionReadback->Id, (unsigned long long)submission, currentIndex,
+			(unsigned long long)fence.Handle, (unsigned long long)mRecordedCollisionReadback->Completion.Command,
+			(unsigned long long)mRecordedCollisionReadback->Completion.Recording);
+		CfxTrace::WitnessMark("postuse-submit", detail);
+		mCollisionReadbacks[currentIndex] = std::move(mRecordedCollisionReadback);
+	}
 	mNextSubmit++;
 }
 
@@ -232,6 +403,7 @@ void VkCommandBufferManager::FlushCommands(bool finish, bool lastsubmit, bool up
 		fb->GetRenderState()->EndRenderPass();
 
 	std::unique_lock<std::mutex> lock(mMutex);
+	const bool hadDrawCommands = !uploadOnly && (mDrawCommands || !mThreadCommands.empty());
 
 	if (mTransferCommands)
 	{
@@ -255,6 +427,13 @@ void VkCommandBufferManager::FlushCommands(bool finish, bool lastsubmit, bool up
 			DrawDeleteList->Add(std::move(buffer));
 		}
 		mThreadCommands.clear();
+	}
+
+	if (CfxTrace::WitnessEnabled() && hadDrawCommands && fb->GetLevelMesh() && fb->GetLevelMesh()->GetMesh())
+	{
+		CollisionReadback::Require(!mRecordedCollisionReadback, "overlapping-unsubmitted-readback");
+		mRecordedCollisionReadback = RecordCollisionReadback();
+		mFlushCommands.push_back(mRecordedCollisionReadback->Commands.get());
 	}
 
 	if (!mFlushCommands.empty())
@@ -297,6 +476,18 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 		fb->GetDevice()->CheckVulkanError(result, "Could not wait for commands");
 		if (result == VK_TIMEOUT)
 			VulkanError("vkWaitForFences timed out! Broken display driver?");
+		for (int slot = 0; slot < numWaitFences; ++slot)
+		{
+			if (CfxTrace::WitnessEnabled() || mCollisionReadbacks[slot])
+			{
+				CollisionReadback::Require(result == VK_SUCCESS, "readback-frame-fence-not-successful");
+				char detail[160];
+				std::snprintf(detail, sizeof(detail), "submission=%llu fence_slot=%d fence=0x%llx wait=frame result=0",
+					(unsigned long long)mWitnessSubmissions[slot], slot, (unsigned long long)(uint64_t)mSubmitFence[slot]->fence);
+				CfxTrace::WitnessMark("fence-complete", detail);
+				FinishCollisionReadback(static_cast<unsigned int>(slot));
+			}
+		}
 
 		if (finish)
 			fb->GetFramebufferManager()->RetirePresentSemaphoresAfterFrame();
@@ -323,6 +514,9 @@ void VkCommandBufferManager::WaitForCommands(bool finish, bool uploadOnly)
 
 void VkCommandBufferManager::DeleteFrameObjects(bool uploadOnly)
 {
+	CollisionReadback::Require(!mRecordedCollisionReadback, "retirement-before-readback-submit");
+	for (const auto& pending : mCollisionReadbacks)
+		CollisionReadback::Require(!pending, "retirement-before-readback-fence");
 	CfxTrace::Object("retirement-list-release", "transfer-list", TransferDeleteList->DiagnosticId, 0, TransferDeleteList->TotalSize);
 	TransferDeleteList = std::make_unique<DeleteList>();
 	if (!uploadOnly)
@@ -330,6 +524,28 @@ void VkCommandBufferManager::DeleteFrameObjects(bool uploadOnly)
 		CfxTrace::Object("retirement-list-release", "draw-list", DrawDeleteList->DiagnosticId, 0, DrawDeleteList->TotalSize);
 		DrawDeleteList = std::make_unique<DeleteList>();
 	}
+}
+
+void VkCommandBufferManager::FinishPublicationWitness()
+{
+	if (!CfxTrace::WitnessEnabled()) return;
+	// The observer may close only after its existing screenshot/frame wait has
+	// drained the real submit fences. Completion must never create another wait.
+	if (mNextSubmit != 0 || mRecordedCollisionReadback || mTransferCommands || mDrawCommands ||
+		!mThreadCommands.empty() || !mFlushCommands.empty() || mCollisionReadbackCount == 0)
+	{
+		CfxTrace::WitnessFail("witness-finish-has-unsubmitted-or-uncompleted-commands");
+		I_FatalError("Collision publication witness cannot finish before normal command completion");
+	}
+	for (const auto& pending : mCollisionReadbacks)
+	{
+		if (pending)
+		{
+			CfxTrace::WitnessFail("witness-finish-has-pending-readback");
+			I_FatalError("Collision publication witness has an incomplete readback");
+		}
+	}
+	CfxTrace::WitnessFinish();
 }
 
 bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name)

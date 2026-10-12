@@ -76,7 +76,8 @@ jobs:
           build_type: Release
 
         - name: Linux software Vulkan
-          os: ubuntu-24.04
+          # Required CI critical path: use Avrea directly; do not duplicate this job on GitHub runners.
+          os: avrea-ubuntu-24.04-32-vcpu
           extra_options: -DNO_GTK=ON
           deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
           build_type: RelWithDebInfo
@@ -134,12 +135,90 @@ jobs:
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
         python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
 
+    - name: Qualify SDVK-009 matching-content publication on hosted software Vulkan
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_publication_icds[@]}" -eq 1
+        export VK_DRIVER_FILES="${sdvk_publication_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_publication_icds[0]}"
+        export SDL_VIDEODRIVER=x11
+        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+        export SDVK_REQUESTED_RUNNER=avrea-ubuntu-24.04-32-vcpu
+        cat > build/sdvk009-avrea-ci.py <<'PY'
+        import os
+        from pathlib import Path
+        import re
+        import sys
+
+        from tools.renderer_oracle import sdvk009_publication as publication
+        from tools.renderer_oracle.common import pin, read_json, require
+
+        def avrea32_software_guard():
+            require(sys.platform == "linux" and os.environ.get("GITHUB_ACTIONS") == "true",
+                    "Native publication qualification requires a Linux GitHub Actions runner")
+            require(os.environ.get("RUNNER_ENVIRONMENT") == "self-hosted"
+                    and os.environ.get("SDVK_REQUESTED_RUNNER") == "avrea-ubuntu-24.04-32-vcpu",
+                    "Native publication qualification requires the preregistered Avrea 32-vCPU runner")
+            require(hasattr(os, "sched_getaffinity") and len(os.sched_getaffinity(0)) == 32,
+                    "Avrea publication qualification requires exactly 32 allowed CPUs")
+            names = ("VK_DRIVER_FILES", "VK_ICD_FILENAMES")
+            selected = []
+            for name in names:
+                value = os.environ.get(name, "")
+                require(value and len(value.split(os.pathsep)) == 1,
+                        "Select one lavapipe ICD explicitly with " + name)
+                path = Path(value)
+                require(path.is_absolute(), "Software ICD selection must use an absolute manifest path")
+                selected.append(path.resolve(strict=True))
+            require(selected[0] == selected[1], "Vulkan driver manifest selectors differ")
+            path = selected[0]
+            require(re.fullmatch(r"lvp_icd(?:\.[A-Za-z0-9_-]+)?\.json", path.name) is not None,
+                    "Selected manifest is not the lavapipe ICD")
+            manifest = read_json(path, maximum=65536)
+            require(isinstance(manifest, dict) and isinstance(manifest.get("ICD"), dict),
+                    "Malformed software ICD manifest")
+            library = manifest["ICD"].get("library_path", "")
+            require(isinstance(library, str)
+                    and re.fullmatch(r"libvulkan_lvp\.so(?:\.[0-9]+)*", Path(library).name),
+                    "Selected ICD does not name the lavapipe shared library")
+            overrides = {key: value for key, value in os.environ.items() if value and
+                         ((key.startswith("VK_") and key not in names) or key in
+                          ("MESA_LOADER_DRIVER_OVERRIDE", "MESA_VK_DEVICE_SELECT",
+                           "MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE", "DRI_PRIME"))}
+            require(not overrides, "Additional Vulkan driver/layer/device overrides are not isolated")
+            return {"platform": sys.platform, "provider": "avrea",
+                    "requested_runner": os.environ["SDVK_REQUESTED_RUNNER"],
+                    "allowed_processors": len(os.sched_getaffinity(0)),
+                    "logical_processors": os.cpu_count(),
+                    "runner_name": os.environ.get("RUNNER_NAME"),
+                    "runner_environment": os.environ.get("RUNNER_ENVIRONMENT"),
+                    "icd": pin(path), "library_path": library,
+                    "selectors": {key: os.environ[key] for key in names},
+                    "additional_overrides": {}}
+
+        publication.hosted_software_guard = avrea32_software_guard
+        raise SystemExit(publication.main([
+            "qualify",
+            "--exe", "build/vkdoom",
+            "--iwad", "build/renderer-sdvk009-content/freedoom2.wad",
+            "--iwad-license", "build/renderer-sdvk009-content/COPYING.txt",
+            "--out", "build/renderer-sdvk009-publication",
+            "--expected-commit", os.environ["GITHUB_SHA"],
+        ]))
+        PY
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 build/sdvk009-avrea-ci.py
+
     - name: Package complete software Vulkan evidence losslessly
       if: always() && matrix.config.native_renderer
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight; do
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi

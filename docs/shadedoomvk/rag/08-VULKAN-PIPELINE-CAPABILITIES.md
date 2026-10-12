@@ -204,3 +204,26 @@ unreachable storage node with root `-1`, allowing unchanged `UploadNodes` and
 `GetTransferSize` to publish the header through a nonempty dirty range. Exact CPU
 range/uploader tests verify staging intent and transfer accounting, not GPU
 execution. Hardware ray-query routing is unchanged. [Collision audit](../SDVK-009-COLLISION-ROOT-AUDIT.md).
+
+## SDVK-009 typed binding and stage-byte witness — 2026-10-12
+
+The default-off publication stream observes typed pipeline/descriptor binds and
+draw/dispatch calls on the actual command wrapper. Process-monotonic allocation
+IDs, descriptor publication revisions after `vkUpdateDescriptorSets` returns,
+and command recording generations distinguish reuse from a continuing identity.
+Diagnostic shared tokens retain identity/liveness metadata, not Vulkan resource
+ownership. Raw untyped binds remain explicitly unknown.
+
+Successful pipeline creation retains exact SPIR-V input bytes, entry points,
+specialization bytes and map entries, and linked graphics-library stage ancestry.
+The bounded stream is separate from the existing CFX cap. It must close without
+omission and join actual submission membership and successful fence completion.
+It proves application-side recorded state, not an executed NVIDIA instruction.
+Defined-field copies occur after normal consumers in the same submission and use
+only its ordinary fence. A later readback barrier cannot prove earlier shader
+visibility, even if destination bytes match the CPU snapshot.
+
+The [prospectively pinned qualification](../SDVK-009-BOUND-PUBLICATION-WITNESS.md)
+is hosted CPU llvmpipe only, with an uninstrumented control and two independent
+120-warmup witnesses using exact historical legal content. It grants no physical
+fault cause, physical launch authorization, scaling or architecture acceptance.
