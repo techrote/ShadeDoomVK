@@ -627,6 +627,7 @@ std::unique_ptr<VulkanAccelerationStructure> AccelerationStructureBuilder::Creat
 
 static std::unique_ptr<VulkanShader> CreateShaderModule(VulkanDevice* device, const char* debugName, const uint32_t* code, size_t size)
 {
+	CfxTrace::WitnessOperation witnessOperation;
 	// To do:
 	// If we have VK_KHR_maintenance5 enabled or Vulkan 1.4 we can chain
 	// VkShaderModuleCreateInfo to VkPipelineShaderStageCreateInfo instead of
@@ -643,9 +644,51 @@ static std::unique_ptr<VulkanShader> CreateShaderModule(VulkanDevice* device, co
 		VulkanError("Could not create vulkan shader module");
 
 	auto obj = std::make_unique<VulkanShader>(device, shaderModule);
+	if (CfxTrace::WitnessEnabled())
+	{
+		char leaf[100], detail[320];
+		std::snprintf(leaf, sizeof(leaf), "shader-%llu.spv", (unsigned long long)obj->witness.id);
+		obj->witness.code = CfxTrace::WitnessExportBytes(leaf, code, createInfo.codeSize);
+		const auto& blob = obj->witness.code;
+		std::snprintf(detail, sizeof(detail), "shader_id=%llu bytes=%llu coverage=%s fnv1a64=0x%llx file=%s",
+			(unsigned long long)obj->witness.id, (unsigned long long)blob.bytes, blob.complete ? "complete" : "unknown",
+			(unsigned long long)blob.hash, blob.file.c_str());
+		CfxTrace::WitnessMark("shader-bytes", detail);
+	}
 	if (debugName)
 		obj->SetDebugName(debugName);
 	return obj;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+static void CaptureWitnessStage(VulkanPipeline* pipeline, const VulkanShader* shader, const VkPipelineShaderStageCreateInfo& info, size_t ordinal)
+{
+	if (!CfxTrace::WitnessEnabled() || !pipeline->witness) return;
+	auto& p = *pipeline->witness;
+	if (p.stages.size() >= CfxTrace::WitnessStageLimit || !info.pName || std::strlen(info.pName) >= 64)
+	{ p.complete = false; CfxTrace::WitnessFail("pipeline-stage-limit-or-entry"); return; }
+	auto stage = std::make_shared<CfxTrace::WitnessPipelineStage>();
+	stage->sourcePipeline = p.id;
+	stage->stage = (uint32_t)info.stage;
+	stage->shader = shader->witness;
+	stage->entry = info.pName;
+	for (char c : stage->entry) if (!( (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_' ))
+	{ p.complete = false; CfxTrace::WitnessFail("pipeline-entry-token"); return; }
+	const auto* spec = info.pSpecializationInfo;
+	if (spec && (spec->mapEntryCount > CfxTrace::WitnessSpecializationLimit || (spec->mapEntryCount && !spec->pMapEntries)))
+	{ p.complete = false; CfxTrace::WitnessFail("specialization-entry-limit"); return; }
+	char leaf[120];
+	std::snprintf(leaf, sizeof(leaf), "pipeline-%llu-stage-%u.spec", (unsigned long long)p.id, (unsigned)ordinal);
+	stage->specialization = CfxTrace::WitnessExportBytes(leaf, spec ? spec->pData : nullptr, spec ? spec->dataSize : 0);
+	if (spec) for (uint32_t i = 0; i < spec->mapEntryCount; ++i)
+	{
+		const auto& entry = spec->pMapEntries[i];
+		if (entry.offset > spec->dataSize || entry.size > spec->dataSize - entry.offset)
+		{ p.complete = false; CfxTrace::WitnessFail("specialization-range"); return; }
+		stage->entries.push_back({entry.constantID, entry.offset, entry.size});
+	}
+	p.stages.push_back(std::move(stage));
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -665,11 +708,13 @@ ComputePipelineBuilder& ComputePipelineBuilder::Cache(VulkanPipelineCache* cache
 ComputePipelineBuilder& ComputePipelineBuilder::Layout(VulkanPipelineLayout* layout)
 {
 	pipelineInfo.layout = layout->layout;
+	witnessLayoutId = layout->diagnosticId;
 	return *this;
 }
 
 std::unique_ptr<VulkanPipeline> ComputePipelineBuilder::Create(VulkanDevice* device)
 {
+	CfxTrace::WitnessOperation witnessOperation;
 	auto shader = CreateShaderModule(device, debugName, computeShader.data(), computeShader.size());
 	stageInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
 	stageInfo.module = shader->module;
@@ -677,8 +722,23 @@ std::unique_ptr<VulkanPipeline> ComputePipelineBuilder::Create(VulkanDevice* dev
 	pipelineInfo.stage = stageInfo;
 
 	VkPipeline pipeline;
-	vkCreateComputePipelines(device->device, cache ? cache->cache : VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
+	const VkResult result = vkCreateComputePipelines(device->device, cache ? cache->cache : VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
 	auto obj = std::make_unique<VulkanPipeline>(device, pipeline);
+	if (CfxTrace::WitnessEnabled() && obj->witness)
+	{
+		// The inherited compute failure behavior is outside this diagnostic change.
+		// A failed API return can never become positive creation evidence.
+		if (result != VK_SUCCESS) CfxTrace::WitnessFail("compute-creation-failed");
+		else
+		{
+			obj->witness->complete = true;
+			obj->witness->kind = "compute";
+			obj->witness->layoutId = witnessLayoutId;
+			obj->witness->flags = pipelineInfo.flags;
+			CaptureWitnessStage(obj.get(), shader.get(), stageInfo, 0);
+			CfxTrace::WitnessRecordPipeline(*obj->witness);
+		}
+	}
 	if (debugName)
 		obj->SetDebugName(debugName);
 	return obj;
@@ -973,6 +1033,7 @@ GraphicsPipelineBuilder::GraphicsPipelineBuilder()
 GraphicsPipelineBuilder& GraphicsPipelineBuilder::AddLibrary(VulkanPipeline* pipeline)
 {
 	libraries.push_back(pipeline->pipeline);
+	if (CfxTrace::WitnessEnabled()) witnessLibraries.push_back(pipeline->witness);
 	return *this;
 }
 
@@ -1009,6 +1070,7 @@ GraphicsPipelineBuilder& GraphicsPipelineBuilder::Subpass(int subpass)
 GraphicsPipelineBuilder& GraphicsPipelineBuilder::Layout(VulkanPipelineLayout* layout)
 {
 	pipelineInfo.layout = layout->layout;
+	witnessLayoutId = layout->diagnosticId;
 	return *this;
 }
 
@@ -1207,6 +1269,7 @@ GraphicsPipelineBuilder& GraphicsPipelineBuilder::AddDynamicState(VkDynamicState
 
 std::unique_ptr<VulkanPipeline> GraphicsPipelineBuilder::Create(VulkanDevice* device)
 {
+	CfxTrace::WitnessOperation witnessOperation;
 	if (colorBlendAttachments.empty())
 		colorBlendAttachments.push_back(ColorBlendAttachmentBuilder().Create());
 	colorBlending.pAttachments = colorBlendAttachments.data();
@@ -1256,6 +1319,28 @@ std::unique_ptr<VulkanPipeline> GraphicsPipelineBuilder::Create(VulkanDevice* de
 	VkResult result = vkCreateGraphicsPipelines(device->device, cache ? cache->cache : VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline);
 	device->CheckVulkanError(result, "Could not create graphics pipeline");
 	auto obj = std::make_unique<VulkanPipeline>(device, pipeline);
+	if (CfxTrace::WitnessEnabled() && obj->witness)
+	{
+		auto& evidence = *obj->witness;
+		evidence.complete = true;
+		evidence.kind = (pipelineInfo.flags & VK_PIPELINE_CREATE_LIBRARY_BIT_KHR) ? "graphics-library" : "graphics";
+		evidence.layoutId = witnessLayoutId;
+		evidence.flags = pipelineInfo.flags;
+		evidence.libraryFlags = device->SupportsExtension(VK_EXT_GRAPHICS_PIPELINE_LIBRARY_EXTENSION_NAME) ? pipelineLibrary.flags : 0;
+		for (size_t i = 0; i < shaders.size(); ++i) CaptureWitnessStage(obj.get(), shaders[i].get(), shaderStages[i], i);
+		if (libraryCreate.libraryCount && device->SupportsExtension(VK_KHR_PIPELINE_LIBRARY_EXTENSION_NAME))
+		{
+			if (witnessLibraries.size() != libraries.size() || witnessLibraries.size() > CfxTrace::WitnessLibraryLimit) evidence.complete = false;
+			else for (const auto& library : witnessLibraries)
+			{
+				if (!library || !library->alive.load() || !library->complete || library->stages.size() > CfxTrace::WitnessStageLimit - evidence.stages.size())
+				{ evidence.complete = false; break; }
+				evidence.libraries.push_back(library->id);
+				evidence.stages.insert(evidence.stages.end(), library->stages.begin(), library->stages.end());
+			}
+		}
+		CfxTrace::WitnessRecordPipeline(evidence);
+	}
 	if (debugName)
 		obj->SetDebugName(debugName);
 	return obj;
@@ -1606,6 +1691,7 @@ WriteDescriptors& WriteDescriptors::AddBuffer(VulkanDescriptorSet* descriptorSet
 
 	auto extra = std::make_unique<WriteExtra>();
 	extra->bufferInfo = bufferInfo;
+	if (CfxTrace::WitnessEnabled()) extra->witnessSet = descriptorSet->witness;
 	if (CfxTrace::ResourcesEnabled())
 	{
 		extra->diagnosticSetId = descriptorSet->diagnosticId;
@@ -1633,6 +1719,7 @@ WriteDescriptors& WriteDescriptors::AddStorageImage(VulkanDescriptorSet* descrip
 
 	auto extra = std::make_unique<WriteExtra>();
 	extra->imageInfo = imageInfo;
+	if (CfxTrace::WitnessEnabled()) extra->witnessSet = descriptorSet->witness;
 
 	VkWriteDescriptorSet descriptorWrite = {};
 	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1661,6 +1748,7 @@ WriteDescriptors& WriteDescriptors::AddCombinedImageSampler(VulkanDescriptorSet*
 
 	auto extra = std::make_unique<WriteExtra>();
 	extra->imageInfo = imageInfo;
+	if (CfxTrace::WitnessEnabled()) extra->witnessSet = descriptorSet->witness;
 
 	VkWriteDescriptorSet descriptorWrite = {};
 	descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
@@ -1678,6 +1766,7 @@ WriteDescriptors& WriteDescriptors::AddCombinedImageSampler(VulkanDescriptorSet*
 WriteDescriptors& WriteDescriptors::AddAccelerationStructure(VulkanDescriptorSet* descriptorSet, int binding, VulkanAccelerationStructure* accelStruct)
 {
 	auto extra = std::make_unique<WriteExtra>();
+	if (CfxTrace::WitnessEnabled()) extra->witnessSet = descriptorSet->witness;
 	extra->accelStruct = {};
 	extra->accelStruct.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET_ACCELERATION_STRUCTURE_KHR;
 	extra->accelStruct.accelerationStructureCount = 1;
@@ -1716,6 +1805,51 @@ void WriteDescriptors::Execute(VulkanDevice* device)
 		}
 		vkUpdateDescriptorSets(device->device, (uint32_t)writes.size(), writes.data(), 0, nullptr);
 		CfxTrace::ResourceMark("descriptor-write-return", "vkUpdateDescriptorSets api=void");
+		if (CfxTrace::WitnessEnabled())
+		{
+			// One revision per affected set per completed API call. Snapshot tokens
+			// retain allocation identity without retaining a Vulkan owner or looking
+			// up a possibly recycled handle. This is observation, not a new lifetime.
+			if (writes.size() > 8192) { CfxTrace::WitnessFail("descriptor-write-count"); return; }
+			struct Published { std::shared_ptr<CfxTrace::WitnessDescriptor> set; uint64_t generation; uint32_t count; };
+			std::vector<Published> published;
+			for (size_t i = 0; i < writes.size(); ++i)
+			{
+				const auto& set = writeExtras[i]->witnessSet;
+				if (!set || !set->alive.load()) { CfxTrace::WitnessFail("descriptor-publication-stale-or-unknown"); return; }
+				auto found = std::find_if(published.begin(), published.end(), [&](const Published& p) { return p.set == set; });
+				if (found == published.end())
+				{
+					if (set->generation.load() == std::numeric_limits<uint64_t>::max())
+					{ CfxTrace::WitnessFail("descriptor-generation-exhausted"); return; }
+					published.push_back({set, set->generation.fetch_add(1) + 1, 0});
+					found = published.end() - 1;
+				}
+				++found->count;
+				const auto& w = writes[i];
+				char detail[360];
+				if (w.pBufferInfo)
+				{
+					std::snprintf(detail, sizeof(detail), "set_id=%llu generation=%llu binding=%u array=%u type=%u buffer_id=%llu offset=%llu range=%llu",
+						(unsigned long long)set->id, (unsigned long long)found->generation, w.dstBinding, w.dstArrayElement, (unsigned)w.descriptorType,
+						(unsigned long long)writeExtras[i]->diagnosticBufferId, (unsigned long long)w.pBufferInfo->offset, (unsigned long long)w.pBufferInfo->range);
+					CfxTrace::WitnessMark("descriptor-buffer-published", detail);
+				}
+				else
+				{
+					std::snprintf(detail, sizeof(detail), "set_id=%llu generation=%llu binding=%u array=%u type=%u scope=outside-collision-buffers",
+						(unsigned long long)set->id, (unsigned long long)found->generation, w.dstBinding, w.dstArrayElement, (unsigned)w.descriptorType);
+					CfxTrace::WitnessMark("descriptor-other-published", detail);
+				}
+			}
+			for (const auto& p : published)
+			{
+				char detail[160];
+				std::snprintf(detail, sizeof(detail), "set_id=%llu generation=%llu write_count=%u api=void",
+					(unsigned long long)p.set->id, (unsigned long long)p.generation, p.count);
+				CfxTrace::WitnessMark("descriptor-published", detail);
+			}
+		}
 	}
 }
 

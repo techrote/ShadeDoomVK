@@ -65,3 +65,13 @@ candidate or performance claim.
 **#9 remains open.** Final acceptance still requires the finite representative
 physical-GPU campaign defined in the protocol unless later repository authority
 changes that requirement.
+
+## Bound publication witness continuation — 2026-10-12
+
+The [checkpoint after PR #145](https://github.com/techrote/ShadeDoomVK/issues/9#issuecomment-6120820868)
+holds all physical execution and leaves the historical root cause UNDETERMINED.
+The next bounded gate is a [typed binding/SPIR-V/post-use publication witness](../SDVK-009-BOUND-PUBLICATION-WITNESS.md)
+on the explicitly hosted software device, with exact historical content and a
+separately pinned 120-warmup control/repeat protocol. Its result can narrow the
+new software run's identity/publication uncertainty. It cannot close this issue,
+authorize physical execution or establish architecture/performance acceptance.

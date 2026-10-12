@@ -25,6 +25,7 @@
 #include "hwrenderer/scene/hw_actor_probe_selection.h"
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/commands/vk_commandbuffer.h"
+#include <zvulkan/cfxtrace.h>
 #include <chrono>
 #include <map>
 #include <set>
@@ -51,6 +52,7 @@ struct Observer
     bool Initialized = false, StateMode = true, Quit = false, Written = false, InFrame = false;
     bool Screenshot = false, GpuRequested = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
+    unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
     // SDVK-009 state-mode aggregates are reset for every retained frame.
     // They reuse the existing light census/query calls and add no timing-mode
@@ -68,6 +70,22 @@ struct Observer
     std::mutex GpuMutex;
 };
 Observer& Get() { static Observer observer; return observer; }
+
+// The publication witness must identify actual observer warmup frames, not
+// infer them from a process-global frame count that also includes startup.
+// This records only existing state and performs no renderer/device operation.
+void WitnessObserverFrame(const char* event, const Observer& observer)
+{
+    if (!CfxTrace::WitnessEnabled()) return;
+    char detail[240];
+    std::snprintf(detail, sizeof(detail),
+        "frame=%llu ordinal=%u phase=%s warmup=%u requested=%u map=%.64s",
+        static_cast<unsigned long long>(CfxTrace::State().frame.load()), observer.Seen,
+        observer.Seen <= observer.Warmup ? "warmup" : "retained",
+        observer.Warmup, observer.Requested, level.MapName.GetChars());
+    CfxTrace::WitnessMark(event, detail);
+}
+
 std::string& CacheRoot() { static std::string path; return path; }
 struct SceneEntry { const HWDrawInfo* Owner; std::string Json; };
 thread_local std::vector<SceneEntry> Scenes;
@@ -372,6 +390,7 @@ void BeginFrame()
         Require(!observer.InFrame && Scenes.empty(), "Unbalanced SDVK render-frame/scene observation");
         observer.InFrame = true;
         ++observer.Seen;
+        WitnessObserverFrame("observer-frame", observer);
         if (observer.Seen <= observer.Warmup) { observer.Frame.store(0, std::memory_order_relaxed); return; }
         Require(observer.Collected < observer.Requested, "SDVK completion hook did not close the requested frame interval");
         observer.Frame.store(uint64_t(observer.Collected) + 1, std::memory_order_relaxed);
@@ -409,6 +428,7 @@ void EndFrame()
     auto& observer = Get();
     if (!observer.InFrame) { Fail("SDVK render-frame end without begin"); return; }
     observer.InFrame = false;
+    WitnessObserverFrame("observer-frame-end", observer);
     if (!observer.Frame.load(std::memory_order_relaxed)) return;
     try
     {
@@ -464,6 +484,11 @@ void FramePresented()
 {
     if (!Enabled()) return;
     auto& observer = Get();
+    if (observer.Seen > observer.WitnessPresented)
+    {
+        WitnessObserverFrame("observer-frame-presented", observer);
+        observer.WitnessPresented = observer.Seen;
+    }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;
     const bool complete = observer.Collected == observer.Requested;
     // Ordinary screenshot drawing is a separate producer and must not append
@@ -487,6 +512,24 @@ void FramePresented()
         catch (const std::exception& error) { Fail(error.what()); }
     }
     Dump(complete);
+    if (CfxTrace::WitnessEnabled())
+    {
+        const bool valid = complete && observer.Written && observer.Screenshot &&
+            observer.Records.Failure().empty() && observer.Records.DroppedCount() == 0 &&
+            observer.StateMode && screen->IsVulkan();
+        char detail[180];
+        std::snprintf(detail, sizeof(detail),
+            "complete=%u failure=%u seen=%u collected=%u warmup=%u requested=%u",
+            valid ? 1u : 0u, valid ? 0u : 1u, observer.Seen, observer.Collected,
+            observer.Warmup, observer.Requested);
+        CfxTrace::WitnessMark("observer-complete", detail);
+        if (!valid) CfxTrace::WitnessFail("observer-incomplete");
+        // Presentation and the ordinary screenshot already performed their
+        // normal waits. This checks that nothing remains pending; it adds no
+        // synchronization and closes only the explicitly observed interval.
+        if (screen->IsVulkan())
+            static_cast<VulkanRenderDevice*>(screen)->GetCommands()->FinishPublicationWitness();
+    }
     if (observer.Quit) AddCommandString("quit");
 }
 

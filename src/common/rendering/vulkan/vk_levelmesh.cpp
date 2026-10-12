@@ -45,6 +45,32 @@ void VkLevelMesh::SetLevelMesh(LevelMesh* mesh)
 	ResetAccelStruct();
 }
 
+CollisionReadback::Plan VkLevelMesh::CreatePostUseReadbackPlan() const
+{
+	using namespace CollisionReadback;
+	Require(CfxTrace::WitnessEnabled() && !useRayQuery && Mesh && Mesh->Collision,
+		"readback-requires-software-mesh-and-snapshot");
+	Require(NodeBuffer && VertexBuffer && IndexBuffer, "readback-missing-source-buffer");
+	const auto* collision = Mesh->Collision.get();
+	Require(collision->GetSnapshotExportedCount() <= Mesh->Mesh.Nodes.Size() && Mesh->Mesh.IndexCount >= 0,
+		"readback-snapshot-extent-mismatch");
+	Snapshot snapshot;
+	snapshot.Object = collision->GetSnapshotObjectId();
+	snapshot.Event = collision->GetSnapshotEventId();
+	snapshot.ExportedCount = collision->GetSnapshotExportedCount();
+	snapshot.VertexExtent = Mesh->Mesh.Vertices.Size();
+	snapshot.IndexExtent = Mesh->Mesh.Indexes.Size();
+	snapshot.OccupiedCount = static_cast<uint32_t>(Mesh->Mesh.IndexCount);
+	snapshot.Root = Mesh->Mesh.RootNode;
+	const std::array<Allocation, 3> sources = {{
+		{ NodeBuffer->diagnosticId, NodeBuffer->size },
+		{ VertexBuffer->diagnosticId, VertexBuffer->size },
+		{ IndexBuffer->diagnosticId, IndexBuffer->size } }};
+	return Build(snapshot, sources,
+		[&](uint32_t index) -> const CollisionNode& { return Mesh->Mesh.Nodes[index]; },
+		[&](uint32_t index) { return Mesh->Mesh.Indexes[index]; });
+}
+
 void VkLevelMesh::ResetAccelStruct()
 {
 	auto deletelist = fb->GetCommands()->DrawDeleteList.get();
@@ -187,6 +213,7 @@ void VkLevelMesh::CheckBuffers()
 			.Usage(
 				VK_BUFFER_USAGE_VERTEX_BUFFER_BIT |
 				VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+				(CfxTrace::WitnessEnabled() ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0) |
 				(useRayQuery ?
 					VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
 					VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR : 0) |
@@ -210,6 +237,7 @@ void VkLevelMesh::CheckBuffers()
 			.Usage(
 				VK_BUFFER_USAGE_INDEX_BUFFER_BIT |
 				VK_BUFFER_USAGE_TRANSFER_DST_BIT |
+				(CfxTrace::WitnessEnabled() ? VK_BUFFER_USAGE_TRANSFER_SRC_BIT : 0) |
 				(useRayQuery ?
 					VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT |
 					VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR : 0) |

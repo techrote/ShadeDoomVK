@@ -108,6 +108,10 @@ public:
 	TraceHit FindFirstHit(const FVector3& rayStart, const FVector3& rayEnd);
 
 	void PrintStats();
+	// Only a fully closed opt-in snapshot is eligible for a GPU publication join.
+	unsigned int GetSnapshotObjectId() const { return SnapshotObjectId; }
+	unsigned int GetSnapshotEventId() const { return SnapshotEventId; }
+	unsigned int GetSnapshotExportedCount() const { return SnapshotExportedCount; }
 
 private:
 	void FindFirstHit(const RayBBox& ray, int a, TraceHit* hit);
@@ -117,6 +121,8 @@ private:
 	void Upload();
 	void DumpSnapshot(unsigned int phase);
 	unsigned int SnapshotObjectId = 0;
+	unsigned int SnapshotEventId = 0;
+	unsigned int SnapshotExportedCount = 0;
 	void RebindMeshData();
 
 	LevelMesh* Mesh = nullptr;

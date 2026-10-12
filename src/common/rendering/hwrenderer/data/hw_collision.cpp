@@ -189,6 +189,8 @@ void CPUAccelStruct::DumpSnapshot(unsigned int phase)
 	// Explicit offline-diagnostic option. Ordinary runs perform no serialization.
 	static const char* prefix = Args ? Args->CheckValue("-sdvkcollisionsnapshot") : nullptr;
 	if (!prefix) return;
+	SnapshotEventId = 0;
+	SnapshotExportedCount = 0;
 	if (screen->IsRayQueryEnabled()) I_FatalError("Collision snapshot requires software collision export");
 	static unsigned int nextObject = 0, nextEvent = 0;
 	if (!SnapshotObjectId) SnapshotObjectId = ++nextObject;
@@ -267,6 +269,8 @@ void CPUAccelStruct::DumpSnapshot(unsigned int phase)
 		file.Int(node.left); file.Int(node.right); file.Int(node.element_index);
 	}
 	if (!file.Finish()) I_FatalError("Incomplete collision snapshot %s", path.c_str());
+	SnapshotExportedCount = exportedCount;
+	SnapshotEventId = event;
 #else
 	(void)phase;
 #endif

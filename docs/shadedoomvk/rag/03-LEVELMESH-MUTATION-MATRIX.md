@@ -198,3 +198,26 @@ See PR #145, `tools/pf_oracle/tests/test_collision_upload_root.py`,
 `tools/pf_oracle/tests/test_sdvk009_publication_contract.py` and
 `../SDVK-009-OFFLINE-SHADOW-INVESTIGATION.md`.
 
+## SDVK-009 bound publication/readback candidate — 2026-10-12
+
+`CPUAccelStruct` exposes the object/event identity only after the original
+exclusive snapshot has finished. The optional publication witness builds a
+bounded readback plan from that state: the original root word, reachable nodes'
+defined center/extents/link words, occupied indices including holes, and XYZ
+words at original referenced vertex slots. It does not read padding, unused
+tails or unrelated vertex attributes. The 16-byte root prefix, 48-byte node
+stride and 32-byte vertex stride remain unchanged.
+
+The Vulkan manager appends the readback after the ordinary commands in their
+existing submission. Source/staging ownership covers its exact existing fence;
+mapping and checked non-coherent invalidation follow the successful normal wait.
+Logging failure cannot shorten ownership. Vertex/index transfer-source usage is
+added only in the opt-in witness mode. No traversal, upload range, light policy,
+pre-shadow wait or ordinary allocation identity is repaired by this diagnostic.
+
+Post-use equality with a reconstructed hosted CPU snapshot does not prove the
+values seen by every preceding shader load, reproduce either failed physical
+graph or explain a timeout. The [bound witness contract](../SDVK-009-BOUND-PUBLICATION-WITNESS.md)
+defines the independent command/SPIR-V joins and software-only qualification;
+physical STOP and the ungranted #8/#9/#10 acceptance gates remain active.
+

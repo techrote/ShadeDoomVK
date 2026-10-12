@@ -260,6 +260,7 @@ private:
 	VkComputePipelineCreateInfo pipelineInfo = {};
 	VkPipelineShaderStageCreateInfo stageInfo = {};
 	std::vector<uint32_t> computeShader;
+	uint64_t witnessLayoutId = 0;
 	VulkanPipelineCache* cache = nullptr;
 	const char* debugName = nullptr;
 };
@@ -419,7 +420,9 @@ private:
 	std::vector<VkVertexInputAttributeDescription> vertexInputAttributes;
 	std::vector<VkDynamicState> dynamicStates;
 	std::vector<VkPipeline> libraries;
+	std::vector<std::shared_ptr<CfxTrace::WitnessPipeline>> witnessLibraries;
 	std::vector<std::vector<uint32_t>> shaderCode;
+	uint64_t witnessLayoutId = 0;
 
 	struct ShaderSpecialization
 	{
@@ -560,6 +563,7 @@ private:
 	{
 		uint64_t diagnosticSetId = 0;
 		uint64_t diagnosticBufferId = 0;
+		std::shared_ptr<CfxTrace::WitnessDescriptor> witnessSet;
 		VkDescriptorImageInfo imageInfo;
 		VkDescriptorBufferInfo bufferInfo;
 		VkBufferView bufferView;
