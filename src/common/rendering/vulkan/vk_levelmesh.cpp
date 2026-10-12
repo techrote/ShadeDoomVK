@@ -946,7 +946,7 @@ void VkLevelMeshUploader::UploadNodes()
 		return;
 
 	// Always update the header struct of the collision storage buffer block if something changed
-	CollisionNodeBufferHeader nodesHeader;
+	CollisionNodeBufferHeader nodesHeader = {};
 	nodesHeader.root = Mesh->Mesh->Mesh.RootNode;
 	UploadData(Mesh->NodeBuffer.get(), 0, &nodesHeader, sizeof(CollisionNodeBufferHeader), "NodeBuffer");
 

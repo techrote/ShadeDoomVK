@@ -35,8 +35,12 @@ struct FVector3 {
 };
 struct Bounds { FVector3 Center, Extents; };
 struct CollisionNode {
-    FVector3 center, extents;
+    FVector3 center;
+    float padding1;
+    FVector3 extents;
+    float padding2;
     int left = -1, right = -1, element_index = -1;
+    int padding3;
 };
 struct BlasNode {
     Bounds aabb;
@@ -104,6 +108,14 @@ int main(int argc, char** argv) {
     assert(argc == 2);
     const int scenario = argv[1][0] - '0';
     CPUAccelStruct actual;
+    // Pre-seed the destination so production Upload() must define explicit
+    // shader-visible padding rather than inheriting allocator contents.
+    actual.mesh.Mesh.Nodes.Resize(10000);
+    for (auto& node : actual.mesh.Mesh.Nodes) {
+        node.padding1 = 101.0f;
+        node.padding2 = 102.0f;
+        node.padding3 = 103;
+    }
     if (scenario == 1 || scenario == 2) {
         TlasNode root;
         root.blas_index = 0;
@@ -147,6 +159,11 @@ int main(int argc, char** argv) {
         assert(actual.mesh.UploadRanges.Node.count == 1);
         const auto& dummy = actual.mesh.Mesh.Nodes[0];
         assert(dummy.left == -1 && dummy.right == -1 && dummy.element_index == -1);
+    }
+    assert(actual.mesh.UploadRanges.Node.count > 0);
+    for (int i = 0; i < actual.mesh.UploadRanges.Node.count; ++i) {
+        const auto& node = actual.mesh.Mesh.Nodes[i];
+        assert(node.padding1 == 0.0f && node.padding2 == 0.0f && node.padding3 == 0);
     }
 }
 '''
