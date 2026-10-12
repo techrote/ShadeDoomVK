@@ -6,12 +6,67 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: sdvk009-avrea16-publication-qualification
   cancel-in-progress: false
 
 jobs:
+  offline_revalidate:
+    name: Revalidate retained witness 1 offline
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+    - name: Checkout corrected qualification harness
+      uses: actions/checkout@v4
+
+    - name: Run publication CPU-only tests
+      run: python3 -m unittest tools.renderer_oracle.tests.test_sdvk009_publication -v
+
+    - name: Download retained failed qualification packet
+      uses: actions/download-artifact@v4
+      with:
+        name: sdvk009-avrea16-publication-qualification
+        run-id: 38280929120
+        github-token: ${{ github.token }}
+        path: build/retained
+
+    - name: Validate retained witness and negative controls without native execution
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p build/retained/unpacked
+        tar -xJf build/retained/sdvk009-avrea16-publication.tar.xz -C build/retained/unpacked
+        python3 - <<'PY'
+        import json
+        from pathlib import Path
+        from tools.renderer_oracle import sdvk009_publication as publication
+        root = Path("build/retained/unpacked/renderer-sdvk009-avrea16-publication/captures/shadow-witness-1")
+        proof = publication.validate_witness(root)
+        negatives = publication.negative_controls(root)
+        result = {
+            "schema": "sdvk009-retained-witness-revalidation/v1",
+            "status": "PASS" if proof["status"] == negatives["status"] == "PASS" else "FAIL",
+            "source_run": 38280929120,
+            "witness": proof,
+            "negative_controls": negatives,
+            "native_execution": False,
+            "qualification_accepted": False,
+        }
+        Path("build/retained-witness-revalidation.json").write_text(json.dumps(result, indent=2, sort_keys=True) + "\\n")
+        print(json.dumps({k: result[k] for k in ("schema", "status", "source_run", "native_execution", "qualification_accepted")}, sort_keys=True))
+        if result["status"] != "PASS":
+            raise SystemExit(1)
+        PY
+
+    - name: Upload offline revalidation receipt
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk009-retained-witness-revalidation
+        path: build/retained-witness-revalidation.json
+        retention-days: 30
+
   avrea16_publication:
     name: Avrea 16-vCPU full #146 publication qualification
     # TEMP AVREA KILL SWITCH: change the next line from true to false to suspend Avrea provisioning.
