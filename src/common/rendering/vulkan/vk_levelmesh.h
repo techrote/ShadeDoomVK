@@ -18,6 +18,10 @@ struct CollisionNodeBufferHeader
 	int padding3;
 };
 
+static_assert(sizeof(CollisionNodeBufferHeader) == sizeof(int) * 4, "Collision node buffer header must match std430 shader layout");
+static_assert(sizeof(CollisionNode) == sizeof(float) * 12, "CollisionNode must match shaders/binding_struct_definitions.glsl std430 layout");
+static_assert(sizeof(FFlatVertex) == sizeof(float) * 8, "FFlatVertex must match shader SurfaceVertex std430 layout");
+
 struct SurfaceInfo
 {
 	FVector3 Normal;

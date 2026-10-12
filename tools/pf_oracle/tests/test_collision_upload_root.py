@@ -1,6 +1,7 @@
 """Execute the production CPU-to-shader collision export without a GPU."""
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import unittest
 
@@ -35,8 +36,12 @@ struct FVector3 {
 };
 struct Bounds { FVector3 Center, Extents; };
 struct CollisionNode {
-    FVector3 center, extents;
+    FVector3 center;
+    float padding1;
+    FVector3 extents;
+    float padding2;
     int left = -1, right = -1, element_index = -1;
+    int padding3;
 };
 struct BlasNode {
     Bounds aabb;
@@ -104,6 +109,14 @@ int main(int argc, char** argv) {
     assert(argc == 2);
     const int scenario = argv[1][0] - '0';
     CPUAccelStruct actual;
+    // Pre-seed the destination so production Upload() must define explicit
+    // shader-visible padding rather than inheriting allocator contents.
+    actual.mesh.Mesh.Nodes.Resize(10000);
+    for (auto& node : actual.mesh.Mesh.Nodes) {
+        node.padding1 = 101.0f;
+        node.padding2 = 102.0f;
+        node.padding3 = 103;
+    }
     if (scenario == 1 || scenario == 2) {
         TlasNode root;
         root.blas_index = 0;
@@ -148,21 +161,45 @@ int main(int argc, char** argv) {
         const auto& dummy = actual.mesh.Mesh.Nodes[0];
         assert(dummy.left == -1 && dummy.right == -1 && dummy.element_index == -1);
     }
+    assert(actual.mesh.UploadRanges.Node.count > 0);
+    for (int i = 0; i < actual.mesh.UploadRanges.Node.count; ++i) {
+        const auto& node = actual.mesh.Mesh.Nodes[i];
+        assert(node.padding1 == 0.0f && node.padding2 == 0.0f && node.padding3 == 0);
+    }
 }
 '''
 
 
 class CollisionUploadRootTests(unittest.TestCase):
-    def test_exported_root_and_links_reach_original_triangles(self):
+    def _production_upload(self):
         source = (ROOT / "src/common/rendering/hwrenderer/data/hw_collision.cpp").read_text()
-        actual = production_function(source, "static FVector3 SwapYZ(") + "\n" + production_function(
+        return production_function(source, "static FVector3 SwapYZ(") + "\n" + production_function(
             source, "void CPUAccelStruct::Upload()")
+
+    def _run(self, actual, scenario):
         with tempfile.TemporaryDirectory() as directory:
             fixture = Path(directory) / "collision_upload.cpp"
             fixture.write_text(PREFIX + actual + SUFFIX)
-            for scenario in (1, 2, 3, 4):
-                with self.subTest(scenario=scenario):
-                    run_fixture(fixture, args=[str(scenario)])
+            return run_fixture(fixture, args=[str(scenario)])
+
+    def test_exported_root_and_links_reach_original_triangles(self):
+        actual = self._production_upload()
+        for scenario in (1, 2, 3, 4):
+            with self.subTest(scenario=scenario):
+                self._run(actual, scenario)
+
+    def test_prefixed_indeterminate_padding_behavior_is_retained_as_failure(self):
+        actual = self._production_upload()
+        old = actual
+        old = old.replace("info.padding1 = 0.0f;", "/* pre-fix padding1 left indeterminate */")
+        old = old.replace("info.padding2 = 0.0f;", "/* pre-fix padding2 left indeterminate */")
+        old = old.replace("info.padding3 = 0;", "/* pre-fix padding3 left indeterminate */")
+        self.assertNotEqual(old, actual)
+        # Scenario 1 pre-seeds backing padding. The old production export writes
+        # every consumed field but leaves those uploaded bytes untouched, so the
+        # fixture's final defined-padding assertion must fail.
+        with self.assertRaises(subprocess.CalledProcessError):
+            self._run(old, 1)
 
 
 if __name__ == "__main__":

@@ -46,8 +46,12 @@ struct CollisionBBox {
         Center((lo+hi)*0.5f),Extents((hi-lo)*0.5f) {}
 };
 struct CollisionNode {
-    FVector3 center, extents;
+    FVector3 center;
+    float padding1=0;
+    FVector3 extents;
+    float padding2=0;
     int left=-1, right=-1, element_index=-1;
+    int padding3=0;
 };
 struct BlasNode {
     CollisionBBox aabb;
