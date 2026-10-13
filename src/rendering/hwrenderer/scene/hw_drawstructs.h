@@ -201,9 +201,6 @@ public:
 	float bottomglowcolor[4];
 
 	int dynlightindex;
-	// SDVK-010 state-only provenance retained per sprite until its emitted Vulkan draw.
-	int packedSunProxyCount = 0;
-	int tracedSunProxyCount = 0;
 
 	union
 	{
@@ -451,6 +448,9 @@ public:
 	float offx, offy;
 	float trans;
 	int dynlightindex;
+	// SDVK-010: retained per-sprite until the immediate Vulkan draw.
+	int packedSunProxyCount = 0;
+	int tracedSunProxyCount = 0;
 
 	FGameTexture *texture;
 	AActor * actor;
