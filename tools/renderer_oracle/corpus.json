@@ -361,6 +361,37 @@
         "test_sdvk008_relief_contract.py",
         "-v"
       ]
+    },
+    "actor-probe-selection": {
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_actor_probe_contract.py",
+      "retained_fixture": "tools/pf_oracle/tests/actor_probe_selection_fixture.cpp",
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_actor_probe_contract.py",
+        "-v"
+      ]
+    },
+    "renderer-actor-probe-validation": {
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/renderer_oracle/tests/test_actor_probe_validation.py",
+      "retained_fixture": "tools/renderer_oracle/tests/test_actor_probe_portal_transition.py",
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "tools.renderer_oracle.tests.test_actor_probe_validation",
+        "tools.renderer_oracle.tests.test_actor_probe_portal_transition",
+        "-v"
+      ]
     }
   },
   "cvar_sources": {
