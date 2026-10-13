@@ -4812,6 +4812,17 @@
           "-p",
           "test_actor_probe_validation.py",
           "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_actor_probe_portal_transition.py",
+          "-v"
         ]
       ],
       "cpu_contracts": [
