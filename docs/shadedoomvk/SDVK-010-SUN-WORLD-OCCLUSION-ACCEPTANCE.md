@@ -1,6 +1,6 @@
 # SDVK-010 — actor sunlight and authored world occlusion
 
-Status: **candidate implementation; native acceptance requires retained hosted software-Vulkan proof**. This lane is independent of linked-portal transition acceptance and must not close issue #10.
+Status: **reviewed candidate; native acceptance requires retained hosted software-Vulkan proof**. This lane is independent of linked-portal transition acceptance and must not close issue #10.
 
 ## Authority and exact scene
 
@@ -37,3 +37,13 @@ The image test requires strictly greater **relative RGB sum** in the sunlit patc
 The CPU contract rejects wrong sun ray, disabled world trace, changed actor/probe identity, invalid or stale descriptor generation, missing/misclassified packed trace and upload, absent/non-finite sun resource provenance, missing material, same/wrong image order, and modified preregistered ROIs. The native oracle fails closed on absent probe pair or world-mesh/shader route. CPU synthetic negatives only test the validator; they are not proof of an actual hardware shader result.
 
 This lane does **not** change linked-portal sector-target/through-portal policy. The parallel portal transition branch remains a distinct SDVK-010 acceptance requirement. Keep both independent for the later single integration CI. Hosted llvmpipe correctness never grants physical GPU performance, architecture acceptance, or physical fault causality. **Physical STOP is active; historical root cause UNDETERMINED.**
+
+
+## Pre-native review hardening
+
+Source review preserved the demonstrated PBR parity correction and found two evidence-contract defects before any native acceptance run:
+
+- the dedicated `SDVSOCC` scene had inherited `SDVSUN` as its observed-map guard; this is corrected and catalog validation now requires every map guard to equal its authored map exactly;
+- actor environment ownership now requires the emitted nonzero runtime descriptor base to equal the observed bindless resource index with **span 2**, explicitly covering the PF-113 irradiance base plus adjacent prefilter descriptor under one generation/epoch. Synthetic negatives reject wrong span and mismatched runtime base.
+
+The focused branch qualification may therefore fail only on its actual source/build/native assertions; these preflight contract defects are no longer allowed to masquerade as sunlight results.
