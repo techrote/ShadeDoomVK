@@ -230,3 +230,12 @@ wrong offsets and completion/order failures without submitting invalid GPU work.
 These are software publication observations, not physical graph equivalence,
 historical shader-load visibility or root-cause attribution. See the
 [evidence contract](../SDVK-009-BOUND-PUBLICATION-WITNESS.md).
+
+
+## SDVK-010 linked-portal actor probe provenance (integration candidate)
+
+The existing state-only `probe.actor_selection` record now retains enough production provenance to distinguish selector ambiguity from recursive presentation: actor TID, source/render sector, source actor XYZ, `HWSprite::Process` presentation XYZ, source/render portal groups, group count, PF-009 `throughPortalMode`, portal mirror state and the selector's actual `portal_ambiguous` decision. The surrounding probe record still owns the emitted authored ordinal, runtime irradiance descriptor identity, published pair counts and LightProbe epoch; the existing context object independently records PF-010 producer, recursion depth and displaced viewpoint.
+
+The dedicated `portal-probes` oracle requires exact before/on/after actor records and a real `LineToLine` child context, stable probe epoch, stable pair per authored ordinal and distinct pairs across authored ordinals. Adversarial controls reject nearest-across-group substitution, double actor/context transform, wrong sector/mode/group, ordinal0 conflation, stale epoch, missing/reassociated samples and pair substitution.
+
+Fresh-process semantic comparison for this fixture alone excludes the ordinary `SDVFL` material's run-local bindless generation and the manager-wide `TextureEpoch` after evidence showed one unrelated texture retirement/reuse cycle can vary those fields. Selected probe generation/epoch/span, portal context, actor selection and every non-floor material identity remain exact; regression tests reject attempts to normalize them. Both final hosted captures had identical normalized state and zero RGB changes. This is correctness evidence, not a physical performance claim. [Receipt](../evidence/SDVK-010-LINKED-PORTAL-QUALIFICATION.json).

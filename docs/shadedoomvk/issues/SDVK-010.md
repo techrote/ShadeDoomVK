@@ -44,3 +44,23 @@ If PF-012 plumbing is found unsound, classify as foundational regression and blo
 The dedicated branch `sdvk-010-actor-probe-environment` consumes accepted SDVK-007, PF-012 and PF-113 and defines its explicit [actor environment v1 contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md). The bounded source-space nearest authored-probe policy uses interpolated actor positions, a 512-unit radius and deterministic tie/fallback semantics. Linked/ambiguous portal group presentation remains conservative sector-target selection; invalid/unpublished indices yield zero IBL via the existing unchanged PF-113 producer. World/model, gameplay, sunlight tracing and PBR BRDF/binding semantics are not changed.
 
 Positive/negative compiled fixtures, state-only emitted Vulkan draw diagnostics and new PBR actor/probe corpus controls are implemented. Full local CPU contract checks passed. **This is not issue acceptance**: exact-head hosted source/CI, live native `sun-probes` qualification, actual sunlight occlusion, linked-portal transition proof, release review and verified master are outstanding. Do not close #10 or claim general actor-environment correctness based on the preparatory checks alone.
+
+
+## 13 October 2026 — linked-portal acceptance lane integration candidate
+
+The dedicated `sdvk010-linked-portal-acceptance` branch has completed its bounded linked-portal actor probe-transition scope on substantive head `05f20e4f2856cb675f0cf286d08485869859ea8b`.
+
+Focused run **38446793761 PASS** established, on isolated hosted llvmpipe:
+
+- a real bidirectional linked `Line_SetPortal` topology with distinct portal groups and sector probe targets;
+- actual emitted before/on/after PBR actor draws;
+- the v1 conservative sector-target policy with authored ordinals 0 and 1;
+- distinct live runtime irradiance/prefilter pairs and stable probe epoch;
+- root versus recursive `LineToLine` PF-010 context ownership;
+- no cross-group nearest substitution and no double portal transform;
+- deliberate host-side negative controls for portal mode/group/sector/sample/pair/epoch errors;
+- two independent native captures with exact RGB equality and bounded semantic repeatability.
+
+The native investigation corrected the **test oracle**, not renderer portal policy: recursive line-portal presentation may keep PF-009 `throughPortalMode=0` because the child view/context already carries the linked displacement. Requiring another actor translation would be a double transform.
+
+This lane remains unmerged by design. Full repository source evidence/CI and final #10 closure are reserved for integration with the parallel sunlight/world-occlusion acceptance lane. Physical STOP remains active and no hardware-GPU claim follows.
