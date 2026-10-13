@@ -383,13 +383,31 @@
       "kind": "cpu_contract",
       "native_rendering_proof": false,
       "test_path": "tools/renderer_oracle/tests/test_actor_probe_validation.py",
-      "retained_fixture": "tools/renderer_oracle/tests/test_actor_probe_portal_transition.py",
       "command": [
         "{python}",
         "-m",
         "unittest",
-        "tools.renderer_oracle.tests.test_actor_probe_validation",
-        "tools.renderer_oracle.tests.test_actor_probe_portal_transition",
+        "discover",
+        "-s",
+        "tools/renderer_oracle/tests",
+        "-p",
+        "test_actor_probe_validation.py",
+        "-v"
+      ]
+    },
+    "actor-probe-portal-assertions": {
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/renderer_oracle/tests/test_actor_probe_portal_transition.py",
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/renderer_oracle/tests",
+        "-p",
+        "test_actor_probe_portal_transition.py",
         "-v"
       ]
     }
@@ -4798,7 +4816,8 @@
       ],
       "cpu_contracts": [
         "actor-probe-selection",
-        "renderer-actor-probe-validation"
+        "renderer-actor-probe-validation",
+        "actor-probe-portal-assertions"
       ],
       "id": "portal-probes",
       "native": {
