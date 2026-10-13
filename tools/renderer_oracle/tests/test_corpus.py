@@ -384,6 +384,10 @@ class AuthoredSceneTests(unittest.TestCase):
         probes = [t for t in records["thing"] if t["type"] == 9892]
         self.assertEqual([[t["x"], t["y"], t["height"]] for t in probes],
                          meta["authored_probe_positions"])
+        player = [t for t in records["thing"] if t["type"] == 1]
+        self.assertEqual(len(player), 1)
+        self.assertEqual(player[0]["renderstyle"], "NONE")
+        self.assertEqual(player[0]["alpha"], 0)
         actors = sorted((t for t in records["thing"] if t["type"] == 32218), key=lambda row: row["id"])
         self.assertEqual([t["id"] for t in actors], [5100, 5101, 5102])
         self.assertEqual([[t["x"], t["y"], t["height"]] for t in actors],

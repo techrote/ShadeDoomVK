@@ -772,6 +772,10 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
             height_texture="SDVH",
             native_visibility_and_allocation_required=True)
     elif generator == "portal_probes":
+        # The ordinary player pawn exists only to bootstrap the fixed camera.
+        # Keep it in simulation, but remove its unrelated animated sprite/material
+        # lifecycle from this static transition fixture.
+        model.records["thing"][0].update(renderstyle="NONE", alpha=0.0)
         portal_meta = _linked_portal_geometry(model)
         _material_layers(members)
         members["GLDEFS"] = _pbr("SDVTA0", kind="sprite").encode()
