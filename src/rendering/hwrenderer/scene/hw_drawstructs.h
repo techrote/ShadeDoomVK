@@ -399,6 +399,8 @@ struct HWSpriteRenderSurfaceState
 	int actorFrame;
 	int sourcePortalGroup;
 	int renderPortalGroup;
+	int sourceSectorIndex;
+	int renderSectorIndex;
 
 	FGameTexture* texture;
 	FTranslationID translation;
