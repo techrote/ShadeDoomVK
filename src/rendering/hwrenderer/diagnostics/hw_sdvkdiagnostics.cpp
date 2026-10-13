@@ -91,6 +91,7 @@ struct SceneEntry { const HWDrawInfo* Owner; std::string Json; };
 thread_local std::vector<SceneEntry> Scenes;
 thread_local std::string ActiveSpriteBasis;
 thread_local std::string ActiveActorProbe;
+thread_local std::string ActiveActorSun;
 
 template<class V> std::string Vector(const V& value)
 {
@@ -333,6 +334,28 @@ void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWS
     catch (const std::exception& error) { ActiveActorProbe.clear(); Fail(error.what()); }
 }
 void ClearActorProbeSelection() { ActiveActorProbe.clear(); }
+void ActorSunPacked(const AActor* actor, int packedSunCount, int tracedSunCount,
+    int lightIndex, const HWSpriteRenderSurfaceState& surface)
+{
+    if (!StateEnabled()) return;
+    try
+    {
+        using namespace SdvkObservation;
+        Require(actor && packedSunCount >= 0 && tracedSunCount >= 0 && tracedSunCount <= packedSunCount,
+            "Invalid packed actor sunlight provenance");
+        ActiveActorSun = Object().Bool("available", true).Str("contract", "sdvk-010-actor-sun-world-v1")
+            .Int("actor_tid", actor->tid).Int("packed_sun_count", packedSunCount)
+            .Int("traced_sun_count", tracedSunCount).Int("light_range_index", lightIndex)
+            .Bool("light_range_uploaded", lightIndex >= 0)
+            .Int("source_portal_group", surface.sourcePortalGroup)
+            .Int("render_portal_group", surface.renderPortalGroup)
+            .Str("scope", "actual actor sprite packed sunlight proxy; fragment visibility is image evidence, not a CPU prediction")
+            .Json();
+    }
+    catch (const std::exception& error) { ActiveActorSun.clear(); Fail(error.what()); }
+}
+void ClearActorSun() { ActiveActorSun.clear(); }
+std::string CurrentActorSunJson() { return StateEnabled() ? ActiveActorSun : std::string(); }
 std::string CurrentActorProbeSelectionJson() { return StateEnabled() ? ActiveActorProbe : std::string(); }
 
 std::string ApplicationCacheFilename(const char* leaf)

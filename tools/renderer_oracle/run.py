@@ -368,6 +368,13 @@ def capture(args):
             extent, pixels = images.decode(out / "native.png")
             require(list(extent) == profile["extent"] and raw["screenshot"]["available"] is True,
                     "Screenshot or actual client extent is missing")
+            if scene["id"] == "sun-actor-occlusion":
+                try:
+                    from .sdvk010_sun_occlusion import validate_projected_image
+                except ImportError:
+                    from sdvk010_sun_occlusion import validate_projected_image
+                result["sun_actor_image"] = validate_projected_image(
+                    extent, pixels, scene["native"]["state_assertions"]["actor_sun_occlusion"])
         result.update(status="COLLECTED", error="", reproduction=profile, build=raw["build"],
                       executable=executable, loaded_packages=packages, validation=structural,
                       console_settings=readbacks,
@@ -612,6 +619,12 @@ def _scene_assertions(raw, scene):
                 if relief["requires_mirrored_view"]:
                     require(any(row["eligible_draw"] and row["context"]["mirrored"] for row in draws),
                             "No mirrored-context height-bearing sprite relief emitted draw")
+            if "actor_sun_occlusion" in assertions:
+                try:
+                    from .sdvk010_sun_occlusion import validate_emitted_frame
+                except ImportError:
+                    from sdvk010_sun_occlusion import validate_emitted_frame
+                validate_emitted_frame(records, assertions["actor_sun_occlusion"])
             actor_probe = assertions.get("actor_probe")
             if actor_probe:
                 selections = [record["data"] for record in records if record["kind"] == "probe"

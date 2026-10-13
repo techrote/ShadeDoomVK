@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
-              "material_stress", "sun_probes", "sprite_mirror", "sprite_relief"}
+              "material_stress", "sun_probes", "sun_actor_occlusion", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -181,7 +181,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -239,6 +239,15 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                 raise ValueError(f"Scene {name} has invalid actor probe draw assertions")
             if actor_probe["require_live"] and not actor_probe["required_indices"]:
                 raise ValueError(f"Scene {name} asserts live probes without an authored index witness")
+        if "actor_sun_occlusion" in state_assertions:
+            from tools.renderer_oracle.sdvk010_sun_occlusion import check_contract
+            check_contract(state_assertions["actor_sun_occlusion"])
+            if name != "sun-actor-occlusion" or native.get("generator") != "sun_actor_occlusion":
+                raise ValueError("Sun/world-occlusion contract belongs only to its dedicated actor fixture")
+            if native["settings"].get("gl_spritelight") != 2 or native["settings"].get("gl_levelmesh") is not True:
+                raise ValueError("Sun/world-occlusion requires per-pixel actor lighting and a live world mesh")
+            if native["settings"].get("gl_light_shadows") != 2 or native["settings"].get("vk_rayquery") is not False:
+                raise ValueError("Sun/world-occlusion must retain the supported software world-trace workload")
         if "line_mirror" in state_assertions and state_assertions["line_mirror"] is not True:
             raise ValueError(f"Scene {name} requires an explicit positive line-mirror assertion")
         if "published_probes_minimum" in state_assertions:
@@ -515,8 +524,10 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
         from tools.renderer_oracle import sdvk008_fixtures
         return sdvk008_fixtures.authored_members(scene, sys.modules[__name__])
     members = _base_members()
-    is_sun = generator == "sun_probes"
-    model = _Map(floor=32 if is_sun else 0, ceiling=160 if is_sun else 128, sky=is_sun)
+    is_sun = generator in ("sun_probes", "sun_actor_occlusion")
+    model = _Map(floor=32 if is_sun else 0,
+                 ceiling=256 if generator == "sun_actor_occlusion" else 160 if is_sun else 128,
+                 sky=is_sun)
     camera = native["camera"]["position"]
     floor = model.records["sector"][0]["heightfloor"]
     yaw = math.radians(native["camera"]["yaw"])
@@ -681,6 +692,40 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
             height_material_names=["SM0001", "SM0002", "SM0004", "SM0006", "SM0010", "SM0018", "SM0026", "SM0034", "SM0042", "SM0050", "SM0058"],
             height_texture="SDVH",
             native_visibility_and_allocation_required=True)
+    elif generator == "sun_actor_occlusion":
+        # SDVK-010 actual world-geometry shade: at authored angle 330 the
+        # sunlight ray points northwest/up, intersects only the northern card's
+        # authored one-sided column and never obstructs the west camera ray.
+        model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
+        model.boundary([(-96, 96), (-48, 96), (-48, 160), (-96, 160)], ["SDVW"] * 4)
+        _material_layers(members)
+        members["GLDEFS"] = (
+            _pbr("SDVW") + _pbr("SDVFL", "flat") +
+            'material texture SDVOA0\n{\n normal "SDVN"\n metallic "SDVZERO"\n roughness "SDVROUG"\n ao "SDVAO"\n}\n'
+        ).encode()
+        # Identical RGBA/PBR material and normal on both actor cards.
+        members["sprites/SDVOA0.png"] = png_rgba(64, 64, bytes((148, 148, 148, 255)) * (64 * 64), offset=(32, 64))
+        members["textures/SDVN.png"] = png_rgba(16, 16, bytes((207, 91, 220, 255)) * 256)
+        members["textures/SDVROUG.png"] = png_rgba(16, 16, bytes((220, 220, 220, 255)) * 256)
+        members["textures/SDVSKY.png"] = _texture(256, 128, (120, 156, 194, 255), (180, 194, 210, 255))
+        sun = native["sun_input"]
+        model.thing(9890, 0, 0, angle=sun["angle"], pitch=sun["pitch"],
+                    lm_suncolor=sun["lm_suncolor"], lm_sunintensity=sun["lm_sunintensity"],
+                    lm_sampledist=sun.get("lm_sampledist", 64))
+        model.thing(9892, 0, 0, 80)
+        model.thing(32203, 0, -88, 0, tid=2020)
+        model.thing(32203, 0, 88, 0, tid=2021)
+        metadata.update(actor_sun_occlusion={
+            "sunlit_tid": 2020, "occluded_tid": 2021,
+            "sunlit_xy": [0, -88], "occluded_xy": [0, 88],
+            "probe_world": [0, 0, 80], "probe_ordinal": 0,
+            "occluder_xy": [[-96, 96], [-48, 160]],
+            "sun_direction_world": [-0.6123724357, 0.3535533906, 0.7071067812],
+            "camera_ray_blocked_by_column": False,
+            "world_sun_ray_blocked_for_northern_actor": True,
+            "world_sun_ray_blocked_for_southern_actor": False,
+            "image_and_fragment_visibility_not_proven_by_authoring": True
+        })
     elif generator == "sun_probes":
         model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
         _material_layers(members)

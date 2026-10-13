@@ -451,6 +451,24 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             if "actor_selection" in value:
                 _actor_probe_selection(value["actor_selection"], value["authored_index"],
                                        value["runtime_irradiance_index"])
+            if "actor_sunlight" in value:
+                sunlight = value["actor_sunlight"]
+                _availability(sunlight, "actor packed-sun provenance")
+                if sunlight["available"]:
+                    require(value.get("actor_selection", {}).get("available") is True,
+                            "Packed-sun provenance must belong to an actual selected actor card")
+                    require(sunlight.get("contract") == "sdvk-010-actor-sun-world-v1",
+                            "Unrecognized packed actor sunlight contract")
+                    for field in ("actor_tid", "packed_sun_count", "traced_sun_count"):
+                        integer(sunlight.get(field), field, minimum=0)
+                    integer(sunlight.get("light_range_index"), "sunlight upload index", minimum=-1)
+                    require(sunlight["traced_sun_count"] <= sunlight["packed_sun_count"] and
+                            sunlight.get("light_range_uploaded") is (sunlight["light_range_index"] >= 0),
+                            "Actor sun proxy trace count / actual upload disagree")
+                    for field in ("source_portal_group", "render_portal_group"):
+                        integer(sunlight.get(field), field)
+                    require(isinstance(sunlight.get("scope"), str) and sunlight["scope"],
+                            "Packed sunlight witness needs explicit observable scope")
             if not value["fallback"]:
                 published_irrad = integer(value.get("published_irradiance"), "probe cube count", minimum=1)
                 published_pref = integer(value.get("published_prefilter"), "probe prefilter count", minimum=1)

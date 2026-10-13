@@ -131,11 +131,12 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 	state.ClearSpriteRelief();
 	SdvkDiagnostics::ClearSpriteBasis();
 	SdvkDiagnostics::ClearActorProbeSelection();
+	SdvkDiagnostics::ClearActorSun();
 	// Restore diagnostic isolation even when this draw returns early. Keep the
 	// accepted PF-009 final-quad snapshot region unchanged byte-for-byte.
 	struct ActorProbeObservationScope
 	{
-		~ActorProbeObservationScope() { SdvkDiagnostics::ClearActorProbeSelection(); }
+		~ActorProbeObservationScope() { SdvkDiagnostics::ClearActorProbeSelection(); SdvkDiagnostics::ClearActorSun(); }
 	} actorProbeObservationScope;
 	bool paletteModeDisabled = false;
 	if ((OverrideShader != -1 || RenderStyle.BlendOp >= STYLEOP_Fuzz) && !V_IsTrueColor()) // We can't do these in palette mode with current shaders
@@ -185,6 +186,12 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 		}
 	}
 	state.SetLightProbeIndex(authoredProbe);
+	// One probe/sun provenance snapshot belongs to this immediate emitted
+	// actor card. Source is the already-packed, per-sprite uploaded light list;
+	// diagnostic state never feeds back into sunlight or probe selection.
+	if (actor && !modelframe)
+		SdvkDiagnostics::ActorSunPacked(actor, packedSunProxyCount, tracedSunProxyCount,
+			dynlightindex, RenderSurface);
 
 	if (translucent)
 	{
@@ -798,10 +805,21 @@ bool HWSprite::CalculateVertices(HWDrawInfo* di, FVector3* v, DVector3* vp)
 
 inline void HWSprite::PutSprite(HWDrawInfo *di, FRenderState& state, bool translucent)
 {
+	packedSunProxyCount = 0;
+	tracedSunProxyCount = 0;
 	// That's a lot of checks...
 	if ((get_gl_spritelight() > 0 || (modelframe && !modelframe->isVoxel && !(modelframeflags & MDL_NOPERPIXELLIGHTING))) && RenderStyle.BlendOp != STYLEOP_Shadow && gl_light_sprites && di->Level->HasDynamicLights && !di->isFullbrightScene() && !fullbright)
 	{
 		di->GetDynSpriteLightList(actor, gl_light_particles ? particle : nullptr, (gl_light_particles && spr != nullptr) ? &spr->StaticLightsTraceCache : nullptr, lightdata, modelframe && !modelframe->isVoxel);
+		if (actor && !modelframe && SdvkDiagnostics::StateEnabled())
+		{
+			for (const auto& packed : lightdata.arrays[LIGHTARRAY_NORMAL])
+			{
+				if ((packed.flags & LIGHTINFO_SUN) == 0) continue;
+				++packedSunProxyCount;
+				if ((packed.flags & LIGHTINFO_TRACE) != 0) ++tracedSunProxyCount;
+			}
+		}
 		dynlightindex = state.UploadLights(lightdata);
 	}
 	else
