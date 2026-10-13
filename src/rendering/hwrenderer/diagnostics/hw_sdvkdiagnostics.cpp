@@ -311,7 +311,8 @@ void ClearSpriteBasis() { ActiveSpriteBasis.clear(); }
 std::string CurrentSpriteBasisJson() { return StateEnabled() ? ActiveSpriteBasis : std::string(); }
 
 void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWSpriteRenderSurfaceState& surface,
-    double x, double y, double z)
+    int actorTid, int portalGroupCount, double x, double y, double z,
+    double presentationX, double presentationY, double presentationZ)
 {
     if (!StateEnabled()) return;
     try
@@ -319,14 +320,20 @@ void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWS
         using namespace SdvkObservation;
         ActiveActorProbe = Object().Bool("available", true).Str("contract", "sdvk-010-actor-ordinal/v1")
             .Str("policy", selected.policy).Bool("selected", selected.selected).Bool("spatial", selected.spatial)
+            .Bool("portal_ambiguous", selected.portalAmbiguous)
             .Int("authored_index", selected.authoredIndex).Int("sector_target", selected.sectorTarget)
             .Int("candidate_count", selected.candidateCount).Num("distance_squared", selected.distanceSquared)
+            .Int("actor_tid", actorTid)
             .Raw("actor_position", '[' + Number(x) + ',' + Number(y) + ',' + Number(z) + ']')
+            .Raw("presentation_position", '[' + Number(presentationX) + ',' + Number(presentationY) + ',' + Number(presentationZ) + ']')
+            .Int("source_sector", surface.sourceSectorIndex).Int("render_sector", surface.renderSectorIndex)
             .Int("source_portal_group", surface.sourcePortalGroup)
             .Int("render_portal_group", surface.renderPortalGroup)
+            .Int("portal_group_count", portalGroupCount)
             .Int("through_portal_mode", surface.throughPortalMode)
             .Bool("portal_mirrored", surface.portalMirrored)
             .Str("coordinate_space", "source-level-doom-xyz")
+            .Str("presentation_space", "single-inherited-portal-displacement")
             .Str("publication_policy", "PF-113 zero when selected pair absent; no alternate probe")
             .Json();
     }
