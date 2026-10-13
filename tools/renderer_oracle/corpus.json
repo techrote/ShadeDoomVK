@@ -4721,6 +4721,358 @@
     },
     {
       "classes": [
+        "probes_sun",
+        "portals_views",
+        "semantic_materials"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_actor_probe_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_actor_probe_validation.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "actor-probe-selection",
+        "renderer-actor-probe-validation"
+      ],
+      "id": "portal-probes",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDVPRT",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -320,
+            0,
+            64
+          ],
+          "roll": 0,
+          "yaw": 0
+        },
+        "capture_script": "scenes/portal-probes/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/portal-probes/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_multisample",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "portals": {
+            "minimum": 1
+          },
+          "sprites": {
+            "minimum": 3
+          }
+        },
+        "generator": "portal_probes",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": true,
+        "map": "SDVPRT",
+        "map_guard": {
+          "equals": "SDVSUN",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Hosted llvmpipe acceptance is correctness-only and does not establish physical-GPU performance or hardware stability.",
+          "This bounded fixture proves the existing conservative linked-portal actor probe policy; it introduces no temporal blending or new portal topology policy."
+        ],
+        "pk3": "scenes/portal-probes/scene.pk3",
+        "recommended_warmup_frames": 240,
+        "required_native_evidence": [
+          "native linked Line_SetPortal topology with at least two portal groups",
+          "actual emitted before/on/after actor source and presentation positions",
+          "actual source/render sector and portal-group provenance plus PF-009 throughPortalMode",
+          "distinct validated sector targets and published runtime irradiance/prefilter pairs",
+          "two independent clean-state captures and exact state/image comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": true,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": false,
+          "r_drawplayersprites": false,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "state_assertions": {
+          "materials": [
+            "SDVTA0"
+          ],
+          "material_semantics": {
+            "SDVTA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "published_probes_minimum": 2,
+          "actor_probe_portal": {
+            "material": "SDVTA0",
+            "minimum_draws": 3,
+            "require_live": true,
+            "require_distinct_runtime_pairs": true,
+            "samples": [
+              {
+                "role": "before",
+                "actor_tid": 5100,
+                "actor_position": [
+                  -112,
+                  0,
+                  0
+                ],
+                "presentation_position": [
+                  -112,
+                  0,
+                  0
+                ],
+                "source_sector": 0,
+                "render_sector": 0,
+                "sector_target": 0,
+                "authored_index": 0,
+                "policy": "portal-sector-conservative",
+                "through_portal_mode": 0,
+                "group_relation": "same",
+                "portal_mirrored": false
+              },
+              {
+                "role": "on",
+                "actor_tid": 5101,
+                "actor_position": [
+                  1088,
+                  -24,
+                  0
+                ],
+                "presentation_position": [
+                  64,
+                  -24,
+                  0
+                ],
+                "source_sector": 1,
+                "render_sector": 0,
+                "sector_target": 1,
+                "authored_index": 1,
+                "policy": "portal-sector-conservative",
+                "through_portal_mode": 1,
+                "group_relation": "different",
+                "portal_mirrored": false
+              },
+              {
+                "role": "after",
+                "actor_tid": 5102,
+                "actor_position": [
+                  1184,
+                  24,
+                  0
+                ],
+                "presentation_position": [
+                  160,
+                  24,
+                  0
+                ],
+                "source_sector": 1,
+                "render_sector": 0,
+                "sector_target": 1,
+                "authored_index": 1,
+                "policy": "portal-sector-conservative",
+                "through_portal_mode": 1,
+                "group_relation": "different",
+                "portal_mirrored": false
+              }
+            ]
+          }
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
+        "tools/pf_oracle/tests/pf113_probe_fixture.cpp",
+        "tools/pf_oracle/tests/probe_selection_fixture.cpp"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "probe",
+        "resource",
+        "pipeline"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md",
+        "docs/shadedoomvk/rag/06-LIGHTMAP-PROBE-PIPELINE.md",
+        "docs/shadedoomvk/rag/07-PORTAL-COORDINATE-SPACES.md",
+        "src/playsim/portal.cpp",
+        "src/rendering/hwrenderer/scene/hw_actor_probe_selection.h",
+        "src/rendering/hwrenderer/scene/hw_sprites.cpp",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
+        "tools/pf_oracle/tests/actor_probe_selection_fixture.cpp",
+        "tools/pf_oracle/tests/test_actor_probe_contract.py",
+        "tools/renderer_oracle/tests/test_actor_probe_validation.py"
+      ],
+      "title": "Linked-portal actor probe transition with distinct sector targets"
+    },
+    {
+      "classes": [
         "sprite_orientation",
         "semantic_materials",
         "portals_views"
