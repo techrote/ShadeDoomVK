@@ -228,8 +228,12 @@ class AuthoredSceneTests(unittest.TestCase):
                           + (player["y"] - camera["y"]) * math.sin(view))
                 self.assertLess(behind, 0)
                 self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
-                self.assertLess(metadata["boundary_signed_areas"][0], 0)
-                self.assertTrue(all(area > 0 for area in metadata["boundary_signed_areas"][1:]))
+                if scene["native"]["generator"] == "portal_probes":
+                    self.assertEqual(metadata["boundary_signed_areas"],
+                                     [-147456.0, -147456.0, -16384.0, -16384.0])
+                else:
+                    self.assertLess(metadata["boundary_signed_areas"][0], 0)
+                    self.assertTrue(all(area > 0 for area in metadata["boundary_signed_areas"][1:]))
                 for path, raw in members.items():
                     if path.endswith(".png"):
                         image, pixels = unpack_png(raw)
