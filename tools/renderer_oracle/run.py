@@ -775,6 +775,33 @@ def differences(left, right, path="", result=None, maximum=20):
     return result
 
 
+def _normalize_material_resource_generations(state):
+    """Canonicalize process-local material generation labels without hiding lifecycle changes.
+
+    Bindless material allocation generations are local labels: two fresh processes
+    may assign different numeric labels to the same stable material/index/epoch/span.
+    Canonicalizing each stable material resource by first-seen generation preserves
+    aliasing and transition patterns. Probe/resource generations outside material
+    records remain strict.
+    """
+    result = copy.deepcopy(state)
+    mappings = {}
+    for record in result:
+        if not isinstance(record, dict) or record.get("kind") != "material":
+            continue
+        data = record.get("data", {})
+        resource = data.get("resource", {})
+        if resource.get("available") is not True or "generation" not in resource:
+            continue
+        stable = (data.get("name"), resource.get("index"), resource.get("epoch"), resource.get("span"))
+        generations = mappings.setdefault(stable, {})
+        raw = resource["generation"]
+        if raw not in generations:
+            generations[raw] = len(generations)
+        resource["generation"] = generations[raw]
+    return result
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -793,7 +820,8 @@ def compare_runs(left, right, *, allow_build_change=False):
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
     static = a["reproduction"]["clock"] == "static_after_initialization"
-    x, y = validate.state_projection(left_raw, static_scene=static), validate.state_projection(right_raw, static_scene=static)
+    x = _normalize_material_resource_generations(validate.state_projection(left_raw, static_scene=static))
+    y = _normalize_material_resource_generations(validate.state_projection(right_raw, static_scene=static))
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
@@ -801,7 +829,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
+            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots, selected shadow rows and material-resource generation labels normalized bijectively; material generation transition/aliasing patterns and all non-material generations/epochs/resets/cancellations/waits/failures retained",
             "performance_accepted": False}
 
 

@@ -14,7 +14,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
-from tools.renderer_oracle import prepare, sdvk010_sun_occlusion as sun
+from tools.renderer_oracle import prepare, run, sdvk010_sun_occlusion as sun
 from tools.renderer_oracle.common import EvidenceError
 
 SPEC = {
@@ -159,6 +159,31 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
         wrong["image_rois"]["sunlit"]=[320,267,8]
         with self.assertRaises(EvidenceError):
             sun.check_contract(wrong)
+
+    def test_material_generation_repeat_normalization_is_bijective_and_probe_strict(self):
+        left = [
+            {"kind": "material", "data": {"name": "SDVSKY", "resource":
+                {"available": True, "index": 259, "generation": 3, "epoch": 2, "span": 4}}},
+            {"kind": "material", "data": {"name": "SDVSKY", "resource":
+                {"available": True, "index": 259, "generation": 3, "epoch": 2, "span": 4}}},
+            {"kind": "probe", "data": {"resource":
+                {"available": True, "index": 283, "generation": 1, "epoch": 2, "span": 2}}},
+        ]
+        right = copy.deepcopy(left)
+        right[0]["data"]["resource"]["generation"] = 4
+        right[1]["data"]["resource"]["generation"] = 4
+        self.assertEqual(run._normalize_material_resource_generations(left),
+                         run._normalize_material_resource_generations(right))
+
+        changed_lifecycle = copy.deepcopy(right)
+        changed_lifecycle[1]["data"]["resource"]["generation"] = 5
+        self.assertNotEqual(run._normalize_material_resource_generations(left),
+                            run._normalize_material_resource_generations(changed_lifecycle))
+
+        changed_probe = copy.deepcopy(right)
+        changed_probe[2]["data"]["resource"]["generation"] = 2
+        self.assertNotEqual(run._normalize_material_resource_generations(left),
+                            run._normalize_material_resource_generations(changed_probe))
 
     def test_unsafe_catalog_fails_closed_before_native_capture(self):
         for change in ("sun_angle", "shadow_mode", "actor_pair", "probe_material", "map_guard"):

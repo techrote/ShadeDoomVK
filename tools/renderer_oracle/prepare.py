@@ -769,11 +769,7 @@ class SDVKProbeMetal : Actor
                         sunlight=copy.deepcopy(native["sun_input"]), full_bake_qualified=False)
     else:
         raise ValueError(f"Not an authored generator: {generator}")
-    # This lane uses the shipped immutable IWAD sky (SKY1) rather than a
-    # generated dynamic sky texture whose descriptor was observed to be
-    # reallocated 3/4 times on otherwise identical fresh process launches.
-    # The geometry/sky plane, sun ray, PBR cards and light settings are unchanged.
-    sky = ' sky1 = "SKY1", 0' if generator == "sun_actor_occlusion" else ' sky1 = "SDVSKY", 0' if is_sun else ""
+    sky = ' sky1 = "SDVSKY", 0' if is_sun else ""
     members["MAPINFO"] = (f'map {map_name} "SDVK {scene["id"]}" {{ nointermission{sky} }}\n'
                           'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32201 = SDVKCanvasCamera\n'
                           ' 32202 = SDVKGlass\n 32203 = SDVKMarker\n}\n').encode()

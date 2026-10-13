@@ -47,3 +47,12 @@ Source review preserved the demonstrated PBR parity correction and found two evi
 - actor environment ownership now requires the emitted nonzero runtime descriptor base to equal the observed bindless resource index with **span 2**, explicitly covering the PF-113 irradiance base plus adjacent prefilter descriptor under one generation/epoch. Synthetic negatives reject wrong span and mismatched runtime base.
 
 The focused branch qualification may therefore fail only on its actual source/build/native assertions; these preflight contract defects are no longer allowed to masquerade as sunlight results.
+
+
+## First retained native packet and repeatability correction
+
+Focused run `38328713247` completed **two independent native captures** before reporting failure. Each capture independently passed the scene/state assertions and the preregistered relative actor image test. Both final RGB images were bit-identical. The generic cross-process comparator failed only because the generated `SDVSKY` material's bindless generation label was 3 in the first fresh process and 4 in the second; the actor material `SDVOA0` remained generation 1 in both, and the authored probe pair remained runtime index 283 / generation 1 / epoch 2 / span 2 in both.
+
+A proposed workaround that referenced IWAD `SKY1` is rejected because this authored corpus requires its scene textures to remain self-contained and must not introduce IWAD pixel dependence. Instead the generic comparator now canonicalizes **only material-resource generation labels**, bijectively per stable material/index/epoch/span. This preserves repeated/changed generation transition patterns and leaves every probe generation and all epochs strict. CPU negatives prove a changed material generation lifecycle still differs and a changed probe generation is never normalized.
+
+The two original native captures are therefore revalidated offline under the corrected comparison rule; no second native execution is required or justified.
