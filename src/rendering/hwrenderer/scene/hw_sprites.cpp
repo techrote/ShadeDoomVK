@@ -181,7 +181,8 @@ void HWSprite::DrawSprite(HWDrawInfo *di, FRenderState &state, bool translucent)
 				}, actor->Sector->lightProbe.index, portalAmbiguous);
 			authoredProbe = selection.authoredIndex;
 			SdvkDiagnostics::ActorProbeSelected(selection, RenderSurface,
-				actorPos.X, actorPos.Y, actorPos.Z);
+				actor->tid, int(di->Level->Displacements.size),
+				actorPos.X, actorPos.Y, actorPos.Z, x, y, z);
 		}
 	}
 	state.SetLightProbeIndex(authoredProbe);
@@ -1031,6 +1032,8 @@ void HWSprite::Process(HWDrawInfo *di, FRenderState& state, AActor* thing, secto
 	RenderSurface = {};
 	RenderSurface.source = HWSpriteSurfaceSource::Actor;
 	RenderSurface.throughPortalMode = thruportal;
+	RenderSurface.sourceSectorIndex = thing->Sector ? thing->Sector->sectornum : -1;
+	RenderSurface.renderSectorIndex = sector ? sector->sectornum : -1;
 	RenderSurface.renderPortalGroup = sector ? sector->PortalGroup : -1;
 
 	// [ZZ] allow CustomSprite-style direct picnum specification
