@@ -1,6 +1,6 @@
 # SDVK-010 — actor sunlight and authored world occlusion
 
-Status: **reviewed candidate; native acceptance requires retained hosted software-Vulkan proof**. This lane is independent of linked-portal transition acceptance and must not close issue #10.
+Status: **focused software-Vulkan acceptance passed; integration-ready sunlight lane**. This lane is independent of linked-portal transition acceptance and must not close issue #10.
 
 ## Authority and exact scene
 
@@ -71,3 +71,15 @@ The comparator therefore canonicalizes the **texture-manager epoch label** bijec
 within each process, preserving its transition/aliasing pattern. Probe generations and
 probe/lightmap/async epochs remain strict. A regression proves that an altered texture
 epoch transition pattern still fails, as do changed probe generation or probe epoch.
+
+
+## Focused qualification result
+
+The bounded focused qualification is complete.
+
+- Native run `38328713247` / job `115073297046` built the exact sunlight implementation on Avrea 16-vCPU with lavapipe only. CPU/source/negative controls, dependency setup, build identity and both independent native captures completed. Retained artifact `11781502590`, digest `sha256:f0323b3a4ef8c7a120ef245d575df192794c47a15dc55ee6853f37b6ad9fb8e9`.
+- Both native captures independently passed the actor/probe/sun/image assertions and produced bit-identical RGB. The original wrapper reported FAIL only because the generic state comparator treated process-local material/texture-manager generation labels as cross-process semantic values.
+- Offline revalidation run `38444141252` on the corrected comparator passed with `state_equal=true`, `changed_pixels=0`, and `native_execution=false`. Retained revalidation artifact `11836882592`, digest `sha256:07c75b22c8e6e07cc6bad47cde0168c4984e6c1f847bad9073db015bb8e6606e`.
+- The comparator correction is narrow: material-resource generations and the texture-manager epoch are normalized bijectively, preserving transition/aliasing patterns. Probe generations, probe/lightmap/async epochs, LevelMesh state, stale/failure diagnostics and exact images remain strict.
+
+No physical GPU execution occurred. This lane is ready to integrate with the separately qualified linked-portal lane; it is not an independent authorization to close #10 or merge directly to master.

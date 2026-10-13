@@ -9,14 +9,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-  actions: read
-
 jobs:
   pf_oracle:
     name: PF renderer contract oracle
-    if: github.event_name != 'pull_request' || github.head_ref != 'sdvk010-sun-occlusion-acceptance'
     runs-on: ubuntu-22.04
 
     steps:
@@ -320,69 +315,3 @@ jobs:
 #       token: ${{ secrets.GITHUB_TOKEN }}
 #       files: build/vkdoom-windows-prerelease.zip
 #              build/vkdoom-linux-prerelease.zip
-
-
-  sdvk010_sun_revalidate:
-    name: SDVK-010 offline revalidate retained sunlight captures
-    if: github.event_name == 'pull_request' && github.head_ref == 'sdvk010-sun-occlusion-acceptance'
-    runs-on: ubuntu-22.04
-    timeout-minutes: 10
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Run focused CPU regressions
-      run: python3 -m unittest tools.renderer_oracle.tests.test_sdvk010_sun_occlusion -v
-
-    - name: Download original retained native packet
-      uses: actions/download-artifact@v4
-      with:
-        name: sdvk010-sun-focused
-        run-id: 38328713247
-        github-token: ${{ github.token }}
-        path: build/retained
-
-    - name: Revalidate both independent captures without native execution
-      shell: bash
-      run: |
-        set -euo pipefail
-        mkdir -p build/retained/unpacked
-        tar -xJf build/retained/sdvk010-sun-focused.tar.xz -C build/retained/unpacked
-        python3 - <<'PY'
-        import json
-        from pathlib import Path
-        from tools.renderer_oracle import images, run, sdvk010_sun_occlusion as sun
-
-        root = Path("build/retained/unpacked/sdvk010-sun-native")
-        scene = next(s for s in run.preparation_module().load_catalog()["scenes"]
-                     if s["id"] == "sun-actor-occlusion")
-        spec = scene["native"]["state_assertions"]["actor_sun_occlusion"]
-        receipts = []
-        for name in ("sun-capture-1", "sun-capture-2"):
-            capture = root / name
-            _, data, raw, structural = run.validate_run(capture / "run.json")
-            extent, rgb = images.decode(capture / "native.png")
-            projected = sun.validate_projected_image(extent, rgb, spec)
-            receipts.append({"name": name, "validation": structural, "projected_image": projected,
-                             "sun_actor_image": data.get("sun_actor_image")})
-        comparison = run.compare_runs(root / "sun-capture-1" / "run.json",
-                                      root / "sun-capture-2" / "run.json")
-        if comparison["status"] != "PASS" or comparison["image"]["changed_pixels"] != 0:
-            raise SystemExit("retained independent captures still fail corrected repeatability")
-        result = {"schema": "sdvk010-sun-retained-revalidation/v1", "status": "PASS",
-                  "source_run": 38328713247, "source_artifact": 11781502590,
-                  "native_execution": False, "captures": receipts, "comparison": comparison,
-                  "linked_portal_acceptance": "pending", "physical_gpu_qualified": False}
-        Path("build/sdvk010-sun-retained-revalidation.json").write_text(
-            json.dumps(result, indent=2, sort_keys=True) + "\n")
-        print(json.dumps({"status": result["status"], "native_execution": False,
-                          "state_equal": comparison["state_equal"],
-                          "changed_pixels": comparison["image"]["changed_pixels"]}, sort_keys=True))
-        PY
-
-    - name: Upload corrected offline revalidation receipt
-      uses: actions/upload-artifact@v4
-      with:
-        name: sdvk010-sun-retained-revalidation
-        path: build/sdvk010-sun-retained-revalidation.json
-        retention-days: 30

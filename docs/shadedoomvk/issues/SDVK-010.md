@@ -51,3 +51,10 @@ Positive/negative compiled fixtures, state-only emitted Vulkan draw diagnostics 
 The isolated branch `sdvk010-sun-occlusion-acceptance` is based on verified `master@0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f` and owns only the outstanding actor sunlight/world-occlusion gate. It adds a dedicated `SDVSOCC` fixture with matched PBR actor material/probe identity, a one-sided authored world occluder, state-only packed traced-sun provenance, strict PF-113 two-descriptor probe-pair identity, relative preregistered native image discrimination, and exact repeatability. Source review also found and narrowly corrects the demonstrated PBR omission of the already-accepted `LIGHTINFO_SUN|LIGHTINFO_TRACE -> traceSun` branch present in the normal light model.
 
 The linked-portal transition lane remains independent. Do not close #10 or run the combined full CI from this sunlight branch alone. Physical STOP remains active and hosted llvmpipe results are correctness-only.
+
+
+## 13 October 2026 — sunlight lane integration-ready
+
+The sunlight/world-occlusion branch has completed focused qualification. Native run `38328713247` produced two retained independent lavapipe captures; both passed the actor/probe/sun/image assertions and had identical RGB. Its wrapper failure was isolated to process-local material/texture-manager generation labels in the generic cross-process comparator. Corrected offline revalidation `38444141252` passed with `state_equal=true`, `changed_pixels=0`, no new native execution, and retained artifact `11836882592`.
+
+The lane is ready for integration with the separate linked-portal acceptance branch. Do **not** close #10 or merge this branch directly to master. The combined tree still needs the single normal required CI run after both lanes are integrated. Physical STOP remains active.

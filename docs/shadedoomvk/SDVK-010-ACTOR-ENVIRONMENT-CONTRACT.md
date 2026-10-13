@@ -48,3 +48,10 @@ The existing `sun-probes` recipe requests a sun and publishes probe resources, b
 ### 13 October 2026 — sunlight/world-occlusion parallel lane
 
 The independent branch `sdvk010-sun-occlusion-acceptance` is based on verified `master@0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f`. Its dedicated scene is `sun-actor-occlusion` / map `SDVSOCC`; existing `sun-probes` and portal fixtures are unchanged. The lane is integration-ready only after focused CPU/source tests and two bounded hosted llvmpipe captures pass. Those captures are correctness evidence only and do not satisfy the still-separate linked-portal transition requirement or any physical-GPU gate.
+
+
+### Focused sunlight acceptance result
+
+The sunlight/world-occlusion lane has passed its bounded software correctness gate. Native run `38328713247` retained two independent lavapipe captures with both actor cards on the same live authored probe pair, one traced sun proxy per emitted actor draw, valid world-trace shader state, correct preregistered sunlit>occluded image relation and bit-identical final RGB. The run's only wrapper failure was cross-process comparison of process-local material/texture-manager labels; no actor/probe/sun assertion failed.
+
+Offline revalidation `38444141252` corrected that comparison rule without re-executing the renderer and passed with semantic state equality and zero changed pixels. The corrected rule keeps probe generation/epoch and all sunlight-critical state strict. Therefore the sunlight/world-occlusion acceptance lane is **integration-ready**. Linked-portal transition acceptance remains independently required before SDVK-010 can be accepted.
