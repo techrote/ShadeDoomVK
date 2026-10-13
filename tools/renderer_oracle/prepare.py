@@ -27,7 +27,7 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
-              "material_stress", "sun_probes", "sprite_mirror", "sprite_relief"}
+              "material_stress", "sun_probes", "portal_probes", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -181,7 +181,7 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_probe_portal"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
@@ -239,6 +239,39 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                 raise ValueError(f"Scene {name} has invalid actor probe draw assertions")
             if actor_probe["require_live"] and not actor_probe["required_indices"]:
                 raise ValueError(f"Scene {name} asserts live probes without an authored index witness")
+        portal_probe = state_assertions.get("actor_probe_portal")
+        if portal_probe is not None:
+            if (not isinstance(portal_probe, dict) or set(portal_probe) !=
+                    {"material", "minimum_draws", "samples", "require_live", "require_distinct_runtime_pairs"}
+                    or not isinstance(portal_probe["material"], str) or not portal_probe["material"]
+                    or portal_probe["material"] not in state_assertions.get("materials", [])
+                    or type(portal_probe["minimum_draws"]) is not int or not 3 <= portal_probe["minimum_draws"] <= 1000
+                    or type(portal_probe["require_live"]) is not bool
+                    or type(portal_probe["require_distinct_runtime_pairs"]) is not bool
+                    or not isinstance(portal_probe["samples"], list) or len(portal_probe["samples"]) < 3):
+                raise ValueError(f"Scene {name} has invalid linked-portal actor probe assertions")
+            roles = []
+            tids = []
+            for sample in portal_probe["samples"]:
+                if (not isinstance(sample, dict) or set(sample) !=
+                        {"role", "actor_tid", "actor_position", "presentation_position", "source_sector",
+                         "render_sector", "sector_target", "authored_index", "policy", "through_portal_mode",
+                         "group_relation", "portal_mirrored"}
+                        or sample["role"] not in ("before", "on", "after", "reverse")
+                        or type(sample["actor_tid"]) is not int or sample["actor_tid"] <= 0
+                        or any(not isinstance(sample[key], list) or len(sample[key]) != 3 or
+                               any(type(v) not in (int, float) or not math.isfinite(v) for v in sample[key])
+                               for key in ("actor_position", "presentation_position"))
+                        or any(type(sample[key]) is not int for key in
+                               ("source_sector", "render_sector", "sector_target", "authored_index", "through_portal_mode"))
+                        or sample["policy"] != "portal-sector-conservative"
+                        or sample["group_relation"] not in ("same", "different")
+                        or type(sample["portal_mirrored"]) is not bool):
+                    raise ValueError(f"Scene {name} has malformed linked-portal sample")
+                roles.append(sample["role"])
+                tids.append(sample["actor_tid"])
+            if roles[:3] != ["before", "on", "after"] or len(set(tids)) != len(tids):
+                raise ValueError(f"Scene {name} requires distinct deterministic before/on/after actor samples")
         if "line_mirror" in state_assertions and state_assertions["line_mirror"] is not True:
             raise ValueError(f"Scene {name} requires an explicit positive line-mirror assertion")
         if "published_probes_minimum" in state_assertions:
@@ -420,6 +453,56 @@ class _Map:
             for row in rows:
                 text.append(kind + " { " + " ".join(f"{key} = {_literal(value)};" for key, value in row.items()) + " }")
         return "\n".join(text) + "\n"
+
+
+def _linked_portal_geometry(model: _Map) -> dict:
+    """Two closed rooms joined only by a real bidirectional linked line portal."""
+    for _ in range(3):
+        model.records["sector"].append(copy.deepcopy(model.records["sector"][0]))
+
+    def vertex(x: int, y: int) -> int:
+        index = len(model.records["vertex"])
+        model.records["vertex"].append({"x": x, "y": y})
+        return index
+
+    def side(sector: int, texture: str = "SDVW") -> int:
+        index = len(model.records["sidedef"])
+        model.records["sidedef"].append({"sector": sector, "texturemiddle": texture})
+        return index
+
+    def line(v1: int, v2: int, front: int, *, back: int | None = None, texture: str = "SDVW", **extra) -> int:
+        row = {"v1": v1, "v2": v2, "sidefront": side(front, texture)}
+        if back is None:
+            row["blocking"] = True
+        else:
+            row["sideback"] = side(back, "-")
+            row["blocking"] = False
+        row.update(extra)
+        index = len(model.records["linedef"])
+        model.records["linedef"].append(row)
+        return index
+
+    # Room A: west/main-camera group. East opening A3->A4 is the portal.
+    a0, a1, a2, a3, a4, a5 = [vertex(x, y) for x, y in
+        ((-384, -192), (-384, 192), (0, 192), (0, 64), (0, -64), (0, -192))]
+    line(a0, a1, 0); line(a1, a2, 0); line(a2, a3, 0)
+    portal_a = line(a3, a4, 0, back=2, texture="-", special=156, arg0=102, arg1=101, arg2=3, arg3=0)
+    line(a4, a5, 0); line(a5, a0, 0)
+    da_top, da_bottom = vertex(128, 64), vertex(128, -64)
+    line(a3, da_top, 2); line(da_top, da_bottom, 2); line(da_bottom, a4, 2)
+
+    # Room B: displaced east group. West opening B1->B2 is the reverse portal.
+    b0, b1, b2, b3, b4, b5 = [vertex(x, y) for x, y in
+        ((1024, -192), (1024, -64), (1024, 64), (1024, 192), (1408, 192), (1408, -192))]
+    line(b0, b1, 1)
+    portal_b = line(b1, b2, 1, back=3, texture="-", special=156, arg0=101, arg1=102, arg2=3, arg3=0)
+    line(b2, b3, 1); line(b3, b4, 1); line(b4, b5, 1); line(b5, b0, 1)
+    db_bottom, db_top = vertex(896, -64), vertex(896, 64)
+    line(b1, db_bottom, 3); line(db_bottom, db_top, 3); line(db_top, b2, 3)
+
+    model.polygon_areas += [-147456.0, -147456.0, -16384.0, -16384.0]
+    return {"portal_line_indices": [portal_a, portal_b], "portal_line_ids": [101, 102],
+            "portal_displacement": [1024, 0], "room_sectors": [0, 1], "back_sectors": [2, 3]}
 
 
 def _zscript() -> bytes:
@@ -681,6 +764,42 @@ class SDVKLegacy : SDVKRotated { States { Spawn: SDVL A -1; Stop; } }
             height_material_names=["SM0001", "SM0002", "SM0004", "SM0006", "SM0010", "SM0018", "SM0026", "SM0034", "SM0042", "SM0050", "SM0058"],
             height_texture="SDVH",
             native_visibility_and_allocation_required=True)
+    elif generator == "portal_probes":
+        portal_meta = _linked_portal_geometry(model)
+        _material_layers(members)
+        members["GLDEFS"] = _pbr("SDVTA0", kind="sprite").encode()
+        members["sprites/SDVTA0.png"] = _texture(
+            64, 64, (76, 188, 224, 255), (226, 108, 62, 255), offset=(32, 64))
+        members["ZSCRIPT"] += b"""
+class SDVKPortalProbeActor : Actor
+{
+    Default { Radius 8; Height 64; +NOGRAVITY +NOBLOCKMAP }
+    States { Spawn: SDVT A -1; Stop; }
+}
+"""
+        # Distinct authored targets are selected from each room's sector center.
+        model.thing(9892, -192, 0, 64)
+        model.thing(9892, 1216, 0, 64)
+        samples = [
+            {"role": "before", "tid": 5100, "source": [-112, 0, 0], "presentation": [-112, 0, 0],
+             "source_sector": 0, "render_sector": 0, "sector_target": 0, "authored_index": 0,
+             "through_portal_mode": 0, "group_relation": "same"},
+            {"role": "on", "tid": 5101, "source": [1088, -24, 0], "presentation": [64, -24, 0],
+             "source_sector": 1, "render_sector": 0, "sector_target": 1, "authored_index": 1,
+             "through_portal_mode": 1, "group_relation": "different"},
+            {"role": "after", "tid": 5102, "source": [1184, 24, 0], "presentation": [160, 24, 0],
+             "source_sector": 1, "render_sector": 0, "sector_target": 1, "authored_index": 1,
+             "through_portal_mode": 1, "group_relation": "different"},
+        ]
+        for sample in samples:
+            model.thing(32218, sample["source"][0], sample["source"][1], sample["source"][2], tid=sample["tid"])
+        metadata.update(portal_meta,
+                        actor_probe_material="SDVTA0",
+                        authored_probe_positions=[[-192, 0, 64], [1216, 0, 64]],
+                        portal_actor_samples=samples,
+                        expected_portal_groups=2,
+                        actual_linked_portal_required=True,
+                        temporal_blending=False)
     elif generator == "sun_probes":
         model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
         _material_layers(members)
@@ -727,6 +846,8 @@ class SDVKProbeMetal : Actor
                           ' 32202 = SDVKGlass\n 32203 = SDVKMarker\n}\n').encode()
     if generator == "sun_probes":
         members["MAPINFO"] += "DoomEdNums\n{\n 32217 = SDVKProbeMetal\n}\n".encode()
+    if generator == "portal_probes":
+        members["MAPINFO"] += "DoomEdNums\n{\n 32218 = SDVKPortalProbeActor\n}\n".encode()
     if generator == "sprite_mirror":
         members["MAPINFO"] += ("DoomEdNums\n{\n 32210 = SDVKRotated\n 32211 = SDVKWall\n"
                                " 32212 = SDVKFlat\n 32213 = SDVKFlipX\n 32214 = SDVKFlipY\n 32215 = SDVKPBR\n 32216 = SDVKLegacy\n}\n").encode()
