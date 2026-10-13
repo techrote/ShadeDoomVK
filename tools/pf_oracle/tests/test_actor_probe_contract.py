@@ -69,7 +69,7 @@ class ActorProbeContract(unittest.TestCase):
         self.assertIn("if (!StateEnabled()) return;", source)
         self.assertIn('"sdvk-010-actor-ordinal/v1"', source)
         self.assertIn('"source-level-doom-xyz"', source)
-        self.assertIn('"single-inherited-portal-displacement"', source)
+        self.assertIn('"hw-sprite-process-after-optional-thruportal-displacement"', source)
         self.assertIn('"portal_ambiguous"', source)
         self.assertIn('"source_sector"', source)
         self.assertIn('"render_sector"', source)
