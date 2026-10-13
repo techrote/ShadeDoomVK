@@ -44,3 +44,10 @@ If PF-012 plumbing is found unsound, classify as foundational regression and blo
 The dedicated branch `sdvk-010-actor-probe-environment` consumes accepted SDVK-007, PF-012 and PF-113 and defines its explicit [actor environment v1 contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md). The bounded source-space nearest authored-probe policy uses interpolated actor positions, a 512-unit radius and deterministic tie/fallback semantics. Linked/ambiguous portal group presentation remains conservative sector-target selection; invalid/unpublished indices yield zero IBL via the existing unchanged PF-113 producer. World/model, gameplay, sunlight tracing and PBR BRDF/binding semantics are not changed.
 
 Positive/negative compiled fixtures, state-only emitted Vulkan draw diagnostics and new PBR actor/probe corpus controls are implemented. Full local CPU contract checks passed. **This is not issue acceptance**: exact-head hosted source/CI, live native `sun-probes` qualification, actual sunlight occlusion, linked-portal transition proof, release review and verified master are outstanding. Do not close #10 or claim general actor-environment correctness based on the preparatory checks alone.
+
+
+## 13 October 2026 — parallel sunlight/world-occlusion lane
+
+The isolated branch `sdvk010-sun-occlusion-acceptance` is based on verified `master@0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f` and owns only the outstanding actor sunlight/world-occlusion gate. It adds a dedicated `SDVSOCC` fixture with matched PBR actor material/probe identity, a one-sided authored world occluder, state-only packed traced-sun provenance, strict PF-113 two-descriptor probe-pair identity, relative preregistered native image discrimination, and exact repeatability. Source review also found and narrowly corrects the demonstrated PBR omission of the already-accepted `LIGHTINFO_SUN|LIGHTINFO_TRACE -> traceSun` branch present in the normal light model.
+
+The linked-portal transition lane remains independent. Do not close #10 or run the combined full CI from this sunlight branch alone. Physical STOP remains active and hosted llvmpipe results are correctness-only.

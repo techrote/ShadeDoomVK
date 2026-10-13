@@ -21,7 +21,9 @@ Date: 10 October 2026. Owner: [SDVK-010 / issue #10](https://github.com/techrote
 
 ## PBR, sunlight and visibility ownership
 
-`lightmodel_pbr.glsl` retains PF-113 `SampleProbeIrradiance` and `SampleProbePrefiltered`, roughness LOD and the BRDF LUT. The SDVK-007 normal field is consumed without an additional shader tangent override. World-space sunlight and occlusion retain the accepted `HWDrawInfo::GetDynSpriteLightList` / `ActorTraceStaticLight::TraceSunVisibility` route, world query generation and portal-group correctness contracts; `shadowAttenuation` remains the PBR shader's existing direct-light policy. There is **no new shader lighting law, shadow proxy, probe blending or baked GI claim**.
+`lightmodel_pbr.glsl` retains PF-113 `SampleProbeIrradiance` and `SampleProbePrefiltered`, roughness LOD and the BRDF LUT. The SDVK-007 normal field is consumed without an additional shader tangent override. Review of the dedicated sunlight/world-occlusion fixture exposed one concrete PBR parity defect: the normal light model already sends a packed `LIGHTINFO_SUN|LIGHTINFO_TRACE` proxy through the existing `traceSun` world-geometry function, while PBR previously skipped that branch and only considered the local shadow-map rule. The sunlight lane restores that exact existing `traceSun` branch for the traced sun flag pair before the unchanged local-light `shadowAttenuation` branch. It does **not** recalibrate the BRDF, probe lookup, sampler, local shadow quality, portal policy, add a new shadow proxy, or claim baked GI.
+
+The dedicated `sun-actor-occlusion` fixture keeps two identical `SDVOA0` actor cards in one portal group with the same authored probe ordinal 0 and requires the actual nonzero runtime descriptor allocation to have PF-113 span 2: the base irradiance descriptor plus its adjacent prefilter descriptor share one generation/epoch. A one-sided authored world column intersects only the northern card's traced sun ray. Packed-light provenance is attached to the actual emitted card; per-fragment visibility is established separately by preregistered native image ROIs and exact clean-state repeatability.
 
 ## State-only, emitted-draw qualification
 
@@ -41,3 +43,8 @@ The positive fixture samples two distinct dielectric (zero-metallic/high-roughne
 A complete local `tools/check.py` gate passed on the worktree: PF contract tests (including PF-113 source hash), CFX tests, renderer-oracle fixtures, deterministic native-scene package preparation, repeated identical oracle outputs and four compiled contract fixtures. This is **CPU source/fixture qualification only**. No local Vulkan display/GPU result is attributed to this run. Hosted exact-PR build/source-evidence and software-Vulkan captured state/images remain the release gate.
 
 The existing `sun-probes` recipe requests a sun and publishes probe resources, but does **not** run a full lightmap bake. Its configured `gl_levelmesh=false` and `gl_light_shadows=0` cannot by themselves qualify actual world-sun occlusion or linked-portal crossed-sector probe transitions. Those acceptance criteria must be qualified separately before final issue closure. The current fixtures demonstrate **boundary decision and emitted sprite consumer state**, not a physically measured light-leak fix. Performance and physical hardware modes remain unmeasured.
+
+
+### 13 October 2026 — sunlight/world-occlusion parallel lane
+
+The independent branch `sdvk010-sun-occlusion-acceptance` is based on verified `master@0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f`. Its dedicated scene is `sun-actor-occlusion` / map `SDVSOCC`; existing `sun-probes` and portal fixtures are unchanged. The lane is integration-ready only after focused CPU/source tests and two bounded hosted llvmpipe captures pass. Those captures are correctness evidence only and do not satisfy the still-separate linked-portal transition requirement or any physical-GPU gate.

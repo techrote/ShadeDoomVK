@@ -15940,8 +15940,8 @@
         "manual_opt_in": true,
         "map": "SDVSOCC",
         "map_guard": {
-          "equals": "SDVSUN",
-          "field": "observed map name"
+          "field": "observed map name",
+          "equals": "SDVSOCC"
         },
         "pending_coverage": [
           "Authored solid-column geometry and actual PBR sun proxy draw are distinct from a proved fragment visibility result; run focused native state/image qualification before acceptance.",

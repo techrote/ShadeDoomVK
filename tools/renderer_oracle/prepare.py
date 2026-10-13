@@ -154,6 +154,9 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             validate_direction_witness(native)
         if not re.fullmatch(r"[A-Z0-9_]{1,8}", native.get("map", "")):
             raise ValueError(f"Invalid map name for {name}")
+        guard = native.get("map_guard")
+        if guard is not None and guard != {"field": "observed map name", "equals": native["map"]}:
+            raise ValueError(f"Scene {name} map guard must match its authored map exactly")
         for key, leaf in (("pk3", "scene.pk3"), ("config", "fixture.ini"), ("capture_script", "capture.cfg")):
             if relative_path(native.get(key, "")) != f"scenes/{name}/{leaf}":
                 raise ValueError(f"Scene {name} has an unexpected {key} destination")

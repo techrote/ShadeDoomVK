@@ -56,9 +56,13 @@ def _finite_xyz(value):
 def _probe_token(probe):
     resource = probe.get("resource", {})
     require(resource.get("available") is True and
-            all(key in resource for key in ("index", "generation", "epoch")),
-            "Actor's actual irradiance descriptor owner is absent")
-    return (resource["index"], resource["generation"], resource["epoch"])
+            all(key in resource for key in ("index", "generation", "epoch", "span")),
+            "Actor's actual irradiance/prefilter descriptor owner is absent")
+    require(resource["span"] == 2,
+            "Actor environment resource is not the PF-113 adjacent irradiance/prefilter pair")
+    require(probe.get("runtime_irradiance_index") == resource["index"],
+            "Actor runtime irradiance base does not match its published descriptor pair")
+    return (resource["index"], resource["generation"], resource["epoch"], resource["span"])
 
 
 def validate_emitted_frame(records, spec):

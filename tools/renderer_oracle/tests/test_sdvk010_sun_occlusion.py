@@ -125,6 +125,8 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
             (4, ["data", "actor_sunlight", "light_range_uploaded"], False),
             (4, ["data", "probe_epoch"], 999),
             (4, ["data", "resource", "generation"], 999),
+            (4, ["data", "resource", "span"], 1),
+            (4, ["data", "runtime_irradiance_index"], 260),
             (4, ["data", "actor_selection", "policy"], "sector-target"),
             (2, ["data", "mode"], "disabled"),
             (0, ["data", "sun", "intensity"], 0),
@@ -159,7 +161,7 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
             sun.check_contract(wrong)
 
     def test_unsafe_catalog_fails_closed_before_native_capture(self):
-        for change in ("sun_angle", "shadow_mode", "actor_pair", "probe_material"):
+        for change in ("sun_angle", "shadow_mode", "actor_pair", "probe_material", "map_guard"):
             catalog=prepare.load_catalog()
             scene=next(s for s in catalog["scenes"] if s["id"] == "sun-actor-occlusion")
             if change=="sun_angle":
@@ -168,8 +170,10 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
                 scene["native"]["settings"]["gl_light_shadows"]=0
             elif change=="actor_pair":
                 scene["native"]["state_assertions"]["actor_sun_occlusion"]["occluded_tid"]=2020
-            else:
+            elif change=="probe_material":
                 scene["native"]["state_assertions"]["actor_sun_occlusion"]["material"]="SDVOA0-OTHER"
+            else:
+                scene["native"]["map_guard"]["equals"]="SDVSUN"
             with self.subTest(change=change), self.assertRaises((ValueError, EvidenceError)):
                 prepare.validate_catalog(catalog)
 
