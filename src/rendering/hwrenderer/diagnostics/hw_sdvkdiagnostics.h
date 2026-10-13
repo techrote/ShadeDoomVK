@@ -44,7 +44,8 @@ void SpriteBasisSelected(const HWSpriteRenderSurfaceState& surface, const HWSpri
 void ClearSpriteBasis();
 // Read-only source-space actor probe selection attached to emitted draws.
 void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWSpriteRenderSurfaceState& surface,
-    double x, double y, double z);
+    int actorTid, int portalGroupCount, double x, double y, double z,
+    double presentationX, double presentationY, double presentationZ);
 void ClearActorProbeSelection();
 std::string CurrentActorProbeSelectionJson();
 std::string CurrentSpriteBasisJson();
