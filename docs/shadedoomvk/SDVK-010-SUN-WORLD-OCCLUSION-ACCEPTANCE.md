@@ -56,3 +56,18 @@ Focused run `38328713247` completed **two independent native captures** before r
 A proposed workaround that referenced IWAD `SKY1` is rejected because this authored corpus requires its scene textures to remain self-contained and must not introduce IWAD pixel dependence. Instead the generic comparator now canonicalizes **only material-resource generation labels**, bijectively per stable material/index/epoch/span. This preserves repeated/changed generation transition patterns and leaves every probe generation and all epochs strict. CPU negatives prove a changed material generation lifecycle still differs and a changed probe generation is never normalized.
 
 The two original native captures are therefore revalidated offline under the corrected comparison rule; no second native execution is required or justified.
+
+
+### Offline revalidation failure diagnosis
+
+The first corrected offline revalidation still failed for one additional run-local field:
+the renderer-owner `texture_epoch` was 3 versus 4. This is the texture manager's
+absolute process-local invalidation generation; it tracked the same extra startup
+texture retirement that produced the `SDVSKY` generation offset. The two captures
+still matched on `probe_epoch=2`, lightmap epoch 4, async-upload epoch 1, LevelMesh
+epochs, actor/probe pair generation/epoch/span, and exact RGB.
+
+The comparator therefore canonicalizes the **texture-manager epoch label** bijectively
+within each process, preserving its transition/aliasing pattern. Probe generations and
+probe/lightmap/async epochs remain strict. A regression proves that an altered texture
+epoch transition pattern still fails, as do changed probe generation or probe epoch.

@@ -160,30 +160,44 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
         with self.assertRaises(EvidenceError):
             sun.check_contract(wrong)
 
-    def test_material_generation_repeat_normalization_is_bijective_and_probe_strict(self):
+    def test_process_local_resource_labels_normalize_bijectively_and_probe_state_stays_strict(self):
         left = [
             {"kind": "material", "data": {"name": "SDVSKY", "resource":
                 {"available": True, "index": 259, "generation": 3, "epoch": 2, "span": 4}}},
             {"kind": "material", "data": {"name": "SDVSKY", "resource":
                 {"available": True, "index": 259, "generation": 3, "epoch": 2, "span": 4}}},
+            {"kind": "resource", "data": {"texture_epoch": 3, "probe_epoch": 2, "lightmap_epoch": 4, "async_upload_epoch": 1}},
+            {"kind": "resource", "data": {"texture_epoch": 5, "probe_epoch": 2, "lightmap_epoch": 4, "async_upload_epoch": 1}},
             {"kind": "probe", "data": {"resource":
                 {"available": True, "index": 283, "generation": 1, "epoch": 2, "span": 2}}},
         ]
         right = copy.deepcopy(left)
         right[0]["data"]["resource"]["generation"] = 4
         right[1]["data"]["resource"]["generation"] = 4
-        self.assertEqual(run._normalize_material_resource_generations(left),
-                         run._normalize_material_resource_generations(right))
+        right[2]["data"]["texture_epoch"] = 4
+        right[3]["data"]["texture_epoch"] = 6
+        self.assertEqual(run._normalize_process_local_resource_labels(left),
+                         run._normalize_process_local_resource_labels(right))
 
-        changed_lifecycle = copy.deepcopy(right)
-        changed_lifecycle[1]["data"]["resource"]["generation"] = 5
-        self.assertNotEqual(run._normalize_material_resource_generations(left),
-                            run._normalize_material_resource_generations(changed_lifecycle))
+        changed_material_lifecycle = copy.deepcopy(right)
+        changed_material_lifecycle[1]["data"]["resource"]["generation"] = 5
+        self.assertNotEqual(run._normalize_process_local_resource_labels(left),
+                            run._normalize_process_local_resource_labels(changed_material_lifecycle))
+
+        changed_texture_epoch_pattern = copy.deepcopy(right)
+        changed_texture_epoch_pattern[3]["data"]["texture_epoch"] = 4
+        self.assertNotEqual(run._normalize_process_local_resource_labels(left),
+                            run._normalize_process_local_resource_labels(changed_texture_epoch_pattern))
 
         changed_probe = copy.deepcopy(right)
-        changed_probe[2]["data"]["resource"]["generation"] = 2
-        self.assertNotEqual(run._normalize_material_resource_generations(left),
-                            run._normalize_material_resource_generations(changed_probe))
+        changed_probe[4]["data"]["resource"]["generation"] = 2
+        self.assertNotEqual(run._normalize_process_local_resource_labels(left),
+                            run._normalize_process_local_resource_labels(changed_probe))
+
+        changed_probe_epoch = copy.deepcopy(right)
+        changed_probe_epoch[2]["data"]["probe_epoch"] = 3
+        self.assertNotEqual(run._normalize_process_local_resource_labels(left),
+                            run._normalize_process_local_resource_labels(changed_probe_epoch))
 
     def test_unsafe_catalog_fails_closed_before_native_capture(self):
         for change in ("sun_angle", "shadow_mode", "actor_pair", "probe_material", "map_guard"):

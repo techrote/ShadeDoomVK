@@ -775,30 +775,37 @@ def differences(left, right, path="", result=None, maximum=20):
     return result
 
 
-def _normalize_material_resource_generations(state):
-    """Canonicalize process-local material generation labels without hiding lifecycle changes.
+def _normalize_process_local_resource_labels(state):
+    """Canonicalize process-local resource labels without hiding lifecycle changes.
 
-    Bindless material allocation generations are local labels: two fresh processes
-    may assign different numeric labels to the same stable material/index/epoch/span.
-    Canonicalizing each stable material resource by first-seen generation preserves
-    aliasing and transition patterns. Probe/resource generations outside material
-    records remain strict.
+    Material bindless generations and the texture-manager epoch are local process
+    counters: fresh processes may assign different absolute integers to identical
+    state. Canonicalize only those labels by first-seen value, preserving aliasing
+    and transition patterns. Probe/resource generations, probe/lightmap/async
+    epochs, resets, stale rejects and failure state remain strict.
     """
     result = copy.deepcopy(state)
-    mappings = {}
+    material_generations = {}
+    texture_epochs = {}
     for record in result:
-        if not isinstance(record, dict) or record.get("kind") != "material":
+        if not isinstance(record, dict):
             continue
         data = record.get("data", {})
-        resource = data.get("resource", {})
-        if resource.get("available") is not True or "generation" not in resource:
-            continue
-        stable = (data.get("name"), resource.get("index"), resource.get("epoch"), resource.get("span"))
-        generations = mappings.setdefault(stable, {})
-        raw = resource["generation"]
-        if raw not in generations:
-            generations[raw] = len(generations)
-        resource["generation"] = generations[raw]
+        if record.get("kind") == "material":
+            resource = data.get("resource", {})
+            if resource.get("available") is True and "generation" in resource:
+                stable = (data.get("name"), resource.get("index"), resource.get("epoch"), resource.get("span"))
+                generations = material_generations.setdefault(stable, {})
+                raw = resource["generation"]
+                if raw not in generations:
+                    generations[raw] = len(generations)
+                resource["generation"] = generations[raw]
+        elif record.get("kind") == "resource":
+            raw_epoch = data.get("texture_epoch")
+            if type(raw_epoch) is int:
+                if raw_epoch not in texture_epochs:
+                    texture_epochs[raw_epoch] = len(texture_epochs)
+                data["texture_epoch"] = texture_epochs[raw_epoch]
     return result
 
 
@@ -820,8 +827,8 @@ def compare_runs(left, right, *, allow_build_change=False):
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
     static = a["reproduction"]["clock"] == "static_after_initialization"
-    x = _normalize_material_resource_generations(validate.state_projection(left_raw, static_scene=static))
-    y = _normalize_material_resource_generations(validate.state_projection(right_raw, static_scene=static))
+    x = _normalize_process_local_resource_labels(validate.state_projection(left_raw, static_scene=static))
+    y = _normalize_process_local_resource_labels(validate.state_projection(right_raw, static_scene=static))
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
@@ -829,7 +836,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots, selected shadow rows and material-resource generation labels normalized bijectively; material generation transition/aliasing patterns and all non-material generations/epochs/resets/cancellations/waits/failures retained",
+            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots, selected shadow rows, material-resource generations and texture-manager epoch labels normalized bijectively; transition/aliasing patterns preserved; probe generations and probe/lightmap/async epochs/resets/cancellations/waits/failures retained",
             "performance_accepted": False}
 
 
