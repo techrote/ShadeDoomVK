@@ -486,7 +486,7 @@ def _linked_portal_geometry(model: _Map) -> dict:
     a0, a1, a2, a3, a4, a5 = [vertex(x, y) for x, y in
         ((-384, -192), (-384, 192), (0, 192), (0, 64), (0, -64), (0, -192))]
     line(a0, a1, 0); line(a1, a2, 0); line(a2, a3, 0)
-    portal_a = line(a3, a4, 0, back=2, texture="-", special=156, arg0=102, arg1=101, arg2=3, arg3=0)
+    portal_a = line(a3, a4, 0, back=2, texture="-", id=101, special=156, arg0=102, arg1=101, arg2=3, arg3=0)
     line(a4, a5, 0); line(a5, a0, 0)
     da_top, da_bottom = vertex(128, 64), vertex(128, -64)
     line(a3, da_top, 2); line(da_top, da_bottom, 2); line(da_bottom, a4, 2)
@@ -495,7 +495,7 @@ def _linked_portal_geometry(model: _Map) -> dict:
     b0, b1, b2, b3, b4, b5 = [vertex(x, y) for x, y in
         ((1024, -192), (1024, -64), (1024, 64), (1024, 192), (1408, 192), (1408, -192))]
     line(b0, b1, 1)
-    portal_b = line(b1, b2, 1, back=3, texture="-", special=156, arg0=101, arg1=102, arg2=3, arg3=0)
+    portal_b = line(b1, b2, 1, back=3, texture="-", id=102, special=156, arg0=101, arg1=102, arg2=3, arg3=0)
     line(b2, b3, 1); line(b3, b4, 1); line(b4, b5, 1); line(b5, b0, 1)
     db_bottom, db_top = vertex(896, -64), vertex(896, 64)
     line(b1, db_bottom, 3); line(db_bottom, db_top, 3); line(db_top, b2, 3)
