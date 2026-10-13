@@ -5077,9 +5077,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/pf_oracle/tests/lighting_compat_fixture.cpp",
-        "tools/pf_oracle/tests/pf113_probe_fixture.cpp",
-        "tools/pf_oracle/tests/probe_selection_fixture.cpp"
+        "tools/pf_oracle/tests/actor_probe_selection_fixture.cpp",
+        "tools/renderer_oracle/tests/test_actor_probe_portal_transition.py"
       ],
       "required_state_channels": [
         "context",
@@ -5092,13 +5091,18 @@
         "docs/shadedoomvk/SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md",
         "docs/shadedoomvk/rag/06-LIGHTMAP-PROBE-PIPELINE.md",
         "docs/shadedoomvk/rag/07-PORTAL-COORDINATE-SPACES.md",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
         "src/playsim/portal.cpp",
         "src/rendering/hwrenderer/scene/hw_actor_probe_selection.h",
         "src/rendering/hwrenderer/scene/hw_sprites.cpp",
-        "src/common/rendering/vulkan/vk_renderstate.cpp",
         "tools/pf_oracle/tests/actor_probe_selection_fixture.cpp",
         "tools/pf_oracle/tests/test_actor_probe_contract.py",
-        "tools/renderer_oracle/tests/test_actor_probe_validation.py"
+        "tools/renderer_oracle/prepare.py",
+        "tools/renderer_oracle/run.py",
+        "tools/renderer_oracle/tests/test_actor_probe_portal_transition.py",
+        "tools/renderer_oracle/tests/test_actor_probe_validation.py",
+        "tools/renderer_oracle/tests/test_corpus.py",
+        "tools/renderer_oracle/validate.py"
       ],
       "title": "Linked-portal actor probe transition with distinct sector targets"
     },
