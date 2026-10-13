@@ -524,7 +524,12 @@ def _portal_actor_probe_assertions(records, spec):
                     and actor["policy"] == sample["policy"]
                     and actor["through_portal_mode"] == sample["through_portal_mode"]
                     and relation == sample["group_relation"]
-                    and actor["portal_mirrored"] is sample["portal_mirrored"]):
+                    and actor["portal_mirrored"] is sample["portal_mirrored"]
+                    and row["context"]["type"] == sample["context_type"]
+                    and row["context"]["producer"] == sample["context_producer"]
+                    and row["context"]["depth"] == sample["context_depth"]
+                    and row["context"]["position"] == sample["context_position"]
+                    and row["context"]["mirrored"] is sample["context_mirrored"]):
                 candidates.append(row)
         require(candidates, "Required linked-portal actor sample was not emitted: " + sample["role"])
         row = candidates[0]
@@ -532,6 +537,12 @@ def _portal_actor_probe_assertions(records, spec):
         require(actor["portal_group_count"] > 1 and actor["portal_ambiguous"]
                 and not actor["spatial"] and actor["selected"],
                 "Linked-portal actor sample did not use conservative sector authority")
+        if sample["through_portal_mode"] == 0:
+            require(actor["presentation_position"] == actor["actor_position"],
+                    "Recursive portal draw applied an extra per-sprite displacement")
+        if sample["context_depth"] > 0:
+            require(row["context"]["type"] == "portal" and row["context"]["producer"] == "LineToLine",
+                    "Cross-boundary sample was not emitted by the real linked line portal")
         if spec["require_live"]:
             require(row["runtime_irradiance_index"] > 0 and not row["fallback"]
                     and row["resource"]["available"],

@@ -4966,7 +4966,8 @@
         "recommended_warmup_frames": 240,
         "required_native_evidence": [
           "native linked Line_SetPortal topology with at least two portal groups",
-          "actual emitted before/on/after actor source and presentation positions",
+          "actual emitted before/on/after actor source and HWSprite process positions",
+          "root versus recursive LineToLine portal context, including once-displaced portal-view position",
           "actual source/render sector and portal-group provenance plus PF-009 throughPortalMode",
           "distinct validated sector targets and published runtime irradiance/prefilter pairs",
           "two independent clean-state captures and exact state/image comparison"
@@ -5055,7 +5056,16 @@
                 "policy": "portal-sector-conservative",
                 "through_portal_mode": 0,
                 "group_relation": "same",
-                "portal_mirrored": false
+                "portal_mirrored": false,
+                "context_type": "main",
+                "context_producer": "root",
+                "context_depth": 0,
+                "context_position": [
+                  -320,
+                  0,
+                  64
+                ],
+                "context_mirrored": false
               },
               {
                 "role": "on",
@@ -5066,18 +5076,27 @@
                   0
                 ],
                 "presentation_position": [
-                  64,
+                  1088,
                   -24,
                   0
                 ],
                 "source_sector": 1,
-                "render_sector": 0,
+                "render_sector": 1,
                 "sector_target": 1,
                 "authored_index": 1,
                 "policy": "portal-sector-conservative",
-                "through_portal_mode": 1,
-                "group_relation": "different",
-                "portal_mirrored": false
+                "through_portal_mode": 0,
+                "group_relation": "same",
+                "portal_mirrored": false,
+                "context_type": "portal",
+                "context_producer": "LineToLine",
+                "context_depth": 1,
+                "context_position": [
+                  704,
+                  0,
+                  64
+                ],
+                "context_mirrored": false
               },
               {
                 "role": "after",
@@ -5088,18 +5107,27 @@
                   0
                 ],
                 "presentation_position": [
-                  160,
+                  1184,
                   24,
                   0
                 ],
                 "source_sector": 1,
-                "render_sector": 0,
+                "render_sector": 1,
                 "sector_target": 1,
                 "authored_index": 1,
                 "policy": "portal-sector-conservative",
-                "through_portal_mode": 1,
-                "group_relation": "different",
-                "portal_mirrored": false
+                "through_portal_mode": 0,
+                "group_relation": "same",
+                "portal_mirrored": false,
+                "context_type": "portal",
+                "context_producer": "LineToLine",
+                "context_depth": 1,
+                "context_position": [
+                  704,
+                  0,
+                  64
+                ],
+                "context_mirrored": false
               }
             ]
           }

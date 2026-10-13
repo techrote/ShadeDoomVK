@@ -256,17 +256,24 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                 if (not isinstance(sample, dict) or set(sample) !=
                         {"role", "actor_tid", "actor_position", "presentation_position", "source_sector",
                          "render_sector", "sector_target", "authored_index", "policy", "through_portal_mode",
-                         "group_relation", "portal_mirrored"}
+                         "group_relation", "portal_mirrored", "context_type", "context_producer",
+                         "context_depth", "context_position", "context_mirrored"}
                         or sample["role"] not in ("before", "on", "after", "reverse")
                         or type(sample["actor_tid"]) is not int or sample["actor_tid"] <= 0
                         or any(not isinstance(sample[key], list) or len(sample[key]) != 3 or
                                any(type(v) not in (int, float) or not math.isfinite(v) for v in sample[key])
                                for key in ("actor_position", "presentation_position"))
                         or any(type(sample[key]) is not int for key in
-                               ("source_sector", "render_sector", "sector_target", "authored_index", "through_portal_mode"))
+                               ("source_sector", "render_sector", "sector_target", "authored_index",
+                                "through_portal_mode", "context_depth"))
+                        or not isinstance(sample["context_position"], list) or len(sample["context_position"]) != 3
+                        or any(type(v) not in (int, float) or not math.isfinite(v) for v in sample["context_position"])
                         or sample["policy"] != "portal-sector-conservative"
                         or sample["group_relation"] not in ("same", "different")
-                        or type(sample["portal_mirrored"]) is not bool):
+                        or sample["context_type"] not in ("main", "portal")
+                        or sample["context_producer"] not in ("root", "LineToLine")
+                        or type(sample["portal_mirrored"]) is not bool
+                        or type(sample["context_mirrored"]) is not bool):
                     raise ValueError(f"Scene {name} has malformed linked-portal sample")
                 roles.append(sample["role"])
                 tids.append(sample["actor_tid"])
@@ -783,13 +790,19 @@ class SDVKPortalProbeActor : Actor
         samples = [
             {"role": "before", "tid": 5100, "source": [-112, 0, 0], "presentation": [-112, 0, 0],
              "source_sector": 0, "render_sector": 0, "sector_target": 0, "authored_index": 0,
-             "through_portal_mode": 0, "group_relation": "same"},
-            {"role": "on", "tid": 5101, "source": [1088, -24, 0], "presentation": [64, -24, 0],
-             "source_sector": 1, "render_sector": 0, "sector_target": 1, "authored_index": 1,
-             "through_portal_mode": 1, "group_relation": "different"},
-            {"role": "after", "tid": 5102, "source": [1184, 24, 0], "presentation": [160, 24, 0],
-             "source_sector": 1, "render_sector": 0, "sector_target": 1, "authored_index": 1,
-             "through_portal_mode": 1, "group_relation": "different"},
+             "through_portal_mode": 0, "group_relation": "same",
+             "context_type": "main", "context_producer": "root", "context_depth": 0,
+             "context_position": [-320, 0, 64], "context_mirrored": False},
+            {"role": "on", "tid": 5101, "source": [1088, -24, 0], "presentation": [1088, -24, 0],
+             "source_sector": 1, "render_sector": 1, "sector_target": 1, "authored_index": 1,
+             "through_portal_mode": 0, "group_relation": "same",
+             "context_type": "portal", "context_producer": "LineToLine", "context_depth": 1,
+             "context_position": [704, 0, 64], "context_mirrored": False},
+            {"role": "after", "tid": 5102, "source": [1184, 24, 0], "presentation": [1184, 24, 0],
+             "source_sector": 1, "render_sector": 1, "sector_target": 1, "authored_index": 1,
+             "through_portal_mode": 0, "group_relation": "same",
+             "context_type": "portal", "context_producer": "LineToLine", "context_depth": 1,
+             "context_position": [704, 0, 64], "context_mirrored": False},
         ]
         for sample in samples:
             model.thing(32218, sample["source"][0], sample["source"][1], sample["source"][2], tid=sample["tid"])

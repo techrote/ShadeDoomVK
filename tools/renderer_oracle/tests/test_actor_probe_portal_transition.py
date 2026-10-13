@@ -8,11 +8,12 @@ from tools.renderer_oracle import run
 from tools.renderer_oracle.common import EvidenceError
 
 
-def actor(tid, source, presentation, source_sector, render_sector, target, authored, thru, source_group, render_group, runtime, epoch=7):
+def actor(tid, source, presentation, source_sector, render_sector, target, authored, thru,
+          source_group, render_group, runtime, context, epoch=7):
     return {"kind": "probe", "data": {
         "material": "SDVTA0", "authored_index": authored, "runtime_irradiance_index": runtime,
         "fallback": runtime == 0, "probe_epoch": epoch,
-        "resource": {"available": runtime != 0},
+        "resource": {"available": runtime != 0}, "context": context,
         "actor_selection": {
             "available": True, "actor_tid": tid, "actor_position": source,
             "presentation_position": presentation, "source_sector": source_sector,
@@ -32,24 +33,34 @@ SPEC = {
         {"role": "before", "actor_tid": 5100, "actor_position": [-112, 0, 0],
          "presentation_position": [-112, 0, 0], "source_sector": 0, "render_sector": 0,
          "sector_target": 0, "authored_index": 0, "policy": "portal-sector-conservative",
-         "through_portal_mode": 0, "group_relation": "same", "portal_mirrored": False},
+         "through_portal_mode": 0, "group_relation": "same", "portal_mirrored": False,
+         "context_type": "main", "context_producer": "root", "context_depth": 0,
+         "context_position": [-320, 0, 64], "context_mirrored": False},
         {"role": "on", "actor_tid": 5101, "actor_position": [1088, -24, 0],
-         "presentation_position": [64, -24, 0], "source_sector": 1, "render_sector": 0,
+         "presentation_position": [1088, -24, 0], "source_sector": 1, "render_sector": 1,
          "sector_target": 1, "authored_index": 1, "policy": "portal-sector-conservative",
-         "through_portal_mode": 1, "group_relation": "different", "portal_mirrored": False},
+         "through_portal_mode": 0, "group_relation": "same", "portal_mirrored": False,
+         "context_type": "portal", "context_producer": "LineToLine", "context_depth": 1,
+         "context_position": [704, 0, 64], "context_mirrored": False},
         {"role": "after", "actor_tid": 5102, "actor_position": [1184, 24, 0],
-         "presentation_position": [160, 24, 0], "source_sector": 1, "render_sector": 0,
+         "presentation_position": [1184, 24, 0], "source_sector": 1, "render_sector": 1,
          "sector_target": 1, "authored_index": 1, "policy": "portal-sector-conservative",
-         "through_portal_mode": 1, "group_relation": "different", "portal_mirrored": False},
+         "through_portal_mode": 0, "group_relation": "same", "portal_mirrored": False,
+         "context_type": "portal", "context_producer": "LineToLine", "context_depth": 1,
+         "context_position": [704, 0, 64], "context_mirrored": False},
     ],
 }
 
 
 def good_rows():
+    root = {"type": "main", "producer": "root", "depth": 0,
+            "position": [-320, 0, 64], "mirrored": False}
+    portal = {"type": "portal", "producer": "LineToLine", "depth": 1,
+              "position": [704, 0, 64], "mirrored": False}
     return [
-        actor(5100, [-112, 0, 0], [-112, 0, 0], 0, 0, 0, 0, 0, 1, 1, 701),
-        actor(5101, [1088, -24, 0], [64, -24, 0], 1, 0, 1, 1, 1, 2, 1, 713),
-        actor(5102, [1184, 24, 0], [160, 24, 0], 1, 0, 1, 1, 1, 2, 1, 713),
+        actor(5100, [-112, 0, 0], [-112, 0, 0], 0, 0, 0, 0, 0, 1, 1, 701, root),
+        actor(5101, [1088, -24, 0], [1088, -24, 0], 1, 1, 1, 1, 0, 2, 2, 713, portal),
+        actor(5102, [1184, 24, 0], [1184, 24, 0], 1, 1, 1, 1, 0, 2, 2, 713, portal),
     ]
 
 
@@ -62,14 +73,16 @@ class PortalActorProbeAssertions(unittest.TestCase):
         mutations = {
             "nearest-cross-group": lambda rows: rows[1]["data"]["actor_selection"].update(policy="spatial-nearest", spatial=True),
             "wrong-sector-target": lambda rows: rows[1]["data"]["actor_selection"].update(sector_target=0),
-            "wrong-through-mode": lambda rows: rows[1]["data"]["actor_selection"].update(through_portal_mode=0),
-            "double-transform": lambda rows: rows[1]["data"]["actor_selection"].update(presentation_position=[-960, -24, 0]),
+            "wrong-through-mode": lambda rows: rows[1]["data"]["actor_selection"].update(through_portal_mode=1),
+            "double-transform": lambda rows: rows[1]["data"]["actor_selection"].update(presentation_position=[64, -24, 0]),
+            "wrong-context": lambda rows: rows[1]["data"]["context"].update(producer="root", depth=0),
+            "double-context-transform": lambda rows: rows[1]["data"]["context"].update(position=[1728, 0, 64]),
             "ordinal-zero-conflation": lambda rows: rows[0]["data"].update(authored_index=-1),
             "stale-epoch": lambda rows: rows[2]["data"].update(probe_epoch=8),
             "missing-sample": lambda rows: rows.pop(1),
             "sample-association": lambda rows: rows[1]["data"]["actor_selection"].update(actor_tid=5102),
             "cross-group-substitution": lambda rows: rows[1]["data"].update(runtime_irradiance_index=701),
-            "wrong-group-relation": lambda rows: rows[1]["data"]["actor_selection"].update(render_portal_group=2),
+            "wrong-group-relation": lambda rows: rows[1]["data"]["actor_selection"].update(render_portal_group=1),
         }
         for name, mutate in mutations.items():
             rows = good_rows()

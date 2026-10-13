@@ -333,7 +333,7 @@ void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWS
             .Int("through_portal_mode", surface.throughPortalMode)
             .Bool("portal_mirrored", surface.portalMirrored)
             .Str("coordinate_space", "source-level-doom-xyz")
-            .Str("presentation_space", "single-inherited-portal-displacement")
+            .Str("presentation_space", "hw-sprite-process-after-optional-thruportal-displacement")
             .Str("publication_policy", "PF-113 zero when selected pair absent; no alternate probe")
             .Json();
     }

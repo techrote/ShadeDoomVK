@@ -148,7 +148,7 @@ def _actor_probe_selection(value, authored, runtime):
     thru = integer(value.get("through_portal_mode"), "actor through-portal mode")
     _vector(value.get("actor_position"), 3, "actor source-space position")
     _vector(value.get("presentation_position"), 3, "actor presentation position")
-    require(value.get("presentation_space") == "single-inherited-portal-displacement",
+    require(value.get("presentation_space") == "hw-sprite-process-after-optional-thruportal-displacement",
             "Actor probe presentation position has unknown transform ownership")
     distance = number(value.get("distance_squared"), "actor probe distance squared", minimum=-1)
     require(assigned == authored, "Actor probe selected ordinal differs from emitted uniform ordinal")

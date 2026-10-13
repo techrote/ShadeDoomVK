@@ -23,7 +23,7 @@ def selection(*, authored=1, policy="spatial-nearest", portal=False, distance=9.
             "portal_group_count": group_count,
             "through_portal_mode": 1 if portal else 0, "portal_mirrored": False,
             "coordinate_space": "source-level-doom-xyz",
-            "presentation_space": "single-inherited-portal-displacement",
+            "presentation_space": "hw-sprite-process-after-optional-thruportal-displacement",
             "publication_policy": "PF-113 zero when selected pair absent; no alternate probe"}
 
 
@@ -56,8 +56,8 @@ class ActorProbeValidation(unittest.TestCase):
     def test_portal_presentation_provenance_is_required(self):
         row = selection(authored=0, portal=True, policy="portal-sector-conservative", distance=-1, group_count=2)
         row.update(sector_target=0, spatial=False, actor_tid=5101,
-                   actor_position=[1088, -24, 0], presentation_position=[64, -24, 0],
-                   source_sector=1, render_sector=0)
+                   actor_position=[1088, -24, 0], presentation_position=[1088, -24, 0],
+                   source_sector=1, render_sector=1)
         self.check(row, 0, 701)
         for key in ("actor_tid", "source_sector", "render_sector", "portal_group_count",
                     "presentation_position", "presentation_space"):
