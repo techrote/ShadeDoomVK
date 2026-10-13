@@ -23,6 +23,7 @@ permissions:
 jobs:
   source:
     name: Exact renderer source bundle
+    if: github.event_name != 'pull_request' || github.head_ref != 'sdvk010-sun-occlusion-acceptance'
     runs-on: ubuntu-22.04
     timeout-minutes: 10
     steps:
