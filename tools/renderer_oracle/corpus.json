@@ -4787,7 +4787,7 @@
             "preregistration_required": true
           }
         },
-        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_policy": "exact_portal_probe_semantics_with_documented_unrelated_floor_texture_owner_normalization",
         "state_required": true
       },
       "cpu_commands": [
@@ -4960,7 +4960,8 @@
         },
         "pending_coverage": [
           "Hosted llvmpipe acceptance is correctness-only and does not establish physical-GPU performance or hardware stability.",
-          "This bounded fixture proves the existing conservative linked-portal actor probe policy; it introduces no temporal blending or new portal topology policy."
+          "This bounded fixture proves the existing conservative linked-portal actor probe policy; it introduces no temporal blending or new portal topology policy.",
+          "Independent-process comparison normalizes only SDVFL bindless generation and manager-wide TextureEpoch, observed to vary with unrelated texture retirement/reuse; selected probe generation/epoch/span, portal state and all other semantic fields remain exact."
         ],
         "pk3": "scenes/portal-probes/scene.pk3",
         "recommended_warmup_frames": 240,

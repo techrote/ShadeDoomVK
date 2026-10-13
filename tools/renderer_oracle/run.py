@@ -826,6 +826,28 @@ def differences(left, right, path="", result=None, maximum=20):
     return result
 
 
+def _portal_probe_repeatability_projection(records):
+    """Normalize only unrelated run-local texture-owner churn in portal-probes.
+
+    The linked-portal fixture's acceptance identity is the actor/probe/portal
+    path. Keep all selected probe resource generation/epoch/span, portal state,
+    material semantics and level/resource ownership exact. The ordinary floor
+    texture may acquire a different bindless generation when fresh processes
+    retire/reuse one unrelated texture before the retained frame; TextureEpoch
+    records that manager-wide event. Neither field owns the selected probe pair.
+    """
+    result = copy.deepcopy(records)
+    for record in result:
+        data = record.get("data", {})
+        if record.get("kind") == "material" and data.get("name") == "SDVFL":
+            resource = data.get("resource")
+            if isinstance(resource, dict) and resource.get("available") is True:
+                resource.pop("generation", None)
+        elif record.get("kind") == "resource":
+            data.pop("texture_epoch", None)
+    return result
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -845,6 +867,10 @@ def compare_runs(left, right, *, allow_build_change=False):
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
     static = a["reproduction"]["clock"] == "static_after_initialization"
     x, y = validate.state_projection(left_raw, static_scene=static), validate.state_projection(right_raw, static_scene=static)
+    normalization = "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained"
+    if a["scene"] == b["scene"] == "portal-probes":
+        x, y = _portal_probe_repeatability_projection(x), _portal_probe_repeatability_projection(y)
+        normalization += "; portal-probes additionally excludes only unrelated SDVFL bindless generation and manager-wide TextureEpoch; selected probe generation/epoch/span remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
@@ -852,7 +878,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
+            "normalization": normalization,
             "performance_accepted": False}
 
 

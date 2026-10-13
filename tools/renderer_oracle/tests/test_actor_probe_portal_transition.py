@@ -64,6 +64,41 @@ def good_rows():
     ]
 
 
+class PortalRepeatabilityProjection(unittest.TestCase):
+    def test_only_unrelated_floor_generation_and_texture_epoch_are_normalized(self):
+        base = [
+            {"kind": "material", "data": {"name": "SDVFL", "resource": {
+                "available": True, "index": 259, "generation": 3, "epoch": 2, "span": 4}}},
+            {"kind": "resource", "data": {"texture_epoch": 3, "probe_epoch": 2}},
+            {"kind": "probe", "data": {"probe_epoch": 2, "resource": {
+                "available": True, "index": 267, "generation": 1, "epoch": 2, "span": 2}}},
+        ]
+        other = copy.deepcopy(base)
+        other[0]["data"]["resource"]["generation"] = 4
+        other[1]["data"]["texture_epoch"] = 4
+        self.assertEqual(run._portal_probe_repeatability_projection(base),
+                         run._portal_probe_repeatability_projection(other))
+
+    def test_probe_and_nonfloor_identity_remain_exact(self):
+        base = [
+            {"kind": "material", "data": {"name": "SDVTA0", "resource": {
+                "available": True, "index": 300, "generation": 2, "epoch": 2, "span": 4}}},
+            {"kind": "probe", "data": {"probe_epoch": 2, "resource": {
+                "available": True, "index": 267, "generation": 1, "epoch": 2, "span": 2}}},
+        ]
+        for mutate in (
+            lambda rows: rows[0]["data"]["resource"].update(generation=3),
+            lambda rows: rows[1]["data"]["resource"].update(generation=2),
+            lambda rows: rows[1]["data"].update(probe_epoch=3),
+            lambda rows: rows[1]["data"]["resource"].update(epoch=3),
+        ):
+            other = copy.deepcopy(base)
+            mutate(other)
+            with self.subTest(other=other):
+                self.assertNotEqual(run._portal_probe_repeatability_projection(base),
+                                    run._portal_probe_repeatability_projection(other))
+
+
 class PortalActorProbeAssertions(unittest.TestCase):
     def test_before_on_after_positive(self):
         selected = run._portal_actor_probe_assertions(good_rows(), SPEC)
