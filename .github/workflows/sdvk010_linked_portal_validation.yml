@@ -1,0 +1,111 @@
+name: SDVK-010 linked-portal focused validation
+
+on:
+  push:
+    branches: [sdvk010-linked-portal-acceptance]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sdvk010-linked-portal-focused
+  cancel-in-progress: true
+
+jobs:
+  cpu:
+    name: Linked-portal CPU and preparation contracts
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+    - name: Run focused actor/probe/portal contracts
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 -m unittest tools.pf_oracle.tests.test_actor_probe_contract -v
+        python3 -m unittest tools.renderer_oracle.tests.test_actor_probe_validation -v
+        python3 -m unittest tools.renderer_oracle.tests.test_actor_probe_portal_transition -v
+        python3 -m unittest tools.renderer_oracle.tests.test_corpus -v
+        python3 tools/renderer_oracle/prepare.py --out build/portal-prepared --scene portal-probes
+    - name: Upload focused preparation receipt
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk010-linked-portal-cpu
+        path: |
+          build/portal-prepared/prepared.json
+          build/portal-prepared/scenes/portal-probes/**
+        retention-days: 30
+
+  native:
+    name: Linked-portal isolated llvmpipe acceptance
+    needs: cpu
+    runs-on: avrea-ubuntu-24.04-16-vcpu
+    timeout-minutes: 35
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install isolated software Vulkan dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt update
+        sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+    - name: Build current linked-portal branch
+      shell: bash
+      run: |
+        set -euo pipefail
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        cmake --build build --config RelWithDebInfo --parallel 3
+        LD_LIBRARY_PATH="${PWD}/build/deps/zmusic/lib" python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+    - name: Prepare exact portal fixture and public IWAD
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 tools/renderer_oracle/prepare.py --out build/portal-prepared --scene portal-probes
+        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-content
+    - name: Verify isolated llvmpipe surface
+      shell: bash
+      run: |
+        set -euo pipefail
+        test "$(nproc)" -ge 16
+        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_icds[@]}" -eq 1
+        export VK_DRIVER_FILES="${sdvk_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_icds[0]}"
+        vulkaninfo --summary > build/lavapipe-summary.txt
+        grep -qi llvmpipe build/lavapipe-summary.txt
+        ! grep -Eqi 'NVIDIA|Radeon|Intel.*GPU' build/lavapipe-summary.txt
+    - name: Capture two independent linked-portal states
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        export VK_DRIVER_FILES="${sdvk_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_icds[0]}"
+        export SDL_VIDEODRIVER=x11
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/run.py capture           --exe build/vkdoom --iwad build/renderer-content/freedoom2.wad           --prepared build/portal-prepared --out build/portal-run-1 --scene portal-probes           --mode state --frames 1 --warmup 240 --timeout 600 --include-stress
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/run.py capture           --exe build/vkdoom --iwad build/renderer-content/freedoom2.wad           --prepared build/portal-prepared --out build/portal-run-2 --scene portal-probes           --mode state --frames 1 --warmup 240 --timeout 600 --include-stress
+        python3 tools/renderer_oracle/run.py compare build/portal-run-1 build/portal-run-2           --out build/portal-comparison.json
+    - name: Package focused native evidence
+      if: always()
+      shell: bash
+      run: |
+        set -euo pipefail
+        paths=()
+        for p in portal-prepared portal-run-1 portal-run-2 portal-comparison.json lavapipe-summary.txt; do
+          [[ -e "build/$p" ]] && paths+=("$p")
+        done
+        if [[ "${#paths[@]}" -gt 0 ]]; then
+          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/sdvk010-linked-portal-evidence.tar.xz -C build "${paths[@]}"
+        fi
+    - name: Upload focused native evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk010-linked-portal-native
+        path: build/sdvk010-linked-portal-evidence.tar.xz
+        compression-level: 0
+        retention-days: 30
