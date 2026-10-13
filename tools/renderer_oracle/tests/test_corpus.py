@@ -375,8 +375,8 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual(len(records["sector"]), 4)
         portals = [line for line in records["linedef"] if line.get("special") == 156]
         self.assertEqual(len(portals), 2)
-        self.assertEqual({(p["arg0"], p["arg1"], p["arg2"]) for p in portals},
-                         {(102, 101, 3), (101, 102, 3)})
+        self.assertEqual({(p["id"], p["arg0"], p["arg1"], p["arg2"]) for p in portals},
+                         {(101, 102, 101, 3), (102, 101, 102, 3)})
         self.assertTrue(all("sideback" in p and p.get("blocking") is False for p in portals))
         self.assertEqual(meta["portal_line_ids"], [101, 102])
         self.assertEqual(meta["portal_displacement"], [1024, 0])
