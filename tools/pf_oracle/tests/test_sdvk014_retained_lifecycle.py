@@ -160,7 +160,7 @@ class RetainedLifecycleTests(unittest.TestCase):
     def test_overrun_negative_control_fails_for_reason(self) -> None:
         needle = "componentCount <= totalComponents - firstComponent"
         self.assertEqual(self.helper.count(needle), 1)
-        mutant = self.helper.replace(needle, "true")
+        mutant = self.helper.replace(needle, "componentCount <= totalComponents")
         with tempfile.TemporaryDirectory(prefix="sdvk014-span-overrun-") as temp:
             exe = build(Path(temp), mutant, "span_no_end_check")
             p = subprocess.run([str(exe), "span-overrun"], text=True, capture_output=True, timeout=10)
