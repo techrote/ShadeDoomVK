@@ -31,6 +31,9 @@ PATHS = {
     'draw': 'src/rendering/hwrenderer/scene/hw_drawinfo.cpp',
     'device': 'src/common/rendering/vulkan/vk_renderdevice.cpp',
     'probe': 'src/common/rendering/hwrenderer/data/hw_lightprobe.cpp',
+    'maploader': 'src/maploader/maploader.cpp',
+    'lightmapper': 'src/common/rendering/vulkan/vk_lightmapper.cpp',
+    'texture': 'src/common/rendering/vulkan/textures/vk_texture.cpp',
 }
 FUNCTIONS = {
     'alloc': ('mesh_h', 'inline int LevelMesh::AllocTile('),
@@ -43,6 +46,11 @@ FUNCTIONS = {
     'frame': ('device', 'void VulkanRenderDevice::BeginFrame('),
     'probe_step': ('probe', 'void LightProbeIncrementalBuilder::Step('),
     'probe_full': ('probe', 'void LightProbeIncrementalBuilder::Full('),
+    'lightmap_span': ('maploader', 'static bool IsValidLightmapPixelSpan('),
+    'load_lightmap': ('maploader', 'bool MapLoader::LoadLightmap('),
+    'select_tiles': ('lightmapper', 'void VkLightmapper::SelectTiles('),
+    'copy_result': ('lightmapper', 'void VkLightmapper::CopyResult('),
+    'set_lightmap_count': ('texture', 'void VkTextureManager::SetLightmapCount('),
 }
 
 
