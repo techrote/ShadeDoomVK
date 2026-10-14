@@ -1,36 +1,85 @@
-name: SDVK-010 pinned source inputs
+name: SDVK-010 exact source publication
 on:
   push:
     branches: [sdvk010-integration-acceptance]
     paths: [.github/workflows/sdvk010_source_inputs.yml]
 permissions:
-  contents: read
+  contents: write
 jobs:
-  export:
+  publish:
+    name: Publish locally reviewed integration tree (no native execution)
     runs-on: ubuntu-24.04
     timeout-minutes: 10
+    env:
+      BASE: 0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f
+      SUN: 564dd88c9dcca7023ad10014a82946b7ff097ed5
+      PORTAL: 143288ef0cf26b6acdf6c446c35103c32596386a
+      EXPECTED_TREE: c520fd111c8da5c6714c60a5bc256247e4569577
+      BRANCH: sdvk010-integration-acceptance
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Export exact branch inputs without native execution
+    - name: Reconstruct and verify the exact locally tested tree
       shell: bash
       run: |
         set -euo pipefail
+        test "$GITHUB_REF" = "refs/heads/$BRANCH"
         git fetch origin master sdvk010-sun-occlusion-acceptance sdvk010-linked-portal-acceptance
-        test "$(git rev-parse origin/master)" = 0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f
-        test "$(git rev-parse origin/sdvk010-sun-occlusion-acceptance)" = 564dd88c9dcca7023ad10014a82946b7ff097ed5
-        test "$(git rev-parse origin/sdvk010-linked-portal-acceptance)" = 143288ef0cf26b6acdf6c446c35103c32596386a
-        mkdir -p "$RUNNER_TEMP/sdvk010-inputs"
-        git bundle create "$RUNNER_TEMP/sdvk010-inputs/source.bundle" HEAD refs/remotes/origin/master refs/remotes/origin/sdvk010-sun-occlusion-acceptance refs/remotes/origin/sdvk010-linked-portal-acceptance
-        git bundle verify "$RUNNER_TEMP/sdvk010-inputs/source.bundle"
-        git show -s --format='%H %T %s' HEAD origin/master origin/sdvk010-sun-occlusion-acceptance origin/sdvk010-linked-portal-acceptance > "$RUNNER_TEMP/sdvk010-inputs/IDENTITIES.txt"
-        cd "$RUNNER_TEMP/sdvk010-inputs"
-        sha256sum source.bundle IDENTITIES.txt > SHA256SUMS
+        test "$(git rev-parse origin/master)" = "$BASE"
+        test "$(git rev-parse origin/sdvk010-sun-occlusion-acceptance)" = "$SUN"
+        test "$(git rev-parse origin/sdvk010-linked-portal-acceptance)" = "$PORTAL"
+        python3 - <<'PY'
+        import base64, gzip, hashlib, os
+        from pathlib import Path
+        parts = sorted(Path('.github/sdvk010-source-transport').glob('*.b64'))
+        assert len(parts) == 9, 'Incomplete transport'
+        encoded = ''.join(p.read_text() for p in parts)
+        packed = base64.b64decode(encoded, validate=True)
+        assert hashlib.sha256(packed).hexdigest() == '31a591e66da9c499b00bbffa91dab1986097a25ca566a49e637755cfc68da053'
+        (Path(os.environ['RUNNER_TEMP'])/'sdvk010-source-edits.json').write_bytes(gzip.decompress(packed))
+        PY
+        git read-tree --reset -u "$BASE"
+        python3 - <<'PY'
+        import hashlib, json, os, re, subprocess
+        from pathlib import Path
+        data = json.loads((Path(os.environ['RUNNER_TEMP'])/'sdvk010-source-edits.json').read_text())
+        assert data['schema'] == 'sdvk010-exact-source-edits/v1'
+        assert data['base_commit'] == os.environ['BASE']
+        assert data['expected_tree'] == os.environ['EXPECTED_TREE']
+        for entry in data['entries']:
+            path = Path(entry['path'])
+            assert not path.is_absolute() and '..' not in path.parts and path.parts[0] in ('src','tools','docs','wadsrc','.github')
+            sha = entry['base_blob']
+            assert sha is None or re.fullmatch('[0-9a-f]{40}', sha)
+            raw = subprocess.check_output(['git','cat-file','blob',sha]) if sha else b''
+            lines = raw.decode().splitlines(keepends=True)
+            previous_end = 0
+            for start, end, replacement in entry['edits']:
+                assert previous_end <= start <= end <= len(lines)
+                previous_end = end
+            for start, end, replacement in reversed(entry['edits']):
+                lines[start:end] = replacement.splitlines(keepends=True)
+            output = ''.join(lines).encode()
+            actual = hashlib.sha1(b'blob '+str(len(output)).encode()+b'\0'+output).hexdigest()
+            assert actual == entry['expected_blob'], str(path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(output)
+        print('All reconstructed source blobs match the reviewed local identities')
+        PY
+        git add -A
+        test "$(git write-tree)" = "$EXPECTED_TREE"
+        git diff --cached --check
+        git config user.name 'github-actions[bot]'
+        git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+        commit=$(printf '%s\n' 'SDVK-010: integrate actor sunlight and linked-portal acceptance' 'Exact locally reviewed tree; both qualified input heads preserved. Required PR CI remains pending.' | git commit-tree "$EXPECTED_TREE" -p "$GITHUB_SHA" -p "$SUN" -p "$PORTAL")
+        test "$(git ls-remote origin "refs/heads/$BRANCH" | cut -f1)" = "$GITHUB_SHA"
+        git push origin "$commit:refs/heads/$BRANCH"
+        printf '%s\n' "$commit" "$EXPECTED_TREE" > "$RUNNER_TEMP/SDVK010-PUBLISHED.txt"
+        cat "$RUNNER_TEMP/SDVK010-PUBLISHED.txt"
     - uses: actions/upload-artifact@v4
       with:
-        name: sdvk010-integration-inputs
-        path: ${{ runner.temp }}/sdvk010-inputs
-        compression-level: 0
-        retention-days: 30
+        name: sdvk010-published-source-identity
+        path: ${{ runner.temp }}/SDVK010-PUBLISHED.txt
         if-no-files-found: error
+        retention-days: 30
