@@ -1,0 +1,39 @@
+{
+  "schema": "sdvk010-integration-inputs/v1",
+  "status": "INTEGRATED_CANDIDATE",
+  "master_base": "0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f",
+  "sun_head": "564dd88c9dcca7023ad10014a82946b7ff097ed5",
+  "portal_head": "143288ef0cf26b6acdf6c446c35103c32596386a",
+  "historical_inputs": {
+    "sun_native": {
+      "run": 38328713247,
+      "artifact": 11781502590
+    },
+    "sun_offline": {
+      "run": 38444141252,
+      "artifact": 11836882592
+    },
+    "portal_native": {
+      "run": 38446793761,
+      "artifact": 11839545833
+    }
+  },
+  "combined_gate": {
+    "driver": "tools/renderer_oracle/sdvk010_acceptance.py",
+    "runner": "avrea-ubuntu-24.04-16-vcpu",
+    "scenes": [
+      "sun-actor-occlusion",
+      "portal-probes"
+    ],
+    "captures_per_scene": 2,
+    "warmup_frames": 240,
+    "retained_frames": 1,
+    "timeout_seconds": 600,
+    "automatic_retries": 0,
+    "image_policy": "exact-rgb8",
+    "performance_accepted": false,
+    "physical_gpu_qualified": false
+  },
+  "closure_gate": "required exact-head CI and source evidence, review, verified master merge; issue evidence records result",
+  "physical_stop_active": true
+}

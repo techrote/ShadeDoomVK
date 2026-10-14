@@ -368,6 +368,13 @@ def capture(args):
             extent, pixels = images.decode(out / "native.png")
             require(list(extent) == profile["extent"] and raw["screenshot"]["available"] is True,
                     "Screenshot or actual client extent is missing")
+            if scene["id"] == "sun-actor-occlusion":
+                try:
+                    from .sdvk010_sun_occlusion import validate_projected_image
+                except ImportError:
+                    from sdvk010_sun_occlusion import validate_projected_image
+                result["sun_actor_image"] = validate_projected_image(
+                    extent, pixels, scene["native"]["state_assertions"]["actor_sun_occlusion"])
         result.update(status="COLLECTED", error="", reproduction=profile, build=raw["build"],
                       executable=executable, loaded_packages=packages, validation=structural,
                       console_settings=readbacks,
@@ -501,6 +508,67 @@ def _material_custom_layers_match(value, expected):
     return actual == expected
 
 
+def _portal_actor_probe_assertions(records, spec):
+    rows = [record["data"] for record in records
+            if record["kind"] == "probe"
+            and record["data"].get("material") == spec["material"]
+            and record["data"].get("actor_selection", {}).get("available") is True]
+    require(len(rows) >= spec["minimum_draws"], "Too few linked-portal actor probe draw decisions")
+    selected = []
+    for sample in spec["samples"]:
+        candidates = []
+        for row in rows:
+            actor = row["actor_selection"]
+            relation = "same" if actor["source_portal_group"] == actor["render_portal_group"] else "different"
+            if (actor["actor_tid"] == sample["actor_tid"]
+                    and actor["actor_position"] == sample["actor_position"]
+                    and actor["presentation_position"] == sample["presentation_position"]
+                    and actor["source_sector"] == sample["source_sector"]
+                    and actor["render_sector"] == sample["render_sector"]
+                    and actor["sector_target"] == sample["sector_target"]
+                    and actor["authored_index"] == sample["authored_index"]
+                    and row["authored_index"] == sample["authored_index"]
+                    and actor["policy"] == sample["policy"]
+                    and actor["through_portal_mode"] == sample["through_portal_mode"]
+                    and relation == sample["group_relation"]
+                    and actor["portal_mirrored"] is sample["portal_mirrored"]
+                    and row["context"]["type"] == sample["context_type"]
+                    and row["context"]["producer"] == sample["context_producer"]
+                    and row["context"]["depth"] == sample["context_depth"]
+                    and row["context"]["position"] == sample["context_position"]
+                    and row["context"]["mirrored"] is sample["context_mirrored"]):
+                candidates.append(row)
+        require(candidates, "Required linked-portal actor sample was not emitted: " + sample["role"])
+        row = candidates[0]
+        actor = row["actor_selection"]
+        require(actor["portal_group_count"] > 1 and actor["portal_ambiguous"]
+                and not actor["spatial"] and actor["selected"],
+                "Linked-portal actor sample did not use conservative sector authority")
+        if sample["through_portal_mode"] == 0:
+            require(actor["presentation_position"] == actor["actor_position"],
+                    "Recursive portal draw applied an extra per-sprite displacement")
+        if sample["context_depth"] > 0:
+            require(row["context"]["type"] == "portal" and row["context"]["producer"] == "LineToLine",
+                    "Cross-boundary sample was not emitted by the real linked line portal")
+        if spec["require_live"]:
+            require(row["runtime_irradiance_index"] > 0 and not row["fallback"]
+                    and row["resource"]["available"],
+                    "Linked-portal actor sample has no published runtime probe pair")
+        selected.append((sample, row))
+
+    epochs = {row["probe_epoch"] for _, row in selected}
+    require(len(epochs) == 1, "Linked-portal transition mixed stale probe resource epochs")
+    by_authored = {}
+    for sample, row in selected:
+        previous = by_authored.setdefault(sample["authored_index"], row["runtime_irradiance_index"])
+        require(previous == row["runtime_irradiance_index"],
+                "One authored probe changed runtime pair during the fixed transition samples")
+    if spec["require_distinct_runtime_pairs"]:
+        require(len(set(by_authored.values())) == len(by_authored),
+                "Distinct authored portal-sector probes collapsed to one runtime pair")
+    return selected
+
+
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     camera = scene["native"]["camera"]
@@ -612,6 +680,12 @@ def _scene_assertions(raw, scene):
                 if relief["requires_mirrored_view"]:
                     require(any(row["eligible_draw"] and row["context"]["mirrored"] for row in draws),
                             "No mirrored-context height-bearing sprite relief emitted draw")
+            if "actor_sun_occlusion" in assertions:
+                try:
+                    from .sdvk010_sun_occlusion import validate_emitted_frame
+                except ImportError:
+                    from sdvk010_sun_occlusion import validate_emitted_frame
+                validate_emitted_frame(records, assertions["actor_sun_occlusion"])
             actor_probe = assertions.get("actor_probe")
             if actor_probe:
                 selections = [record["data"] for record in records if record["kind"] == "probe"
@@ -639,6 +713,9 @@ def _scene_assertions(raw, scene):
                     require(any(row["actor_selection"]["policy"] == "no-probes" and
                                 row["authored_index"] == -1 and row["fallback"] for row in selections),
                             "No-probe actor sprite failed to expose explicit zero IBL fallback")
+            portal_probe = assertions.get("actor_probe_portal")
+            if portal_probe:
+                _portal_actor_probe_assertions(records, portal_probe)
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]
@@ -762,6 +839,40 @@ def differences(left, right, path="", result=None, maximum=20):
     return result
 
 
+def _sdvk010_repeatability_projection(records, scene):
+    """Bounded cross-process labels for the two qualified SDVK-010 fixtures.
+
+    Only SDVSKY (sun scene) or SDVFL (portal scene) material generations and
+    the corresponding manager-wide texture_epoch are run-local. Preserve their
+    first-seen transition patterns instead of deleting fields. All actor/probe
+    identities, other material generations, resource spans and epochs, and
+    every other scene remain exact. Raw observations are never modified.
+    """
+    background = {"sun-actor-occlusion": "SDVSKY", "portal-probes": "SDVFL"}.get(scene)
+    result = copy.deepcopy(records)
+    if background is None:
+        return result
+    material_generations = {}
+    texture_epochs = {}
+    for record in result:
+        data = record.get("data", {})
+        if record.get("kind") == "material" and data.get("name") == background:
+            resource = data.get("resource", {})
+            if resource.get("available") is True and "generation" in resource:
+                stable = (resource.get("index"), resource.get("epoch"), resource.get("span"))
+                labels = material_generations.setdefault(stable, {})
+                raw = resource["generation"]
+                resource["generation"] = labels.setdefault(raw, len(labels))
+        elif record.get("kind") == "resource" and type(data.get("texture_epoch")) is int:
+            raw = data["texture_epoch"]
+            data["texture_epoch"] = texture_epochs.setdefault(raw, len(texture_epochs))
+    return result
+
+
+def _portal_probe_repeatability_projection(records):
+    return _sdvk010_repeatability_projection(records, "portal-probes")
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -780,7 +891,11 @@ def compare_runs(left, right, *, allow_build_change=False):
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
     static = a["reproduction"]["clock"] == "static_after_initialization"
-    x, y = validate.state_projection(left_raw, static_scene=static), validate.state_projection(right_raw, static_scene=static)
+    x = _sdvk010_repeatability_projection(validate.state_projection(left_raw, static_scene=static), a["scene"])
+    y = _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"])
+    normalization = "Validated context and live-slot identities; 1e-9 view-number canonicalization; static-scene clock labels; cumulative workload telemetry excluded; semantic state retained"
+    if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
+        normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
@@ -788,7 +903,7 @@ def compare_runs(left, right, *, allow_build_change=False):
             "explicit_build_change": allow_build_change, "state_equal": equal,
             "state_sha256": {"left": sha256(canonical(x)), "right": sha256(canonical(y))},
             "first_state_differences": differences(x, y), "image": image,
-            "normalization": "Validated explicit context producer/tokens; 1e-9 view-number canonicalization; static-scene tic/fraction labels; renderer-local live slots and selected shadow rows normalized bijectively; cumulative allocation/upload-volume telemetry excluded; order/aliasing/generation/epoch/resets/cancellations/waits/failures retained",
+            "normalization": normalization,
             "performance_accepted": False}
 
 

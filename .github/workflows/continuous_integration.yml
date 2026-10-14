@@ -135,7 +135,7 @@ jobs:
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
         python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
 
-    - name: Qualify SDVK-009 matching-content publication on hosted software Vulkan
+    - name: Qualify SDVK-010 actors and SDVK-009 publication on hosted software Vulkan
       if: matrix.config.native_renderer
       shell: bash
       env:
@@ -149,6 +149,14 @@ jobs:
         export SDL_VIDEODRIVER=x11
         python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
         export SDVK_REQUESTED_RUNNER=avrea-ubuntu-24.04-16-vcpu
+        # The combined actor acceptance gate runs here once, on the same normal
+        # software-Vulkan job/build and authenticated content as SDVK-009.
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk010_acceptance \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk010 \
+          --expected-commit "$(git rev-parse HEAD)"
         cat > build/sdvk009-avrea-ci.py <<'PY'
         import os
         from pathlib import Path
@@ -218,7 +226,7 @@ jobs:
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication; do
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi

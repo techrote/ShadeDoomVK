@@ -9,14 +9,21 @@ sys.path.insert(0, str(ROOT))
 from tools.renderer_oracle import validate, common
 
 
-def selection(*, authored=1, policy="spatial-nearest", portal=False, distance=9.0):
+def selection(*, authored=1, policy="spatial-nearest", portal=False, distance=9.0, group_count=1):
+    source_group, render_group = 1, 2 if portal else 1
+    ambiguous = group_count > 1 or portal
     return {"available": True, "contract": "sdvk-010-actor-ordinal/v1", "policy": policy,
             "selected": authored >= 0, "spatial": policy in ("spatial-nearest", "no-probe-in-radius"),
+            "portal_ambiguous": ambiguous,
             "authored_index": authored, "sector_target": 0, "candidate_count": 2,
-            "distance_squared": distance, "actor_position": [90, 96, 112],
-            "source_portal_group": 1, "render_portal_group": 2 if portal else 1,
+            "distance_squared": distance, "actor_tid": 5100,
+            "actor_position": [90, 96, 112], "presentation_position": [90, 96, 112],
+            "source_sector": 0, "render_sector": 1 if portal else 0,
+            "source_portal_group": source_group, "render_portal_group": render_group,
+            "portal_group_count": group_count,
             "through_portal_mode": 1 if portal else 0, "portal_mirrored": False,
             "coordinate_space": "source-level-doom-xyz",
+            "presentation_space": "hw-sprite-process-after-optional-thruportal-displacement",
             "publication_policy": "PF-113 zero when selected pair absent; no alternate probe"}
 
 
@@ -35,6 +42,29 @@ class ActorProbeValidation(unittest.TestCase):
         none = selection(authored=-1, policy="no-probes", distance=-1)
         none.update(candidate_count=0, spatial=False)
         self.check(none, -1, 0)
+
+    def test_multi_group_same_group_draw_stays_conservative(self):
+        row = selection(authored=0, policy="portal-sector-conservative", distance=-1, group_count=2)
+        row["sector_target"] = 0
+        row["spatial"] = False
+        self.check(row, 0, 713)
+        wrong = dict(row)
+        wrong["portal_ambiguous"] = False
+        with self.assertRaisesRegex(common.EvidenceError, "ambiguity provenance"):
+            self.check(wrong, 0, 713)
+
+    def test_portal_presentation_provenance_is_required(self):
+        row = selection(authored=0, portal=True, policy="portal-sector-conservative", distance=-1, group_count=2)
+        row.update(sector_target=0, spatial=False, actor_tid=5101,
+                   actor_position=[1088, -24, 0], presentation_position=[1088, -24, 0],
+                   source_sector=1, render_sector=1)
+        self.check(row, 0, 701)
+        for key in ("actor_tid", "source_sector", "render_sector", "portal_group_count",
+                    "presentation_position", "presentation_space"):
+            bad = dict(row)
+            bad.pop(key)
+            with self.subTest(key=key), self.assertRaises(common.EvidenceError):
+                self.check(bad, 0, 701)
 
     def test_negative_mismatch_stale_slot_portal_crossing_and_zero_substitution(self):
         bad = [

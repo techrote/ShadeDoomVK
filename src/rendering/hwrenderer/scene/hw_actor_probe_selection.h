@@ -26,6 +26,7 @@ struct Result
     const char* policy = "no-probes";
     bool spatial = false;
     bool selected = false;
+    bool portalAmbiguous = false;
 };
 
 // Nearest valid authored source position within inclusive 512 units.
@@ -43,6 +44,7 @@ Result Resolve(double x, double y, double z, std::size_t count,
     Result result;
     result.sectorTarget = sectorTarget;
     result.candidateCount = count;
+    result.portalAmbiguous = portalAmbiguous;
     if (!count) return result;
     if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z))
     {

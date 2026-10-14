@@ -185,3 +185,18 @@ parity or general frame rotation. The inherited mirror pair is descriptive;
 portal-relief parity and mirror-direction remain explicit missing gates and
 block the full physical driver. The bounded hosted smoke exercises no portal
 acceptance claim. [Current tooling boundary](../SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
+
+
+## SDVK-010 linked-portal actor environment evidence (integration candidate)
+
+The `portal-probes` acceptance fixture adds an executable distinction between **sprite thruportal processing** and **recursive portal-view context**. Its real linked line pair displaces group 1↔2 by 1024 units. Root actor TID 5100 is emitted in the main context. Actors TID 5101/5102 are emitted from source/render group 2 under a depth-1 `LineToLine` PF-010 context whose viewpoint is displaced into group 2; their PF-009 `throughPortalMode` remains zero and their `HWSprite::Process` position remains source-level group-2 coordinates.
+
+This is correct single-transform ownership: the linked portal's child view carries the transform; the sprite must not receive a second displacement merely because the draw is recursively visible through a portal. SDVK-010 diagnostic state therefore records both actor source/presentation coordinates **and** the actual PF-010 context producer/depth/position. The actor probe selector remains conservative whenever the level has multiple displacement groups, even if source/render actor groups are equal for the destination-side recursive draw.
+
+Focused hosted software qualification on substantive head `05f20e4f2856cb675f0cf286d08485869859ea8b` passed two independent captures and exact image comparison. It changes no portal transform order, portal topology policy, temporal blending, gameplay or physical-GPU acceptance. [Receipt](../evidence/SDVK-010-LINKED-PORTAL-QUALIFICATION.json).
+
+
+SDVK-010 integration keeps diagnostic source/render sector indices on `HWSprite`, outside the
+frozen PF-009 render-surface snapshot. They are captured at source processing and passed to the
+emitted actor-probe observer explicitly. The original final-quad snapshot and historical PF-009
+source derivation checks remain unchanged; no extra actor/context displacement is introduced.
