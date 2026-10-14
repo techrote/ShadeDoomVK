@@ -1,8 +1,38 @@
 #include "hw_lightprobe.h"
 #include "v_video.h"
 
-void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
+void LightProbeIncrementalBuilder::Step(LightProbeBuildOwner owner, const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
+	// Owner identity is semantic level-load + authored-probe-set identity. An
+	// unset owner must not publish or reuse any previously completed resources.
+	if (!owner.IsSet())
+	{
+		if (cubemapsAllocated != 0)
+			screen->ResetLightProbes();
+		activeOwner = {};
+		lastIndex = 0;
+		collected = 0;
+		cubemapsAllocated = 0;
+		iterations = 0;
+		return;
+	}
+
+	// A new owner invalidates completed and partial passes even when its probe
+	// count matches the previous owner. Reset before count-based fast paths can
+	// treat stale-but-plausible cubemap state as current.
+	if (activeOwner != owner)
+	{
+		const bool hadOrNeedsPublication = cubemapsAllocated != 0 || probes.size() != 0;
+		activeOwner = owner;
+		lastIndex = 0;
+		collected = 0;
+		cubemapsAllocated = probes.size();
+		iterations = 0;
+		if (hadOrNeedsPublication)
+			screen->ResetLightProbes();
+		return;
+	}
+
 	if (probes.size() == 0)
 	{
 		if (cubemapsAllocated != 0)
@@ -43,15 +73,15 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 	}
 }
 
-void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
+void LightProbeIncrementalBuilder::Full(LightProbeBuildOwner owner, const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
 	if (probes.size() == 0)
 	{
-		Step(probes, renderScene);
+		Step(owner, probes, renderScene);
 		return;
 	}
 
-	if (cubemapsAllocated == probes.size() && iterations >= 5)
+	if (activeOwner == owner && cubemapsAllocated == probes.size() && iterations >= 5)
 		return;
 
 	if (lastIndex >= probes.size())
@@ -59,15 +89,17 @@ void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::f
 
 	while (lastIndex < probes.size())
 	{
+		const LightProbeBuildOwner previousOwner = activeOwner;
 		const int previousIndex = lastIndex;
 		const int previousAllocated = cubemapsAllocated;
 		const int previousIterations = iterations;
-		Step(probes, renderScene);
+		Step(owner, probes, renderScene);
 
 		// Step must either advance the pass or change builder state. This guard
 		// makes Full fail closed instead of spinning if a future terminal state
 		// is added to Step without a corresponding Full update.
-		if (lastIndex == previousIndex && cubemapsAllocated == previousAllocated && iterations == previousIterations)
+		if (activeOwner == previousOwner && lastIndex == previousIndex &&
+			cubemapsAllocated == previousAllocated && iterations == previousIterations)
 			return;
 
 		if (iterations >= 5 || lastIndex >= probes.size())
