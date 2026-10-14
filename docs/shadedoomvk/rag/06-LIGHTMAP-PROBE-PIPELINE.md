@@ -1,5 +1,18 @@
 # Lightmap and probe pipeline
 
+## Current downstream software authority — 14 October 2026
+
+The [SDVK-009 gate split](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) permits #11/#14
+to consume the existing software-qualified probe/lightmap contracts and accepted SDVK-010
+(PR #148, verified master `6aadd8458773014e4333cf93cf4b4269ce5733b3`). Earlier
+SDVK-010 candidate/integration-pending notes are historical after that acceptance.
+SDVK-009-SW is qualified for these consumers; **State C / provisional no-change** and
+**SDVK-009-PHYSICAL held** remain. The dormant tiled path, rejected PF-017 candidate,
+probe-zero semantics and fallback/portal/lifetime invariants are unchanged.
+Physical STOP remains active; this does not prove physical cost, stability, general
+bake robustness or viewmodel parity. A new upstream invariant failure reblocks the
+affected consumer rather than being waived by this decision.
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: lightmapper active; PF-012 per-lightmap probe selection repaired; experimental probe AABB remains dormant  
 Primary issues: PF-004, PF-010, PF-012, SDVK-010, SDVK-014
@@ -146,12 +159,12 @@ recreated. Repeated stale-token checks cover both owner epochs.
 
 See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and [release acceptance](../SDVK-004-RELEASE-ACCEPTANCE.json). Exact PR-head and post-merge gates passed. The native `sun-probes` route observed one lightmap page, two irradiance maps and two prefilter maps. No new lightmap/probe identity, emergency flush or retention policy is introduced.
 
-## SDVK-010 actor-card probe selection (candidate)
+## SDVK-010 actor-card probe selection (accepted software scope)
 
-Unlike world lightmap probe-map texels (PF-012), an ordinary actor sprite emits its **authored ordinal** into Vulkan surface state. `HWActorProbeSelection::Resolve` selects an in-range nearest source-level authored probe within the inclusive 512-unit bound, keyed on interpolated actor pose, deterministic first tie, and no hidden temporal interpolation; ambiguous portal-group/through-portal cards preserve a validated sector target. No authored probe is **-1** (authored zero is valid). `VkRenderState::ApplySurfaceUniforms` checks ordinal range before calling the immutable PF-113 pair producer; the runtime zero sentinel still means missing irradiance/pre-filter and both PBR sample functions return zero IBL. Models remain on inherited sector selection. Inherited PBR coverage and both focused actor lanes are inputs to the combined SDVK-010 gate; final acceptance requires their integrated exact-tree qualification and verified merge. [Detailed contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+Unlike world lightmap probe-map texels (PF-012), an ordinary actor sprite emits its **authored ordinal** into Vulkan surface state. `HWActorProbeSelection::Resolve` selects an in-range nearest source-level authored probe within the inclusive 512-unit bound, keyed on interpolated actor pose, deterministic first tie, and no hidden temporal interpolation; ambiguous portal-group/through-portal cards preserve a validated sector target. No authored probe is **-1** (authored zero is valid). `VkRenderState::ApplySurfaceUniforms` checks ordinal range before calling the immutable PF-113 pair producer; the runtime zero sentinel still means missing irradiance/pre-filter and both PBR sample functions return zero IBL. Models remain on inherited sector selection. Inherited PBR coverage and both focused actor lanes passed the combined SDVK-010 gate in PR #148, with exact-tree qualification and verified merge; physical cost and general bake robustness remain outside that acceptance. [Detailed contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
 
 
-## SDVK-010 linked-portal actor probe transition (integration candidate)
+## SDVK-010 linked-portal actor probe transition (accepted software scope)
 
 The bounded `portal-probes` native fixture qualifies the current conservative actor-card policy across an actual bidirectional linked line portal without changing PF-012 or PF-113 plumbing. In a level with multiple displacement groups, the actor selector treats the domain as ambiguous and preserves the validated source-sector authored target; it does not infer probe ownership from global XY proximity. Authored ordinal 0 remains distinct from runtime descriptor 0. The accepted hosted samples use authored 0/runtime 267 in group 1 and authored 1/runtime 281 in group 2 with one stable LightProbe epoch.
 

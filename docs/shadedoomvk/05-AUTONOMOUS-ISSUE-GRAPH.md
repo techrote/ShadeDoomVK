@@ -1,5 +1,16 @@
 # ShadeDoomVK autonomous issue graph
 
+## Current dependency authority — 14 October 2026
+
+The [SDVK-009 gate split](SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) supersedes older
+#11/#14 blocking statements below. **#9 stays OPEN: SDVK-009-SW qualified for
+software dependencies; SDVK-009-PHYSICAL held; State C / provisional no-change.**
+**#10 is accepted** through PR #148 and verified master `6aadd8458773014e4333cf93cf4b4269ce5733b3`.
+#2 and #5 remain accepted. **#11 and #14 are dependency-ready for their software scopes**,
+with coordinated parallel branches permitted; neither is implemented/accepted by this change.
+#12 and the later compatibility/performance/default/freeze gates receive no waiver.
+Physical STOP remains active and physical fault root cause remains UNDETERMINED.
+
 Status: canonical execution/dependency graph  
 Date: 2026-09-17
 
@@ -9,7 +20,7 @@ Stable programme IDs are authoritative even when GitHub issue numbers change. Ev
 
 **SDVK-001 is blocked until PF-020 is accepted, merged and verified on `master`.**
 
-Current gate (2026-10-10): SDVK-001 through SDVK-006 are accepted, merged and verified. SDVK-005 substantive PR #132 merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1` with exact tested/merged tree equality and passing exact-head plus post-merge source evidence/9-job CI. Acceptance reconciliation is PR #134. SDVK-007 / #7 is dependency-ready after that reconciliation; SDVK-008 and SDVK-010 retain their declared dependency on accepted SDVK-007. SDVK-009 / #9 remains open for its physical confirmation campaign.
+Historical gate (2026-10-10): SDVK-001 through SDVK-006 are accepted, merged and verified. SDVK-005 substantive PR #132 merged as `aceca0d4bf7a7ca0df58b9dccfc34e6b402f21d1` with exact tested/merged tree equality and passing exact-head plus post-merge source evidence/9-job CI. Acceptance reconciliation is PR #134. SDVK-007 / #7 is dependency-ready after that reconciliation; SDVK-008 and SDVK-010 retain their declared dependency on accepted SDVK-007. SDVK-009 / #9 remains open for its physical confirmation campaign.
 
 PF freeze gate (2026-10-05): all PF-001–019 and the explicit CFX #75 synthesis prerequisite are accepted; pre-freeze accepted renderer master was `7d29c7e4d64d61dba05524d9e7f5711ffd915d90`. PF-017 is satisfied by its accepted measured no-go/restoration, not by mandatory deduplication or hashing. Independent parser/material/probe repairs #114/#110/#112/#113 are accepted. PF-020 / #37 is accepted, merged and verified on master at `e185e60b04fe37ec84a18c5a85eec6722b541b71`, with final local/source/review gates and all eight actual final-head plus all eight exact post-merge jobs. [Release acceptance](PF-020-RELEASE-ACCEPTANCE.json) preserves bounded evidence and limitations. SDVK-001 is UNBLOCKED; no SDVK feature is implemented by this freeze. [Evidence matrix](PF-FREEZE-EVIDENCE-MATRIX.md).
 
@@ -95,10 +106,10 @@ Do not intentionally run these implementation combinations concurrently without 
 | SDVK-008 | height/POM sprite relief and advanced PBR | SDVK-007 |
 | SDVK-009 | scalable many-light architecture qualification | SDVK-002, SDVK-003 |
 | SDVK-010 | probe/environment lighting qualification for actors | SDVK-002, SDVK-007 |
-| SDVK-011 | first-person viewmodel lighting/material parity | SDVK-009, SDVK-010 |
+| SDVK-011 | first-person viewmodel lighting/material parity | SDVK-009-SW, accepted SDVK-010; physical gate separately held |
 | SDVK-012 | sprite shadow-caster comparative prototype | SDVK-008, SDVK-009 |
 | SDVK-013 | hybrid world+sprite shadows/contact grounding | SDVK-012 |
-| SDVK-014 | lightmapper/dynamic-lightmap/probe robustness | SDVK-002, SDVK-005, SDVK-009, SDVK-010 |
+| SDVK-014 | lightmapper/dynamic-lightmap/probe robustness | SDVK-002, SDVK-005, SDVK-009-SW, accepted SDVK-010; physical cost separately held |
 | SDVK-015 | Doom-family compatibility/regression qualification | SDVK-008, SDVK-011, SDVK-013, SDVK-014 |
 | SDVK-016 | performance tiers/budgets/adaptive quality | SDVK-015 |
 | SDVK-017 | integrated synthesis/defaults/first renderer freeze | SDVK-001 through SDVK-016 |
@@ -111,7 +122,7 @@ With SDVK-002, SDVK-003 and SDVK-004 accepted:
 - SDVK-005 now consumes the accepted SDVK-004 pressure/lifetime budget; SDVK-005 → SDVK-007 → SDVK-008 remains serialized material/orientation/relief work;
 - SDVK-009 is independent of SDVK-005/007 because PF-016 already established baseline actor-light query correctness/fast paths;
 - SDVK-010 still requires SDVK-007 so actor IBL is evaluated against the accepted sprite orientation/material path;
-- SDVK-014 may perform exploratory work earlier, but cannot accept until SDVK-005, SDVK-009 and SDVK-010 are accepted;
+- SDVK-014 software work consumes accepted SDVK-005, SDVK-009-SW and SDVK-010; full acceptance still requires its own criteria, with missing physical cost explicitly held;
 - compatibility/performance/freeze remain late synthesis gates.
 
 ## Autonomous completion protocol
@@ -162,7 +173,7 @@ The first renderer tranche cannot freeze while any unresolved issue can cause:
 
 SDVK-005's optional height semantic is accepted on the verified implementation tree. Historical material/custom bindings remain stable, per-layer sampling is explicit, PF descriptor lifetime ownership is unchanged and software-Vulkan state/image qualification passes. **SDVK-007 is now the next serialized material/orientation task; SDVK-008 and SDVK-010 remain blocked by SDVK-007.**
 
-### Current gate reconciliation — 2026-10-11
+### Historical gate reconciliation — 2026-10-11
 
 The historical SDVK-005 note above is superseded by SDVK-007 acceptance and the
 merged SDVK-008/010 implementations. #8 still needs full physical relief/cost
