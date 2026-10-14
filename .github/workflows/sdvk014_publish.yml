@@ -1,0 +1,91 @@
+name: SDVK-014 exact-patch CPU publication
+on:
+  push:
+    branches: [sdvk014-lightmapper-probe-robustness]
+    paths: [.github/workflows/sdvk014_publish.yml]
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.sha }}
+      - name: Apply only the pinned reviewed source patch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/sdvk014-publication"
+          python3 - <<'PY'
+          import base64, hashlib, json, lzma, os, pathlib, subprocess
+          base = '04a3596115eb397d9e7237aa1ff3625ece1bc5b4'
+          target = '48eaae1b8abed6adedb444f22a09c412297c32c1'
+          digest = '2168ecdd5738ec67a898dd3b1172357a749f888493c9a658d17345bc158d5952'
+          workflow = '.github/workflows/sdvk014_publish.yml'
+          parts = [f'.sdvk014-publication/part{i}.b64' for i in range(1, 4)]
+          def git(*args):
+              return subprocess.check_output(['git', *args], text=True).strip()
+          assert os.environ['GITHUB_REPOSITORY'] == 'techrote/ShadeDoomVK'
+          assert os.environ['GITHUB_REF'] == 'refs/heads/sdvk014-lightmapper-probe-robustness'
+          assert git('rev-parse', 'HEAD') == os.environ['GITHUB_SHA']
+          assert git('rev-parse', 'HEAD^') == base
+          assert set(git('diff', '--name-only', base, 'HEAD').splitlines()) == {workflow, *parts}
+          payloads = [pathlib.Path(p).read_bytes() for p in parts]
+          assert [len(p) for p in payloads] == [16000, 16000, 15372]
+          patch = lzma.decompress(base64.b64decode(b''.join(payloads), validate=True))
+          assert len(patch) == 143250 and hashlib.sha256(patch).hexdigest() == digest
+          output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'sdvk014-publication'
+          patchfile = output / 'implementation.patch'
+          patchfile.write_bytes(patch)
+          subprocess.run(['git', 'apply', '--index', '--whitespace=nowarn', str(patchfile)], check=True)
+          subprocess.run(['git', 'rm', '--', *parts], check=True)
+          subprocess.run(['git', 'update-index', '--force-remove', workflow], check=True)
+          assert git('write-tree') == target, 'published source differs from reviewed tree'
+          # The token commits no workflow change. Connector cleanup removes this
+          # unchanged transport workflow before the normal PR/CI is created.
+          subprocess.run(['git', 'add', '--', workflow], check=True)
+          (output / 'identity.json').write_text(json.dumps({
+              'bootstrap_head': os.environ['GITHUB_SHA'], 'audited_base': base,
+              'source_tree_after_transport_cleanup': target, 'patch_sha256': digest,
+              'renderer_executed': False, 'vulkan_device_created': False}, indent=2) + '\n')
+          PY
+      - name: Focused CPU fixtures and source-pinned evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m unittest tools.pf_oracle.tests.test_sdvk014_atlas_lifecycle tools.pf_oracle.tests.test_sdvk014_tile_lifecycle tools.pf_oracle.tests.test_sdvk014_probe_owner_boundary -v 2>&1 | tee "$RUNNER_TEMP/sdvk014-publication/focused.log"
+          python3 tools/pf_oracle/sdvk014_evidence.py --out "$RUNNER_TEMP/sdvk014-publication/cpu.json"
+          python3 - <<'PY'
+          import json, os, pathlib
+          expected = json.loads(pathlib.Path('docs/shadedoomvk/evidence/SDVK-014-CPU-INCREMENT.json').read_text())
+          actual = json.loads((pathlib.Path(os.environ['RUNNER_TEMP']) / 'sdvk014-publication/cpu.json').read_text())
+          for key in ('schema', 'audited_base', 'acceptance', 'counts', 'source_sha256', 'not_qualified'):
+              assert actual[key] == expected[key], key
+          def semantic_cases(receipt):
+              return [{k: v for k, v in case.items() if k != 'wall_ns'} for case in receipt['cases']]
+          assert semantic_cases(actual) == semantic_cases(expected), 'case result drift'
+          assert actual['execution']['renderer_executed'] is False
+          assert actual['execution']['vulkan_device_created'] is False
+          assert actual['acceptance']['complete_software_campaign'] == 'BLOCKED_NOT_ACCEPTED'
+          print('Pinned CPU increment repeated; complete campaign remains BLOCKED_NOT_ACCEPTED.')
+          PY
+      - name: Publish fast-forward source commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git diff --exit-code
+          git diff --cached --check -- . ':!tools/pf_oracle/tests/fixtures/sdvk014_rectpacker_pre_fix.cpp'
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'SDVK-014: harden atlas and tile retirement; retain probe-owner blocker'
+          git push origin HEAD:refs/heads/sdvk014-lightmapper-probe-robustness
+          git rev-parse HEAD > "$RUNNER_TEMP/sdvk014-publication/published-commit.txt"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: sdvk014-publication-cpu
+          path: ${{ runner.temp }}/sdvk014-publication
+          retention-days: 30
