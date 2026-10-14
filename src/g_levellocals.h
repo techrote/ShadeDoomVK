@@ -496,6 +496,26 @@ public:
 	DoomLevelAABBTree* aabbTree = nullptr;
 	DoomLevelMesh* levelMesh = nullptr;
 	TArray<LightProbe> lightProbes;
+	uint64_t LightProbeLevelSerial = 0;
+	uint64_t LightProbeSetRevision = 0;
+
+	LightProbeBuildOwner GetLightProbeBuildOwner() const
+	{
+		return { LightProbeLevelSerial, LightProbeSetRevision };
+	}
+
+	void BeginLightProbeBuildOwner(uint64_t levelSerial)
+	{
+		LightProbeLevelSerial = levelSerial;
+		LightProbeSetRevision = 1;
+	}
+
+	void InvalidateLightProbeBuildOwner()
+	{
+		LightProbeSetRevision++;
+		if (LightProbeSetRevision == 0)
+			LightProbeSetRevision = 1;
+	}
 
 	// [ZZ] Destructible geometry information
 	TMap<int, FHealthGroup> healthGroups;
