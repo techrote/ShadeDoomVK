@@ -412,10 +412,20 @@ void P_FreeLevelData (bool fullgc)
 //
 //===========================================================================
 
+static uint64_t AllocateLightProbeLevelSerial()
+{
+	static uint64_t nextSerial = 0;
+	nextSerial++;
+	if (nextSerial == 0)
+		I_Error("Light probe level-owner serial exhausted");
+	return nextSerial;
+}
+
 void P_SetupLevel(FLevelLocals *Level, int position, bool newGame)
 {
 	int i;
 
+	Level->BeginLightProbeBuildOwner(AllocateLightProbeLevelSerial());
 	Level->ShaderStartTime = I_msTimeFS(); // indicate to the shader system that the level just started
 
 	// This is motivated as follows:
