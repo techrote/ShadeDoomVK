@@ -159,6 +159,28 @@ static void prime(Route& r)
 static void run(const std::string& mode)
 {
     Route r;
+
+    if (mode == "partial-transition")
+    {
+        // Begin from a fresh builder so the negative mutant can establish a
+        // real partial pass through the count path before owner replacement.
+        r.owner = {2, 1};
+        r.probes = authored(3, 2);
+        r.frame(); // initial allocation/reset
+        r.frame(); // first capture from owner 2
+        require(r.captures == std::vector<int>({2000}), "partial-owner-setup");
+
+        r.captures.clear();
+        const int partialReset = screen->resets;
+        const int partialPass = screen->passes;
+        r.owner = {3, 1};
+        r.probes = authored(3, 3);
+        r.frames();
+        require(r.captures.size() == 15 && r.captures.front() == 3000 && r.captures.back() == 3002, "partial-new-owner-not-rebuilt");
+        require(screen->resets == partialReset + 1 && screen->passes == partialPass + 5, "partial-transition-publication");
+        return;
+    }
+
     prime(r);
     const int resetBefore = screen->resets;
     const int passBefore = screen->passes;
@@ -204,24 +226,6 @@ static void run(const std::string& mode)
         r.frames();
         require(r.captures.size() == 15 && r.captures.front() == 2000 && r.captures.back() == 2002, "changed-count-not-rebuilt");
         require(screen->resets == resetBefore + 1 && screen->passes == passBefore + 5, "changed-count-publication");
-    }
-    else if (mode == "partial-transition")
-    {
-        // Start a fresh owner and capture only part of its first pass.
-        r.owner = {2, 1};
-        r.probes = authored(3, 2);
-        r.frame(); // owner reset
-        r.frame(); // first capture from owner 2
-        require(r.captures == std::vector<int>({2000}), "partial-owner-setup");
-
-        r.captures.clear();
-        const int partialReset = screen->resets;
-        const int partialPass = screen->passes;
-        r.owner = {3, 1};
-        r.probes = authored(3, 3);
-        r.frames();
-        require(r.captures.size() == 15 && r.captures.front() == 3000 && r.captures.back() == 3002, "partial-new-owner-not-rebuilt");
-        require(screen->resets == partialReset + 1 && screen->passes == partialPass + 5, "partial-transition-publication");
     }
     else if (mode == "invalid-owner")
     {
