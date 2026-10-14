@@ -1,0 +1,36 @@
+name: SDVK-010 pinned source inputs
+on:
+  push:
+    branches: [sdvk010-integration-acceptance]
+    paths: [.github/workflows/sdvk010_source_inputs.yml]
+permissions:
+  contents: read
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    - name: Export exact branch inputs without native execution
+      shell: bash
+      run: |
+        set -euo pipefail
+        git fetch origin master sdvk010-sun-occlusion-acceptance sdvk010-linked-portal-acceptance
+        test "$(git rev-parse origin/master)" = 0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f
+        test "$(git rev-parse origin/sdvk010-sun-occlusion-acceptance)" = 564dd88c9dcca7023ad10014a82946b7ff097ed5
+        test "$(git rev-parse origin/sdvk010-linked-portal-acceptance)" = 143288ef0cf26b6acdf6c446c35103c32596386a
+        mkdir -p "$RUNNER_TEMP/sdvk010-inputs"
+        git bundle create "$RUNNER_TEMP/sdvk010-inputs/source.bundle" HEAD refs/remotes/origin/master refs/remotes/origin/sdvk010-sun-occlusion-acceptance refs/remotes/origin/sdvk010-linked-portal-acceptance
+        git bundle verify "$RUNNER_TEMP/sdvk010-inputs/source.bundle"
+        git show -s --format='%H %T %s' HEAD origin/master origin/sdvk010-sun-occlusion-acceptance origin/sdvk010-linked-portal-acceptance > "$RUNNER_TEMP/sdvk010-inputs/IDENTITIES.txt"
+        cd "$RUNNER_TEMP/sdvk010-inputs"
+        sha256sum source.bundle IDENTITIES.txt > SHA256SUMS
+    - uses: actions/upload-artifact@v4
+      with:
+        name: sdvk010-integration-inputs
+        path: ${{ runner.temp }}/sdvk010-inputs
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: error
