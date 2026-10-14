@@ -27,6 +27,8 @@ static void DumpLightProbes()
 
 static void InvalidateLightmapProbeSelection()
 {
+	level.InvalidateLightProbeBuildOwner();
+
 	if (!level.levelMesh)
 		return;
 
