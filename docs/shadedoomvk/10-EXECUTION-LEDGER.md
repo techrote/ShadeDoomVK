@@ -1088,3 +1088,26 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   evidence/full CI, review and verified merge are still required. Actual run/artifact/master
   identities and the final closure decision belong on the integration PR and issue #10.
   Physical STOP remains active; #8/#9 physical gates and UNDETERMINED fault root cause remain.
+
+### 14 October 2026 — SDVK-009 software dependency gate separated from physical acceptance
+
+- Explicit owner-approved decision: [SDVK-009-GATE-SPLIT-20261014](SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md).
+  **SDVK-009-SW is qualified for downstream software work; SDVK-009-PHYSICAL remains held / not accepted.**
+  #9 remains OPEN, State C / provisional no-change is unchanged, Physical STOP remains
+  active and historical physical root cause remains UNDETERMINED.
+- Baseline is PR #148 merged master `6aadd8458773014e4333cf93cf4b4269ce5733b3`, tree
+  `c520fd111c8da5c6714c60a5bc256247e4569577`, identical to the reviewed and tested PR tree.
+  #10 is accepted/closed; final authority is issue comment 6167916940, source run
+  38493635271 and 9/9 normal CI 38493635327. #9 software disposition remains comment 6134452869.
+- #11 may implement viewmodel software lighting/material parity against SDVK-009-SW + #10.
+  #14 may implement software lightmapper/probe robustness against #2 + #5 + SDVK-009-SW + #10.
+  Their other dependencies and own acceptance criteria remain. Coordinated parallel work is
+  permitted; neither consumer is implemented/accepted by this decision.
+- No implied #8/#12 or SDVK-015/016/017 waiver. #14's physical bake/update cost and any
+  other mandatory physical evidence remain tracked and held, not replaced by llvmpipe.
+  Software PRs still need normal checks/review/verified merge. New foundational errors
+  reblock affected consumers. Physical resumption requires separate explicit authorization.
+- Governing graph, validation contract, canonical #9/#10/#11/#14 documents, lighting/probe
+  RAG and machine-readable dependency disposition are reconciled. This is documentation
+  and authority only: renderer/shader/fixture/workflow bytes and sealed evidence are unchanged.
+  Use ordinary required CI only; no duplicate renderer or standalone benchmark is authorized.

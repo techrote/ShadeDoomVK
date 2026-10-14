@@ -1,5 +1,24 @@
 # Validation and performance contract
 
+## Scoped dependency qualification — 14 October 2026
+
+[SDVK-009-GATE-SPLIT-20261014](SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) separates
+**software-qualified dependency use** from **physical-performance acceptance** for
+#11/#14 only. It does not lower the correctness or performance requirements below.
+Source/CPU/explicitly hosted software-Vulkan evidence can qualify the software scope;
+physical-GPU cost/scaling/stability needs its own authorized evidence and stays held.
+
+Downstream software PRs may merge after their required checks/review/exact-master
+verification. No missing physical result becomes passed, no closed issue flag is a
+substitute for technical evidence, and later defaults/freeze gates are not released.
+Retain failures, fixture settings and thresholds. A demonstrated upstream correctness
+regression reblocks affected consumers. Physical STOP remains active; software success
+is not permission to resume the historical failed physical experiments.
+
+Use normal required CI for approximate runner comparisons; do not add duplicate runners
+or repeat CI merely for benchmarking. This authority change itself alters no renderer,
+fixture or workflow and supplies no new physical/performance measurement.
+
 Status: canonical evidence contract for PF and SDVK work  
 Date: 2026-09-17
 

@@ -1,5 +1,18 @@
 # Lighting and shadow truth table
 
+## Current downstream software authority — 14 October 2026
+
+The [SDVK-009 gate split](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) permits #11/#14
+to consume the existing software-qualified lighting contracts and accepted SDVK-010
+(PR #148, verified master `6aadd8458773014e4333cf93cf4b4269ce5733b3`). Earlier
+SDVK-010 candidate/integration-pending notes are historical after that acceptance.
+SDVK-009-SW is qualified for these consumers; **State C / provisional no-change** and
+**SDVK-009-PHYSICAL held** remain. The dormant tiled path, rejected PF-017 candidate,
+probe-zero semantics and fallback/portal/lifetime invariants are unchanged.
+Physical STOP remains active; this does not prove physical cost, stability, general
+bake robustness or viewmodel parity. A new upstream invariant failure reblocks the
+affected consumer rather than being waived by this decision.
+
 Baseline-SHA: `09634479ab5bf9adf691074fffe85a006a398cd0`  
 Status: active; PF-011 compatibility math, PF-015 shadow/cache correctness and accepted PF-016 query equivalence incorporated
 Primary issues: PF-011, PF-015, PF-016, PF-017, SDVK-009, SDVK-012, SDVK-013
@@ -179,9 +192,9 @@ the fault. The monitor retained failure and stopped before any timing or second
 shadow capture. The two CPU collision repairs do not establish physical fault
 resolution. Hardware STOP is reinstated; architecture remains inconclusive.
 
-## SDVK-010 actor sunlight and probe scope (candidate)
+## SDVK-010 actor sunlight and probe scope (accepted software scope)
 
-`HWSprite::DrawSprite` resolves authored source-space environment probe ordinal independently of dynamic-light eligibility. `HWDrawInfo::GetDynSpriteLightList` retains the PF-016/017 sunlight/world visibility and portal-group trace decisions, while shader `ProcessMaterialLight` separately applies the existing sun cosine/occlusion response. Probe diffuse/specular IBL uses PF-113 valid irradiance/prefilter descriptor pair or zero, never a substitute nearest published pair. The new software-Vulkan corpus asserts **actual emitted PBR actor probe selection**; `sun-probes` without a full bake does **not** prove shadow-world occlusion or actor sunlight compatibility. No new many-light shadow algorithm is imported. [Boundary and pending evidence](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+`HWSprite::DrawSprite` resolves authored source-space environment probe ordinal independently of dynamic-light eligibility. `HWDrawInfo::GetDynSpriteLightList` retains the PF-016/017 sunlight/world visibility and portal-group trace decisions, while shader `ProcessMaterialLight` separately applies the existing sun cosine/occlusion response. Probe diffuse/specular IBL uses PF-113 valid irradiance/prefilter descriptor pair or zero, never a substitute nearest published pair. The new software-Vulkan corpus asserts **actual emitted PBR actor probe selection**; `sun-probes` without a full bake does **not** prove shadow-world occlusion or actor sunlight compatibility. No new many-light shadow algorithm is imported. [Accepted scope and evidence limits](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
 
 
 ## SDVK-010 PBR traced-sun parity

@@ -1,0 +1,61 @@
+{
+  "schema": "sdvk009-dependency-disposition/v1",
+  "decision_id": "SDVK-009-GATE-SPLIT-20261014",
+  "decision_date": "2026-10-14",
+  "owner_approved": true,
+  "effective_when": "governing documentation merged and exact-master verified",
+  "baseline_master": "6aadd8458773014e4333cf93cf4b4269ce5733b3",
+  "baseline_tree": "c520fd111c8da5c6714c60a5bc256247e4569577",
+  "architecture_disposition": "State C / provisional no-change",
+  "issue_9_state": "open",
+  "gates": {
+    "SDVK-009-SW": {
+      "status": "QUALIFIED_FOR_DOWNSTREAM_SOFTWARE_WORK",
+      "consumers": [
+        11,
+        14
+      ]
+    },
+    "SDVK-009-PHYSICAL": {
+      "status": "HELD_NOT_ACCEPTED",
+      "owner_issue": 9
+    }
+  },
+  "physical_stop_active": true,
+  "physical_execution_authorized": false,
+  "physical_performance_accepted": false,
+  "hardware_stability_accepted": false,
+  "historical_fault_root_cause": "UNDETERMINED",
+  "consumer_dependencies": {
+    "11": [
+      "SDVK-009-SW",
+      "SDVK-010"
+    ],
+    "14": [
+      "SDVK-002",
+      "SDVK-005",
+      "SDVK-009-SW",
+      "SDVK-010"
+    ]
+  },
+  "consumers_implemented_by_decision": [],
+  "consumers_accepted_by_decision": [],
+  "other_gates_not_waived": [
+    8,
+    12,
+    15,
+    16,
+    17
+  ],
+  "evidence": {
+    "software_issue_9_comment": 6134452869,
+    "actor_acceptance_issue_10_comment": 6167916940,
+    "actor_pr": 148,
+    "source_ci": 38493635271,
+    "normal_ci": 38493635327
+  },
+  "software_regression_reblocks_affected_consumers": true,
+  "physical_resume_requires_separate_explicit_authorization": true,
+  "ci_policy": "normal required runs only; no duplicate runners or benchmark-only repeats",
+  "governing_document": "SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md"
+}

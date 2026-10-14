@@ -1,5 +1,16 @@
 # SDVK-010 — Probe/environment lighting qualification for actors
 
+## Current disposition — 14 October 2026
+
+**Software correctness accepted; issue #10 closed as completed.** PR #148 merged as
+`6aadd8458773014e4333cf93cf4b4269ce5733b3`, exact tested tree
+`c520fd111c8da5c6714c60a5bc256247e4569577`. Source run 38493635271 and normal CI
+38493635327 passed; both new actor pairs and their real-record negatives passed.
+[Final acceptance record](https://github.com/techrote/ShadeDoomVK/issues/10#issuecomment-6167916940).
+The earlier candidate/pending notes below are history, not the current gate.
+Downstream #11/#14 now consume this acceptance together with
+[SDVK-009-SW](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md); Physical STOP remains active.
+
 ## Objective
 Qualify actor/sprite environment lighting, sunlight and PBR IBL on top of PF-012's corrected/bounded probe plumbing and SDVK-007's accepted orientation basis.
 

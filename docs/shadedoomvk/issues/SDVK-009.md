@@ -1,5 +1,16 @@
 # SDVK-009 — Scalable many-light architecture qualification
 
+## Current gate disposition — 14 October 2026
+
+**SDVK-009-SW: qualified for downstream software work. SDVK-009-PHYSICAL: held / not accepted.**
+The [owner-approved gate split](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md)
+authorizes #11/#14 to consume the existing PF lighting architecture plus accepted
+SDVK-010 semantics without waiting for physical-performance acceptance. Overall
+**State C / provisional no-change** is retained. **#9 remains OPEN**, Physical
+STOP remains active and historical physical fault root cause is **UNDETERMINED**.
+This supersedes older *dependency-blocking* statements only; the original physical
+acceptance criteria, protocols and sealed evidence below remain unchanged.
+
 ## Objective
 Determine, from the PF-optimized baseline and SDVK-002 measurements, whether ShadeDoomVK needs a higher-order scalable many-light architecture, and select/implement only an evidence-backed next step without changing lighting semantics.
 
@@ -18,7 +29,7 @@ No arbitrary light caps/quality reduction; no shadow-caster architecture; no rei
 SDVK-002, SDVK-003. PF-016/PF-017/PF-019 are inherited via PF-020.
 
 ## Concurrency guidance
-May proceed in parallel with SDVK-004/005/006/007/008 as dependencies allow, but SDVK-011/012/014 consume accepted lighting architecture and wait where required.
+SDVK-011/014 may consume SDVK-009-SW under the gate split above. SDVK-012 and later performance/default/freeze gates are not released. Independent work remains subject to shared-file coordination and unchanged prerequisite contracts.
 
 ## Required context
 Read `AGENTS.md`, PF freeze/PF-016/017/019 evidence, lighting/Vulkan/trap RAG, SDVK-002/003 evidence and canonical body.
