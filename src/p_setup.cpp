@@ -425,7 +425,6 @@ void P_SetupLevel(FLevelLocals *Level, int position, bool newGame)
 {
 	int i;
 
-	Level->BeginLightProbeBuildOwner(AllocateLightProbeLevelSerial());
 	Level->ShaderStartTime = I_msTimeFS(); // indicate to the shader system that the level just started
 
 	// This is motivated as follows:
@@ -468,6 +467,10 @@ void P_SetupLevel(FLevelLocals *Level, int position, bool newGame)
 
 	// Free all level data from the previous map
 	P_FreeLevelData();
+
+	// Establish the semantic owner only after teardown and before the new
+	// authored probe set is parsed. It must not depend on recycled addresses.
+	Level->BeginLightProbeBuildOwner(AllocateLightProbeLevelSerial());
 
 	MapData *map = P_OpenMapData(Level->MapName.GetChars(), true);
 	if (map == nullptr)
