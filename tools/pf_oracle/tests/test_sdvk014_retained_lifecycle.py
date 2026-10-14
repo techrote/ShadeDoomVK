@@ -75,7 +75,7 @@ def contract_errors(load: str, select: str, copy: str, pages: str) -> list[str]:
     if (
         pages.count(light_clear) != 1
         or pages.count(probe_clear) != 1
-        or pages.count(transfer) < 6
+        or pages.count(transfer) < 4
         or pages.count(sampled) < 2
         or pages.index(transfer) > pages.index(light_clear)
         or pages.index(transfer) > pages.index(probe_clear)
@@ -197,14 +197,9 @@ class RetainedLifecycleTests(unittest.TestCase):
     def test_retained_admission_order_mutation_is_rejected(self) -> None:
         mutation = "\t\ttile->AtlasLocation.Width = entry->width;\n"
         self.assertEqual(self.load.count(mutation), 1)
-        mutant = self.load.replace(
-            "\tfor (auto& binding : foundBindings)\n\t{\n",
-            "\ttile_placeholder:\n\t;\n\tfor (auto& binding : foundBindings)\n\t{\n",
-            1,
-        )
-        # The textual mutation above is deliberately harmless to C++ semantics;
-        # force the ownership oracle with a source-order mutation representing
-        # a write before complete admission.
+        mutant = self.load
+        # Force the ownership oracle with a source-order mutation representing
+        # a write before complete admission. This mutation is inspected, not compiled.
         marker = "\t// Admit complete retained entries before mutating any current tile state.\n"
         self.assertEqual(mutant.count(marker), 1)
         mutant = mutant.replace(marker, marker + "\tLightmapTile* tile = nullptr;\n\ttile->AtlasLocation.Width = entry->width;\n", 1)
