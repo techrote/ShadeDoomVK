@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include "vectors.h"
 
 class LevelMesh;
@@ -15,15 +16,30 @@ struct LightProbeTarget
 	int index = 0; // parameter for renderstate.SetLightProbe
 };
 
+struct LightProbeBuildOwner
+{
+	uint64_t LevelSerial = 0;
+	uint64_t ProbeRevision = 0;
+
+	bool IsSet() const { return LevelSerial != 0 && ProbeRevision != 0; }
+	bool operator==(const LightProbeBuildOwner& other) const
+	{
+		return LevelSerial == other.LevelSerial && ProbeRevision == other.ProbeRevision;
+	}
+	bool operator!=(const LightProbeBuildOwner& other) const { return !(*this == other); }
+};
+
 class LightProbeIncrementalBuilder
 {
 public:
-	void Step(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
-	void Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
+	void Step(LightProbeBuildOwner owner, const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
+	void Full(LightProbeBuildOwner owner, const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
 
 	auto GetStep() const { return lastIndex; }
+	LightProbeBuildOwner GetOwner() const { return activeOwner; }
 
 private:
+	LightProbeBuildOwner activeOwner;
 	int lastIndex = 0;
 	int collected = 0;
 	int cubemapsAllocated = 0;
