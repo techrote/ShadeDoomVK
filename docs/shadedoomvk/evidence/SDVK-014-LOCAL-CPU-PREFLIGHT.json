@@ -1,0 +1,25 @@
+{
+  "schema": "sdvk014-local-cpu-preflight/v1",
+  "exit_code": 0,
+  "scope": "pre-commit local full CPU preflight; final small region guard subsequently focused-tested; required exact-head CI is separate",
+  "renderer_executed": false,
+  "vulkan_device_created": false,
+  "log_sha256": {
+    "bindless_allocator.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cfx-tests.log": "2510662be1741383d3c28ec737a2408372025df25baa7c53083232f963d0929a",
+    "levelmesh_contract.log": "b1bec0fbca7b5c0d495a704bd6c1b150b8d0eb4812452128158a7bafe0f9e103",
+    "oracle-a.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "oracle-b.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "pf-tests.log": "a333dd487301850dc69abde9eda458e85137b63ce407ebcc761f92d881715c9a",
+    "probe_selection.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "renderer-corpus.log": "7b9831cc918ce52045425d91b208047d0243074881589b0279e5ac49ce79f611",
+    "renderer-oracle-tests.log": "8649523638fdc17fa73ca8093fef8011f2ccc5a66d59a52383ff0af2cbf919cb",
+    "resource_generation.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "test_counts": {
+    "pf": 784,
+    "cfx": 8,
+    "renderer_oracle": 196
+  },
+  "deterministic_pf_outputs_equal": true
+}

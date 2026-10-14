@@ -2,10 +2,23 @@
 
 ## Current entry status — 14 October 2026
 
-**Dependency-ready for software implementation; not yet implemented/accepted.**
-Consume **SDVK-009-SW** and the SDVK-010 acceptance merged by PR #148. Physical
-STOP remains active; physical GPU performance/stability and the historical fault
-are not qualified. See the [governing gate decision](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md).
+**Implementation in progress; software campaign NOT ACCEPTED.** A bounded atlas,
+tile-retirement and upload/readback increment has passed its focused CPU fixtures.
+Cross-map probe reset/rebake/publication is **REBLOCKED by issue #150**, which
+reproduces same-count new-owner starvation in the global incremental builder.
+See the [increment report](../SDVK-014-CPU-INCREMENT.md),
+[production audit/matrix](../SDVK-014-PRODUCTION-AUDIT.md) and
+[actual CPU receipt](../evidence/SDVK-014-CPU-INCREMENT.json).
+
+The accepted SDVK-002 / SDVK-005 / SDVK-009-SW / SDVK-010 prerequisites remain
+historical authority; a newly demonstrated foundational error blocks its affected
+consumer scope. No compensating probe/viewmodel policy is added. Required source,
+normal CI, native campaign evidence, review and verified merge remain explicit.
+
+**Not software-complete. Issue #14 remains OPEN. Physical STOP remains ACTIVE.**
+Required physical GPU bake/update cost, scaling and stability remain HELD / NOT
+ACCEPTED and historical physical root cause remains UNDETERMINED. See the
+[governing gate decision](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md).
 
 ## Objective
 Stress and harden the integrated lightmapper/dynamic-lightmap/probe system after PF-012 establishes correct/basic probe plumbing and SDVK material/many-light/actor-environment semantics are in place.

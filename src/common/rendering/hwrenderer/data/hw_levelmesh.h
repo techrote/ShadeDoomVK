@@ -399,6 +399,15 @@ inline void LevelMesh::FreeTile(int index)
 	for (int freeIndex : Lightmap.FreeTiles)
 		if (freeIndex == index)
 			I_FatalError("Duplicate LevelMesh lightmap tile free: %d", index);
+	LightmapTile& tile = Lightmap.Tiles[index];
+	if (tile.UseCount != 0 || tile.AtlasLocation.Item)
+		I_FatalError("LevelMesh lightmap tile still owns surfaces or an atlas allocation: %d", index);
+
+	// ReleaseTiles has relinquished the last surface and freed the atlas item.
+	// Retire the semantic/rectangle state too, before this pool slot is reusable.
+	tile = LightmapTile();
+	tile.GeometryUpdate = false;
+	tile.ReceivedNewLight = false;
 	Lightmap.UsedTiles--;
 	Lightmap.FreeTiles.Push(index);
 	MarkMutation(LevelMeshMutationDomain::LightmapProbe);

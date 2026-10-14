@@ -221,3 +221,14 @@ graph or explain a timeout. The [bound witness contract](../SDVK-009-BOUND-PUBLI
 defines the independent command/SPIR-V joins and software-only qualification;
 physical STOP and the ungranted #8/#9/#10 acceptance gates remain active.
 
+
+## SDVK-014 candidate: retired lightmap pool slots
+
+The [first SDVK-014 increment](../SDVK-014-CPU-INCREMENT.md) makes the actual
+`ReleaseTiles` → last UseCount → atlas item free → `FreeTile` ordering executable.
+FreeTile rejects a remaining surface/item owner, then tombstones binding, region
+and dirty state before reuse. Pool-wide invalidation/background/statistics paths
+do not resurrect retired entries. Save validates coordinates/page/extent against
+the current packer item before readback. This is **not** a durable tile generation
+token or acceptance of every dynamic-update/native case. Probe-owner #150 and the
+audit's other software remainders keep the complete campaign unaccepted.

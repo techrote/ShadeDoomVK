@@ -259,3 +259,15 @@ SDVK-006 treats time as renderer presentation evidence, not a gameplay timestep.
 Clock qualification includes first/repeated timestamps, finite positive cadence above/below tic rate, long-frame clamp, rollback/non-finite input, pause/resume, level load/restart, wipe/cut and temporary main-view absence. Interpolation qualification includes exact 0/1 endpoints, intermediate monotonic alpha/scale values, disabled/default behavior, `RF_DONTINTERPOLATE`, and a fixed simulation sentinel under different render cadences. A subjective smoothness report cannot replace these state checks.
 
 The hosted software-Vulkan lane remains the routine native qualification path. Physical GPU evidence is optional unless a concrete driver/pacing defect appears; software Vulkan is correctness/repeatability evidence and not a physical-GPU performance claim.
+
+## SDVK-014 increment evidence is not campaign acceptance
+
+[SDVK-014's CPU increment](SDVK-014-CPU-INCREMENT.md) keeps passing fixed-scope
+fixtures, retained intended failures and **current blocked counterexamples** in
+separate receipt categories. An exit-0 increment collector is not a campaign pass;
+`--require-campaign-complete` fails closed while the campaign is unaccepted.
+Source hashes pin actual tested files rather than relabelling the base commit as
+the changed checkout. Synthetic CPU readback channels, allocator counts and fixture
+wall times do not qualify native illumination, device lifetime or physical cost.
+Upstream #150 blocks cross-map probe acceptance. Normal CI remains required for
+any software increment; no benchmark-only duplicate native run is justified.

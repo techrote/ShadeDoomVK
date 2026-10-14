@@ -14,11 +14,17 @@
 
 RectPacker::RectPacker(int width, int height, int padding) : PageWidth(width), PageHeight(height), Padding(padding)
 {
+	// Establish positive usable dimensions before any padded arithmetic or mutation.
+	if (width <= 0 || height <= 0 || padding < 0 || padding > (width - 1) / 2 || padding > (height - 1) / 2)
+		I_FatalError("Invalid RectPacker page size or padding");
 }
 
 void RectPacker::Clear()
 {
 	Pages.clear();
+#ifdef VALIDATE_RECTPACKER
+	ValidationBuffer.clear();
+#endif
 	ItemFreeList.resize(Items.size());
 	size_t i = Items.size();
 	for (auto& item : Items)
@@ -35,14 +41,16 @@ void RectPacker::Clear()
 
 RectPackerItem* RectPacker::Alloc(int width, int height)
 {
+	// Check the unpadded request first: invalid input must not allocate a page,
+	// and adding padding must not overflow. Equality is a legal exact-page fit.
+	if (width <= 0 || height <= 0 || width > PageWidth - Padding * 2 || height > PageHeight - Padding * 2)
+		I_FatalError("Invalid or oversized RectPacker tile");
+
 	width += Padding * 2;
 	height += Padding * 2;
 
-	if (width < 0 || height < 0 || width > PageWidth || height >= PageHeight)
-		I_FatalError("Tile too large for RectPacker!");
-
-	// How much wasted space we want to allow per shelf
-	int threshold = height * 2;
+	// Clip the search threshold to the page without overflowing height * 2.
+	int threshold = height > PageHeight / 2 ? PageHeight : height * 2;
 
 	// Search pages for room
 	for (RectPackerPage& page : Pages)

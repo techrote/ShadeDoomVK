@@ -1111,3 +1111,27 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   RAG and machine-readable dependency disposition are reconciled. This is documentation
   and authority only: renderer/shader/fixture/workflow bytes and sealed evidence are unchanged.
   Use ordinary required CI only; no duplicate renderer or standalone benchmark is authorized.
+
+### 14 October 2026 — SDVK-014 CPU implementation increment; probe-owner scope reblocked
+
+- Reconciled exact master `04a3596115eb397d9e7237aa1ff3625ece1bc5b4`, PR #149's
+  software-only dependency release and #10's accepted final evidence. Recovered
+  and verified its retained source bundle without executing a local renderer.
+- Audited all 18 production ownership paths before fixtures; implemented atlas
+  boundary/reset validation, retired tile tombstones and live-only scheduling/
+  serialization, checked save readback and explicit pending-upload consumption.
+- Focused compiled evidence: 22 positive cases, 15 intended retained-source
+  rejections, four atlas receipt and eleven live region mutations; 128 atlas
+  cycles / 12,288 allocations and 128 tile-pool retirement cycles stay bounded.
+  Full local CPU preflight passed. Required exact-head source/normal CI, native
+  campaign and any merge remain separate publication gates.
+- Exact production probe builder/entry-boundary CPU replay demonstrates both
+  same-count A→B and A→empty→B produce no B captures or reset/publication callbacks.
+  Created upstream #150; **reblocked cross-map probe reset/rebake/publication**,
+  rather than hiding the ownership error through a local compensating refresh.
+- [Increment report](SDVK-014-CPU-INCREMENT.md), [audit](SDVK-014-PRODUCTION-AUDIT.md)
+  and [machine receipt](evidence/SDVK-014-CPU-INCREMENT.json) explicitly classify
+  remaining software gaps. No viewmodel policy or material/portal/shader change.
+- #14 stays OPEN and is **not software-complete**. Physical GPU cost/scaling/
+  stability remains HELD / NOT ACCEPTED, Physical STOP ACTIVE, root cause
+  UNDETERMINED. No duplicate full/native benchmark run and no physical execution.

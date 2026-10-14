@@ -144,6 +144,9 @@ LevelMeshTileStats LevelMesh::GatherTilePixelStats()
 	LevelMeshTileStats stats;
 	for (const LightmapTile& tile : Lightmap.Tiles)
 	{
+		if (!tile.HasLiveAtlasAllocation())
+			continue;
+		stats.tiles.total++;
 		auto area = tile.AtlasLocation.Area();
 
 		stats.pixels.total += area;
@@ -154,7 +157,6 @@ LevelMeshTileStats LevelMesh::GatherTilePixelStats()
 			stats.pixels.dirty += area;
 		}
 	}
-	stats.tiles.total += Lightmap.Tiles.Size();
 	return stats;
 }
 
