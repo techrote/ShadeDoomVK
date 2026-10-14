@@ -148,4 +148,18 @@ See [SDVK-004 descriptor stress](../SDVK-004-DESCRIPTOR-STRESS.md) and [release 
 
 ## SDVK-010 actor-card probe selection (candidate)
 
-Unlike world lightmap probe-map texels (PF-012), an ordinary actor sprite emits its **authored ordinal** into Vulkan surface state. `HWActorProbeSelection::Resolve` selects an in-range nearest source-level authored probe within the inclusive 512-unit bound, keyed on interpolated actor pose, deterministic first tie, and no hidden temporal interpolation; ambiguous portal-group/through-portal cards preserve a validated sector target. No authored probe is **-1** (authored zero is valid). `VkRenderState::ApplySurfaceUniforms` checks ordinal range before calling the immutable PF-113 pair producer; the runtime zero sentinel still means missing irradiance/pre-filter and both PBR sample functions return zero IBL. Models remain on inherited sector selection. A full PBR native fixture and actual linked-portal/sun occlusion qualification remain pending, so this is implementation description rather than acceptance. [Detailed contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+Unlike world lightmap probe-map texels (PF-012), an ordinary actor sprite emits its **authored ordinal** into Vulkan surface state. `HWActorProbeSelection::Resolve` selects an in-range nearest source-level authored probe within the inclusive 512-unit bound, keyed on interpolated actor pose, deterministic first tie, and no hidden temporal interpolation; ambiguous portal-group/through-portal cards preserve a validated sector target. No authored probe is **-1** (authored zero is valid). `VkRenderState::ApplySurfaceUniforms` checks ordinal range before calling the immutable PF-113 pair producer; the runtime zero sentinel still means missing irradiance/pre-filter and both PBR sample functions return zero IBL. Models remain on inherited sector selection. Inherited PBR coverage and both focused actor lanes are inputs to the combined SDVK-010 gate; final acceptance requires their integrated exact-tree qualification and verified merge. [Detailed contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+
+
+## SDVK-010 linked-portal actor probe transition (integration candidate)
+
+The bounded `portal-probes` native fixture qualifies the current conservative actor-card policy across an actual bidirectional linked line portal without changing PF-012 or PF-113 plumbing. In a level with multiple displacement groups, the actor selector treats the domain as ambiguous and preserves the validated source-sector authored target; it does not infer probe ownership from global XY proximity. Authored ordinal 0 remains distinct from runtime descriptor 0. The accepted hosted samples use authored 0/runtime 267 in group 1 and authored 1/runtime 281 in group 2 with one stable LightProbe epoch.
+
+Recursive `LineToLine` rendering demonstrated that PF-009 `throughPortalMode` is not a universal portal-recursion flag. The destination-group actor can be processed with `throughPortalMode=0` while PF-010 context depth/producer and displaced viewpoint prove portal presentation. Probe selection therefore remains keyed to source actor/sector identity; applying the view displacement again to the actor would be incorrect. See [SDVK-010 actor environment contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md) and [linked-portal qualification](../evidence/SDVK-010-LINKED-PORTAL-QUALIFICATION.json). This does not accept sunlight occlusion or physical performance.
+
+
+The combined SDVK-010 scene pair preserves the original sector-target/probe producer. The
+sunlight pair requires the same nonzero runtime base and adjacent prefilter allocation (span 2);
+the portal pair requires distinct live pairs for distinct authored targets. Authored zero remains
+valid and absent/unpublished probes remain runtime zero. Bounded software correctness does not
+accept broad bake convergence or physical cost. [Integration contract](../SDVK-010-INTEGRATION-ACCEPTANCE.md).

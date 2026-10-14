@@ -44,3 +44,48 @@ If PF-012 plumbing is found unsound, classify as foundational regression and blo
 The dedicated branch `sdvk-010-actor-probe-environment` consumes accepted SDVK-007, PF-012 and PF-113 and defines its explicit [actor environment v1 contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md). The bounded source-space nearest authored-probe policy uses interpolated actor positions, a 512-unit radius and deterministic tie/fallback semantics. Linked/ambiguous portal group presentation remains conservative sector-target selection; invalid/unpublished indices yield zero IBL via the existing unchanged PF-113 producer. World/model, gameplay, sunlight tracing and PBR BRDF/binding semantics are not changed.
 
 Positive/negative compiled fixtures, state-only emitted Vulkan draw diagnostics and new PBR actor/probe corpus controls are implemented. Full local CPU contract checks passed. **This is not issue acceptance**: exact-head hosted source/CI, live native `sun-probes` qualification, actual sunlight occlusion, linked-portal transition proof, release review and verified master are outstanding. Do not close #10 or claim general actor-environment correctness based on the preparatory checks alone.
+
+
+## 13 October 2026 — parallel sunlight/world-occlusion lane
+
+The isolated branch `sdvk010-sun-occlusion-acceptance` is based on verified `master@0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f` and owns only the outstanding actor sunlight/world-occlusion gate. It adds a dedicated `SDVSOCC` fixture with matched PBR actor material/probe identity, a one-sided authored world occluder, state-only packed traced-sun provenance, strict PF-113 two-descriptor probe-pair identity, relative preregistered native image discrimination, and exact repeatability. Source review also found and narrowly corrects the demonstrated PBR omission of the already-accepted `LIGHTINFO_SUN|LIGHTINFO_TRACE -> traceSun` branch present in the normal light model.
+
+The linked-portal transition lane remains independent. Do not close #10 or run the combined full CI from this sunlight branch alone. Physical STOP remains active and hosted llvmpipe results are correctness-only.
+
+
+## 13 October 2026 — sunlight lane integration-ready
+
+The sunlight/world-occlusion branch has completed focused qualification. Native run `38328713247` produced two retained independent lavapipe captures; both passed the actor/probe/sun/image assertions and had identical RGB. Its wrapper failure was isolated to process-local material/texture-manager generation labels in the generic cross-process comparator. Corrected offline revalidation `38444141252` passed with `state_equal=true`, `changed_pixels=0`, no new native execution, and retained artifact `11836882592`.
+
+The lane is ready for integration with the separate linked-portal acceptance branch. Do **not** close #10 or merge this branch directly to master. The combined tree still needs the single normal required CI run after both lanes are integrated. Physical STOP remains active.
+
+## 13 October 2026 — linked-portal acceptance lane integration candidate
+
+The dedicated `sdvk010-linked-portal-acceptance` branch has completed its bounded linked-portal actor probe-transition scope on substantive head `05f20e4f2856cb675f0cf286d08485869859ea8b`.
+
+Focused run **38446793761 PASS** established, on isolated hosted llvmpipe:
+
+- a real bidirectional linked `Line_SetPortal` topology with distinct portal groups and sector probe targets;
+- actual emitted before/on/after PBR actor draws;
+- the v1 conservative sector-target policy with authored ordinals 0 and 1;
+- distinct live runtime irradiance/prefilter pairs and stable probe epoch;
+- root versus recursive `LineToLine` PF-010 context ownership;
+- no cross-group nearest substitution and no double portal transform;
+- deliberate host-side negative controls for portal mode/group/sector/sample/pair/epoch errors;
+- two independent native captures with exact RGB equality and bounded semantic repeatability.
+
+The native investigation corrected the **test oracle**, not renderer portal policy: recursive line-portal presentation may keep PF-009 `throughPortalMode=0` because the child view/context already carries the linked displacement. Requiring another actor translation would be a double transform.
+
+This lane remains unmerged by design. Full repository source evidence/CI and final #10 closure are reserved for integration with the parallel sunlight/world-occlusion acceptance lane. Physical STOP remains active and no hardware-GPU claim follows.
+
+
+## 14 October 2026 — combined integration gate
+
+The two previously qualified lanes are combined on `sdvk010-integration-acceptance` from
+`master@0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f`. See the
+[combined acceptance contract](../SDVK-010-INTEGRATION-ACCEPTANCE.md) for exact lane inputs,
+conflict resolutions, preserved PF-009/PF-113 source boundaries and the fixed four-process plan.
+Both actual actor scenes and copied-record negative controls now execute once in the existing
+Avrea 16-vCPU software job, alongside the inherited required gates. Independent focused evidence
+is not substituted for this exact-tree qualification. Keep #10 open until full CI/source evidence,
+review and verified merge genuinely pass. #8/#9 physical acceptance remains held.

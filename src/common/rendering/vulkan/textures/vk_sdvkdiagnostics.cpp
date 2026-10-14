@@ -209,11 +209,13 @@ struct FSdvkDiagnosticAccess
 
         const int runtimeProbe = state->mSurfaceUniforms.uLightProbeIndex;
         const auto actorProbe = SdvkDiagnostics::CurrentActorProbeSelectionJson();
+        const auto actorSun = SdvkDiagnostics::CurrentActorSunJson();
         auto textures = fb->GetTextureManager();
         SdvkDiagnostics::Emit("probe", Object().Raw("context", context).Str("material", name)
             .Str("mode", "uniform-environment-pair").Int("authored_index", state->mLightProbeIndex).Int("runtime_irradiance_index", runtimeProbe)
             .Bool("fallback", runtimeProbe == 0)
             .Raw("actor_selection", actorProbe.empty() ? Unavailable("not an actor sprite card") : actorProbe)
+            .Raw("actor_sunlight", actorSun.empty() ? Unavailable("not an actor sprite card") : actorSun)
             .Int("probe_epoch", textures->GetLightProbeEpoch().Generation)
             .Raw("resource", runtimeProbe ? Identity(fb->GetDescriptorSetManager()->GetBindlessIdentity(runtimeProbe)) : Unavailable("zero is the no-probe sentinel"))
             .Int("published_irradiance", textures->Irradiancemaps.size()).Int("published_prefilter", textures->Prefiltermaps.size())

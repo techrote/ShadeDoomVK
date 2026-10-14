@@ -230,3 +230,23 @@ wrong offsets and completion/order failures without submitting invalid GPU work.
 These are software publication observations, not physical graph equivalence,
 historical shader-load visibility or root-cause attribution. See the
 [evidence contract](../SDVK-009-BOUND-PUBLICATION-WITNESS.md).
+
+
+## SDVK-010 linked-portal actor probe provenance (integration candidate)
+
+The existing state-only `probe.actor_selection` record now retains enough production provenance to distinguish selector ambiguity from recursive presentation: actor TID, source/render sector, source actor XYZ, `HWSprite::Process` presentation XYZ, source/render portal groups, group count, PF-009 `throughPortalMode`, portal mirror state and the selector's actual `portal_ambiguous` decision. The surrounding probe record still owns the emitted authored ordinal, runtime irradiance descriptor identity, published pair counts and LightProbe epoch; the existing context object independently records PF-010 producer, recursion depth and displaced viewpoint.
+
+The dedicated `portal-probes` oracle requires exact before/on/after actor records and a real `LineToLine` child context, stable probe epoch, stable pair per authored ordinal and distinct pairs across authored ordinals. Adversarial controls reject nearest-across-group substitution, double actor/context transform, wrong sector/mode/group, ordinal0 conflation, stale epoch, missing/reassociated samples and pair substitution.
+
+The historical focused portal receipt used a fixture-local exclusion for the background `SDVFL` generation and texture-manager epoch. The integrated comparison is stricter: first-seen bijections canonicalize those labels while preserving observed transitions. The analogous sunlight policy applies only to `SDVSKY` in `sun-actor-occlusion`. Selected probe generation/epoch/span, actor materials, other epochs, portal/sunlight state and other scenes remain exact. These are cross-process correctness rules, not physical-performance evidence. The [historical receipt](../evidence/SDVK-010-LINKED-PORTAL-QUALIFICATION.json) is retained; the [combined contract](../SDVK-010-INTEGRATION-ACCEPTANCE.md) owns the current projection.
+
+
+## SDVK-010 combined acceptance and sunlight provenance
+
+`probe.actor_selection` and `probe.actor_sunlight` coexist at the emitted Vulkan draw. The latter
+records packed/traced sun proxy count, uploaded range/index, actor TID and source/render group;
+it is a requested shader-path witness, not a CPU prediction of fragment visibility. Source/render
+sector fields stay outside the frozen PF-009 snapshot. The native sunlight oracle joins that
+state to the exact paired probe allocation and preregistered image ROIs. The combined driver
+`tools/renderer_oracle/sdvk010_acceptance.py` runs two fresh captures per scene with captured-record
+falsification and exact repeat comparisons, fail-stop on every dependency, in normal software CI.

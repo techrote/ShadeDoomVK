@@ -23,8 +23,17 @@ import pf113_source_extract as source
 FIXTURE = Path(__file__).with_name('pf113_probe_fixture.cpp')
 
 
+# SDVK-010 owns only this exact traced-sun correctness delta. Original PF113
+# bytes and all probe helper/producer pins remain unchanged.
+SDVK010_SUN_AFTER = '\t\t// SDVK-010: traced actor sunlight uses the already-supported\n\t\t// world-geometry sun ray, not a local shadow-map row. The PF-011\n\t\t// far-away sunlight proxy still bypasses local shadow attenuation.\n\t\t// Keep the ordinary point/spot shadow path and shader BRDF unchanged.\n\t\tif ((light.flags & (LIGHTINFO_SUN | LIGHTINFO_TRACE)) == (LIGHTINFO_SUN | LIGHTINFO_TRACE))\n\t\t{\n\t\t\tattenuation *= traceSun(L);\n\t\t}\n\t\telse if (light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)'
+SDVK010_SUN_BEFORE = '\t\t// The far-away sunlight proxy bypasses local-light shadow attenuation.\n\t\tif(light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)'
+
+
 def restored_shader(candidate: str) -> str:
-    """Reverse exactly the adopted ten calls/helper addition, not other PBR code."""
+    """Reverse exact PF113 sampling and separately owned SDVK010 sun deltas only."""
+    if candidate.count(SDVK010_SUN_AFTER) != 1:
+        raise AssertionError("SDVK-010 traced-sun route differs from its exact owned delta")
+    candidate = candidate.replace(SDVK010_SUN_AFTER, SDVK010_SUN_BEFORE, 1)
     start = candidate.index('// Runtime zero is no probe, not the fixed 2D null/BRDF pair.')
     stop = candidate.index('vec3 ProcessMaterialLight(', start)
     restored = candidate[:start] + candidate[stop:]
@@ -65,6 +74,13 @@ class SourcePreservationTests(unittest.TestCase):
         shader = (ROOT / source.PATHS['shader']).read_text()
         original = (source.ORIGINAL / 'lightmodel_pbr.glsl').read_text()
         self.assertEqual(restored_shader(shader), original)
+
+    def test_sdvk010_sun_delta_does_not_allow_other_pbr_changes(self):
+        shader = (ROOT / source.PATHS['shader']).read_text()
+        with self.assertRaisesRegex(AssertionError, "traced-sun"):
+            restored_shader(shader.replace('attenuation *= traceSun(L);', 'attenuation *= 0.0;'))
+        changed = shader.replace('vec3 R = reflect(-V, N);', 'vec3 R = reflect(V, N);')
+        self.assertNotEqual(restored_shader(changed), (source.ORIGINAL / 'lightmodel_pbr.glsl').read_text())
 
     def test_actual_extraction_contains_current_helpers_and_complete_consumer(self):
         header, constants, metadata = source.extract_current()

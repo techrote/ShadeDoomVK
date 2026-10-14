@@ -1069,3 +1069,22 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   environment. Private incident packets remain unavailable here, physical STOP
   remains active, root cause remains UNDETERMINED, and #8/#9/#10 stay open.
 
+
+
+### 14 October 2026 — SDVK-010 combined integration candidate
+
+- Combined sunlight head `564dd88c9dcca7023ad10014a82946b7ff097ed5` and portal head
+  `143288ef0cf26b6acdf6c446c35103c32596386a` on verified master
+  `0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f`. Historical focused packets remain input evidence.
+- Resolved shared observer/fixture/validator/docs conflicts, corrected the portal map guard,
+  and narrowed repeatability normalization to scene-specific background labels with transition
+  preservation. Actor/probe epochs and all other scenes remain strict.
+- Moved portal sector provenance outside the frozen PF-009 snapshot rather than modifying its
+  historical derivation baseline. PF-113 source preservation allows only the exact owned
+  traced-sun parity delta and rejects unrelated shader edits; sampling/producer pins remain.
+- Added both two-process actor gates and copied-record negatives to the existing normal Avrea
+  16-vCPU software CI job. No duplicate full matrix, native runner or benchmark job is added.
+- The [combined acceptance contract](SDVK-010-INTEGRATION-ACCEPTANCE.md) is prospective: source
+  evidence/full CI, review and verified merge are still required. Actual run/artifact/master
+  identities and the final closure decision belong on the integration PR and issue #10.
+  Physical STOP remains active; #8/#9 physical gates and UNDETERMINED fault root cause remain.

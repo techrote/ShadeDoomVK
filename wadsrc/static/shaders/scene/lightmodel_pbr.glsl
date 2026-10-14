@@ -66,8 +66,15 @@ vec3 ProcessLight(const DynLightInfo light, vec3 albedo, float metallic, float r
 
 	if (attenuation > 0.0)
 	{
-		// The far-away sunlight proxy bypasses local-light shadow attenuation.
-		if(light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)
+		// SDVK-010: traced actor sunlight uses the already-supported
+		// world-geometry sun ray, not a local shadow-map row. The PF-011
+		// far-away sunlight proxy still bypasses local shadow attenuation.
+		// Keep the ordinary point/spot shadow path and shader BRDF unchanged.
+		if ((light.flags & (LIGHTINFO_SUN | LIGHTINFO_TRACE)) == (LIGHTINFO_SUN | LIGHTINFO_TRACE))
+		{
+			attenuation *= traceSun(L);
+		}
+		else if (light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)
 		{
 			attenuation *= shadowAttenuation(light.pos.xyz, light.shadowIndex, light.softShadowRadius, light.flags);
 		}

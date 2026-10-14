@@ -228,8 +228,12 @@ class AuthoredSceneTests(unittest.TestCase):
                           + (player["y"] - camera["y"]) * math.sin(view))
                 self.assertLess(behind, 0)
                 self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
-                self.assertLess(metadata["boundary_signed_areas"][0], 0)
-                self.assertTrue(all(area > 0 for area in metadata["boundary_signed_areas"][1:]))
+                if scene["native"]["generator"] == "portal_probes":
+                    self.assertEqual(metadata["boundary_signed_areas"],
+                                     [-147456.0, -147456.0, -16384.0, -16384.0])
+                else:
+                    self.assertLess(metadata["boundary_signed_areas"][0], 0)
+                    self.assertTrue(all(area > 0 for area in metadata["boundary_signed_areas"][1:]))
                 for path, raw in members.items():
                     if path.endswith(".png"):
                         image, pixels = unpack_png(raw)
@@ -363,6 +367,39 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual(scene["native"]["frame_assertions"]["portals"]["minimum"], 1)
         for flag in (b"+WALLSPRITE", b"+FLATSPRITE", b"+XFLIP", b"+YFLIP"):
             self.assertIn(flag, members["ZSCRIPT"])
+
+    def test_linked_portal_actor_probe_fixture_is_real_and_bounded(self):
+        scene = scene_named("portal-probes")
+        members, meta = prepare.authored_members(scene)
+        records = parse_udmf(unpack_wad(members["maps/SDVPRT.wad"])["TEXTMAP"])
+        self.assertEqual(len(records["sector"]), 4)
+        portals = [line for line in records["linedef"] if line.get("special") == 156]
+        self.assertEqual(len(portals), 2)
+        self.assertEqual({(p["id"], p["arg0"], p["arg1"], p["arg2"]) for p in portals},
+                         {(101, 102, 101, 3), (102, 101, 102, 3)})
+        self.assertTrue(all("sideback" in p and p.get("blocking") is False for p in portals))
+        self.assertEqual(meta["portal_line_ids"], [101, 102])
+        self.assertEqual(meta["portal_displacement"], [1024, 0])
+        self.assertEqual(meta["room_sectors"], [0, 1])
+        probes = [t for t in records["thing"] if t["type"] == 9892]
+        self.assertEqual([[t["x"], t["y"], t["height"]] for t in probes],
+                         meta["authored_probe_positions"])
+        player = [t for t in records["thing"] if t["type"] == 1]
+        self.assertEqual(len(player), 1)
+        self.assertEqual(player[0]["renderstyle"], "NONE")
+        self.assertEqual(player[0]["alpha"], 0)
+        actors = sorted((t for t in records["thing"] if t["type"] == 32218), key=lambda row: row["id"])
+        self.assertEqual([t["id"] for t in actors], [5100, 5101, 5102])
+        self.assertEqual([[t["x"], t["y"], t["height"]] for t in actors],
+                         [sample["source"] for sample in meta["portal_actor_samples"]])
+        self.assertIn(b"32218 = SDVKPortalProbeActor", members["MAPINFO"])
+        self.assertIn(b"material sprite SDVTA0", members["GLDEFS"])
+        assertion = scene["native"]["state_assertions"]["actor_probe_portal"]
+        self.assertEqual([row["role"] for row in assertion["samples"]], ["before", "on", "after"])
+        self.assertEqual([row["actor_tid"] for row in assertion["samples"]], [5100, 5101, 5102])
+        self.assertTrue(assertion["require_live"])
+        self.assertTrue(assertion["require_distinct_runtime_pairs"])
+        self.assertEqual(scene["native"]["frame_assertions"]["portals"]["minimum"], 1)
 
     def test_material_panels_reference_64_distinct_authored_inputs(self):
         members, metadata = prepare.authored_members(scene_named("material-stress"))

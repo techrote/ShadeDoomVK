@@ -448,6 +448,11 @@ public:
 	float offx, offy;
 	float trans;
 	int dynlightindex;
+	// SDVK-010: retained per-sprite until the immediate Vulkan draw.
+	int probeSourceSector = -1;
+	int probeRenderSector = -1;
+	int packedSunProxyCount = 0;
+	int tracedSunProxyCount = 0;
 
 	FGameTexture *texture;
 	AActor * actor;

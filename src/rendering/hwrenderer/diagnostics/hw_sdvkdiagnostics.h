@@ -44,8 +44,14 @@ void SpriteBasisSelected(const HWSpriteRenderSurfaceState& surface, const HWSpri
 void ClearSpriteBasis();
 // Read-only source-space actor probe selection attached to emitted draws.
 void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWSpriteRenderSurfaceState& surface,
-    double x, double y, double z);
+    int actorTid, int portalGroupCount, int sourceSector, int renderSector, double x, double y, double z,
+    double presentationX, double presentationY, double presentationZ);
 void ClearActorProbeSelection();
+// Per-sprite packed sun proxy snapshot, emitted only with the actual Vulkan card.
+void ActorSunPacked(const AActor* actor, int packedSunCount, int tracedSunCount,
+    int lightIndex, const HWSpriteRenderSurfaceState& surface);
+void ClearActorSun();
+std::string CurrentActorSunJson();
 std::string CurrentActorProbeSelectionJson();
 std::string CurrentSpriteBasisJson();
 void VulkanDraw(VkRenderState* state, int count, bool indexed);

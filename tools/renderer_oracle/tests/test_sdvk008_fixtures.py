@@ -163,7 +163,7 @@ int main() {
 
     def test_bad_family_and_false_completeness_fail(self):
         altered=copy.deepcopy(self.catalog)
-        altered['scenes'][-1]['native']['relief_family']='unknown'
+        next(s for s in altered['scenes'] if s['id']=='sdvk008-sh')['native']['relief_family']='unknown'
         with self.assertRaisesRegex(ValueError,'Unknown SDVK-008'):
             prepare.validate_catalog(altered)
         self.assertTrue(fixtures.MISSING_GATES)

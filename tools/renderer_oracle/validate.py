@@ -134,34 +134,43 @@ def _actor_probe_selection(value, authored, runtime):
             "Actor probe silently substituted a different published probe")
     require(value.get("policy") in ("no-probes", "invalid-position", "portal-sector-conservative",
                                    "spatial-nearest", "no-probe-in-radius"), "Unknown actor probe policy")
-    for key in ("selected", "spatial", "portal_mirrored"):
+    for key in ("selected", "spatial", "portal_mirrored", "portal_ambiguous"):
         require(type(value.get(key)) is bool, f"Actor probe {key} must be boolean")
     count = integer(value.get("candidate_count"), "actor probe candidate count", minimum=0)
     assigned = integer(value.get("authored_index"), "selected actor probe", minimum=-1)
     sector = integer(value.get("sector_target"), "actor sector probe", minimum=-1)
+    integer(value.get("actor_tid"), "actor probe source TID", minimum=0)
+    integer(value.get("source_sector"), "actor source sector", minimum=-1)
+    integer(value.get("render_sector"), "actor render sector", minimum=-1)
     source_group = integer(value.get("source_portal_group"), "actor source portal group", minimum=-1)
     render_group = integer(value.get("render_portal_group"), "actor render portal group", minimum=-1)
+    group_count = integer(value.get("portal_group_count"), "actor portal group count", minimum=1)
     thru = integer(value.get("through_portal_mode"), "actor through-portal mode")
     _vector(value.get("actor_position"), 3, "actor source-space position")
+    _vector(value.get("presentation_position"), 3, "actor presentation position")
+    require(value.get("presentation_space") == "hw-sprite-process-after-optional-thruportal-displacement",
+            "Actor probe presentation position has unknown transform ownership")
     distance = number(value.get("distance_squared"), "actor probe distance squared", minimum=-1)
     require(assigned == authored, "Actor probe selected ordinal differs from emitted uniform ordinal")
     require(value["selected"] == (assigned >= 0), "Actor probe selection and ordinal disagree")
     require(not value["selected"] or assigned < count, "Actor probe selected a stale/out-of-range ordinal")
     require(value["selected"] or runtime == 0, "Absent actor probe sampled nonzero runtime descriptor")
     portal = thru != 0 or source_group != render_group
+    ambiguous = group_count > 1 or portal
+    require(value["portal_ambiguous"] is ambiguous,
+            "Actor probe ambiguity provenance differs from the production selector predicate")
     if portal:
-        require(value["policy"] == "portal-sector-conservative" or count == 0,
-                "Actor probe crossed a portal without source-space authority")
+        require(value["portal_ambiguous"], "Actor probe crossed a portal without ambiguity provenance")
     if value["policy"] == "portal-sector-conservative":
-        require(portal and not value["spatial"] and distance == -1,
+        require(ambiguous and not value["spatial"] and distance == -1,
                 "Portal actor probe incorrectly used global XY nearest")
         require(not value["selected"] or assigned == sector,
                 "Portal actor probe ignored sector target")
     elif value["policy"] == "spatial-nearest":
-        require(not portal and value["spatial"] and value["selected"] and
+        require(not ambiguous and value["spatial"] and value["selected"] and
                 0 <= distance <= 512.0**2, "Spatial actor probe outside PF-012 radius")
     elif value["policy"] == "no-probe-in-radius":
-        require(not portal and value["spatial"] and not value["selected"] and count > 0 and distance == -1,
+        require(not ambiguous and value["spatial"] and not value["selected"] and count > 0 and distance == -1,
                 "Actor probe no-nearby fallback is malformed")
     elif value["policy"] == "no-probes":
         require(count == 0 and not value["selected"] and not value["spatial"] and distance == -1,
@@ -451,6 +460,24 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             if "actor_selection" in value:
                 _actor_probe_selection(value["actor_selection"], value["authored_index"],
                                        value["runtime_irradiance_index"])
+            if "actor_sunlight" in value:
+                sunlight = value["actor_sunlight"]
+                _availability(sunlight, "actor packed-sun provenance")
+                if sunlight["available"]:
+                    require(value.get("actor_selection", {}).get("available") is True,
+                            "Packed-sun provenance must belong to an actual selected actor card")
+                    require(sunlight.get("contract") == "sdvk-010-actor-sun-world-v1",
+                            "Unrecognized packed actor sunlight contract")
+                    for field in ("actor_tid", "packed_sun_count", "traced_sun_count"):
+                        integer(sunlight.get(field), field, minimum=0)
+                    integer(sunlight.get("light_range_index"), "sunlight upload index", minimum=-1)
+                    require(sunlight["traced_sun_count"] <= sunlight["packed_sun_count"] and
+                            sunlight.get("light_range_uploaded") is (sunlight["light_range_index"] >= 0),
+                            "Actor sun proxy trace count / actual upload disagree")
+                    for field in ("source_portal_group", "render_portal_group"):
+                        integer(sunlight.get(field), field)
+                    require(isinstance(sunlight.get("scope"), str) and sunlight["scope"],
+                            "Packed sunlight witness needs explicit observable scope")
             if not value["fallback"]:
                 published_irrad = integer(value.get("published_irradiance"), "probe cube count", minimum=1)
                 published_pref = integer(value.get("published_prefilter"), "probe prefilter count", minimum=1)

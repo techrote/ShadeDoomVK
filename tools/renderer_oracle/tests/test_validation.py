@@ -485,7 +485,7 @@ class CaptureReceiptTests(unittest.TestCase):
                 common.write_json(root / "request.json", {"cwd": str(root)})
             a, b = observation(), observation()
             b["records"][1]["data"]["resource"]["generation"] = 2
-            receipt = {"mode": "state", "reproduction": {"clock": "static_after_initialization", "image_policy": {"metric": "exact-rgb8"}},
+            receipt = {"scene": "compositing", "mode": "state", "reproduction": {"clock": "static_after_initialization", "image_policy": {"metric": "exact-rgb8"}},
                        "build": a["build"], "executable": {"sha256": "a" * 64}, "loaded_packages": []}
             with mock.patch.object(run, "validate_run", side_effect=[(roots[0], receipt, a, {}), (roots[1], receipt, b, {})]):
                 result = run.compare_runs(*roots)

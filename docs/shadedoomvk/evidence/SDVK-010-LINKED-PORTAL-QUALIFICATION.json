@@ -1,0 +1,242 @@
+{
+  "schema": "sdvk010-linked-portal-qualification/v1",
+  "status": "PASS_CANDIDATE_INTEGRATION",
+  "issue": 10,
+  "branch": "sdvk010-linked-portal-acceptance",
+  "base_master": "0b01f39f0249e2065e0bbee8c6a7f98ea90aba6f",
+  "substantive_tested_head": "05f20e4f2856cb675f0cf286d08485869859ea8b",
+  "physical_stop_active": true,
+  "physical_gpu_qualified": false,
+  "performance_accepted": false,
+  "issue_accepted": false,
+  "focused_workflow": {
+    "id": 38446793761,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/38446793761",
+    "status": "PASS",
+    "cpu_job": {
+      "id": 115467172548,
+      "status": "PASS"
+    },
+    "native_job": {
+      "id": 115467306118,
+      "status": "PASS",
+      "surface": "isolated hosted Mesa llvmpipe on Avrea 16-vCPU"
+    }
+  },
+  "fixture": {
+    "scene": "portal-probes",
+    "map": "SDVPRT",
+    "topology": "two closed rooms connected by a real bidirectional linked Line_SetPortal pair",
+    "linked_displacement": [
+      1024,
+      0
+    ],
+    "authored_probe_positions": [
+      [
+        -192,
+        0,
+        64
+      ],
+      [
+        1216,
+        0,
+        64
+      ]
+    ],
+    "temporal_blending": false,
+    "new_portal_policy": false,
+    "native_warmup_frames": 240,
+    "retained_frames": 1,
+    "independent_processes": 2
+  },
+  "samples": [
+    {
+      "role": "before",
+      "actor_tid": 5100,
+      "source_sector": 0,
+      "render_sector": 0,
+      "source_portal_group": 1,
+      "render_portal_group": 1,
+      "through_portal_mode": 0,
+      "actor_position": [
+        -112,
+        0,
+        0
+      ],
+      "presentation_position": [
+        -112,
+        0,
+        0
+      ],
+      "sector_target": 0,
+      "authored_probe": 0,
+      "runtime_irradiance": 267,
+      "probe_epoch": 2,
+      "probe_resource": {
+        "index": 267,
+        "generation": 1,
+        "epoch": 2,
+        "span": 2
+      },
+      "context": {
+        "type": "main",
+        "producer": "root",
+        "depth": 0,
+        "position": [
+          -320,
+          0,
+          64
+        ],
+        "mirrored": false
+      }
+    },
+    {
+      "role": "on",
+      "actor_tid": 5101,
+      "source_sector": 1,
+      "render_sector": 1,
+      "source_portal_group": 2,
+      "render_portal_group": 2,
+      "through_portal_mode": 0,
+      "actor_position": [
+        1088,
+        -24,
+        0
+      ],
+      "presentation_position": [
+        1088,
+        -24,
+        0
+      ],
+      "sector_target": 1,
+      "authored_probe": 1,
+      "runtime_irradiance": 281,
+      "probe_epoch": 2,
+      "probe_resource": {
+        "index": 281,
+        "generation": 1,
+        "epoch": 2,
+        "span": 2
+      },
+      "context": {
+        "type": "portal",
+        "producer": "LineToLine",
+        "depth": 1,
+        "position": [
+          704,
+          0,
+          64
+        ],
+        "mirrored": false
+      }
+    },
+    {
+      "role": "after",
+      "actor_tid": 5102,
+      "source_sector": 1,
+      "render_sector": 1,
+      "source_portal_group": 2,
+      "render_portal_group": 2,
+      "through_portal_mode": 0,
+      "actor_position": [
+        1184,
+        24,
+        0
+      ],
+      "presentation_position": [
+        1184,
+        24,
+        0
+      ],
+      "sector_target": 1,
+      "authored_probe": 1,
+      "runtime_irradiance": 281,
+      "probe_epoch": 2,
+      "probe_resource": {
+        "index": 281,
+        "generation": 1,
+        "epoch": 2,
+        "span": 2
+      },
+      "context": {
+        "type": "portal",
+        "producer": "LineToLine",
+        "depth": 1,
+        "position": [
+          704,
+          0,
+          64
+        ],
+        "mirrored": false
+      }
+    }
+  ],
+  "repeatability": {
+    "state_equal": true,
+    "normalized_state_sha256": "ea5dbee1b9a3e36e6cfb33416b8550b70842485143eaf6a0d46f8a3ddeed8d10",
+    "exact_rgb": true,
+    "changed_pixels": 0,
+    "max_channel_error": 0,
+    "mean_channel_error": 0,
+    "image_sha256": "974b029e2af4551f7b98c5088aa47a77431ff70ab8a0943f800d5bd25d679c5a",
+    "normalization_boundary": [
+      "portal-probes only: exclude generation of available SDVFL material bindless resource",
+      "portal-probes only: exclude manager-wide TextureEpoch",
+      "selected probe resource generation/epoch/span remains exact",
+      "LightProbe epoch remains exact",
+      "portal context, actor selection and non-floor material identity remain exact"
+    ]
+  },
+  "negative_controls": [
+    "cross-group nearest-probe substitution",
+    "wrong sector target",
+    "wrong throughPortalMode",
+    "extra per-sprite/double portal displacement",
+    "wrong or missing LineToLine context",
+    "double context displacement",
+    "authored ordinal 0 conflated with no-probe",
+    "stale LightProbe epoch",
+    "missing or reassociated transition sample",
+    "wrong portal-group relation",
+    "runtime pair substituted across authored probes",
+    "runtime zero when a live pair is required",
+    "invalid/stale/out-of-range authored target in production-header selector fixture"
+  ],
+  "artifacts": {
+    "native": {
+      "id": 11839545833,
+      "name": "sdvk010-linked-portal-native",
+      "github_zip_sha256": "4fa911972f9c3f626f78f605be7277a8100c85aae8d6aa431bbf99f4df3c8057",
+      "independently_downloaded_zip_sha256": "4fa911972f9c3f626f78f605be7277a8100c85aae8d6aa431bbf99f4df3c8057",
+      "inner_tar_xz_sha256": "7118ac5aac3ccf4426fff2d2b17f4c9ca93b8dc793a99ab03a6d1978d3ac496c"
+    },
+    "cpu": {
+      "id": 11838308055,
+      "name": "sdvk010-linked-portal-cpu",
+      "github_zip_sha256": "ce24d6c8360152ea34209f32ee1cc07541a447bced4a05b71d47c41481d68d68"
+    }
+  },
+  "retained_adverse_evidence": [
+    {
+      "run": 38329658725,
+      "finding": "fixture oracle expected an actor-side displacement/throughPortalMode that real recursive LineToLine rendering does not use",
+      "disposition": "retained; corrected oracle to PF-010 recursive-context transform ownership rather than changing renderer behavior"
+    },
+    {
+      "run": 38444334417,
+      "finding": "two valid captures differed only in unrelated SDVFL bindless generation and manager-wide TextureEpoch",
+      "disposition": "retained; bounded scene-specific comparison projection added with negative controls preserving probe/non-floor identity"
+    },
+    {
+      "run": 38445596209,
+      "finding": "hiding the bootstrap player did not remove the same unrelated texture-owner churn",
+      "disposition": "retained; supports scoping the comparison projection rather than claiming the player was causal"
+    }
+  ],
+  "limits": [
+    "This is the linked-portal half of SDVK-010 only; sunlight/world-occlusion acceptance remains independent and pending.",
+    "No full repository CI/source-evidence or merge acceptance is claimed; those are reserved for the integrated SDVK-010 PR.",
+    "Hosted llvmpipe provides bounded correctness/repeatability evidence only, not physical-GPU performance or stability.",
+    "No temporal probe blending, new portal topology, shader-law change, PF-012 rewrite, PF-113 rewrite or gameplay change is introduced."
+  ]
+}

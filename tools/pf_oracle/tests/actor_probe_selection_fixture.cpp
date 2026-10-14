@@ -26,10 +26,23 @@ int main()
     std::array<Candidate, 2> tied{{{-10, 0, 0, 0}, {10, 0, 0, 1}}};
     auto tieAt = [&](std::size_t i) { return tied.at(i); };
     assert(Resolve(0, 0, 0, 2, tieAt, 1, false).authoredIndex == 0);
-    assert(Resolve(0, 0, 0, 2, tieAt, 1, true).authoredIndex == 1);
-    assert(std::strcmp(Resolve(0, 0, 0, 2, tieAt, 1, true).policy, "portal-sector-conservative") == 0);
+    const auto portalRight = Resolve(0, 0, 0, 2, tieAt, 1, true);
+    assert(portalRight.authoredIndex == 1 && portalRight.portalAmbiguous && !portalRight.spatial);
+    assert(std::strcmp(portalRight.policy, "portal-sector-conservative") == 0);
+    const auto portalLeft = Resolve(0, 0, 0, 2, tieAt, 0, true);
+    assert(portalLeft.authoredIndex == 0 && portalLeft.portalAmbiguous && !portalLeft.spatial);
     assert(!Resolve(0, 0, 0, 2, tieAt, -1, true).selected);
     assert(!Resolve(0, 0, 0, 2, tieAt, 200, true).selected);
+    // Deterministic before/on/after/reverse sector-target sequence. The
+    // cross-group presentation never substitutes the globally nearest probe.
+    const std::array<int, 4> targets{{0, 1, 1, 0}};
+    const std::array<int, 4> expected{{0, 1, 1, 0}};
+    for (std::size_t i = 0; i < targets.size(); ++i)
+    {
+        const auto step = Resolve(0, 0, 0, 2, tieAt, targets[i], true);
+        assert(step.selected && step.authoredIndex == expected[i] && step.portalAmbiguous);
+        assert(std::strcmp(step.policy, "portal-sector-conservative") == 0);
+    }
 
     // Inclusive PF-012 radius and fail-closed absent fallback, never
     // substituting authored probe 0 when spatially ineligible.
