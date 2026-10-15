@@ -127,3 +127,18 @@ audit gaps remain gaps, not passed criteria. No full software or physical accept
 
 Parallel-work comment `6173487725` confirms #11 owns `hw_weapon.*`, HUD-model
 integration and its own observer/fixtures. This increment changes none of them.
+
+
+## 15 October continuation disposition
+
+Three initial audit gaps are now closed by bounded production changes on the same
+branch: retained LIGHTMAP entries are fully admitted before mutating current tile
+state; dynamic completion flags are retired only after rendered copy/publication;
+and newly expanded light/probe atlas pages are transfer-cleared to typed zero
+fallbacks before shader-readable publication. The corresponding source/CPU
+negative controls deliberately remove each invariant and must fail for the named
+reason.
+
+These changes do not supply a durable per-allocation generation token, cross-map
+probe owner identity, native multi-map/multi-page evidence, or special-surface/
+material compatibility acceptance. #150 still blocks the affected probe lifecycle.
