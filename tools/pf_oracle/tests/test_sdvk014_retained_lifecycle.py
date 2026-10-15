@@ -38,6 +38,8 @@ def contract_errors(load: str, select: str, copy: str, pages: str) -> list[str]:
         "numTexPixels > std::numeric_limits<unsigned int>::max() / 3u" not in load
         or "if (tile.UseCount > 0)" not in load
         or "entry.HasFiniteTransform()" not in load
+        or "controlSector < level.sectors.Size()" not in load
+        or "controlSector < level.subsectors.Size()" in load
         or validate not in load
         or "!foundTiles.insert(tile).second" not in load
         or admitted_loop not in load
@@ -192,6 +194,16 @@ class RetainedLifecycleTests(unittest.TestCase):
         self.assertIn(
             "uninitialized-expanded-atlas",
             contract_errors(self.load, self.select, self.copy, mutant),
+        )
+
+
+    def test_control_sector_namespace_mutation_is_rejected(self) -> None:
+        needle = "controlSector < level.sectors.Size()"
+        self.assertEqual(self.load.count(needle), 1)
+        mutant = self.load.replace(needle, "controlSector < level.subsectors.Size()")
+        self.assertIn(
+            "retained-admission-before-mutation",
+            contract_errors(mutant, self.select, self.copy, self.pages),
         )
 
     def test_retained_admission_order_mutation_is_rejected(self) -> None:
