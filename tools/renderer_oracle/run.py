@@ -305,6 +305,7 @@ def capture(args):
                    "application_cache": "fresh-empty-directory-per-process",
                    "driver_cache": "external-driver-cache-uncontrolled",
                    "gpu_timestamps_requested": args.gpu,
+                   "probe_owner_trace": bool(native.get("probe_owner_trace", False)),
                    "image_policy": image_policy(scene, args.image_policy)}
         prefix = _console_path(out / "native")
         substitutions = {"exe": str(exe), "iwad": str(out / "input" / iwad.name),
@@ -317,6 +318,9 @@ def capture(args):
                  "-sdvkobservemode", mode, "-sdvkobservecache", _console_path(out / "cache"), "-sdvkobservequit"]
         if args.gpu:
             argv.append("-sdvkobservegpu")
+        if native.get("probe_owner_trace", False):
+            require(mode == "state", "Probe-owner lifecycle trace is state-only")
+            argv.append("-sdvkprobeownertrace")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
