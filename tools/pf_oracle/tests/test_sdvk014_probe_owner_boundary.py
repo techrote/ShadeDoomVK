@@ -73,12 +73,13 @@ class ProbeOwnerBoundaryTests(unittest.TestCase):
         entry=(ROOT/'src/rendering/hwrenderer/hw_entrypoint.cpp').read_text()
         self.assertNotIn('if (gl_lightprobe && level.lightProbes.size() > 0)',entry)
         self.assertIn('if (gl_lightprobe)',entry)
+        self.assertEqual(entry.count('ObserveLightProbeBuilder(lightProbeBuilder.Step('), 2)
         self.assertIn(
-            'lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), {});',
+            'level.lightProbes, level.GetLightProbeSetRevision(), {}));',
             entry,
         )
         self.assertIn(
-            'lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), renderEnvMap);',
+            'level.lightProbes, level.GetLightProbeSetRevision(), renderEnvMap));',
             entry,
         )
 
