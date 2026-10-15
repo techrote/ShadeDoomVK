@@ -155,15 +155,18 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
                     or not isinstance(owners, list) or len(owners) != 2):
                 raise ValueError("Probe-owner transition needs two bounded distinct map owners")
             for owner in owners:
+                probes = owner.get("probes")
+                markers = owner.get("markers")
+                vectors = list(probes or []) + list(markers or [])
                 if (not isinstance(owner, dict)
                         or not re.fullmatch(r"[A-Z0-9_]{1,8}", owner.get("map", ""))
-                        or not isinstance(owner.get("probes"), list)
-                        or len(owner["probes"]) != 2
+                        or not isinstance(probes, list) or len(probes) != 2
+                        or not isinstance(markers, list) or len(markers) != 2
                         or any(not isinstance(pos, list) or len(pos) != 3
                                or any(type(value) not in (int, float) or not math.isfinite(value)
                                       for value in pos)
-                               for pos in owner["probes"])):
-                    raise ValueError("Probe-owner transition owner/probe recipe is malformed")
+                               for pos in vectors)):
+                    raise ValueError("Probe-owner transition owner/probe/marker recipe is malformed")
             if [owner["map"] for owner in owners] != [transition["initial_map"], transition["final_map"]]:
                 raise ValueError("Probe-owner transition owners must match initial/final map order")
             if native.get("probe_owner_trace") is not True or "probe-builder" not in scene.get("required_state_channels", []):
