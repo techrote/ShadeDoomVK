@@ -447,6 +447,47 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter nearest }', members["GLDEFS"])
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter linear }', members["GLDEFS"])
 
+    def test_probe_owner_transition_authors_two_equal_count_distinct_maps(self):
+        scene = scene_named("probe-owner-transition")
+        members, meta = prepare.authored_members(scene)
+        transition = scene["native"]["probe_owner_transition"]
+        self.assertEqual(transition["initial_map"], "SDV15A")
+        self.assertEqual(transition["final_map"], "SDV15B")
+        self.assertEqual(transition["wait_tics"], 20)
+        self.assertTrue(scene["native"]["probe_owner_trace"])
+        self.assertIn("probe-builder", scene["required_state_channels"])
+        self.assertIn(b'map SDV15A "SDVK probe owner 0"', members["MAPINFO"])
+        self.assertIn(b'map SDV15B "SDVK probe owner 1"', members["MAPINFO"])
+        self.assertIn(b"material sprite SDVOA0", members["GLDEFS"])
+
+        observed = []
+        for owner in transition["owners"]:
+            wad = unpack_wad(members[f'maps/{owner["map"]}.wad'])
+            records = parse_udmf(wad["TEXTMAP"])
+            probes = [thing for thing in records["thing"] if thing["type"] == 9892]
+            markers = sorted((thing for thing in records["thing"] if thing["type"] == 32203),
+                             key=lambda thing: thing["id"])
+            self.assertEqual([[thing["x"], thing["y"], thing["height"]] for thing in probes],
+                             owner["probes"])
+            self.assertEqual([[thing["x"], thing["y"], thing["height"]] for thing in markers],
+                             owner["markers"])
+            self.assertEqual(len(probes), 2)
+            self.assertEqual([thing["id"] for thing in markers], [5200, 5201])
+            self.assertEqual(len([thing for thing in records["thing"] if thing["type"] == 9800]), 1)
+            observed.append(owner["probes"])
+        self.assertNotEqual(observed[0], observed[1])
+        self.assertTrue(meta["same_probe_count"])
+        self.assertEqual([row["map"] for row in meta["maps"]], ["SDV15A", "SDV15B"])
+
+        commands = prepare.capture_script(scene).decode().strip().split("; ")
+        self.assertEqual(commands[-2:], ["wait 20", "map SDV15B"])
+        self.assertLess(commands.index("wait 20"), commands.index("map SDV15B"))
+        self.assertTrue(scene["native"]["settings"]["cl_capfps"])
+        self.assertEqual(scene["native"]["recommended_warmup_frames"], 100)
+        assertion = scene["native"]["state_assertions"]["probe_owner_transition"]
+        self.assertEqual(assertion["passes_per_owner"], 5)
+        self.assertEqual([row["authored_count"] for row in assertion["owners"]], [2, 2])
+
     def test_sun_scene_records_raised_floor_inputs_and_remains_unqualified(self):
         scene = scene_named("sun-probes")
         members, meta = prepare.authored_members(scene)
@@ -500,7 +541,12 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertEqual(scene["native"]["settings"]["r_drawplayersprites"], False)
             self.assertEqual(scene["native"]["settings"]["screenblocks"], 12)
             self.assertEqual(scene["native"]["settings"]["crosshair"], 0)
-            self.assertFalse(any(c.split()[0] in ("quit", "screenshot", "wait", "freeze") for c in commands))
+            blocked = [c for c in commands if c.split()[0] in ("quit", "screenshot", "wait", "freeze")]
+            if scene["id"] == "probe-owner-transition":
+                self.assertEqual(blocked, ["wait 20"])
+                self.assertEqual(commands[-2:], ["wait 20", "map SDV15B"])
+            else:
+                self.assertEqual(blocked, [])
             self.assertNotIn("-pf020viewclock", raw.decode())
             for key, value in scene["native"]["settings"].items():
                 self.assertGreater(commands.index(key), commands.index(f"{key} {str(value).lower()}"))
