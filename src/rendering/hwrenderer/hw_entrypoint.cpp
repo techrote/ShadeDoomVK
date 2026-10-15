@@ -417,6 +417,24 @@ static void CheckTimer(FRenderState &state, uint64_t ShaderStartTime)
 
 LightProbeIncrementalBuilder lightProbeBuilder;
 
+static void ObserveLightProbeBuilder(const LightProbeBuilderStepResult& result)
+{
+	const char* event = nullptr;
+	switch (result.Event)
+	{
+	case LightProbeBuilderEvent::OwnerReset: event = "owner-reset"; break;
+	case LightProbeBuilderEvent::EmptyReset: event = "empty-reset"; break;
+	case LightProbeBuilderEvent::CountReset: event = "count-reset"; break;
+	case LightProbeBuilderEvent::PassPublished: event = "pass-published"; break;
+	default: break;
+	}
+	if (event)
+	{
+		SdvkDiagnostics::ProbeBuilderLifecycle(event, result.OwnerRevision,
+			result.ProbeCount, result.Iteration, result.NextIndex, result.Collected);
+	}
+}
+
 sector_t* RenderView(player_t* player)
 {
 	SdvkDiagnostics::BeginFrame();
@@ -491,7 +509,8 @@ sector_t* RenderView(player_t* player)
 			// A -> empty -> B can retain terminal state without ever resetting.
 			if (level.lightProbes.size() == 0)
 			{
-				lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), {});
+				ObserveLightProbeBuilder(lightProbeBuilder.Step(
+					level.lightProbes, level.GetLightProbeSetRevision(), {}));
 			}
 			else
 			{
@@ -514,7 +533,8 @@ sector_t* RenderView(player_t* player)
 						r_NoInterpolate = noInterpolate;
 					};
 
-					lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), renderEnvMap);
+					ObserveLightProbeBuilder(lightProbeBuilder.Step(
+						level.lightProbes, level.GetLightProbeSetRevision(), renderEnvMap));
 				}
 				else
 				{
