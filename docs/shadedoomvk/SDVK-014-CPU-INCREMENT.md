@@ -196,3 +196,15 @@ subsector table. Admission now uses `level.sectors.Size()`. A deliberate source
 mutation restores the old subsector-count check and must be rejected by the
 retained-lifecycle oracle. This is relevant to 3D-floor/control-sector identity
 and does not change rendering policy.
+
+
+### Full atlas replacement initialization
+
+Adversarial review found that incremental page expansion was initialized, but
+`VkTextureManager::CreateLightmap` could still publish newly created R16_UINT
+probe-map images without defining their texels. Full atlas creation now transitions
+both attachments to transfer-destination, clears every probe page to runtime
+no-probe zero, and also clears light pages when no retained RGB payload exists.
+Retained RGB upload, when present, overwrites only the light attachment before
+both resources are republished shader-readable. Source negative controls remove
+each clear independently.

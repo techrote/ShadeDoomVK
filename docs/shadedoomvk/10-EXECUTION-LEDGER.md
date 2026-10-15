@@ -1159,3 +1159,8 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - SDVK-014 continuation review corrected retained `ControlSector` admission from
   the subsector-count namespace to the actual `sector_t::Index()` namespace,
   covered by a deliberate mutation control. No support/quality policy changed.
+
+- Adversarial review found the full `CreateLightmap` replacement path still
+  published undefined new probe-map texels. The candidate now clears every new
+  probe page to typed zero and empty-source light pages to zero before publication;
+  independent source negatives remove each clear.

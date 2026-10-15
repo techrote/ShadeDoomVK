@@ -135,6 +135,7 @@ class RetainedLifecycleTests(unittest.TestCase):
         cls.select = current("select_tiles")
         cls.copy = current("copy_result")
         cls.pages = current("set_lightmap_count")
+        cls.create = current("create_lightmap")
         cls.helper = current("lightmap_span")
 
     def test_current_contract_has_no_known_lifecycle_error(self) -> None:
@@ -186,6 +187,31 @@ class RetainedLifecycleTests(unittest.TestCase):
             "missing-post-publication-completion",
             contract_errors(self.load, self.select, mutant, self.pages),
         )
+
+
+    def test_replacement_atlas_initializes_probe_and_empty_light(self) -> None:
+        transfer = "VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL"
+        probe_clear = "clearColorImage(Lightmaps[i].Probe.Image->image"
+        light_clear = "clearColorImage(Lightmaps[i].Light.Image->image"
+        upload = "if (srcPixels.size() != 0)"
+        self.assertGreaterEqual(self.create.count(transfer), 4)
+        self.assertEqual(self.create.count(probe_clear), 1)
+        self.assertEqual(self.create.count(light_clear), 1)
+        self.assertIn("if (srcPixels.size() == 0)", self.create)
+        self.assertLess(self.create.index(probe_clear), self.create.index(upload))
+        self.assertLess(self.create.index(light_clear), self.create.index(upload))
+
+    def test_replacement_probe_clear_negative_control_is_rejected(self) -> None:
+        line = "\t\tcmdbuffer->clearColorImage(Lightmaps[i].Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &clearRange);\n"
+        self.assertEqual(self.create.count(line), 1)
+        mutant = self.create.replace(line, "")
+        self.assertNotIn("clearColorImage(Lightmaps[i].Probe.Image->image", mutant)
+
+    def test_replacement_empty_light_clear_negative_control_is_rejected(self) -> None:
+        line = "\t\t\tcmdbuffer->clearColorImage(Lightmaps[i].Light.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &clearRange);\n"
+        self.assertEqual(self.create.count(line), 1)
+        mutant = self.create.replace(line, "")
+        self.assertNotIn("clearColorImage(Lightmaps[i].Light.Image->image", mutant)
 
     def test_missing_probe_page_clear_is_rejected(self) -> None:
         line = "\t\tcmdbuffer->clearColorImage(Lightmaps[i].Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &range);\n"

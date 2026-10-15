@@ -998,11 +998,30 @@ void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t
 
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
+	// New atlas resources may be sampled before every tile/probe texel is rewritten.
+	// Establish typed fallback contents before shader-readable publication.
+	if (srcPixels.size() != 0 && srcPixels.size() != size_t(w) * size_t(h) * 3u * size_t(count))
+		I_FatalError("Invalid pixels array passed to VkTextureManager.CreateLightmap");
+
+	VkImageTransition barrier0;
+	for (int i = 0; i < count; i++)
+	{
+		barrier0.AddImage(&Lightmaps[i].Light, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+		barrier0.AddImage(&Lightmaps[i].Probe, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
+	}
+	barrier0.Execute(cmdbuffer);
+
+	VkClearColorValue zero = {};
+	VkImageSubresourceRange clearRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+	for (int i = 0; i < count; i++)
+	{
+		if (srcPixels.size() == 0)
+			cmdbuffer->clearColorImage(Lightmaps[i].Light.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &clearRange);
+		cmdbuffer->clearColorImage(Lightmaps[i].Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &clearRange);
+	}
+
 	if (srcPixels.size() != 0)
 	{
-		if (srcPixels.size() != w * h * 3 * count)
-			I_FatalError("Invalid pixels array passed to VkTextureManager.CreateLightmap");
-
 		int totalSize = w * h * pixelsize * count;
 		auto stagingBuffer = BufferBuilder()
 			.Size(totalSize)
@@ -1021,14 +1040,6 @@ void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t
 			*(data++) = one;
 		}
 		stagingBuffer->Unmap();
-
-		VkImageTransition barrier0;
-		for (int i = 0; i < count; i++)
-		{
-			barrier0.AddImage(&Lightmaps[i].Light, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
-			barrier0.AddImage(&Lightmaps[i].Probe, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, true);
-		}
-		barrier0.Execute(cmdbuffer);
 
 		for (int i = 0; i < count; i++)
 		{

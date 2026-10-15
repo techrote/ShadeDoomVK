@@ -51,6 +51,7 @@ FUNCTIONS = {
     'select_tiles': ('lightmapper', 'void VkLightmapper::SelectTiles('),
     'copy_result': ('lightmapper', 'void VkLightmapper::CopyResult('),
     'set_lightmap_count': ('texture', 'void VkTextureManager::SetLightmapCount('),
+    'create_lightmap': ('texture', 'void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t>& srcPixels)'),
 }
 
 

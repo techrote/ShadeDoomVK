@@ -98,3 +98,9 @@ cost, scaling and stability remain HELD / NOT ACCEPTED under active Physical STO
 The retained-lifecycle continuation also corrects 3D-floor/control-sector
 admission: serialized `ControlSector` is a sector ordinal and is now bounded
 against the sector table, with a deliberate namespace-mutation negative control.
+
+
+Full atlas replacement now also initializes active resources fail-closed:
+`CreateLightmap` clears every new probe page to runtime no-probe zero and clears
+new light pages when no retained RGB payload exists before shader-readable
+publication.

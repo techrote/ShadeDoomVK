@@ -150,3 +150,12 @@ material compatibility acceptance. #150 still blocks the affected probe lifecycl
 `sector_t::Index()`. Retained LIGHTMAP admission now validates that ordinal in
 the sector namespace rather than against subsector count. This closes a semantic
 namespace mismatch without broadening support or changing fallback policy.
+
+
+### Full replacement active-page initialization
+
+The initial/replacement `CreateLightmap` path is now covered in addition to
+incremental `SetLightmapCount`. Every new probe-map page receives defined
+R16_UINT zero fallback content; light pages with no retained RGB source receive
+defined zero light. This prevents full atlas replacement from publishing
+undefined-but-plausible probe/light texels before dynamic writes complete.
