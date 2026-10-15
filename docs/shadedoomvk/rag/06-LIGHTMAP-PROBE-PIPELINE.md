@@ -225,3 +225,31 @@ A 3D-floor wall's control sector is part of its semantic lightmap identity.
 it, `AddSurfaceToTile` keys the tile with it, and `GetVisibleSurfaces` must
 match it when gathering side bake geometry. Matching only side/type can
 deterministically mix geometry from distinct 3D floors on the same side.
+
+
+## SDVK-150 candidate: semantic cross-map probe owner generation
+
+SDVK-014 discovered that the process-global incremental probe builder could treat
+two different same-count maps as one completed owner. The repair candidate does
+not redefine PF-012 selection or PF-113 pair fallback. It adds an orthogonal
+semantic owner token:
+
+- each `FLevelLocals` receives a process-unique probe-set revision;
+- teardown and runtime authored-probe additions issue a fresh revision;
+- the global builder receives that revision on `Step`/`Full`;
+- owner change resets partial/terminal progress and the existing probe resources
+  before new-owner capture;
+- the RenderView path also presents empty authored sets to the builder.
+
+Probe count remains only a defensive consistency fallback, not owner identity.
+Authored ordinal 0, runtime descriptor 0, LightProbe resource epoch and semantic
+owner revision remain distinct identities.
+
+The opt-in SDVK-150 observer records actual reset/pass-publication callbacks,
+map/revision and irradiance/prefilter family counts without changing decisions.
+The focused hosted fixture requires five A publications followed by a distinct
+same-count B owner reset and five B publications in one process. See
+[SDVK-150-PROBE-OWNER-REPAIR.md](../SDVK-150-PROBE-OWNER-REPAIR.md).
+
+This remains a repair candidate until exact-head CI/native qualification and
+reviewed merge. Physical performance remains outside this software witness.
