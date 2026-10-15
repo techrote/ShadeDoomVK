@@ -6,6 +6,7 @@ import unittest
 
 from tools.renderer_oracle.common import EvidenceError
 from tools.renderer_oracle.sdvk150_probe_owner import validate_lifecycle_records
+from tools.renderer_oracle.run import _sdvk150_repeatability_projection
 
 SPEC = {
     "owners": [
@@ -96,6 +97,23 @@ class ProbeOwnerLifecycleValidationTests(unittest.TestCase):
                 row["light_probe_epoch"] = 3
         with self.assertRaises(EvidenceError):
             validate_lifecycle_records(value, SPEC)
+
+    def test_repeatability_normalizes_only_owner_revision_labels(self):
+        left = records()
+        right = copy.deepcopy(left)
+        for row in right[0]["data"]["events"]:
+            row["owner_revision"] += 100
+        self.assertNotEqual(left, right)
+        self.assertEqual(
+            _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+            _sdvk150_repeatability_projection(right, "probe-owner-transition"),
+        )
+        strict = copy.deepcopy(right)
+        strict[0]["data"]["events"][-1]["light_probe_epoch"] += 1
+        self.assertNotEqual(
+            _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+            _sdvk150_repeatability_projection(strict, "probe-owner-transition"),
+        )
 
     def test_half_pair_family_is_rejected(self):
         value = records()
