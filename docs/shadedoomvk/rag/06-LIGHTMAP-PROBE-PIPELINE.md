@@ -196,3 +196,23 @@ refresh or new probe policy is added here. PF-012 authored/runtime identity and
 PF-113 typed-zero/pair contracts remain unchanged; their historical bounded
 acceptance does not cover this newly demonstrated transition. Physical STOP is
 ACTIVE, physical performance HELD, historical physical root cause UNDETERMINED.
+
+
+## SDVK-014 retained lifecycle hardening candidate
+
+The SDVK-014 branch strengthens existing ownership without redefining probe or
+material semantics:
+
+- retained LIGHTMAP bindings/pixel spans/transforms are validated completely before
+  current live tiles are mutated; malformed/duplicate entries remain dirty for the
+  ordinary bake path;
+- lightmapper tile selection is not completion: dirty flags survive until an
+  actually rendered tile has been copied into the active atlas and the destination
+  has been republished shader-readable;
+- newly expanded lightmap and R16_UINT probe-map pages are initialized to typed zero
+  fallback contents before publication, so unwritten regions cannot expose undefined
+  allocation contents.
+
+These are lifecycle/publication invariants, not new light selection, sampler,
+material, portal or probe-selection policy. Cross-map probe builder owner identity
+remains separately blocked by #150.
