@@ -27,10 +27,11 @@ def contract_errors(build_ffblock: str, create_wall: str, add_tile: str, visible
     flat = visible[flat_start:]
 
     owner_line = "uint32_t controlSector = sinfo.ControlSector ? (uint32_t)sinfo.ControlSector->Index() : (uint32_t)0xffffffffUL;"
-    match = "sinfo.Type == tile->Binding.Type && controlSector == tile->Binding.ControlSector"
-    if owner_line not in side or match not in side:
+    side_match = "sinfo.Type == tile->Binding.Type && controlSector == tile->Binding.ControlSector"
+    flat_match = "sinfo.Type == (DoomLevelMeshSurfaceType)tile->Binding.Type && controlSector == tile->Binding.ControlSector"
+    if owner_line not in side or side_match not in side:
         errors.append("side-control-sector-alias")
-    if owner_line not in flat or match not in flat:
+    if owner_line not in flat or flat_match not in flat:
         errors.append("flat-control-sector-alias")
     return errors
 
