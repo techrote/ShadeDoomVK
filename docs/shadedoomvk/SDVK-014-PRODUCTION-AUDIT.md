@@ -142,3 +142,11 @@ reason.
 These changes do not supply a durable per-allocation generation token, cross-map
 probe owner identity, native multi-map/multi-page evidence, or special-surface/
 material compatibility acceptance. #150 still blocks the affected probe lifecycle.
+
+
+### Retained 3D-floor/control-sector identity
+
+`LightmapTileBinding::ControlSector` is a sector ordinal produced by
+`sector_t::Index()`. Retained LIGHTMAP admission now validates that ordinal in
+the sector namespace rather than against subsector count. This closes a semantic
+namespace mismatch without broadening support or changing fallback policy.

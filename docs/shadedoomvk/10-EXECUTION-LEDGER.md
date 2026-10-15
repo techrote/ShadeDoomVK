@@ -1155,3 +1155,7 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   material/sampler, portal transform or quality policy is changed. #14 remains open
   and not software-complete. Physical GPU cost/scaling/stability remain HELD /
   NOT ACCEPTED; Physical STOP ACTIVE; historical root cause UNDETERMINED.
+
+- SDVK-014 continuation review corrected retained `ControlSector` admission from
+  the subsector-count namespace to the actual `sector_t::Index()` namespace,
+  covered by a deliberate mutation control. No support/quality policy changed.

@@ -186,3 +186,13 @@ its cross-map probe pair/epoch publication boundary, durable stale allocation
 identity review, native repeated/multi-page transitions, supported special-
 surface/material lifecycle coverage, exact-head CI/review/merge and exact-master
 verification. Physical GPU bake/update cost, scaling and stability remain held.
+
+
+### Retained control-sector namespace
+
+Continuation review found that retained `ControlSector` values are serialized from
+`sector_t::Index()`, while loader admission still bounded them against the
+subsector table. Admission now uses `level.sectors.Size()`. A deliberate source
+mutation restores the old subsector-count check and must be rejected by the
+retained-lifecycle oracle. This is relevant to 3D-floor/control-sector identity
+and does not change rendering policy.

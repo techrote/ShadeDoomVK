@@ -93,3 +93,8 @@ remains reblocked by #150. Durable stale-identity review, native repeated transi
 special-surface/material lifecycle coverage, exact-head CI/review/merge and exact-master
 verification remain outstanding. The issue is not software-complete. Physical bake/update
 cost, scaling and stability remain HELD / NOT ACCEPTED under active Physical STOP.
+
+
+The retained-lifecycle continuation also corrects 3D-floor/control-sector
+admission: serialized `ControlSector` is a sector ordinal and is now bounded
+against the sector table, with a deliberate namespace-mutation negative control.
