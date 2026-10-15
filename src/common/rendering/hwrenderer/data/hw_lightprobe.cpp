@@ -1,5 +1,6 @@
 #include "hw_lightprobe.h"
 #include "v_video.h"
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 
 void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
@@ -14,17 +15,21 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 		collected = 0;
 		iterations = 0;
 		screen->ResetLightProbes();
+		SdvkDiagnostics::ProbeBuilderLifecycle("owner-reset", ownerRevision, (int)probes.size(), iterations, lastIndex, collected);
 		return;
 	}
 
 	if (probes.size() == 0)
 	{
-		if (cubemapsAllocated != 0)
+		const bool resetResources = cubemapsAllocated != 0;
+		if (resetResources)
 			screen->ResetLightProbes();
 		lastIndex = 0;
 		collected = 0;
 		cubemapsAllocated = 0;
 		iterations = 0;
+		if (resetResources)
+			SdvkDiagnostics::ProbeBuilderLifecycle("empty-reset", ownerRevision, 0, iterations, lastIndex, collected);
 		return;
 	}
 
@@ -37,6 +42,7 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 		collected = 0;
 		iterations = 0;
 		screen->ResetLightProbes();
+		SdvkDiagnostics::ProbeBuilderLifecycle("count-reset", ownerRevision, (int)probes.size(), iterations, lastIndex, collected);
 		return;
 	}
 
@@ -53,9 +59,17 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 	if (lastIndex >= probes.size())
 	{
 		if (collected == probes.size())
+		{
 			screen->EndLightProbePass();
-		collected = 0;
-		iterations++;
+			collected = 0;
+			iterations++;
+			SdvkDiagnostics::ProbeBuilderLifecycle("pass-published", ownerRevision, (int)probes.size(), iterations, lastIndex, collected);
+		}
+		else
+		{
+			collected = 0;
+			iterations++;
+		}
 	}
 }
 
