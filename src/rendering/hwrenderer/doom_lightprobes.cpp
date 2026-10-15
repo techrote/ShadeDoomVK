@@ -42,6 +42,7 @@ static void AddLightProbe(FVector3 position)
 	probe.position = position;
 	probe.index = static_cast<int>(level.lightProbes.size());
 	level.lightProbes.Push(probe);
+	level.MarkLightProbeSetChanged();
 }
 
 CCMD(dumplightprobes)
