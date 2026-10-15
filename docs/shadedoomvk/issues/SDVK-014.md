@@ -110,3 +110,21 @@ Special-surface hardening now also preserves 3D-floor control-sector identity
 during side lightmap baking. Same-side/same-type surfaces from different 3D-floor
 control sectors can no longer enter one another's bake visibility set; producer,
 tile-binding and consumer boundaries are covered by deliberate alias negatives.
+
+
+## Upstream #150 repair candidate — semantic probe owner identity
+
+The cross-map probe lifecycle blocker has a dedicated repair candidate on
+`sdvk150-probe-owner-identity`, documented in
+[SDVK-150-PROBE-OWNER-REPAIR.md](../SDVK-150-PROBE-OWNER-REPAIR.md).
+
+The candidate replaces count-as-owner behavior with a process-unique authored
+probe-set revision, observes empty transitions, retains exact pre-fix same-count
+and partial-pass negatives, and adds a bounded state-only lifecycle witness.
+A focused same-process two-map fixture is registered in the existing Avrea
+16-vCPU software-Vulkan job.
+
+This is **not yet accepted** until exact-head source evidence, normal CI, the
+focused native gate, review/merge and exact-master verification pass. #14 remains
+OPEN. Physical cost/scaling/stability remain HELD / NOT ACCEPTED under Physical
+STOP; historical physical root cause remains UNDETERMINED.
