@@ -47,6 +47,10 @@ void ActorProbeSelected(const HWActorProbeSelection::Result& selected, const HWS
     int actorTid, int portalGroupCount, int sourceSector, int renderSector, double x, double y, double z,
     double presentationX, double presentationY, double presentationZ);
 void ClearActorProbeSelection();
+// Bounded state-only trace of the actual incremental probe builder lifecycle.
+// Used only with explicit -sdvkprobeownertrace; never changes bake decisions.
+void ProbeBuilderLifecycle(const char* event, uint64_t ownerRevision, int probeCount,
+    int iteration, int nextIndex, int collected);
 // Per-sprite packed sun proxy snapshot, emitted only with the actual Vulkan card.
 void ActorSunPacked(const AActor* actor, int packedSunCount, int tracedSunCount,
     int lightIndex, const HWSpriteRenderSurfaceState& surface);
