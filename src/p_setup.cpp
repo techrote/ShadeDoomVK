@@ -380,6 +380,7 @@ void FLevelLocals::ClearLevelData(bool fullgc)
 	aabbTree = nullptr;
 	levelMesh = nullptr;
 	VisualThinkerHead = nullptr;
+	MarkLightProbeSetChanged();
 	lightProbes.Clear();
 	if (screen)
 		screen->SetLevelMesh(nullptr);
