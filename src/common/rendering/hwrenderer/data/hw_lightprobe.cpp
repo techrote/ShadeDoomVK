@@ -1,9 +1,20 @@
 #include "hw_lightprobe.h"
 #include "v_video.h"
-#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 
-void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
+LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
+	auto result = [&](LightProbeBuilderEvent event)
+	{
+		return LightProbeBuilderStepResult{
+			event,
+			ownerRevision,
+			(int)probes.size(),
+			iterations,
+			lastIndex,
+			collected
+		};
+	};
+
 	// Probe count is not an owner identity. A level/probe-set revision change
 	// invalidates partial or terminal progress even when the new set has the
 	// same count and even when it is empty.
@@ -15,8 +26,7 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 		collected = 0;
 		iterations = 0;
 		screen->ResetLightProbes();
-		SdvkDiagnostics::ProbeBuilderLifecycle("owner-reset", ownerRevision, (int)probes.size(), iterations, lastIndex, collected);
-		return;
+		return result(LightProbeBuilderEvent::OwnerReset);
 	}
 
 	if (probes.size() == 0)
@@ -28,9 +38,7 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 		collected = 0;
 		cubemapsAllocated = 0;
 		iterations = 0;
-		if (resetResources)
-			SdvkDiagnostics::ProbeBuilderLifecycle("empty-reset", ownerRevision, 0, iterations, lastIndex, collected);
-		return;
+		return result(resetResources ? LightProbeBuilderEvent::EmptyReset : LightProbeBuilderEvent::None);
 	}
 
 	// Retain the inherited count-change reset as a defensive fallback for any
@@ -42,12 +50,11 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 		collected = 0;
 		iterations = 0;
 		screen->ResetLightProbes();
-		SdvkDiagnostics::ProbeBuilderLifecycle("count-reset", ownerRevision, (int)probes.size(), iterations, lastIndex, collected);
-		return;
+		return result(LightProbeBuilderEvent::CountReset);
 	}
 
 	if (iterations >= 5)
-		return; // We are done baking this semantic probe set
+		return result(LightProbeBuilderEvent::None); // We are done baking this semantic probe set
 
 	if (lastIndex >= probes.size())
 		lastIndex = 0;
@@ -63,14 +70,13 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64
 			screen->EndLightProbePass();
 			collected = 0;
 			iterations++;
-			SdvkDiagnostics::ProbeBuilderLifecycle("pass-published", ownerRevision, (int)probes.size(), iterations, lastIndex, collected);
+			return result(LightProbeBuilderEvent::PassPublished);
 		}
-		else
-		{
-			collected = 0;
-			iterations++;
-		}
+		collected = 0;
+		iterations++;
 	}
+
+	return result(LightProbeBuilderEvent::None);
 }
 
 void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
