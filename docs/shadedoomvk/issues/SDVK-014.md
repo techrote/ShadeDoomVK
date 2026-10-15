@@ -104,3 +104,9 @@ Full atlas replacement now also initializes active resources fail-closed:
 `CreateLightmap` clears every new probe page to runtime no-probe zero and clears
 new light pages when no retained RGB payload exists before shader-readable
 publication.
+
+
+Special-surface hardening now also preserves 3D-floor control-sector identity
+during side lightmap baking. Same-side/same-type surfaces from different 3D-floor
+control sectors can no longer enter one another's bake visibility set; producer,
+tile-binding and consumer boundaries are covered by deliberate alias negatives.

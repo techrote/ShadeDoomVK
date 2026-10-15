@@ -208,3 +208,19 @@ no-probe zero, and also clears light pages when no retained RGB payload exists.
 Retained RGB upload, when present, overwrites only the light attachment before
 both resources are republished shader-readable. Source negative controls remove
 each clear independently.
+
+
+### 3D-floor side bake ownership
+
+Adversarial special-surface review proved a stale/misassociated side-bake defect.
+`HWWall::BuildFFBlock` assigns each 3D-floor wall its `rover->model` control
+sector, `CreateWallSurface` retains that owner, and `AddSurfaceToTile` includes
+it in the tile binding. The side branch of `GetVisibleSurfaces` previously
+discarded that identity and accepted every same-type surface on the side. A tile
+for one 3D floor could therefore raytrace a same-type wall belonging to another
+control sector.
+
+The consumer now requires both surface type and control-sector identity, matching
+the existing flat-path rule. `test_sdvk014_special_surface_lifecycle.py` traces
+the exact production producer→surface→tile→consumer chain and has deliberate
+side and flat alias mutations that fail for named reasons.

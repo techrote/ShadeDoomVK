@@ -216,3 +216,12 @@ material semantics:
 These are lifecycle/publication invariants, not new light selection, sampler,
 material, portal or probe-selection policy. Cross-map probe builder owner identity
 remains separately blocked by #150.
+
+
+### 3D-floor side ownership
+
+A 3D-floor wall's control sector is part of its semantic lightmap identity.
+`BuildFFBlock` publishes the model control sector, `CreateWallSurface` retains
+it, `AddSurfaceToTile` keys the tile with it, and `GetVisibleSurfaces` must
+match it when gathering side bake geometry. Matching only side/type can
+deterministically mix geometry from distinct 3D floors on the same side.

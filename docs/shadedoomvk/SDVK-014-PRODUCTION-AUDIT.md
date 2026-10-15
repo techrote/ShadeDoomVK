@@ -159,3 +159,13 @@ incremental `SetLightmapCount`. Every new probe-map page receives defined
 R16_UINT zero fallback content; light pages with no retained RGB source receive
 defined zero light. This prevents full atlas replacement from publishing
 undefined-but-plausible probe/light texels before dynamic writes complete.
+
+
+### 3D-floor side visibility identity
+
+Special-surface review found that 3D-floor wall tiles were keyed by
+`(type, side, controlSector)` but side-bake visibility consumed only
+`(type, side)`. Because `BuildFFBlock` can emit multiple same-type walls on
+one side for different `rover->model` owners, this was a plausible-but-wrong
+cross-control-sector bake path. `GetVisibleSurfaces` now preserves
+`ControlSector` for side surfaces exactly as it already did for flat surfaces.

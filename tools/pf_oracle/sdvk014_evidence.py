@@ -54,6 +54,20 @@ def collect() -> dict:
         'source':'current','disposition':'PASS','returncode':0,
         'intended_reason':'loader admission, completion ordering, page initialization and negative controls',
         'stdout':retained_suite.stdout.strip(),'stderr':retained_suite.stderr.strip(),'wall_ns':None})
+
+    special_suite = subprocess.run(
+        [sys.executable, "-m", "unittest",
+         "tools.pf_oracle.tests.test_sdvk014_special_surface_lifecycle", "-v"],
+        cwd=ROOT, capture_output=True, text=True, timeout=120)
+    if special_suite.returncode != 0:
+        raise RuntimeError(
+            "Unexpected special-surface suite failure:\n" +
+            special_suite.stdout + "\n" + special_suite.stderr)
+    records.append({
+        'family':'special-surface-lifecycle','case':'3dfloor-control-sector-chain',
+        'source':'current','disposition':'PASS','returncode':0,
+        'intended_reason':'3D-floor control-sector identity producer-to-bake-consumer and alias negatives',
+        'stdout':special_suite.stdout.strip(),'stderr':special_suite.stderr.strip(),'wall_ns':None})
     with tempfile.TemporaryDirectory(prefix='sdvk014-evidence-') as temporary:
         for family,module,cases in (('atlas',atlas,atlas.CASES),('tiles',tiles,tiles.CASES),
                                     ('probes',probes,probes.POSITIVE)):

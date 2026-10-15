@@ -1164,3 +1164,8 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   published undefined new probe-map texels. The candidate now clears every new
   probe page to typed zero and empty-source light pages to zero before publication;
   independent source negatives remove each clear.
+
+- SDVK-014 special-surface review proved and repaired a 3D-floor side-bake
+  ownership mismatch: tile identity retained `ControlSector`, while side
+  visibility discarded it. The consumer now matches type + control sector;
+  source-chain side/flat alias mutations retain sensitivity.

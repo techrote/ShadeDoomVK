@@ -34,6 +34,7 @@ PATHS = {
     'maploader': 'src/maploader/maploader.cpp',
     'lightmapper': 'src/common/rendering/vulkan/vk_lightmapper.cpp',
     'texture': 'src/common/rendering/vulkan/textures/vk_texture.cpp',
+    'walls': 'src/rendering/hwrenderer/scene/hw_walls.cpp',
 }
 FUNCTIONS = {
     'alloc': ('mesh_h', 'inline int LevelMesh::AllocTile('),
@@ -52,6 +53,10 @@ FUNCTIONS = {
     'copy_result': ('lightmapper', 'void VkLightmapper::CopyResult('),
     'set_lightmap_count': ('texture', 'void VkTextureManager::SetLightmapCount('),
     'create_lightmap': ('texture', 'void VkTextureManager::CreateLightmap(int size, int count, const TArray<uint16_t>& srcPixels)'),
+    'build_ffblock': ('walls', 'void HWWall::BuildFFBlock('),
+    'create_wall_surface': ('doom', 'void DoomLevelMesh::CreateWallSurface('),
+    'add_surface_to_tile': ('doom', 'int DoomLevelMesh::AddSurfaceToTile('),
+    'get_visible_surfaces': ('doom', 'void DoomLevelMesh::GetVisibleSurfaces('),
 }
 
 
