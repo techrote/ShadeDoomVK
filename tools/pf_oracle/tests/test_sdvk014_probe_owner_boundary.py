@@ -1,43 +1,66 @@
-"""Preserve an upstream probe-owner blocker, not a probe robustness acceptance.
+"""SDVK-150 probe-owner repair contract using exact production Step/Full source.
 
-The retained-source negatives must fail. Current Step's covered positive cases
-must pass. Run the current same-count modes separately to diagnose the unresolved
-production gap; no test labels their failure as software campaign acceptance.
+The retained pre-fix builder/header must still reproduce the owner failures.
+Current source must rebuild on semantic owner revision changes, including empty
+and partial-pass transitions. No renderer or Vulkan device is created.
 """
 from pathlib import Path
+import hashlib
 import json
 import subprocess
 import sys
 import tempfile
 import unittest
+
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT))
 from tools.pf_oracle.fixture_runner import compile_fixture
 from tools.pf_oracle.tests.sdvk014_source import current
+
 HERE=Path(__file__).resolve().parent
 DATA=ROOT/'src/common/rendering/hwrenderer/data'
-GUARD='if (gl_lightprobe && level.lightProbes.size() > 0)'
-POSITIVE=('same-owner-terminal','count-change','direct-empty-step','fresh-owner-control')
+OLD=HERE/'fixtures/sdvk014_lightmap_pre_fix.json'
+
+POSITIVE=(
+    'same-owner-terminal',
+    'count-change',
+    'direct-empty-step',
+    'fresh-owner-control',
+    'same-count',
+    'same-count-via-empty',
+    'partial-owner',
+    'full-same-count',
+)
+RETAINED_NEGATIVES={
+    'same-count':'new-owner-not-rebuilt',
+    'same-count-via-empty':'new-owner-not-rebuilt',
+    'partial-owner':'partial-owner-mixed-pass',
+    'full-same-count':'full-new-owner-not-rebuilt',
+}
 
 
-def build(directory: Path,original: bool=False) -> Path:
+def build(directory: Path, original: bool=False) -> Path:
     directory.mkdir(parents=True,exist_ok=True)
-    old=json.loads((HERE/'fixtures/sdvk014_lightmap_pre_fix.json').read_text())['functions']
-    methods='\n'.join(old[k]['content'] if original else current(k) for k in ('probe_step','probe_full'))
-    entry=(ROOT/'src/rendering/hwrenderer/hw_entrypoint.cpp').read_text()
-    if entry.count(GUARD)!=1:
-        raise AssertionError('Probe entry guard changed: reconcile the retained/current owner fixture')
-    source=(HERE/'sdvk014_probe_owner_fixture.cpp').read_text().replace('@ENTRY_GUARD@',GUARD)
+    retained=json.loads(OLD.read_text())['functions']
+    methods='\n'.join(retained[k]['content'] if original else current(k)
+                      for k in ('probe_step','probe_full'))
     (directory/'sdvk014_probe_methods.cpp').write_text(methods)
-    fixture=directory/'probe_owner.cpp';fixture.write_text(source)
-    return compile_fixture(fixture,output_dir=directory,
+
+    source=(HERE/'sdvk014_probe_owner_fixture.cpp').read_text()
+    if original:
+        (directory/'hw_lightprobe.h').write_text(retained['probe_header']['content'])
+        source='#define SDVK150_RETAINED 1\n'+source
+    fixture=directory/'probe_owner.cpp'
+    fixture.write_text(source)
+    return compile_fixture(
+        fixture,output_dir=directory,
         includes=[directory,DATA,ROOT/'src/common/utility',ROOT/'src/common/thirdparty'])
 
 
 class ProbeOwnerBoundaryTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.temp=tempfile.TemporaryDirectory(prefix='sdvk014-probe-owner-')
+        cls.temp=tempfile.TemporaryDirectory(prefix='sdvk150-probe-owner-')
         cls.directory=Path(cls.temp.name)
         cls.current=build(cls.directory/'current')
         cls.original=build(cls.directory/'original',True)
@@ -46,19 +69,46 @@ class ProbeOwnerBoundaryTests(unittest.TestCase):
     def tearDownClass(cls):
         cls.temp.cleanup()
 
-    def test_existing_positive_boundaries(self):
+    def test_current_entry_observes_empty_owner_and_semantic_revision(self):
+        entry=(ROOT/'src/rendering/hwrenderer/hw_entrypoint.cpp').read_text()
+        self.assertNotIn('if (gl_lightprobe && level.lightProbes.size() > 0)',entry)
+        self.assertIn('if (gl_lightprobe)',entry)
+        self.assertIn(
+            'lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), {});',
+            entry,
+        )
+        self.assertIn(
+            'lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), renderEnvMap);',
+            entry,
+        )
+
+    def test_retained_header_is_exactly_pinned(self):
+        retained=json.loads(OLD.read_text())['functions']['probe_header']
+        raw=retained['content'].encode()
+        self.assertEqual(hashlib.sha256(raw).hexdigest(),retained['sha256'])
+        git_blob=hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+        self.assertEqual(git_blob,retained['git_blob'])
+
+    def test_current_owner_boundaries(self):
         for case in POSITIVE:
             with self.subTest(case=case):
                 p=subprocess.run([str(self.current),case],text=True,capture_output=True,timeout=10)
                 self.assertEqual(p.returncode,0,p.stdout+p.stderr)
+                self.assertIn('PASS '+case,p.stdout)
 
-    def test_retained_same_count_owner_failure(self):
-        for case in ('same-count','same-count-via-empty'):
+    def test_retained_same_count_and_partial_owner_failures(self):
+        for case,reason in RETAINED_NEGATIVES.items():
             with self.subTest(case=case):
                 p=subprocess.run([str(self.original),case],text=True,capture_output=True,timeout=10)
                 self.assertEqual(p.returncode,11,p.stdout+p.stderr)
-                self.assertIn('BLOCKED new-owner-not-rebuilt',p.stderr)
-                self.assertIn('new_owner_captures=0 reset_delta=0 pass_delta=0',p.stdout)
+                self.assertIn('BLOCKED '+reason,p.stderr)
+
+    def test_retained_independent_controls_still_pass(self):
+        for case in ('same-owner-terminal','count-change','direct-empty-step','fresh-owner-control'):
+            with self.subTest(case=case):
+                p=subprocess.run([str(self.original),case],text=True,capture_output=True,timeout=10)
+                self.assertEqual(p.returncode,0,p.stdout+p.stderr)
+                self.assertIn('PASS '+case,p.stdout)
 
 
 if __name__=='__main__':
