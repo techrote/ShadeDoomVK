@@ -1135,3 +1135,23 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - #14 stays OPEN and is **not software-complete**. Physical GPU cost/scaling/
   stability remains HELD / NOT ACCEPTED, Physical STOP ACTIVE, root cause
   UNDETERMINED. No duplicate full/native benchmark run and no physical execution.
+
+
+### 15 October 2026 — SDVK-014 retained lifecycle continuation candidate
+
+- Same branch continuation hardens retained LIGHTMAP admission with overflow-safe
+  RGB span sizing, live-owner-only binding lookup, finite-transform/extent/span
+  validation, duplicate-binding rejection and complete admission before mutation.
+- Dynamic lightmap dirty/completion flags are no longer cleared by selection.
+  Only rendered tiles clear them after atlas copy and shader-readable publication;
+  overflowed/unrendered work remains dirty for retry.
+- Newly expanded lightmap/probe-map pages are explicitly transfer-cleared to typed
+  zero fallback before shader-readable publication, closing the undefined-active-page
+  window for unwritten regions.
+- Added focused source/compiled negative controls for alignment/span overrun,
+  premature completion, missing post-copy completion, missing probe-page clear and
+  admission ordering. Exact-head CI has not yet qualified this candidate.
+- #150 still hard-stops cross-map probe reset/rebake/publication. No viewmodel,
+  material/sampler, portal transform or quality policy is changed. #14 remains open
+  and not software-complete. Physical GPU cost/scaling/stability remain HELD /
+  NOT ACCEPTED; Physical STOP ACTIVE; historical root cause UNDETERMINED.
