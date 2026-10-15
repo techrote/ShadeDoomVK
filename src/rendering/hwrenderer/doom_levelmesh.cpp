@@ -2224,7 +2224,8 @@ void DoomLevelMesh::GetVisibleSurfaces(LightmapTile* tile, TArray<int>& outSurfa
 			while (surf != -1)
 			{
 				const auto& sinfo = DoomSurfaceInfos[surf];
-				if (sinfo.Type == tile->Binding.Type)
+				uint32_t controlSector = sinfo.ControlSector ? (uint32_t)sinfo.ControlSector->Index() : (uint32_t)0xffffffffUL;
+				if (sinfo.Type == tile->Binding.Type && controlSector == tile->Binding.ControlSector)
 				{
 					outSurfaces.Push(surf);
 				}
