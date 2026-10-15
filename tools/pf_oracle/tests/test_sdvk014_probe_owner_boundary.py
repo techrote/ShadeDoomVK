@@ -95,9 +95,14 @@ class ProbeOwnerBoundaryTests(unittest.TestCase):
         self.assertLess(runtime.index(push),runtime.index(advance))
 
         level_header=(ROOT/'src/g_levellocals.h').read_text()
-        self.assertIn('uint64_t LightProbeSetRevision = 1;',level_header)
+        self.assertIn('uint64_t LightProbeSetRevision = AllocateLightProbeSetRevision();',level_header)
         self.assertIn('uint64_t GetLightProbeSetRevision() const',level_header)
-        self.assertIn('void MarkLightProbeSetChanged()',level_header)
+        self.assertIn('LightProbeSetRevision = AllocateLightProbeSetRevision();',level_header)
+
+        owner_source=(ROOT/'src/g_level.cpp').read_text()
+        self.assertIn('uint64_t AllocateLightProbeSetRevision()',owner_source)
+        self.assertIn('static std::atomic<uint64_t> next{ 1 };',owner_source)
+        self.assertIn('I_FatalError("Light probe set revision exhausted")',owner_source)
 
     def test_retained_header_is_exactly_pinned(self):
         retained=json.loads(OLD.read_text())['functions']['probe_header']
