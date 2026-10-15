@@ -884,6 +884,26 @@ def _portal_probe_repeatability_projection(records):
     return _sdvk010_repeatability_projection(records, "portal-probes")
 
 
+def _sdvk150_repeatability_projection(records, scene):
+    """Normalize only process-local semantic probe-owner revision labels.
+
+    The transition pattern, map association, publication order, and all actual
+    LightProbe/resource epochs remain strict.
+    """
+    result = copy.deepcopy(records)
+    if scene != "probe-owner-transition":
+        return result
+    revisions = {}
+    for record in result:
+        if record.get("kind") != "probe-builder":
+            continue
+        for event in record.get("data", {}).get("events", []):
+            raw = event.get("owner_revision")
+            if type(raw) is int:
+                event["owner_revision"] = revisions.setdefault(raw, len(revisions))
+    return result
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -902,11 +922,17 @@ def compare_runs(left, right, *, allow_build_change=False):
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
     static = a["reproduction"]["clock"] == "static_after_initialization"
-    x = _sdvk010_repeatability_projection(validate.state_projection(left_raw, static_scene=static), a["scene"])
-    y = _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"])
+    x = _sdvk150_repeatability_projection(
+        _sdvk010_repeatability_projection(validate.state_projection(left_raw, static_scene=static), a["scene"]),
+        a["scene"])
+    y = _sdvk150_repeatability_projection(
+        _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"]),
+        b["scene"])
     normalization = "Validated context and live-slot identities; 1e-9 view-number canonicalization; static-scene clock labels; cumulative workload telemetry excluded; semantic state retained"
     if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
+    if a["scene"] == "probe-owner-transition":
+        normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
