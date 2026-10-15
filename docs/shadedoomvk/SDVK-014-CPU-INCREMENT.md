@@ -151,3 +151,38 @@ separately from software-Vulkan evidence. Abort on a renderer/device fault, unkn
 resource/device identity or a mismatch with the approved protocol; retain the failed
 packet and do not retry or intervene in hardware. This increment supplies none of
 those missing physical measurements and does not identify the historical fault.
+
+
+## 15 October continuation — retained-load, completion and page initialization
+
+The same branch now carries a second bounded software hardening slice. It remains
+part of the incomplete SDVK-014 campaign and does not cross the #150 probe-owner
+hard stop.
+
+- `MapLoader::LoadLightmap` now validates retained LIGHTMAP payload sizing with
+  overflow-safe component arithmetic; only live current tiles are candidates;
+  non-finite transforms, oversize extents, misaligned/out-of-range pixel spans
+  and duplicate current-tile bindings are rejected before current tile state is
+  mutated. Invalid retained entries remain on the ordinary current-tile bake path.
+- `VkLightmapper::SelectTiles` no longer treats selection as completion.
+  `ReceivedNewLight`, `NeedsInitialBake` and `GeometryUpdate` are cleared
+  only for tiles that were actually rendered and copied, after the destination
+  pages have been transitioned back to shader-readable state. Overflowed or
+  otherwise unrendered tiles remain dirty for a later attempt.
+- `VkTextureManager::SetLightmapCount` initializes every newly expanded lightmap
+  page and probe-map page to their typed zero fallbacks before publishing them as
+  shader-readable resources. Unwritten regions therefore cannot expose undefined
+  but plausible prior allocation contents.
+
+`tools/pf_oracle/tests/test_sdvk014_retained_lifecycle.py` adds exact executable
+pixel-span boundaries and deliberate controls for missing alignment/end checks,
+premature dynamic completion, missing post-copy completion, missing probe-page
+initialization and admission-before-mutation ordering. These tests are candidates
+for exact-head CI qualification; this text does **not** predeclare their CI result.
+
+The earlier “remaining requirements” list above is therefore superseded for the
+three items just described. Outstanding software scope still includes #150 and
+its cross-map probe pair/epoch publication boundary, durable stale allocation
+identity review, native repeated/multi-page transitions, supported special-
+surface/material lifecycle coverage, exact-head CI/review/merge and exact-master
+verification. Physical GPU bake/update cost, scaling and stability remain held.
