@@ -21,6 +21,7 @@ sys.path.insert(0,str(ROOT))
 from tools.pf_oracle.tests import test_sdvk014_atlas_lifecycle as atlas
 from tools.pf_oracle.tests import test_sdvk014_tile_lifecycle as tiles
 from tools.pf_oracle.tests import test_sdvk014_probe_owner_boundary as probes
+from tools.pf_oracle.tests import test_sdvk014_retained_lifecycle as retained
 
 NEGATIVES={
     'atlas': {'full-height':(10,'Tile too large'),'padded-full-page':(10,'Tile too large'),
@@ -40,6 +41,19 @@ NEGATIVES={
 
 def collect() -> dict:
     records=[];timings=[]
+    retained_suite = subprocess.run(
+        [sys.executable, "-m", "unittest",
+         "tools.pf_oracle.tests.test_sdvk014_retained_lifecycle", "-v"],
+        cwd=ROOT, capture_output=True, text=True, timeout=120)
+    if retained_suite.returncode != 0:
+        raise RuntimeError(
+            "Unexpected retained-lifecycle suite failure:\n" +
+            retained_suite.stdout + "\n" + retained_suite.stderr)
+    records.append({
+        'family':'retained-lifecycle','case':'complete-source-and-span-suite',
+        'source':'current','disposition':'PASS','returncode':0,
+        'intended_reason':'loader admission, completion ordering, page initialization and negative controls',
+        'stdout':retained_suite.stdout.strip(),'stderr':retained_suite.stderr.strip(),'wall_ns':None})
     with tempfile.TemporaryDirectory(prefix='sdvk014-evidence-') as temporary:
         for family,module,cases in (('atlas',atlas,atlas.CASES),('tiles',tiles,tiles.CASES),
                                     ('probes',probes,probes.POSITIVE)):
@@ -80,9 +94,9 @@ def collect() -> dict:
     files += [str(p.relative_to(ROOT)) for p in sorted((ROOT/'tools/pf_oracle/tests').glob('*sdvk014*')) if p.is_file()]
     files += [str(p.relative_to(ROOT)) for p in sorted((ROOT/'tools/pf_oracle/tests/fixtures').glob('sdvk014*')) if p.is_file()]
     return {
-        'schema':'sdvk014-cpu-increment/v1',
+        'schema':'sdvk014-cpu-increment/v2',
         'audited_base':'04a3596115eb397d9e7237aa1ff3625ece1bc5b4',
-        'identity_note':'Hashes pin actual tested source bytes, including pre-commit changes; audited_base is not the tested publication head.',
+        'identity_note':'Hashes pin actual tested source bytes, including the retained-lifecycle continuation; audited_base is not the tested publication head.',
         'acceptance':{'implemented_cpu_increment':'PASS','complete_software_campaign':'BLOCKED_NOT_ACCEPTED',
                       'cross_map_probe_lifecycle':'REBLOCKED_BY_150','native_campaign':'NOT_RUN',
                       'physical_performance':'HELD_NOT_ACCEPTED','physical_stop':'ACTIVE',
@@ -97,7 +111,7 @@ def collect() -> dict:
         'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in files},
         'compile_timings':timings,'cases':records,
         'not_qualified':['native atlas/probe pixels and descriptors','durable rectangle/slot generation safety',
-                         'malformed retained LIGHTMAP loader','all dynamic update freshness transitions',
+                         'native retained-LIGHTMAP round-trip beyond the admitted CPU/source contract','all dynamic update freshness transitions',
                          'cross-map probe publication','special-surface/portal/material lifecycle matrix',
                          'physical GPU bake/update cost, scaling or stability'],
     }
