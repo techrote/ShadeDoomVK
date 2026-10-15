@@ -720,6 +720,13 @@ def _scene_assertions(raw, scene):
             portal_probe = assertions.get("actor_probe_portal")
             if portal_probe:
                 _portal_actor_probe_assertions(records, portal_probe)
+            probe_owner = assertions.get("probe_owner_transition")
+            if probe_owner and frame == 1:
+                try:
+                    from .sdvk150_probe_owner import validate_lifecycle_records
+                except ImportError:
+                    from tools.renderer_oracle.sdvk150_probe_owner import validate_lifecycle_records
+                validate_lifecycle_records(raw["records"], probe_owner)
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]
