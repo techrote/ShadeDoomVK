@@ -1169,3 +1169,29 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   ownership mismatch: tile identity retained `ControlSector`, while side
   visibility discarded it. The consumer now matches type + control sector;
   source-chain side/flat alias mutations retain sensitivity.
+
+
+### 15 October 2026 — SDVK-150 semantic probe-owner repair candidate
+
+- SDVK-014 PR #151 merged as `097ad33a39fd4c56c7cf9964de87425fd5e5c66f`
+  with tree `ac43b094ee0b6d9570eac177543cdfbbbcebd41d`, identical to reviewed/tested
+  head `f42116bf9b6ae617a9f0cafbbc1f5d904c8b5cf2`. Exact source evidence and all
+  nine normal CI jobs passed, including Avrea 16-vCPU software Vulkan. #14 was
+  reopened after merge because #150 and other software/physical gates remain.
+- Upstream #150 repair branch `sdvk150-probe-owner-identity` replaces count-only
+  builder ownership with process-unique authored probe-set revisions. Distinct
+  level objects, teardown and runtime authored additions receive fresh tokens;
+  empty transitions now reach the global builder.
+- Exact retained pre-fix header/Step/Full bytes preserve same-count, empty-mediated,
+  partial-pass and Full-path owner failures. Current CPU fixtures require those
+  owner transitions to rebuild while unchanged-owner/count controls remain intact.
+- A bounded state-only lifecycle trace records actual reset and pass-publication
+  callbacks. New `probe-owner-transition` corpus content authors two equal-count
+  maps and switches A→B through the inherited delayed console queue in one process.
+  Acceptance requires five publications per owner, distinct owner revisions, a
+  later B LightProbe epoch, no count-reset fallback and complete pair families.
+- The focused native gate is added to the existing normal Avrea 16-vCPU lane and
+  software evidence archive; no duplicate full CI or benchmark-only job is added.
+  This is prospective until exact-head CI/review/merge. Physical STOP remains
+  ACTIVE; physical cost/scaling/stability HELD / NOT ACCEPTED and historical
+  physical root cause UNDETERMINED.
