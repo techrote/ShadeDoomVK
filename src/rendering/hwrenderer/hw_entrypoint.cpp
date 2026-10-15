@@ -485,34 +485,42 @@ sector_t* RenderView(player_t* player)
 				});
 		}
 
-		if (gl_lightprobe && level.lightProbes.size() > 0)
+		if (gl_lightprobe)
 		{
-			// Render the light probes if not found in a lump
-
-			AActor* lightprobe = level.GetThinkerIterator<AActor>(NAME_LightProbe, STAT_INFO).Next();
-			if (lightprobe)
+			// The global builder must observe empty owner transitions too. Otherwise
+			// A -> empty -> B can retain terminal state without ever resetting.
+			if (level.lightProbes.size() == 0)
 			{
-				auto renderEnvMap = [&](int probeIndex, const LightProbe& probe) {
-					lightprobe->SetOrigin(DVector3(probe.position), false); // crime against nature
-
-					// The renderer interpolates camera in its own mechanism that has to be disabled when moving around the single probe
-					bool noInterpolate = r_NoInterpolate;
-					r_NoInterpolate = true;
-
-					screen->RenderLightProbe(probeIndex, [&](IntRect& bounds, int side) {
-						FRenderViewpoint probevp;
-						RenderViewpoint(probevp, lightprobe, &bounds, 90.0, 1.0f, 1.0f, false, false, side);
-					});
-
-					r_NoInterpolate = noInterpolate;
-				};
-
-				lightProbeBuilder.Step(level.lightProbes, renderEnvMap);
+				lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), {});
 			}
 			else
 			{
-				auto probe = Spawn(&level, NAME_LightProbe);
-				probe->ChangeStatNum(STAT_INFO);
+				// Render the light probes if not found in a lump
+				AActor* lightprobe = level.GetThinkerIterator<AActor>(NAME_LightProbe, STAT_INFO).Next();
+				if (lightprobe)
+				{
+					auto renderEnvMap = [&](int probeIndex, const LightProbe& probe) {
+						lightprobe->SetOrigin(DVector3(probe.position), false); // crime against nature
+
+						// The renderer interpolates camera in its own mechanism that has to be disabled when moving around the single probe
+						bool noInterpolate = r_NoInterpolate;
+						r_NoInterpolate = true;
+
+						screen->RenderLightProbe(probeIndex, [&](IntRect& bounds, int side) {
+							FRenderViewpoint probevp;
+							RenderViewpoint(probevp, lightprobe, &bounds, 90.0, 1.0f, 1.0f, false, false, side);
+						});
+
+						r_NoInterpolate = noInterpolate;
+					};
+
+					lightProbeBuilder.Step(level.lightProbes, level.GetLightProbeSetRevision(), renderEnvMap);
+				}
+				else
+				{
+					auto probe = Spawn(&level, NAME_LightProbe);
+					probe->ChangeStatNum(STAT_INFO);
+				}
 			}
 		}
 
