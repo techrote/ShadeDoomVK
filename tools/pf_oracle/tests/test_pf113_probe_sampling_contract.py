@@ -88,6 +88,9 @@ class SourcePreservationTests(unittest.TestCase):
         self.assertIn('SampleProbePrefiltered(ObservedIndex base, vec3 R, float lod)', header)
         self.assertIn('nonuniformEXT(base + 1u)', header)
         self.assertIn('roughness * MAX_REFLECTION_LOD', header)
+        self.assertIn('ownerRevision != probeSetRevision', header)
+        self.assertIn('ownerRevision = probeSetRevision;', header)
+        self.assertIn('ProbeBuilderLifecycle("owner-reset"', header)
         self.assertIn('static const int IrradiancemapSize = 32;', constants)
         self.assertEqual(sum(entry['name'] == 'current-pbr-sampling' for entry in metadata['extractions']), 1)
 
