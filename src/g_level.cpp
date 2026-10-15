@@ -33,6 +33,7 @@
 */
 
 #include <assert.h>
+#include <atomic>
 
 #include "d_main.h"
 #include "g_level.h"
@@ -1785,6 +1786,15 @@ int FLevelLocals::FinishTravel ()
 //
 //
 //==========================================================================
+
+uint64_t AllocateLightProbeSetRevision()
+{
+	static std::atomic<uint64_t> next{ 1 };
+	const uint64_t revision = next.fetch_add(1, std::memory_order_relaxed);
+	if (revision == 0)
+		I_FatalError("Light probe set revision exhausted");
+	return revision;
+}
 
 FLevelLocals::FLevelLocals() : Behaviors(this), tagManager(this)
 {
