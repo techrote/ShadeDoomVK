@@ -78,3 +78,18 @@ A foundational lighting/probe/lifetime regression reblocks the affected scope up
 
 #11 and #14 may proceed in parallel on coordinated separate branches. Use normal
 required CI as the runner benchmark; no duplicate runner or benchmark-only repeat.
+
+
+## Implementation continuation — retained lifecycle hardening
+
+Branch `sdvk014-lightmapper-probe-robustness` now also fail-closes malformed retained
+LIGHTMAP admission before tile mutation, defers dynamic-tile completion until actual
+copy/publication, and zero-initializes newly expanded light/probe atlas pages before
+shader-readable publication. Focused CPU/source negative controls are carried in
+`test_sdvk014_retained_lifecycle.py`.
+
+This advances unblocked software scope only. Cross-map probe reset/rebake/publication
+remains reblocked by #150. Durable stale-identity review, native repeated transitions,
+special-surface/material lifecycle coverage, exact-head CI/review/merge and exact-master
+verification remain outstanding. The issue is not software-complete. Physical bake/update
+cost, scaling and stability remain HELD / NOT ACCEPTED under active Physical STOP.
