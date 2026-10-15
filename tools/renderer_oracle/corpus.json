@@ -410,6 +410,23 @@
         "test_actor_probe_portal_transition.py",
         "-v"
       ]
+    },
+    "sdvk150-probe-owner": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk014_probe_owner_boundary.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "retained_fixture": "tools/pf_oracle/tests/fixtures/sdvk014_lightmap_pre_fix.json",
+      "test_path": "tools/pf_oracle/tests/test_sdvk014_probe_owner_boundary.py"
     }
   },
   "cvar_sources": {
@@ -16561,6 +16578,389 @@
         "tools/renderer_oracle/tests/test_sdvk010_sun_occlusion.py"
       ],
       "title": "SDVK-010 PBR actor direct sunlight against authored world occluder"
+    },
+    {
+      "classes": [
+        "probes_sun",
+        "semantic_materials",
+        "resource_stress"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact same-process probe owner transition and final semantic state",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_probe_lightmap_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_pf113_probe_sampling_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk014_probe_owner_boundary.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "probe-lightmap",
+        "pbr-probe",
+        "sdvk150-probe-owner"
+      ],
+      "id": "probe-owner-transition",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV15A",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera selected after first simulation tic; no motion or animation",
+          "position": [
+            -192,
+            0,
+            80
+          ],
+          "roll": 0,
+          "yaw": 0
+        },
+        "capture_script": "scenes/probe-owner-transition/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/probe-owner-transition/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_multisample",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "sprites": {
+            "minimum": 2
+          }
+        },
+        "generator": "probe_owner_transition",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": true,
+        "map": "SDV15B",
+        "map_guard": {
+          "field": "observed map name",
+          "equals": "SDV15B"
+        },
+        "pending_coverage": [
+          "This fixture qualifies only the same-process same-count authored probe-owner transition and complete five-pass pair republication on hosted llvmpipe.",
+          "Partial-pass and A-to-empty-to-B owner transitions remain exact CPU production-source controls; broader SDVK-014 probe/lightmap robustness remains separately gated.",
+          "Hosted software Vulkan is correctness evidence only and does not qualify physical GPU bake/update cost, scaling, stability or historical fault causality."
+        ],
+        "pk3": "scenes/probe-owner-transition/scene.pk3",
+        "recommended_warmup_frames": 100,
+        "required_native_evidence": [
+          "one renderer process starts SDV15A with exactly two authored probes and later enters SDV15B with exactly two different authored probes through the inherited delayed console queue",
+          "actual builder lifecycle trace records a semantic owner reset plus five pass publications for A before the semantic owner reset plus five pass publications for B",
+          "A and B use distinct process-unique owner revisions and B publishes a later LightProbe epoch without count-reset fallback",
+          "each completed pass observes matched irradiance/prefilter resource family counts for the authored set",
+          "the retained final SDV15B frame binds live authored ordinals 0 and 1 to published runtime pairs",
+          "two independent clean-state same-process transitions produce exact final state and image"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2002,
+        "settings": {
+          "cl_capfps": true,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": true,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": false,
+          "r_drawplayersprites": false,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false
+        },
+        "state_assertions": {
+          "published_probes_minimum": 2,
+          "materials": [
+            "SDVOA0"
+          ],
+          "material_semantics": {
+            "SDVOA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "actor_probe": {
+            "minimum_draws": 2,
+            "required_indices": [
+              0,
+              1
+            ],
+            "material_examples": [
+              "SDVOA0"
+            ],
+            "require_live": true
+          },
+          "probe_owner_transition": {
+            "owners": [
+              {
+                "map": "SDV15A",
+                "authored_count": 2
+              },
+              {
+                "map": "SDV15B",
+                "authored_count": 2
+              }
+            ],
+            "passes_per_owner": 5
+          }
+        },
+        "status": "native_qualification_pending",
+        "probe_owner_trace": true,
+        "probe_owner_transition": {
+          "initial_map": "SDV15A",
+          "final_map": "SDV15B",
+          "wait_tics": 20,
+          "owners": [
+            {
+              "map": "SDV15A",
+              "probes": [
+                [
+                  -112,
+                  80,
+                  80
+                ],
+                [
+                  112,
+                  -80,
+                  120
+                ]
+              ],
+              "markers": [
+                [
+                  -80,
+                  72,
+                  0
+                ],
+                [
+                  80,
+                  -72,
+                  0
+                ]
+              ]
+            },
+            {
+              "map": "SDV15B",
+              "probes": [
+                [
+                  -80,
+                  -72,
+                  88
+                ],
+                [
+                  112,
+                  72,
+                  120
+                ]
+              ],
+              "markers": [
+                [
+                  -64,
+                  -64,
+                  0
+                ],
+                [
+                  96,
+                  64,
+                  0
+                ]
+              ]
+            }
+          ]
+        }
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/fixtures/sdvk014_lightmap_pre_fix.json",
+        "tools/pf_oracle/tests/test_sdvk014_probe_owner_boundary.py",
+        "tools/renderer_oracle/tests/test_sdvk150_probe_owner.py"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "probe",
+        "probe-builder",
+        "resource",
+        "pipeline"
+      ],
+      "source_refs": [
+        "docs/shadedoomvk/rag/06-LIGHTMAP-PROBE-PIPELINE.md",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp",
+        "src/common/rendering/hwrenderer/data/hw_lightprobe.h",
+        "src/g_level.cpp",
+        "src/g_levellocals.h",
+        "src/p_setup.cpp",
+        "src/rendering/hwrenderer/doom_lightprobes.cpp",
+        "src/rendering/hwrenderer/hw_entrypoint.cpp",
+        "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
+        "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.h",
+        "src/common/console/c_dispatch.cpp",
+        "tools/pf_oracle/tests/test_sdvk014_probe_owner_boundary.py",
+        "tools/renderer_oracle/prepare.py",
+        "tools/renderer_oracle/run.py",
+        "tools/renderer_oracle/sdvk150_probe_owner.py",
+        "tools/renderer_oracle/tests/test_sdvk150_probe_owner.py",
+        "tools/renderer_oracle/validate.py"
+      ],
+      "title": "Same-process same-count probe owner transition A to B"
     }
   ],
   "schema": "sdvk-renderer-corpus/v1",
