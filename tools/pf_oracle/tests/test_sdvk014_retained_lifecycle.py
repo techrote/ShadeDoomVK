@@ -88,6 +88,29 @@ def contract_errors(load: str, select: str, copy: str, pages: str) -> list[str]:
     return errors
 
 
+def replacement_errors(create: str) -> list[str]:
+    errors: list[str] = []
+    light_clear = "clearColorImage(Lightmaps[i].Light.Image->image"
+    probe_clear = "clearColorImage(Lightmaps[i].Probe.Image->image"
+    transfer = "VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL"
+    sampled = "VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL"
+    upload = "if (srcPixels.size() != 0)"
+    empty_guard = "if (srcPixels.size() == 0)"
+    if (
+        create.count(light_clear) != 1
+        or create.count(probe_clear) != 1
+        or create.count(transfer) < 4
+        or create.count(sampled) < 2
+        or empty_guard not in create
+        or upload not in create
+        or create.index(probe_clear) > create.index(upload)
+        or create.index(light_clear) > create.index(upload)
+        or create.rindex(sampled) < create.index(probe_clear)
+    ):
+        errors.append("uninitialized-replacement-atlas")
+    return errors
+
+
 def helper_source(helper: str) -> str:
     return f"""#include <cstdint>
 #include <iostream>
@@ -190,28 +213,19 @@ class RetainedLifecycleTests(unittest.TestCase):
 
 
     def test_replacement_atlas_initializes_probe_and_empty_light(self) -> None:
-        transfer = "VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL"
-        probe_clear = "clearColorImage(Lightmaps[i].Probe.Image->image"
-        light_clear = "clearColorImage(Lightmaps[i].Light.Image->image"
-        upload = "if (srcPixels.size() != 0)"
-        self.assertGreaterEqual(self.create.count(transfer), 4)
-        self.assertEqual(self.create.count(probe_clear), 1)
-        self.assertEqual(self.create.count(light_clear), 1)
-        self.assertIn("if (srcPixels.size() == 0)", self.create)
-        self.assertLess(self.create.index(probe_clear), self.create.index(upload))
-        self.assertLess(self.create.index(light_clear), self.create.index(upload))
+        self.assertEqual(replacement_errors(self.create), [])
 
     def test_replacement_probe_clear_negative_control_is_rejected(self) -> None:
         line = "\t\tcmdbuffer->clearColorImage(Lightmaps[i].Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &clearRange);\n"
         self.assertEqual(self.create.count(line), 1)
         mutant = self.create.replace(line, "")
-        self.assertNotIn("clearColorImage(Lightmaps[i].Probe.Image->image", mutant)
+        self.assertIn("uninitialized-replacement-atlas", replacement_errors(mutant))
 
     def test_replacement_empty_light_clear_negative_control_is_rejected(self) -> None:
         line = "\t\t\tcmdbuffer->clearColorImage(Lightmaps[i].Light.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &clearRange);\n"
         self.assertEqual(self.create.count(line), 1)
         mutant = self.create.replace(line, "")
-        self.assertNotIn("clearColorImage(Lightmaps[i].Light.Image->image", mutant)
+        self.assertIn("uninitialized-replacement-atlas", replacement_errors(mutant))
 
     def test_missing_probe_page_clear_is_rejected(self) -> None:
         line = "\t\tcmdbuffer->clearColorImage(Lightmaps[i].Probe.Image->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, &zero, 1, &range);\n"
