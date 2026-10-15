@@ -60,6 +60,8 @@
 
 #include <math.h>
 #include <cmath>	// needed for std::floor on mac
+#include <limits>
+#include <set>
 #include "maploader.h"
 #include "c_cvars.h"
 #include "actor.h"
@@ -3036,6 +3038,17 @@ void MapLoader::InitLevelMesh(MapData* map)
 	}
 }
 
+static bool IsValidLightmapPixelSpan(uint32_t pixelsOffset, uint16_t width, uint16_t height, uint32_t pixelCount)
+{
+	if (width == 0 || height == 0 || pixelsOffset % 3u != 0)
+		return false;
+
+	const uint64_t totalComponents = uint64_t(pixelCount) * 3u;
+	const uint64_t firstComponent = pixelsOffset;
+	const uint64_t componentCount = uint64_t(width) * uint64_t(height) * 3u;
+	return firstComponent <= totalComponents && componentCount <= totalComponents - firstComponent;
+}
+
 bool MapLoader::LoadLightmap(MapData* map)
 {
 	if (RunningAsTool || !Level->lightmaps || !map->Size(ML_LIGHTMAP) || ignorelightmaplump)
@@ -3087,7 +3100,7 @@ bool MapLoader::LoadLightmap(MapData* map)
 
 		inline bool IsValid(const FLevelLocals& level) const
 		{
-			if (width > 0 && height > 0 && type > ST_NONE && type < MAX_SURFACE_TYPES && (controlSector == 0xFFFFFFFF || controlSector < level.subsectors.Size()))
+			if (width > 0 && height > 0 && type > ST_NONE && type < MAX_SURFACE_TYPES && (controlSector == 0xFFFFFFFF || controlSector < level.sectors.Size()))
 			{
 				if (type < ST_CEILING)
 				{
@@ -3099,6 +3112,13 @@ bool MapLoader::LoadLightmap(MapData* map)
 				}
 			}
 			return false;
+		}
+
+		inline bool HasFiniteTransform() const
+		{
+			return std::isfinite(translateWorldToLocal.X) && std::isfinite(translateWorldToLocal.Y) && std::isfinite(translateWorldToLocal.Z) &&
+				std::isfinite(projLocalToU.X) && std::isfinite(projLocalToU.Y) && std::isfinite(projLocalToU.Z) &&
+				std::isfinite(projLocalToV.X) && std::isfinite(projLocalToV.Y) && std::isfinite(projLocalToV.Z);
 		}
 
 		inline const char* GetTypeName() const
@@ -3131,11 +3151,18 @@ bool MapLoader::LoadLightmap(MapData* map)
 		entry.projLocalToV.Z = fr.ReadFloat();
 	}
 
-	// Load pixels
+	// Load pixels. The lump stores RGB component offsets, so establish the
+	// complete component count without allowing the 32-bit multiply to wrap.
+	if (numTexPixels > std::numeric_limits<unsigned int>::max() / 3u)
+	{
+		Printf(PRINT_HIGH, "LoadLightmap: pixel payload is too large.\n");
+		return false;
+	}
+	const unsigned int textureElementCount = numTexPixels * 3u;
 	TArray<uint16_t> textureData;
-	textureData.Resize(numTexPixels * 3);
+	textureData.Resize(textureElementCount);
 	uint8_t* data = (uint8_t*)&textureData[0];
-	fr.Read(data, numTexPixels * 3 * sizeof(uint16_t));
+	fr.Read(data, size_t(textureElementCount) * sizeof(uint16_t));
 
 	const auto textureSize = Level->levelMesh->Lightmap.TextureSize;
 
@@ -3143,11 +3170,14 @@ bool MapLoader::LoadLightmap(MapData* map)
 	std::map<LightmapTileBinding, LightmapTile*> levelTiles;
 	for (LightmapTile& tile : Level->levelMesh->Lightmap.Tiles)
 	{
-		levelTiles[tile.Binding] = &tile;
+		if (tile.UseCount > 0)
+			levelTiles[tile.Binding] = &tile;
 	}
 
-	// Bind tiles and use the lump's tile transform
+	// Admit complete retained entries before mutating any current tile state.
+	// A malformed or duplicate entry cannot partially rewrite a live owner.
 	TArray<std::pair<const TileEntry*, LightmapTile*>> foundBindings;
+	std::set<LightmapTile*> foundTiles;
 	for (const TileEntry& entry : tileEntries)
 	{
 		LightmapTileBinding binding;
@@ -3163,26 +3193,43 @@ bool MapLoader::LoadLightmap(MapData* map)
 			continue;
 		}
 
-		if (!entry.IsValid(*Level))
+		if (!entry.IsValid(*Level) || !entry.HasFiniteTransform() ||
+			entry.width > textureSize || entry.height > textureSize ||
+			!IsValidLightmapPixelSpan(entry.pixelsOffset, entry.width, entry.height, numTexPixels))
 		{
 			if (errors < 100 && developer >= 1)
-				Printf("LoadLightmap: Invalid lightmap tile found (type = %s = %d, index = %d, control sector = %d, width = %d, height = %d)\n", entry.GetTypeName(), entry.type, entry.typeIndex, entry.controlSector, entry.width, entry.height);
+				Printf("LoadLightmap: Invalid lightmap tile found (type = %s = %d, index = %d, control sector = %d, width = %d, height = %d, pixels offset = %u)\n", entry.GetTypeName(), entry.type, entry.typeIndex, entry.controlSector, entry.width, entry.height, entry.pixelsOffset);
 			errors++;
 			continue;
 		}
 
 		LightmapTile* tile = it->second;
+		if (!foundTiles.insert(tile).second)
+		{
+			if (errors < 100 && developer >= 1)
+				Printf("LoadLightmap: Duplicate retained lightmap binding found (type = %s = %d, index = %d, control sector = %d)\n", entry.GetTypeName(), entry.type, entry.typeIndex, entry.controlSector);
+			errors++;
+			continue;
+		}
 
-		tile->AtlasLocation.Width = entry.width;
-		tile->AtlasLocation.Height = entry.height;
-		tile->Transform.TranslateWorldToLocal = entry.translateWorldToLocal;
-		tile->Transform.ProjLocalToU = entry.projLocalToU;
-		tile->Transform.ProjLocalToV = entry.projLocalToV;
+		foundBindings.Push({ &entry, tile });
+	}
+
+	// Only fully admitted entries may replace transforms, extents or completion
+	// flags. Invalid retained state therefore falls back to the current tile's
+	// normal bake path instead of becoming plausible-but-wrong published state.
+	for (auto& binding : foundBindings)
+	{
+		const TileEntry* entry = binding.first;
+		LightmapTile* tile = binding.second;
+		tile->AtlasLocation.Width = entry->width;
+		tile->AtlasLocation.Height = entry->height;
+		tile->Transform.TranslateWorldToLocal = entry->translateWorldToLocal;
+		tile->Transform.ProjLocalToU = entry->projLocalToU;
+		tile->Transform.ProjLocalToV = entry->projLocalToV;
 		tile->NeedsInitialBake = false;
 		tile->GeometryUpdate = false;
 		tile->ReceivedNewLight = false;
-
-		foundBindings.Push({ &entry, tile });
 	}
 
 	if (errors > 0 && developer >= 1)

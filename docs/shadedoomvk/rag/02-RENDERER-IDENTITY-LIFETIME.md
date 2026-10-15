@@ -280,3 +280,16 @@ SDVK-005 introduces no new resource identity. Optional height is one trailing me
 SDVK-005's height layer introduces no independent lifetime domain. The accepted substantive tree `28f2ef41a99ea6979145030e807c7798c6e01735` passed the full PF contract oracle at PR head and again on exact merged master, including inherited PF-002/PF-003/SDVK-004 generation, stale-identity, rebuild, exhaustion and 3,072/4,096 deterministic descriptor-pressure controls. Height is retired with the owning material descriptor span; indexed/palette routes do not publish it. No global flush, persistent height slot or alternate generation scheme is accepted.
 
 See [SDVK-005 final acceptance](../SDVK-005-FINAL-ACCEPTANCE.md) and [release receipt](../SDVK-005-RELEASE-ACCEPTANCE.json).
+
+## SDVK-014 bounded tile retirement and newly exposed probe owner gap
+
+The [SDVK-014 CPU increment](../SDVK-014-CPU-INCREMENT.md) retires semantic/atlas
+state with the actual final tile reference and isolates pending RGB upload input
+from RGBA save readback. Consistency with a current packer item is not a durable
+recyclable-slot generation token. Existing PF-003, LevelMesh, texture/lightmap and
+probe epochs remain separate authorities and are not redesigned by this change.
+
+Upstream #150 reblocks cross-map probe lifecycle acceptance: equal probe counts
+do not establish equal map owners, and the retained global bake cursor can stop
+a new owner from being rebuilt. A nonzero descriptor or deterministic output is
+not evidence of current-owner publication. No historical PF evidence is altered.

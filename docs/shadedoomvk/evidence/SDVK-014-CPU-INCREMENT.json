@@ -1,0 +1,527 @@
+{
+  "schema": "sdvk014-cpu-increment/v1",
+  "audited_base": "04a3596115eb397d9e7237aa1ff3625ece1bc5b4",
+  "identity_note": "Hashes pin actual tested source bytes, including pre-commit changes; audited_base is not the tested publication head.",
+  "acceptance": {
+    "implemented_cpu_increment": "PASS",
+    "complete_software_campaign": "BLOCKED_NOT_ACCEPTED",
+    "cross_map_probe_lifecycle": "REBLOCKED_BY_150",
+    "native_campaign": "NOT_RUN",
+    "physical_performance": "HELD_NOT_ACCEPTED",
+    "physical_stop": "ACTIVE",
+    "historical_physical_root_cause": "UNDETERMINED"
+  },
+  "execution": {
+    "python": "3.13.5",
+    "platform": "linux",
+    "renderer_executed": false,
+    "vulkan_device_created": false,
+    "timing_classification": "descriptive CPU-fixture wall time only; no GPU cost/scaling/stability claim"
+  },
+  "counts": {
+    "positive_cases": 22,
+    "retained_intended_rejections": 15,
+    "current_blocked_counterexamples": 2,
+    "atlas_receipt_mutations": 4,
+    "live_region_mutations": 11
+  },
+  "source_sha256": {
+    "src/common/rendering/hwrenderer/data/hw_rectpacker.cpp": "90923109b21d650dc094c902e1c9ff1106a264cf4b8beeba542aa6cb8f17cbb8",
+    "src/common/rendering/hwrenderer/data/hw_rectpacker.h": "00152af6562efe4a5596c7d227a47b64a1a35596a0d633962da08ab57440a0c0",
+    "src/common/rendering/hwrenderer/data/hw_lightmaptile.h": "f29e54506ecc6107aa1653bd95ef1144664e2891b8911a1ca1739dbdd29546da",
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp": "b75e646b24a3b54302cd72a4b864fe6d97ec30e96eba0a63c61c2061171d72d5",
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.h": "08e43d7646b096b63ff3187ff1055cd52d2a77595a695e7d414adcfc2318a764",
+    "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp": "cb0ff3368425f73a1692f7c3e885ada4a95e94c7b7d94e409b5050c57487fa34",
+    "src/common/rendering/hwrenderer/data/hw_lightprobe.h": "1cf0b3584a7a2b5ff3bbc3c0e5c87c1853cf4bcdd9a944d6dbf10733a4766125",
+    "src/rendering/hwrenderer/doom_levelmesh.cpp": "2d9170076e89ee55fffeb0ba04c34b12fed72684bbce1a8c13beb7a355e0f736",
+    "src/rendering/hwrenderer/doom_lightprobes.cpp": "1678eb4be4a541f73bd81995010bde20fcf83c1c6f4126646d2dea2e0df1f54e",
+    "src/rendering/hwrenderer/scene/hw_drawinfo.cpp": "3617ad7c9ccd516f3ba18ced2102cf68e68abff7c5d0eabb6c1f22801ecfce7b",
+    "src/rendering/hwrenderer/hw_entrypoint.cpp": "f94c84390ef04927ac666d587c7f4d6fff1ab9dc01891294da26738bb55a7909",
+    "src/p_setup.cpp": "342c202d9f21c2c51d3057a163cc60f0decced4c206e335f6f62e75f88ce950d",
+    "src/common/rendering/vulkan/vk_renderdevice.cpp": "22e0d63ad3735d008692373312f5cfc0de5f891a9bb115e23982820b3a45ee4d",
+    "src/commandlets/lightmapcmd.cpp": "fe01338ceeee324c2e273322a60fb6514b67c19a47642687894f91e0fa9ba3c0",
+    "tools/pf_oracle/sdvk014_evidence.py": "8a3c541b555599e6352b866e34c780f754d6d51ca16abf0dc95911e0394947f4",
+    "tools/pf_oracle/tests/sdvk014_atlas_fixture.cpp": "0fa5ca30add3bfe97efa19d531f4206e042f5403802465036546479529ac8bc3",
+    "tools/pf_oracle/tests/sdvk014_probe_owner_fixture.cpp": "62ce6365bafc21c691ce9384f0ee7a3a9ea8c0c3f7457d3b596ec8e467043d20",
+    "tools/pf_oracle/tests/sdvk014_source.py": "f5038ce090e39ec16f3cc293e841b63d1196ca8b0d5e7bf8e90460d1aeb4ce7a",
+    "tools/pf_oracle/tests/sdvk014_tile_fixture.cpp": "237bd06661341d20a59b17f2250a7ace1cc7c9d7ebbdc3ffa422337781ce2288",
+    "tools/pf_oracle/tests/test_sdvk014_atlas_lifecycle.py": "b0b7c0f8a5eae61c3c6a5a22f662be3018b84fe83457ec16da867f085bc3dbeb",
+    "tools/pf_oracle/tests/test_sdvk014_probe_owner_boundary.py": "23ff536403c55e362bda40289223f8539df3cbcd8c8fc642b16dcb90154152d8",
+    "tools/pf_oracle/tests/test_sdvk014_tile_lifecycle.py": "518d7658d39c9d49440f6bc07621d2f6dc3476698d9d94f66af1b9d17e0035fa",
+    "tools/pf_oracle/tests/fixtures/sdvk014_lightmap_pre_fix.json": "6430908c7bb1de74b61be7285277e1dde9f5d0df06ed0963fa627ee39faa8bf2",
+    "tools/pf_oracle/tests/fixtures/sdvk014_rectpacker_pre_fix.cpp": "a13b66dcc575810c5f15b1d8283d47eb2b7165756470a192abc00ec86f131d4f",
+    "tools/pf_oracle/tests/fixtures/sdvk014_rectpacker_pre_fix.json": "00f208eb76e322025916ffbe7025c00d7691ff48b6b56f092c253474f7ad5c19"
+  },
+  "compile_timings": [
+    {
+      "family": "atlas",
+      "source": "current",
+      "compile_wall_ns": 716737511
+    },
+    {
+      "family": "atlas",
+      "source": "retained",
+      "compile_wall_ns": 616497516
+    },
+    {
+      "family": "tiles",
+      "source": "current",
+      "compile_wall_ns": 872710678
+    },
+    {
+      "family": "tiles",
+      "source": "retained",
+      "compile_wall_ns": 869272753
+    },
+    {
+      "family": "probes",
+      "source": "current",
+      "compile_wall_ns": 566663170
+    },
+    {
+      "family": "probes",
+      "source": "retained",
+      "compile_wall_ns": 566106540
+    }
+  ],
+  "cases": [
+    {
+      "family": "atlas",
+      "case": "full-height",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS full-height",
+      "stdout": "PASS full-height",
+      "stderr": "",
+      "wall_ns": 2483196
+    },
+    {
+      "family": "atlas",
+      "case": "padded-full-page",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS padded-full-page",
+      "stdout": "PASS padded-full-page",
+      "stderr": "",
+      "wall_ns": 1549808
+    },
+    {
+      "family": "atlas",
+      "case": "clear-rebuild",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS clear-rebuild",
+      "stdout": "PASS clear-rebuild",
+      "stderr": "",
+      "wall_ns": 1835119
+    },
+    {
+      "family": "atlas",
+      "case": "invalid-atomic",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS invalid-atomic",
+      "stdout": "PASS invalid-atomic",
+      "stderr": "",
+      "wall_ns": 1361084
+    },
+    {
+      "family": "atlas",
+      "case": "invalid-boundaries",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS invalid-boundaries",
+      "stdout": "PASS invalid-boundaries",
+      "stderr": "",
+      "wall_ns": 1256135
+    },
+    {
+      "family": "atlas",
+      "case": "oracle-negatives",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS oracle-negatives",
+      "stdout": "PASS oracle-negatives",
+      "stderr": "",
+      "wall_ns": 1218188
+    },
+    {
+      "family": "atlas",
+      "case": "bounded-stress",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS bounded-stress",
+      "stdout": "cycles=128 allocations=12288 pages_high_water=5 item_objects_high_water=94 final_pages=0\nPASS bounded-stress",
+      "stderr": "",
+      "wall_ns": 272538634
+    },
+    {
+      "family": "atlas",
+      "case": "full-height",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 10,
+      "intended_reason": "Tile too large",
+      "stdout": "",
+      "stderr": "PRODUCTION_REJECT Tile too large for RectPacker!",
+      "wall_ns": 3775412
+    },
+    {
+      "family": "atlas",
+      "case": "padded-full-page",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 10,
+      "intended_reason": "Tile too large",
+      "stdout": "",
+      "stderr": "PRODUCTION_REJECT Tile too large for RectPacker!",
+      "wall_ns": 3837006
+    },
+    {
+      "family": "atlas",
+      "case": "clear-rebuild",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 10,
+      "intended_reason": "RectPacker items are corrupted",
+      "stdout": "",
+      "stderr": "PRODUCTION_REJECT RectPacker items are corrupted",
+      "wall_ns": 2743671
+    },
+    {
+      "family": "atlas",
+      "case": "invalid-atomic",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "invalid-allocation-mutated-owner",
+      "stdout": "",
+      "stderr": "ORACLE_REJECT invalid-allocation-mutated-owner",
+      "wall_ns": 1807869
+    },
+    {
+      "family": "tiles",
+      "case": "shared-retirement",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS shared-retirement",
+      "stdout": "PASS shared-retirement",
+      "stderr": "",
+      "wall_ns": 1982121
+    },
+    {
+      "family": "tiles",
+      "case": "background",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS background",
+      "stdout": "PASS background",
+      "stderr": "",
+      "wall_ns": 2110084
+    },
+    {
+      "family": "tiles",
+      "case": "stats",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS stats",
+      "stdout": "PASS stats",
+      "stderr": "",
+      "wall_ns": 1797051
+    },
+    {
+      "family": "tiles",
+      "case": "save-bindings",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS save-bindings",
+      "stdout": "PASS save-bindings",
+      "stderr": "",
+      "wall_ns": 1442136
+    },
+    {
+      "family": "tiles",
+      "case": "readback-isolation",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS readback-isolation",
+      "stdout": "PASS readback-isolation",
+      "stderr": "",
+      "wall_ns": 1890543
+    },
+    {
+      "family": "tiles",
+      "case": "upload-consumption",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS upload-consumption",
+      "stdout": "PASS upload-consumption",
+      "stderr": "",
+      "wall_ns": 1619354
+    },
+    {
+      "family": "tiles",
+      "case": "failed-upload-retained",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS failed-upload-retained",
+      "stdout": "PASS failed-upload-retained",
+      "stderr": "",
+      "wall_ns": 1646530
+    },
+    {
+      "family": "tiles",
+      "case": "invalid-owner",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS invalid-owner",
+      "stdout": "PASS invalid-owner",
+      "stderr": "",
+      "wall_ns": 1441991
+    },
+    {
+      "family": "tiles",
+      "case": "live-free",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS live-free",
+      "stdout": "PASS live-free",
+      "stderr": "",
+      "wall_ns": 1235555
+    },
+    {
+      "family": "tiles",
+      "case": "region-negatives",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS region-negatives",
+      "stdout": "PASS region-negatives",
+      "stderr": "",
+      "wall_ns": 5032605
+    },
+    {
+      "family": "tiles",
+      "case": "bounded-retirement",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS bounded-retirement",
+      "stdout": "COUNTERS cycles=128 allocations=256 retirements=256 tile_slots=2 free_slots=2 pages=1 mutations=512\nPASS bounded-retirement",
+      "stderr": "",
+      "wall_ns": 1887759
+    },
+    {
+      "family": "tiles",
+      "case": "shared-retirement",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "retired-tile-still-publishable",
+      "stdout": "",
+      "stderr": "ORACLE retired-tile-still-publishable",
+      "wall_ns": 2265629
+    },
+    {
+      "family": "tiles",
+      "case": "background",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "retired-background-binding",
+      "stdout": "",
+      "stderr": "ORACLE retired-background-binding",
+      "wall_ns": 1595628
+    },
+    {
+      "family": "tiles",
+      "case": "stats",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "retired-statistics",
+      "stdout": "",
+      "stderr": "ORACLE retired-statistics",
+      "wall_ns": 1620025
+    },
+    {
+      "family": "tiles",
+      "case": "save-bindings",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "ghost-binding-serialized",
+      "stdout": "",
+      "stderr": "ORACLE ghost-binding-serialized",
+      "wall_ns": 1938295
+    },
+    {
+      "family": "tiles",
+      "case": "readback-isolation",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "readback-overwrote-upload-shape",
+      "stdout": "",
+      "stderr": "ORACLE readback-overwrote-upload-shape",
+      "wall_ns": 1645252
+    },
+    {
+      "family": "tiles",
+      "case": "upload-consumption",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "successful-upload-not-consumed",
+      "stdout": "",
+      "stderr": "ORACLE successful-upload-not-consumed",
+      "wall_ns": 1411069
+    },
+    {
+      "family": "tiles",
+      "case": "invalid-owner",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "invalid-owner-reached-readback",
+      "stdout": "",
+      "stderr": "ORACLE invalid-owner-reached-readback",
+      "wall_ns": 1282976
+    },
+    {
+      "family": "tiles",
+      "case": "live-free",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "live-tile-retired",
+      "stdout": "",
+      "stderr": "ORACLE live-tile-retired",
+      "wall_ns": 1323777
+    },
+    {
+      "family": "tiles",
+      "case": "bounded-retirement",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "retired-stress-update",
+      "stdout": "",
+      "stderr": "ORACLE retired-stress-update",
+      "wall_ns": 1293492
+    },
+    {
+      "family": "probes",
+      "case": "same-owner-terminal",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS same-owner-terminal",
+      "stdout": "PASS same-owner-terminal",
+      "stderr": "",
+      "wall_ns": 1861900
+    },
+    {
+      "family": "probes",
+      "case": "count-change",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS count-change",
+      "stdout": "PASS count-change",
+      "stderr": "",
+      "wall_ns": 2047159
+    },
+    {
+      "family": "probes",
+      "case": "direct-empty-step",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS direct-empty-step",
+      "stdout": "PASS direct-empty-step",
+      "stderr": "",
+      "wall_ns": 1308144
+    },
+    {
+      "family": "probes",
+      "case": "fresh-owner-control",
+      "source": "current",
+      "disposition": "PASS",
+      "returncode": 0,
+      "intended_reason": "PASS fresh-owner-control",
+      "stdout": "PASS fresh-owner-control",
+      "stderr": "",
+      "wall_ns": 1308720
+    },
+    {
+      "family": "probes",
+      "case": "same-count",
+      "source": "current",
+      "disposition": "BLOCKED_NOT_ACCEPTED",
+      "returncode": 11,
+      "intended_reason": "new-owner-not-rebuilt",
+      "stdout": "COUNTERS old_owner_captures=10 new_owner_captures=0 reset_delta=0 pass_delta=0",
+      "stderr": "BLOCKED new-owner-not-rebuilt",
+      "wall_ns": 1722395
+    },
+    {
+      "family": "probes",
+      "case": "same-count-via-empty",
+      "source": "current",
+      "disposition": "BLOCKED_NOT_ACCEPTED",
+      "returncode": 11,
+      "intended_reason": "new-owner-not-rebuilt",
+      "stdout": "COUNTERS old_owner_captures=10 new_owner_captures=0 reset_delta=0 pass_delta=0",
+      "stderr": "BLOCKED new-owner-not-rebuilt",
+      "wall_ns": 1409998
+    },
+    {
+      "family": "probes",
+      "case": "same-count",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "new-owner-not-rebuilt",
+      "stdout": "COUNTERS old_owner_captures=10 new_owner_captures=0 reset_delta=0 pass_delta=0",
+      "stderr": "BLOCKED new-owner-not-rebuilt",
+      "wall_ns": 1927624
+    },
+    {
+      "family": "probes",
+      "case": "same-count-via-empty",
+      "source": "retained",
+      "disposition": "EXPECTED_REJECTION",
+      "returncode": 11,
+      "intended_reason": "new-owner-not-rebuilt",
+      "stdout": "COUNTERS old_owner_captures=10 new_owner_captures=0 reset_delta=0 pass_delta=0",
+      "stderr": "BLOCKED new-owner-not-rebuilt",
+      "wall_ns": 4463080
+    }
+  ],
+  "not_qualified": [
+    "native atlas/probe pixels and descriptors",
+    "durable rectangle/slot generation safety",
+    "malformed retained LIGHTMAP loader",
+    "all dynamic update freshness transitions",
+    "cross-map probe publication",
+    "special-surface/portal/material lifecycle matrix",
+    "physical GPU bake/update cost, scaling or stability"
+  ]
+}

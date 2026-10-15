@@ -4,11 +4,10 @@
 #include "tarray.h"
 #include "vectors.h"
 #include "bounds.h"
+#include "hw_rectpacker.h"
 
 #define LIGHTMAP_GLOBAL_SAMPLE_DISTANCE_MIN (int)4
 #define LIGHTMAP_GLOBAL_SAMPLE_DISTANCE_MAX (int)64
-
-class RectPackerItem;
 
 struct LevelMeshSurface;
 
@@ -35,7 +34,7 @@ struct LightmapTile
 		int Y = 0;
 		int Width = 0;
 		int Height = 0;
-		int ArrayIndex = 0;
+		int ArrayIndex = -1;
 		RectPackerItem* Item = nullptr;
 		uint32_t Area() const { return Width * Height; }
 	} AtlasLocation;
@@ -79,6 +78,25 @@ struct LightmapTile
 
 	// Used to track if tile has already been added to the VisibleTiles list for this scene
 	int LastSeen = 0;
+
+	// Pool slots survive release. A plausible rectangle is not a live owner.
+	bool HasLiveAtlasAllocation() const
+	{
+		return UseCount > 0 && AtlasLocation.Item && AtlasLocation.ArrayIndex >= 0;
+	}
+
+	bool HasValidAtlasRegion(int textureSize, int pageCount) const
+	{
+		return HasLiveAtlasAllocation() && AtlasLocation.ArrayIndex < pageCount &&
+			AtlasLocation.ArrayIndex == AtlasLocation.Item->PageIndex &&
+			AtlasLocation.X == AtlasLocation.Item->X && AtlasLocation.Y == AtlasLocation.Item->Y &&
+			AtlasLocation.Width == AtlasLocation.Item->Width && AtlasLocation.Height == AtlasLocation.Item->Height &&
+			AtlasLocation.X >= 0 && AtlasLocation.Y >= 0 &&
+			AtlasLocation.Width > 0 && AtlasLocation.Height > 0 &&
+			AtlasLocation.Width <= textureSize && AtlasLocation.Height <= textureSize &&
+			AtlasLocation.X <= textureSize - AtlasLocation.Width &&
+			AtlasLocation.Y <= textureSize - AtlasLocation.Height;
+	}
 
 	/*FVector2 ToUV(const FVector3& vert) const
 	{

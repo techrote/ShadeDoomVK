@@ -1,0 +1,8 @@
+{
+  "schema": "sdvk014-retained-source/v1",
+  "baseline_commit": "04a3596115eb397d9e7237aa1ff3625ece1bc5b4",
+  "source_path": "src/common/rendering/hwrenderer/data/hw_rectpacker.cpp",
+  "git_blob": "ad957203ff31bc7a4a586c2e94a2f997fbce68c0",
+  "sha256": "a13b66dcc575810c5f15b1d8283d47eb2b7165756470a192abc00ec86f131d4f",
+  "scope": "Unmodified pre-fix production CPU atlas implementation. No Vulkan device or renderer execution."
+}

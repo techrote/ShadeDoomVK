@@ -176,3 +176,52 @@ sunlight pair requires the same nonzero runtime base and adjacent prefilter allo
 the portal pair requires distinct live pairs for distinct authored targets. Authored zero remains
 valid and absent/unpublished probes remain runtime zero. Bounded software correctness does not
 accept broad bake convergence or physical cost. [Integration contract](../SDVK-010-INTEGRATION-ACCEPTANCE.md).
+
+## SDVK-014 candidate: upload input, readback and cross-map blocker
+
+See the [first CPU increment](../SDVK-014-CPU-INCREMENT.md) and
+[production path audit](../SDVK-014-PRODUCTION-AUDIT.md). Pending
+`LevelMesh::Lightmap.TextureData` is RGB16 upload input; successful CreateLightmap
+consumes it explicitly after synchronous copy into the owner's staging buffer.
+Save uses separate checked RGBA16 scratch and only live, allocation-consistent
+tile bindings. Retired pool slots cannot schedule background bakes or serialize
+old bindings using another tile's reused rectangle. Source/CPU fixtures qualify
+these bounded paths, not native pixels, all generations or full campaign behavior.
+
+**Cross-map probe reset/rebake/publication is REBLOCKED by #150.** The global
+incremental builder remembers count/progress, not the level owner. Same-count
+A→B and A→empty→B both produce zero B capture/reset/pass callbacks after A finishes
+five passes. The actual entry guard skips Step's empty-reset path. No compensating
+refresh or new probe policy is added here. PF-012 authored/runtime identity and
+PF-113 typed-zero/pair contracts remain unchanged; their historical bounded
+acceptance does not cover this newly demonstrated transition. Physical STOP is
+ACTIVE, physical performance HELD, historical physical root cause UNDETERMINED.
+
+
+## SDVK-014 retained lifecycle hardening candidate
+
+The SDVK-014 branch strengthens existing ownership without redefining probe or
+material semantics:
+
+- retained LIGHTMAP bindings/pixel spans/transforms are validated completely before
+  current live tiles are mutated; malformed/duplicate entries remain dirty for the
+  ordinary bake path;
+- lightmapper tile selection is not completion: dirty flags survive until an
+  actually rendered tile has been copied into the active atlas and the destination
+  has been republished shader-readable;
+- newly expanded lightmap and R16_UINT probe-map pages are initialized to typed zero
+  fallback contents before publication, so unwritten regions cannot expose undefined
+  allocation contents.
+
+These are lifecycle/publication invariants, not new light selection, sampler,
+material, portal or probe-selection policy. Cross-map probe builder owner identity
+remains separately blocked by #150.
+
+
+### 3D-floor side ownership
+
+A 3D-floor wall's control sector is part of its semantic lightmap identity.
+`BuildFFBlock` publishes the model control sector, `CreateWallSurface` retains
+it, `AddSurfaceToTile` keys the tile with it, and `GetVisibleSurfaces` must
+match it when gathering side bake geometry. Matching only side/type can
+deterministically mix geometry from distinct 3D floors on the same side.

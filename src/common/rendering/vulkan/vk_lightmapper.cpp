@@ -164,9 +164,6 @@ void VkLightmapper::SelectTiles(const TArray<LightmapTile*>& tiles)
 			bakeImage.maxX = std::max<uint16_t>(bakeImage.maxX, uint16_t(result->X + tile->AtlasLocation.Width));
 			bakeImage.maxY = std::max<uint16_t>(bakeImage.maxY, uint16_t(result->Y + tile->AtlasLocation.Height));
 
-			tile->ReceivedNewLight = false;
-			tile->NeedsInitialBake = false;
-			tile->GeometryUpdate = false;
 		}
 	}
 
@@ -563,6 +560,18 @@ void VkLightmapper::CopyResult()
 		}
 	}
 	barrier1.Execute(cmdbuffer, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT);
+
+	// Selection is not completion. Retire dirty state only after the tile's
+	// current atlas copy has been recorded and published for shader sampling.
+	// Any unrendered/overflowed tile remains dirty and will be selected again.
+	for (auto& selected : selectedTiles)
+	{
+		if (!selected.Rendered)
+			continue;
+		selected.Tile->ReceivedNewLight = false;
+		selected.Tile->NeedsInitialBake = false;
+		selected.Tile->GeometryUpdate = false;
+	}
 
 	fb->GetCommands()->PopGroup(cmdbuffer);
 }

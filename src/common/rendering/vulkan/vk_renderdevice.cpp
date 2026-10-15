@@ -692,7 +692,10 @@ void VulkanRenderDevice::BeginFrame()
 	{
 		levelMeshChanged = false;
 		mLevelMesh->SetLevelMesh(levelMesh);
-		GetTextureManager()->CreateLightmap(levelMesh->Lightmap.TextureSize, levelMesh->Lightmap.TextureCount, std::move(levelMesh->Lightmap.TextureData));
+		GetTextureManager()->CreateLightmap(levelMesh->Lightmap.TextureSize, levelMesh->Lightmap.TextureCount, levelMesh->Lightmap.TextureData);
+		// CreateLightmap takes a const reference. Consume successful initial upload
+		// input explicitly; a later refresh/repack must not replay old atlas pixels.
+		levelMesh->Lightmap.TextureData.Clear();
 		GetLightmapper()->SetLevelMesh(levelMesh);
 	}
 

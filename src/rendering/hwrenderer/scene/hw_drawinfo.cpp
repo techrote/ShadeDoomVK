@@ -786,7 +786,7 @@ void HWDrawInfo::UpdateLightmaps()
 				// Look for more background updates
 				for (auto& e : level.levelMesh->Lightmap.Tiles)
 				{
-					if (e.NeedsInitialBake && e.LastSeen != TileSeenCounter)
+					if (e.HasLiveAtlasAllocation() && e.NeedsInitialBake && e.LastSeen != TileSeenCounter)
 					{
 						VisibleTiles.Result.Push(&e);
 						if (VisibleTiles.Result.size() >= max_updates)

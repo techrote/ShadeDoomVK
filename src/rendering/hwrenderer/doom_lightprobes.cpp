@@ -31,7 +31,8 @@ static void InvalidateLightmapProbeSelection()
 		return;
 
 	for (auto& tile : level.levelMesh->Lightmap.Tiles)
-		tile.ReceivedNewLight = true;
+		if (tile.UseCount > 0)
+			tile.ReceivedNewLight = true;
 	level.levelMesh->MarkMutation(LevelMeshMutationDomain::LightmapProbe);
 }
 

@@ -19,6 +19,7 @@
 #include "hwrenderer/scene/hw_flatdispatcher.h"
 #include "doom_aabbtree.h"
 #include <chrono>
+#include <limits>
 #include <unordered_map>
 
 #include "vm.h"
@@ -82,6 +83,8 @@ static void UpdateLightmapTiles()
 {
 	for (auto& tile : level.levelMesh->Lightmap.Tiles)
 	{
+		if (tile.UseCount <= 0)
+			continue;
 		if (!tile.NeedsInitialBake)
 			tile.ReceivedNewLight = true;
 	}
@@ -93,6 +96,8 @@ static int InvalidateLightmap()
 
 	for (auto& tile : level.levelMesh->Lightmap.Tiles)
 	{
+		if (tile.UseCount <= 0)
+			continue;
 		if (!tile.NeedsInitialBake)
 			++count;
 		tile.NeedsInitialBake = true;
@@ -2219,7 +2224,8 @@ void DoomLevelMesh::GetVisibleSurfaces(LightmapTile* tile, TArray<int>& outSurfa
 			while (surf != -1)
 			{
 				const auto& sinfo = DoomSurfaceInfos[surf];
-				if (sinfo.Type == tile->Binding.Type)
+				uint32_t controlSector = sinfo.ControlSector ? (uint32_t)sinfo.ControlSector->Index() : (uint32_t)0xffffffffUL;
+				if (sinfo.Type == tile->Binding.Type && controlSector == tile->Binding.ControlSector)
 				{
 					outSurfaces.Push(surf);
 				}
@@ -2714,20 +2720,36 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	};
 	*/
 
-	Lightmap.TextureData.Resize(Lightmap.TextureSize * Lightmap.TextureSize * Lightmap.TextureCount * 4);
+	// Validate live ownership before readback or serialization. Retired pool slots
+	// must not export a former binding with pixels now owned by another tile.
+	for (const auto& tile : Lightmap.Tiles)
+	{
+		if (tile.UseCount > 0 && !tile.HasValidAtlasRegion(Lightmap.TextureSize, Lightmap.TextureCount))
+			I_FatalError("Cannot save a live lightmap tile without a valid atlas region");
+	}
+	if (Lightmap.TextureSize <= 0 || Lightmap.TextureCount < 0)
+		I_FatalError("Invalid lightmap readback dimensions");
+	const uint64_t elementsPerPage = uint64_t(Lightmap.TextureSize) * Lightmap.TextureSize * 4;
+	const uint64_t maxElements = std::numeric_limits<unsigned int>::max();
+	if (elementsPerPage > maxElements || uint64_t(Lightmap.TextureCount) > maxElements / elementsPerPage)
+		I_FatalError("Lightmap readback exceeds the CPU array size limit");
+
+	// TextureData is pending RGB upload input, not RGBA readback scratch storage.
+	TArray<uint16_t> readback;
+	readback.Resize(static_cast<unsigned int>(elementsPerPage * Lightmap.TextureCount));
 	for (int arrayIndex = 0; arrayIndex < Lightmap.TextureCount; arrayIndex++)
 	{
-		screen->DownloadLightmap(arrayIndex, Lightmap.TextureData.Data() + arrayIndex * Lightmap.TextureSize * Lightmap.TextureSize * 4);
+		screen->DownloadLightmap(arrayIndex, readback.Data() + uint64_t(arrayIndex) * elementsPerPage);
 	}
 
 	// Calculate size of lump
 	uint32_t tileCount = 0;
-	uint32_t pixelCount = 0;
+	uint64_t pixelCount = 0;
 
 	for (unsigned int i = 0; i < Lightmap.Tiles.Size(); i++)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
-		if (tile->AtlasLocation.ArrayIndex != -1 && tile->AtlasLocation.ArrayIndex < Lightmap.TextureCount)
+		if (tile->HasLiveAtlasAllocation())
 		{
 			tileCount++;
 			pixelCount += tile->AtlasLocation.Area();
@@ -2740,14 +2762,16 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	const uint32_t bytesPerTileEntry = sizeof(uint32_t) * 4 + sizeof(uint16_t) * 2 + sizeof(float) * 9;
 	const uint32_t bytesPerPixel = sizeof(uint16_t) * 3; // F16 RGB
 
-	uint32_t lumpSize = headerSize + tileCount * bytesPerTileEntry + pixelCount * bytesPerPixel;
+	uint64_t lumpSize = headerSize + uint64_t(tileCount) * bytesPerTileEntry + pixelCount * bytesPerPixel;
+	if (lumpSize > std::numeric_limits<unsigned int>::max())
+		I_FatalError("LIGHTMAP lump exceeds the CPU array size limit");
 
-	LumpWriter lumpFile(lumpSize);
+	LumpWriter lumpFile(static_cast<size_t>(lumpSize));
 
 	// Write header
 	lumpFile.Write32(version);
 	lumpFile.Write32(tileCount);
-	lumpFile.Write32(pixelCount);
+	lumpFile.Write32(static_cast<uint32_t>(pixelCount));
 
 	// Write tiles
 	uint32_t pixelsOffset = 0;
@@ -2756,7 +2780,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
 
-		if (tile->AtlasLocation.ArrayIndex == -1 || tile->AtlasLocation.ArrayIndex >= Lightmap.TextureCount)
+		if (!tile->HasLiveAtlasAllocation())
 			continue;
 
 		lumpFile.Write32(tile->Binding.Type);
@@ -2788,15 +2812,15 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
 
-		if (tile->AtlasLocation.ArrayIndex == -1 || tile->AtlasLocation.ArrayIndex >= Lightmap.TextureCount)
+		if (!tile->HasLiveAtlasAllocation())
 			continue;
 
-		const uint16_t* pixels = Lightmap.TextureData.Data() + tile->AtlasLocation.ArrayIndex * Lightmap.TextureSize * Lightmap.TextureSize * 4;
+		const uint16_t* pixels = readback.Data() + uint64_t(tile->AtlasLocation.ArrayIndex) * elementsPerPage;
 		int width = tile->AtlasLocation.Width;
 		int height = tile->AtlasLocation.Height;
 		for (int y = 0; y < height; y++)
 		{
-			const uint16_t* srcline = pixels + (tile->AtlasLocation.X + (tile->AtlasLocation.Y + y) * Lightmap.TextureSize) * 4;
+			const uint16_t* srcline = pixels + (uint64_t(tile->AtlasLocation.X) + (uint64_t(tile->AtlasLocation.Y) + y) * Lightmap.TextureSize) * 4;
 			for (int x = 0; x < width; x++)
 			{
 				lumpFile.Write16(*(srcline++));

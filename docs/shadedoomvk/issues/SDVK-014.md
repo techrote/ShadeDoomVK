@@ -2,10 +2,23 @@
 
 ## Current entry status — 14 October 2026
 
-**Dependency-ready for software implementation; not yet implemented/accepted.**
-Consume **SDVK-009-SW** and the SDVK-010 acceptance merged by PR #148. Physical
-STOP remains active; physical GPU performance/stability and the historical fault
-are not qualified. See the [governing gate decision](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md).
+**Implementation in progress; software campaign NOT ACCEPTED.** A bounded atlas,
+tile-retirement and upload/readback increment has passed its focused CPU fixtures.
+Cross-map probe reset/rebake/publication is **REBLOCKED by issue #150**, which
+reproduces same-count new-owner starvation in the global incremental builder.
+See the [increment report](../SDVK-014-CPU-INCREMENT.md),
+[production audit/matrix](../SDVK-014-PRODUCTION-AUDIT.md) and
+[actual CPU receipt](../evidence/SDVK-014-CPU-INCREMENT.json).
+
+The accepted SDVK-002 / SDVK-005 / SDVK-009-SW / SDVK-010 prerequisites remain
+historical authority; a newly demonstrated foundational error blocks its affected
+consumer scope. No compensating probe/viewmodel policy is added. Required source,
+normal CI, native campaign evidence, review and verified merge remain explicit.
+
+**Not software-complete. Issue #14 remains OPEN. Physical STOP remains ACTIVE.**
+Required physical GPU bake/update cost, scaling and stability remain HELD / NOT
+ACCEPTED and historical physical root cause remains UNDETERMINED. See the
+[governing gate decision](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md).
 
 ## Objective
 Stress and harden the integrated lightmapper/dynamic-lightmap/probe system after PF-012 establishes correct/basic probe plumbing and SDVK material/many-light/actor-environment semantics are in place.
@@ -65,3 +78,35 @@ A foundational lighting/probe/lifetime regression reblocks the affected scope up
 
 #11 and #14 may proceed in parallel on coordinated separate branches. Use normal
 required CI as the runner benchmark; no duplicate runner or benchmark-only repeat.
+
+
+## Implementation continuation — retained lifecycle hardening
+
+Branch `sdvk014-lightmapper-probe-robustness` now also fail-closes malformed retained
+LIGHTMAP admission before tile mutation, defers dynamic-tile completion until actual
+copy/publication, and zero-initializes newly expanded light/probe atlas pages before
+shader-readable publication. Focused CPU/source negative controls are carried in
+`test_sdvk014_retained_lifecycle.py`.
+
+This advances unblocked software scope only. Cross-map probe reset/rebake/publication
+remains reblocked by #150. Durable stale-identity review, native repeated transitions,
+special-surface/material lifecycle coverage, exact-head CI/review/merge and exact-master
+verification remain outstanding. The issue is not software-complete. Physical bake/update
+cost, scaling and stability remain HELD / NOT ACCEPTED under active Physical STOP.
+
+
+The retained-lifecycle continuation also corrects 3D-floor/control-sector
+admission: serialized `ControlSector` is a sector ordinal and is now bounded
+against the sector table, with a deliberate namespace-mutation negative control.
+
+
+Full atlas replacement now also initializes active resources fail-closed:
+`CreateLightmap` clears every new probe page to runtime no-probe zero and clears
+new light pages when no retained RGB payload exists before shader-readable
+publication.
+
+
+Special-surface hardening now also preserves 3D-floor control-sector identity
+during side lightmap baking. Same-side/same-type surfaces from different 3D-floor
+control sectors can no longer enter one another's bake visibility set; producer,
+tile-binding and consumer boundaries are covered by deliberate alias negatives.
