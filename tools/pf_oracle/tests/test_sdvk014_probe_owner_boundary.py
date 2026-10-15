@@ -82,6 +82,23 @@ class ProbeOwnerBoundaryTests(unittest.TestCase):
             entry,
         )
 
+    def test_revision_producers_cover_teardown_and_runtime_add(self):
+        setup=(ROOT/'src/p_setup.cpp').read_text()
+        clear_marker='\tMarkLightProbeSetChanged();\n\tlightProbes.Clear();'
+        self.assertEqual(setup.count(clear_marker),1)
+
+        runtime=(ROOT/'src/rendering/hwrenderer/doom_lightprobes.cpp').read_text()
+        push='\tlevel.lightProbes.Push(probe);'
+        advance='\tlevel.MarkLightProbeSetChanged();'
+        self.assertEqual(runtime.count(push),1)
+        self.assertEqual(runtime.count(advance),1)
+        self.assertLess(runtime.index(push),runtime.index(advance))
+
+        level_header=(ROOT/'src/g_levellocals.h').read_text()
+        self.assertIn('uint64_t LightProbeSetRevision = 1;',level_header)
+        self.assertIn('uint64_t GetLightProbeSetRevision() const',level_header)
+        self.assertIn('void MarkLightProbeSetChanged()',level_header)
+
     def test_retained_header_is_exactly_pinned(self):
         retained=json.loads(OLD.read_text())['functions']['probe_header']
         raw=retained['content'].encode()
