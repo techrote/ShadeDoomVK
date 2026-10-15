@@ -385,12 +385,18 @@ struct ScreenService
     void EndLightProbePass() { ++publications; prober->EndLightProbePass(); }
 };
 static ScreenService* screen = nullptr;
+namespace SdvkDiagnostics
+{
+    static void ProbeBuilderLifecycle(const char*, uint64_t, int, int, int, int) { }
+}
 struct LightProbe { int index = 0; };
 class LightProbeIncrementalBuilder
 {
 public:
     int lastIndex = 0, collected = 0, cubemapsAllocated = 0, iterations = 0;
-    void Step(const TArray<LightProbe>& probes, std::function<void(int, const LightProbe&)> renderScene);
+    uint64_t ownerRevision = 0;
+    void Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision,
+        std::function<void(int, const LightProbe&)> renderScene);
 };
 struct HelperEvent { bool prefiltered; uint base; };
 static std::vector<HelperEvent> HelperEvents;
@@ -557,11 +563,11 @@ static void ExerciseCurrent()
         prober.irradianceMap.probes.push_back(ProducedProbe({ float(index + 1), 0, 0 }));
         prober.prefilterMap.probes.push_back(ProducedProbe({ 0, float(index + 1), 0 }, 5));
     };
-    builder.Step(authored, render);
+    builder.Step(authored, 17, render);
     Check(renders == 0 && service.publications == 0 && manager.LightProbeEpoch.invalidations == 1, "Initial count reset precedes all renders/publication");
-    builder.Step(authored, render);
+    builder.Step(authored, 17, render);
     Check(renders == 1 && service.publications == 0 && manager.Irradiancemaps.size() == 1, "First probe draw sees target one unavailable");
-    builder.Step(authored, render);
+    builder.Step(authored, 17, render);
     Check(renders == 2 && service.publications == 1 && manager.Irradiancemaps.size() == 2 && manager.Prefiltermaps.size() == 2,
         "Completed original pass grows sampled maps only after both probe draws");
     const int authoredOne = descriptors.GetLightProbeTextureIndex(1);
