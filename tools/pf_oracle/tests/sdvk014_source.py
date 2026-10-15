@@ -45,7 +45,7 @@ FUNCTIONS = {
     'invalidate': ('doom', 'static int InvalidateLightmap()\n'),
     'update': ('draw', 'void HWDrawInfo::UpdateLightmaps('),
     'frame': ('device', 'void VulkanRenderDevice::BeginFrame('),
-    'probe_step': ('probe', 'void LightProbeIncrementalBuilder::Step('),
+    'probe_step': ('probe', 'LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step('),
     'probe_full': ('probe', 'void LightProbeIncrementalBuilder::Full('),
     'lightmap_span': ('maploader', 'static bool IsValidLightmapPixelSpan('),
     'load_lightmap': ('maploader', 'bool MapLoader::LoadLightmap('),
