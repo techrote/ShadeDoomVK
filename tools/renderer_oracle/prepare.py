@@ -27,11 +27,12 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
-              "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes", "sprite_mirror", "sprite_relief"}
+              "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
+              "probe_owner_transition", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
-CHANNELS = {"context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief"}
+CHANNELS = {"context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief"}
 
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle import prepare_freeze_view_fixture as pf_view
@@ -144,6 +145,29 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             raise ValueError(f"Catalog {name} may not manufacture native qualification")
         if native.get("generator") not in GENERATORS:
             raise ValueError(f"Unknown generator for {name}")
+        if native.get("generator") == "probe_owner_transition":
+            transition = native.get("probe_owner_transition", {})
+            owners = transition.get("owners")
+            if (transition.get("initial_map") == transition.get("final_map")
+                    or transition.get("final_map") != native.get("map")
+                    or type(transition.get("wait_tics")) is not int
+                    or not 1 <= transition["wait_tics"] <= 3500
+                    or not isinstance(owners, list) or len(owners) != 2):
+                raise ValueError("Probe-owner transition needs two bounded distinct map owners")
+            for owner in owners:
+                if (not isinstance(owner, dict)
+                        or not re.fullmatch(r"[A-Z0-9_]{1,8}", owner.get("map", ""))
+                        or not isinstance(owner.get("probes"), list)
+                        or len(owner["probes"]) != 2
+                        or any(not isinstance(pos, list) or len(pos) != 3
+                               or any(type(value) not in (int, float) or not math.isfinite(value)
+                                      for value in pos)
+                               for pos in owner["probes"])):
+                    raise ValueError("Probe-owner transition owner/probe recipe is malformed")
+            if [owner["map"] for owner in owners] != [transition["initial_map"], transition["final_map"]]:
+                raise ValueError("Probe-owner transition owners must match initial/final map order")
+            if native.get("probe_owner_trace") is not True or "probe-builder" not in scene.get("required_state_channels", []):
+                raise ValueError("Probe-owner transition must require the state-only lifecycle trace")
         if native.get("generator") == "sprite_relief":
             from tools.renderer_oracle.sdvk008_fixtures import FAMILIES, validate_camera, validate_material_assertions, validate_bootstrap, validate_direction_witness
             if native.get("relief_family") not in FAMILIES:
@@ -610,12 +634,78 @@ def _light_positions(count: int, layout: str = "legacy") -> list[tuple[int, int]
     raise ValueError("Unsupported authored light count")
 
 
+def _probe_owner_transition_members(scene: dict) -> tuple[dict[str, bytes], dict]:
+    native = scene["native"]
+    transition = native["probe_owner_transition"]
+    members = _base_members()
+    _material_layers(members)
+    members["GLDEFS"] = (
+        _pbr("SDVW") + _pbr("SDVFL", "flat") + _pbr("SDVOA0", kind="sprite")
+    ).encode()
+
+    camera = native["camera"]["position"]
+    yaw = math.radians(native["camera"]["yaw"])
+    player_start = [
+        camera[0] - round(48 * math.cos(yaw)),
+        camera[1] - round(48 * math.sin(yaw)),
+    ]
+    maps = []
+    for owner_index, owner in enumerate(transition["owners"]):
+        model = _Map(floor=32, ceiling=160, sky=False)
+        model.thing(1, player_start[0], player_start[1], tid=2001)
+        model.thing(32200, camera[0], camera[1], camera[2] - 32, tid=2002)
+        model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
+        for probe in owner["probes"]:
+            model.thing(9892, probe[0], probe[1], probe[2])
+        # Keep the final actor/probe consumer path live without changing probe policy.
+        model.thing(9800, 0, 0, 64, tid=3000, arg0=160, arg1=160, arg2=160, arg3=96)
+        marker_positions = owner["markers"]
+        for marker_index, marker in enumerate(marker_positions):
+            model.thing(32203, marker[0], marker[1], marker[2], tid=5200 + marker_index)
+        map_name = owner["map"]
+        textmap = model.text().encode()
+        members[f"maps/{map_name}.wad"] = pf_indexed.wad(
+            [(map_name, b""), ("TEXTMAP", textmap), ("ENDMAP", b"")]
+        )
+        maps.append({
+            "map": map_name,
+            "owner_index": owner_index,
+            "probes": copy.deepcopy(owner["probes"]),
+            "markers": copy.deepcopy(marker_positions),
+            "counts": {kind: len(rows) for kind, rows in model.records.items()},
+            "boundary_signed_areas": list(model.polygon_areas),
+        })
+
+    members["MAPINFO"] = (
+        ''.join(f'map {owner["map"]} "SDVK probe owner {index}" {{ nointermission }}\n'
+                for index, owner in enumerate(transition["owners"])) +
+        'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32203 = SDVKMarker\n}\n'
+    ).encode()
+    return members, {
+        "geometry": "two authored UDMF maps in one process fixture",
+        "textures": "generated_rgba_only",
+        "native_executed": False,
+        "camera_actor_tid": 2002,
+        "camera_position_world": camera,
+        "player_start_world": player_start,
+        "same_probe_count": True,
+        "maps": maps,
+        "transition_command": {
+            "wait_tics": transition["wait_tics"],
+            "initial_map": transition["initial_map"],
+            "final_map": transition["final_map"],
+        },
+    }
+
+
 def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
     generator, map_name = native["generator"], native["map"]
     if generator == "sprite_relief":
         from tools.renderer_oracle import sdvk008_fixtures
         return sdvk008_fixtures.authored_members(scene, sys.modules[__name__])
+    if generator == "probe_owner_transition":
+        return _probe_owner_transition_members(scene)
     members = _base_members()
     is_sun = generator in ("sun_probes", "sun_actor_occlusion")
     model = _Map(floor=32 if is_sun else 0,
@@ -949,9 +1039,15 @@ def configuration(scene: dict) -> bytes:
 def capture_script(scene: dict) -> bytes:
     # Repeat non-archived CVars on the real command path, rather than assuming
     # every engine CVar is persisted in the same INI section.
-    commands = [f"{key} {setting_literal(value)}" for key, value in sorted(scene["native"]["settings"].items())]
-    commands += scene["native"]["console_commands"]
-    commands += scene["native"]["console_queries"]
+    native = scene["native"]
+    commands = [f"{key} {setting_literal(value)}" for key, value in sorted(native["settings"].items())]
+    commands += native["console_commands"]
+    commands += native["console_queries"]
+    if native.get("generator") == "probe_owner_transition":
+        transition = native["probe_owner_transition"]
+        # The inherited delayed-command queue executes the final map change in
+        # the same renderer process after A has enough tics to publish five passes.
+        commands += [f"wait {transition['wait_tics']}", f"map {transition['final_map']}"]
     if any(any(ch in cmd for ch in ('\n', '\r', ';', '"')) for cmd in commands):
         raise ValueError("Preparation commands must be literal single console statements")
     raw = ("; ".join(commands) + "\n").encode()
