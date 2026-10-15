@@ -497,6 +497,18 @@ public:
 	DoomLevelMesh* levelMesh = nullptr;
 	TArray<LightProbe> lightProbes;
 
+	// Semantic owner identity for the authored probe set. The renderer's
+	// incremental builder outlives a map, so count and object address are not
+	// sufficient to distinguish a replacement set.
+	uint64_t LightProbeSetRevision = 1;
+	uint64_t GetLightProbeSetRevision() const { return LightProbeSetRevision; }
+	void MarkLightProbeSetChanged()
+	{
+		LightProbeSetRevision++;
+		if (LightProbeSetRevision == 0)
+			LightProbeSetRevision = 1;
+	}
+
 	// [ZZ] Destructible geometry information
 	TMap<int, FHealthGroup> healthGroups;
 
