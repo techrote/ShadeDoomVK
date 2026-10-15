@@ -3100,7 +3100,7 @@ bool MapLoader::LoadLightmap(MapData* map)
 
 		inline bool IsValid(const FLevelLocals& level) const
 		{
-			if (width > 0 && height > 0 && type > ST_NONE && type < MAX_SURFACE_TYPES && (controlSector == 0xFFFFFFFF || controlSector < level.subsectors.Size()))
+			if (width > 0 && height > 0 && type > ST_NONE && type < MAX_SURFACE_TYPES && (controlSector == 0xFFFFFFFF || controlSector < level.sectors.Size()))
 			{
 				if (type < ST_CEILING)
 				{
