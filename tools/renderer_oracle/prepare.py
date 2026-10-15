@@ -212,8 +212,20 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion", "actor_probe_portal"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion", "actor_probe_portal", "probe_owner_transition"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
+        probe_owner_assertion = state_assertions.get("probe_owner_transition")
+        if probe_owner_assertion is not None:
+            owners = probe_owner_assertion.get("owners") if isinstance(probe_owner_assertion, dict) else None
+            if (set(probe_owner_assertion) != {"owners", "passes_per_owner"}
+                    or probe_owner_assertion.get("passes_per_owner") != 5
+                    or not isinstance(owners, list) or len(owners) != 2):
+                raise ValueError(f"Scene {name} has invalid probe-owner transition assertions")
+            for owner in owners:
+                if (not isinstance(owner, dict) or set(owner) != {"map", "authored_count"}
+                        or not re.fullmatch(r"[A-Z0-9_]{1,8}", owner.get("map", ""))
+                        or owner.get("authored_count") != 2):
+                    raise ValueError(f"Scene {name} has invalid probe-owner assertion owner")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
                 continue
