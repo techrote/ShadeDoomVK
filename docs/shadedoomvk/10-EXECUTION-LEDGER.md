@@ -1219,3 +1219,30 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   review/merge and exact-master verification. #14 remains open and incomplete.
   Physical STOP ACTIVE; physical cost/scaling/stability HELD / NOT ACCEPTED;
   historical physical root cause UNDETERMINED. No duplicate CI was dispatched.
+
+
+### 16 October 2026 — SDVK-014 durable identity audit; new #153 blocker
+
+- Assessed `master@ca254b6ea08228c8408562ebba26bbc1060a0311`, tree
+  `ea20650fefbe454b5a43f82119e879df75ed8e4f`, after accepted #150 / PR #152.
+  Recovered source bundle checksums and matching CI/master tree were verified.
+- The source-owned CPU audit reproduces a live filter-reset lifetime defect:
+  cached probe pairs are retired while raw descriptor bases remain in probe-map
+  texels. Real PF-003 reuse maps old probe-0 base 259 to probe 1's live span-2
+  pair. Token generations reject correctly but the raw consumer bypasses them.
+- #153 records the upstream repair and reblocks only the affected retained
+  probe-map/live descriptor-reset acceptance. #150 remains resolved; no physical
+  fault causality or native wrong-pixel claim follows from this CPU replay.
+- Copied atlas receipts also pass the shape guard after same-pointer/region
+  reuse or Clear/reallocation. This is a durable-identity representation gap,
+  not a demonstrated surviving production surface: ordinary tile tombstoning
+  remains intact. Save/load rebinds semantic keys, but no bake-content digest
+  authenticates freshness against changed geometry/lights/materials.
+- Report: `SDVK-014-DURABLE-IDENTITY-AUDIT.md`; executable source/output receipt:
+  `evidence/SDVK-014-DURABLE-IDENTITY-AUDIT.json`; RAG addendum 13. The audit changes
+  no production renderer, shader, quality, material or viewmodel policy.
+- Collector/test success denotes reproduced evidence, including three named
+  blocked cases. `--require-clean` fails closed. Normal CI/review/merge remain
+  publication gates; neither green CI nor this audit repairs #153.
+- #14 OPEN / NOT SOFTWARE-COMPLETE. Physical STOP ACTIVE; physical GPU
+  cost/scaling/stability HELD / NOT ACCEPTED; historical root cause UNDETERMINED.

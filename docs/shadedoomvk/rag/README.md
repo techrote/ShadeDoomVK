@@ -19,6 +19,8 @@ These references are compact retrieval aids for autonomous agents. They describe
 11. `11-RENDERER-OBSERVABILITY.md` — corpus, native diagnostic boundaries, comparison and evidence ownership.
 12. `12-UPSTREAM-SYNC-OWNERSHIP.md` — selective upstream ownership, conflict and supersession policy.
 
+13. `13-DURABLE-IDENTITY-AUDIT.md` — SDVK-014 audit findings, #153 live-reset blocker and bounded identity guarantees.
+
 ## Status vocabulary
 
 - **active** — used in ordinary current renderer execution.

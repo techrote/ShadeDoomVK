@@ -269,5 +269,11 @@ separate receipt categories. An exit-0 increment collector is not a campaign pas
 Source hashes pin actual tested files rather than relabelling the base commit as
 the changed checkout. Synthetic CPU readback channels, allocator counts and fixture
 wall times do not qualify native illumination, device lifetime or physical cost.
-Upstream #150 blocks cross-map probe acceptance. Normal CI remains required for
-any software increment; no benchmark-only duplicate native run is justified.
+Upstream #150 was resolved by PR #152 at `ca254b6ea08228c8408562ebba26bbc1060a0311`.
+The [durable identity audit](SDVK-014-DURABLE-IDENTITY-AUDIT.md) establishes a
+separate #153 blocker for retained probe-map texels across live descriptor reset.
+Its collector exit 0 means named counterexamples were reproduced, not fixed;
+`--require-clean` returns 2 while clean identity acceptance is blocked. The
+copied-atlas-receipt ABA control is explicitly distinct from native reachability.
+Normal CI remains required for any software increment; no benchmark-only duplicate
+native run is justified. Audit evidence does not waive software or physical gates.

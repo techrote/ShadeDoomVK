@@ -1,23 +1,30 @@
 # SDVK-014 — Lightmapper, dynamic-lightmap and probe robustness campaign
 
-## Current entry status — 14 October 2026
+## Current audit status — 16 October 2026
 
-**Implementation in progress; software campaign NOT ACCEPTED.** A bounded atlas,
-tile-retirement and upload/readback increment has passed its focused CPU fixtures.
-Cross-map probe reset/rebake/publication is **REBLOCKED by issue #150**, which
-reproduces same-count new-owner starvation in the global incremental builder.
-See the [increment report](../SDVK-014-CPU-INCREMENT.md),
-[production audit/matrix](../SDVK-014-PRODUCTION-AUDIT.md) and
-[actual CPU receipt](../evidence/SDVK-014-CPU-INCREMENT.json).
+**Implementation in progress; software campaign NOT ACCEPTED.** PR #151's
+bounded atlas/tile/load repairs and PR #152's #150 semantic probe-owner repair
+are merged. Verified master is `ca254b6ea08228c8408562ebba26bbc1060a0311`.
+The #150 blocker is resolved; older candidate/reblocked notes below are historical.
 
-The accepted SDVK-002 / SDVK-005 / SDVK-009-SW / SDVK-010 prerequisites remain
-historical authority; a newly demonstrated foundational error blocks its affected
-consumer scope. No compensating probe/viewmodel policy is added. Required source,
-normal CI, native campaign evidence, review and verified merge remain explicit.
+The [durable identity audit](../SDVK-014-DURABLE-IDENTITY-AUDIT.md) now reblocks
+**retained probe-map/live descriptor-reset acceptance on #153**. Exact production
+CPU replay shows a filter reset can recycle a raw retained probe texel as another
+valid probe pair. A separate copied-atlas-receipt ABA control exposes a missing
+durable incarnation without claiming a reachable stale native surface.
+See the [audit receipt](../evidence/SDVK-014-DURABLE-IDENTITY-AUDIT.json) and
+[RAG addendum](../rag/13-DURABLE-IDENTITY-AUDIT.md). No production workaround is
+included in the audit; evidence reproduction is not clean lifetime acceptance.
+
+Accepted SDVK-002 / SDVK-005 / SDVK-009-SW / SDVK-010 remain authority for their
+bounded scope. #153, durable allocation identity, repeated/multi-page native
+transitions and supported special-surface/material lifecycle coverage remain
+outstanding. Older [increment](../SDVK-014-CPU-INCREMENT.md) and
+[production audit](../SDVK-014-PRODUCTION-AUDIT.md) evidence is retained unchanged.
 
 **Not software-complete. Issue #14 remains OPEN. Physical STOP remains ACTIVE.**
 Required physical GPU bake/update cost, scaling and stability remain HELD / NOT
-ACCEPTED and historical physical root cause remains UNDETERMINED. See the
+ACCEPTED. Historical physical root cause remains UNDETERMINED. See the
 [governing gate decision](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md).
 
 ## Objective
