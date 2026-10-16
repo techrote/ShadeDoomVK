@@ -52,6 +52,10 @@ struct Observer
 {
     bool Initialized = false, StateMode = true, Quit = false, Written = false, InFrame = false;
     bool Screenshot = false, GpuRequested = false, ProbeBuilderTrace = false;
+    // SDVK-153 fixture input is explicitly opt-in and outcome-blind. It queues
+    // ordinary console CVAR commands after fixed main-view ordinals; it is not
+    // part of the passive observation state and reads no renderer result.
+    bool SamplerResetInput = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -72,6 +76,34 @@ struct Observer
     std::mutex GpuMutex;
 };
 Observer& Get() { static Observer observer; return observer; }
+
+struct SamplerResetPhase
+{
+    unsigned AfterMainViews;
+    const char* CVar;
+    const char* Value;
+};
+
+constexpr SamplerResetPhase SamplerResetPhases[] = {
+    {40, "gl_texture_filter", "4"},
+    {48, "gl_texture_filter_anisotropic", "2"},
+    {56, "gl_texture_filter", "0"},
+    {64, "gl_texture_filter_anisotropic", "1"},
+};
+
+void DriveSamplerResetInput(const Observer& observer)
+{
+    if (!observer.SamplerResetInput) return;
+    for (const auto& phase : SamplerResetPhases)
+    {
+        if (observer.Seen != phase.AfterMainViews) continue;
+        const std::string command = std::string(phase.CVar) + " " + phase.Value;
+        AddCommandString(command.c_str());
+        Printf(PRINT_HIGH | PRINT_NONOTIFY,
+            "SDVK153_SETTING %s=%s after_main_views=%u\n",
+            phase.CVar, phase.Value, phase.AfterMainViews);
+    }
+}
 
 // The publication witness must identify actual observer warmup frames, not
 // infer them from a process-global frame count that also includes startup.
@@ -151,8 +183,11 @@ void Initialize()
         if (const char* count = Option("-sdvkobservewarmup")) observer.Warmup = ParseCount(count, 0, 100000);
         observer.Quit = Args->CheckParm("-sdvkobservequit") != 0;
         observer.ProbeBuilderTrace = Args->CheckParm("-sdvkprobeownertrace") != 0;
+        observer.SamplerResetInput = Args->CheckParm("-sdvk153samplerresetdriver") != 0;
         Require(!observer.ProbeBuilderTrace || observer.StateMode,
             "Probe-owner lifecycle trace is state-only");
+        Require(!observer.SamplerResetInput || observer.StateMode,
+            "SDVK-153 sampler-reset input driver is state-only");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
             .Str("identity", GetBuildIdentity()).Str("backend", screen->IsVulkan() ? "vulkan" : "other")
@@ -569,6 +604,10 @@ void FramePresented()
     if (observer.Seen > observer.WitnessPresented)
     {
         WitnessObserverFrame("observer-frame-presented", observer);
+        // Queue fixture input only once per newly presented main view. The
+        // command runs through the ordinary console CVAR path before a later
+        // view; retained frame state independently verifies its real effect.
+        DriveSamplerResetInput(observer);
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;

@@ -1,7 +1,7 @@
 """Adversarial native-gate controls; CPU only, no renderer or Vulkan device.
 
-Synthetic native rows are independently authored. The generated input driver's
-bodies are executed with bounded C++ CVar/log services, not a ZScript VM.
+Synthetic native rows are independently authored. The opt-in native fixture
+driver is source-audited independently from the acceptance records it drives.
 """
 from __future__ import annotations
 import argparse
@@ -120,8 +120,9 @@ class ProbeSamplerResetTests(unittest.TestCase):
         pairs=[prepare.authored_members(scene_named(name)) for name in gate.SCENES]
         a,ma=pairs[0];b,mb=pairs[1]
         self.assertEqual(set(a),set(b))
-        self.assertEqual([key for key in a if a[key]!=b[key]],['ZSCRIPT'])
-        self.assertEqual(a['CVARINFO'],b'nosave int sdvk153_views = 0;\n')
+        self.assertEqual([key for key in a if a[key]!=b[key]],[])
+        self.assertNotIn('CVARINFO',a)
+        self.assertNotIn(b'SDVKProbeSamplerReset',a['ZSCRIPT'])
         rows=parse_udmf(unpack_wad(a['maps/SDV153.wad'])['TEXTMAP'])
         self.assertEqual([[t['x'],t['y'],t['height']] for t in rows['thing'] if t['type']==9892],
                          [[-80,-72,88],[112,72,120]])
@@ -131,59 +132,40 @@ class ProbeSamplerResetTests(unittest.TestCase):
         self.assertEqual(ma['counts'],mb['counts'])
         self.assertIn(b'material sprite SDVOA0',a['GLDEFS'])
 
-    def test_generated_driver_fixed_render_schedule_with_bounded_cpu_services(self):
-        driver=gate.script(gate.SCHEDULE).decode()
-        self.assertNotIn('WorldTick',driver)
-        for forbidden in ('SdvkDiagnostics','probe_epoch','PassPublished','GetProbeSetRevision','iterations'):
-            self.assertNotIn(forbidden,driver)
-        events=(ROOT/'wadsrc/static/zscript/events.zs').read_text()
-        declarations=(ROOT/'wadsrc/static/zscript/engine/base.zs').read_text()
-        self.assertIn('virtual ui void RenderOverlay(RenderEvent e)',events)
-        self.assertIn('native void SetFloat(double v);',declarations)
-        self.assertIn('native void SetInt(int v);',declarations)
-        # Only syntax and CVar/log service substitutions; branch bodies unchanged.
-        adapted=driver.replace(': EventHandler',': public EventHandler').replace(
-            '{\n    override', '{\npublic:\n    override',1).replace('override void','void').replace(
-            'RenderEvent e','[[maybe_unused]] RenderEvent e')
-        adapted=adapted.replace('CVar.','CVar::').replace('Console.','Console::')
+    def test_native_driver_uses_fixed_presented_frame_schedule_and_console_path(self):
         import re
-        adapted=re.sub(r"'([a-z0-9_]+)'",r'"\1"',adapted)
-        code=r'''
-#include <iostream>
-#include <map>
-#include <string>
-#include <utility>
-#include <vector>
-struct EventHandler {}; struct RenderEvent {};
-struct { std::string MapName="SDV153"; } Level;
-static int current=0;
-static std::map<std::string,double> values;
-static std::vector<std::string> changes;
-struct CVar {
-    std::string name;
-    static CVar GetCVar(std::string n) {return {n};}
-    int GetInt(){return int(values[name]);}
-    void SetInt(int v){set(v);}
-    void SetFloat(double v){set(v);}
-    void set(double v){values[name]=v;if(name!="sdvk153_views")changes.push_back(name+"="+std::to_string(int(v))+"@"+std::to_string(current));}
-};
-struct Console {static void Printf(const char*,int){}};
-'''+adapted+';\n'+r'''
-int main(){SDVKProbeSamplerReset driver; for(current=1;current<=1000;++current)driver.RenderOverlay({});
- if(values["sdvk153_views"]!=80)return 2;
- for(const auto& change:changes)std::cout<<change<<'\n';
- Level.MapName="OTHER";values["sdvk153_views"]=0;driver.RenderOverlay({});
- if(values["sdvk153_views"]!=0)return 3;
- return 0;}
-'''
-        with tempfile.TemporaryDirectory() as directory:
-            directory=Path(directory);path=directory/'driver.cpp';path.write_text(code)
-            exe=compile_fixture(path,output_dir=directory)
-            result=subprocess.run([str(exe)],capture_output=True,text=True,timeout=10)
-        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
-        self.assertEqual(result.stdout.splitlines(),[
-            'gl_texture_filter=4@40','gl_texture_filter_anisotropic=2@48',
-            'gl_texture_filter=0@56','gl_texture_filter_anisotropic=1@64'])
+        source=(ROOT/'src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp').read_text()
+        table=re.search(r'constexpr SamplerResetPhase SamplerResetPhases\[\] = \{(.*?)\};',source,re.S)
+        self.assertIsNotNone(table)
+        phases=[{'after_main_views':int(frame),'cvar':cvar,'value':int(value)}
+                for frame,cvar,value in re.findall(r'\{(\d+), "([a-z0-9_]+)", "([0-9]+)"\}',table.group(1))]
+        self.assertEqual(phases,gate.SCHEDULE)
+        body=source[source.index('void DriveSamplerResetInput'):source.index('// The publication witness')]
+        self.assertIn('observer.Seen != phase.AfterMainViews',body)
+        self.assertIn('AddCommandString(command.c_str())',body)
+        self.assertIn('SDVK153_SETTING %s=%s after_main_views=%u',body)
+        for forbidden in ('ProbeBuilderEvents','GetProbeSetRevision','PassPublished','Irradiancemaps','Prefiltermaps'):
+            self.assertNotIn(forbidden,body)
+        self.assertIn('Args->CheckParm("-sdvk153samplerresetdriver")',source)
+        frame_presented=source[source.index('void FramePresented()'):source.index('void SceneBegin(')]
+        self.assertLess(frame_presented.index('WitnessObserverFrame("observer-frame-presented"'),
+                        frame_presented.index('DriveSamplerResetInput(observer)'))
+
+        run_source=(ROOT/'tools/renderer_oracle/run.py').read_text()
+        self.assertIn('if native.get("sampler_reset_schedule"):',run_source)
+        self.assertIn('argv.append("-sdvk153samplerresetdriver")',run_source)
+
+    def test_retained_zscript_cvar_failure_is_classified_not_gpu_fault(self):
+        failure=json.loads((ROOT/'tools/renderer_oracle/tests/fixtures/sdvk153-zscript-cvar-failure.json').read_text())
+        self.assertEqual(failure['classification'],'INVALID_FIXTURE_INPUT_DRIVER_NOT_GPU_FAULT')
+        self.assertEqual(failure['run'],38963610141)
+        self.assertEqual(failure['job'],117185471214)
+        self.assertEqual(failure['artifact'],12074328517)
+        self.assertEqual(failure['stderr_bytes'],0)
+        self.assertIn("Attempt to change CVAR 'gl_texture_filter' outside of menu code",failure['native_failure'])
+        self.assertEqual(failure['completed_before_failure']['control'],'PASS')
+        self.assertEqual(failure['completed_before_failure']['sdvk150'],'PASS')
+
 
     def test_unapproved_host_rejected_before_any_device_preflight(self):
         from tools.renderer_oracle import native_ci,sdvk010_sun_native

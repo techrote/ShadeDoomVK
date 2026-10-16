@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """SDVK-153 live sampler-reset qualification; hosted isolated llvmpipe only.
 
-Uses existing emitted-draw diagnostics, never an observer-driven reset. CPU
-validation requires raw within-process tokens to remain unchanged across
-scheduled material resets; synthetic tests qualify that validator. No per-texel image readback or physical performance claim.
+Uses existing emitted-draw diagnostics plus an explicit outcome-blind native
+fixture-input scheduler. The scheduler queues ordinary console CVAR commands
+after fixed main-view ordinals and never reads acceptance state. CPU validation
+requires raw within-process tokens to remain unchanged across scheduled material
+resets. No per-texel image readback or physical performance claim.
 """
 from __future__ import annotations
 import argparse
@@ -39,40 +41,12 @@ def validate_recipe(scene: dict) -> None:
             'Sampler-reset baseline settings differ')
 
 
-def script(schedule: list[dict]) -> bytes:
-    branches=[]
-    for phase in schedule:
-        setter='SetFloat' if phase['cvar'].endswith('anisotropic') else 'SetInt'
-        branches.append(f'''        if (frames == {phase['after_main_views']})
-        {{
-            CVar setting = CVar.GetCVar('{phase['cvar']}');
-            setting.{setter}({phase['value']});
-            Console.Printf("SDVK153_SETTING {phase['cvar']}={phase['value']} after_main_views=%d", frames);
-        }}''')
-    return ('''
-class SDVKProbeSamplerReset : EventHandler
-{
-    override void RenderOverlay(RenderEvent e)
-    {
-        if (Level.MapName != "SDV153") return;
-        CVar counter = CVar.GetCVar('sdvk153_views');
-        int frames = counter.GetInt();
-        if (frames >= 80) return;
-        frames++;
-        counter.SetInt(frames);
-'''+'\n'.join(branches)+'''
-    }
-}
-''').encode()
-
 
 def authored_members(scene: dict, author) -> tuple[dict[str,bytes],dict]:
     validate_recipe(scene)
     native=scene['native']; members=author._base_members()
     author._material_layers(members)
     members['GLDEFS']=(author._pbr('SDVW')+author._pbr('SDVFL','flat')+author._pbr('SDVOA0',kind='sprite')).encode()
-    members['ZSCRIPT']+=script(native['sampler_reset_schedule'])
-    members['CVARINFO']=b'nosave int sdvk153_views = 0;\n'
     camera=native['camera']['position'];yaw=math.radians(native['camera']['yaw'])
     player=[camera[0]-round(48*math.cos(yaw)),camera[1]-round(48*math.sin(yaw))]
     model=author._Map(floor=32,ceiling=160,sky=False)
@@ -83,8 +57,7 @@ def authored_members(scene: dict, author) -> tuple[dict[str,bytes],dict]:
     for index,(x,y) in enumerate(((-64,-64),(96,64))):model.thing(32203,x,y,0,tid=5200+index)
     model.thing(9800,0,0,64,tid=3000,arg0=160,arg1=160,arg2=160,arg3=96)
     members['maps/SDV153.wad']=author.pf_indexed.wad([('SDV153',b''),('TEXTMAP',model.text().encode()),('ENDMAP',b'')])
-    members['MAPINFO']=('gameinfo { AddEventHandlers = "SDVKProbeSamplerReset" }\n'
-        'map SDV153 "SDVK probe sampler reset" { nointermission }\n'
+    members['MAPINFO']=('map SDV153 "SDVK probe sampler reset" { nointermission }\n'
         'DoomEdNums { 32200 = SDVKFixedCamera\n 32203 = SDVKMarker\n }\n').encode()
     return members, {'geometry':'authored_udmf','textures':'generated_rgba_only','native_executed':False,
         'camera_actor_tid':2002,'camera_position_world':camera,'player_start_world':player,'monsters':0,

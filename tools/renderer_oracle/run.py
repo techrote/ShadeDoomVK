@@ -327,6 +327,9 @@ def capture(args):
         if native.get("probe_owner_trace", False):
             require(mode == "state", "Probe-owner lifecycle trace is state-only")
             argv.append("-sdvkprobeownertrace")
+        if native.get("sampler_reset_schedule"):
+            require(mode == "state", "Sampler-reset live-setting driver is state-only")
+            argv.append("-sdvk153samplerresetdriver")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]

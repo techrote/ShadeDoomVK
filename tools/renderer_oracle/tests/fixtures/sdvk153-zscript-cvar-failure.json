@@ -1,0 +1,27 @@
+{
+  "schema": "sdvk153-retained-zscript-cvar-failure/v1",
+  "classification": "INVALID_FIXTURE_INPUT_DRIVER_NOT_GPU_FAULT",
+  "pr_head": "3f01e7064174192bdd793371ad27126fb09af4a9",
+  "run": 38963610141,
+  "job": 117185471214,
+  "artifact": 12074328517,
+  "artifact_sha256": "00d9ca1c829e4408b1d389ff19eeb79d3e487da00b3602c1da40a07c6d8124fe",
+  "failed_scene": "probe-sampler-reset",
+  "failed_attempt": "reset-1",
+  "native_failure": "VM execution aborted: Attempt to change CVAR 'gl_texture_filter' outside of menu code",
+  "observer_marker": "SDVK_OBSERVATION_FAILED",
+  "stderr_bytes": 0,
+  "observed_frames_before_abort": 8,
+  "warmup_frames": 32,
+  "first_requested_change_after_main_views": 40,
+  "completed_before_failure": {
+    "control": "PASS",
+    "sdvk010": "PASS",
+    "sdvk150": "PASS",
+    "generic_software_vulkan_corpus": "PASS"
+  },
+  "engine_contract": "non-CVAR_MOD CVar.SetInt/SetFloat from ZScript is menu-only",
+  "repair_boundary": "replace only the fixture input route; production descriptor repair and acceptance thresholds unchanged",
+  "physical_gpu": false,
+  "historical_physical_root_cause": "UNDETERMINED"
+}

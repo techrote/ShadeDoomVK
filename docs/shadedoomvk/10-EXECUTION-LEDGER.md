@@ -1282,3 +1282,12 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   tree 3de46ed9d9c66520994035510f49dd7f073d91b1. The live verified commit object
   was imported and its tree matched the original audit parent exactly. The local
   continuation now has that actual merged master as parent, not an unmerged stack.
+
+
+### 16 October 2026 — SDVK-153 first native fixture failure and correction
+
+- PR #155 exact head `3f01e7064174192bdd793371ad27126fb09af4a9` passed source evidence, PF CPU contracts, all ordinary platform builds, the generic software-Vulkan corpus, SDVK-010, SDVK-150 and the unchanged-setting SDVK-153 control.
+- Avrea job 117185471214 then stopped reset-1 with `SDVK_OBSERVATION_FAILED`: fixture ZScript attempted to change non-mod `gl_texture_filter` outside menu code after main view 40. Stderr was empty; no Vulkan/device fault occurred. No retry was launched. Artifact 12074328517 is retained.
+- Correct only the input driver: remove direct ZScript CVAR mutation and queue ordinary console CVAR commands from an explicit outcome-blind native presented-frame scheduler at the same 40/48/56/64 boundaries. Passive frame/material/probe records remain the acceptance witness. Production descriptor ownership, quality and thresholds are unchanged.
+- Focused renderer-oracle suite: 230 PASS; deterministic corpus preparation PASS; 27 directly affected PF/source tests PASS. The aggregate local checker exceeded the execution window and is not counted as a pass; exact-head normal CI remains authoritative.
+- #153 remains NOT ACCEPTED pending fresh exact-head native CI/review/merge. #14 remains NOT SOFTWARE-COMPLETE. Physical STOP ACTIVE; physical performance HELD; historical physical root cause UNDETERMINED.

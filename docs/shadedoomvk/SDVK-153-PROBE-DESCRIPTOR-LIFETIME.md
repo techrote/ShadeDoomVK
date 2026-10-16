@@ -127,6 +127,25 @@ process's first retained frame. Dedicated probe sampler arguments remain exact.
 Actual emitted material sampler arguments and frame CVar readback must follow
 the scheduled changes; merely printing the driver's markers is not sufficient.
 
+The first hosted attempt on PR #155 head
+`3f01e7064174192bdd793371ad27126fb09af4a9` retained a useful negative packet:
+normal corpus, SDVK-010, SDVK-150 and the unchanged-setting SDVK-153 control all
+passed, then reset-1 aborted after eight retained frames because fixture ZScript
+called `CVar.SetInt` on the non-`CVAR_MOD` `gl_texture_filter` outside menu code.
+Stderr was empty and there was no renderer/device fault. Run 38963610141, job
+117185471214, artifact 12074328517 (SHA-256
+`00d9ca1c829e4408b1d389ff19eeb79d3e487da00b3602c1da40a07c6d8124fe`)
+is retained as **INVALID_FIXTURE_INPUT_DRIVER_NOT_GPU_FAULT**.
+
+The corrected input route removes all direct ZScript CVAR mutation. With the
+explicit `-sdvk153samplerresetdriver` opt-in, the native fixture scheduler counts
+newly presented main views and queues the same four ordinary console CVAR
+commands with `AddCommandString` at views 40/48/56/64. It reads no observer
+record, probe identity, resource epoch or acceptance outcome. The next retained
+frame independently proves the real CVAR callback and material sampler change.
+The reset and control PK3s are now byte-identical; only the executable input flag
+differs. This correction changes no production descriptor ownership or threshold.
+
 One unchanged-setting control and two independent reset captures are scheduled
 inside the existing normal Avrea 16-vCPU llvmpipe lane, reusing its build and
 content. The reset runs require exact state/RGB repeatability under the existing
