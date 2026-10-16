@@ -90,7 +90,8 @@ class SourcePreservationTests(unittest.TestCase):
         self.assertIn('roughness * MAX_REFLECTION_LOD', header)
         self.assertIn('ownerRevision != probeSetRevision', header)
         self.assertIn('ownerRevision = probeSetRevision;', header)
-        self.assertIn('ProbeBuilderLifecycle("owner-reset"', header)
+        self.assertIn('LightProbeBuilderEvent::OwnerReset', header)
+        self.assertIn('LightProbeBuilderEvent::PassPublished', header)
         self.assertIn('static const int IrradiancemapSize = 32;', constants)
         self.assertEqual(sum(entry['name'] == 'current-pbr-sampling' for entry in metadata['extractions']), 1)
 
