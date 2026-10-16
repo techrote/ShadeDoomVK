@@ -253,3 +253,17 @@ same-count B owner reset and five B publications in one process. See
 
 This remains a repair candidate until exact-head CI/native qualification and
 reviewed merge. Physical performance remains outside this software witness.
+
+
+### SDVK-150 fixture clock boundary — 16 October 2026
+
+A simulation-tic wait is not evidence of completed render/probe work. Retained
+Avrea run 38870637199 switched away from A before any completed probe pass while
+B completed all five. The repair uses a fixture-only post-main RenderOverlay
+counter and the ordinary network-event/Level.ChangeLevel route after 32 calls;
+it does not read or drive the passive observer. Actual five-pass publication,
+owner/pair epochs and final draw assertions remain independently mandatory.
+Only this two-map correctness driver changes, not production probe policy,
+geometry/material inputs or quality. See the SDVK-150 repair document for the
+retained failure pins and CPU pacing counterexamples. Native requalification is
+still pending until its normal exact-head CI passes.

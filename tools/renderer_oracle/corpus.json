@@ -16774,12 +16774,13 @@
         "pk3": "scenes/probe-owner-transition/scene.pk3",
         "recommended_warmup_frames": 100,
         "required_native_evidence": [
-          "one renderer process starts SDV15A with exactly two authored probes and later enters SDV15B with exactly two different authored probes through the inherited delayed console queue",
+          "one renderer process renders 32 main views of SDV15A with exactly two authored probes, then a fixture-only RenderOverlay handler queues the ordinary network event/Level.ChangeLevel route to SDV15B with exactly two different authored probes; no tic-based wait or observer-driven scheduling",
           "actual builder lifecycle trace records a semantic owner reset plus five pass publications for A before the semantic owner reset plus five pass publications for B",
           "A and B use distinct process-unique owner revisions and B publishes a later LightProbe epoch without count-reset fallback",
           "each completed pass observes matched irradiance/prefilter resource family counts for the authored set",
           "the retained final SDV15B frame binds live authored ordinals 0 and 1 to published runtime pairs",
-          "two independent clean-state same-process transitions produce exact final state and image"
+          "two independent clean-state same-process transitions produce exact final state and image",
+          "exactly one fixture driver queue/apply marker in order, each reporting 32 main views; this input-driver record is not proof of bake completion"
         ],
         "screenshot": {
           "filename": "{prefix}.png",
@@ -16869,7 +16870,6 @@
         "probe_owner_transition": {
           "initial_map": "SDV15A",
           "final_map": "SDV15B",
-          "wait_tics": 20,
           "owners": [
             {
               "map": "SDV15A",
@@ -16925,7 +16925,9 @@
                 ]
               ]
             }
-          ]
+          ],
+          "driver": "post-main-overlay-network-event",
+          "main_view_frames": 32
         }
       },
       "negative_fixtures": [
@@ -16958,7 +16960,14 @@
         "tools/renderer_oracle/run.py",
         "tools/renderer_oracle/sdvk150_probe_owner.py",
         "tools/renderer_oracle/tests/test_sdvk150_probe_owner.py",
-        "tools/renderer_oracle/validate.py"
+        "tools/renderer_oracle/validate.py",
+        "src/d_main.cpp",
+        "src/g_statusbar/shared_sbar.cpp",
+        "src/events.cpp",
+        "wadsrc/static/zscript/events.zs",
+        "wadsrc/static/zscript/doombase.zs",
+        "wadsrc/static/zscript/constants.zs",
+        "tools/renderer_oracle/tests/test_sdvk150_transition_schedule.py"
       ],
       "title": "Same-process same-count probe owner transition A to B"
     }

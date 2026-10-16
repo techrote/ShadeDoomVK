@@ -540,7 +540,8 @@ class AuthoredSceneTests(unittest.TestCase):
         transition = scene["native"]["probe_owner_transition"]
         self.assertEqual(transition["initial_map"], "SDV15A")
         self.assertEqual(transition["final_map"], "SDV15B")
-        self.assertEqual(transition["wait_tics"], 20)
+        self.assertEqual(transition["main_view_frames"], 32)
+        self.assertEqual(transition["driver"], "post-main-overlay-network-event")
         self.assertTrue(scene["native"]["probe_owner_trace"])
         self.assertIn("probe-builder", scene["required_state_channels"])
         self.assertIn(b'map SDV15A "SDVK probe owner 0"', members["MAPINFO"])
@@ -567,8 +568,11 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertEqual([row["map"] for row in meta["maps"]], ["SDV15A", "SDV15B"])
 
         commands = prepare.capture_script(scene).decode().strip().split("; ")
-        self.assertEqual(commands[-2:], ["wait 20", "map SDV15B"])
-        self.assertLess(commands.index("wait 20"), commands.index("map SDV15B"))
+        self.assertFalse(any(command.split()[0] in ("wait", "map") for command in commands))
+        self.assertIn(b'AddEventHandlers = "SDVKProbeOwnerTransition"', members["MAPINFO"])
+        self.assertEqual(members["CVARINFO"], b"nosave int sdvk150_owner_frames = 0;\n")
+        self.assertIn(b'EventHandler.SendNetworkEvent("SDVK150_Advance", frames);', members["ZSCRIPT"])
+        self.assertIn(b'Level.ChangeLevel("SDV15B", 0, CHANGELEVEL_NOINTERMISSION | CHANGELEVEL_NOAUTOSAVE);', members["ZSCRIPT"])
         self.assertTrue(scene["native"]["settings"]["cl_capfps"])
         self.assertEqual(scene["native"]["recommended_warmup_frames"], 100)
         assertion = scene["native"]["state_assertions"]["probe_owner_transition"]
@@ -629,11 +633,7 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertEqual(scene["native"]["settings"]["screenblocks"], 12)
             self.assertEqual(scene["native"]["settings"]["crosshair"], 0)
             blocked = [c for c in commands if c.split()[0] in ("quit", "screenshot", "wait", "freeze")]
-            if scene["id"] == "probe-owner-transition":
-                self.assertEqual(blocked, ["wait 20"])
-                self.assertEqual(commands[-2:], ["wait 20", "map SDV15B"])
-            else:
-                self.assertEqual(blocked, [])
+            self.assertEqual(blocked, [])
             self.assertNotIn("-pf020viewclock", raw.decode())
             for key, value in scene["native"]["settings"].items():
                 self.assertGreater(commands.index(key), commands.index(f"{key} {str(value).lower()}"))

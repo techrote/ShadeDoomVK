@@ -120,11 +120,63 @@ one PK3:
 - `SDV15A`: two probes at A positions;
 - `SDV15B`: two probes at distinct B positions.
 
-Both contain two actual PBR actor consumers. A normal console script starts A,
-uses the inherited delayed-command queue with `wait 20`, then executes
-`map SDV15B` in the **same renderer process**. `cl_capfps=true` makes the
-bounded tic wait a conservative frame-progress allowance rather than an
-unbounded timing guess.
+Both contain two actual PBR actor consumers. The process starts A normally.
+A fixture-only ZScript `EventHandler` counts **32 post-main `RenderOverlay`
+callbacks**, then sends one ordinary network event. Its playsim `NetworkProcess`
+handler calls `Level.ChangeLevel("SDV15B", 0, CHANGELEVEL_NOINTERMISSION |
+CHANGELEVEL_NOAUTOSAVE)` in the **same renderer process**. Duplicate, manual,
+wrong-player and wrong-map requests are ignored. The nosave UI counter saturates
+at 32. The natural level-transition route replaces the former console `map`
+command; no intermission or unrelated autosave capture is introduced.
+
+This is an input driver, separate from the state-only observer. It never reads
+builder progress, publication events, descriptors or observer counters, and never
+changes bake decisions or retries an incomplete bake. The fixed frame allowance
+covers the one-frame actor creation, one owner-reset call and ten probe-capture
+calls needed for two probes and five passes. The remaining frames must be
+unchanged-owner no-work. A regression that skips publication still fails the
+independent five-pass oracle; the driver does not wait until it passes.
+
+The source-audited route is `D_Display -> RenderView -> DrawTopStuff ->
+EventManager::RenderOverlay`. Cubemap faces and wipe-only presentations do not
+invoke this callback. The ordinary adaptive simulation clock, `cl_capfps=true`,
+100 observer warmup frames, one retained frame, 300-second process deadline,
+geometry/material/probe inputs and exact RGB/state comparison policy are unchanged.
+This fixture is correctness-only and rejects timing mode before launching.
+
+### Retained failure of the original tic-based driver
+
+Normal run **38870637199**, Avrea job **116874272696**, built merge ref
+`0cd4760e5d8c1ff1030bb13921fa057171a56de3`, tree
+`73959c095342e8313b12da3d419b29b53412115d`, matching PR head
+`42eba1b100e00ce7411e238536ee1ede3c3481e2`. Its first SDVK-150 capture completed
+and then failed the unchanged lifecycle oracle: A reset but published **zero**
+passes; B reset and published passes **1..5**. The stderr log is empty and the
+normal screenshot/observer completion marker is retained. No renderer/device
+fault is indicated by this packet.
+
+The previous `wait 20; map SDV15B` driver counts simulation tics. The adaptive
+play loop may execute multiple tics before the next render; a frame-rate cap is
+not a lower bound on render progress. Consequently the claim that `cl_capfps`
+made 20 tics sufficient was false. Merely increasing the tic wait would retain
+the invalid scheduling assumption.
+
+The archive **12034085539** is pinned by SHA-256
+`a248bedafee96f386cd23de7970ada8707183c5dc90fe30a8785098a85c81457`.
+The raw observation SHA-256 is
+`60a24c47373e4e18f12f45360e0b768e5db11c498eb8700243bdb589675af73f`.
+An unmodified selection of its lifecycle rows is retained in
+`tools/renderer_oracle/tests/fixtures/sdvk150-tic-wait-failure.json`; it must
+continue to fail. No failed receipt is relabelled as accepted.
+
+The new CPU schedule fixture executes the actual generated driver bodies with
+bounded C++ service doubles and exact production Step/Full. One-tic-per-view
+control passes both drivers, but a 20-tic burst reproduces the original A=0/B=5
+failure. The frame driver passes cadences 1, 2, 8, 20, 35, 100 and 4096 tics per
+view with A=5/B=5 and one queued/applied transition. With the historical builder,
+it still fails A=5/B=0. A deliberately shortened two-frame driver also fails.
+These tests are not ZScript VM or Vulkan execution; hosted compilation/execution
+of the unchanged public event APIs remains a required native gate.
 
 Acceptance requires actual lifecycle state in order:
 

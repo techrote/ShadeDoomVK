@@ -233,6 +233,8 @@ def capture(args):
     require(not native.get("manual_opt_in") or args.include_stress,
             "This bounded stress/probe recipe requires the explicit --include-stress selection")
     mode = args.mode
+    if native.get("generator") == "probe_owner_transition":
+        require(mode == "state", "Probe-owner frame-driven transition is correctness-only")
     extent = capture_extent(args, native, mode)
     frames = args.frames if args.frames is not None else (1 if mode == "state" else 120)
     warmup = args.warmup if args.warmup is not None else native.get("recommended_warmup_frames", 120)
@@ -816,6 +818,9 @@ def _validate_run(path):
     structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
+    if scene["native"].get("generator") == "probe_owner_transition":
+        from tools.renderer_oracle.sdvk150_probe_owner import validate_driver_log
+        validate_driver_log(stdout, scene["native"]["probe_owner_transition"])
     if "diagnostics" in request:
         publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":

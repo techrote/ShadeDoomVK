@@ -1,0 +1,116 @@
+{
+  "schema": "sdvk150-retained-native-tic-wait-failure/v1",
+  "ci_run": 38870637199,
+  "pr_head": "42eba1b100e00ce7411e238536ee1ede3c3481e2",
+  "build": "0cd4760e5d8c1ff1030bb13921fa057171a56de3",
+  "source_tree": "73959c095342e8313b12da3d419b29b53412115d",
+  "artifact_id": 12034085539,
+  "artifact_zip_sha256": "a248bedafee96f386cd23de7970ada8707183c5dc90fe30a8785098a85c81457",
+  "raw_observation_sha256": "60a24c47373e4e18f12f45360e0b768e5db11c498eb8700243bdb589675af73f",
+  "selection": "Unmodified probe-builder rows only; raw packet remains a failed attempt.",
+  "script_sha256": "70a9d17874e0b2aba7de66a06496b3b121443393bc1e825e7f806322a9691560",
+  "driver_commands": [
+    "wait 20",
+    "map SDV15B"
+  ],
+  "capture_warmup_frames": 100,
+  "records": [
+    {
+      "kind": "probe-builder",
+      "frame": 1,
+      "count": 1,
+      "data": {
+        "scope": "actual incremental builder reset/publication callbacks across observer warmup",
+        "events": [
+          {
+            "event": "owner-reset",
+            "map": "SDV15A",
+            "owner_revision": 2,
+            "authored_count": 2,
+            "iteration": 0,
+            "next_index": 0,
+            "collected": 0,
+            "light_probe_epoch": 2,
+            "irradiance_count": 1,
+            "prefilter_count": 1
+          },
+          {
+            "event": "owner-reset",
+            "map": "SDV15B",
+            "owner_revision": 3,
+            "authored_count": 2,
+            "iteration": 0,
+            "next_index": 0,
+            "collected": 0,
+            "light_probe_epoch": 3,
+            "irradiance_count": 1,
+            "prefilter_count": 1
+          },
+          {
+            "event": "pass-published",
+            "map": "SDV15B",
+            "owner_revision": 3,
+            "authored_count": 2,
+            "iteration": 1,
+            "next_index": 2,
+            "collected": 0,
+            "light_probe_epoch": 3,
+            "irradiance_count": 2,
+            "prefilter_count": 2
+          },
+          {
+            "event": "pass-published",
+            "map": "SDV15B",
+            "owner_revision": 3,
+            "authored_count": 2,
+            "iteration": 2,
+            "next_index": 2,
+            "collected": 0,
+            "light_probe_epoch": 3,
+            "irradiance_count": 2,
+            "prefilter_count": 2
+          },
+          {
+            "event": "pass-published",
+            "map": "SDV15B",
+            "owner_revision": 3,
+            "authored_count": 2,
+            "iteration": 3,
+            "next_index": 2,
+            "collected": 0,
+            "light_probe_epoch": 3,
+            "irradiance_count": 2,
+            "prefilter_count": 2
+          },
+          {
+            "event": "pass-published",
+            "map": "SDV15B",
+            "owner_revision": 3,
+            "authored_count": 2,
+            "iteration": 4,
+            "next_index": 2,
+            "collected": 0,
+            "light_probe_epoch": 3,
+            "irradiance_count": 2,
+            "prefilter_count": 2
+          },
+          {
+            "event": "pass-published",
+            "map": "SDV15B",
+            "owner_revision": 3,
+            "authored_count": 2,
+            "iteration": 5,
+            "next_index": 2,
+            "collected": 0,
+            "light_probe_epoch": 3,
+            "irradiance_count": 2,
+            "prefilter_count": 2
+          }
+        ]
+      }
+    }
+  ],
+  "expected_failure": "Each probe owner must publish exactly five completed passes",
+  "physical_gpu": false,
+  "historical_physical_root_cause": "UNDETERMINED"
+}

@@ -1195,3 +1195,27 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   This is prospective until exact-head CI/review/merge. Physical STOP remains
   ACTIVE; physical cost/scaling/stability HELD / NOT ACCEPTED and historical
   physical root cause UNDETERMINED.
+
+
+### 16 October 2026 — SDVK-150 native fixture scheduling repair candidate
+
+- Normal run 38870637199 built all platforms and passed the CPU and existing
+  hosted correctness gates up to the SDVK-150 scene. Avrea job 116874272696 then
+  failed the first two-map capture's lifecycle assertion: A reset/zero passes,
+  B reset/five passes. Artifact 12034085539 retains the ordinary completion,
+  screenshot and empty stderr. This is not an observed renderer/device fault.
+- The cause is the fixture's `wait 20` simulation clock, not a justified change
+  to required bake convergence. `cl_capfps` did not guarantee enough renders.
+- Replace only fixture input scheduling with 32 post-main overlay callbacks,
+  followed by one ordinary playsim network event/Level.ChangeLevel. This driver
+  reads no observer or builder completion state. Geometry/probe/material bytes,
+  renderer source, warmup/frame/process bounds, historical source pins and the
+  five-pass/exact-state/RGB acceptance criteria remain unchanged.
+- Retain the actual failed lifecycle rows as a negative. CPU replay of generated
+  driver bodies plus exact production builder covers adaptive tic bursts and
+  confirms the original same-count builder still fails under the corrected
+  schedule. Local complete CPU evidence is recorded with this repair.
+- Candidate only: #150 remains open until exact-head hosted qualification,
+  review/merge and exact-master verification. #14 remains open and incomplete.
+  Physical STOP ACTIVE; physical cost/scaling/stability HELD / NOT ACCEPTED;
+  historical physical root cause UNDETERMINED. No duplicate CI was dispatched.

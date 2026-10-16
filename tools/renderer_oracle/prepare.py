@@ -150,8 +150,10 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             owners = transition.get("owners")
             if (transition.get("initial_map") == transition.get("final_map")
                     or transition.get("final_map") != native.get("map")
-                    or type(transition.get("wait_tics")) is not int
-                    or not 1 <= transition["wait_tics"] <= 3500
+                    or set(transition) != {"initial_map", "final_map", "owners", "main_view_frames", "driver"}
+                    or type(transition.get("main_view_frames")) is not int
+                    or transition["main_view_frames"] != 32
+                    or transition.get("driver") != "post-main-overlay-network-event"
                     or not isinstance(owners, list) or len(owners) != 2):
                 raise ValueError("Probe-owner transition needs two bounded distinct map owners")
             for owner in owners:
@@ -650,10 +652,49 @@ def _light_positions(count: int, layout: str = "legacy") -> list[tuple[int, int]
     raise ValueError("Unsupported authored light count")
 
 
+def _probe_owner_transition_script(transition: dict) -> bytes:
+    # Fixture input driver, NOT an observer: it neither reads bake progress nor
+    # changes renderer decisions. RenderOverlay is called once after the main
+    # RenderView, never for probe faces or wipe-only presentations. Queue the
+    # ordinary playsim event after a fixed number of such calls, not game tics.
+    return ('''
+class SDVKProbeOwnerTransition : EventHandler
+{
+    bool TransitionApplied;
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (Level.MapName != "@INITIAL@") return;
+        CVar counter = CVar.GetCVar('sdvk150_owner_frames');
+        int frames = counter.GetInt();
+        if (frames >= @FRAMES@) return;
+        frames++;
+        counter.SetInt(frames);
+        if (frames == @FRAMES@)
+        {
+            Console.Printf("SDVK150_TRANSITION_QUEUED map=@INITIAL@ main_view_frames=%d", frames);
+            EventHandler.SendNetworkEvent("SDVK150_Advance", frames);
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name != "SDVK150_Advance" || e.IsManual || e.Player != consoleplayer ||
+            e.Args[0] != @FRAMES@ || Level.MapName != "@INITIAL@" || TransitionApplied) return;
+        TransitionApplied = true;
+        Console.Printf("SDVK150_TRANSITION_APPLIED from=@INITIAL@ to=@FINAL@ main_view_frames=%d", e.Args[0]);
+        Level.ChangeLevel("@FINAL@", 0, CHANGELEVEL_NOINTERMISSION | CHANGELEVEL_NOAUTOSAVE);
+    }
+}
+'''.replace("@INITIAL@", transition["initial_map"])
+        .replace("@FINAL@", transition["final_map"])
+        .replace("@FRAMES@", str(transition["main_view_frames"]))).encode()
+
+
 def _probe_owner_transition_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
     transition = native["probe_owner_transition"]
     members = _base_members()
+    members["ZSCRIPT"] += _probe_owner_transition_script(transition)
+    members["CVARINFO"] = b"nosave int sdvk150_owner_frames = 0;\n"
     _material_layers(members)
     members["GLDEFS"] = (
         _pbr("SDVW") + _pbr("SDVFL", "flat") + _pbr("SDVOA0", kind="sprite")
@@ -693,6 +734,7 @@ def _probe_owner_transition_members(scene: dict) -> tuple[dict[str, bytes], dict
         })
 
     members["MAPINFO"] = (
+        'gameinfo { AddEventHandlers = "SDVKProbeOwnerTransition" }\n' +
         ''.join(f'map {owner["map"]} "SDVK probe owner {index}" {{ nointermission }}\n'
                 for index, owner in enumerate(transition["owners"])) +
         'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32203 = SDVKMarker\n}\n'
@@ -706,8 +748,9 @@ def _probe_owner_transition_members(scene: dict) -> tuple[dict[str, bytes], dict
         "player_start_world": player_start,
         "same_probe_count": True,
         "maps": maps,
-        "transition_command": {
-            "wait_tics": transition["wait_tics"],
+        "transition_driver": {
+            "driver": transition["driver"],
+            "main_view_frames": transition["main_view_frames"],
             "initial_map": transition["initial_map"],
             "final_map": transition["final_map"],
         },
@@ -1059,11 +1102,6 @@ def capture_script(scene: dict) -> bytes:
     commands = [f"{key} {setting_literal(value)}" for key, value in sorted(native["settings"].items())]
     commands += native["console_commands"]
     commands += native["console_queries"]
-    if native.get("generator") == "probe_owner_transition":
-        transition = native["probe_owner_transition"]
-        # The inherited delayed-command queue executes the final map change in
-        # the same renderer process after A has enough tics to publish five passes.
-        commands += [f"wait {transition['wait_tics']}", f"map {transition['final_map']}"]
     if any(any(ch in cmd for ch in ('\n', '\r', ';', '"')) for cmd in commands):
         raise ValueError("Preparation commands must be literal single console statements")
     raw = ("; ".join(commands) + "\n").encode()

@@ -106,6 +106,16 @@ def validate_lifecycle_records(records: list[dict], spec: dict) -> dict:
     }
 
 
+def validate_driver_log(stdout: str, transition: dict) -> None:
+    """Input-driver witness only; actual publication state is checked separately."""
+    expected = [
+        f"SDVK150_TRANSITION_QUEUED map={transition['initial_map']} main_view_frames={transition['main_view_frames']}",
+        f"SDVK150_TRANSITION_APPLIED from={transition['initial_map']} to={transition['final_map']} main_view_frames={transition['main_view_frames']}",
+    ]
+    rows = [line.strip() for line in stdout.splitlines() if line.startswith("SDVK150_TRANSITION_")]
+    require(rows == expected, "Probe-owner input-driver queue/apply order, count or frame budget differs")
+
+
 def qualify(args) -> dict:
     out = run.fresh_directory(args.out)
     steps = []
