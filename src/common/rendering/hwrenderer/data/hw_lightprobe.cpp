@@ -1,19 +1,48 @@
 #include "hw_lightprobe.h"
 #include "v_video.h"
 
-void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
+LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
+	auto result = [&](LightProbeBuilderEvent event)
+	{
+		return LightProbeBuilderStepResult{
+			event,
+			ownerRevision,
+			(int)probes.size(),
+			iterations,
+			lastIndex,
+			collected
+		};
+	};
+
+	// Probe count is not an owner identity. A level/probe-set revision change
+	// invalidates partial or terminal progress even when the new set has the
+	// same count and even when it is empty.
+	if (ownerRevision != probeSetRevision)
+	{
+		ownerRevision = probeSetRevision;
+		cubemapsAllocated = probes.size();
+		lastIndex = 0;
+		collected = 0;
+		iterations = 0;
+		screen->ResetLightProbes();
+		return result(LightProbeBuilderEvent::OwnerReset);
+	}
+
 	if (probes.size() == 0)
 	{
-		if (cubemapsAllocated != 0)
+		const bool resetResources = cubemapsAllocated != 0;
+		if (resetResources)
 			screen->ResetLightProbes();
 		lastIndex = 0;
 		collected = 0;
 		cubemapsAllocated = 0;
 		iterations = 0;
-		return;
+		return result(resetResources ? LightProbeBuilderEvent::EmptyReset : LightProbeBuilderEvent::None);
 	}
 
+	// Retain the inherited count-change reset as a defensive fallback for any
+	// producer that mutates the set without advancing its semantic revision.
 	if (cubemapsAllocated != probes.size())
 	{
 		cubemapsAllocated = probes.size();
@@ -21,11 +50,11 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 		collected = 0;
 		iterations = 0;
 		screen->ResetLightProbes();
-		return;
+		return result(LightProbeBuilderEvent::CountReset);
 	}
 
 	if (iterations >= 5)
-		return; // We are done baking
+		return result(LightProbeBuilderEvent::None); // We are done baking this semantic probe set
 
 	if (lastIndex >= probes.size())
 		lastIndex = 0;
@@ -37,21 +66,28 @@ void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::f
 	if (lastIndex >= probes.size())
 	{
 		if (collected == probes.size())
+		{
 			screen->EndLightProbePass();
+			collected = 0;
+			iterations++;
+			return result(LightProbeBuilderEvent::PassPublished);
+		}
 		collected = 0;
 		iterations++;
 	}
+
+	return result(LightProbeBuilderEvent::None);
 }
 
-void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
+void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)
 {
 	if (probes.size() == 0)
 	{
-		Step(probes, renderScene);
+		Step(probes, probeSetRevision, renderScene);
 		return;
 	}
 
-	if (cubemapsAllocated == probes.size() && iterations >= 5)
+	if (ownerRevision == probeSetRevision && cubemapsAllocated == probes.size() && iterations >= 5)
 		return;
 
 	if (lastIndex >= probes.size())
@@ -62,12 +98,14 @@ void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::f
 		const int previousIndex = lastIndex;
 		const int previousAllocated = cubemapsAllocated;
 		const int previousIterations = iterations;
-		Step(probes, renderScene);
+		const uint64_t previousOwnerRevision = ownerRevision;
+		Step(probes, probeSetRevision, renderScene);
 
-		// Step must either advance the pass or change builder state. This guard
-		// makes Full fail closed instead of spinning if a future terminal state
-		// is added to Step without a corresponding Full update.
-		if (lastIndex == previousIndex && cubemapsAllocated == previousAllocated && iterations == previousIterations)
+		// Step must either advance the pass or change builder state. Owner
+		// revision is part of that state so same-count owner changes are not
+		// mistaken for terminal no-progress.
+		if (lastIndex == previousIndex && cubemapsAllocated == previousAllocated &&
+			iterations == previousIterations && ownerRevision == previousOwnerRevision)
 			return;
 
 		if (iterations >= 5 || lastIndex >= probes.size())

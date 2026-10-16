@@ -24,6 +24,7 @@
 #include "hwrenderer/scene/hw_sprite_tangent.h"
 #include "hwrenderer/scene/hw_actor_probe_selection.h"
 #include "vulkan/vk_renderdevice.h"
+#include "vulkan/textures/vk_texture.h"
 #include "vulkan/commands/vk_commandbuffer.h"
 #include <zvulkan/cfxtrace.h>
 #include <chrono>
@@ -50,7 +51,7 @@ using namespace SdvkObservation;
 struct Observer
 {
     bool Initialized = false, StateMode = true, Quit = false, Written = false, InFrame = false;
-    bool Screenshot = false, GpuRequested = false;
+    bool Screenshot = false, GpuRequested = false, ProbeBuilderTrace = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -67,6 +68,7 @@ struct Observer
     std::chrono::steady_clock::time_point Started;
     std::map<const FDynamicLight*, std::string> Lights;
     std::set<std::string> GpuReasons;
+    std::vector<std::string> ProbeBuilderEvents;
     std::mutex GpuMutex;
 };
 Observer& Get() { static Observer observer; return observer; }
@@ -148,6 +150,9 @@ void Initialize()
         if (const char* count = Option("-sdvkobserveframes")) observer.Requested = ParseCount(count, 1, 4096);
         if (const char* count = Option("-sdvkobservewarmup")) observer.Warmup = ParseCount(count, 0, 100000);
         observer.Quit = Args->CheckParm("-sdvkobservequit") != 0;
+        observer.ProbeBuilderTrace = Args->CheckParm("-sdvkprobeownertrace") != 0;
+        Require(!observer.ProbeBuilderTrace || observer.StateMode,
+            "Probe-owner lifecycle trace is state-only");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
             .Str("identity", GetBuildIdentity()).Str("backend", screen->IsVulkan() ? "vulkan" : "other")
@@ -382,6 +387,40 @@ std::string ApplicationCacheFilename(const char* leaf)
 }
 
 void Fail(const char* message) { Get().Records.Fail(message); }
+
+void ProbeBuilderLifecycle(const char* event, uint64_t ownerRevision, int probeCount,
+    int iteration, int nextIndex, int collected)
+{
+    auto& observer = Get();
+    if (!Enabled() || !observer.ProbeBuilderTrace) return;
+    try
+    {
+        Require(observer.StateMode, "Probe-owner lifecycle trace requires state mode");
+        Require(event && *event && probeCount >= 0 && iteration >= 0 && nextIndex >= 0 && collected >= 0,
+            "Invalid probe-owner lifecycle state");
+        Require(observer.ProbeBuilderEvents.size() < 64, "Probe-owner lifecycle event bound exceeded");
+
+        Object value;
+        value.Str("event", event).Str("map", level.MapName.GetChars())
+            .Int("owner_revision", ownerRevision).Int("authored_count", probeCount)
+            .Int("iteration", iteration).Int("next_index", nextIndex).Int("collected", collected);
+
+        if (screen && screen->IsVulkan())
+        {
+            auto textures = static_cast<VulkanRenderDevice*>(screen)->GetTextureManager();
+            value.Int("light_probe_epoch", textures->GetLightProbeEpoch().Generation)
+                .Int("irradiance_count", textures->Irradiancemaps.size())
+                .Int("prefilter_count", textures->Prefiltermaps.size());
+        }
+        else
+        {
+            value.Raw("light_probe_epoch", "null").Raw("irradiance_count", "null").Raw("prefilter_count", "null");
+        }
+        observer.ProbeBuilderEvents.push_back(value.Json());
+    }
+    catch (const std::exception& error) { Fail(error.what()); }
+}
+
 void Emit(const char* kind, const std::string& object, bool deduplicate)
 {
     const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
@@ -505,6 +544,19 @@ void EndFrame()
             .Raw("actor_light_traces", observer.StateMode && hardware ? std::to_string(observer.ActorTraces) : std::string("null"))
             .Raw("shadow_candidates", counter(ShadowMap::LightsCandidates)).Raw("shadow_selected", counter(ShadowMap::LightsShadowmapped))
             .Raw("shadow_dropped", counter(ShadowMap::LightsDropped)).Json());
+        if (observer.ProbeBuilderTrace && !observer.ProbeBuilderEvents.empty())
+        {
+            std::string events = "[";
+            for (size_t i = 0; i < observer.ProbeBuilderEvents.size(); ++i)
+            {
+                if (i) events += ',';
+                events += observer.ProbeBuilderEvents[i];
+            }
+            events += ']';
+            Emit("probe-builder", Object().Str("scope", "actual incremental builder reset/publication callbacks across observer warmup")
+                .Raw("events", events).Json());
+            observer.ProbeBuilderEvents.clear();
+        }
         if (screen->IsVulkan()) VulkanResources(static_cast<VulkanRenderDevice*>(screen));
     }
     catch (const std::exception& error) { Fail(error.what()); }

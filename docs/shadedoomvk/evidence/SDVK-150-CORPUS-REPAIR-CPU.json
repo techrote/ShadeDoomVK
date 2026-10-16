@@ -1,0 +1,81 @@
+{
+  "schema": "sdvk150-corpus-repair-cpu/v1",
+  "status": "PASS_CPU_ONLY",
+  "date": "2026-10-16",
+  "base_head": "f062279ef813fb3c62753f35d15dcd5038291c37",
+  "base_tree": "405d1b58704495d0886ba3a8b1499d6c387a3ca2",
+  "source_bundle": {
+    "run": 38828809465,
+    "artifact": 12015514972,
+    "archive_sha256": "2f87baa00c44649f39e02fc6ed3645c64f6839327d03b4f51dc9b48d118a21e7",
+    "checkout_commit": "dd0c89241967d198ed889eb01099d949b3db0f58",
+    "checkout_tree_matches_base": true
+  },
+  "reproduced_failure": {
+    "run": 38828809850,
+    "job": 116742890796,
+    "test": "test_authored_camera_maps_and_texture_pixels_are_bounded_and_self_contained",
+    "error": "KeyError: 'boundary_signed_areas'",
+    "cause": "Single-map corpus test read a top-level boundary list instead of both transition map-owner records."
+  },
+  "tested_change": {
+    "path": "tools/renderer_oracle/tests/test_corpus.py",
+    "git_blob": "02035352a1563fdf8bbba08d5a582e84ea321002",
+    "sha256": "7d7285fa1057f49342d6150f3d57b274b5e0863cf7294e77767eb83df844942e",
+    "production_source_changed": false,
+    "authored_workload_changed": false,
+    "historical_source_pins_changed": false
+  },
+  "command": [
+    "python3",
+    "tools/check.py",
+    "--output",
+    "build/sdvk150-corpus-repair-checks"
+  ],
+  "exit_code": 0,
+  "environment": {
+    "python": "3.13.5",
+    "compiler": "c++ (Debian 14.2.0-19) 14.2.0"
+  },
+  "suites": {
+    "pf_tests": {
+      "tests": 803,
+      "status": "PASS"
+    },
+    "cfx_tests": {
+      "tests": 8,
+      "status": "PASS"
+    },
+    "renderer_oracle_tests": {
+      "tests": 207,
+      "status": "PASS"
+    }
+  },
+  "focused_authoring": {
+    "tests": 13,
+    "status": "PASS",
+    "new_negative_cases": 15,
+    "negative_failures_match_named_reason": true,
+    "scope": "Both A and B cameras, map inventory, owner/index ordering, counts and boundary metadata checked against independently decoded WAD geometry."
+  },
+  "determinism": {
+    "corpus_preparations_equal": true,
+    "pf_oracle_outputs_equal": true,
+    "pf_oracle_output_sha256": "2f8d95cfe4184dba7b432e701146e1275ef8ff5edc25910a086bd02539028f88"
+  },
+  "standalone_compiled_fixtures": {
+    "resource_generation": "PASS",
+    "bindless_allocator": "PASS",
+    "levelmesh_contract": "PASS",
+    "probe_selection": "PASS"
+  },
+  "complete_gate_log_sha256": "a538d67830f7f72767d069f50929dddc70b3a5bbeb123188e9eb69e368e3f2d3",
+  "wall_seconds_descriptive_cpu_only": 263.63090120499993,
+  "renderer_launched": false,
+  "vulkan_device_created": false,
+  "native_qualification": "NOT_RUN_BY_THIS_CPU_REPAIR",
+  "complete_sdvk014_accepted": false,
+  "physical_stop": "ACTIVE",
+  "physical_performance": "HELD_NOT_ACCEPTED",
+  "historical_physical_root_cause": "UNDETERMINED"
+}

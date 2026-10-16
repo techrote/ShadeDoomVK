@@ -193,6 +193,74 @@ class AuthoredSceneTests(unittest.TestCase):
                 self.assertTrue(metadata["member_bytes_unchanged"])
                 self.assertFalse(metadata["native_executed"])
 
+    def assert_authored_maps(self, scene, members, metadata):
+        """Check every map owner, not just the final map retained by a capture.
+
+        Keep per-map transition metadata authoritative. A top-level copy of B's
+        bounds would hide malformed A input from the generic authoring gate.
+        """
+        transition = scene["native"].get("probe_owner_transition")
+        if transition is None:
+            map_names = [scene["native"]["map"]]
+            owners = [metadata]
+        else:
+            map_names = [owner["map"] for owner in transition["owners"]]
+            owners = metadata.get("maps")
+            self.assertIsInstance(owners, list, "Missing map owner inventory")
+            self.assertTrue(all(isinstance(owner, dict) for owner in owners), "Malformed map owner metadata")
+            self.assertEqual([owner.get("map") for owner in owners], map_names, "Map owner inventory differs")
+            self.assertEqual([owner.get("owner_index") for owner in owners], list(range(len(map_names))),
+                             "Map owner index differs")
+        self.assertEqual({path for path in members if path.startswith("maps/")},
+                         {f"maps/{name}.wad" for name in map_names}, "Map member inventory differs")
+        for map_name, owner in zip(map_names, owners):
+            areas = owner.get("boundary_signed_areas")
+            self.assertIsInstance(areas, list, "Missing boundary metadata: " + map_name)
+            self.assertTrue(areas, "Empty boundary metadata: " + map_name)
+            lumps = unpack_wad(members[f"maps/{map_name}.wad"])
+            self.assertEqual(set(lumps), {map_name, "TEXTMAP", "ENDMAP"})
+            records = parse_udmf(lumps["TEXTMAP"])
+            for line in records["linedef"]:
+                self.assertLess(line["v1"], len(records["vertex"]))
+                self.assertLess(line["v2"], len(records["vertex"]))
+                self.assertLess(line["sidefront"], len(records["sidedef"]))
+            cameras = [t for t in records["thing"] if t["type"] == 32200]
+            self.assertEqual(len(cameras), 1)
+            camera = cameras[0]
+            expected = scene["native"]["camera"]
+            self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"], "Authored camera position differs: " + map_name)
+            self.assertEqual(camera["id"], expected["actor_tid"])
+            authored = scene["native"].get("authored_camera_angles", expected)
+            self.assertEqual(camera["angle"], authored["yaw"])
+            players = [t for t in records["thing"] if t["type"] == 1]
+            self.assertEqual(len(players), 1)
+            player = players[0]
+            self.assertNotEqual([player["x"], player["y"]], [camera["x"], camera["y"]])
+            view = math.radians(expected["yaw"])
+            behind = ((player["x"] - camera["x"]) * math.cos(view)
+                      + (player["y"] - camera["y"]) * math.sin(view))
+            self.assertLess(behind, 0)
+            self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
+            if scene["native"]["generator"] == "portal_probes":
+                self.assertEqual(areas,
+                                 [-147456.0, -147456.0, -16384.0, -16384.0])
+            else:
+                self.assertLess(areas[0], 0, "Outer boundary must be clockwise: " + map_name)
+                self.assertTrue(all(area > 0 for area in areas[1:]))
+            if transition is not None:
+                self.assertEqual(owner.get("counts"), {kind: len(rows) for kind, rows in records.items()},
+                                 "Map count metadata differs: " + map_name)
+                # These two bounded rooms each have one four-edge outer loop.
+                # Derive its signed area independently from serialized WAD bytes.
+                lines, vertices = records["linedef"], records["vertex"]
+                self.assertEqual(len(lines), 4, "Transition room must have four edges")
+                self.assertEqual([(line["v1"], line["v2"]) for line in lines],
+                                 [(i, (i + 1) % 4) for i in range(4)], "Transition boundary connectivity differs")
+                actual_area = sum(vertices[line["v1"]]["x"] * vertices[line["v2"]]["y"]
+                                  - vertices[line["v2"]]["x"] * vertices[line["v1"]]["y"]
+                                  for line in lines) / 2
+                self.assertEqual(areas, [actual_area], "Boundary metadata differs from WAD geometry: " + map_name)
+
     def test_authored_camera_maps_and_texture_pixels_are_bounded_and_self_contained(self):
         for scene in prepare.load_catalog()["scenes"]:
             if scene["native"]["generator"].startswith("pf_"):
@@ -203,37 +271,7 @@ class AuthoredSceneTests(unittest.TestCase):
                     self.assertIsNone(zip_file.testzip())
                     self.assertEqual(zip_file.namelist(), sorted(members))
                     self.assertTrue(all(info.date_time == (1980, 1, 1, 0, 0, 0) for info in zip_file.infolist()))
-                map_name = scene["native"]["map"]
-                lumps = unpack_wad(members[f"maps/{map_name}.wad"])
-                self.assertEqual(set(lumps), {map_name, "TEXTMAP", "ENDMAP"})
-                records = parse_udmf(lumps["TEXTMAP"])
-                for line in records["linedef"]:
-                    self.assertLess(line["v1"], len(records["vertex"]))
-                    self.assertLess(line["v2"], len(records["vertex"]))
-                    self.assertLess(line["sidefront"], len(records["sidedef"]))
-                cameras = [t for t in records["thing"] if t["type"] == 32200]
-                self.assertEqual(len(cameras), 1)
-                camera = cameras[0]
-                expected = scene["native"]["camera"]
-                self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"])
-                self.assertEqual(camera["id"], expected["actor_tid"])
-                authored = scene["native"].get("authored_camera_angles", expected)
-                self.assertEqual(camera["angle"], authored["yaw"])
-                players = [t for t in records["thing"] if t["type"] == 1]
-                self.assertEqual(len(players), 1)
-                player = players[0]
-                self.assertNotEqual([player["x"], player["y"]], [camera["x"], camera["y"]])
-                view = math.radians(expected["yaw"])
-                behind = ((player["x"] - camera["x"]) * math.cos(view)
-                          + (player["y"] - camera["y"]) * math.sin(view))
-                self.assertLess(behind, 0)
-                self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
-                if scene["native"]["generator"] == "portal_probes":
-                    self.assertEqual(metadata["boundary_signed_areas"],
-                                     [-147456.0, -147456.0, -16384.0, -16384.0])
-                else:
-                    self.assertLess(metadata["boundary_signed_areas"][0], 0)
-                    self.assertTrue(all(area > 0 for area in metadata["boundary_signed_areas"][1:]))
+                self.assert_authored_maps(scene, members, metadata)
                 for path, raw in members.items():
                     if path.endswith(".png"):
                         image, pixels = unpack_png(raw)
@@ -241,6 +279,55 @@ class AuthoredSceneTests(unittest.TestCase):
                         self.assertLessEqual(image["height"], 256)
                         self.assertEqual(len(pixels), image["width"] * image["height"] * 4)
                         self.assertRegex(Path(path).stem, r"^(SDV|SM)")
+
+    def test_transition_map_inventory_and_owner_metadata_negatives(self):
+        scene = scene_named("probe-owner-transition")
+        _, members, metadata = prepare.scene_assets(scene)
+        cases = (
+            ("missing-A-metadata", lambda m, d: d["maps"].pop(0), "Map owner inventory differs"),
+            ("duplicate-owner", lambda m, d: d["maps"][1].update(map="SDV15A"), "Map owner inventory differs"),
+            ("swapped-owners", lambda m, d: d["maps"].reverse(), "Map owner inventory differs"),
+            ("reused-owner-index", lambda m, d: d["maps"][1].update(owner_index=0), "Map owner index differs"),
+            ("missing-A-WAD", lambda m, d: m.pop("maps/SDV15A.wad"), "Map member inventory differs"),
+            ("extra-map", lambda m, d: m.update({"maps/EXTRA.wad": m["maps/SDV15A.wad"]}), "Map member inventory differs"),
+            ("A-missing-boundary", lambda m, d: d["maps"][0].pop("boundary_signed_areas"), "Missing boundary metadata: SDV15A"),
+            ("A-wrong-winding", lambda m, d: d["maps"][0].update(boundary_signed_areas=[1]), "Outer boundary must be clockwise: SDV15A"),
+            ("A-plausible-stale-area", lambda m, d: d["maps"][0].update(boundary_signed_areas=[-1]), "Boundary metadata differs from WAD geometry: SDV15A"),
+            ("B-plausible-stale-area", lambda m, d: d["maps"][1].update(boundary_signed_areas=[-1]), "Boundary metadata differs from WAD geometry: SDV15B"),
+            ("A-stale-count", lambda m, d: d["maps"][0]["counts"].update(vertex=3), "Map count metadata differs: SDV15A"),
+        )
+        for name, mutate, reason in cases:
+            with self.subTest(case=name):
+                changed_members, changed_metadata = dict(members), copy.deepcopy(metadata)
+                mutate(changed_members, changed_metadata)
+                # A final-map compatibility alias must not rescue a missing or
+                # corrupted owner record. Only per-map metadata is examined.
+                changed_metadata["boundary_signed_areas"] = metadata["maps"][1]["boundary_signed_areas"]
+                with self.assertRaisesRegex(AssertionError, reason):
+                    self.assert_authored_maps(scene, changed_members, changed_metadata)
+
+    def test_transition_validates_serialized_camera_and_boundary_for_both_owners(self):
+        scene = scene_named("probe-owner-transition")
+        _, members, metadata = prepare.scene_assets(scene)
+        for map_name in ("SDV15A", "SDV15B"):
+            path = f"maps/{map_name}.wad"
+            lumps = unpack_wad(members[path])
+            original = lumps["TEXTMAP"]
+            camera_pattern = rb'(thing \{ type = 32200; x = )-192;'
+            bad_camera, count = re.subn(camera_pattern, rb'\g<1>-160;', original)
+            self.assertEqual(count, 1, "Negative camera mutation must target one actual camera")
+            bad_boundary = original.replace(b'vertex { x = -256; y = -192; }',
+                                            b'vertex { x = -255; y = -192; }', 1)
+            self.assertNotEqual(bad_boundary, original, "Negative boundary mutation must change actual geometry")
+            for label, textmap, reason in (
+                ("camera", bad_camera, "Authored camera position differs: " + map_name),
+                ("boundary", bad_boundary, "Boundary metadata differs from WAD geometry: " + map_name),
+            ):
+                with self.subTest(map=map_name, mutation=label):
+                    changed = dict(members)
+                    changed[path] = pf_indexed.wad([(map_name, b""), ("TEXTMAP", textmap), ("ENDMAP", b"")])
+                    with self.assertRaisesRegex(AssertionError, reason):
+                        self.assert_authored_maps(scene, changed, metadata)
 
     def test_compositing_has_actual_decal_authoring_and_translucent_camera_routes(self):
         scene = scene_named("compositing")
@@ -447,6 +534,51 @@ class AuthoredSceneTests(unittest.TestCase):
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter nearest }', members["GLDEFS"])
         self.assertIn(b'texture SDVKExtra "SDVCU" { filter linear }', members["GLDEFS"])
 
+    def test_probe_owner_transition_authors_two_equal_count_distinct_maps(self):
+        scene = scene_named("probe-owner-transition")
+        members, meta = prepare.authored_members(scene)
+        transition = scene["native"]["probe_owner_transition"]
+        self.assertEqual(transition["initial_map"], "SDV15A")
+        self.assertEqual(transition["final_map"], "SDV15B")
+        self.assertEqual(transition["main_view_frames"], 32)
+        self.assertEqual(transition["driver"], "post-main-overlay-network-event")
+        self.assertTrue(scene["native"]["probe_owner_trace"])
+        self.assertIn("probe-builder", scene["required_state_channels"])
+        self.assertIn(b'map SDV15A "SDVK probe owner 0"', members["MAPINFO"])
+        self.assertIn(b'map SDV15B "SDVK probe owner 1"', members["MAPINFO"])
+        self.assertIn(b"material sprite SDVOA0", members["GLDEFS"])
+
+        observed = []
+        for owner in transition["owners"]:
+            wad = unpack_wad(members[f'maps/{owner["map"]}.wad'])
+            records = parse_udmf(wad["TEXTMAP"])
+            probes = [thing for thing in records["thing"] if thing["type"] == 9892]
+            markers = sorted((thing for thing in records["thing"] if thing["type"] == 32203),
+                             key=lambda thing: thing["id"])
+            self.assertEqual([[thing["x"], thing["y"], thing["height"]] for thing in probes],
+                             owner["probes"])
+            self.assertEqual([[thing["x"], thing["y"], thing["height"]] for thing in markers],
+                             owner["markers"])
+            self.assertEqual(len(probes), 2)
+            self.assertEqual([thing["id"] for thing in markers], [5200, 5201])
+            self.assertEqual(len([thing for thing in records["thing"] if thing["type"] == 9800]), 1)
+            observed.append(owner["probes"])
+        self.assertNotEqual(observed[0], observed[1])
+        self.assertTrue(meta["same_probe_count"])
+        self.assertEqual([row["map"] for row in meta["maps"]], ["SDV15A", "SDV15B"])
+
+        commands = prepare.capture_script(scene).decode().strip().split("; ")
+        self.assertFalse(any(command.split()[0] in ("wait", "map") for command in commands))
+        self.assertIn(b'AddEventHandlers = "SDVKProbeOwnerTransition"', members["MAPINFO"])
+        self.assertEqual(members["CVARINFO"], b"nosave int sdvk150_owner_frames = 0;\n")
+        self.assertIn(b'EventHandler.SendNetworkEvent("SDVK150_Advance", frames);', members["ZSCRIPT"])
+        self.assertIn(b'Level.ChangeLevel("SDV15B", 0, CHANGELEVEL_NOINTERMISSION | CHANGELEVEL_NOAUTOSAVE);', members["ZSCRIPT"])
+        self.assertTrue(scene["native"]["settings"]["cl_capfps"])
+        self.assertEqual(scene["native"]["recommended_warmup_frames"], 100)
+        assertion = scene["native"]["state_assertions"]["probe_owner_transition"]
+        self.assertEqual(assertion["passes_per_owner"], 5)
+        self.assertEqual([row["authored_count"] for row in assertion["owners"]], [2, 2])
+
     def test_sun_scene_records_raised_floor_inputs_and_remains_unqualified(self):
         scene = scene_named("sun-probes")
         members, meta = prepare.authored_members(scene)
@@ -500,7 +632,8 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertEqual(scene["native"]["settings"]["r_drawplayersprites"], False)
             self.assertEqual(scene["native"]["settings"]["screenblocks"], 12)
             self.assertEqual(scene["native"]["settings"]["crosshair"], 0)
-            self.assertFalse(any(c.split()[0] in ("quit", "screenshot", "wait", "freeze") for c in commands))
+            blocked = [c for c in commands if c.split()[0] in ("quit", "screenshot", "wait", "freeze")]
+            self.assertEqual(blocked, [])
             self.assertNotIn("-pf020viewclock", raw.decode())
             for key, value in scene["native"]["settings"].items():
                 self.assertGreater(commands.index(key), commands.index(f"{key} {str(value).lower()}"))

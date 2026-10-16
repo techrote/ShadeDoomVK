@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -486,6 +486,31 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                         "Emitted live probe ordinal is not backed by published pair")
             if "probe_epoch" in value:
                 integer(value["probe_epoch"], "probe resource epoch", minimum=1)
+        elif kind == "probe-builder":
+            require(record["count"] == 1, "Probe-builder lifecycle snapshots may not be deduplicated")
+            require(value.get("scope") == "actual incremental builder reset/publication callbacks across observer warmup",
+                    "Unknown probe-builder lifecycle scope")
+            events = value.get("events")
+            require(isinstance(events, list) and 1 <= len(events) <= 64,
+                    "Probe-builder lifecycle event list is missing or unbounded")
+            allowed = {"owner-reset", "empty-reset", "count-reset", "pass-published"}
+            for event in events:
+                require(isinstance(event, dict), "Malformed probe-builder lifecycle event")
+                require(event.get("event") in allowed and isinstance(event.get("map"), str) and event["map"],
+                        "Unknown probe-builder event or map")
+                integer(event.get("owner_revision"), "probe owner revision", minimum=1)
+                authored = integer(event.get("authored_count"), "probe authored count", minimum=0)
+                iteration = integer(event.get("iteration"), "probe builder iteration", minimum=0, maximum=5)
+                integer(event.get("next_index"), "probe builder next index", minimum=0)
+                integer(event.get("collected"), "probe builder collected count", minimum=0)
+                epoch = integer(event.get("light_probe_epoch"), "light probe epoch", minimum=1)
+                irradiance = integer(event.get("irradiance_count"), "irradiance map count", minimum=1)
+                prefilter = integer(event.get("prefilter_count"), "prefilter map count", minimum=1)
+                require(epoch >= 1 and irradiance == prefilter,
+                        "Probe-builder resource pair families disagree")
+                if event["event"] == "pass-published":
+                    require(1 <= iteration <= 5 and authored > 0 and irradiance >= authored,
+                            "Probe publication event lacks its authored live pair family")
         elif kind == "pipeline":
             require(isinstance(value.get("key"), dict) and isinstance(value["key"].get("shader"), dict)
                     and value["key"]["shader"], "Pipeline/shader field identity is missing")

@@ -225,3 +225,45 @@ A 3D-floor wall's control sector is part of its semantic lightmap identity.
 it, `AddSurfaceToTile` keys the tile with it, and `GetVisibleSurfaces` must
 match it when gathering side bake geometry. Matching only side/type can
 deterministically mix geometry from distinct 3D floors on the same side.
+
+
+## SDVK-150 candidate: semantic cross-map probe owner generation
+
+SDVK-014 discovered that the process-global incremental probe builder could treat
+two different same-count maps as one completed owner. The repair candidate does
+not redefine PF-012 selection or PF-113 pair fallback. It adds an orthogonal
+semantic owner token:
+
+- each `FLevelLocals` receives a process-unique probe-set revision;
+- teardown and runtime authored-probe additions issue a fresh revision;
+- the global builder receives that revision on `Step`/`Full`;
+- owner change resets partial/terminal progress and the existing probe resources
+  before new-owner capture;
+- the RenderView path also presents empty authored sets to the builder.
+
+Probe count remains only a defensive consistency fallback, not owner identity.
+Authored ordinal 0, runtime descriptor 0, LightProbe resource epoch and semantic
+owner revision remain distinct identities.
+
+The opt-in SDVK-150 observer records actual reset/pass-publication callbacks,
+map/revision and irradiance/prefilter family counts without changing decisions.
+The focused hosted fixture requires five A publications followed by a distinct
+same-count B owner reset and five B publications in one process. See
+[SDVK-150-PROBE-OWNER-REPAIR.md](../SDVK-150-PROBE-OWNER-REPAIR.md).
+
+This remains a repair candidate until exact-head CI/native qualification and
+reviewed merge. Physical performance remains outside this software witness.
+
+
+### SDVK-150 fixture clock boundary — 16 October 2026
+
+A simulation-tic wait is not evidence of completed render/probe work. Retained
+Avrea run 38870637199 switched away from A before any completed probe pass while
+B completed all five. The repair uses a fixture-only post-main RenderOverlay
+counter and the ordinary network-event/Level.ChangeLevel route after 32 calls;
+it does not read or drive the passive observer. Actual five-pass publication,
+owner/pair epochs and final draw assertions remain independently mandatory.
+Only this two-map correctness driver changes, not production probe policy,
+geometry/material inputs or quality. See the SDVK-150 repair document for the
+retained failure pins and CPU pacing counterexamples. Native requalification is
+still pending until its normal exact-head CI passes.

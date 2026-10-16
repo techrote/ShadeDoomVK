@@ -108,6 +108,11 @@ typedef TMap<FName, int> FDialogueMap;				// maps actor class names to dialogue 
 typedef TMap<int, FUDMFKeys> FUDMFKeyMap;
 class DIntermissionController;
 
+// Process-unique semantic generation for authored probe-set ownership.
+// A global incremental renderer consumer must not confuse distinct FLevelLocals
+// instances that happen to have the same probe count.
+uint64_t AllocateLightProbeSetRevision();
+
 struct FLevelLocals
 {
 	void *level;
@@ -496,6 +501,16 @@ public:
 	DoomLevelAABBTree* aabbTree = nullptr;
 	DoomLevelMesh* levelMesh = nullptr;
 	TArray<LightProbe> lightProbes;
+
+	// Semantic owner identity for the authored probe set. The renderer's
+	// incremental builder outlives a map, so count and object address are not
+	// sufficient to distinguish a replacement set.
+	uint64_t LightProbeSetRevision = AllocateLightProbeSetRevision();
+	uint64_t GetLightProbeSetRevision() const { return LightProbeSetRevision; }
+	void MarkLightProbeSetChanged()
+	{
+		LightProbeSetRevision = AllocateLightProbeSetRevision();
+	}
 
 	// [ZZ] Destructible geometry information
 	TMap<int, FHealthGroup> healthGroups;

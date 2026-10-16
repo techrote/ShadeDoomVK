@@ -35,7 +35,9 @@ NEGATIVES={
               'invalid-owner':(11,'invalid-owner-reached-readback'),
               'live-free':(11,'live-tile-retired'),'bounded-retirement':(11,'retired-stress-update')},
     'probes': {'same-count':(11,'new-owner-not-rebuilt'),
-               'same-count-via-empty':(11,'new-owner-not-rebuilt')},
+               'same-count-via-empty':(11,'new-owner-not-rebuilt'),
+               'partial-owner':(11,'partial-owner-mixed-pass'),
+               'full-same-count':(11,'full-new-owner-not-rebuilt')},
 }
 
 
@@ -77,17 +79,15 @@ def collect() -> dict:
                 timings.append({'family':family,'source':'retained' if original else 'current',
                                 'compile_wall_ns':time.perf_counter_ns()-started})
                 targets=list(NEGATIVES[family]) if original else list(cases)
-                if family=='probes' and not original:targets+=list(NEGATIVES['probes'])
                 for case in targets:
-                    blocker=family=='probes' and not original and case in NEGATIVES['probes']
-                    expected=NEGATIVES[family][case] if original or blocker else (0,'PASS '+case)
+                    expected=NEGATIVES[family][case] if original else (0,'PASS '+case)
                     started=time.perf_counter_ns()
                     p=subprocess.run([str(exe),case],capture_output=True,text=True,timeout=20)
                     wall=time.perf_counter_ns()-started
                     if p.returncode!=expected[0] or expected[1] not in p.stdout+p.stderr:
                         raise RuntimeError(f'Unexpected {family}/{case}: {p.returncode}\n{p.stdout}\n{p.stderr}')
                     records.append({'family':family,'case':case,'source':'retained' if original else 'current',
-                        'disposition':'BLOCKED_NOT_ACCEPTED' if blocker else 'EXPECTED_REJECTION' if original else 'PASS',
+                        'disposition':'EXPECTED_REJECTION' if original else 'PASS',
                         'returncode':p.returncode,'intended_reason':expected[1],
                         'stdout':p.stdout.strip(),'stderr':p.stderr.strip(),'wall_ns':wall})
     files=[
@@ -108,11 +108,13 @@ def collect() -> dict:
     files += [str(p.relative_to(ROOT)) for p in sorted((ROOT/'tools/pf_oracle/tests').glob('*sdvk014*')) if p.is_file()]
     files += [str(p.relative_to(ROOT)) for p in sorted((ROOT/'tools/pf_oracle/tests/fixtures').glob('sdvk014*')) if p.is_file()]
     return {
-        'schema':'sdvk014-cpu-increment/v2',
+        'schema':'sdvk014-cpu-increment/v3',
         'audited_base':'04a3596115eb397d9e7237aa1ff3625ece1bc5b4',
         'identity_note':'Hashes pin actual tested source bytes, including the retained-lifecycle continuation; audited_base is not the tested publication head.',
         'acceptance':{'implemented_cpu_increment':'PASS','complete_software_campaign':'BLOCKED_NOT_ACCEPTED',
-                      'cross_map_probe_lifecycle':'REBLOCKED_BY_150','native_campaign':'NOT_RUN',
+                      'cross_map_probe_owner_cpu':'PASS_REPAIR_CANDIDATE',
+                      'cross_map_probe_native':'PENDING',
+                      'native_campaign':'NOT_RUN',
                       'physical_performance':'HELD_NOT_ACCEPTED','physical_stop':'ACTIVE',
                       'historical_physical_root_cause':'UNDETERMINED'},
         'execution':{'python':platform.python_version(),'platform':sys.platform,
@@ -120,13 +122,13 @@ def collect() -> dict:
                      'timing_classification':'descriptive CPU-fixture wall time only; no GPU cost/scaling/stability claim'},
         'counts':{'positive_cases':sum(r['disposition']=='PASS' for r in records),
                   'retained_intended_rejections':sum(r['disposition']=='EXPECTED_REJECTION' for r in records),
-                  'current_blocked_counterexamples':sum(r['disposition']=='BLOCKED_NOT_ACCEPTED' for r in records),
+                  'current_blocked_counterexamples':0,
                   'atlas_receipt_mutations':4,'live_region_mutations':11},
         'source_sha256':{p:hashlib.sha256((ROOT/p).read_bytes()).hexdigest() for p in files},
         'compile_timings':timings,'cases':records,
         'not_qualified':['native atlas/probe pixels and descriptors','durable rectangle/slot generation safety',
                          'native retained-LIGHTMAP round-trip beyond the admitted CPU/source contract','all dynamic update freshness transitions',
-                         'cross-map probe publication','special-surface/portal/material lifecycle matrix',
+                         'native cross-map probe publication after semantic owner repair','special-surface/portal/material lifecycle matrix',
                          'physical GPU bake/update cost, scaling or stability'],
     }
 

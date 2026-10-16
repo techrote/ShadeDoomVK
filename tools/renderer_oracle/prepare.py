@@ -27,11 +27,12 @@ ROOT = Path(__file__).resolve().parents[2]
 CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
-              "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes", "sprite_mirror", "sprite_relief"}
+              "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
+              "probe_owner_transition", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
-CHANNELS = {"context", "material", "light-query", "probe", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief"}
+CHANNELS = {"context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief"}
 
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle import prepare_freeze_view_fixture as pf_view
@@ -144,6 +145,35 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             raise ValueError(f"Catalog {name} may not manufacture native qualification")
         if native.get("generator") not in GENERATORS:
             raise ValueError(f"Unknown generator for {name}")
+        if native.get("generator") == "probe_owner_transition":
+            transition = native.get("probe_owner_transition", {})
+            owners = transition.get("owners")
+            if (transition.get("initial_map") == transition.get("final_map")
+                    or transition.get("final_map") != native.get("map")
+                    or set(transition) != {"initial_map", "final_map", "owners", "main_view_frames", "driver"}
+                    or type(transition.get("main_view_frames")) is not int
+                    or transition["main_view_frames"] != 32
+                    or transition.get("driver") != "post-main-overlay-network-event"
+                    or not isinstance(owners, list) or len(owners) != 2):
+                raise ValueError("Probe-owner transition needs two bounded distinct map owners")
+            for owner in owners:
+                if not isinstance(owner, dict):
+                    raise ValueError("Probe-owner transition owner/probe/marker recipe is malformed")
+                probes = owner.get("probes")
+                markers = owner.get("markers")
+                vectors = list(probes or []) + list(markers or [])
+                if (not re.fullmatch(r"[A-Z0-9_]{1,8}", owner.get("map", ""))
+                        or not isinstance(probes, list) or len(probes) != 2
+                        or not isinstance(markers, list) or len(markers) != 2
+                        or any(not isinstance(pos, list) or len(pos) != 3
+                               or any(type(value) not in (int, float) or not math.isfinite(value)
+                                      for value in pos)
+                               for pos in vectors)):
+                    raise ValueError("Probe-owner transition owner/probe/marker recipe is malformed")
+            if [owner["map"] for owner in owners] != [transition["initial_map"], transition["final_map"]]:
+                raise ValueError("Probe-owner transition owners must match initial/final map order")
+            if native.get("probe_owner_trace") is not True or "probe-builder" not in scene.get("required_state_channels", []):
+                raise ValueError("Probe-owner transition must require the state-only lifecycle trace")
         if native.get("generator") == "sprite_relief":
             from tools.renderer_oracle.sdvk008_fixtures import FAMILIES, validate_camera, validate_material_assertions, validate_bootstrap, validate_direction_witness
             if native.get("relief_family") not in FAMILIES:
@@ -184,8 +214,20 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion", "actor_probe_portal"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion", "actor_probe_portal", "probe_owner_transition"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
+        probe_owner_assertion = state_assertions.get("probe_owner_transition")
+        if probe_owner_assertion is not None:
+            owners = probe_owner_assertion.get("owners") if isinstance(probe_owner_assertion, dict) else None
+            if (set(probe_owner_assertion) != {"owners", "passes_per_owner"}
+                    or probe_owner_assertion.get("passes_per_owner") != 5
+                    or not isinstance(owners, list) or len(owners) != 2):
+                raise ValueError(f"Scene {name} has invalid probe-owner transition assertions")
+            for owner in owners:
+                if (not isinstance(owner, dict) or set(owner) != {"map", "authored_count"}
+                        or not re.fullmatch(r"[A-Z0-9_]{1,8}", owner.get("map", ""))
+                        or owner.get("authored_count") != 2):
+                    raise ValueError(f"Scene {name} has invalid probe-owner assertion owner")
         for key in ("root_types", "materials"):
             if key not in state_assertions:
                 continue
@@ -610,12 +652,119 @@ def _light_positions(count: int, layout: str = "legacy") -> list[tuple[int, int]
     raise ValueError("Unsupported authored light count")
 
 
+def _probe_owner_transition_script(transition: dict) -> bytes:
+    # Fixture input driver, NOT an observer: it neither reads bake progress nor
+    # changes renderer decisions. RenderOverlay is called once after the main
+    # RenderView, never for probe faces or wipe-only presentations. Queue the
+    # ordinary playsim event after a fixed number of such calls, not game tics.
+    return ('''
+class SDVKProbeOwnerTransition : EventHandler
+{
+    bool TransitionApplied;
+    override void RenderOverlay(RenderEvent e)
+    {
+        if (Level.MapName != "@INITIAL@") return;
+        CVar counter = CVar.GetCVar('sdvk150_owner_frames');
+        int frames = counter.GetInt();
+        if (frames >= @FRAMES@) return;
+        frames++;
+        counter.SetInt(frames);
+        if (frames == @FRAMES@)
+        {
+            Console.Printf("SDVK150_TRANSITION_QUEUED map=@INITIAL@ main_view_frames=%d", frames);
+            EventHandler.SendNetworkEvent("SDVK150_Advance", frames);
+        }
+    }
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        if (e.Name != "SDVK150_Advance" || e.IsManual || e.Player != consoleplayer ||
+            e.Args[0] != @FRAMES@ || Level.MapName != "@INITIAL@" || TransitionApplied) return;
+        TransitionApplied = true;
+        Console.Printf("SDVK150_TRANSITION_APPLIED from=@INITIAL@ to=@FINAL@ main_view_frames=%d", e.Args[0]);
+        Level.ChangeLevel("@FINAL@", 0, CHANGELEVEL_NOINTERMISSION | CHANGELEVEL_NOAUTOSAVE);
+    }
+}
+'''.replace("@INITIAL@", transition["initial_map"])
+        .replace("@FINAL@", transition["final_map"])
+        .replace("@FRAMES@", str(transition["main_view_frames"]))).encode()
+
+
+def _probe_owner_transition_members(scene: dict) -> tuple[dict[str, bytes], dict]:
+    native = scene["native"]
+    transition = native["probe_owner_transition"]
+    members = _base_members()
+    members["ZSCRIPT"] += _probe_owner_transition_script(transition)
+    members["CVARINFO"] = b"nosave int sdvk150_owner_frames = 0;\n"
+    _material_layers(members)
+    members["GLDEFS"] = (
+        _pbr("SDVW") + _pbr("SDVFL", "flat") + _pbr("SDVOA0", kind="sprite")
+    ).encode()
+
+    camera = native["camera"]["position"]
+    yaw = math.radians(native["camera"]["yaw"])
+    player_start = [
+        camera[0] - round(48 * math.cos(yaw)),
+        camera[1] - round(48 * math.sin(yaw)),
+    ]
+    maps = []
+    for owner_index, owner in enumerate(transition["owners"]):
+        model = _Map(floor=32, ceiling=160, sky=False)
+        model.thing(1, player_start[0], player_start[1], tid=2001)
+        model.thing(32200, camera[0], camera[1], camera[2] - 32, tid=2002)
+        model.boundary([(-256, -192), (-256, 192), (256, 192), (256, -192)], ["SDVW"] * 4)
+        for probe in owner["probes"]:
+            model.thing(9892, probe[0], probe[1], probe[2])
+        # Keep the final actor/probe consumer path live without changing probe policy.
+        model.thing(9800, 0, 0, 64, tid=3000, arg0=160, arg1=160, arg2=160, arg3=96)
+        marker_positions = owner["markers"]
+        for marker_index, marker in enumerate(marker_positions):
+            model.thing(32203, marker[0], marker[1], marker[2], tid=5200 + marker_index)
+        map_name = owner["map"]
+        textmap = model.text().encode()
+        members[f"maps/{map_name}.wad"] = pf_indexed.wad(
+            [(map_name, b""), ("TEXTMAP", textmap), ("ENDMAP", b"")]
+        )
+        maps.append({
+            "map": map_name,
+            "owner_index": owner_index,
+            "probes": copy.deepcopy(owner["probes"]),
+            "markers": copy.deepcopy(marker_positions),
+            "counts": {kind: len(rows) for kind, rows in model.records.items()},
+            "boundary_signed_areas": list(model.polygon_areas),
+        })
+
+    members["MAPINFO"] = (
+        'gameinfo { AddEventHandlers = "SDVKProbeOwnerTransition" }\n' +
+        ''.join(f'map {owner["map"]} "SDVK probe owner {index}" {{ nointermission }}\n'
+                for index, owner in enumerate(transition["owners"])) +
+        'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n 32203 = SDVKMarker\n}\n'
+    ).encode()
+    return members, {
+        "geometry": "two authored UDMF maps in one process fixture",
+        "textures": "generated_rgba_only",
+        "native_executed": False,
+        "camera_actor_tid": 2002,
+        "camera_position_world": camera,
+        "player_start_world": player_start,
+        "same_probe_count": True,
+        "maps": maps,
+        "transition_driver": {
+            "driver": transition["driver"],
+            "main_view_frames": transition["main_view_frames"],
+            "initial_map": transition["initial_map"],
+            "final_map": transition["final_map"],
+        },
+    }
+
+
 def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
     generator, map_name = native["generator"], native["map"]
     if generator == "sprite_relief":
         from tools.renderer_oracle import sdvk008_fixtures
         return sdvk008_fixtures.authored_members(scene, sys.modules[__name__])
+    if generator == "probe_owner_transition":
+        return _probe_owner_transition_members(scene)
     members = _base_members()
     is_sun = generator in ("sun_probes", "sun_actor_occlusion")
     model = _Map(floor=32 if is_sun else 0,
@@ -949,9 +1098,10 @@ def configuration(scene: dict) -> bytes:
 def capture_script(scene: dict) -> bytes:
     # Repeat non-archived CVars on the real command path, rather than assuming
     # every engine CVar is persisted in the same INI section.
-    commands = [f"{key} {setting_literal(value)}" for key, value in sorted(scene["native"]["settings"].items())]
-    commands += scene["native"]["console_commands"]
-    commands += scene["native"]["console_queries"]
+    native = scene["native"]
+    commands = [f"{key} {setting_literal(value)}" for key, value in sorted(native["settings"].items())]
+    commands += native["console_commands"]
+    commands += native["console_queries"]
     if any(any(ch in cmd for ch in ('\n', '\r', ';', '"')) for cmd in commands):
         raise ValueError("Preparation commands must be literal single console statements")
     raw = ("; ".join(commands) + "\n").encode()

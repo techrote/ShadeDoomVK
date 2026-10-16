@@ -108,19 +108,26 @@ class ProbeLightmapContractTests(unittest.TestCase):
     def test_builder_completed_and_empty_states_terminate(self) -> None:
         step = function_body(
             self.lightprobe,
-            "void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)",
+            "LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step(",
         )
         full = function_body(
             self.lightprobe,
-            "void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)",
+            "void LightProbeIncrementalBuilder::Full(",
         )
+        self.assertIn("if (ownerRevision != probeSetRevision)", step)
+        self.assertIn("ownerRevision = probeSetRevision;", step)
+        self.assertIn("LightProbeBuilderEvent::OwnerReset", step)
+        self.assertIn("LightProbeBuilderEvent::EmptyReset", step)
+        self.assertIn("LightProbeBuilderEvent::CountReset", step)
+        self.assertIn("LightProbeBuilderEvent::PassPublished", step)
         self.assertIn("if (iterations >= 5)", step)
-        self.assertIn("if (cubemapsAllocated != 0)", step)
+        self.assertIn("const bool resetResources = cubemapsAllocated != 0;", step)
         self.assertIn("screen->ResetLightProbes();", step)
-        self.assertIn("Step(probes, renderScene);", full)
+        self.assertIn("Step(probes, probeSetRevision, renderScene);", full)
         self.assertIn("previousIndex", full)
         self.assertIn("previousAllocated", full)
         self.assertIn("previousIterations", full)
+        self.assertIn("previousOwnerRevision", full)
 
     def test_dormant_aabb_path_stays_explicitly_out_of_live_shader(self) -> None:
         update = function_body(self.lightprobe, "void LightProbeAABBTree::Update()")

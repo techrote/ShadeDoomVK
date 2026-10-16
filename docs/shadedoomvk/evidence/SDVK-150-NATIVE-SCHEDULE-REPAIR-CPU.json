@@ -1,0 +1,399 @@
+{
+  "schema": "sdvk150-native-schedule-repair-cpu/v1",
+  "status": "CPU_PASS_NATIVE_PENDING",
+  "date": "2026-10-16",
+  "target_branch": "sdvk150-probe-owner-identity",
+  "pull_request": 152,
+  "base_commit": "42eba1b100e00ce7411e238536ee1ede3c3481e2",
+  "base_tree": "73959c095342e8313b12da3d419b29b53412115d",
+  "recovered_source": {
+    "source_run": 38870637194,
+    "artifact": 12032507997,
+    "archive_sha256": "4807ce4deee0c3af92df84a648191430665b637d72f12dfc0af0d107ac8c6079",
+    "build_merge_ref": "0cd4760e5d8c1ff1030bb13921fa057171a56de3",
+    "bundle_checksums_verified": true,
+    "merge_and_head_trees_equal": true
+  },
+  "retained_native_failure": {
+    "ci_run": 38870637199,
+    "job": 116874272696,
+    "artifact": 12034085539,
+    "archive_sha256": "a248bedafee96f386cd23de7970ada8707183c5dc90fe30a8785098a85c81457",
+    "observation_sha256": "60a24c47373e4e18f12f45360e0b768e5db11c498eb8700243bdb589675af73f",
+    "observed_passes": {
+      "SDV15A": 0,
+      "SDV15B": 5
+    },
+    "observed_resets": {
+      "SDV15A": 1,
+      "SDV15B": 1
+    },
+    "stdout_completion_marker_present": true,
+    "stderr_bytes": 0,
+    "classification": "fixture simulation-tic wait does not guarantee render progress; native assertion failure, not an observed renderer/device fault"
+  },
+  "repair": {
+    "driver": "post-main-overlay-network-event",
+    "main_view_frames_before_queue": 32,
+    "renderer_cpp_changed": false,
+    "diagnostic_observer_changed": false,
+    "publication_oracle_unchanged": true,
+    "clock": "ordinary adaptive simulation; correctness-only frame-counted fixture input",
+    "transition_route": "fixture EventHandler.SendNetworkEvent -> NetworkProcess -> Level.ChangeLevel",
+    "passes_required_per_owner": 5,
+    "warmup_frames": 100,
+    "retained_frames": 1,
+    "deadline_seconds": 300,
+    "actual_zscript_vm_execution_here": false,
+    "vulkan_execution_here": false
+  },
+  "cpu_evidence": {
+    "command": "python3 tools/check.py --output build/sdvk150-schedule-checks-frozen",
+    "exit_code": 0,
+    "tests": {
+      "pf-tests": {
+        "tests": 803,
+        "status": "PASS",
+        "log_sha256": "2ef22dea2852210c903d9392854564af0a130b731f4e80974bffce4d99637dcf"
+      },
+      "cfx-tests": {
+        "tests": 8,
+        "status": "PASS",
+        "log_sha256": "311d978852d440f2af735e2259c9c93018ac44a66ada4d76ed562483ad4f0795"
+      },
+      "renderer-oracle-tests": {
+        "tests": 218,
+        "status": "PASS",
+        "log_sha256": "472735a2f338d1fc436830ce220a5ec01a56cd0a4cf66eac71a08f3c5806de60"
+      }
+    },
+    "standalone_compiled_fixtures": 4,
+    "oracle_outputs_byte_identical": true,
+    "deterministic_corpus_preparation": true,
+    "schedule_tics_per_render_cases": [
+      1,
+      2,
+      8,
+      20,
+      35,
+      100,
+      4096
+    ],
+    "corrected_schedule": {
+      "A_passes": 5,
+      "B_passes": 5,
+      "queue_count": 1,
+      "apply_count": 1
+    },
+    "old_tic_wait_counterexample": {
+      "ticks_per_view": 20,
+      "A_passes": 0,
+      "B_passes": 5,
+      "expected_rejection": "A-incomplete-before-transition"
+    },
+    "old_builder_with_corrected_schedule": {
+      "A_passes": 5,
+      "B_passes": 0,
+      "expected_rejection": "B-incomplete-after-transition"
+    },
+    "shortened_driver_mutant": "rejected A-incomplete-before-transition",
+    "retained_failed_native_rows": "rejected by unchanged exactly-five-pass oracle",
+    "fixture_adapters": [
+      "override/access syntax",
+      "static-call separators",
+      "Name literal",
+      "unused RenderEvent annotation",
+      "bounded CVar/network/log/Level/Screen services; no ZScript VM or Vulkan"
+    ],
+    "earlier_local_attempt": "803 PF/8 CFX/218 renderer tests passed; corpus snapshot guard rejected a concurrent RAG documentation edit. Evidence retained; complete gate rerun after freezing all sources."
+  },
+  "workload_equivalence": {
+    "base": "42eba1b100e00ce7411e238536ee1ede3c3481e2",
+    "unchanged_scenes": [
+      {
+        "scene": "pf-sprite-views",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "e26e3abc4cd7ebbb9796b8e8ce4a8eab3d41dad85649fc7f6025c71ee1e593e8"
+      },
+      {
+        "scene": "pf-indexed-material",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "f96c5963dd3ba9aa91b90b77fee6ca42c9c38fdb596058ef100eec100d1a8241"
+      },
+      {
+        "scene": "pf-pbr-probes",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3d4f15ffb01215818ab7fb7539814d1dfe755650b08c5a515144b501a91cca97"
+      },
+      {
+        "scene": "compositing",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95"
+      },
+      {
+        "scene": "lights-zero",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3da443f441178403c402c444e0aed7e4bd00b110ebf013533f24815b392fd5d6"
+      },
+      {
+        "scene": "lights-one",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "a3b2a10522a5402613b8ac14dbb2de6a4800b416820e0619e2b429b4d80f2b18"
+      },
+      {
+        "scene": "lights-many",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "555954805d3be1ccaa06ae376bee57950b46c312a5a90b3e9a35d746972eff15"
+      },
+      {
+        "scene": "lights-dense-overlap",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "d39f0f8a64494434e97d1035ab6b77a99cf3bf253eadcd54bfc53c9ea842ee91"
+      },
+      {
+        "scene": "lights-dense-dispersed",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "a5f8c59ab22b64cc64f54a7b5cd38c21d2be56dd5040ac129e395efeaeb21c86"
+      },
+      {
+        "scene": "shadow-boundary",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116"
+      },
+      {
+        "scene": "material-stress",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "ec2deba623cc1372598d8ea57e1993ca68fc1d62700c5555f69e40b0dc19aeed"
+      },
+      {
+        "scene": "sun-probes",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3b3eeb2cf8fffa63f2c4d22d074404447b507f174f55b5f47af5b7631eb25bae"
+      },
+      {
+        "scene": "sprite-mirror",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "d85522e81a07913c26c27ec3620eb81254290415cbe67962e3d3c73725a68a42"
+      },
+      {
+        "scene": "sdvk008-s0",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114"
+      },
+      {
+        "scene": "sdvk008-sl",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114"
+      },
+      {
+        "scene": "sdvk008-sm",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114"
+      },
+      {
+        "scene": "sdvk008-sh",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114"
+      },
+      {
+        "scene": "sdvk008-m0",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "38016134a7d31f7ebdb4c43bcb20fd256bd004536a51c39d6eab9816c57faacd"
+      },
+      {
+        "scene": "sdvk008-mm",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "38016134a7d31f7ebdb4c43bcb20fd256bd004536a51c39d6eab9816c57faacd"
+      },
+      {
+        "scene": "sdvk008-mh",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "38016134a7d31f7ebdb4c43bcb20fd256bd004536a51c39d6eab9816c57faacd"
+      },
+      {
+        "scene": "sdvk008-g0",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3878cdca16b5e83d64f76d41384978b869955478b15dcf40c525e57656f0bb44"
+      },
+      {
+        "scene": "sdvk008-gh",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3878cdca16b5e83d64f76d41384978b869955478b15dcf40c525e57656f0bb44"
+      },
+      {
+        "scene": "sdvk008-p0",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "91b31bf7d579149cc7d5c3409951f1f0f4172eb2415a633970a471200d9850d2"
+      },
+      {
+        "scene": "sdvk008-pm",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "91b31bf7d579149cc7d5c3409951f1f0f4172eb2415a633970a471200d9850d2"
+      },
+      {
+        "scene": "sdvk008-default-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114"
+      },
+      {
+        "scene": "sdvk008-heightless-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "9c1e8d025b01c6b7f09b1aaa212bab6588b45cfb98850d3b239640539636b3f3"
+      },
+      {
+        "scene": "sdvk008-heightless-on",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "9c1e8d025b01c6b7f09b1aaa212bab6588b45cfb98850d3b239640539636b3f3"
+      },
+      {
+        "scene": "sdvk008-alpha-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "d385408a1e7691c2ee85c215e8a66b238983fff84ccb935262bdf0c29eb0f5b7"
+      },
+      {
+        "scene": "sdvk008-alpha-on",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "d385408a1e7691c2ee85c215e8a66b238983fff84ccb935262bdf0c29eb0f5b7"
+      },
+      {
+        "scene": "sdvk008-mirror-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "621d2df42e84b6e6c16b8ab9bdf87bdf69873ac2d440edab5f0a1ad471a68063"
+      },
+      {
+        "scene": "sdvk008-mirror-on",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "621d2df42e84b6e6c16b8ab9bdf87bdf69873ac2d440edab5f0a1ad471a68063"
+      },
+      {
+        "scene": "sdvk008-alpha-background",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "b9fc66c4628e732fd2e18e2859cdde4046d4796d9e09c5204dffa53dffe624f2"
+      },
+      {
+        "scene": "sdvk008-grazing-fallback-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3abc07559960be77decdb8987b70e235d6dcd27d5088dcae9a25109d677bdf14"
+      },
+      {
+        "scene": "sdvk008-grazing-fallback-on",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "3abc07559960be77decdb8987b70e235d6dcd27d5088dcae9a25109d677bdf14"
+      },
+      {
+        "scene": "sdvk008-flipx-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "8c8ea6e889b538f160daa3887ac6410a3510cc24b50815e30d9bc7b50484974c"
+      },
+      {
+        "scene": "sdvk008-flipx-on",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "8c8ea6e889b538f160daa3887ac6410a3510cc24b50815e30d9bc7b50484974c"
+      },
+      {
+        "scene": "sdvk008-flipy-off",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "f1a2bb3179b1263595ee025e8b3b80f92c73a16634f69bb134963840988fdcd0"
+      },
+      {
+        "scene": "sdvk008-flipy-on",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "f1a2bb3179b1263595ee025e8b3b80f92c73a16634f69bb134963840988fdcd0"
+      },
+      {
+        "scene": "portal-probes",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "fb41a6f9fd137c0bd89c9a370dbf403887587ff2e6fcf050a88e9cd8b1b43e3e"
+      },
+      {
+        "scene": "sun-actor-occlusion",
+        "all_recipe_assets_metadata_equal": true,
+        "archive_sha256": "b07a806eb6b462063bdd2e1a4c162ad5922976f7c97d5134af9a9b281f2f83a2"
+      }
+    ],
+    "transition": {
+      "unchanged_members": [
+        "textures/SDVW.png",
+        "flats/SDVFL.png",
+        "sprites/SDVGA0.png",
+        "sprites/SDVOA0.png",
+        "textures/SDVN.png",
+        "textures/SDVSP.png",
+        "textures/SDVM.png",
+        "textures/SDVR.png",
+        "textures/SDVZERO.png",
+        "textures/SDVAO.png",
+        "textures/SDVH.png",
+        "GLDEFS",
+        "maps/SDV15A.wad",
+        "maps/SDV15B.wad"
+      ],
+      "changed_members": [
+        "ZSCRIPT",
+        "MAPINFO"
+      ],
+      "added_members": [
+        "CVARINFO"
+      ],
+      "settings_ini_equal": true
+    }
+  },
+  "reviewed_files_before_receipt": {
+    "docs/shadedoomvk/10-EXECUTION-LEDGER.md": {
+      "sha256": "b4b85dfe3a0ff6d01be47efd47aabd155f7f9ea03f1b06f31cc4588b4a0f951e",
+      "git_blob": "1070415bf417502947b86c559d3b955e01e0864a"
+    },
+    "docs/shadedoomvk/SDVK-150-PROBE-OWNER-REPAIR.md": {
+      "sha256": "94dfae68e9737d9dc4429d31ded7e463371957d4127242ca08c313d64dcff9ff",
+      "git_blob": "3d62efeb1e4407e11a94e8ca01ef9d7b32f8ae70"
+    },
+    "docs/shadedoomvk/rag/06-LIGHTMAP-PROBE-PIPELINE.md": {
+      "sha256": "28433239f1510000aab32feaa82e5efb5ed5c11dc5ecf1017a2f7ad98c63029f",
+      "git_blob": "cc688bf4e192f7c23bcc85567ef5a49cfb695e34"
+    },
+    "tools/renderer_oracle/corpus.json": {
+      "sha256": "04ab5ac4fee951817dde88b1ab996f37202139162f24c2ac77ce085736992add",
+      "git_blob": "2006843cc7b6f2b0d011ba6aeedc3ad32b263697"
+    },
+    "tools/renderer_oracle/prepare.py": {
+      "sha256": "6bd7603139d1e52a091663b3a8285010a6d488583440fa7fd88cc48382ac40de",
+      "git_blob": "ce2ad7e7b2fea8f882606425cde593af194879ba"
+    },
+    "tools/renderer_oracle/run.py": {
+      "sha256": "f2dae601bdd76440b8d3946a5c9114229dae72dc746c996d88494b32317dddcf",
+      "git_blob": "6d2f008f76511c514d9a49564496903d3d30d0d5"
+    },
+    "tools/renderer_oracle/sdvk150_probe_owner.py": {
+      "sha256": "3951076caac29fc71c3175efd24492dfdc136b78d3e08e6ed08a207f0e6176b9",
+      "git_blob": "bd17e2490f869a4bb0fffec272956e1439e0ac62"
+    },
+    "tools/renderer_oracle/tests/test_corpus.py": {
+      "sha256": "45f5956dcc185a160794832656b49be3391962e20e700562d64f93585f826640",
+      "git_blob": "ba8d66b70a7d5b92922f2f3f891fa3bc18959ad8"
+    },
+    "tools/renderer_oracle/tests/fixtures/sdvk150-tic-wait-failure.json": {
+      "sha256": "f7be5154366bbc93fdee6e025ab10e950779f16f45e766c8a8fe727f8323443f",
+      "git_blob": "6ea3a8d04b2919eba28836364aa728d0d0745fbd"
+    },
+    "tools/renderer_oracle/tests/sdvk150_transition_schedule_fixture.cpp": {
+      "sha256": "e9a0301adcdc4cdd5ed8a9be7a045f015ccc3825253a537c03919ed69c55a991",
+      "git_blob": "2061fed5730400c46b4ea29cfb3bd31fe978588d"
+    },
+    "tools/renderer_oracle/tests/test_sdvk150_transition_schedule.py": {
+      "sha256": "726549d87aacd5a1ab9cdb7643446bc7a1e8fb7f254fc00a854e188620aa950d",
+      "git_blob": "071b94e9f6f0c1b275440d9b9ca4b8888b843b5a"
+    }
+  },
+  "publication": {
+    "pushed": false,
+    "new_ci_launched": false,
+    "blocker": "Available GitHub connector exposes read actions only; direct Git transport failed DNS resolution for github.com."
+  },
+  "acceptance": {
+    "SDVK150": "NOT_ACCEPTED",
+    "SDVK014": "NOT_SOFTWARE_COMPLETE",
+    "physical_stop": "ACTIVE",
+    "physical_gpu_cost_scaling_stability": "HELD_NOT_ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  }
+}

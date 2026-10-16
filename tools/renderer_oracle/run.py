@@ -233,6 +233,8 @@ def capture(args):
     require(not native.get("manual_opt_in") or args.include_stress,
             "This bounded stress/probe recipe requires the explicit --include-stress selection")
     mode = args.mode
+    if native.get("generator") == "probe_owner_transition":
+        require(mode == "state", "Probe-owner frame-driven transition is correctness-only")
     extent = capture_extent(args, native, mode)
     frames = args.frames if args.frames is not None else (1 if mode == "state" else 120)
     warmup = args.warmup if args.warmup is not None else native.get("recommended_warmup_frames", 120)
@@ -305,6 +307,7 @@ def capture(args):
                    "application_cache": "fresh-empty-directory-per-process",
                    "driver_cache": "external-driver-cache-uncontrolled",
                    "gpu_timestamps_requested": args.gpu,
+                   "probe_owner_trace": bool(native.get("probe_owner_trace", False)),
                    "image_policy": image_policy(scene, args.image_policy)}
         prefix = _console_path(out / "native")
         substitutions = {"exe": str(exe), "iwad": str(out / "input" / iwad.name),
@@ -317,6 +320,9 @@ def capture(args):
                  "-sdvkobservemode", mode, "-sdvkobservecache", _console_path(out / "cache"), "-sdvkobservequit"]
         if args.gpu:
             argv.append("-sdvkobservegpu")
+        if native.get("probe_owner_trace", False):
+            require(mode == "state", "Probe-owner lifecycle trace is state-only")
+            argv.append("-sdvkprobeownertrace")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
@@ -716,6 +722,13 @@ def _scene_assertions(raw, scene):
             portal_probe = assertions.get("actor_probe_portal")
             if portal_probe:
                 _portal_actor_probe_assertions(records, portal_probe)
+            probe_owner = assertions.get("probe_owner_transition")
+            if probe_owner and frame == 1:
+                try:
+                    from .sdvk150_probe_owner import validate_lifecycle_records
+                except ImportError:
+                    from tools.renderer_oracle.sdvk150_probe_owner import validate_lifecycle_records
+                validate_lifecycle_records(raw["records"], probe_owner)
             minimum_probes = assertions.get("published_probes_minimum")
             if minimum_probes is not None:
                 owners = [record["data"] for record in records if record["kind"] == "resource"]
@@ -805,6 +818,9 @@ def _validate_run(path):
     structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
+    if scene["native"].get("generator") == "probe_owner_transition":
+        from tools.renderer_oracle.sdvk150_probe_owner import validate_driver_log
+        validate_driver_log(stdout, scene["native"]["probe_owner_transition"])
     if "diagnostics" in request:
         publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":
@@ -873,6 +889,26 @@ def _portal_probe_repeatability_projection(records):
     return _sdvk010_repeatability_projection(records, "portal-probes")
 
 
+def _sdvk150_repeatability_projection(records, scene):
+    """Normalize only process-local semantic probe-owner revision labels.
+
+    The transition pattern, map association, publication order, and all actual
+    LightProbe/resource epochs remain strict.
+    """
+    result = copy.deepcopy(records)
+    if scene != "probe-owner-transition":
+        return result
+    revisions = {}
+    for record in result:
+        if record.get("kind") != "probe-builder":
+            continue
+        for event in record.get("data", {}).get("events", []):
+            raw = event.get("owner_revision")
+            if type(raw) is int:
+                event["owner_revision"] = revisions.setdefault(raw, len(revisions))
+    return result
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -891,11 +927,17 @@ def compare_runs(left, right, *, allow_build_change=False):
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
     static = a["reproduction"]["clock"] == "static_after_initialization"
-    x = _sdvk010_repeatability_projection(validate.state_projection(left_raw, static_scene=static), a["scene"])
-    y = _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"])
+    x = _sdvk150_repeatability_projection(
+        _sdvk010_repeatability_projection(validate.state_projection(left_raw, static_scene=static), a["scene"]),
+        a["scene"])
+    y = _sdvk150_repeatability_projection(
+        _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"]),
+        b["scene"])
     normalization = "Validated context and live-slot identities; 1e-9 view-number canonicalization; static-scene clock labels; cumulative workload telemetry excluded; semantic state retained"
     if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
+    if a["scene"] == "probe-owner-transition":
+        normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",

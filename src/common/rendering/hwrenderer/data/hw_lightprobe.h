@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vectors.h"
+#include <cstdint>
 
 class LevelMesh;
 
@@ -15,19 +16,40 @@ struct LightProbeTarget
 	int index = 0; // parameter for renderstate.SetLightProbe
 };
 
+enum class LightProbeBuilderEvent
+{
+	None,
+	OwnerReset,
+	EmptyReset,
+	CountReset,
+	PassPublished,
+};
+
+struct LightProbeBuilderStepResult
+{
+	LightProbeBuilderEvent Event = LightProbeBuilderEvent::None;
+	uint64_t OwnerRevision = 0;
+	int ProbeCount = 0;
+	int Iteration = 0;
+	int NextIndex = 0;
+	int Collected = 0;
+};
+
 class LightProbeIncrementalBuilder
 {
 public:
-	void Step(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
-	void Full(const TArray<LightProbe>& probes, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
+	LightProbeBuilderStepResult Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
+	void Full(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene);
 
 	auto GetStep() const { return lastIndex; }
+	uint64_t GetProbeSetRevision() const { return ownerRevision; }
 
 private:
 	int lastIndex = 0;
 	int collected = 0;
 	int cubemapsAllocated = 0;
 	int iterations = 0;
+	uint64_t ownerRevision = 0;
 };
 
 struct ProbeNode
