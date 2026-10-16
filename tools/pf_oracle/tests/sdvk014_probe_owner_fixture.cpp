@@ -17,9 +17,6 @@ void M_Free(void* p) {std::free(p);}
 void* M_Calloc(size_t n,size_t m) {auto p=std::calloc(n,m);if(!p)throw std::bad_alloc();return p;}
 struct Screen {int resets=0,passes=0;void ResetLightProbes(){++resets;}void EndLightProbePass(){++passes;}} screenObject;
 Screen* screen=&screenObject;
-namespace SdvkDiagnostics {
-static void ProbeBuilderLifecycle(const char*, uint64_t, int, int, int, int) {}
-}
 // The unchanged producer compares bounded int progress to TArray size_t.
 // Keep the exact source; isolate only that inherited warning in this fixture.
 #ifdef _MSC_VER
