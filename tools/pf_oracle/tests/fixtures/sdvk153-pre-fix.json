@@ -1,0 +1,47 @@
+{
+  "schema": "sdvk153-retained-owner-boundary/v1",
+  "commit": "ca254b6ea08228c8408562ebba26bbc1060a0311",
+  "tree": "ea20650fefbe454b5a43f82119e879df75ed8e4f",
+  "functions": {
+    "reset": {
+      "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+      "signature": "void VkDescriptorSetManager::ResetHWTextureSets()",
+      "file_sha256": "bb02363defb8e4c3b9d0483aa377b74a226bafaa74ae0b9421137e95203c7c83",
+      "file_git_blob": "4523cdb6fc5e1b77299bceafdd15f07388a1d1f1",
+      "sha256": "f3a5a0244ee135e7f14a3a74e01748c086d82773e0f1d72e63ad8f246fb9c6fa",
+      "content": "void VkDescriptorSetManager::ResetHWTextureSets()\n{\n\tfor (auto mat : Materials)\n\t\tmat->DeleteDescriptors();\n\n\tfor (FSWColormap* colormap : Colormaps)\n\t{\n\t\tif (colormap->Renderdev.bindIndex != -1)\n\t\t{\n\t\t\tFreeBindlessSlot(colormap->Renderdev.bindIndex);\n\t\t\tcolormap->Renderdev.bindIndex = -1;\n\t\t}\n\t}\n\tColormaps.clear();\n\n\tfor (int index : LightProbes)\n\t\tFreeBindlessSlot(index);\n\tLightProbes.clear();\n\n\t// Fixed indexes the shaders can always access\n\tSetBindlessTexture(0, fb->GetTextureManager()->GetNullTextureView(), fb->GetSamplerManager()->Get(CLAMP_XY_NOMIP));\n\tSetBindlessTexture(1, fb->GetTextureManager()->GetBrdfLutTextureView(), fb->GetSamplerManager()->Get(CLAMP_XY_NOMIP));\n\tSetBindlessTexture(2, fb->GetTextureManager()->GetGamePaletteView(), fb->GetSamplerManager()->Get(CLAMP_XY_NOMIP));\n}"
+    },
+    "lookup": {
+      "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+      "signature": "int VkDescriptorSetManager::GetLightProbeTextureIndex(",
+      "file_sha256": "bb02363defb8e4c3b9d0483aa377b74a226bafaa74ae0b9421137e95203c7c83",
+      "file_git_blob": "4523cdb6fc5e1b77299bceafdd15f07388a1d1f1",
+      "sha256": "4d4c876e1148506b66e294e74a6fe19adfc9ad2171756830bc0ceef920f2a452",
+      "content": "int VkDescriptorSetManager::GetLightProbeTextureIndex(int probeIndex)\n{\n\tif ((size_t)probeIndex >= LightProbes.size())\n\t\tLightProbes.resize(probeIndex + 1, -1);\n\n\tif (LightProbes[probeIndex] == -1)\n\t{\n\t\tauto textures = fb->GetTextureManager();\n\n\t\t// Seems we might be rendering a probe before we have data for it\n\t\tif (textures->Irradiancemaps.size() > (size_t)probeIndex && textures->Irradiancemaps[probeIndex].View &&\n\t\t\ttextures->Prefiltermaps.size() > (size_t)probeIndex && textures->Prefiltermaps[probeIndex].View)\n\t\t{\n\t\t\tint bindIndex = AllocBindlessSlot(2);\n\t\t\tLightProbes[probeIndex] = bindIndex;\n\t\t\tSetBindlessTexture(bindIndex, textures->Irradiancemaps[probeIndex].View.get(), fb->GetSamplerManager()->IrradiancemapSampler.get());\n\t\t\tSetBindlessTexture(bindIndex + 1, textures->Prefiltermaps[probeIndex].View.get(), fb->GetSamplerManager()->PrefiltermapSampler.get());\n\t\t}\n\t\telse\n\t\t{\n\t\t\treturn 0;\n\t\t}\n\t}\n\n\treturn LightProbes[probeIndex];\n}"
+    },
+    "filter": {
+      "path": "src/common/rendering/vulkan/vk_renderdevice.cpp",
+      "signature": "void VulkanRenderDevice::SetTextureFilterMode()",
+      "file_sha256": "22e0d63ad3735d008692373312f5cfc0de5f891a9bb115e23982820b3a45ee4d",
+      "file_git_blob": "19dda247caa96d5b258bca7825e4e0e895f35d6a",
+      "sha256": "466c9f8120c298dfd81eaec2f6188638898b37bb3bc8f1e3465264bebb22c507",
+      "content": "void VulkanRenderDevice::SetTextureFilterMode()\n{\n\tif (mSamplerManager)\n\t{\n\t\tmDescriptorSetManager->ResetHWTextureSets();\n\t\tmSamplerManager->ResetHWSamplers();\n\t}\n}"
+    },
+    "upload": {
+      "path": "src/common/rendering/vulkan/vk_lightmapper.cpp",
+      "signature": "int VkLightmapper::UploadProbeSelection()",
+      "file_sha256": "4068e57b8ad4e37171f0ddf0866e64f8ea80541e85ce4bcef054cf268596754d",
+      "file_git_blob": "9451b60d7dbf9078794fda7d1e883f23efabd216",
+      "sha256": "6c282a3582326406f2dce42b235e6d2419f67d84e7450647fbbc8dd9e613bff9",
+      "content": "int VkLightmapper::UploadProbeSelection()\n{\n\tif (!probeSelection.Entries || !mesh || level.levelMesh != mesh)\n\t\treturn 0;\n\n\tint count = 0;\n\tfor (const LightProbe& probe : level.lightProbes)\n\t{\n\t\tconst int descriptorIndex = fb->GetDescriptorSetManager()->GetLightProbeTextureIndex(probe.index);\n\t\tif (descriptorIndex <= 0)\n\t\t\tcontinue;\n\n\t\tconst uint32_t textureIndex = static_cast<uint32_t>(descriptorIndex);\n\t\tif (!HWProbeSelection::IsEncodableTextureIndex(textureIndex))\n\t\t\tcontinue;\n\t\tif (count >= probeSelection.BufferSize)\n\t\t\tbreak;\n\n\t\tHWProbeSelection::Candidate& entry = probeSelection.Entries[count++];\n\t\tentry.X = probe.position.X;\n\t\tentry.Y = probe.position.Y;\n\t\tentry.Z = probe.position.Z;\n\t\tentry.TextureIndex = textureIndex;\n\t}\n\treturn count;\n}"
+    },
+    "precache": {
+      "path": "src/common/rendering/vulkan/vk_renderdevice.cpp",
+      "signature": "void VulkanRenderDevice::StartPrecaching()",
+      "file_sha256": "22e0d63ad3735d008692373312f5cfc0de5f891a9bb115e23982820b3a45ee4d",
+      "file_git_blob": "19dda247caa96d5b258bca7825e4e0e895f35d6a",
+      "sha256": "e709da7728d6dc16855e682465573854468df39cce434a1e86979a874e747909",
+      "content": "void VulkanRenderDevice::StartPrecaching()\n{\n\t// Destroy the texture descriptors to avoid problems with potentially stale textures.\n\tmDescriptorSetManager->ResetHWTextureSets();\n}"
+    }
+  }
+}

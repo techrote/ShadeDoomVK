@@ -113,3 +113,20 @@ Substantive implementation is accepted, merged and verified. The exact evidence 
 The deterministic fixture reaches 3,072/4,096 dynamic descriptors (75%) with zero invalid frees and explicit stale/exhaustion checks. The native llvmpipe `material-stress` route observed 438 current/high-water descriptors, 72 allocations, 4 reuses, 4 frees, zero failures/invalid frees and 142 hardware textures; both independent captures agreed. Eight custom PBR panels were actually drawn with span 9 and binding 8/custom index 0 using the authored nearest/linear requests. `sun-probes` observed one lightmap page plus two irradiance and two prefilter resources.
 
 No physical-GPU qualification is claimed. The hosted eight-scene lane still does not execute `pf-indexed-material`; accepted PF-110 evidence remains the native indexed/translation correctness authority consumed by SDVK-004.
+
+
+## SDVK-153 follow-on candidate: separate probe and material reset lifetimes
+
+The source behavior described above is the historical SDVK-004 qualification
+boundary, not an exemption from later stale-consumer evidence. Audit #153 proved
+that raw probe-map texels survive a material-cache reset. The current candidate
+preserves their device-owned pairs rather than retiring them with materials.
+The generic pressure fixture's complete allocation teardown remains a valid
+allocator test; it no longer represents the live material-sampler reset route.
+
+Material consumers still retire **before** `ResetHWSamplers`. Fixed descriptors
+0..2 are now published separately **after** replacement samplers exist. This
+retains the original ordering protection and adds the missing fixed-publication
+owner check. Current source tests require both orderings and the persistent
+probe exception. Original release receipts and allocator counters are unchanged.
+See SDVK-153-PROBE-DESCRIPTOR-LIFETIME.md for explicit candidate/native boundaries.

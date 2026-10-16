@@ -24,6 +24,7 @@ public:
 	void Deinit();
 	void BeginFrame();
 	void ResetHWTextureSets();
+	void UpdateFixedTextureDescriptors();
 
 	VulkanDescriptorSetLayout* GetLevelMeshLayout() { return LevelMesh.Layout.get(); }
 	VulkanDescriptorSetLayout* GetRSBufferLayout() { return RSBuffer.Layout.get(); }
@@ -145,5 +146,8 @@ private:
 
 	std::list<VkMaterial*> Materials;
 	std::vector<FSWColormap*> Colormaps;
+	// Texture-manager ordinal -> stable span-2 allocation, not a material cache.
+	// Grow-only published image/view prefixes and dedicated probe samplers retain
+	// these identities across ResetHWTextureSets. Released with the bindless set.
 	std::vector<int> LightProbes;
 };

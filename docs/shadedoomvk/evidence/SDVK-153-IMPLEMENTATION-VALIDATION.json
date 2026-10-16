@@ -1,0 +1,317 @@
+{
+  "schema": "sdvk153-implementation-validation/v1",
+  "status": "CPU_QUALIFIED_NATIVE_PENDING",
+  "date": "2026-10-16",
+  "branch": "sdvk153-probe-descriptor-lifetime",
+  "parent": "d57137c3a383e912e2e7376759ec45d4503adfb9",
+  "parent_tree": "3de46ed9d9c66520994035510f49dd7f073d91b1",
+  "full_gate": {
+    "command": "python3 tools/check.py --output build/sdvk153-final-three-phase-checks",
+    "exit_code": 0,
+    "logs": {
+      "levelmesh_contract.log": {
+        "sha256": "b1bec0fbca7b5c0d495a704bd6c1b150b8d0eb4812452128158a7bafe0f9e103",
+        "tests": null
+      },
+      "oracle-a.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests": null
+      },
+      "cfx-tests.log": {
+        "sha256": "6e2fed72611c9401a549918513e237fc1ee10c3452a0716b394e23310d78471c",
+        "tests": 8
+      },
+      "probe_selection.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests": null
+      },
+      "pf-tests.log": {
+        "sha256": "19aa0b44d4717fda065789b032654d2dcb9f125698bbc37baff6759733eaf143",
+        "tests": 814
+      },
+      "resource_generation.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests": null
+      },
+      "bindless_allocator.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests": null
+      },
+      "oracle-b.log": {
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "tests": null
+      },
+      "renderer-oracle-tests.log": {
+        "sha256": "f7f842f1a82585ec651608b8fabc261f5b9f241b812deac3018930243b5e6144",
+        "tests": 229
+      },
+      "renderer-corpus.log": {
+        "sha256": "7b9831cc918ce52045425d91b208047d0243074881589b0279e5ac49ce79f611",
+        "tests": null
+      }
+    },
+    "oracle_equality": true,
+    "standalone_compiled_fixtures": 4,
+    "deterministic_corpus": "PASS"
+  },
+  "focused_cross_compiler": {
+    "GCC": "PASS: complete CPU gate",
+    "Clang": "PASS: 14 focused tests including 4 compiled mutations",
+    "clang_log_sha256": "e2d0936d1cccd572fa3f4a1be2af30a74d2134915e5b6eed1b6ff78097a0f3de"
+  },
+  "sanitized_cpu": {
+    "schema": "sdvk153-sanitized-cpu/v1",
+    "status": "PASS",
+    "command": [
+      "/usr/bin/c++",
+      "-g",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer",
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-UNDEBUG",
+      "/mnt/data/ShadeDoomVK/tools/pf_oracle/tests/sdvk153_descriptor_lifetime_fixture.cpp",
+      "-I/mnt/data/sdvk153-sanitize-final",
+      "-I/mnt/data/ShadeDoomVK/src/common/rendering/hwrenderer/data",
+      "-I/mnt/data/ShadeDoomVK/src/common/rendering/vulkan/descriptorsets",
+      "-I/mnt/data/ShadeDoomVK/src/common/rendering",
+      "-I/mnt/data/ShadeDoomVK/src/common/utility",
+      "-I/mnt/data/ShadeDoomVK/src/common/thirdparty",
+      "-o",
+      "/mnt/data/sdvk153-sanitize-final/sanitized"
+    ],
+    "adapters": "same symbolic-service boundary as ordinary CPU harness; no Vulkan",
+    "cases": [
+      {
+        "case": "no-reset",
+        "returncode": 0,
+        "stdout": "PASS no-reset\n",
+        "stderr": ""
+      },
+      {
+        "case": "filter",
+        "returncode": 0,
+        "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS filter\n",
+        "stderr": ""
+      },
+      {
+        "case": "anisotropy",
+        "returncode": 0,
+        "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS anisotropy\n",
+        "stderr": ""
+      },
+      {
+        "case": "precache",
+        "returncode": 0,
+        "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS precache\n",
+        "stderr": ""
+      },
+      {
+        "case": "reverse-lookup",
+        "returncode": 0,
+        "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS reverse-lookup\n",
+        "stderr": ""
+      },
+      {
+        "case": "material-pressure",
+        "returncode": 0,
+        "stdout": "PASS material-pressure\n",
+        "stderr": ""
+      },
+      {
+        "case": "fixed-samplers",
+        "returncode": 0,
+        "stdout": "PASS fixed-samplers\n",
+        "stderr": ""
+      },
+      {
+        "case": "material-retirement",
+        "returncode": 0,
+        "stdout": "PASS material-retirement\n",
+        "stderr": ""
+      },
+      {
+        "case": "admission",
+        "returncode": 0,
+        "stdout": "PASS admission\n",
+        "stderr": ""
+      },
+      {
+        "case": "bounded-ordinal",
+        "returncode": 0,
+        "stdout": "PASS bounded-ordinal\n",
+        "stderr": ""
+      },
+      {
+        "case": "stress",
+        "returncode": 0,
+        "stdout": "cycles=128 max_probe_pairs=8 live_descriptors=16 high_water_descriptors=25 owner_resets=128 publications=535 filter_resets=128 sampler_retirement_backlog=0\nPASS stress\n",
+        "stderr": ""
+      },
+      {
+        "case": "exhaustion",
+        "returncode": 0,
+        "stdout": "PASS exhaustion\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "workload_equivalence": {
+    "schema": "sdvk153-workload-equivalence/v1",
+    "status": "PASS",
+    "parent": "d57137c3a383e912e2e7376759ec45d4503adfb9",
+    "unchanged_scenes": 41,
+    "added_scenes": [
+      "probe-sampler-reset",
+      "probe-sampler-reset-control"
+    ],
+    "checks": "each pre-existing scene recipe, archive, all members, metadata and capture script byte hash unchanged",
+    "scene_archive_sha256": {
+      "compositing": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95",
+      "lights-dense-dispersed": "a5f8c59ab22b64cc64f54a7b5cd38c21d2be56dd5040ac129e395efeaeb21c86",
+      "lights-dense-overlap": "d39f0f8a64494434e97d1035ab6b77a99cf3bf253eadcd54bfc53c9ea842ee91",
+      "lights-many": "555954805d3be1ccaa06ae376bee57950b46c312a5a90b3e9a35d746972eff15",
+      "lights-one": "a3b2a10522a5402613b8ac14dbb2de6a4800b416820e0619e2b429b4d80f2b18",
+      "lights-zero": "3da443f441178403c402c444e0aed7e4bd00b110ebf013533f24815b392fd5d6",
+      "material-stress": "ec2deba623cc1372598d8ea57e1993ca68fc1d62700c5555f69e40b0dc19aeed",
+      "pf-indexed-material": "f96c5963dd3ba9aa91b90b77fee6ca42c9c38fdb596058ef100eec100d1a8241",
+      "pf-pbr-probes": "3d4f15ffb01215818ab7fb7539814d1dfe755650b08c5a515144b501a91cca97",
+      "pf-sprite-views": "e26e3abc4cd7ebbb9796b8e8ce4a8eab3d41dad85649fc7f6025c71ee1e593e8",
+      "portal-probes": "fb41a6f9fd137c0bd89c9a370dbf403887587ff2e6fcf050a88e9cd8b1b43e3e",
+      "probe-owner-transition": "a06c26410f23de8a0d87019e4302d1521449a2616deab218188b1cb1224edd53",
+      "sdvk008-alpha-background": "b9fc66c4628e732fd2e18e2859cdde4046d4796d9e09c5204dffa53dffe624f2",
+      "sdvk008-alpha-off": "d385408a1e7691c2ee85c215e8a66b238983fff84ccb935262bdf0c29eb0f5b7",
+      "sdvk008-alpha-on": "d385408a1e7691c2ee85c215e8a66b238983fff84ccb935262bdf0c29eb0f5b7",
+      "sdvk008-default-off": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114",
+      "sdvk008-flipx-off": "8c8ea6e889b538f160daa3887ac6410a3510cc24b50815e30d9bc7b50484974c",
+      "sdvk008-flipx-on": "8c8ea6e889b538f160daa3887ac6410a3510cc24b50815e30d9bc7b50484974c",
+      "sdvk008-flipy-off": "f1a2bb3179b1263595ee025e8b3b80f92c73a16634f69bb134963840988fdcd0",
+      "sdvk008-flipy-on": "f1a2bb3179b1263595ee025e8b3b80f92c73a16634f69bb134963840988fdcd0",
+      "sdvk008-g0": "3878cdca16b5e83d64f76d41384978b869955478b15dcf40c525e57656f0bb44",
+      "sdvk008-gh": "3878cdca16b5e83d64f76d41384978b869955478b15dcf40c525e57656f0bb44",
+      "sdvk008-grazing-fallback-off": "3abc07559960be77decdb8987b70e235d6dcd27d5088dcae9a25109d677bdf14",
+      "sdvk008-grazing-fallback-on": "3abc07559960be77decdb8987b70e235d6dcd27d5088dcae9a25109d677bdf14",
+      "sdvk008-heightless-off": "9c1e8d025b01c6b7f09b1aaa212bab6588b45cfb98850d3b239640539636b3f3",
+      "sdvk008-heightless-on": "9c1e8d025b01c6b7f09b1aaa212bab6588b45cfb98850d3b239640539636b3f3",
+      "sdvk008-m0": "38016134a7d31f7ebdb4c43bcb20fd256bd004536a51c39d6eab9816c57faacd",
+      "sdvk008-mh": "38016134a7d31f7ebdb4c43bcb20fd256bd004536a51c39d6eab9816c57faacd",
+      "sdvk008-mirror-off": "621d2df42e84b6e6c16b8ab9bdf87bdf69873ac2d440edab5f0a1ad471a68063",
+      "sdvk008-mirror-on": "621d2df42e84b6e6c16b8ab9bdf87bdf69873ac2d440edab5f0a1ad471a68063",
+      "sdvk008-mm": "38016134a7d31f7ebdb4c43bcb20fd256bd004536a51c39d6eab9816c57faacd",
+      "sdvk008-p0": "91b31bf7d579149cc7d5c3409951f1f0f4172eb2415a633970a471200d9850d2",
+      "sdvk008-pm": "91b31bf7d579149cc7d5c3409951f1f0f4172eb2415a633970a471200d9850d2",
+      "sdvk008-s0": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114",
+      "sdvk008-sh": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114",
+      "sdvk008-sl": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114",
+      "sdvk008-sm": "e538c47ce0c625099c25ab2817ad3a16181df5fe69f3c503a5e54029bb5f1114",
+      "shadow-boundary": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116",
+      "sprite-mirror": "d85522e81a07913c26c27ec3620eb81254290415cbe67962e3d3c73725a68a42",
+      "sun-actor-occlusion": "b07a806eb6b462063bdd2e1a4c162ad5922976f7c97d5134af9a9b281f2f83a2",
+      "sun-probes": "3b3eeb2cf8fffa63f2c4d22d074404447b507f174f55b5f47af5b7631eb25bae"
+    }
+  },
+  "case_summary": {
+    "current_positive_programs": 12,
+    "retained_named_failures": 6,
+    "compiled_production_mutants_rejected": 4,
+    "stress_cycles": 128,
+    "probe_pairs_high_water": 8,
+    "final_probe_descriptors": 16,
+    "total_descriptor_high_water": 25,
+    "owner_resets": 128,
+    "symbolic_publications": 535,
+    "hardware_sampler_resets": 128,
+    "symbolic_sampler_backlog": 0
+  },
+  "adversarial_review": [
+    {
+      "boundary": "material versus probe lifetime",
+      "result": "stable pair bases are tied to grow-only device views and dedicated samplers"
+    },
+    {
+      "boundary": "same-index wrong-owner/material ABA",
+      "result": "retained exact-source negatives fail and current/mutant controls discriminate"
+    },
+    {
+      "boundary": "three-phase sampler reset",
+      "result": "consumers retire before sampler rebuild; fixed descriptors publish after replacement"
+    },
+    {
+      "boundary": "published-half/ordinal-zero semantics",
+      "result": "invalid/absent lookups do not grow cache; authored zero remains valid"
+    },
+    {
+      "boundary": "allocation pressure/exhaustion",
+      "result": "bounded high-water, no emergency flush or pair takeover"
+    },
+    {
+      "boundary": "content reset versus descriptor identity",
+      "result": "accepted #150 remains separate; exact builder exercised, GPU clears symbolic"
+    },
+    {
+      "boundary": "native oracle sensitivity",
+      "result": "within-process raw identities strict; actual material sampler phase required"
+    },
+    {
+      "boundary": "remaining atlas/save freshness",
+      "result": "UNRESOLVED by this repair; no software-complete claim"
+    }
+  ],
+  "prior_attempts": [
+    "Initial focused PF113 harness expected an allocated missing-ordinal cache placeholder; updated to the new pre-growth admission rule.",
+    "Generated CPU input-driver test warning fixed without changing generated branch bodies.",
+    "Clang rejected mismatched class/struct tags in the symbolic LevelMesh adapter; corrected adapter type.",
+    "First complete CPU gate rejected initial sampler-before-retirement order. Replaced by explicit three-phase transaction preserving accepted SDVK-004 order; final complete gate passed."
+  ],
+  "tested_files_before_this_receipt": {
+    ".github/workflows/continuous_integration.yml": "ca02cac32d102f3659520b2e650ea92902dc5bd97496b311f527cf450c6214c6",
+    "docs/shadedoomvk/06-VALIDATION-PERFORMANCE-CONTRACT.md": "76c1d19579159c2c5c694142106b179390a158037011d711fbd443ec7eab7b8b",
+    "docs/shadedoomvk/10-EXECUTION-LEDGER.md": "fe219c53e70cc91338cae4822a7eff0d898b380b3ef05cc2cbd3ff119bc4123d",
+    "docs/shadedoomvk/SDVK-004-DESCRIPTOR-STRESS.md": "94767df51f08ec9517a7296ecb330f6c1a004cf1ae47120524ee6fad83604fb0",
+    "docs/shadedoomvk/issues/SDVK-014.md": "4f764663c349ba6c52f86759d16d725b3b4cfb3889248d4e3184ea1c4eedaf8d",
+    "docs/shadedoomvk/rag/02-RENDERER-IDENTITY-LIFETIME.md": "a7dd3a108994587257d71704acbe273ad25ba5340995050659275c48f4cfd871",
+    "docs/shadedoomvk/rag/06-LIGHTMAP-PROBE-PIPELINE.md": "8363a8e6b223fd67fd57a12a65979f9f2192824a4aecdb2cc00a747439283efe",
+    "docs/shadedoomvk/rag/13-DURABLE-IDENTITY-AUDIT.md": "4a054e416be63d195e6f8d82137b19da820d2f4e550deab67d02abd3ebb16114",
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp": "6c352c4e113089b1c9372fc0a7da218972c6da43516cad98616be5ad09460290",
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h": "8cabf0cbe8ae947cd230a6b37c4e846042cfcc57bd6d0c6c5f7867b08779e6eb",
+    "src/common/rendering/vulkan/vk_renderdevice.cpp": "5064663d711e49016bbf9249ba6260b639c9cade618f0feee2a42808edb3b3db",
+    "tools/pf_oracle/sdvk014_identity_audit.py": "9800abb3b8509cd2a5b4e245a813028c2caf309ddc17caf4cc79452d7953579f",
+    "tools/pf_oracle/tests/pf113_probe_fixture.cpp": "85c8cd5df8b6040095442bc9bb762ffa813d638eba1155a9aa9d81fc7f44926c",
+    "tools/pf_oracle/tests/pf113_source_extract.py": "86a3c6441e40aba83f23841cb353f0d0572e7d613fc6ac387015ae6932bc89d2",
+    "tools/pf_oracle/tests/test_sdvk004_rich_descriptor_contract.py": "84538dbe4ef986ee2806c9c3669e49724f60fddb58af5f776c58900f4286596c",
+    "tools/pf_oracle/tests/test_sdvk014_identity_audit.py": "be22270c9dc55cb9cb83a44029dad8557455d149bddeba29e78dca1d4587f39b",
+    "tools/renderer_oracle/corpus.json": "21ce1507d1a6e42b4b488e3f57fdd37f24694b5b37649195399873eb49862ff6",
+    "tools/renderer_oracle/prepare.py": "c9ac5cba990070455f2940ad6185f96604b9cb5bb1790a3a3f15b69f03e7e907",
+    "tools/renderer_oracle/run.py": "0ad96c45726dae4301637db886084dd4cc0565bb1fcb28de46af8585212e59d5",
+    "docs/shadedoomvk/SDVK-153-PROBE-DESCRIPTOR-LIFETIME.md": "7d7ab71b0aad8d724d0907bcb51332e1d280721c2375fc761d3aeb48792075fa",
+    "docs/shadedoomvk/evidence/SDVK-153-DESCRIPTOR-LIFETIME-CPU.json": "87637b59f798aef64fedecd785165f0421a262600d45aa4424ab81823ac5f23d",
+    "tools/pf_oracle/sdvk153_evidence.py": "d4eb9ad587822fe934d8434a36afc3490e4995ecdba90fffc8d61185daf53de6",
+    "tools/pf_oracle/tests/fixtures/sdvk153-pre-fix.json": "770c900ee93196a33104ee022eb5ef9f7328c70f3f3b76cac9ec7fd1be5b4ad1",
+    "tools/pf_oracle/tests/sdvk153_descriptor_lifetime_fixture.cpp": "82a69ee0232b44e777292198153a68473419d3e3d23f5ec59e31d89ca570f17e",
+    "tools/pf_oracle/tests/sdvk153_source.py": "2888d25cd68f80a248264520032b10b58779f3d3f9b4eb90e564684fff9fd3d8",
+    "tools/pf_oracle/tests/test_sdvk153_descriptor_lifetime.py": "742d9e2b44b7b8df2ad61c4164cce49a0977ba94feefb6e566686347340a245b",
+    "tools/renderer_oracle/sdvk153_probe_reset.py": "7399f6c389bfdff44a42471ed481b909920d0844e07b2242eeb5ee254f3bad4b",
+    "tools/renderer_oracle/tests/test_sdvk153_probe_reset.py": "46ca7c71d197372dec3e24907254fb71a47014b709ebe1f6eac3200e9cc0cdec"
+  },
+  "publication": {
+    "pushed": false,
+    "ci_dispatched": false,
+    "merged": false,
+    "limitation": "This session exposes no GitHub write action; direct Git transport cannot resolve github.com."
+  },
+  "native": {
+    "executed_here": false,
+    "prepared_only": true,
+    "software_host": "existing Avrea 16-vCPU isolated llvmpipe lane",
+    "scope": "emitted actor pair identities and selected material samplers; not per-texel GPU atlas readback"
+  },
+  "disposition": {
+    "SDVK153": "NOT_ACCEPTED_PENDING_NATIVE_CI_REVIEW_MERGE",
+    "SDVK014": "NOT_SOFTWARE_COMPLETE",
+    "physical_stop": "ACTIVE",
+    "physical_cost_scaling_stability": "HELD_NOT_ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  }
+}

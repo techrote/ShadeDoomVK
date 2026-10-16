@@ -1246,3 +1246,39 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   publication gates; neither green CI nor this audit repairs #153.
 - #14 OPEN / NOT SOFTWARE-COMPLETE. Physical STOP ACTIVE; physical GPU
   cost/scaling/stability HELD / NOT ACCEPTED; historical root cause UNDETERMINED.
+
+
+### 16 October 2026 — SDVK-153 descriptor-lifetime repair candidate
+
+- Reconciled live master ca254b6ea08228c8408562ebba26bbc1060a0311 and existing
+  PR #154 / audit head 0b6e12d2aa942792a2c7e2d3f8d52fdc18db6c59 rather than
+  duplicate the completed audit. #153 identifies the next bounded repair.
+- Implemented persistent probe-pair ownership across material filter/precache
+  resets, pre-growth ordinal admission and replacement-sampler-before-fixed-slot
+  publication. No shaders, probe selection, viewmodel policy or quality changed.
+- Exact current CPU fixture and immutable pre-fix fragments distinguish stable
+  raw ownership, real material retirement, wrong-owner/material alias, invalid
+  cache growth and stale fixed samplers. Bounded stress includes map revisions,
+  inactive content, descriptor pressure and exhaustion without emergency flush.
+- Added a prospective live-setting scenario to the existing Avrea 16-vCPU lane
+  using existing emitted-draw diagnostics only. Native execution is pending;
+  uniform evidence is not rebranded as GPU atlas texel readback. No renderer or
+  Vulkan device was launched in this coding environment.
+- Full local CPU evidence is recorded separately with exact test hashes. Local
+  source candidate is not remote acceptance: current connector discovery exposes
+  reads, no write action, and direct Git transport cannot resolve github.com.
+  Preserve a reproducible patch/bundle; no push, CI dispatch, merge or issue
+  closure is claimed. #153 and #14 remain open / not accepted.
+- Physical STOP ACTIVE; physical bake/update/scaling/stability HELD; historical
+  physical root cause UNDETERMINED. Atlas receipt ABA and remaining #14 native
+  transition/special-surface/material coverage remain visible, not waived.
+
+- Full CPU integration initially rejected the first candidate because the older
+  SDVK-004 guard requires material consumers to retire before sampler rebuild.
+  The final candidate preserves that requirement: separate fixed-slot publication
+  is called after rebuild. Source/executable controls check both phases; the
+  probe-pair exception is justified by the retained raw consumer counterexample.
+- PR #154 merged during this work as d57137c3a383e912e2e7376759ec45d4503adfb9,
+  tree 3de46ed9d9c66520994035510f49dd7f073d91b1. The live verified commit object
+  was imported and its tree matched the original audit parent exactly. The local
+  continuation now has that actual merged master as parent, not an unmerged stack.

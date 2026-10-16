@@ -1,8 +1,10 @@
 """Fail-closed SDVK-014 durable-identity audit, not software acceptance.
 
-Current counterexamples are REQUIRED to fail their clean invariant in the child
+The immutable assessed counterexamples are REQUIRED to fail their clean invariant in the child
 process (exit 11). The unittest pass means evidence was reproduced, not repaired.
-No Vulkan device is created. Renderer/source policy is not changed by this test.
+No Vulkan device is created. After the SDVK-153 repair candidate, the filter,
+lookup and reset fragments are explicitly retained baseline bytes. Current
+production is qualified separately by test_sdvk153_descriptor_lifetime.py.
 """
 from __future__ import annotations
 
@@ -13,6 +15,7 @@ import unittest
 
 from tools.pf_oracle.fixture_runner import compile_fixture
 from tools.pf_oracle.tests.sdvk014_source import block
+from tools.pf_oracle.tests.sdvk153_source import retained
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
@@ -46,7 +49,9 @@ def source(key: str) -> str:
 
 def build(directory: Path, preserve_probe_slots: bool = False) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
-    fragments = {key: source(key) for key in SOURCES}
+    # Preserve the original audit as historical negative evidence. Do not
+    # pretend candidate code is still expected to demonstrate the old defect.
+    fragments = {key: retained()['functions'][key]['content'] for key in SOURCES}
     if preserve_probe_slots:
         # Counterfactual CPU control only. This is NOT a published renderer fix.
         old = '\tfor (int index : LightProbes)\n\t\tFreeBindlessSlot(index);\n\tLightProbes.clear();'
@@ -68,14 +73,14 @@ class DurableIdentityAuditTests(unittest.TestCase):
     def setUpClass(cls):
         cls.temp = tempfile.TemporaryDirectory(prefix='sdvk014-identity-audit-')
         cls.directory = Path(cls.temp.name)
-        cls.exe = build(cls.directory / 'current')
+        cls.exe = build(cls.directory / 'retained-baseline')
         cls.control = build(cls.directory / 'counterfactual', preserve_probe_slots=True)
 
     @classmethod
     def tearDownClass(cls):
         cls.temp.cleanup()
 
-    def test_current_controls_and_named_blocking_counterexamples(self):
+    def test_retained_controls_and_named_blocking_counterexamples(self):
         for case, (code, reason) in CASES.items():
             with self.subTest(case=case):
                 result = subprocess.run([str(self.exe), case], text=True, capture_output=True, timeout=10)

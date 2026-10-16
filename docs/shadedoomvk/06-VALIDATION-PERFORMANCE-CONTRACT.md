@@ -277,3 +277,22 @@ Its collector exit 0 means named counterexamples were reproduced, not fixed;
 copied-atlas-receipt ABA control is explicitly distinct from native reachability.
 Normal CI remains required for any software increment; no benchmark-only duplicate
 native run is justified. Audit evidence does not waive software or physical gates.
+
+
+### SDVK-153 live material reset qualification boundary
+
+The prospective `sdvk153_probe_reset` gate uses the existing Avrea 16-vCPU
+software-Vulkan lane once per normal source-changing CI. Fixed input-driver
+render counts request live filter/anisotropy changes independently of diagnostic
+results. Required raw within-process pair base/generation/epoch/span and content
+epoch are not normalized between resets; selected material sampler changes must
+also be observed. Two reset captures repeat exactly and final RGB matches an
+unchanged-setting control. Existing corpus settings expectations are unchanged
+except for these explicitly registered phase-driven scenes.
+
+Emitted uniform diagnostics do not constitute per-texel atlas readback. CPU
+allocator/source proofs, hosted emitted-draw evidence and physical performance
+are distinct claim classes. Synthetic/compiled input-driver controls are not
+ZScript VM execution. Original-source negative evidence remains failed; normal
+collector success only means its declared historical failures were reproduced.
+Physical STOP remains ACTIVE and #14 cannot be accepted solely from this gate.
