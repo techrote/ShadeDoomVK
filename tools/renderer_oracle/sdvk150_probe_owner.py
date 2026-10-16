@@ -43,6 +43,21 @@ def validate_lifecycle_records(records: list[dict], spec: dict) -> dict:
     require(isinstance(owners, list) and len(owners) == 2 and passes_required == 5,
             "Probe-owner transition assertion recipe is malformed")
 
+    expected_owners = {}
+    for owner in owners:
+        map_name = owner.get("map")
+        authored = owner.get("authored_count")
+        require(isinstance(map_name, str) and map_name and authored == 2,
+                "Probe-owner assertion owner/count is malformed")
+        require(map_name not in expected_owners,
+                "Probe-owner transition assertion owners must be distinct")
+        expected_owners[map_name] = authored
+    for event in events:
+        map_name = event.get("map")
+        require(map_name in expected_owners
+                and event.get("authored_count") == expected_owners[map_name],
+                "Probe-owner lifecycle contains an unexpected owner/count event")
+
     summaries = []
     cursor = -1
     for owner in owners:
@@ -93,6 +108,8 @@ def validate_lifecycle_records(records: list[dict], spec: dict) -> dict:
             "authored_count": authored,
         })
 
+    require(len(events) == len(owners) * (passes_required + 1),
+            "Probe-owner lifecycle contains unexpected extra or missing events")
     require(summaries[0]["owner_revision"] != summaries[1]["owner_revision"],
             "Same-count maps reused the same semantic probe owner revision")
     require(summaries[1]["light_probe_epoch"] > summaries[0]["light_probe_epoch"],

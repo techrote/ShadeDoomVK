@@ -81,6 +81,26 @@ class ProbeOwnerLifecycleValidationTests(unittest.TestCase):
         with self.assertRaises(EvidenceError):
             validate_lifecycle_records(value, SPEC)
 
+    def test_foreign_owner_event_is_rejected(self):
+        value = records()
+        value[0]["data"]["events"].append(event("owner-reset", "SDV15C", 23, 7, 0))
+        with self.assertRaisesRegex(EvidenceError, "unexpected owner/count"):
+            validate_lifecycle_records(value, SPEC)
+
+    def test_wrong_count_event_is_rejected(self):
+        value = records()
+        value[0]["data"]["events"].append(
+            event("pass-published", "SDV15A", 11, 3, 1, authored=3)
+        )
+        with self.assertRaisesRegex(EvidenceError, "unexpected owner/count"):
+            validate_lifecycle_records(value, SPEC)
+
+    def test_extra_empty_reset_event_is_rejected(self):
+        value = records()
+        value[0]["data"]["events"].append(event("empty-reset", "SDV15A", 11, 3, 5))
+        with self.assertRaisesRegex(EvidenceError, "unexpected extra or missing"):
+            validate_lifecycle_records(value, SPEC)
+
     def test_mixed_publication_revision_is_rejected(self):
         value = records()
         for row in value[0]["data"]["events"]:
