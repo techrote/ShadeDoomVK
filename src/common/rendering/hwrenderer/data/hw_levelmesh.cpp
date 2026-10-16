@@ -144,7 +144,7 @@ LevelMeshTileStats LevelMesh::GatherTilePixelStats()
 	LevelMeshTileStats stats;
 	for (const LightmapTile& tile : Lightmap.Tiles)
 	{
-		if (!tile.HasLiveAtlasAllocation())
+		if (!tile.HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
 			continue;
 		stats.tiles.total++;
 		auto area = tile.AtlasLocation.Area();
@@ -169,7 +169,11 @@ void LevelMesh::PackLightmapAtlas()
 
 	for (int index : Lightmap.AddedTiles)
 	{
+		if (index < 0 || index >= (int)Lightmap.Tiles.Size())
+			I_FatalError("Invalid pending lightmap tile index");
 		LightmapTile& tile = Lightmap.Tiles[index];
+		if (tile.UseCount <= 0 || tile.AtlasLocation.Allocation)
+			I_FatalError("Cannot repack a retired or already allocated lightmap tile");
 
 		tile.AddedThisFrame = false;
 
@@ -185,11 +189,15 @@ void LevelMesh::PackLightmapAtlas()
 	// Find places in the atlas for the tiles
 	for (LightmapTile* tile : sortedTiles)
 	{
+		// A duplicate pending entry must not overwrite its first receipt.
+		if (tile->AtlasLocation.Allocation)
+			I_FatalError("Duplicate pending lightmap atlas allocation");
 		auto result = Lightmap.AtlasPacker->Alloc(tile->AtlasLocation.Width, tile->AtlasLocation.Height);
-		tile->AtlasLocation.X = result->X;
-		tile->AtlasLocation.Y = result->Y;
-		tile->AtlasLocation.ArrayIndex = (int)result->PageIndex;
-		tile->AtlasLocation.Item = result;
+		const auto region = Lightmap.AtlasPacker->GetRegion(result);
+		tile->AtlasLocation.X = region.X;
+		tile->AtlasLocation.Y = region.Y;
+		tile->AtlasLocation.ArrayIndex = region.PageIndex;
+		tile->AtlasLocation.Allocation = result;
 	}
 
 	Lightmap.TextureCount = (int)Lightmap.AtlasPacker->GetNumPages();
@@ -200,7 +208,7 @@ void LevelMesh::PackLightmapAtlas()
 		auto surface = &Mesh.Surfaces[i];
 		if (surface->LightmapTileIndex >= 0)
 		{
-			const LightmapTile& tile = Lightmap.Tiles[surface->LightmapTileIndex];
+			const LightmapTile& tile = GetLightmapTile(surface->LightmapTileIndex);
 			for (int i = 0; i < surface->MeshLocation.NumVerts; i++)
 			{
 				auto& vertex = Mesh.Vertices[surface->MeshLocation.StartVertIndex + i];

@@ -232,3 +232,21 @@ do not resurrect retired entries. Save validates coordinates/page/extent against
 the current packer item before readback. This is **not** a durable tile generation
 token or acceptance of every dynamic-update/native case. Probe-owner #150 and the
 audit's other software remainders keep the complete campaign unaccepted.
+
+
+## SDVK-156: atlas incarnations and checked publication
+
+A new tile starts unallocated; `AllocTile` rejects copying an issued atlas receipt.
+`PackLightmapAtlas` issues owner/slot/incarnation receipts only for pending new
+tiles, validates the returned region, and publishes UV/page data through checked
+current-owner tile access. A no-op pack or appending tiles preserves existing
+allocations. Repacking an already-issued receipt and duplicate pending publication
+are rejected; no live compactor is introduced.
+
+`ReleaseTiles` retains the last-reference order: checked atlas Free, zero receipt,
+FreeTile tombstone, surface index -1. `FullRefresh` still queues side/flat rebuilds.
+Free/Clear/page reuse and same-address owner recreation reject captured old atlas
+receipts; ordinary mesh surface/tile indexes remain owner-managed logical
+references, not standalone durable receipts. See the
+[complete audit and tests](../SDVK-156-ATLAS-INCARNATION.md). Native repeated/multi-page
+qualification and #14 completion remain separate. Physical STOP remains ACTIVE.

@@ -296,3 +296,20 @@ are distinct claim classes. Synthetic/compiled input-driver controls are not
 ZScript VM execution. Original-source negative evidence remains failed; normal
 collector success only means its declared historical failures were reproduced.
 Physical STOP remains ACTIVE and #14 cannot be accepted solely from this gate.
+
+
+### SDVK-156 atlas incarnation qualification
+
+#153 is accepted through PR #155; its earlier candidate/reblocked statements above
+are historical. SDVK-156 separately repairs the copied atlas-receipt guard gap
+using current-owner/slot/allocation incarnations. The unchanged historical audit
+continues executing pinned old atlas and descriptor producers: collector success
+means its named old failures were reproduced, and is not a current clean verdict.
+
+The new current-source CPU fixture, compiled mutants, valid packing-equivalence
+trace and optional sanitizer run are separate evidence categories, pinned in
+`evidence/SDVK-156-ATLAS-IDENTITY-CPU.json`. Current source must reject old receipts
+without dereferencing caller-retained item storage, preserve valid geometry and
+current-surface tombstones, and pass normal exact-head CI/review/merge verification.
+No physical device, extra benchmark workflow or native multi-page acceptance claim
+follows from these tests. #14 remains NOT SOFTWARE-COMPLETE and Physical STOP ACTIVE.

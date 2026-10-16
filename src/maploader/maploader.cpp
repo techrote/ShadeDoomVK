@@ -3250,6 +3250,7 @@ bool MapLoader::LoadLightmap(MapData* map)
 		const TileEntry* entry = binding.first;
 		LightmapTile* tile = binding.second;
 
+		Level->levelMesh->ValidateLightmapTile(*tile);
 		const uint16_t* src = textureData.Data() + entry->pixelsOffset;
 		uint16_t* dst = &Level->levelMesh->Lightmap.TextureData[tile->AtlasLocation.ArrayIndex * textureSize * textureSize * 3];
 		int destx = tile->AtlasLocation.X;

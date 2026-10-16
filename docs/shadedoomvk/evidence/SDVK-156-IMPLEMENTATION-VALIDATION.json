@@ -1,0 +1,124 @@
+{
+  "schema": "sdvk156-implementation-validation/v1",
+  "status": "LOCAL_CPU_PASS",
+  "assessed_master": "ad0833696804e57672ec425d2c33bf36732d05f1",
+  "assessed_tree": "ee9b0cffc10316a95a4cc74d2cfd4c0462cd2e29",
+  "recovered_local_base": "d2f5b52e3e5aae130057305e95222c12ad36e72e",
+  "base_tree_verified_equal": true,
+  "source_artifact": {
+    "run": 38969597322,
+    "artifact": 12076183304,
+    "zip_sha256": "faa52a795d2507b71a0cc7d1210037ba82b91e64bba776298e7d7caf6f2ffb36"
+  },
+  "source_evidence_sha256": "527b9fb2472937186d88bf8d44f1c0ab65a5ce19dd6b053fd845221f97a80fc6",
+  "test_counts": {
+    "pf": 819,
+    "cfx": 8,
+    "renderer_oracle": 230,
+    "standalone_fixtures": 4,
+    "sdvk156_current_cases": 20,
+    "sdvk156_compiled_mutants": 8,
+    "sdvk156_clang_unittests": 5,
+    "sanitized_current_cases": 20
+  },
+  "commands": [
+    {
+      "command": "python tools/check.py --output /mnt/data/sdvk156-final-check",
+      "exit": 0
+    },
+    {
+      "command": "PF_CXX=clang++ python -m unittest tools.pf_oracle.tests.test_sdvk156_atlas_identity",
+      "exit": 0
+    },
+    {
+      "command": "PF_CXX=clang++ python -m tools.pf_oracle.sdvk156_evidence --sanitizers --out /mnt/data/sdvk156-cpu-evidence.json",
+      "exit": 0
+    },
+    {
+      "command": "python -m tools.pf_oracle.sdvk014_identity_audit --out /mnt/data/sdvk156-historical-audit.json --require-clean",
+      "exit": 2,
+      "disposition": "EXPECTED_HISTORICAL_NEGATIVE_NOT_CURRENT_REPAIR_FAILURE"
+    }
+  ],
+  "logs": {
+    "bindless_allocator.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "output": ""
+    },
+    "cfx-tests.log": {
+      "sha256": "311d978852d440f2af735e2259c9c93018ac44a66ada4d76ed562483ad4f0795",
+      "bytes": 1048,
+      "output": "test_clean_exit (__main__.FailureClassificationTests.test_clean_exit) ... ok\ntest_cpu_exception_status (__main__.FailureClassificationTests.test_cpu_exception_status) ... ok\ntest_error_record_alone_proves_device_loss (__main__.FailureClassificationTests.test_error_record_alone_proves_device_loss) ... ok\ntest_explicit_loss_event_alone (__main__.FailureClassificationTests.test_explicit_loss_event_alone) ... ok\ntest_other_negative_result_is_not_device_loss (__main__.FailureClassificationTests.test_other_negative_result_is_not_device_loss) ... ok\ntest_p400_submit_loss_before_fatal_dialog_timeout (__main__.FailureClassificationTests.test_p400_submit_loss_before_fatal_dialog_timeout) ... ok\ntest_primary_fence_return_remains_device_loss (__main__.FailureClassificationTests.test_primary_fence_return_remains_device_loss) ... ok\ntest_unreturned_submit_stays_unknown (__main__.FailureClassificationTests.test_unreturned_submit_stays_unknown) ... ok\n\n----------------------------------------------------------------------\nRan 8 tests in 0.003s\n\nOK\n"
+    },
+    "levelmesh_contract.log": {
+      "sha256": "b1bec0fbca7b5c0d495a704bd6c1b150b8d0eb4812452128158a7bafe0f9e103",
+      "bytes": 58,
+      "output": "PF-004/PF-018 LevelMesh allocator/mutation fixture passed\n"
+    },
+    "oracle-a.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "output": ""
+    },
+    "oracle-b.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "output": ""
+    },
+    "pf-tests.log": {
+      "sha256": "b04f7da805bd04345c65afe5684d65e76b13de2b2b0fe41c14f8ede0a31db012",
+      "bytes": 2028,
+      "output": "Verified fixture.tar.xz: 6bcd1fa509576db071f9cb4b242abaf9810cf114d6f22f86cf1547b10eac5e5d\nZMusic prefix: /mnt/data/sdvk156-final-check/temp/tmpk7apljpp/dependency prefix with spaces/zmusic\nVerified fixture.tar.xz: 6bcd1fa509576db071f9cb4b242abaf9810cf114d6f22f86cf1547b10eac5e5d\nZMusic prefix: /mnt/data/sdvk156-final-check/temp/tmpk7apljpp/dependency prefix with spaces/zmusic\nVerified fixture.tar.xz: df89af73b10b1dffc90279c65f950672b1255be3be61a2d06f08c5ecf4c8163c\nZMusic prefix: /mnt/data/sdvk156-final-check/temp/tmpr3m9loir/dependency prefix with spaces/zmusic\npreflight PASS new-target\nusage: runner [-h] --plan PLAN [--launch]\nrunner: error: attempt ID used in previous epoch\ncollision_upload: /mnt/data/sdvk156-final-check/temp/tmp6vs1cctq/collision_upload.cpp:262: int main(int, char**): Assertion `node.padding1 == 0.0f && node.padding2 == 0.0f && node.padding3 == 0' failed.\n/usr/lib/python3.13/zipfile/__init__.py:1642: UserWarning: Duplicate name: 'sample.txt'\n  return self._open_to_write(zinfo, force_zip64=force_zip64)\n{\"producer\":\"current-source-extracted\",\"customTextureCap\":15,\"checks\":1119,\"expectedErrors\":31,\"completeGLDefsLoader\":false,\"gpuExecution\":false}\n{\"producer\":\"exact-original-allocation-default\",\"materialActual\":[-1,0],\"materialRequired\":[1,-1],\"legacyActual\":[-1,0],\"legacyRequired\":[-1,-1],\"checks\":15}\nPF-016 dense duplicate benchmark: sorted_ns=3114274 generation_ns=1472201 selected=4096\nPF-019 dormant resource fixture passed: 5862384 bytes avoided at 1904x1001 before allocator overhead\nPF-006 key contract fixture passed: 35 shader states, 19 pipeline states, 6 render-pass states\nSDVK-009 many-light fixture passed: inherited_cap=16 indexed_overlap_bytes=519680 full_record_copy_bytes=9838080 overlap_loop_entries=122880\nSDVK observation positive/negative/concurrent/fresh-file controls PASS\n----------------------------------------------------------------------\nRan 819 tests in 94.681s\n\nOK\n{\"status\": \"FAIL\", \"error\": \"Only unchanged, unused PREPARED receipt can launch; no retry\"}\n"
+    },
+    "probe_selection.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "output": ""
+    },
+    "renderer-corpus.log": {
+      "sha256": "7b9831cc918ce52045425d91b208047d0243074881589b0279e5ac49ce79f611",
+      "bytes": 173,
+      "output": "{\"schema\": \"sdvk-renderer-ci/v1\", \"scope\": \"Deterministic preparation and selected CPU contracts; renderer runtime coverage remains separately qualified\", \"status\": \"PASS\"}\n"
+    },
+    "renderer-oracle-tests.log": {
+      "sha256": "202b12c739bbd08b1c805f0e511f1299d712ebb4f64b3ea79e81a80abd200c25",
+      "bytes": 2192,
+      "output": "sun-actor-occlusion-state-1: starting\nsun-actor-occlusion-state-1: PASS\nsun-actor-occlusion-negatives-1: starting\nsun-actor-occlusion-negatives-1: PASS\nsun-actor-occlusion-state-2: starting\nsun-actor-occlusion-state-2: PASS\nsun-actor-occlusion-negatives-2: starting\nsun-actor-occlusion-negatives-2: PASS\nsun-actor-occlusion-compare: starting\nsun-actor-occlusion-compare: PASS\nportal-probes-state-1: starting\nportal-probes-state-1: PASS\nportal-probes-negatives-1: starting\nportal-probes-negatives-1: PASS\nportal-probes-state-2: starting\nportal-probes-state-2: PASS\nportal-probes-negatives-2: starting\nportal-probes-negatives-2: PASS\nportal-probes-compare: starting\nportal-probes-compare: PASS\nsun-actor-occlusion-state-1: starting\nsun-actor-occlusion-state-1: FAIL; injected capture failure\nsun-actor-occlusion-state-1: starting\nsun-actor-occlusion-state-1: PASS\nsun-actor-occlusion-negatives-1: starting\nsun-actor-occlusion-negatives-1: PASS\nsun-actor-occlusion-state-2: starting\nsun-actor-occlusion-state-2: FAIL; injected capture failure\nsun-actor-occlusion-state-1: starting\nsun-actor-occlusion-state-1: PASS\nsun-actor-occlusion-negatives-1: starting\nsun-actor-occlusion-negatives-1: PASS\nsun-actor-occlusion-state-2: starting\nsun-actor-occlusion-state-2: PASS\nsun-actor-occlusion-negatives-2: starting\nsun-actor-occlusion-negatives-2: PASS\nsun-actor-occlusion-compare: starting\nsun-actor-occlusion-compare: PASS\nportal-probes-state-1: starting\nportal-probes-state-1: FAIL; injected capture failure\nsun-actor-occlusion-state-1: starting\nsun-actor-occlusion-state-1: PASS\nsun-actor-occlusion-negatives-1: starting\nsun-actor-occlusion-negatives-1: PASS\nsun-actor-occlusion-state-2: starting\nsun-actor-occlusion-state-2: PASS\nsun-actor-occlusion-negatives-2: starting\nsun-actor-occlusion-negatives-2: PASS\nsun-actor-occlusion-compare: starting\nsun-actor-occlusion-compare: PASS\nportal-probes-state-1: starting\nportal-probes-state-1: PASS\nportal-probes-negatives-1: starting\nportal-probes-negatives-1: PASS\nportal-probes-state-2: starting\nportal-probes-state-2: FAIL; injected capture failure\n----------------------------------------------------------------------\nRan 230 tests in 17.345s\n\nOK\n"
+    },
+    "resource_generation.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "output": ""
+    },
+    "sdvk156-final-check.log": {
+      "sha256": "027cf0c93e104a62e1691fd70ca179089f0acfac98e30940596534aa2d8b2d08",
+      "bytes": 793,
+      "output": "PASS pf-tests: /mnt/data/sdvk156-final-check/pf-tests.log\nPASS cfx-tests: /mnt/data/sdvk156-final-check/cfx-tests.log\nPASS renderer-oracle-tests: /mnt/data/sdvk156-final-check/renderer-oracle-tests.log\nPASS renderer-corpus: /mnt/data/sdvk156-final-check/renderer-corpus.log\nPASS oracle-a: /mnt/data/sdvk156-final-check/oracle-a.log\nPASS oracle-b: /mnt/data/sdvk156-final-check/oracle-b.log\nPASS resource_generation: /mnt/data/sdvk156-final-check/resource_generation.log\nPASS bindless_allocator: /mnt/data/sdvk156-final-check/bindless_allocator.log\nPASS levelmesh_contract: /mnt/data/sdvk156-final-check/levelmesh_contract.log\nPASS probe_selection: /mnt/data/sdvk156-final-check/probe_selection.log\nAll CPU checks passed; deterministic PF oracle outputs and renderer corpus preparations match.\n"
+    },
+    "sdvk156-final-clang.log": {
+      "sha256": "fe76b19a2a508702a26b94be93f0d597eafacf4659106f64f4a63975286ac6e9",
+      "bytes": 103,
+      "output": ".....\n----------------------------------------------------------------------\nRan 5 tests in 9.727s\n\nOK\n"
+    },
+    "sdvk156-evidence.log": {
+      "sha256": "7d55ada72ba9c8bd16a4703b28a14d8277ddd1edc73d3c5581002e556c5365d4",
+      "bytes": 78,
+      "output": "{\"status\": \"CPU_PASS\", \"positive_case_count\": 20, \"compiled_mutant_count\": 8}\n"
+    },
+    "sdvk156-historical-audit.log": {
+      "sha256": "308594e26fdcb0bedb1cf060e15147391f0530042eb02588152a760216f299d1",
+      "bytes": 121,
+      "output": "{\"schema\": \"sdvk014-durable-identity-audit/v2\", \"audit_result\": \"BLOCKED_NOT_ACCEPTED\", \"counterexamples_reproduced\": 3}\n"
+    }
+  },
+  "publication": "exact-head CI/review/merge/master verification pending at authorship; see #156 publication receipt",
+  "physical_stop_active": true,
+  "physical_gpu_qualified": false,
+  "sdvk014_software_complete": false,
+  "historical_physical_root_cause": "UNDETERMINED",
+  "whitespace_check": {
+    "active_changes": "PASS",
+    "retained_exception": "Two original trailing-whitespace comment lines in pinned pre-fix headers/source are preserved byte-for-byte; no production whitespace errors."
+  }
+}

@@ -197,7 +197,7 @@ int HWWall::CreateVertices(FFlatVertex *&ptr, bool split)
 {
 	if (lightmaptile >= 0)
 	{
-		LightmapTile* tile = &level.levelMesh->Lightmap.Tiles[lightmaptile];
+		LightmapTile* tile = &level.levelMesh->GetLightmapTile(lightmaptile);
 		FVector2 lolft = tile->ToUV(FVector3(glseg.x1, glseg.y1, zbottom[0]), level.levelMesh->Lightmap.TextureSize);
 		FVector2 uplft = tile->ToUV(FVector3(glseg.x1, glseg.y1, ztop[0]), level.levelMesh->Lightmap.TextureSize);
 		FVector2 uprgt = tile->ToUV(FVector3(glseg.x2, glseg.y2, ztop[1]), level.levelMesh->Lightmap.TextureSize);

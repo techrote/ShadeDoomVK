@@ -1,0 +1,495 @@
+{
+  "schema": "sdvk156-atlas-incarnation-cpu/v1",
+  "status": "CPU_PASS",
+  "assessed_master": "ad0833696804e57672ec425d2c33bf36732d05f1",
+  "assessed_tree": "ee9b0cffc10316a95a4cc74d2cfd4c0462cd2e29",
+  "source_sha256": {
+    "src/commandlets/lightmapcmd.cpp": "1b71d7c6f470fe6d714bb5cb1f44887dc2a02ebddb693a7e9b9b802bf4c3f1df",
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp": "cbad398539d2dfb0578ef08dfa52da887843342a8df7594fc280362c511b4ad2",
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.h": "38a72e805395a576fdb0ab053ba69f5d2d5a2528d8721daa01aa9437a5540bee",
+    "src/common/rendering/hwrenderer/data/hw_lightmaptile.h": "d2af0e4782766321ae90aea3cc935d63a4072549ae7ed08ceeed598960d6ef09",
+    "src/common/rendering/hwrenderer/data/hw_rectpacker.cpp": "37935226cf0c53a8eb43c0a97a283376b8bc7c263c81874029c616cd0b9046a2",
+    "src/common/rendering/hwrenderer/data/hw_rectpacker.h": "60d1fe69f13f485249590a73397b47586af78bc93a30dd01501cab699fededfa",
+    "src/common/rendering/vulkan/vk_lightmapper.cpp": "e8257709a0bd0f1c429d17732645ae7209c71ef4d2e419c1014587b2b75a0871",
+    "src/common/rendering/vulkan/vk_lightmapper.h": "cd5127976937a72b82fbbda1f1d4681e7c24805f63468f31beec5a1c95604272",
+    "src/common/utility/bounds.cpp": "8b261cdcc12cb68c7e045c4c90d32bad774d164b7d08347cea018d04f89f00b9",
+    "src/maploader/maploader.cpp": "9402c029913a1edb01b73c2869bf66cd6483d56e7ee02572261876950dc022cf",
+    "src/rendering/hwrenderer/doom_levelmesh.cpp": "78527eeb8f441cbe646cc98af3635174c4317bfe0ea1a363b7c30438e56a9696",
+    "src/rendering/hwrenderer/doom_levelmesh.h": "e1a03b84410f680009c17c9046e04c4b5a23f62046dec83a01a04fa778cfed7c",
+    "src/rendering/hwrenderer/hw_vertexbuilder.cpp": "fafc556de3acdb76d851f8760a9e3ab1b353bdce71f40165cbb8ded5dba7674b",
+    "src/rendering/hwrenderer/scene/hw_decal.cpp": "dc7ff48f088de1694ec4526228a44ea36a9775def0a8fbace1b04bcb2d57918e",
+    "src/rendering/hwrenderer/scene/hw_drawinfo.cpp": "756c0a9fdea005daa8cd765cf8415a99c2b0a872e240b479fdb227a99f274334",
+    "src/rendering/hwrenderer/scene/hw_drawinfo.h": "de67e071b519c9c05b10e46afc3dcb7cc2765baba79e8c8e89f99416bf425f58",
+    "src/rendering/hwrenderer/scene/hw_walls_vertex.cpp": "8b71f4816b48571a508457bd10966795fa10c7786d73286691cab19bd05f68c0",
+    "tools/pf_oracle/fixture_runner.py": "b9a08289372afb02cecc093ba15b9ec6a129d01a9f281da02d0edb4e83424817",
+    "tools/pf_oracle/sdvk014_identity_audit.py": "9aaf2d98ffe3574801846cda8c805976a052601dc7e8a06c2081c338c1881387",
+    "tools/pf_oracle/sdvk156_evidence.py": "d26bb312c31b2685635c53deafe2d2ece674fb5305f85cf2c8befc21156c7667",
+    "tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/hw_lightmaptile.h": "f29e54506ecc6107aa1653bd95ef1144664e2891b8911a1ca1739dbdd29546da",
+    "tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/hw_rectpacker.cpp": "90923109b21d650dc094c902e1c9ff1106a264cf4b8beeba542aa6cb8f17cbb8",
+    "tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/hw_rectpacker.h": "00152af6562efe4a5596c7d227a47b64a1a35596a0d633962da08ab57440a0c0",
+    "tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/manifest.json": "d2067e13d279bef1105550e7456290a3a847e60b13ac3c1c299b1af2cd4197d5",
+    "tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/sdvk014_atlas_fixture.cpp": "0fa5ca30add3bfe97efa19d531f4206e042f5403802465036546479529ac8bc3",
+    "tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/sdvk014_tile_fixture.cpp": "237bd06661341d20a59b17f2250a7ace1cc7c9d7ebbdc3ffa422337781ce2288",
+    "tools/pf_oracle/tests/sdvk014_atlas_fixture.cpp": "118b26f4f2f3e3e626e948e6d66ddcd73dd714f8364a625d46936e00de1d37c4",
+    "tools/pf_oracle/tests/sdvk014_identity_audit_fixture.cpp": "654b0afce5651d2cdac52f0411351bd1d2e66d2abe242b6aecf1753b1db26c2b",
+    "tools/pf_oracle/tests/sdvk014_source.py": "4c8c71a401b83071b5cd767cdfd304fdb789ff1d3dfb5005285e23c1b6b7ea97",
+    "tools/pf_oracle/tests/sdvk014_tile_fixture.cpp": "d54f80b4e85e353653b3c469b9305a01adaa5fa15c7a0449c84b86c517528761",
+    "tools/pf_oracle/tests/sdvk156_atlas_identity_fixture.cpp": "5c8170cc3cb800c93a7ebabc0e14789898b8507bf52c7a7ae0fd68d4d8e897b6",
+    "tools/pf_oracle/tests/sdvk156_geometry_equivalence_fixture.cpp": "cfe658041a1f2d67a151b3b8a07b591be4ba3056dd16b9dcba79a07b5eea2b46",
+    "tools/pf_oracle/tests/sdvk156_source.py": "b8c01db6cc645640119b983425ecbe645a91e86fca642ef94623379004c63193",
+    "tools/pf_oracle/tests/test_sdvk014_atlas_lifecycle.py": "93692c6dfc729c99353a8c848e2416e5531ca34a4ee2173085c12dda07dfb9cb",
+    "tools/pf_oracle/tests/test_sdvk014_identity_audit.py": "6ad110857dfb17e46f6e6dbaa16dfde4305a3daf0c80bb3cc1e848ec8ebb55a1",
+    "tools/pf_oracle/tests/test_sdvk014_tile_lifecycle.py": "7791c83f24e0079c6b43d78d406ce0241a5670b7788d76df58ce7775d4390695",
+    "tools/pf_oracle/tests/test_sdvk156_atlas_identity.py": "26e18e5387ce14801c3238999b52f87a12a7474a42e418a9483517c6b0d1159c"
+  },
+  "retained_inputs": {
+    "hw_rectpacker.h": {
+      "path": "src/common/rendering/hwrenderer/data/hw_rectpacker.h",
+      "sha256": "00152af6562efe4a5596c7d227a47b64a1a35596a0d633962da08ab57440a0c0",
+      "git_blob": "01dc9cc3d36d54178b760927e78603f4c38f74ad"
+    },
+    "hw_rectpacker.cpp": {
+      "path": "src/common/rendering/hwrenderer/data/hw_rectpacker.cpp",
+      "sha256": "90923109b21d650dc094c902e1c9ff1106a264cf4b8beeba542aa6cb8f17cbb8",
+      "git_blob": "9723a242ea1aa5648c96da38cd108c4cafb0066c"
+    },
+    "hw_lightmaptile.h": {
+      "path": "src/common/rendering/hwrenderer/data/hw_lightmaptile.h",
+      "sha256": "f29e54506ecc6107aa1653bd95ef1144664e2891b8911a1ca1739dbdd29546da",
+      "git_blob": "07ec390ac6352d894ede7b11a52b7e2ec771f55e"
+    },
+    "sdvk014_atlas_fixture.cpp": {
+      "path": "tools/pf_oracle/tests/sdvk014_atlas_fixture.cpp",
+      "sha256": "0fa5ca30add3bfe97efa19d531f4206e042f5403802465036546479529ac8bc3",
+      "git_blob": "6e9ff73d756888f7a1dbbb15ecb2c0066da6352f"
+    },
+    "sdvk014_tile_fixture.cpp": {
+      "path": "tools/pf_oracle/tests/sdvk014_tile_fixture.cpp",
+      "sha256": "237bd06661341d20a59b17f2250a7ace1cc7c9d7ebbdc3ffa422337781ce2288",
+      "git_blob": "3e7dbff8322de32ad66ac2aa526392de2169a8cc"
+    }
+  },
+  "compiler": "/usr/local/swift/usr/bin/clang++",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "positive_case_count": 20,
+  "compiled_mutant_count": 8,
+  "current": [
+    {
+      "case": "copied-free-aba",
+      "returncode": 0,
+      "expected_reason": "PASS copied-free-aba",
+      "stdout": "same_item=1 same_region=1 old_guard=0 current_guard=1 tombstone=1\nPASS copied-free-aba\n",
+      "stderr": ""
+    },
+    {
+      "case": "copied-clear-aba",
+      "returncode": 0,
+      "expected_reason": "PASS copied-clear-aba",
+      "stdout": "same_item=1 same_region=1 old_guard=0 current_guard=1\nPASS copied-clear-aba\n",
+      "stderr": ""
+    },
+    {
+      "case": "owner-recreation",
+      "returncode": 0,
+      "expected_reason": "PASS owner-recreation",
+      "stdout": "PASS owner-recreation\n",
+      "stderr": ""
+    },
+    {
+      "case": "foreign-malformed",
+      "returncode": 0,
+      "expected_reason": "PASS foreign-malformed",
+      "stdout": "PASS foreign-malformed\n",
+      "stderr": ""
+    },
+    {
+      "case": "stale-free",
+      "returncode": 0,
+      "expected_reason": "PASS stale-free",
+      "stdout": "PASS stale-free\n",
+      "stderr": ""
+    },
+    {
+      "case": "coalesced-reuse",
+      "returncode": 0,
+      "expected_reason": "PASS coalesced-reuse",
+      "stdout": "PASS coalesced-reuse\n",
+      "stderr": ""
+    },
+    {
+      "case": "multiple-pages",
+      "returncode": 0,
+      "expected_reason": "PASS multiple-pages",
+      "stdout": "PASS multiple-pages\n",
+      "stderr": ""
+    },
+    {
+      "case": "incremental-pack",
+      "returncode": 0,
+      "expected_reason": "PASS incremental-pack",
+      "stdout": "PASS incremental-pack\n",
+      "stderr": ""
+    },
+    {
+      "case": "copied-tile-admission",
+      "returncode": 0,
+      "expected_reason": "PASS copied-tile-admission",
+      "stdout": "PASS copied-tile-admission\n",
+      "stderr": ""
+    },
+    {
+      "case": "malformed-region",
+      "returncode": 0,
+      "expected_reason": "PASS malformed-region",
+      "stdout": "PASS malformed-region\n",
+      "stderr": ""
+    },
+    {
+      "case": "scratch-repack",
+      "returncode": 0,
+      "expected_reason": "PASS scratch-repack",
+      "stdout": "PASS scratch-repack\n",
+      "stderr": ""
+    },
+    {
+      "case": "pending-destination",
+      "returncode": 0,
+      "expected_reason": "PASS pending-destination",
+      "stdout": "PASS pending-destination\n",
+      "stderr": ""
+    },
+    {
+      "case": "repack-requires-retirement",
+      "returncode": 0,
+      "expected_reason": "PASS repack-requires-retirement",
+      "stdout": "PASS repack-requires-retirement\n",
+      "stderr": ""
+    },
+    {
+      "case": "duplicate-pending",
+      "returncode": 0,
+      "expected_reason": "PASS duplicate-pending",
+      "stdout": "PASS duplicate-pending\n",
+      "stderr": ""
+    },
+    {
+      "case": "scratch-region",
+      "returncode": 0,
+      "expected_reason": "PASS scratch-region",
+      "stdout": "PASS scratch-region\n",
+      "stderr": ""
+    },
+    {
+      "case": "selected-tile-mismatch",
+      "returncode": 0,
+      "expected_reason": "PASS selected-tile-mismatch",
+      "stdout": "PASS selected-tile-mismatch\n",
+      "stderr": ""
+    },
+    {
+      "case": "owner-switch-pending",
+      "returncode": 0,
+      "expected_reason": "PASS owner-switch-pending",
+      "stdout": "PASS owner-switch-pending\n",
+      "stderr": ""
+    },
+    {
+      "case": "incarnation-exhaustion",
+      "returncode": 0,
+      "expected_reason": "PASS incarnation-exhaustion",
+      "stdout": "PASS incarnation-exhaustion\n",
+      "stderr": ""
+    },
+    {
+      "case": "owner-exhaustion",
+      "returncode": 0,
+      "expected_reason": "PASS owner-exhaustion",
+      "stdout": "PASS owner-exhaustion\n",
+      "stderr": ""
+    },
+    {
+      "case": "bounded-rebuild",
+      "returncode": 0,
+      "expected_reason": "PASS bounded-rebuild",
+      "stdout": "cycles=128 allocations=512 retirements=512 tile_slots=4 pages=1 item_high_water=4\nPASS bounded-rebuild\n",
+      "stderr": ""
+    }
+  ],
+  "retained_atlas_audit": [
+    {
+      "case": "atlas-live-control",
+      "returncode": 0,
+      "expected_reason": "PASS",
+      "stdout": "PASS atlas-live-control\n",
+      "stderr": ""
+    },
+    {
+      "case": "atlas-coordinate-negative",
+      "returncode": 0,
+      "expected_reason": "PASS",
+      "stdout": "PASS atlas-coordinate-negative\n",
+      "stderr": ""
+    },
+    {
+      "case": "atlas-free-reuse",
+      "returncode": 11,
+      "expected_reason": "stale-atlas-receipt-accepted",
+      "stdout": "old_binding=100 new_binding=200 same_item=1 same_region=1 old_guard=1\n",
+      "stderr": "BLOCKED stale-atlas-receipt-accepted\n"
+    },
+    {
+      "case": "atlas-clear-reuse",
+      "returncode": 11,
+      "expected_reason": "stale-atlas-receipt-accepted",
+      "stdout": "old_binding=100 new_binding=200 same_item=1 same_region=1 old_guard=1\n",
+      "stderr": "BLOCKED stale-atlas-receipt-accepted\n"
+    }
+  ],
+  "mutants": [
+    {
+      "mutation": "repeat-incarnation",
+      "case": "copied-free-aba",
+      "returncode": 11,
+      "expected_reason": "stale-atlas-receipt-accepted",
+      "stdout": "",
+      "stderr": "REJECT stale-atlas-receipt-accepted\n"
+    },
+    {
+      "mutation": "omit-incarnation",
+      "case": "copied-free-aba",
+      "returncode": 11,
+      "expected_reason": "stale-atlas-receipt-accepted",
+      "stdout": "",
+      "stderr": "REJECT stale-atlas-receipt-accepted\n"
+    },
+    {
+      "mutation": "clear-restarts-incarnation",
+      "case": "copied-clear-aba",
+      "returncode": 11,
+      "expected_reason": "stale-clear-receipt-accepted",
+      "stdout": "",
+      "stderr": "REJECT stale-clear-receipt-accepted\n"
+    },
+    {
+      "mutation": "omit-owner",
+      "case": "owner-recreation",
+      "returncode": 11,
+      "expected_reason": "destroyed-owner-receipt-accepted",
+      "stdout": "",
+      "stderr": "REJECT destroyed-owner-receipt-accepted\n"
+    },
+    {
+      "mutation": "unchecked-free",
+      "case": "stale-free",
+      "returncode": 11,
+      "expected_reason": "stale-free-mutated-live-owner",
+      "stdout": "",
+      "stderr": "REJECT stale-free-mutated-live-owner\n"
+    },
+    {
+      "mutation": "unguarded-consumer",
+      "case": "malformed-region",
+      "returncode": 11,
+      "expected_reason": "unguarded-tile-consumer",
+      "stdout": "",
+      "stderr": "REJECT unguarded-tile-consumer\n"
+    },
+    {
+      "mutation": "unchecked-selected-destination",
+      "case": "selected-tile-mismatch",
+      "returncode": 11,
+      "expected_reason": "selected-tile-mismatch-accepted",
+      "stdout": "",
+      "stderr": "REJECT selected-tile-mismatch-accepted\n"
+    },
+    {
+      "mutation": "wrapping-incarnation",
+      "case": "incarnation-exhaustion",
+      "returncode": 11,
+      "expected_reason": "allocation-counter-wrapped",
+      "stdout": "",
+      "stderr": "REJECT allocation-counter-wrapped\n"
+    }
+  ],
+  "valid_geometry_equivalence": {
+    "status": "PASS",
+    "allocations": 2560,
+    "clear_cycles": 32,
+    "trace_lines": 2592,
+    "sha256": "3a729968aa9af27adfab9487b3286704d179d23c3732a9d29c4659aad5f440c0"
+  },
+  "sizeof_bytes": {
+    "retained": {
+      "receipt": 8,
+      "item": 72,
+      "packer": 80,
+      "tile": 176
+    },
+    "current": {
+      "receipt": 24,
+      "item": 88,
+      "packer": 96,
+      "tile": 192
+    }
+  },
+  "sanitizers": {
+    "executed": true,
+    "cases": [
+      {
+        "case": "copied-free-aba",
+        "returncode": 0,
+        "expected_reason": "PASS copied-free-aba",
+        "stdout": "same_item=1 same_region=1 old_guard=0 current_guard=1 tombstone=1\nPASS copied-free-aba\n",
+        "stderr": ""
+      },
+      {
+        "case": "copied-clear-aba",
+        "returncode": 0,
+        "expected_reason": "PASS copied-clear-aba",
+        "stdout": "same_item=1 same_region=1 old_guard=0 current_guard=1\nPASS copied-clear-aba\n",
+        "stderr": ""
+      },
+      {
+        "case": "owner-recreation",
+        "returncode": 0,
+        "expected_reason": "PASS owner-recreation",
+        "stdout": "PASS owner-recreation\n",
+        "stderr": ""
+      },
+      {
+        "case": "foreign-malformed",
+        "returncode": 0,
+        "expected_reason": "PASS foreign-malformed",
+        "stdout": "PASS foreign-malformed\n",
+        "stderr": ""
+      },
+      {
+        "case": "stale-free",
+        "returncode": 0,
+        "expected_reason": "PASS stale-free",
+        "stdout": "PASS stale-free\n",
+        "stderr": ""
+      },
+      {
+        "case": "coalesced-reuse",
+        "returncode": 0,
+        "expected_reason": "PASS coalesced-reuse",
+        "stdout": "PASS coalesced-reuse\n",
+        "stderr": ""
+      },
+      {
+        "case": "multiple-pages",
+        "returncode": 0,
+        "expected_reason": "PASS multiple-pages",
+        "stdout": "PASS multiple-pages\n",
+        "stderr": ""
+      },
+      {
+        "case": "incremental-pack",
+        "returncode": 0,
+        "expected_reason": "PASS incremental-pack",
+        "stdout": "PASS incremental-pack\n",
+        "stderr": ""
+      },
+      {
+        "case": "copied-tile-admission",
+        "returncode": 0,
+        "expected_reason": "PASS copied-tile-admission",
+        "stdout": "PASS copied-tile-admission\n",
+        "stderr": ""
+      },
+      {
+        "case": "malformed-region",
+        "returncode": 0,
+        "expected_reason": "PASS malformed-region",
+        "stdout": "PASS malformed-region\n",
+        "stderr": ""
+      },
+      {
+        "case": "scratch-repack",
+        "returncode": 0,
+        "expected_reason": "PASS scratch-repack",
+        "stdout": "PASS scratch-repack\n",
+        "stderr": ""
+      },
+      {
+        "case": "pending-destination",
+        "returncode": 0,
+        "expected_reason": "PASS pending-destination",
+        "stdout": "PASS pending-destination\n",
+        "stderr": ""
+      },
+      {
+        "case": "repack-requires-retirement",
+        "returncode": 0,
+        "expected_reason": "PASS repack-requires-retirement",
+        "stdout": "PASS repack-requires-retirement\n",
+        "stderr": ""
+      },
+      {
+        "case": "duplicate-pending",
+        "returncode": 0,
+        "expected_reason": "PASS duplicate-pending",
+        "stdout": "PASS duplicate-pending\n",
+        "stderr": ""
+      },
+      {
+        "case": "scratch-region",
+        "returncode": 0,
+        "expected_reason": "PASS scratch-region",
+        "stdout": "PASS scratch-region\n",
+        "stderr": ""
+      },
+      {
+        "case": "selected-tile-mismatch",
+        "returncode": 0,
+        "expected_reason": "PASS selected-tile-mismatch",
+        "stdout": "PASS selected-tile-mismatch\n",
+        "stderr": ""
+      },
+      {
+        "case": "owner-switch-pending",
+        "returncode": 0,
+        "expected_reason": "PASS owner-switch-pending",
+        "stdout": "PASS owner-switch-pending\n",
+        "stderr": ""
+      },
+      {
+        "case": "incarnation-exhaustion",
+        "returncode": 0,
+        "expected_reason": "PASS incarnation-exhaustion",
+        "stdout": "PASS incarnation-exhaustion\n",
+        "stderr": ""
+      },
+      {
+        "case": "owner-exhaustion",
+        "returncode": 0,
+        "expected_reason": "PASS owner-exhaustion",
+        "stdout": "PASS owner-exhaustion\n",
+        "stderr": ""
+      },
+      {
+        "case": "bounded-rebuild",
+        "returncode": 0,
+        "expected_reason": "PASS bounded-rebuild",
+        "stdout": "cycles=128 allocations=512 retirements=512 tile_slots=4 pages=1 item_high_water=4\nPASS bounded-rebuild\n",
+        "stderr": ""
+      }
+    ]
+  },
+  "model_boundary": [
+    "real RectPacker, LightmapTile, exact LevelMesh allocation/packing/checked access and Doom ReleaseTiles bodies",
+    "exact scratch SelectTiles/ValidateSelectedTile/SetLevelMesh bodies; symbolic mesh arrays and no Vulkan calls",
+    "real same-storage ABA; same-address packer recreation; actually dangling old tile rejected before dereference",
+    "compiled mutations must reject a named invariant, not any crash or compiler failure",
+    "original copied-receipt failures remain immutable injected counterexamples, not demonstrated native reachability",
+    "no renderer, device, per-texel GPU readback, whole native multi-page matrix or physical execution"
+  ],
+  "acceptance": {
+    "issue156": "CANDIDATE_PENDING_REQUIRED_CI_REVIEW_MERGE",
+    "issue14": "NOT_SOFTWARE_COMPLETE",
+    "physical_stop": "ACTIVE",
+    "physical_cost_scaling_stability": "HELD_NOT_ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  }
+}

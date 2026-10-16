@@ -282,3 +282,22 @@ reversed lookup, exhaustion and bounded owner cycles. A prospective normal
 Avrea lane observes emitted pair identities and actual material sampler phases.
 It is not GPU probe-map texel readback. See the SDVK-153 repair document; #153
 and full #14 acceptance remain pending. Physical STOP is unchanged.
+
+
+## SDVK-156 atlas lifetime follow-on
+
+The #150 semantic probe-set and #153 persistent descriptor fixes are accepted
+(PR #152 and PR #155); preceding candidate notes describe older checkpoints.
+Atlas tiles now capture a value receipt from the current RectPacker, with separate
+owner and allocation incarnations. Draw/UV, retained-load copy and save/readback
+paths validate that receipt instead of trusting a recycled item pointer/rectangle.
+
+Selected bake work captures both destination and scratch receipts. Render/copy
+validate both, including scratch geometry, before command/resource use; mesh
+switch clears pending selections. Scratch Clear/repack cannot refresh old work.
+Post-copy completion ordering, probe descriptor/content epochs, sampler policy,
+shader ABI and authored ordinals remain unchanged. Runtime atlas receipts are not
+saved; structural load admission still does not prove authored bake freshness.
+[SDVK-156](../SDVK-156-ATLAS-INCARNATION.md) records bounded CPU proof and normal-CI
+gates, not per-texel GPU readback or the full native multi-page/special-surface
+campaign. #14 remains unaccepted; physical requirements remain held.

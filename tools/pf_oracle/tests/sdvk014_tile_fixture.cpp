@@ -114,9 +114,11 @@ public:
 static int allocate(DoomLevelMesh& m,int binding,int w=4,int h=4) {
     LightmapTile tile;tile.UseCount=1;tile.Binding.Type=1;tile.Binding.TypeIndex=binding;
     tile.NeedsInitialBake=true;
-    auto p=m.Lightmap.AtlasPacker->Alloc(w,h);
-    tile.AtlasLocation={p->X,p->Y,p->Width,p->Height,p->PageIndex,p};
-    int i=m.AllocTile(tile);m.Lightmap.TextureCount=m.Lightmap.AtlasPacker->GetNumPages();
+    int i=m.AllocTile(tile);
+    auto allocation=m.Lightmap.AtlasPacker->Alloc(w,h);
+    const auto p=m.Lightmap.AtlasPacker->GetRegion(allocation);
+    m.Lightmap.Tiles[i].AtlasLocation={p.X,p.Y,p.Width,p.Height,p.PageIndex,allocation};
+    m.Lightmap.TextureCount=m.Lightmap.AtlasPacker->GetNumPages();
     int s=int(m.Mesh.Surfaces.Size());m.Mesh.Surfaces.Push(LevelMesh::Surface{i});
     m.DoomSurfaceInfos.Push(DoomLevelMesh::Info{});return s;
 }
@@ -138,7 +140,7 @@ static void run(const std::string& mode) {
     if(mode=="shared-retirement") {
         int s=allocate(m,100);auto& t=m.Lightmap.Tiles[0];++t.UseCount;
         m.Mesh.Surfaces.Push(LevelMesh::Surface{0});m.DoomSurfaceInfos.Push(DoomLevelMesh::Info{});
-        m.ReleaseTiles(s);require(t.UseCount==1 && t.HasLiveAtlasAllocation(),"premature-shared-retirement");
+        m.ReleaseTiles(s);require(t.UseCount==1 && t.HasLiveAtlasAllocation(*m.Lightmap.AtlasPacker),"premature-shared-retirement");
         m.ReleaseTiles(1);
         require(m.Lightmap.UsedTiles==0 && m.Lightmap.FreeTiles.Size()==1,"retirement-count");
         require(t.AtlasLocation.ArrayIndex==-1 && !t.NeedsInitialBake && !t.GeometryUpdate && !t.ReceivedNewLight,
@@ -183,12 +185,12 @@ static void run(const std::string& mode) {
                 "failed-upload-lost-input");
         require(v.mapper.calls==0,"failed-upload-published-mapper");
     } else if(mode=="invalid-owner") {
-        allocate(m,100);auto& t=m.Lightmap.Tiles[0];auto p=t.AtlasLocation.Item;
-        t.AtlasLocation.Item=nullptr;bool rejected=false;
+        allocate(m,100);auto& t=m.Lightmap.Tiles[0];auto p=t.AtlasLocation.Allocation;
+        t.AtlasLocation.Allocation={};bool rejected=false;
         try {m.SavePrefix();} catch(const std::runtime_error& e) {
             rejected=std::string(e.what()).find("valid atlas region")!=std::string::npos;
         }
-        t.AtlasLocation.Item=p;
+        t.AtlasLocation.Allocation=p;
         require(rejected && screen->downloads==0,"invalid-owner-reached-readback");
     } else if(mode=="live-free") {
         allocate(m,100);bool rejected=false;
@@ -202,7 +204,7 @@ static void run(const std::string& mode) {
             auto& t=m.Lightmap.Tiles[0];t=good;
             switch(i) {case 0:t.AtlasLocation.ArrayIndex=1;break;case 1:t.AtlasLocation.X=-1;break;
             case 2:t.AtlasLocation.Y=15;break;case 3:t.AtlasLocation.Width=17;break;
-            case 4:t.AtlasLocation.Height=0;break;case 5:t.AtlasLocation.Item=nullptr;break;
+            case 4:t.AtlasLocation.Height=0;break;case 5:t.AtlasLocation.Allocation={};break;
             case 6:t.AtlasLocation.X=std::numeric_limits<int>::max();break;case 7:t.AtlasLocation.Height=-1;break;
             case 8:t.AtlasLocation.X=4;break;case 9:t.AtlasLocation.Y=4;break;
             case 10:m.Lightmap.TextureCount=2;t.AtlasLocation.ArrayIndex=1;break;}

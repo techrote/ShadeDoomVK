@@ -450,7 +450,7 @@ static void UpdatePlaneLightmap(FRenderState& renderstate, sector_t* sec, int pl
 			int lightmap = origin->sub->LightmapTiles[origin->plane].Size() > (unsigned int)origin->lightmapSlot ? origin->sub->LightmapTiles[origin->plane][origin->lightmapSlot] : -1;
 			if (lightmap >= 0) // tile may be missing if the subsector is degenerate triangle
 			{
-				const auto& tile = level.levelMesh->Lightmap.Tiles[lightmap];
+				const auto& tile = level.levelMesh->GetLightmapTile(lightmap);
 				float textureSize = (float)level.levelMesh->Lightmap.TextureSize;
 				float lindex = (float)tile.AtlasLocation.ArrayIndex;
 				FVector2 luv = tile.ToUV(FVector3(vt->x, vt->y, vt->z), textureSize);

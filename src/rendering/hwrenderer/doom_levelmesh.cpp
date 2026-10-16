@@ -261,7 +261,7 @@ void DoomLevelMesh::PrintSurfaceInfo(const LevelMeshSurface* surface)
 	Printf("Surface %d (%p)\n    Type: %d, TypeIndex: %d, ControlSector: %d\n", surfaceIndex, surface, info.Type, info.TypeIndex, info.ControlSector ? info.ControlSector->Index() : -1);
 	if (surface->LightmapTileIndex >= 0)
 	{
-		LightmapTile* tile = &Lightmap.Tiles[surface->LightmapTileIndex];
+		LightmapTile* tile = &GetLightmapTile(surface->LightmapTileIndex);
 		Printf("    Atlas page: %d, x:%d, y:%d\n", tile->AtlasLocation.ArrayIndex, tile->AtlasLocation.X, tile->AtlasLocation.Y);
 		Printf("    Pixels: %dx%d (area: %d)\n", tile->AtlasLocation.Width, tile->AtlasLocation.Height, tile->AtlasLocation.Area());
 		Printf("    Sample dimension: %d\n", tile->SampleDimension);
@@ -1025,10 +1025,11 @@ void DoomLevelMesh::ReleaseTiles(int surf)
 			tile.UseCount--;
 			if (tile.UseCount == 0) // Nothing is referencing this tile anymore. Release it back to the atlas packer.
 			{
-				if (tile.AtlasLocation.Item)
+				if (tile.AtlasLocation.Allocation)
 				{
-					Lightmap.AtlasPacker->Free(tile.AtlasLocation.Item);
-					tile.AtlasLocation.Item = nullptr;
+					if (!Lightmap.AtlasPacker->Free(tile.AtlasLocation.Allocation))
+						I_FatalError("Stale lightmap atlas receipt during tile release");
+					tile.AtlasLocation.Allocation = {};
 				}
 				FreeTile(tileIndex);
 			}
@@ -2328,7 +2329,7 @@ void DoomLevelMesh::DumpMesh(const FString& objFilename, const FString& mtlFilen
 
 				if (surface.LightmapTileIndex >= 0)
 				{
-					auto& tile = Lightmap.Tiles[surface.LightmapTileIndex];
+					auto& tile = GetLightmapTile(surface.LightmapTileIndex);
 					fprintf(f, "usemtl lightmap%d\n", tile.AtlasLocation.ArrayIndex);
 
 					if (tile.AtlasLocation.ArrayIndex > highestUsedAtlasPage)
@@ -2724,7 +2725,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	// must not export a former binding with pixels now owned by another tile.
 	for (const auto& tile : Lightmap.Tiles)
 	{
-		if (tile.UseCount > 0 && !tile.HasValidAtlasRegion(Lightmap.TextureSize, Lightmap.TextureCount))
+		if (tile.UseCount > 0 && !tile.HasValidAtlasRegion(*Lightmap.AtlasPacker, Lightmap.TextureSize, Lightmap.TextureCount))
 			I_FatalError("Cannot save a live lightmap tile without a valid atlas region");
 	}
 	if (Lightmap.TextureSize <= 0 || Lightmap.TextureCount < 0)
@@ -2749,7 +2750,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	for (unsigned int i = 0; i < Lightmap.Tiles.Size(); i++)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
-		if (tile->HasLiveAtlasAllocation())
+		if (tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
 		{
 			tileCount++;
 			pixelCount += tile->AtlasLocation.Area();
@@ -2780,7 +2781,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
 
-		if (!tile->HasLiveAtlasAllocation())
+		if (!tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
 			continue;
 
 		lumpFile.Write32(tile->Binding.Type);
@@ -2812,7 +2813,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
 
-		if (!tile->HasLiveAtlasAllocation())
+		if (!tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
 			continue;
 
 		const uint16_t* pixels = readback.Data() + uint64_t(tile->AtlasLocation.ArrayIndex) * elementsPerPage;

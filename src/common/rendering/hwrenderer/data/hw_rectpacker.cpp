@@ -1,6 +1,27 @@
 
 #include "hw_rectpacker.h"
 #include "engineerrors.h"
+#include <atomic>
+#include <limits>
+
+namespace
+{
+// Process-unique owner IDs also reject destruction/reconstruction at one address.
+// Packer mutation remains externally serialized; only owner creation is atomic.
+std::atomic<uint64_t> RectPackerOwnerSequence{0};
+uint64_t NextRectPackerOwner()
+{
+	uint64_t old = RectPackerOwnerSequence.load(std::memory_order_relaxed);
+	for (;;)
+	{
+		if (old == std::numeric_limits<uint64_t>::max())
+			I_FatalError("RectPacker owner identity exhausted");
+		if (RectPackerOwnerSequence.compare_exchange_weak(old, old + 1, std::memory_order_relaxed))
+			return old + 1;
+	}
+}
+}
+
 
 // This is a dynamic atlas texture packer
 // It is used by the level mesh to dynamically allocate and free room in the lightmap atlas textures
@@ -17,6 +38,7 @@ RectPacker::RectPacker(int width, int height, int padding) : PageWidth(width), P
 	// Establish positive usable dimensions before any padded arithmetic or mutation.
 	if (width <= 0 || height <= 0 || padding < 0 || padding > (width - 1) / 2 || padding > (height - 1) / 2)
 		I_FatalError("Invalid RectPacker page size or padding");
+	Owner = NextRectPackerOwner();
 }
 
 void RectPacker::Clear()
@@ -29,6 +51,7 @@ void RectPacker::Clear()
 	size_t i = Items.size();
 	for (auto& item : Items)
 	{
+		item->Incarnation = 0;
 		item->Shelf = nullptr;
 		item->PrevItem = nullptr;
 		item->NextItem = nullptr;
@@ -39,12 +62,16 @@ void RectPacker::Clear()
 	}
 }
 
-RectPackerItem* RectPacker::Alloc(int width, int height)
+RectPackerAllocation RectPacker::Alloc(int width, int height)
 {
 	// Check the unpadded request first: invalid input must not allocate a page,
 	// and adding padding must not overflow. Equality is a legal exact-page fit.
 	if (width <= 0 || height <= 0 || width > PageWidth - Padding * 2 || height > PageHeight - Padding * 2)
 		I_FatalError("Invalid or oversized RectPacker tile");
+
+	// Exhaustion must fail before changing shelves, pages or item storage.
+	if (LastIncarnation == std::numeric_limits<uint64_t>::max())
+		I_FatalError("RectPacker allocation incarnation exhausted");
 
 	width += Padding * 2;
 	height += Padding * 2;
@@ -67,7 +94,7 @@ RectPackerItem* RectPacker::Alloc(int width, int height)
 					if (width <= item->Width)
 					{
 						// We found a free slot with room!
-						return AllocateRoom(item, width, height);
+						return PublishAllocation(AllocateRoom(item, width, height));
 					}
 				}
 			}
@@ -79,13 +106,52 @@ RectPackerItem* RectPacker::Alloc(int width, int height)
 		if (height <= availableShelfSpace)
 		{
 			// We have room. Create a shelf and allocate room in it
-			return CreateShelf(&page, nextY, width, height);
+			return PublishAllocation(CreateShelf(&page, nextY, width, height));
 		}
 	}
 
 	// No space on any pages. Create a new one
 	Pages.Push(RectPackerPage((int)Pages.size()));
-	return CreateShelf(&Pages.back(), 0, width, height);
+	return PublishAllocation(CreateShelf(&Pages.back(), 0, width, height));
+}
+
+RectPackerAllocation RectPacker::PublishAllocation(RectPackerItem* item)
+{
+	// Alloc checked exhaustion before its first mutation. Free space never gets
+	// a receipt; every successful allocation, including an exact fit, does.
+	item->Incarnation = ++LastIncarnation;
+	return { Owner, item->Incarnation, item->Slot };
+}
+
+RectPackerItem* RectPacker::FindAllocation(const RectPackerAllocation& allocation) const
+{
+	if (allocation.Owner != Owner || allocation.Incarnation == 0 || allocation.Slot >= Items.size())
+		return nullptr;
+	RectPackerItem* item = Items[allocation.Slot].get();
+	if (item->Incarnation != allocation.Incarnation || !item->Shelf || item->IsAvailable)
+		return nullptr;
+	return item;
+}
+
+bool RectPacker::IsLive(const RectPackerAllocation& allocation) const
+{
+	return FindAllocation(allocation) != nullptr;
+}
+
+bool RectPacker::TryGetRegion(const RectPackerAllocation& allocation, RectPackerRegion& region) const
+{
+	const auto item = FindAllocation(allocation);
+	if (!item) return false;
+	region = { item->X, item->Y, item->Width, item->Height, item->PageIndex };
+	return true;
+}
+
+RectPackerRegion RectPacker::GetRegion(const RectPackerAllocation& allocation) const
+{
+	RectPackerRegion region;
+	if (!TryGetRegion(allocation, region))
+		I_FatalError("Invalid or stale RectPacker allocation receipt");
+	return region;
 }
 
 RectPackerItem* RectPacker::AllocateRoom(RectPackerItem* item, int width, int height)
@@ -168,11 +234,14 @@ void RectPacker::RemovePadding(RectPackerItem* item)
 	item->Height += Padding * 2;
 }
 
-void RectPacker::Free(RectPackerItem* item)
+bool RectPacker::Free(const RectPackerAllocation& allocation)
 {
-	// Already freed or no item?
-	if (!item || item->IsAvailable)
-		return;
+	// Do not dereference a caller-supplied pointer. Owner and slot admission
+	// precede any access to storage, then the captured incarnation must match.
+	RectPackerItem* item = FindAllocation(allocation);
+	if (!item)
+		return false;
+	item->Incarnation = 0;
 
 	RemovePadding(item);
 	AddToAvailableList(item);
@@ -190,6 +259,7 @@ void RectPacker::Free(RectPackerItem* item)
 		item->PrevItem->Width += item->Width;
 		FreeItem(item);
 	}
+	return true;
 }
 
 RectPackerItem* RectPacker::AllocItem(RectPackerShelf* shelf)
@@ -203,12 +273,14 @@ RectPackerItem* RectPacker::AllocItem(RectPackerShelf* shelf)
 	}
 
 	Items.Push(std::make_unique<RectPackerItem>());
+	Items.back()->Slot = Items.size() - 1;
 	Items.back()->Shelf = shelf;
 	return Items.back().get();
 }
 
 void RectPacker::FreeItem(RectPackerItem* item)
 {
+	item->Incarnation = 0;
 	RemoveFromItemList(item);
 	RemoveFromAvailableList(item);
 	item->Shelf = nullptr;

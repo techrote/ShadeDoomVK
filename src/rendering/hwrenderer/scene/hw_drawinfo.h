@@ -323,7 +323,7 @@ public:
 			return;
 		}
 
-		LightmapTile* tile = &Level->levelMesh->Lightmap.Tiles[tileIndex];
+		LightmapTile* tile = &Level->levelMesh->GetLightmapTile(tileIndex);
 		if (tile->LastSeen != TileSeenCounter)
 		{
 			tile->LastSeen = TileSeenCounter;

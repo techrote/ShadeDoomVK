@@ -309,3 +309,22 @@ This is a pending repair contract, not merged/native acceptance. The lifetime
 proof and high-water bound are in SDVK-153-PROBE-DESCRIPTOR-LIFETIME.md. Future
 view/sampler replacement must invalidate or republish raw consumers explicitly.
 No atlas allocation-incarnation claim follows from this device-level repair.
+
+
+## SDVK-156: current atlas allocation receipt contract
+
+PR #155 / #153 is accepted at master `ad0833696804e57672ec425d2c33bf36732d05f1`;
+its older candidate notes are historical. The separate atlas ABA repair now uses
+`RectPackerAllocation { Owner, Incarnation, Slot }`. No public allocator API returns
+or frees a raw item pointer. Resolution checks the current owner/slot/serial before
+accessing item storage; Clear, Free, same-address owner recreation and counter
+exhaustion cannot make an old receipt live again. Copying a receipt never refreshes
+it. A nonempty receipt is not proof of liveness.
+
+Current tile-region, draw, load/save and bake-scratch/destination consumers are
+checked. Current-surface tombstones remain; borrowed pointers still require their
+synchronous owner lifetime. This is an atlas allocation guarantee, not a general
+surface-pointer generation scheme or authored-content digest. See
+[SDVK-156](../SDVK-156-ATLAS-INCARNATION.md) and its exact CPU receipt for the full
+producer/consumer map, historical negatives and pending publication gates. #14 is
+not software-complete; Physical STOP ACTIVE, physical performance HELD.
