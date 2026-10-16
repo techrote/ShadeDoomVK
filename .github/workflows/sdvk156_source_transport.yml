@@ -1,0 +1,59 @@
+name: SDVK-156 source transport (temporary)
+on:
+  create:
+permissions:
+  contents: write
+jobs:
+  publish:
+    if: github.repository == 'techrote/ShadeDoomVK' && github.event.ref_type == 'branch' && github.event.ref == 'sdvk156-source-transport'
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Verify and publish the exact CPU-qualified tree
+        env:
+          BASE: ad0833696804e57672ec425d2c33bf36732d05f1
+          BASE_TREE: ee9b0cffc10316a95a4cc74d2cfd4c0462cd2e29
+          EXPECTED_TREE: 550aac5b6fe66d21917b7afdc632272e04497432
+          TARGET: sdvk156-atlas-incarnation
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Transport only: no source execution, renderer, build, benchmark or merge.
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, lzma, os
+          parts = [(Path('.sdvk156-transport') / f'part-{i}').read_bytes() for i in range(7)]
+          assert [len(p) for p in parts] == [6000] * 6 + [4028], 'Transport lengths differ'
+          raw = b''.join(parts)
+          assert len(raw) == 40028
+          assert hashlib.sha256(raw).hexdigest() == 'e811b0676fc6a496c66b770c404bb9b5ea6bdc6a95b1c37ac35233249a63e90e', 'Compressed digest differs'
+          patch = lzma.decompress(raw, memlimit=64 * 1024 * 1024)
+          assert len(patch) == 184480
+          assert hashlib.sha256(patch).hexdigest() == '8b421020789cd9b377bd60b01e8dca922f37077f528a15bb6d005d9a170c310c', 'Patch digest differs'
+          (Path(os.environ['RUNNER_TEMP']) / 'sdvk156.patch').write_bytes(patch)
+          PY
+          git fetch --no-tags origin "$BASE"
+          git checkout --detach "$BASE"
+          test "$(git rev-parse 'HEAD^{tree}')" = "$BASE_TREE"
+          test -z "$(git status --porcelain)"
+          git apply --check --index --whitespace=nowarn "$RUNNER_TEMP/sdvk156.patch"
+          git apply --index --whitespace=nowarn "$RUNNER_TEMP/sdvk156.patch"
+          test "$(git write-tree)" = "$EXPECTED_TREE"
+          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'SDVK-156: bind atlas receipts to allocation incarnations'
+          test "$(git rev-parse HEAD^)" = "$BASE"
+          CURRENT=$(git ls-remote origin refs/heads/master)
+          test "${CURRENT%%$'\t'*}" = "$BASE"
+          # Empty expected old value atomically permits creation ONLY; never overwrite.
+          git push --force-with-lease="refs/heads/$TARGET:" origin "HEAD:refs/heads/$TARGET"
+          git rev-parse HEAD 'HEAD^{tree}' HEAD^
+          {
+            echo '## Exact source publication (not CI acceptance)'
+            echo "Head: $(git rev-parse HEAD)"
+            echo "Tree: $(git rev-parse 'HEAD^{tree}')"
+            echo "Parent: $(git rev-parse HEAD^)"
+            echo 'Candidate tree contains no temporary transport workflow or payload.'
+            echo 'Normal PR CI, review and acceptance remain required. Master was not modified.'
+          } >> "$GITHUB_STEP_SUMMARY"
