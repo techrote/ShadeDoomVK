@@ -43,6 +43,38 @@ def validate_lifecycle_records(records: list[dict], spec: dict) -> dict:
     require(isinstance(owners, list) and len(owners) == 2 and passes_required == 5,
             "Probe-owner transition assertion recipe is malformed")
 
+    # Inspect every event before selecting per-owner rows. Filtering by both
+    # map and count first would hide a wrong-count reset from this same-count
+    # fixture. A plausible publication must also be a completed producer state,
+    # not merely an event name with a matching epoch.
+    require(len(events) <= 64, "Probe-owner lifecycle event bound exceeded")
+    require(all(isinstance(owner, dict) for owner in owners),
+            "Probe-owner assertion owner is malformed")
+    owner_names = [owner.get("map") for owner in owners]
+    require(all(isinstance(name, str) and name for name in owner_names)
+            and len(set(owner_names)) == 2,
+            "Probe-owner assertion maps must be distinct")
+    for event in events:
+        require(isinstance(event, dict), "Malformed probe-owner lifecycle event")
+        require(event.get("map") in owner_names,
+                "Probe-owner lifecycle event belongs to an undeclared map")
+        require(type(event.get("authored_count")) is int and event["authored_count"] == 2,
+                "Probe-owner lifecycle event has wrong authored count")
+        kind = event.get("event")
+        require(kind in ("owner-reset", "pass-published"),
+                "Probe-owner lifecycle event is not a declared reset/publication")
+        for field in ("iteration", "next_index", "collected"):
+            require(type(event.get(field)) is int and event[field] >= 0,
+                    "Probe-owner lifecycle progress is not a nonnegative integer")
+        if kind == "owner-reset":
+            require(event["iteration"] == event["next_index"] == event["collected"] == 0,
+                    "Probe-owner reset retained old progress")
+        else:
+            require(1 <= event["iteration"] <= passes_required
+                    and event["next_index"] == event["authored_count"]
+                    and event["collected"] == 0,
+                    "Probe-owner publication is not completed producer state")
+
     summaries = []
     cursor = -1
     for owner in owners:

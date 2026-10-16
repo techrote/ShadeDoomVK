@@ -1,0 +1,67 @@
+{
+  "schema": "sdvk150-lifecycle-oracle-review/v1",
+  "date": "2026-10-16",
+  "base_commit": "42eba1b100e00ce7411e238536ee1ede3c3481e2",
+  "old_validator_sha256": "976989e7b1857693136930956882e8e4080417b7bf0d711c135accb0ac24dda8",
+  "new_validator_sha256": "bdeb9158babfe1b0083de6b7c6ada20540f6c4a0d2505f86decbc2692b8b3763",
+  "scope": "Validation-only repair. No renderer, authored fixture, tolerance, clock, resource or probe-selection changes.",
+  "counterexamples": [
+    {
+      "case": "published-with-partial-collected",
+      "generic_structure": "PASS",
+      "before": "PASS",
+      "after": "EXPECTED_REJECTION",
+      "reason": "Probe-owner publication is not completed producer state",
+      "synthetic_only": true
+    },
+    {
+      "case": "published-with-wrong-next-index",
+      "generic_structure": "PASS",
+      "before": "PASS",
+      "after": "EXPECTED_REJECTION",
+      "reason": "Probe-owner publication is not completed producer state",
+      "synthetic_only": true
+    },
+    {
+      "case": "reset-keeps-terminal-progress",
+      "generic_structure": "PASS",
+      "before": "PASS",
+      "after": "EXPECTED_REJECTION",
+      "reason": "Probe-owner reset retained old progress",
+      "synthetic_only": true
+    },
+    {
+      "case": "count-reset-with-wrong-authored-count",
+      "generic_structure": "PASS",
+      "before": "PASS",
+      "after": "EXPECTED_REJECTION",
+      "reason": "Probe-owner lifecycle event has wrong authored count",
+      "synthetic_only": true
+    }
+  ],
+  "invariants": [
+    "Every lifecycle event belongs to one declared map and its declared two-probe set; filtering must not hide wrong-count resets.",
+    "OwnerReset has zero iteration, next index and collected count.",
+    "PassPublished has iteration 1..5, next index equal to authored count, and zero collected count.",
+    "A and B each retain exactly one owner reset followed by five ordered publications; revisions remain distinct and B epoch advances."
+  ],
+  "validation": {
+    "focused_tests": 10,
+    "new_negative_cases": 11,
+    "complete_cpu_gate": "PASS",
+    "pf_tests": 803,
+    "cfx_tests": 8,
+    "renderer_tests": 211,
+    "standalone_fixtures": 4,
+    "deterministic_corpus_and_pf_outputs": "PASS",
+    "full_check_log_sha256": "a54907ff56d81f7d69aea83c66a4a6248072a650896ae9788a7388665f55b178"
+  },
+  "publication": "Review checkpoint prepared while the normal CI at the base head runs. Integrate into PR #152 and qualify exact final head before acceptance; no benchmark-only or duplicate full CI is dispatched for this checkpoint.",
+  "acceptance": {
+    "native_proof": false,
+    "software_phase_complete": false,
+    "physical_stop": "ACTIVE",
+    "physical_cost_scaling_stability": "HELD_NOT_ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  }
+}

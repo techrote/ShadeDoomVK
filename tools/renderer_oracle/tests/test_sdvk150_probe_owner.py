@@ -115,6 +115,38 @@ class ProbeOwnerLifecycleValidationTests(unittest.TestCase):
             _sdvk150_repeatability_projection(strict, "probe-owner-transition"),
         )
 
+    def test_partial_publication_and_stale_reset_progress_are_rejected(self):
+        cases = (
+            ("partial-collected", -1, "collected", 1, "not completed producer state"),
+            ("wrong-next-index", -1, "next_index", 0, "not completed producer state"),
+            ("reset-iteration", 6, "iteration", 5, "reset retained old progress"),
+            ("reset-next-index", 6, "next_index", 2, "reset retained old progress"),
+            ("reset-collected", 6, "collected", 2, "reset retained old progress"),
+            ("boolean-progress", -1, "collected", False, "not a nonnegative integer"),
+        )
+        for name, index, field, replacement, reason in cases:
+            with self.subTest(case=name):
+                value = records()
+                value[0]["data"]["events"][index][field] = replacement
+                with self.assertRaisesRegex(EvidenceError, reason):
+                    validate_lifecycle_records(value, SPEC)
+
+    def test_wrong_count_or_undeclared_events_cannot_be_filtered_away(self):
+        for kind in ("owner-reset", "count-reset", "pass-published"):
+            with self.subTest(kind=kind):
+                value = records()
+                value[0]["data"]["events"].insert(7, event(kind, "SDV15B", 19, 5, 0, authored=1))
+                with self.assertRaisesRegex(EvidenceError, "wrong authored count"):
+                    validate_lifecycle_records(value, SPEC)
+        value = records()
+        value[0]["data"]["events"].insert(7, event("owner-reset", "SDV15C", 23, 6, 0))
+        with self.assertRaisesRegex(EvidenceError, "undeclared map"):
+            validate_lifecycle_records(value, SPEC)
+        value = records()
+        value[0]["data"]["events"].insert(7, event("empty-reset", "SDV15B", 19, 5, 0))
+        with self.assertRaisesRegex(EvidenceError, "not a declared reset/publication"):
+            validate_lifecycle_records(value, SPEC)
+
     def test_half_pair_family_is_rejected(self):
         value = records()
         for row in value[0]["data"]["events"]:
