@@ -24,6 +24,7 @@
 #include "hwrenderer/scene/hw_sprite_tangent.h"
 #include "hwrenderer/scene/hw_actor_probe_selection.h"
 #include "vulkan/vk_renderdevice.h"
+#include "vulkan/textures/vk_texture.h"
 #include "vulkan/commands/vk_commandbuffer.h"
 #include <zvulkan/cfxtrace.h>
 #include <chrono>

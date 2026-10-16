@@ -1,0 +1,70 @@
+{
+  "schema": "sdvk150-observer-build-repair/v1",
+  "date": "2026-10-16",
+  "base_head": "ad3db9e29681f5786e1a71da0d50ff92de37368b",
+  "base_tree": "f8c1cc0fdb32f89e4787722334e7389576129d2d",
+  "failed_ci": {
+    "run": 38830499426,
+    "diagnosed_job": 116748291396,
+    "avrea_job": 116748291469,
+    "phase": "Build",
+    "native_qualification_started": false
+  },
+  "cause": "ProbeBuilderLifecycle dereferenced VkTextureManager from its forward declaration at three member-access sites without including its complete definition.",
+  "repair": "One explicit include of vulkan/textures/vk_texture.h in hw_sdvkdiagnostics.cpp; no scheduling, resource, material, quality or observer-decision changes.",
+  "production_blob": "d7d0bedad26d7956b68c6774edba5d5b9b30a15e",
+  "regression_blob": "741979e85cf55a0c14560c09d96aba89f8478984",
+  "compile_only": {
+    "scope": "Complete actual observer translation unit, syntax-only; never linked or executed.",
+    "configuration": "Repository Cocoa base_sysfb.h declarations with CMake POSIX compatibility defines and repository headers. Local SDL2 development headers are absent. This is neither a complete Linux build nor macOS platform qualification.",
+    "compilers": [
+      "GCC 14.2.0",
+      "Clang 17.0.0"
+    ],
+    "positive_exit_codes": [
+      0,
+      0
+    ],
+    "negative": "Remove only the new include from a temporary copy; both compilers reject exactly three VkTextureManager incomplete-type member accesses.",
+    "negative_exit_codes": [
+      1,
+      1
+    ],
+    "warnings": "GCC emitted no diagnostics; Clang retained 36 existing missing-override warnings. No warning suppression or CI compiler-policy change."
+  },
+  "cpu_gate": {
+    "command": "python3 tools/check.py --output build/sdvk150-build-repair/checks",
+    "result": "PASS",
+    "pf_tests": 803,
+    "cfx_tests": 8,
+    "renderer_tests": 209,
+    "standalone_compiled_fixtures": 4,
+    "deterministic_pf_outputs_equal": true,
+    "deterministic_corpus_preparation": "PASS"
+  },
+  "source_controls": [
+    "required complete owner include",
+    "removed include rejected",
+    "commented include rejected",
+    "forward declaration only rejected",
+    "late include rejected"
+  ],
+  "logs_sha256": {
+    "clang-syntax-after.log": "f8da1f9ff3614765c2094df8887213aed4f3d5ef44358134faa52810a91abff8",
+    "clang-syntax-negative.log": "ef8315ddf4cb0e381d472ab5cadf7648425cecae3276ee9b933142d3f28ee4ae",
+    "full-check.log": "ccb57239cb58dcf052006928e97ab94f5e08de7109f606750723fbd67a7eb034",
+    "gcc-syntax-after.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "gcc-syntax-negative.log": "4e54bbd45ee421723e6605b48b7e9de955d56b1c3d8ffc8e4a06202fbdd9e575",
+    "syntax-before.log": "06a401526a3ac77b996bc2f9a69d95b2a9420eba8085a190d9d5c2805c10485f",
+    "syntax-cocoa-before.log": "5b6d765e4174763c8a2bc644fe130e813ddebfac423931c67f88d9f59832424f"
+  },
+  "acceptance": {
+    "new_exact_head_ci": "PENDING_AT_PUBLICATION",
+    "issue_150": "NOT_ACCEPTED",
+    "sdvk014_software": "NOT_COMPLETE",
+    "physical_stop": "ACTIVE",
+    "physical_cost_scaling_stability": "HELD_NOT_ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED",
+    "renderer_or_device_executed_locally": false
+  }
+}
