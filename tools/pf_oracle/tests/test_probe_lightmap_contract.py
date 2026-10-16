@@ -108,14 +108,18 @@ class ProbeLightmapContractTests(unittest.TestCase):
     def test_builder_completed_and_empty_states_terminate(self) -> None:
         step = function_body(
             self.lightprobe,
-            "void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)",
+            "LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step(",
         )
         full = function_body(
             self.lightprobe,
-            "void LightProbeIncrementalBuilder::Full(const TArray<LightProbe>& probes, uint64_t probeSetRevision, std::function<void(int probeIndex, const LightProbe& probe)> renderScene)",
+            "void LightProbeIncrementalBuilder::Full(",
         )
         self.assertIn("if (ownerRevision != probeSetRevision)", step)
         self.assertIn("ownerRevision = probeSetRevision;", step)
+        self.assertIn("LightProbeBuilderEvent::OwnerReset", step)
+        self.assertIn("LightProbeBuilderEvent::EmptyReset", step)
+        self.assertIn("LightProbeBuilderEvent::CountReset", step)
+        self.assertIn("LightProbeBuilderEvent::PassPublished", step)
         self.assertIn("if (iterations >= 5)", step)
         self.assertIn("const bool resetResources = cubemapsAllocated != 0;", step)
         self.assertIn("screen->ResetLightProbes();", step)
