@@ -267,3 +267,18 @@ Only this two-map correctness driver changes, not production probe policy,
 geometry/material inputs or quality. See the SDVK-150 repair document for the
 retained failure pins and CPU pacing counterexamples. Native requalification is
 still pending until its normal exact-head CI passes.
+
+
+### SDVK-153 candidate — raw probe map descriptor stability
+
+The live-filter reset in #153 could recycle a raw atlas texel's descriptor into
+a different live adjacent pair. The candidate stops retiring LightProbes at
+material-cache boundaries while its image/view/probe-sampler owners are live.
+Negative/out-of-range/unpublished-half ordinals do not grow the persistent cache;
+ordinal 0 remains valid. #150 still owns content reset and five-pass rebuilding.
+
+New exact-source CPU fixtures cover filter/anisotropy/precache, material pressure,
+reversed lookup, exhaustion and bounded owner cycles. A prospective normal
+Avrea lane observes emitted pair identities and actual material sampler phases.
+It is not GPU probe-map texel readback. See the SDVK-153 repair document; #153
+and full #14 acceptance remain pending. Physical STOP is unchanged.

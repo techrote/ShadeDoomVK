@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Collect SDVK-014 CPU/source identity counterexamples; never start Vulkan.
+"""Replay the retained SDVK-014 identity audit; never start Vulkan.
 
 Exit 0 normally means the declared evidence was reproduced, including blocked
 invariants. --require-clean returns 2 while any reproduced clean invariant fails.
@@ -17,6 +17,7 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle.tests.test_sdvk014_identity_audit import CASES, SOURCES, build
+from tools.pf_oracle.tests.sdvk153_source import retained, RETAINED_SHA256
 
 BASE = 'ca254b6ea08228c8408562ebba26bbc1060a0311'
 TREE = 'ea20650fefbe454b5a43f82119e879df75ed8e4f'
@@ -47,7 +48,7 @@ PATHS = sorted({row[0] for row in SOURCES.values()} | {
 def collect() -> dict:
     records = []
     with tempfile.TemporaryDirectory(prefix='sdvk014-identity-receipt-') as tmp:
-        executable = build(Path(tmp) / 'current')
+        executable = build(Path(tmp) / 'retained-baseline')
         for case, (code, reason) in CASES.items():
             result = subprocess.run([str(executable), case], text=True, capture_output=True, timeout=10)
             if result.returncode != code or reason not in result.stdout + result.stderr:
@@ -69,7 +70,9 @@ def collect() -> dict:
         files[path] = {'sha256': hashlib.sha256(raw).hexdigest(),
                        'git_blob': hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()}
     return {
-        'schema': 'sdvk014-durable-identity-audit/v1',
+        'schema': 'sdvk014-durable-identity-audit/v2',
+        'replay_scope': 'historical assessed producer fragments; current source is tested separately by SDVK-153',
+        'retained_producer_snapshot_sha256': RETAINED_SHA256,
         'assessed_master': BASE, 'assessed_tree': TREE,
         'upstream_blocker': 153,
         'source_bundle': {
@@ -78,10 +81,12 @@ def collect() -> dict:
             'local_merge_ref': '1b97276ea1358087c818fcfc10216efd06d6aed7',
             'tree_equals_assessed_master': True,
         },
-        'claim': 'source-owned CPU audit; no Vulkan device or renderer execution',
+        'claim': 'retained source-owned CPU audit; no current clean-identity acceptance, Vulkan device or renderer execution',
         'audit_result': 'BLOCKED_NOT_ACCEPTED',
         'counterexamples_reproduced': sum(row['returncode'] == 11 for row in records),
-        'records': records, 'source_files': files,
+        'records': records, 'checkout_reference_files': files,
+        'retained_compiled_producers': {key: {field: value[field] for field in ('path','file_git_blob','sha256')}
+                                       for key, value in retained()['functions'].items() if key in SOURCES},
         'adapters': [
             'symbolic view objects and sampled-descriptor write sink; pending writes treated as submitted',
             'empty material/colormap populations; real PF-003 slot allocator and PF-012 CPU selection',

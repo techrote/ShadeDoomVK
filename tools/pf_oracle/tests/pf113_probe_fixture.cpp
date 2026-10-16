@@ -551,7 +551,7 @@ static void ExerciseCurrent()
         "Authored zero is an allocator-backed nonzero cube pair");
     Check(descriptors.GetLightProbeTextureIndex(1) == 0 && descriptors.GetLightProbeTextureIndex(1) == 0,
         "Unavailable authored one remains the real lookup zero sentinel");
-    Check(descriptors.allocationCount == 1 && descriptors.LightProbes.at(1) == -1, "Missing lookup does not cache or allocate a fabricated pair");
+    Check(descriptors.allocationCount == 1 && descriptors.LightProbes.size() == 1, "Missing lookup does not grow storage, cache or allocate a fabricated pair");
     Check(manager.Irradiancemaps[0].Image->mipLevels == 1 && manager.Irradiancemaps[0].View->range.baseMipLevel == 0 && manager.Irradiancemaps[0].View->range.levelCount == 1 &&
         manager.Irradiancemaps[0].View->range.layerCount == 6, "Actual irradiance producer/view exposes exactly mip zero and six faces");
     Check(manager.Prefiltermaps[0].Image->mipLevels == 5 && manager.Prefiltermaps[0].View->range.levelCount == 5,

@@ -115,8 +115,15 @@ class Sdvk004RichDescriptorContractTests(unittest.TestCase):
         reset = function_body(self.descriptors, "void VkDescriptorSetManager::ResetHWTextureSets()")
         self.assertIn("mat->DeleteDescriptors()", reset)
         self.assertIn("FreeBindlessSlot(colormap->Renderdev.bindIndex)", reset)
-        self.assertIn("for (int index : LightProbes)", reset)
-        self.assertIn("FreeBindlessSlot(index)", reset)
+        # #153: persistent probe raw bases are not material-sampler consumers.
+        self.assertNotIn("for (int index : LightProbes)", reset)
+        self.assertNotIn("LightProbes.clear()", reset)
+        self.assertNotIn("SetBindlessTexture(", reset)
+        publish = body.index("mDescriptorSetManager->UpdateFixedTextureDescriptors()")
+        self.assertLess(rebuild, publish)
+        fixed = function_body(self.descriptors, "void VkDescriptorSetManager::UpdateFixedTextureDescriptors()")
+        for slot in (0, 1, 2):
+            self.assertIn(f"SetBindlessTexture({slot},", fixed)
 
     def test_canvas_cleanup_retires_material_descriptors_with_hardware_resource(self) -> None:
         clean = function_body(self.game_texture, "void FGameTexture::CleanHardwareData(bool full)")

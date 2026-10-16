@@ -56,3 +56,15 @@ See [the report](../SDVK-014-DURABLE-IDENTITY-AUDIT.md) and
 Native repeated/multi-page and surface/material qualification remains separate.
 #14 stays open. Physical STOP ACTIVE; physical performance HELD / NOT ACCEPTED;
 historical physical root cause UNDETERMINED.
+
+
+### SDVK-153 candidate follow-on
+
+The original audit is preserved as historical evidence with pinned pre-fix
+producer fragments. `sdvk014_identity_audit.py` now labels that replay explicitly;
+it must still reproduce its blocked original invariants. Current behavior is
+qualified separately by `test_sdvk153_descriptor_lifetime.py` and
+`sdvk153_evidence.py`. The candidate preserves device-owned probe slots across
+material resets and fixes fixed-slot sampler re-publication order, without
+claiming that the independent atlas ABA or bake-content digest gap is repaired.
+Native/exact-head acceptance and #153 blocker release are still pending.

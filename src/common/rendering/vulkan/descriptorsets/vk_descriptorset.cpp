@@ -194,10 +194,18 @@ void VkDescriptorSetManager::ResetHWTextureSets()
 	}
 	Colormaps.clear();
 
-	for (int index : LightProbes)
-		FreeBindlessSlot(index);
-	LightProbes.clear();
+	// Probe-map texels retain these raw pair bases. Their image/view and probe
+	// sampler owners live for the device, independently of hardware material
+	// filtering and precache resets. Keep the ordinal -> pair mapping stable
+	// until the bindless set/texture/sampler owners are torn down together.
+	// Freeing them here lets the shared exact-size allocator rebind a retained
+	// texel to a different probe or a material. Content rebakes use the same
+	// views; ResetLightProbes/#150 governs the separate content epoch.
+}
 
+void VkDescriptorSetManager::UpdateFixedTextureDescriptors()
+{
+	// Publish only after the selected hardware sampler owners are current.
 	// Fixed indexes the shaders can always access
 	SetBindlessTexture(0, fb->GetTextureManager()->GetNullTextureView(), fb->GetSamplerManager()->Get(CLAMP_XY_NOMIP));
 	SetBindlessTexture(1, fb->GetTextureManager()->GetBrdfLutTextureView(), fb->GetSamplerManager()->Get(CLAMP_XY_NOMIP));
@@ -579,6 +587,14 @@ int VkDescriptorSetManager::GetSWColormapTextureIndex(FSWColormap* colormap)
 
 int VkDescriptorSetManager::GetLightProbeTextureIndex(int probeIndex)
 {
+	// Reject absent/out-of-range/half-published ordinals before indexing or
+	// growing the persistent cache. Authored ordinal zero is still valid.
+	const auto published = fb->GetTextureManager();
+	if (probeIndex < 0 || (size_t)probeIndex >= published->Irradiancemaps.size() ||
+		(size_t)probeIndex >= published->Prefiltermaps.size() ||
+		!published->Irradiancemaps[probeIndex].View || !published->Prefiltermaps[probeIndex].View)
+		return 0;
+
 	if ((size_t)probeIndex >= LightProbes.size())
 		LightProbes.resize(probeIndex + 1, -1);
 

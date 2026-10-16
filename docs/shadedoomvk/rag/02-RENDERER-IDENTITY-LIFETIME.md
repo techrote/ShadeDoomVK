@@ -293,3 +293,19 @@ Upstream #150 reblocks cross-map probe lifecycle acceptance: equal probe counts
 do not establish equal map owners, and the retained global bake cursor can stop
 a new owner from being rebuilt. A nonzero descriptor or deterministic output is
 not evidence of current-owner publication. No historical PF evidence is altered.
+
+
+### SDVK-153 candidate: device probe pairs are not material-cache slots
+
+`VkDescriptorSetManager::LightProbes` now retains pair allocations through
+`ResetHWTextureSets`, because raw retained probe-map texels use their bases and
+their VkTextureManager prefix views / dedicated probe samplers remain live.
+`StartPrecaching` does not retire these pairs. Material and colormap descriptors
+still retire. Filter reset first retires material consumers, rebuilds hardware samplers,
+then republishes fixed slots 0..2 through `UpdateFixedTextureDescriptors`. Invalid/missing-half probe ordinals return fallback before cache
+growth. The separate #150 content owner/epoch semantics are unchanged.
+
+This is a pending repair contract, not merged/native acceptance. The lifetime
+proof and high-water bound are in SDVK-153-PROBE-DESCRIPTOR-LIFETIME.md. Future
+view/sampler replacement must invalidate or republish raw consumers explicitly.
+No atlas allocation-incarnation claim follows from this device-level repair.

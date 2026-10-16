@@ -135,3 +135,20 @@ This is **not yet accepted** until exact-head source evidence, normal CI, the
 focused native gate, review/merge and exact-master verification pass. #14 remains
 OPEN. Physical cost/scaling/stability remain HELD / NOT ACCEPTED under Physical
 STOP; historical physical root cause remains UNDETERMINED.
+
+
+## SDVK-153 repair candidate — durable probe pair ownership
+
+The PR #154 audit found a real raw probe-map descriptor-reset alias (#153),
+separate from accepted #150. The candidate in
+[SDVK-153-PROBE-DESCRIPTOR-LIFETIME.md](../SDVK-153-PROBE-DESCRIPTOR-LIFETIME.md)
+keeps device-owned probe pairs stable across material filter/precache resets,
+bounds invalid-ordinal cache admission, and orders fixed descriptor publication
+after replacement hardware sampler creation. Current-source CPU positives and
+retained-source negatives are separate. Hosted live-setting correctness and
+exact-head CI/merge are still pending; #153 is not yet released.
+
+The old atlas-receipt ABA representation gap, bake-content digest limitation,
+multi-page/repeated native lightmap transitions and special-surface/material
+matrix remain outstanding. #14 NOT SOFTWARE-COMPLETE; Physical STOP ACTIVE;
+physical performance HELD; historical physical root cause UNDETERMINED.

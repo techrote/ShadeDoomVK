@@ -135,9 +135,15 @@ def extract_current(root: Path = ROOT, *, shader: str | None = None, overrides: 
         ('copy-prefilter', 'void VkTextureManager::CopyPrefiltermap'),
     ):
         cpp(name, 'texture', signature)
-    cpp('lookup', 'descriptors', 'int VkDescriptorSetManager::GetLightProbeTextureIndex')
-    reset = definition(sources['descriptors'], 'void VkDescriptorSetManager::ResetHWTextureSets()')
-    fixed = re.findall(r'SetBindlessTexture\([01], [^;]+;', reset)
+    # SDVK-153 bounds the persistent cache before any growth. Reverse only
+    # this exact admission prefix and still require the protected PF113 body.
+    lookup = definition(sources['descriptors'], 'int VkDescriptorSetManager::GetLightProbeTextureIndex')
+    admission = '\t// Reject absent/out-of-range/half-published ordinals before indexing or\n\t// growing the persistent cache. Authored ordinal zero is still valid.\n\tconst auto published = fb->GetTextureManager();\n\tif (probeIndex < 0 || (size_t)probeIndex >= published->Irradiancemaps.size() ||\n\t\t(size_t)probeIndex >= published->Prefiltermaps.size() ||\n\t\t!published->Irradiancemaps[probeIndex].View || !published->Prefiltermaps[probeIndex].View)\n\t\treturn 0;\n\n'
+    if lookup.count(admission) != 1 or digest(lookup.replace(admission, '', 1)) != expected['lookup']:
+        raise AssertionError('Protected probe lookup changed outside SDVK-153 admission')
+    add('lookup', 'descriptors', lookup, unchanged=False)
+    publication = definition(sources['descriptors'], 'void VkDescriptorSetManager::UpdateFixedTextureDescriptors()')
+    fixed = re.findall(r'SetBindlessTexture\([01], [^;]+;', publication)
     add('fixed-descriptor-publication', 'descriptors', '\n'.join(fixed), 'void VkDescriptorSetManager::SetFixtureFixed()\n{\n' + '\n'.join(fixed) + '\n}')
     # SDVK-150 intentionally changes the builder's ownership ABI. Keep the
     # current production body exact, but do not compare it to PF113's retained

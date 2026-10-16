@@ -233,6 +233,10 @@ def capture(args):
     require(not native.get("manual_opt_in") or args.include_stress,
             "This bounded stress/probe recipe requires the explicit --include-stress selection")
     mode = args.mode
+    if native.get("generator") == "probe_sampler_reset":
+        from tools.renderer_oracle.sdvk153_probe_reset import FRAMES, WARMUP
+        require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP,
+                "Sampler-reset gate needs its exact correctness-only frame budget")
     if native.get("generator") == "probe_owner_transition":
         require(mode == "state", "Probe-owner frame-driven transition is correctness-only")
     extent = capture_extent(args, native, mode)
@@ -323,6 +327,9 @@ def capture(args):
         if native.get("probe_owner_trace", False):
             require(mode == "state", "Probe-owner lifecycle trace is state-only")
             argv.append("-sdvkprobeownertrace")
+        if native.get("sampler_reset_schedule"):
+            require(mode == "state", "Sampler-reset live-setting driver is state-only")
+            argv.append("-sdvk153samplerresetdriver")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
@@ -578,10 +585,14 @@ def _portal_actor_probe_assertions(records, spec):
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     camera = scene["native"]["camera"]
-    for frame in frames:
+    for frame_number, frame in ((r["frame"], r["data"]) for r in raw["records"] if r["kind"] == "frame"):
         require(_numeric_vector_matches(frame.get("camera", {}).get("position"), camera["position"]), "Actual camera position differs from the fixture")
         require(_numeric_vector_matches(frame["camera"].get("angles"), [camera["yaw"], camera["pitch"], camera["roll"]]), "Actual camera angles differ from the fixture")
-        for key, expected in scene["native"]["settings"].items():
+        expected_settings = scene["native"]["settings"]
+        if scene["native"].get("generator") == "probe_sampler_reset":
+            from tools.renderer_oracle.sdvk153_probe_reset import settings_for_frame
+            expected_settings = settings_for_frame(scene["native"], frame_number)
+        for key, expected in expected_settings.items():
             if key in frame["settings"]:
                 require(frame["settings"][key] == expected, "Actual frame setting differs: " + key)
         require(_numeric_vector_matches([frame["camera"].get("fov")], [90]), "Actual camera FOV differs from the fixture")
@@ -818,6 +829,9 @@ def _validate_run(path):
     structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
+    if scene["native"].get("generator") == "probe_sampler_reset":
+        from tools.renderer_oracle.sdvk153_probe_reset import validate_reset_records
+        validate_reset_records(raw, stdout, scene["native"])
     if scene["native"].get("generator") == "probe_owner_transition":
         from tools.renderer_oracle.sdvk150_probe_owner import validate_driver_log
         validate_driver_log(stdout, scene["native"]["probe_owner_transition"])

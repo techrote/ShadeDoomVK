@@ -535,15 +535,19 @@ void VulkanRenderDevice::SetTextureFilterMode()
 {
 	if (mSamplerManager)
 	{
+		// Retire material consumers before replacing their samplers. Republish
+		// fixed slots only afterwards so they cannot retain retired HW samplers.
 		mDescriptorSetManager->ResetHWTextureSets();
 		mSamplerManager->ResetHWSamplers();
+		mDescriptorSetManager->UpdateFixedTextureDescriptors();
 	}
 }
 
 void VulkanRenderDevice::StartPrecaching()
 {
-	// Destroy the texture descriptors to avoid problems with potentially stale textures.
+	// Destroy material descriptors; the probe view/pair owners remain live.
 	mDescriptorSetManager->ResetHWTextureSets();
+	mDescriptorSetManager->UpdateFixedTextureDescriptors();
 }
 
 void VulkanRenderDevice::BlurScene(float amount)

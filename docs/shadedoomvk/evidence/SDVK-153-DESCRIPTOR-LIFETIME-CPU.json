@@ -1,0 +1,202 @@
+{
+  "schema": "sdvk153-descriptor-lifetime-cpu/v1",
+  "status": "CPU_PASS_NATIVE_PENDING",
+  "assessed_master": "ca254b6ea08228c8408562ebba26bbc1060a0311",
+  "audit_parent": "0b6e12d2aa942792a2c7e2d3f8d52fdc18db6c59",
+  "implementation_parent": "d57137c3a383e912e2e7376759ec45d4503adfb9",
+  "retained_sha256": "770c900ee93196a33104ee022eb5ef9f7328c70f3f3b76cac9ec7fd1be5b4ad1",
+  "source_sha256": {
+    "src/common/rendering/hwrenderer/data/hw_lightprobe.cpp": "c88ebbe375a2b3d51037353c836b95a6abfd40972fd61c40e96ee5c01eede565",
+    "src/common/rendering/vulkan/descriptorsets/vk_bindless.h": "11ec9bb437aa3188393a8e540a142564ae85134b570936da0dfda57d65627b2d",
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp": "6c352c4e113089b1c9372fc0a7da218972c6da43516cad98616be5ad09460290",
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.h": "8cabf0cbe8ae947cd230a6b37c4e846042cfcc57bd6d0c6c5f7867b08779e6eb",
+    "src/common/rendering/vulkan/samplers/vk_samplers.cpp": "a6b9ffd29b69f74efafb56a267006995666d450c0857e96a81c3cc1d94d9e238",
+    "src/common/rendering/vulkan/textures/vk_texture.cpp": "bba0e0eb8976cceb371e10555bb32cb04900ae76ec8c72c1004e514364aacf26",
+    "src/common/rendering/vulkan/vk_lightmapper.cpp": "4068e57b8ad4e37171f0ddf0866e64f8ea80541e85ce4bcef054cf268596754d",
+    "src/common/rendering/vulkan/vk_renderdevice.cpp": "5064663d711e49016bbf9249ba6260b639c9cade618f0feee2a42808edb3b3db",
+    "tools/pf_oracle/tests/sdvk153_descriptor_lifetime_fixture.cpp": "82a69ee0232b44e777292198153a68473419d3e3d23f5ec59e31d89ca570f17e",
+    "tools/pf_oracle/tests/sdvk153_source.py": "2888d25cd68f80a248264520032b10b58779f3d3f9b4eb90e564684fff9fd3d8",
+    "tools/pf_oracle/tests/test_sdvk153_descriptor_lifetime.py": "742d9e2b44b7b8df2ad61c4164cce49a0977ba94feefb6e566686347340a245b"
+  },
+  "compiler": "/usr/bin/c++",
+  "platform": "Linux-6.18.44-x86_64-with-glibc2.41",
+  "positive_cases": 12,
+  "retained_named_failures": 6,
+  "records": [
+    {
+      "source": "candidate",
+      "case": "no-reset",
+      "returncode": 0,
+      "expected_reason": "PASS no-reset",
+      "stdout": "PASS no-reset\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "filter",
+      "returncode": 0,
+      "expected_reason": "PASS filter",
+      "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS filter\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "anisotropy",
+      "returncode": 0,
+      "expected_reason": "PASS anisotropy",
+      "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS anisotropy\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "precache",
+      "returncode": 0,
+      "expected_reason": "PASS precache",
+      "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS precache\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "reverse-lookup",
+      "returncode": 0,
+      "expected_reason": "PASS reverse-lookup",
+      "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\nPASS reverse-lookup\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "material-pressure",
+      "returncode": 0,
+      "expected_reason": "PASS material-pressure",
+      "stdout": "PASS material-pressure\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "fixed-samplers",
+      "returncode": 0,
+      "expected_reason": "PASS fixed-samplers",
+      "stdout": "PASS fixed-samplers\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "material-retirement",
+      "returncode": 0,
+      "expected_reason": "PASS material-retirement",
+      "stdout": "PASS material-retirement\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "admission",
+      "returncode": 0,
+      "expected_reason": "PASS admission",
+      "stdout": "PASS admission\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "bounded-ordinal",
+      "returncode": 0,
+      "expected_reason": "PASS bounded-ordinal",
+      "stdout": "PASS bounded-ordinal\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "stress",
+      "returncode": 0,
+      "expected_reason": "PASS stress",
+      "stdout": "cycles=128 max_probe_pairs=8 live_descriptors=16 high_water_descriptors=25 owner_resets=128 publications=535 filter_resets=128 sampler_retirement_backlog=0\nPASS stress\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "candidate",
+      "case": "exhaustion",
+      "returncode": 0,
+      "expected_reason": "PASS exhaustion",
+      "stdout": "PASS exhaustion\n",
+      "stderr": "",
+      "disposition": "PASS"
+    },
+    {
+      "source": "retained",
+      "case": "filter",
+      "returncode": 11,
+      "expected_reason": "retained-probemap-texel-rebound-to-other-owner",
+      "stdout": "retained_texel=259 fresh_ordinal0=261 fresh_ordinal1=259 retained_owner=1\n",
+      "stderr": "REJECT retained-probemap-texel-rebound-to-other-owner\n",
+      "disposition": "EXPECTED_REJECTION"
+    },
+    {
+      "source": "retained",
+      "case": "precache",
+      "returncode": 11,
+      "expected_reason": "retained-probemap-texel-rebound-to-other-owner",
+      "stdout": "retained_texel=259 fresh_ordinal0=261 fresh_ordinal1=259 retained_owner=1\n",
+      "stderr": "REJECT retained-probemap-texel-rebound-to-other-owner\n",
+      "disposition": "EXPECTED_REJECTION"
+    },
+    {
+      "source": "retained",
+      "case": "reverse-lookup",
+      "returncode": 11,
+      "expected_reason": "probe-pair-token-retired",
+      "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_owner=0\n",
+      "stderr": "REJECT probe-pair-token-retired\n",
+      "disposition": "EXPECTED_REJECTION"
+    },
+    {
+      "source": "retained",
+      "case": "material-pressure",
+      "returncode": 11,
+      "expected_reason": "retained-probe-mapped-to-material",
+      "stdout": "",
+      "stderr": "REJECT retained-probe-mapped-to-material\n",
+      "disposition": "EXPECTED_REJECTION"
+    },
+    {
+      "source": "retained",
+      "case": "fixed-samplers",
+      "returncode": 11,
+      "expected_reason": "fixed-descriptor-retired-hw-sampler",
+      "stdout": "",
+      "stderr": "REJECT fixed-descriptor-retired-hw-sampler\n",
+      "disposition": "EXPECTED_REJECTION"
+    },
+    {
+      "source": "retained",
+      "case": "bounded-ordinal",
+      "returncode": 11,
+      "expected_reason": "out-of-range-grew-persistent-cache",
+      "stdout": "",
+      "stderr": "REJECT out-of-range-grew-persistent-cache\n",
+      "disposition": "EXPECTED_REJECTION"
+    }
+  ],
+  "model_boundary": [
+    "exact producer definitions and PF-003 allocator/PF-012 selector/#150 builder",
+    "symbolic images/samplers/descriptor writes/frame retirement",
+    "source audit of real grow-only views and probe sampler ownership",
+    "no GPU submission, ZScript VM, texel readback, timing or hardware evidence"
+  ],
+  "acceptance": {
+    "issue153": "NOT_ACCEPTED_NATIVE_CI_PENDING",
+    "issue14": "NOT_SOFTWARE_COMPLETE",
+    "physical_stop": "ACTIVE",
+    "physical_cost_scaling_stability": "HELD_NOT_ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  }
+}
