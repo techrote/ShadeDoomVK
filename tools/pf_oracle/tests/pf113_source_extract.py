@@ -143,7 +143,7 @@ def extract_current(root: Path = ROOT, *, shader: str | None = None, overrides: 
     # current production body exact, but do not compare it to PF113's retained
     # pre-owner-generation hash; that historical source remains pinned separately.
     cpp('builder-step', 'step',
-        'void LightProbeIncrementalBuilder::Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision',
+        'LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step(',
         unchanged=False)
     raw = definition(sources['prober'], 'void VkLightprober::EndLightProbePass()')
     producer = re.sub(r'\n\tif \(Pf113ProbeDiagnostics::Observing\(\)\) Pf113ProbeDiagnostics::Publication\(fb, (?:false|true)\);', '', raw)
