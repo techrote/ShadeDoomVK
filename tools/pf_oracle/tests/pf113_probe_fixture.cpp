@@ -385,17 +385,30 @@ struct ScreenService
     void EndLightProbePass() { ++publications; prober->EndLightProbePass(); }
 };
 static ScreenService* screen = nullptr;
-namespace SdvkDiagnostics
-{
-    static void ProbeBuilderLifecycle(const char*, uint64_t, int, int, int, int) { }
-}
 struct LightProbe { int index = 0; };
+enum class LightProbeBuilderEvent
+{
+    None,
+    OwnerReset,
+    EmptyReset,
+    CountReset,
+    PassPublished,
+};
+struct LightProbeBuilderStepResult
+{
+    LightProbeBuilderEvent Event = LightProbeBuilderEvent::None;
+    uint64_t OwnerRevision = 0;
+    int ProbeCount = 0;
+    int Iteration = 0;
+    int NextIndex = 0;
+    int Collected = 0;
+};
 class LightProbeIncrementalBuilder
 {
 public:
     int lastIndex = 0, collected = 0, cubemapsAllocated = 0, iterations = 0;
     uint64_t ownerRevision = 0;
-    void Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision,
+    LightProbeBuilderStepResult Step(const TArray<LightProbe>& probes, uint64_t probeSetRevision,
         std::function<void(int, const LightProbe&)> renderScene);
 };
 struct HelperEvent { bool prefiltered; uint base; };
