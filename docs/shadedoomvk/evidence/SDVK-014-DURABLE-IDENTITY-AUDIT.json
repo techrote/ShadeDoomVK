@@ -1,0 +1,184 @@
+{
+  "adapters": [
+    "symbolic view objects and sampled-descriptor write sink; pending writes treated as submitted",
+    "empty material/colormap populations; real PF-003 slot allocator and PF-012 CPU selection",
+    "sampler hardware-reset counter; source check verifies retained probe samplers are outside that reset",
+    "real RectPacker, LightmapTile and BBox constructors; allocation/error services only",
+    "counterfactual deletes only the probe retirement loop in an extracted temporary definition"
+  ],
+  "assessed_master": "ca254b6ea08228c8408562ebba26bbc1060a0311",
+  "assessed_tree": "ea20650fefbe454b5a43f82119e879df75ed8e4f",
+  "audit_result": "BLOCKED_NOT_ACCEPTED",
+  "claim": "source-owned CPU audit; no Vulkan device or renderer execution",
+  "counterexamples_reproduced": 3,
+  "limits": {
+    "atlas_aba": "injected copied old tile receipt inside a live packer; no native reachability claimed",
+    "disk_lightmap": "semantic rebinding audited; authored bake-content freshness is not authenticated",
+    "historical_failure_causality": "UNDETERMINED",
+    "probe_reset": "actual owner/reset/lookup/upload bodies and allocator; no rendered pixels claimed"
+  },
+  "physical_performance": "HELD_NOT_ACCEPTED",
+  "physical_stop_active": true,
+  "records": [
+    {
+      "case": "atlas-live-control",
+      "invariant": "PASS",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "PASS atlas-live-control\n"
+    },
+    {
+      "case": "atlas-coordinate-negative",
+      "invariant": "PASS",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "PASS atlas-coordinate-negative\n"
+    },
+    {
+      "case": "atlas-free-reuse",
+      "invariant": "BLOCKED_NOT_ACCEPTED",
+      "returncode": 11,
+      "stderr": "BLOCKED stale-atlas-receipt-accepted\n",
+      "stdout": "old_binding=100 new_binding=200 same_item=1 same_region=1 old_guard=1\n"
+    },
+    {
+      "case": "atlas-clear-reuse",
+      "invariant": "BLOCKED_NOT_ACCEPTED",
+      "returncode": 11,
+      "stderr": "BLOCKED stale-atlas-receipt-accepted\n",
+      "stdout": "old_binding=100 new_binding=200 same_item=1 same_region=1 old_guard=1\n"
+    },
+    {
+      "case": "probe-no-reset-control",
+      "invariant": "PASS",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "PASS probe-no-reset-control\n"
+    },
+    {
+      "case": "probe-filter-reset",
+      "invariant": "BLOCKED_NOT_ACCEPTED",
+      "returncode": 11,
+      "stderr": "BLOCKED retained-probemap-texel-rebound-to-other-owner\n",
+      "stdout": "retained_texel=259 fresh_ordinal0=261 fresh_ordinal1=259 retained_texel_owner=1 live_span=2\n"
+    },
+    {
+      "case": "reserved-page-control",
+      "invariant": "PASS",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "PASS reserved-page-control\n"
+    },
+    {
+      "case": "counterfactual-preserve-probe-slots",
+      "invariant": "CPU_CONTROL_ONLY_NOT_A_PRODUCTION_FIX",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "retained_texel=259 fresh_ordinal0=259 fresh_ordinal1=261 retained_texel_owner=0 live_span=2\nPASS probe-preserve-control\n"
+    }
+  ],
+  "schema": "sdvk014-durable-identity-audit/v1",
+  "sdvk014_software_complete": false,
+  "source_bundle": {
+    "archive_sha256": "f74d6f3630af5b3e7cd27a66b05f3f9bfbcd58afb6a3fce41e309c0b5ff975be",
+    "artifact": 12057998317,
+    "local_merge_ref": "1b97276ea1358087c818fcfc10216efd06d6aed7",
+    "source_run": 38930148555,
+    "tree_equals_assessed_master": true
+  },
+  "source_files": {
+    "src/common/rendering/hwrenderer/data/hw_cvars.cpp": {
+      "git_blob": "e94f352e529f03cbf3e104fff53f6d0f244a0adb",
+      "sha256": "bbbcb522ea6980e068784fcad2a539618eff90792921cc6f68cbec0e22fc09c8"
+    },
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp": {
+      "git_blob": "28de5452b3cc1fcec38f295ab7e408bf0efd5db0",
+      "sha256": "b75e646b24a3b54302cd72a4b864fe6d97ec30e96eba0a63c61c2061171d72d5"
+    },
+    "src/common/rendering/hwrenderer/data/hw_levelmesh.h": {
+      "git_blob": "8b65b2f05f975f16d29e0f1c678cb6898f844cc1",
+      "sha256": "08e43d7646b096b63ff3187ff1055cd52d2a77595a695e7d414adcfc2318a764"
+    },
+    "src/common/rendering/hwrenderer/data/hw_lightmaptile.h": {
+      "git_blob": "07ec390ac6352d894ede7b11a52b7e2ec771f55e",
+      "sha256": "f29e54506ecc6107aa1653bd95ef1144664e2891b8911a1ca1739dbdd29546da"
+    },
+    "src/common/rendering/hwrenderer/data/hw_probe_selection.h": {
+      "git_blob": "bd4d1ca1bf91b6b2c7bdfc6790e83c19a43d8b72",
+      "sha256": "51c60bd8625d6fdc307d878e6e082d68cbac193cbee14b49f122d332d717e98d"
+    },
+    "src/common/rendering/hwrenderer/data/hw_rectpacker.cpp": {
+      "git_blob": "9723a242ea1aa5648c96da38cd108c4cafb0066c",
+      "sha256": "90923109b21d650dc094c902e1c9ff1106a264cf4b8beeba542aa6cb8f17cbb8"
+    },
+    "src/common/rendering/hwrenderer/data/hw_rectpacker.h": {
+      "git_blob": "01dc9cc3d36d54178b760927e78603f4c38f74ad",
+      "sha256": "00152af6562efe4a5596c7d227a47b64a1a35596a0d633962da08ab57440a0c0"
+    },
+    "src/common/rendering/hwrenderer/data/hw_resourcegeneration.h": {
+      "git_blob": "2f06b3351c904b9261074b80f1308e724f5f5860",
+      "sha256": "154f9711206f2422661778c2ea8235e4d180bb2277c6031aae77a7d0e50dd754"
+    },
+    "src/common/rendering/vulkan/descriptorsets/vk_bindless.h": {
+      "git_blob": "f147712188df56a9c5d720b138dd8ec312bd2a4e",
+      "sha256": "11ec9bb437aa3188393a8e540a142564ae85134b570936da0dfda57d65627b2d"
+    },
+    "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp": {
+      "git_blob": "4523cdb6fc5e1b77299bceafdd15f07388a1d1f1",
+      "sha256": "bb02363defb8e4c3b9d0483aa377b74a226bafaa74ae0b9421137e95203c7c83"
+    },
+    "src/common/rendering/vulkan/samplers/vk_samplers.cpp": {
+      "git_blob": "0317170eaf68631d1b277f3f69bf11da63cfffe9",
+      "sha256": "a6b9ffd29b69f74efafb56a267006995666d450c0857e96a81c3cc1d94d9e238"
+    },
+    "src/common/rendering/vulkan/textures/vk_texture.cpp": {
+      "git_blob": "d477208a92717a94f96282b2597a25e75cf46755",
+      "sha256": "bba0e0eb8976cceb371e10555bb32cb04900ae76ec8c72c1004e514364aacf26"
+    },
+    "src/common/rendering/vulkan/textures/vk_texture.h": {
+      "git_blob": "60c37396279f7e63d2509fe3f882368b8a45bd8a",
+      "sha256": "b3ac01759838e2d47b26ae569e7971abccc8e7ca1d2524e4d72ab4834261aaf8"
+    },
+    "src/common/rendering/vulkan/vk_levelmesh.cpp": {
+      "git_blob": "d164b62d978e1a2d5a5501cd0a5deeeee341c2cf",
+      "sha256": "4d5127b8481483fe4977ff4596198a4ecdfef801d63bd7f92c9d4742d59f2727"
+    },
+    "src/common/rendering/vulkan/vk_lightmapper.cpp": {
+      "git_blob": "9451b60d7dbf9078794fda7d1e883f23efabd216",
+      "sha256": "4068e57b8ad4e37171f0ddf0866e64f8ea80541e85ce4bcef054cf268596754d"
+    },
+    "src/common/rendering/vulkan/vk_renderdevice.cpp": {
+      "git_blob": "19dda247caa96d5b258bca7825e4e0e895f35d6a",
+      "sha256": "22e0d63ad3735d008692373312f5cfc0de5f891a9bb115e23982820b3a45ee4d"
+    },
+    "src/common/utility/bounds.cpp": {
+      "git_blob": "f620b6d164f0c77886bf2c9af8948db57b578800",
+      "sha256": "8b261cdcc12cb68c7e045c4c90d32bad774d164b7d08347cea018d04f89f00b9"
+    },
+    "src/maploader/maploader.cpp": {
+      "git_blob": "c55e5ba1d7831f903cfdc92a34da25cb06bd2765",
+      "sha256": "1f9f1783e15d121410e4e3f8f4d6a65b650d7a36cf704497c9162a6789c4b8c8"
+    },
+    "src/rendering/hwrenderer/doom_levelmesh.cpp": {
+      "git_blob": "cdb36392b4ff284754da1f9148dd9f106bcd449f",
+      "sha256": "f79892f42deee0f744807d3f79ec4e90c70964994c52b1e41a650efc08e501e1"
+    },
+    "src/rendering/hwrenderer/doom_levelmesh.h": {
+      "git_blob": "6fe9936161526bb81d1eb3fb1f615b4f61461b8f",
+      "sha256": "e1a03b84410f680009c17c9046e04c4b5a23f62046dec83a01a04fa778cfed7c"
+    },
+    "src/rendering/hwrenderer/scene/hw_drawinfo.cpp": {
+      "git_blob": "7a188e65cec74059f963f072eaeb6d6281a57be4",
+      "sha256": "3617ad7c9ccd516f3ba18ced2102cf68e68abff7c5d0eabb6c1f22801ecfce7b"
+    },
+    "wadsrc/static/shaders/lightmap/frag_copy.glsl": {
+      "git_blob": "113451ea0287d015508799bbd179815ceb0f46d4",
+      "sha256": "8ec7f81dda5170f46ba7e5f555f210eb49a5e1ce14e7f8ab5a745043303eaaa7"
+    },
+    "wadsrc/static/shaders/scene/lightmodel_pbr.glsl": {
+      "git_blob": "9cd9651ddb98d4bd876853e69e9bc9642ee778a3",
+      "sha256": "d7c576f321a42d4e98a2df4c8d5365bbb5154b669de7ce59af705f8901862aab"
+    }
+  },
+  "upstream_blocker": 153
+}

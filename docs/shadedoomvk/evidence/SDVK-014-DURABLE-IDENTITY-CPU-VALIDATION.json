@@ -1,0 +1,89 @@
+{
+  "assessed_master": "ca254b6ea08228c8408562ebba26bbc1060a0311",
+  "assessed_tree": "ea20650fefbe454b5a43f82119e879df75ed8e4f",
+  "clean_identity_acceptance": "BLOCKED_BY_153_AND_ATLAS_RECEIPT_GAP",
+  "command": "python3 tools/check.py --output build/sdvk014-identity-audit-checks",
+  "counterexample_child_exit_code": 11,
+  "date": "2026-10-16",
+  "deterministic_corpus_and_pf_repeats": "PASS",
+  "evidence_reproduction": "PASS",
+  "exit_code": 0,
+  "focused_tests": {
+    "clang": 5,
+    "compiler_warnings": "errors; Clang TArray header unused parameter enclosed by local diagnostic push/pop",
+    "gcc": 5
+  },
+  "historical_physical_root_cause": "UNDETERMINED",
+  "local_repairs": [
+    "Fixture linker omission corrected by extracting actual BBox constructor/Clear bodies.",
+    "Clang inherited TArray(ENoInit dummy) unused-parameter diagnostic narrowly scoped around that include only."
+  ],
+  "named_blocked_cases": 3,
+  "native_execution": false,
+  "physical_performance": "HELD_NOT_ACCEPTED",
+  "physical_stop": "ACTIVE",
+  "production_renderer_or_shader_changes": false,
+  "production_source_files_match_assessed_tree": 23,
+  "require_clean_exit_code": 2,
+  "reviewed_files_before_this_receipt": {
+    "docs/shadedoomvk/06-VALIDATION-PERFORMANCE-CONTRACT.md": {
+      "git_blob": "73d5ccae1a33cd6b36e7a88a97128880b399cc45",
+      "sha256": "58b3b12f133901563697436e7ed2421a86b9dd7bba73f6caed354685c0db4dc1"
+    },
+    "docs/shadedoomvk/10-EXECUTION-LEDGER.md": {
+      "git_blob": "b002bd657089d3ffd0c992a519405ea0d660ed53",
+      "sha256": "d83128e46738c6f65552468e8909e9fcf3b48c623319f476c3927f4ebb3d60e4"
+    },
+    "docs/shadedoomvk/SDVK-014-DURABLE-IDENTITY-AUDIT.md": {
+      "git_blob": "ee78226867e72135fab424bd8d4d940cf0cfed79",
+      "sha256": "89545a12dd41526da5b38e0b60c2efd94d2427cc4e9de8b726f91384f52771f8"
+    },
+    "docs/shadedoomvk/evidence/SDVK-014-DURABLE-IDENTITY-AUDIT.json": {
+      "git_blob": "87ad76bfb901b84b18df876df61b7cecf21bab5e",
+      "sha256": "4407f6d5c3def91d8c44d4eb91b1d587b4c8b7e0e8706a5042f84be2a77c6f33"
+    },
+    "docs/shadedoomvk/issues/SDVK-014.md": {
+      "git_blob": "bb658d2f1fb2e41b9585c365a0b9e87773680077",
+      "sha256": "0404f78ff0fad2441f150c5b5faefdd9c6a195f8e05d860ab417df2631e5a2d1"
+    },
+    "docs/shadedoomvk/rag/13-DURABLE-IDENTITY-AUDIT.md": {
+      "git_blob": "061278b96d234c4363ebf7cab202d87b894a34fe",
+      "sha256": "a40e63e715863933d57b269e4e0fac5c89d4c6b84e188837cbbbd36a8b0a202e"
+    },
+    "docs/shadedoomvk/rag/README.md": {
+      "git_blob": "069df1772bab2771222803d5f90381d1c41b49a0",
+      "sha256": "7630d384673150612182d61b82606120bfe7bcedfacaeabdf57769b7446668ee"
+    },
+    "tools/pf_oracle/sdvk014_identity_audit.py": {
+      "git_blob": "d4e3d8e97aafe565a37a3933e8ad2ee5cf9ed343",
+      "sha256": "ef89e8143bdc9139eca8a4aa0b1ff2bdea907bd55b692b02a705be1a6ce2e7b8"
+    },
+    "tools/pf_oracle/tests/sdvk014_identity_audit_fixture.cpp": {
+      "git_blob": "3be92f3a4c5905141931dca2638fec0da77dd1ed",
+      "sha256": "654b0afce5651d2cdac52f0411351bd1d2e66d2abe242b6aecf1753b1db26c2b"
+    },
+    "tools/pf_oracle/tests/test_sdvk014_identity_audit.py": {
+      "git_blob": "c02c070821301159485a3a25504ee374ddeb2301",
+      "sha256": "1cd27069cb02e68c5799541ca25a6888849fc269b90e523da440f48dfca1a339"
+    }
+  },
+  "schema": "sdvk014-durable-identity-cpu-validation/v1",
+  "standalone_compiled_fixtures": 4,
+  "tests": {
+    "cfx-tests": {
+      "log_sha256": "311d978852d440f2af735e2259c9c93018ac44a66ada4d76ed562483ad4f0795",
+      "status": "PASS",
+      "tests": 8
+    },
+    "pf-tests": {
+      "log_sha256": "b639786ad2de427debd84a495fbda7428e1815cfc718e6520891c83fdcadeb80",
+      "status": "PASS",
+      "tests": 808
+    },
+    "renderer-oracle-tests": {
+      "log_sha256": "9a7ee4b289a30e8213226383c1d1826bd83be667e5b5b142470ad28306fc14b1",
+      "status": "PASS",
+      "tests": 221
+    }
+  }
+}
