@@ -99,8 +99,7 @@ void DriveSamplerResetInput(const Observer& observer)
         if (observer.Seen != phase.AfterMainViews) continue;
         const std::string command = std::string(phase.CVar) + " " + phase.Value;
         AddCommandString(command.c_str());
-        Printf(PRINT_HIGH | PRINT_NONOTIFY,
-            "SDVK153_SETTING %s=%s after_main_views=%u\n",
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK153_SETTING %s=%s after_main_views=%u\n",
             phase.CVar, phase.Value, phase.AfterMainViews);
     }
 }
