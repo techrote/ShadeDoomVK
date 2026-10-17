@@ -148,6 +148,9 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
         if native.get("generator") == "probe_sampler_reset":
             from tools.renderer_oracle.sdvk153_probe_reset import validate_recipe
             validate_recipe(scene)
+        if native.get("generator") == "lightmap_transition":
+            from tools.renderer_oracle.sdvk158_lightmap_transition import validate_recipe
+            validate_recipe(scene)
         if native.get("generator") == "probe_owner_transition":
             transition = native.get("probe_owner_transition", {})
             owners = transition.get("owners")
