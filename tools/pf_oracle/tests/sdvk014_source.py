@@ -47,6 +47,7 @@ FUNCTIONS = {
     'frame': ('device', 'void VulkanRenderDevice::BeginFrame('),
     'probe_step': ('probe', 'LightProbeBuilderStepResult LightProbeIncrementalBuilder::Step('),
     'probe_full': ('probe', 'void LightProbeIncrementalBuilder::Full('),
+    'lightmap_source_current': ('maploader', 'static bool IsRetainedLightmapSourceCurrent('),
     'lightmap_span': ('maploader', 'static bool IsValidLightmapPixelSpan('),
     'load_lightmap': ('maploader', 'bool MapLoader::LoadLightmap('),
     'select_tiles': ('lightmapper', 'void VkLightmapper::SelectTiles('),
