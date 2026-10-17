@@ -172,6 +172,13 @@ jobs:
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk153 \
           --expected-commit "$(git rev-parse HEAD)"
+        # SDVK-158: retained-v5 multi-page invalidate/reload correctness on this same build.
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk158_lightmap_transition \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk158 \
+          --expected-commit "$(git rev-parse HEAD)"
         cat > build/sdvk009-avrea-ci.py <<'PY'
         import os
         from pathlib import Path
@@ -241,7 +248,7 @@ jobs:
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153; do
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi
