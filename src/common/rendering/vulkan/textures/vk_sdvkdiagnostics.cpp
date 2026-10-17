@@ -31,7 +31,7 @@ std::string Lifetime(const FRendererLifetimeStats& value)
         .Int("invalid_retires", value.InvalidRetires).Int("duplicate_activations", value.DuplicateActivations).Json();
 }
 
-std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages)
+std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages, int frameTileUpdates)
 {
     if (!mesh || !mesh->Lightmap.AtlasPacker)
         return Unavailable("no live level-mesh lightmap atlas owner");
@@ -68,7 +68,7 @@ std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages)
         .Int("texture_size", mesh->Lightmap.TextureSize).Int("texture_count", mesh->Lightmap.TextureCount)
         .Int("vulkan_page_count", vulkanPages).Int("used_tiles", mesh->Lightmap.UsedTiles)
         .Int("retained_tiles_loaded", mesh->Lightmap.RetainedTilesLoaded)
-        .Int("frame_tile_updates", static_cast<VulkanRenderDevice*>(screen)->GetFrameTileUpdates())
+        .Int("frame_tile_updates", frameTileUpdates)
         .Int("live_tiles", live).Int("valid_live_tiles", valid).Int("invalid_live_tiles", invalid)
         .Int("initial_dirty", initialDirty).Int("geometry_dirty", geometryDirty).Int("light_dirty", lightDirty)
         .Bool("all_clean", initialDirty == 0 && geometryDirty == 0 && lightDirty == 0)
@@ -349,7 +349,7 @@ void VulkanResources(VulkanRenderDevice* device)
             result.Raw("levelmesh", Object().Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
                 .Int("geometry", epochs.Geometry).Int("surface", epochs.Surface).Int("lights", epochs.Lights).Int("query", epochs.Query)
                 .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets).Json())
-                .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size()));
+                .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size(), device->GetFrameTileUpdates()));
         }
         else result.Raw("levelmesh", Unavailable("no active level mesh"));
         result.Raw("sun", Object().Num("intensity", level.SunIntensity).Raw("direction", '[' + Number(level.SunDirection.X) + ',' + Number(level.SunDirection.Y) + ',' + Number(level.SunDirection.Z) + ']')
