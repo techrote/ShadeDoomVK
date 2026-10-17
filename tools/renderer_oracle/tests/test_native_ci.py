@@ -6,6 +6,7 @@ from argparse import Namespace
 from contextlib import ExitStack, redirect_stdout
 import io
 import json
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -28,6 +29,15 @@ class Controls(unittest.TestCase):
     driverVersion = 0.0.0
 '''
         self.full = self.summary + '\n'.join(name + ' = true' for name in native_ci.FEATURES)
+
+    def test_device_feature_probe_is_headless_without_mutating_parent_environment(self):
+        with patch.dict(os.environ, {"DISPLAY": ":99", "WAYLAND_DISPLAY": "wayland-0", "KEEP": "yes"}, clear=True):
+            child = native_ci.device_feature_probe_environment()
+            self.assertNotIn("DISPLAY", child)
+            self.assertNotIn("WAYLAND_DISPLAY", child)
+            self.assertEqual(child["KEEP"], "yes")
+            self.assertEqual(os.environ["DISPLAY"], ":99")
+            self.assertEqual(os.environ["WAYLAND_DISPLAY"], "wayland-0")
 
     def test_synthetic_identity_and_each_missing_or_false_feature(self):
         value = native_ci.device_evidence(self.summary, self.full)
