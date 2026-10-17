@@ -40,6 +40,7 @@ FUNCTIONS = {
     'alloc': ('mesh_h', 'inline int LevelMesh::AllocTile('),
     'free': ('mesh_h', 'inline void LevelMesh::FreeTile('),
     'stats': ('mesh_cpp', 'LevelMeshTileStats LevelMesh::GatherTilePixelStats('),
+    'pack_atlas': ('mesh_cpp', 'void LevelMesh::PackLightmapAtlas('),
     'release': ('doom', 'void DoomLevelMesh::ReleaseTiles('),
     'save': ('doom', 'void DoomLevelMesh::SaveLightmapLump('),
     'invalidate': ('doom', 'static int InvalidateLightmap()\n'),
