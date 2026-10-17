@@ -118,8 +118,8 @@ until the following forced invalidation, which must then drain it to zero.
 The state capture keeps the established 32-view warmup but retains only 48
 state frames. The three input boundaries occur at main-view ordinals 40/56/72,
 leaving retained-frame windows 9–24, 25–40 and 41–48 for the two invalidations
-and reload. This stays inside the observer's demonstrated record envelope while
-leaving at least eight frames after the final six-tile invalidation at
+and reload. Per-draw collection is bounded to those actual `RenderView`
+intervals, leaving at least eight frames after the final six-tile invalidation at
 `lm_max_updates=1`.
 
 Two independent clean-state processes execute the full invalidate → reload →
@@ -183,3 +183,46 @@ both the admission flag and post-Raytrace completion ordering. The native state
 window is reduced to 48 retained frames without removing any lifecycle phase.
 No quality, shader, light-selection, atlas-allocation or physical-performance
 policy changes.
+
+## CI-505 observer interval repair
+
+Normal CI run [`38994329016`](https://github.com/techrote/ShadeDoomVK/actions/runs/38994329016),
+job [`117284165714`](https://github.com/techrote/ShadeDoomVK/actions/runs/38994329016/job/117284165714),
+at PR #159 head `009cc2347fad173977fbffef7d787f1775e2c5ab` again reached
+SDVK-158 after the generic corpus and SDVK-010/#150/#153 gates passed.
+`transition-1` stopped with `SDVK_OBSERVATION_FAILED`; the failed output remains
+in artifact `12085874925` (artifact ZIP SHA-256
+`8b8273c2bb6eed7ae3ced69f7029c56d90d2f0cc040d8d41d5cde251ee4d94cc`).
+The second transition process and dependent publication gate did not run.
+
+The observer's state flag remained enabled after `RenderView` returned.
+`D_Display` then emitted HUD/console/menu work and the reload screen wipe;
+`PerformWipe` can call `screen->Update()` repeatedly without another observed
+main view or `FramePresented`. Those out-of-interval draws therefore appended
+records under the completed frame's identity and could exhaust the 16 MiB
+store independently of the 48-view request. The retained frame limit alone
+cannot bound that producer loop.
+
+`SdvkDiagnostics::EndFrame` now closes only `StateFlag`, after the frame,
+probe-builder and Vulkan owner snapshots, and also after its exception handler.
+The placement preserves the state-only light-upload snapshot. It leaves the
+retained frame identity, observer enablement and GPU timing flag intact for
+ordinary fence resolution, lifecycle callbacks between views and the existing
+presentation/input/screenshot completion path. All in-view producers remain
+covered, including camera/probe/portal views, HUD models and weapon draws, and
+canvas draws with explicitly unavailable `HWDrawInfo` context.
+
+The compiled CPU regression executes the production observer boundary methods
+with the real bounded `RecordStore` and explicit engine-service doubles. Its
+pre-fix control removes only the new state reset, showing that a post-view draw
+flood exhausts the unchanged byte bound. The repaired path must preserve every
+in-interval record, next-frame re-arming, the final state-enabled resource
+snapshot, GPU results through presentation and between-view lifecycle events.
+Warmup/timing behavior and real in-interval overflow remain separate negatives.
+This replay is observer-control-flow evidence; fresh normal CI remains the
+authority for native rendering.
+
+The 32-view warmup, 48 retained frames, 40/56/72 input schedule, two independent
+captures, exact state/RGB requirements, 600-second deadline and all record
+limits are unchanged. No rendering, quality, atlas or lightmap behavior is
+changed by this interval repair.

@@ -47,6 +47,17 @@ unbalanced contexts, premature dumps, output collisions and exhausted bounds
 fail explicitly. Ordinary rendering uses the existing code paths with the
 observer disabled.
 
+Per-draw state is active only inside each retained `RenderView`, through the
+final frame/resource snapshot in `SdvkDiagnostics::EndFrame`. Later HUD,
+console, menu and screen-wipe draws are separate presentation producers and do
+not enter that scene frame's state records. In-interval draws without an
+`HWDrawInfo` still retain explicit unavailable context; missing context is not
+a filter. The retained frame identity and GPU timing flag remain live through
+ordinary fence resolution/presentation, and explicitly requested probe-builder
+lifecycle callbacks remain collected between views. #158 exposed and repairs
+the former state-flag leak across this boundary; the record limits and
+fail-closed overflow behavior are unchanged.
+
 ## Reproduction and comparison
 
 Preparation is pure and deterministic. A preparation receipt pins source files,

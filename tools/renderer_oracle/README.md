@@ -187,6 +187,13 @@ clock to claim ordinary renderer performance.
 Native observations use `sdvk-renderer-observation/v1`. Each record has
 `kind`, a one-based recorded `frame`, `count` and `data`.
 
+Per-draw state covers each retained `RenderView` through its final owner
+snapshot. HUD, console, menu and screen-wipe draws after that boundary are
+outside the scene-state interval. Draws within the interval still record an
+explicit unavailable context when no `HWDrawInfo` is active. GPU timestamp
+results remain observable through ordinary fence resolution/presentation, and
+requested probe-builder lifecycle callbacks remain observable between views.
+
 | Kind | Actual state and its limits |
 | --- | --- |
 | `frame` | Actual map/camera/tic/fraction/extent/settings, CPU RenderView duration, draw/geometry and light/shadow counters. |

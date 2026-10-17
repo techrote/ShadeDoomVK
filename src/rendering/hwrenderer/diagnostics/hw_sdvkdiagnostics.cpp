@@ -627,6 +627,11 @@ void EndFrame()
         if (screen->IsVulkan()) VulkanResources(static_cast<VulkanRenderDevice*>(screen));
     }
     catch (const std::exception& error) { Fail(error.what()); }
+    // Per-draw state belongs to RenderView, including its final owner snapshot.
+    // Later HUD/wipe draws must not consume this frame's bounded record store.
+    // Keep Frame, EnabledFlag and GpuFlag alive for fence-resolved timestamps,
+    // cross-frame lifecycle callbacks and the ordinary presentation hook.
+    StateFlag.store(false, std::memory_order_relaxed);
 }
 
 void FramePresented()

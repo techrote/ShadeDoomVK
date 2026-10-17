@@ -19,9 +19,16 @@ Primary issue: SDVK-002 / #2. Status: **accepted, merged and verified** on repai
 
 `SdvkDiagnostics::BeginFrame/EndFrame` surround hardware `RenderView`. The CPU
 clock excludes later finish/presentation and end-of-interval serialization.
-`HWDrawInfo::DrawScene` owns the observed context stack. The post-presentation
-hook in `d_main.cpp` closes the exact requested interval; state/GPU tracing is
-off before the ordinary `M_ScreenShot` writer and normal quit.
+`HWDrawInfo::DrawScene` owns the observed context stack. Per-draw state closes
+in `EndFrame` after its frame/resource snapshot, so later HUD, console, menu and
+screen-wipe draws cannot be attributed to the completed scene frame. In-view
+draws outside an `HWDrawInfo` remain observable with unavailable context. This
+boundary does not clear the retained frame identity, GPU flag or observer
+enablement: fence-resolved timestamp groups and explicitly requested
+probe-builder lifecycle callbacks still reach their existing consumers. The
+post-presentation hook in `d_main.cpp` closes the exact requested interval;
+state/GPU tracing is off before the ordinary `M_ScreenShot` writer and normal
+quit. See #158's [retained failure and repair](../SDVK-158-RETAINED-LIGHTMAP-FRESHNESS.md).
 
 `VkRenderState` calls the diagnostic only after ordinary draw state has been
 applied. `vk_sdvkdiagnostics.cpp` reads the existing descriptor entry selected by
