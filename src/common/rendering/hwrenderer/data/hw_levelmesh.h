@@ -198,6 +198,9 @@ public:
 		uint16_t SampleDistance = 8;
 		TArray<LightmapTile> Tiles;
 		int UsedTiles = 0;
+		// Number of current tiles whose retained v5 pixels passed authored-source
+		// provenance and structural admission during this level load.
+		int RetainedTilesLoaded = 0;
 		TArray<int> FreeTiles;
 		TArray<int> AddedTiles;
 		TArray<int> AddedSurfaces;
