@@ -141,7 +141,7 @@ not establish byte equality.
 
 Every process uses 640x480, 120 warmup frames, one retained state/RGB frame and
 the unchanged authored settings. There are no timing samples or automatic
-retries. The GitHub-hosted software-only process execution ceiling is 1800 seconds.
+retries. The GitHub-hosted software-only process execution ceiling is 3600 seconds.
 The workload remains exactly 120 warmup frames plus one retained state/RGB frame,
 with no automatic retries. The ceiling is a runner-throughput accommodation, not
 a correctness or performance acceptance threshold, and it does not replace or
