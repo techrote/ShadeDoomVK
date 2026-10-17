@@ -331,3 +331,20 @@ are covered through the map checksum; external texture/material file bytes
 changed behind the same binding are not content-addressed by this contract.
 Hosted llvmpipe evidence is correctness/lifecycle evidence only, not physical
 GPU bake/update performance.
+
+
+### SDVK-158 forced rebake admission
+
+The first hosted transition packet showed that CPU scheduling state and
+lightmapper admission state are distinct. `NeedsInitialBake` makes a tile
+eligible for the background scheduler, while `VkLightmapper::SelectTiles`
+requires `ReceivedNewLight` before it allocates scratch/render/copy work.
+Setting only the former can produce repeated submissions with no publication and
+no dirty-state retirement.
+
+A forced whole-lightmap invalidation therefore sets both flags on every live
+tile. This does not claim geometry changed; `GeometryUpdate` remains separate.
+Completion remains the accepted #151 contract: the current selected receipt is
+rendered/copied, the destination is transitioned back to shader-read, and only
+then are dirty flags cleared. SDVK-158 diagnostics distinguish the input tile
+count from tiles that actually make that dirty→clean transition.
