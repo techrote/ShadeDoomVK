@@ -229,7 +229,7 @@ int main(int argc, char** argv)
     def test_digest_bypass_mutation_is_rejected(self) -> None:
         needle = "std::memcmp(retainedDigest, currentDigest, 16) == 0"
         self.assertEqual(self.freshness.count(needle), 1)
-        mutant = self.freshness.replace(needle, "true")
+        mutant = self.freshness.replace(needle, "(void(retainedDigest), void(currentDigest), true)")
         source = """#include <cstdint>
 #include <cstring>
 """ + mutant + r"""
