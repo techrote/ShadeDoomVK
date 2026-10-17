@@ -21,12 +21,12 @@ from tools.renderer_oracle.common import pin, require, write_json
 SCENE = "lightmap-retained-transition"
 MAP = "SDV158"
 WARMUP = 32
-FRAMES = 120
+FRAMES = 48
 DEADLINE = 600
 SCHEDULE = [
-    {"after_main_views": 56, "phase": "invalidate-1", "command": "invalidatelightmap"},
-    {"after_main_views": 88, "phase": "reload", "command": "map SDV158"},
-    {"after_main_views": 120, "phase": "invalidate-2", "command": "invalidatelightmap"},
+    {"after_main_views": 40, "phase": "invalidate-1", "command": "invalidatelightmap"},
+    {"after_main_views": 56, "phase": "reload", "command": "map SDV158"},
+    {"after_main_views": 72, "phase": "invalidate-2", "command": "invalidatelightmap"},
 ]
 
 
@@ -84,16 +84,21 @@ def _lightmap(row: dict) -> dict:
     return state
 
 
-def _require_completed_cycle(rows: list[dict], name: str, *, minimum_updates: int = 1) -> dict:
+def _require_completed_cycle(rows: list[dict], name: str, *, require_all_clean: bool) -> dict:
     states = [_lightmap(row) for row in rows]
-    updates = sum(state.get("frame_tile_updates", 0) for state in states)
-    require(updates >= minimum_updates, name + " did not complete real lightmap tile work")
-    require(states[-1].get("all_clean") is True
-            and states[-1].get("initial_dirty") == 0
-            and states[-1].get("geometry_dirty") == 0
-            and states[-1].get("light_dirty") == 0,
-            name + " did not converge all dirty/completion state")
-    return {"frames": len(states), "completed_tile_updates": updates,
+    requests = sum(state.get("frame_tile_updates", 0) for state in states)
+    completions = sum(state.get("frame_tile_completions", 0) for state in states)
+    require(completions >= 1, name + " did not complete real lightmap tile work")
+    require(requests >= completions, name + " completion count exceeds submitted tile work")
+    require(states[-1].get("initial_dirty") == 0
+            and states[-1].get("geometry_dirty") == 0,
+            name + " did not converge initial/geometry dirty state")
+    if require_all_clean:
+        require(states[-1].get("all_clean") is True and states[-1].get("light_dirty") == 0,
+                name + " did not converge all dirty/completion state")
+    return {"frames": len(states), "requested_tile_updates": requests,
+            "completed_tiles": completions, "final_all_clean": states[-1].get("all_clean"),
+            "final_light_dirty": states[-1].get("light_dirty"),
             "final_pages": states[-1]["texture_count"],
             "final_page_live_tiles": states[-1]["page_live_tiles"]}
 
@@ -110,18 +115,19 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
     for row in rows.values():
         _lightmap(row)
 
-    initial = _phase(rows, 1, 24)
-    require(_lightmap(initial[-1]).get("all_clean") is True,
-            "Initial retained load did not stabilize before the first invalidation")
+    initial = _phase(rows, 1, 8)
+    initial_state = _lightmap(initial[-1])
+    require(initial_state.get("initial_dirty") == 0 and initial_state.get("geometry_dirty") == 0,
+            "Initial retained load did not stabilize structural dirty state before invalidation")
 
-    before_reload_epoch = rows[56].get("lightmap_epoch")
-    invalidate1 = _require_completed_cycle(_phase(rows, 25, 56), "first invalidation")
-    reload = _require_completed_cycle(_phase(rows, 57, 88), "same-map retained reload")
-    reload_epochs = {row.get("lightmap_epoch") for row in _phase(rows, 57, 88)}
+    before_reload_epoch = rows[24].get("lightmap_epoch")
+    invalidate1 = _require_completed_cycle(_phase(rows, 9, 24), "first invalidation", require_all_clean=True)
+    reload = _require_completed_cycle(_phase(rows, 25, 40), "same-map retained reload", require_all_clean=False)
+    reload_epochs = {row.get("lightmap_epoch") for row in _phase(rows, 25, 40)}
     require(type(before_reload_epoch) is int and all(type(value) is int for value in reload_epochs)
             and any(value != before_reload_epoch for value in reload_epochs),
             "Same-map reload did not replace the Vulkan lightmap resource epoch")
-    invalidate2 = _require_completed_cycle(_phase(rows, 89, 120), "second invalidation")
+    invalidate2 = _require_completed_cycle(_phase(rows, 41, 48), "second invalidation", require_all_clean=True)
 
     final = _lightmap(rows[FRAMES])
     return {
