@@ -162,6 +162,7 @@ class RetainedLifecycleTests(unittest.TestCase):
         cls.freshness = current("lightmap_source_current")
         cls.helper = current("lightmap_span")
         cls.save = current("save")
+        cls.pack = current("pack_atlas")
 
     def test_current_contract_has_no_known_lifecycle_error(self) -> None:
         self.assertEqual(contract_errors(self.load, self.select, self.copy, self.pages), [])
@@ -246,6 +247,22 @@ int main()
             exe = compile_fixture(path, output_dir=Path(temp), name="freshness_mutant")
             p = subprocess.run([str(exe)], text=True, capture_output=True, timeout=10)
             self.assertEqual(p.returncode, 11, p.stdout + p.stderr)
+
+    def test_current_page_is_republished_to_vertex_sampling_state(self) -> None:
+        self.assertIn("Lightmap.TextureCount = (int)Lightmap.AtlasPacker->GetNumPages();", self.pack)
+        self.assertIn("vertex.lindex = (float)tile.AtlasLocation.ArrayIndex;", self.pack)
+        self.assertIn("UploadRanges.Vertex.Add(surface->MeshLocation.StartVertIndex, surface->MeshLocation.NumVerts);", self.pack)
+        self.assertLess(
+            self.pack.index("vertex.lindex = (float)tile.AtlasLocation.ArrayIndex;"),
+            self.pack.index("UploadRanges.Vertex.Add(surface->MeshLocation.StartVertIndex, surface->MeshLocation.NumVerts);"),
+        )
+
+    def test_stale_sampling_page_publication_mutation_is_rejected(self) -> None:
+        needle = "vertex.lindex = (float)tile.AtlasLocation.ArrayIndex;"
+        self.assertEqual(self.pack.count(needle), 1)
+        mutant = self.pack.replace(needle, "vertex.lindex = 0.0f;")
+        self.assertNotIn(needle, mutant)
+        self.assertIn("vertex.lindex = 0.0f;", mutant)
 
     def test_pixel_span_helper_executes_exact_boundaries(self) -> None:
         with tempfile.TemporaryDirectory(prefix="sdvk014-retained-span-") as temp:
