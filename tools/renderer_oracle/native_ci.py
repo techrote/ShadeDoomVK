@@ -65,17 +65,25 @@ def device_evidence(summary, full):
     return {"device": identity, "required_features": dict.fromkeys(FEATURES, True)}
 
 
-def command(out, name, argv):
+def command(out, name, argv, *, env=None):
     result = {"argv": argv, "returncode": None, "started_utc": run.utc()}
     stdout, stderr = out / (name + ".txt"), out / (name + ".stderr.txt")
     with stdout.open("xb") as output, stderr.open("xb") as errors:
         try:
             result["returncode"] = subprocess.run(argv, stdout=output, stderr=errors,
-                                                  timeout=60, check=False).returncode
+                                                  env=env, timeout=60, check=False).returncode
         except (OSError, subprocess.SubprocessError) as error:
             result["error"] = str(error)
     result.update(stdout=pin(stdout, relative_to=out), stderr=pin(stderr, relative_to=out))
     return result
+
+
+def device_feature_probe_environment():
+    """Enumerate Vulkan device/features without requiring a WSI surface."""
+    environment = os.environ.copy()
+    environment.pop("DISPLAY", None)
+    environment.pop("WAYLAND_DISPLAY", None)
+    return environment
 
 
 def preflight(args, out):
@@ -99,7 +107,12 @@ def preflight(args, out):
         data["commands"] = {
             "packages": command(provenance, "packages", ["dpkg-query", "-W", "-f=${binary:Package}\t${Version}\n"]),
             "vulkan_summary": command(provenance, "vulkaninfo-summary", ["vulkaninfo", "--summary"]),
-            "vulkan_full": command(provenance, "vulkaninfo-full", ["vulkaninfo"])}
+            "vulkan_full": command(provenance, "vulkaninfo-full", ["vulkaninfo"],
+                                   env=device_feature_probe_environment())}
+        data["device_feature_probe"] = {
+            "presentation_surface": False,
+            "policy": "device/features only; actual renderer captures separately require caller Xvfb DISPLAY",
+        }
         manifests = []
         for key in ("VK_DRIVER_FILES", "VK_ICD_FILENAMES"):
             if os.environ.get(key):
