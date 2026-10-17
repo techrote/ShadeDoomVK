@@ -787,8 +787,11 @@ def _lightmap_transition_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
     members = _base_members()
     camera = native["camera"]["position"]
+    yaw = math.radians(native["camera"]["yaw"])
+    player_start = [camera[0] - round(48 * math.cos(yaw)),
+                    camera[1] - round(48 * math.sin(yaw))]
     model = _Map(floor=0, ceiling=160, sky=False)
-    model.thing(1, camera[0] - 48, camera[1], tid=2001)
+    model.thing(1, player_start[0], player_start[1], tid=2001)
     model.thing(32200, camera[0], camera[1], camera[2], tid=2002)
     model.thing(9890, 0, 0, angle=0, pitch=0, lm_suncolor=16777215,
                 lm_sunintensity=0, lm_sampledist=4)
@@ -808,6 +811,10 @@ def _lightmap_transition_members(scene: dict) -> tuple[dict[str, bytes], dict]:
         "native_executed": False,
         "camera_actor_tid": 2002,
         "camera_position_world": camera,
+        "player_start_world": player_start,
+        "monsters": 0,
+        "animated_or_random_actors": 0,
+        "baked_lightmap_members": 1,
         "counts": {kind: len(rows) for kind, rows in model.records.items()},
         "boundary_signed_areas": list(model.polygon_areas),
         "retained_lightmap": {
