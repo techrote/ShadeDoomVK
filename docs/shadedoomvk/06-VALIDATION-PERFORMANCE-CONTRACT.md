@@ -330,9 +330,10 @@ independent processes. Each uses a fixed outcome-blind presented-view schedule
 for invalidate → same-map reload → invalidate. Passive state must show at least
 two current atlas pages; exact CPU/Vulkan page-count agreement; zero invalid
 live receipts; complete per-page tile accounting; accepted retained-v5 tiles;
-real completed lightmap update work; clean `NeedsInitialBake`,
-`GeometryUpdate` and `ReceivedNewLight` convergence after every cycle; and a
-new Vulkan lightmap resource epoch after reload. The two runs require exact
+separately observed submitted and dirty→clean-completed lightmap work; complete
+`NeedsInitialBake`/`GeometryUpdate` convergence after reload; complete
+`NeedsInitialBake`/`GeometryUpdate`/`ReceivedNewLight` convergence after
+each forced invalidation; and a new Vulkan lightmap resource epoch after reload. The two runs require exact
 semantic-state and final-RGB repeatability.
 
 Input-driver markers prove only that preregistered commands were queued. They do
@@ -342,3 +343,13 @@ physical-GPU performance acceptance follows from this gate.
 The minimum source checksum does not authenticate external texture/material
 resource bytes changed behind an unchanged authored binding; that limit must
 remain explicit in any SDVK-014 disposition.
+
+
+The first native SDVK-158 attempt in run `38991258032` is retained negative
+evidence. It reached the observer byte/record limit after 59/120 retained frames,
+so the preregistered state request is bounded to 48 retained frames thereafter.
+More importantly, it showed submitted invalidated tiles without completion:
+`InvalidateLightmap` set `NeedsInitialBake` while `SelectTiles` required
+`ReceivedNewLight`. Current acceptance therefore requires forced invalidation to
+publish both flags and requires a post-Raytrace dirty→clean completion counter;
+submitted-tile count alone cannot satisfy the native gate.
