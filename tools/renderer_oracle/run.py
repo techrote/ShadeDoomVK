@@ -239,6 +239,10 @@ def capture(args):
                 "Sampler-reset gate needs its exact correctness-only frame budget")
     if native.get("generator") == "probe_owner_transition":
         require(mode == "state", "Probe-owner frame-driven transition is correctness-only")
+    if native.get("generator") == "lightmap_transition":
+        from tools.renderer_oracle.sdvk158_lightmap_transition import FRAMES, WARMUP
+        require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP,
+                "Lightmap transition gate needs its exact correctness-only frame budget")
     extent = capture_extent(args, native, mode)
     frames = args.frames if args.frames is not None else (1 if mode == "state" else 120)
     warmup = args.warmup if args.warmup is not None else native.get("recommended_warmup_frames", 120)
@@ -330,6 +334,9 @@ def capture(args):
         if native.get("sampler_reset_schedule"):
             require(mode == "state", "Sampler-reset live-setting driver is state-only")
             argv.append("-sdvk153samplerresetdriver")
+        if native.get("lightmap_transition_schedule"):
+            require(mode == "state", "Lightmap transition driver is state-only")
+            argv.append("-sdvk158lightmapdriver")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
@@ -835,6 +842,9 @@ def _validate_run(path):
     if scene["native"].get("generator") == "probe_owner_transition":
         from tools.renderer_oracle.sdvk150_probe_owner import validate_driver_log
         validate_driver_log(stdout, scene["native"]["probe_owner_transition"])
+    if scene["native"].get("generator") == "lightmap_transition":
+        from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
+        validate_transition_records(raw, stdout, scene["native"])
     if "diagnostics" in request:
         publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":
