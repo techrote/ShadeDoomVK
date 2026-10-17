@@ -1319,3 +1319,35 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Separate LIGHTMAP authored-content freshness, native repeated/multi-page and
   supported special-surface/material matrix remain. Physical STOP ACTIVE; physical
   cost/scaling/stability HELD / NOT ACCEPTED; historical cause UNDETERMINED.
+
+
+### 17 October 2026 — SDVK-158 retained freshness / multi-page implementation candidate
+
+- Reconciled accepted #156 / PR #157 and started #158 from
+  `master@d6b089d53bf53295604757f3924ce9ad3517ad3a`, tree
+  `8d3b6b928cb109abaaf24ce25858843d948a0216`.
+- Upgraded LIGHTMAP persistence to v5. Save writes `FLevelLocals::md5`;
+  load compares the retained digest before any retained transform/extents,
+  completion flags or RGB can mutate current tiles. Mismatch returns to the
+  ordinary dirty-tile bake path. Existing structural admission remains separate.
+- Reused `MapData::GetChecksum` as the minimum non-circular source authority:
+  TEXTMAP for UDMF or the stable authored binary map lumps plus BEHAVIOR;
+  LIGHTMAP/generated node data are excluded. External resource bytes behind
+  unchanged bindings remain an explicit freshness limitation.
+- Added passive lightmap lifecycle diagnostics: CPU/Vulkan page populations,
+  current valid/invalid tile receipts, dirty partitions, retained-load count,
+  completed per-frame tile updates and per-page live occupancy. Current page
+  publication to `vertex.lindex` remains source-pinned.
+- Added a retained-v5 SDV158 fixture with two 513×513 flat tiles forcing
+  multi-page allocation and ordinary dirty wall work. A fixed outcome-blind
+  presented-view driver performs invalidate → same-map reload → invalidate.
+  Two independent hosted processes must observe real update completion, clean
+  convergence, current page ownership and a fresh lightmap epoch after reload,
+  then repeat exact semantic state/RGB.
+- Registered the focused gate in the existing normal Avrea software-Vulkan job;
+  no extra runner or benchmark workflow is added. Exact-head source evidence,
+  full CI, native qualification, review/merge and exact-master verification are
+  still required at this checkpoint.
+- #14 remains OPEN / NOT SOFTWARE-COMPLETE. Special-surface/material lifecycle
+  coverage remains after this increment. Physical STOP ACTIVE; physical GPU
+  cost/scaling/stability HELD / NOT ACCEPTED; historical root cause UNDETERMINED.
