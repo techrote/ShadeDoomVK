@@ -187,6 +187,13 @@ clock to claim ordinary renderer performance.
 Native observations use `sdvk-renderer-observation/v1`. Each record has
 `kind`, a one-based recorded `frame`, `count` and `data`.
 
+Per-draw state covers each retained `RenderView` through its final owner
+snapshot. HUD, console, menu and screen-wipe draws after that boundary are
+outside the scene-state interval. Draws within the interval still record an
+explicit unavailable context when no `HWDrawInfo` is active. GPU timestamp
+results remain observable through ordinary fence resolution/presentation, and
+requested probe-builder lifecycle callbacks remain observable between views.
+
 | Kind | Actual state and its limits |
 | --- | --- |
 | `frame` | Actual map/camera/tic/fraction/extent/settings, CPU RenderView duration, draw/geometry and light/shadow counters. |
@@ -196,7 +203,7 @@ Native observations use `sdvk-renderer-observation/v1`. Each record has
 | `probe` | Actual immediate-draw authored index, runtime irradiance uniform, fallback/sentinel and resource/sampler state. Per-texel gathered mapping retains its PF producer. |
 | `shadow` | Actual shadow row selection or immediate shader policy, with world-geometry caster scope. This does not claim sprite silhouette geometry. |
 | `resource` | Current descriptor capacity/usage/high water, generations/lifetimes, upload/staging, optional LevelMesh and authored sun state. Many counters are cumulative owner snapshots. |
-| `pipeline` | Canonical fields of the emitted immediate draw's pipeline/shader key and target state. A key is not proof of executed shader instructions. |
+| `pipeline` | Canonical pipeline/shader key and target at an immediate draw or nonempty LevelMesh indexed submission. Mesh rows identify side/flat list class and index range, without borrowing immediate material/probe state. A key is not proof of executed shader instructions. |
 | `timing` | Resolved named Vulkan timestamp groups or explicit unavailability. Groups may nest and never establish whole-frame GPU time. |
 
 Missing/unsupported state is represented with `available=false` and a reason.
@@ -215,6 +222,13 @@ records with the same kind and frame. It retains at most 65,536 records, 16 KiB
 per record and 16 MiB of retained payload. Dropped/truncated/nonfinite records,
 an incomplete interval, a failed collector or an unresolved required workload
 gate fail validation. Bounds are not a reason to discard observations silently.
+
+SDVK-158 checks actual LevelMesh side and flat submissions in every retained main
+view, replacing legacy processing counters that do not measure this path. Its
+fixed-view input schedule permits only tic/fraction label normalization for this
+exact unanimated scene and declared clock policy. Submitted ranges, phase order,
+page ownership, resource epochs, tile completions/dirty state and final RGB
+remain exact; raw clock labels remain in the capture.
 
 ## Compare independent state captures
 

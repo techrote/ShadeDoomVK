@@ -36,7 +36,7 @@ completed observation interval, not correctness or performance acceptance.
 | Probe/sun | Actual immediate-draw uniform index/fallback, descriptor identity, published resources and current authored sun state | Per-texel lightmap probe selection and native fragment readbacks retain their PF drivers; a uniform does not prove every shader consumes it |
 | Shadow | Actual candidate selection/row and immediate-draw shadow policy | Casters are world geometry; no sprite silhouette or physical-lighting claim |
 | Resources | Existing descriptor capacity/current/high-water/reuse/failure counters, generation/epoch tokens, texture/probe/lightmap/upload and LevelMesh owners | Distinct epoch domains are never inferred equal; cumulative counters are not a GPU memory measurement |
-| Pipeline | Explicit canonical shader/pipeline field state at draw emission | The observer does not claim executed SPIR-V or whole-pipeline coverage |
+| Pipeline | Explicit canonical shader/pipeline field state at immediate draw emission and submitted LevelMesh side/flat indexed ranges | Mesh rows do not borrow immediate material/probe uniforms; no executed SPIR-V or whole-pipeline coverage claim |
 | CPU | Steady-clock elapsed `RenderView`, with its camera/probe/scene work | Excludes simulation and later finish/presentation; state instrumentation affects state-mode cost |
 | GPU | Resolved named Vulkan timestamp groups, only when requested and available | Groups can nest; never sum them or label them whole-frame GPU duration |
 
@@ -46,6 +46,17 @@ record and 16 MiB retained record text. Invalid numerics, malformed UTF-8,
 unbalanced contexts, premature dumps, output collisions and exhausted bounds
 fail explicitly. Ordinary rendering uses the existing code paths with the
 observer disabled.
+
+Per-draw state is active only inside each retained `RenderView`, through the
+final frame/resource snapshot in `SdvkDiagnostics::EndFrame`. Later HUD,
+console, menu and screen-wipe draws are separate presentation producers and do
+not enter that scene frame's state records. In-interval draws without an
+`HWDrawInfo` still retain explicit unavailable context; missing context is not
+a filter. The retained frame identity and GPU timing flag remain live through
+ordinary fence resolution/presentation, and explicitly requested probe-builder
+lifecycle callbacks remain collected between views. #158 exposed and repairs
+the former state-flag leak across this boundary; the record limits and
+fail-closed overflow behavior are unchanged.
 
 ## Reproduction and comparison
 
@@ -80,6 +91,13 @@ counters are always retained, but only process-cumulative/lazy allocation,
 upload-volume and staging-volume counts are excluded from correctness equality.
 Resets, cancellations, staging wrap/dedicated state and all failure/rejection
 counters remain correctness-visible.
+
+SDVK-158's unanimated room changes lightmap state at fixed presented-view
+ordinals while keeping the ordinary simulation clock. Only the exact
+`lightmap-retained-transition` scene with its declared fixed-view input clock
+policy also normalizes tic/fraction labels. Raw values remain in each receipt;
+view order, submitted mesh ranges, phase boundaries, resource epochs, tile
+completion/dirty state and final RGB remain exact.
 
 Image comparison decodes bounded RGB8 PNGs with the accepted PF decoder. Exact
 mode compares RGB bytes, independently of PNG compression/metadata. Tolerant

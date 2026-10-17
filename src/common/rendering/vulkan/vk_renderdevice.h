@@ -53,6 +53,8 @@ public:
 	VkRenderState *GetRenderState() { return mRenderState.get(); }
 	VkPostprocess *GetPostprocess() { return mPostprocess.get(); }
 	VkRenderBuffers *GetBuffers() { return mActiveRenderBuffers; }
+	int GetFrameTileUpdates() const { return FrameTileUpdates; }
+	int GetFrameTileCompletions() const { return FrameTileCompletions; }
 	FRenderState* RenderState() override;
 
 	bool IsRayQueryEnabled() const override { return mUseRayQuery; }
@@ -155,6 +157,7 @@ private:
 
 	LevelMesh* levelMesh = nullptr;
 	bool levelMeshChanged = true;
+	int FrameTileCompletions = 0;
 	std::unique_ptr<LevelMesh> NullMesh;
 
 	int levelVertexFormatIndex = -1;

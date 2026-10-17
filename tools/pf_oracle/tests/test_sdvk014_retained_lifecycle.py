@@ -159,10 +159,136 @@ class RetainedLifecycleTests(unittest.TestCase):
         cls.copy = current("copy_result")
         cls.pages = current("set_lightmap_count")
         cls.create = current("create_lightmap")
+        cls.freshness = current("lightmap_source_current")
         cls.helper = current("lightmap_span")
+        cls.save = current("save")
+        cls.pack = current("pack_atlas")
+        cls.invalidate = current("invalidate")
+        cls.device_update = current("device_update_lightmaps")
 
     def test_current_contract_has_no_known_lifecycle_error(self) -> None:
         self.assertEqual(contract_errors(self.load, self.select, self.copy, self.pages), [])
+
+
+    def test_retained_source_digest_is_admitted_before_any_tile_mutation(self) -> None:
+        read = "fr.Read(sourceDigest, sizeof(sourceDigest));"
+        gate = "if (!IsRetainedLightmapSourceCurrent(sourceDigest, Level->md5))"
+        mutation = "tile->AtlasLocation.Width = entry->width;"
+        self.assertIn(read, self.load)
+        self.assertIn(gate, self.load)
+        self.assertIn("return false;", self.load[self.load.index(gate):self.load.index("if (developer >= 5)")])
+        self.assertLess(self.load.index(read), self.load.index(gate))
+        self.assertLess(self.load.index(gate), self.load.index(mutation))
+        self.assertIn("lumpFile.Write(doomMap.md5, 16);", self.save)
+        self.assertIn("sizeof(int) + 2 * sizeof(uint32_t) + 16", self.save)
+        version = (ROOT / "src/version.h").read_text()
+        self.assertIn("#define LIGHTMAPVER 5", version)
+
+    def test_map_checksum_authority_is_non_circular_and_bake_relevant(self) -> None:
+        source = (ROOT / "src/p_openmap.cpp").read_text()
+        start = source.index("void MapData::GetChecksum(uint8_t cksum[16])")
+        end = source.index("}", source.index("md5.Final(cksum);", start)) + 1
+        body = source[start:end]
+        self.assertIn("ML_TEXTMAP", body)
+        for lump in ("ML_LABEL", "ML_THINGS", "ML_LINEDEFS", "ML_SIDEDEFS", "ML_SECTORS", "ML_BEHAVIOR"):
+            self.assertIn(lump, body)
+        self.assertNotIn("ML_LIGHTMAP", body)
+        self.assertNotIn("ML_NODES", body)
+        self.assertNotIn("ML_ZNODES", body)
+
+    def test_retained_source_digest_helper_accepts_only_exact_identity(self) -> None:
+        source = """#include <cstdint>
+#include <cstring>
+#include <iostream>
+#include <string>
+""" + self.freshness + r"""
+int main(int argc, char** argv)
+{
+    uint8_t current[16] = {};
+    uint8_t retained[16] = {};
+    if (argc != 2) return 2;
+    if (std::string(argv[1]) == "equal") {}
+    else if (std::string(argv[1]) == "first") retained[0] = 1;
+    else if (std::string(argv[1]) == "last") retained[15] = 1;
+    else return 3;
+    const bool got = IsRetainedLightmapSourceCurrent(retained, current);
+    const bool expected = std::string(argv[1]) == "equal";
+    if (got != expected) return 11;
+    std::cout << "PASS " << argv[1] << "\n";
+    return 0;
+}
+"""
+        with tempfile.TemporaryDirectory(prefix="sdvk158-freshness-") as temp:
+            path = Path(temp) / "freshness.cpp"
+            path.write_text(source)
+            exe = compile_fixture(path, output_dir=Path(temp), name="freshness")
+            for case in ("equal", "first", "last"):
+                with self.subTest(case=case):
+                    p = subprocess.run([str(exe), case], text=True, capture_output=True, timeout=10)
+                    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertIn("PASS " + case, p.stdout)
+
+    def test_digest_bypass_mutation_is_rejected(self) -> None:
+        needle = "std::memcmp(retainedDigest, currentDigest, 16) == 0"
+        self.assertEqual(self.freshness.count(needle), 1)
+        mutant = self.freshness.replace(needle, "(void(retainedDigest), void(currentDigest), true)")
+        source = """#include <cstdint>
+#include <cstring>
+""" + mutant + r"""
+int main()
+{
+    uint8_t current[16] = {};
+    uint8_t retained[16] = {};
+    retained[15] = 1;
+    return IsRetainedLightmapSourceCurrent(retained, current) ? 11 : 0;
+}
+"""
+        with tempfile.TemporaryDirectory(prefix="sdvk158-freshness-mutant-") as temp:
+            path = Path(temp) / "freshness_mutant.cpp"
+            path.write_text(source)
+            exe = compile_fixture(path, output_dir=Path(temp), name="freshness_mutant")
+            p = subprocess.run([str(exe)], text=True, capture_output=True, timeout=10)
+            self.assertEqual(p.returncode, 11, p.stdout + p.stderr)
+
+    def test_forced_invalidation_is_selectable_by_lightmapper(self) -> None:
+        needs = "tile.NeedsInitialBake = true;"
+        light = "tile.ReceivedNewLight = true;"
+        self.assertIn(needs, self.invalidate)
+        self.assertIn(light, self.invalidate)
+        self.assertLess(self.invalidate.index(needs), self.invalidate.index(light))
+
+    def test_forced_invalidation_without_lightmapper_admission_is_rejected(self) -> None:
+        line = "\t\ttile.ReceivedNewLight = true;\n"
+        self.assertEqual(self.invalidate.count(line), 1)
+        mutant = self.invalidate.replace(line, "")
+        self.assertIn("tile.NeedsInitialBake = true;", mutant)
+        self.assertNotIn("tile.ReceivedNewLight = true;", mutant)
+
+    def test_completion_observation_counts_post_raytrace_dirty_to_clean(self) -> None:
+        raytrace = "GetLightmapper()->Raytrace(tiles);"
+        completion = "FrameTileCompletions++;"
+        self.assertIn("FrameTileUpdates += (int)tiles.size();", self.device_update)
+        self.assertIn(raytrace, self.device_update)
+        self.assertIn(completion, self.device_update)
+        self.assertIn("tile->NeedsInitialBake || tile->GeometryUpdate || tile->ReceivedNewLight", self.device_update)
+        self.assertIn("!tile->NeedsInitialBake && !tile->GeometryUpdate && !tile->ReceivedNewLight", self.device_update)
+        self.assertLess(self.device_update.index(raytrace), self.device_update.index(completion))
+
+    def test_current_page_is_republished_to_vertex_sampling_state(self) -> None:
+        self.assertIn("Lightmap.TextureCount = (int)Lightmap.AtlasPacker->GetNumPages();", self.pack)
+        self.assertIn("vertex.lindex = (float)tile.AtlasLocation.ArrayIndex;", self.pack)
+        self.assertIn("UploadRanges.Vertex.Add(surface->MeshLocation.StartVertIndex, surface->MeshLocation.NumVerts);", self.pack)
+        self.assertLess(
+            self.pack.index("vertex.lindex = (float)tile.AtlasLocation.ArrayIndex;"),
+            self.pack.index("UploadRanges.Vertex.Add(surface->MeshLocation.StartVertIndex, surface->MeshLocation.NumVerts);"),
+        )
+
+    def test_stale_sampling_page_publication_mutation_is_rejected(self) -> None:
+        needle = "vertex.lindex = (float)tile.AtlasLocation.ArrayIndex;"
+        self.assertEqual(self.pack.count(needle), 1)
+        mutant = self.pack.replace(needle, "vertex.lindex = 0.0f;")
+        self.assertNotIn(needle, mutant)
+        self.assertIn("vertex.lindex = 0.0f;", mutant)
 
     def test_pixel_span_helper_executes_exact_boundaries(self) -> None:
         with tempfile.TemporaryDirectory(prefix="sdvk014-retained-span-") as temp:

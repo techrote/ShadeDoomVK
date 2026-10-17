@@ -688,6 +688,7 @@ void VulkanRenderDevice::BeginFrame()
 	hwtexturecount = mTextureManager->GetHWTextureCount();
 
 	FrameTileUpdates = 0;
+	FrameTileCompletions = 0;
 
 	GetRenderPassManager()->ProcessMainThreadTasks();
 	GetTextureManager()->ProcessMainThreadTasks();
@@ -805,7 +806,24 @@ void VulkanRenderDevice::SetLevelMesh(LevelMesh* mesh)
 void VulkanRenderDevice::UpdateLightmaps(const TArray<LightmapTile*>& tiles)
 {
 	FrameTileUpdates += (int)tiles.size();
+
+	// Raytrace is synchronous with respect to the CPU dirty/completion contract:
+	// CopyResult clears these flags only after the current atlas copy and final
+	// shader-read barrier have been recorded. Count only real dirty->clean
+	// transitions, not merely tiles submitted to the lightmapper.
+	std::vector<uint8_t> wasDirty;
+	wasDirty.reserve(tiles.Size());
+	for (auto* tile : tiles)
+		wasDirty.push_back(tile && (tile->NeedsInitialBake || tile->GeometryUpdate || tile->ReceivedNewLight));
+
 	GetLightmapper()->Raytrace(tiles);
+
+	for (unsigned int i = 0; i < tiles.Size(); ++i)
+	{
+		auto* tile = tiles[i];
+		if (wasDirty[i] && tile && !tile->NeedsInitialBake && !tile->GeometryUpdate && !tile->ReceivedNewLight)
+			FrameTileCompletions++;
+	}
 }
 
 void VulkanRenderDevice::SetShadowMaps(const TArray<float>& lights, hwrenderer::LevelAABBTree* tree, bool newTree)

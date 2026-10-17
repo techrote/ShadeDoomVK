@@ -19,15 +19,30 @@ Primary issue: SDVK-002 / #2. Status: **accepted, merged and verified** on repai
 
 `SdvkDiagnostics::BeginFrame/EndFrame` surround hardware `RenderView`. The CPU
 clock excludes later finish/presentation and end-of-interval serialization.
-`HWDrawInfo::DrawScene` owns the observed context stack. The post-presentation
-hook in `d_main.cpp` closes the exact requested interval; state/GPU tracing is
-off before the ordinary `M_ScreenShot` writer and normal quit.
+`HWDrawInfo::DrawScene` owns the observed context stack. Per-draw state closes
+in `EndFrame` after its frame/resource snapshot, so later HUD, console, menu and
+screen-wipe draws cannot be attributed to the completed scene frame. In-view
+draws outside an `HWDrawInfo` remain observable with unavailable context. This
+boundary does not clear the retained frame identity, GPU flag or observer
+enablement: fence-resolved timestamp groups and explicitly requested
+probe-builder lifecycle callbacks still reach their existing consumers. The
+post-presentation hook in `d_main.cpp` closes the exact requested interval;
+state/GPU tracing is off before the ordinary `M_ScreenShot` writer and normal
+quit. See #158's [retained failure and repair](../SDVK-158-RETAINED-LIGHTMAP-FRESHNESS.md).
 
 `VkRenderState` calls the diagnostic only after ordinary draw state has been
 applied. `vk_sdvkdiagnostics.cpp` reads the existing descriptor entry selected by
 the actual uniform index, semantic layers, selected sampler creation arguments,
 probe uniform, canonical pipeline state and owner counters. It must not call
 descriptor/image creation or probe resolution just to observe a value.
+
+`DrawLevelMeshList` carries its explicit side/flat list class from `HWDrawInfo`.
+After a nonempty `drawIndexed`, a separate pipeline-only observer records the
+actual range and final overridden `mPipelineKey`. These batches read mesh
+storage, so this producer does not read the immediate material, sprite or probe
+uniforms. Ranges count submissions, not unique surfaces or completed GPU work.
+SDVK-158 requires both classes in every retained main view; legacy frame
+wall/flat processing counters do not establish mesh submissions.
 
 `hw_spritelight.cpp` emits actual selected/rejected leaves from both actor
 per-pixel and CPU aggregate routes. Qualification/reference-only traversals do
@@ -61,6 +76,12 @@ workload-volume counters are excluded from semantic equality; capacity state,
 resets, cancellations, staging wrap/dedicated state and all failure/rejection
 diagnostics remain compared. Probe/light/shadow/material/
 pipeline decisions are never erased to obtain a pass.
+
+The exact SDVK-158 scene and its declared fixed-presented-view input policy also
+permit tic/fraction label normalization: its unanimated geometry/camera and
+transition driver do not use those labels. Raw clock values remain retained,
+and phase order, mesh ranges, page receipts, epochs and completed tile work
+remain compared. Other ordinary-clock scenes do not inherit this exception.
 
 Exact or preregistered tolerant RGB comparison is paired with state. Both
 inputs must share actual device/driver/content/settings; changing a build is an

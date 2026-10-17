@@ -31,6 +31,52 @@ std::string Lifetime(const FRendererLifetimeStats& value)
         .Int("invalid_retires", value.InvalidRetires).Int("duplicate_activations", value.DuplicateActivations).Json();
 }
 
+std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages, int frameTileUpdates, int frameTileCompletions)
+{
+    if (!mesh || !mesh->Lightmap.AtlasPacker)
+        return Unavailable("no live level-mesh lightmap atlas owner");
+
+    uint64_t live = 0, valid = 0, invalid = 0;
+    uint64_t initialDirty = 0, geometryDirty = 0, lightDirty = 0;
+    std::vector<uint64_t> pageTiles(std::max(mesh->Lightmap.TextureCount, 0), 0);
+    for (const auto& tile : mesh->Lightmap.Tiles)
+    {
+        if (tile.UseCount <= 0) continue;
+        ++live;
+        if (tile.NeedsInitialBake) ++initialDirty;
+        if (tile.GeometryUpdate) ++geometryDirty;
+        if (tile.ReceivedNewLight) ++lightDirty;
+        if (!tile.HasValidAtlasRegion(*mesh->Lightmap.AtlasPacker,
+                mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount))
+        {
+            ++invalid;
+            continue;
+        }
+        ++valid;
+        ++pageTiles[tile.AtlasLocation.ArrayIndex];
+    }
+
+    std::string pages = "[";
+    for (size_t i = 0; i < pageTiles.size(); ++i)
+    {
+        if (i) pages += ',';
+        pages += std::to_string(pageTiles[i]);
+    }
+    pages += ']';
+
+    return Object().Bool("available", true).Str("map", level.MapName.GetChars())
+        .Int("texture_size", mesh->Lightmap.TextureSize).Int("texture_count", mesh->Lightmap.TextureCount)
+        .Int("vulkan_page_count", vulkanPages).Int("used_tiles", mesh->Lightmap.UsedTiles)
+        .Int("retained_tiles_loaded", mesh->Lightmap.RetainedTilesLoaded)
+        .Int("frame_tile_updates", frameTileUpdates).Int("frame_tile_completions", frameTileCompletions)
+        .Int("live_tiles", live).Int("valid_live_tiles", valid).Int("invalid_live_tiles", invalid)
+        .Int("initial_dirty", initialDirty).Int("geometry_dirty", geometryDirty).Int("light_dirty", lightDirty)
+        .Bool("all_clean", initialDirty == 0 && geometryDirty == 0 && lightDirty == 0)
+        .Bool("page_count_match", size_t(std::max(mesh->Lightmap.TextureCount, 0)) == vulkanPages)
+        .Bool("sampling_page_bounds_ok", invalid == 0).Raw("page_live_tiles", pages)
+        .Str("scope", "current live tile receipts and atlas page ownership; actual pixels remain image evidence").Json();
+}
+
 std::string Sampler(VulkanSampler* sampler)
 {
     if (!sampler || !sampler->GetCreationArguments().Captured)
@@ -85,6 +131,20 @@ std::string Pipeline(const VkPipelineKey& value)
 // or resolve a new probe merely to collect evidence.
 struct FSdvkDiagnosticAccess
 {
+    static void LevelMeshDraw(VkRenderState* state, int firstIndex, int count, LevelMeshDrawSurface surface)
+    {
+        using namespace SdvkObservation;
+        // ApplyLevelMeshPipeline has already stored the final overridden key.
+        // Mesh batches do not consume the immediate material/surface uniforms.
+        SdvkDiagnostics::Emit("pipeline", Object().Raw("context", SdvkDiagnostics::CurrentContextJson())
+            .Str("producer", "levelmesh-indexed-range").Str("surface", surface == LevelMeshDrawSurface::Side ? "side" : "flat")
+            .Raw("key", Pipeline(state->mPipelineKey)).Bool("indexed", true).Int("first_index", firstIndex).Int("draw_count", count)
+            .Int("target_width", state->mRenderTarget.Width).Int("target_height", state->mRenderTarget.Height)
+            .Int("target_format", int(state->mRenderTarget.Format)).Int("target_samples", int(state->mRenderTarget.Samples))
+            .Int("draw_buffers", state->mRenderTarget.DrawBuffers).Bool("depth_stencil", state->mRenderTarget.DepthStencil != nullptr)
+            .Str("basis", "bound pipeline and submitted LevelMesh indexed range; no per-surface material/probe or executed-shader claim").Json(), true);
+    }
+
     static void Draw(VkRenderState* state, int count, bool indexed)
     {
         using namespace SdvkObservation;
@@ -233,6 +293,13 @@ struct FSdvkDiagnosticAccess
 
 namespace SdvkDiagnostics
 {
+void VulkanLevelMeshDraw(VkRenderState* state, int firstIndex, int count, LevelMeshDrawSurface surface)
+{
+    if (!StateEnabled()) return;
+    try { FSdvkDiagnosticAccess::LevelMeshDraw(state, firstIndex, count, surface); }
+    catch (const std::exception& error) { Fail(error.what()); }
+}
+
 void VulkanDraw(VkRenderState* state, int count, bool indexed)
 {
     if (!StateEnabled()) return;
@@ -302,7 +369,9 @@ void VulkanResources(VulkanRenderDevice* device)
             const auto& epochs = level.levelMesh->GetMutationEpochs();
             result.Raw("levelmesh", Object().Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
                 .Int("geometry", epochs.Geometry).Int("surface", epochs.Surface).Int("lights", epochs.Lights).Int("query", epochs.Query)
-                .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets).Json());
+                .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets).Json())
+                .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size(),
+                    device->GetFrameTileUpdates(), device->GetFrameTileCompletions()));
         }
         else result.Raw("levelmesh", Unavailable("no active level mesh"));
         result.Raw("sun", Object().Num("intensity", level.SunIntensity).Raw("direction", '[' + Number(level.SunDirection.X) + ',' + Number(level.SunDirection.Y) + ',' + Number(level.SunDirection.Z) + ']')

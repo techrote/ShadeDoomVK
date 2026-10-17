@@ -19,6 +19,10 @@ struct FDynLightData;
 struct FSWColormap;
 enum class LevelMeshDrawType;
 
+// The caller owns the side/flat list classification; a merged indexed range
+// is a submitted batch, not a count of unique map surfaces.
+enum class LevelMeshDrawSurface { Side, Flat };
+
 enum EClearTarget
 {
 	CT_Depth = 1,
@@ -864,7 +868,7 @@ public:
 
 	// Draw level mesh
 	virtual void ApplyLevelMesh() { }
-	virtual void DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& drawList, bool masked, bool noFragmentShader) {}
+	virtual void DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& drawList, LevelMeshDrawSurface surface, bool masked, bool noFragmentShader) {}
 	virtual void DispatchLightTiles(const VSMatrix& worldToView, float m5) { }
 	virtual int GetNextQueryIndex() { return 0; }
 	virtual void BeginQuery() { }

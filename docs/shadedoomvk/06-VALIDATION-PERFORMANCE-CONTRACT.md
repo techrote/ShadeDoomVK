@@ -313,3 +313,43 @@ without dereferencing caller-retained item storage, preserve valid geometry and
 current-surface tombstones, and pass normal exact-head CI/review/merge verification.
 No physical device, extra benchmark workflow or native multi-page acceptance claim
 follows from these tests. #14 remains NOT SOFTWARE-COMPLETE and Physical STOP ACTIVE.
+
+
+### SDVK-158 retained freshness / multi-page native qualification
+
+Retained LIGHTMAP acceptance requires two independent evidence classes.
+
+**Source/CPU freshness:** version-5 save/load symmetry, a non-circular authored
+map checksum, byte-exact digest comparison before retained tile mutation,
+structural admission after provenance, and deliberate digest-bypass/mismatch
+negatives. Existing post-copy completion, page-zero initialization and current
+page-to-vertex publication controls remain mandatory.
+
+**Hosted native lifecycle:** one normal software-Vulkan CI lane runs two
+independent processes. Each uses a fixed outcome-blind presented-view schedule
+for invalidate → same-map reload → invalidate. Passive state must show at least
+two current atlas pages; exact CPU/Vulkan page-count agreement; zero invalid
+live receipts; complete per-page tile accounting; accepted retained-v5 tiles;
+separately observed submitted and dirty→clean-completed lightmap work; complete
+`NeedsInitialBake`/`GeometryUpdate` convergence after reload; complete
+`NeedsInitialBake`/`GeometryUpdate`/`ReceivedNewLight` convergence after
+each forced invalidation; and a new Vulkan lightmap resource epoch after reload. The two runs require exact
+semantic-state and final-RGB repeatability.
+
+Input-driver markers prove only that preregistered commands were queued. They do
+not prove completion. Hosted timing is descriptive and no per-texel readback or
+physical-GPU performance acceptance follows from this gate.
+
+The minimum source checksum does not authenticate external texture/material
+resource bytes changed behind an unchanged authored binding; that limit must
+remain explicit in any SDVK-014 disposition.
+
+
+The first native SDVK-158 attempt in run `38991258032` is retained negative
+evidence. It reached the observer byte/record limit after 59/120 retained frames,
+so the preregistered state request is bounded to 48 retained frames thereafter.
+More importantly, it showed submitted invalidated tiles without completion:
+`InvalidateLightmap` set `NeedsInitialBake` while `SelectTiles` required
+`ReceivedNewLight`. Current acceptance therefore requires forced invalidation to
+publish both flags and requires a post-Raytrace dirty→clean completion counter;
+submitted-tile count alone cannot satisfy the native gate.

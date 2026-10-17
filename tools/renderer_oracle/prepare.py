@@ -28,7 +28,7 @@ CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
               "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
-              "probe_owner_transition", "probe_sampler_reset", "sprite_mirror", "sprite_relief"}
+              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -147,6 +147,9 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             raise ValueError(f"Unknown generator for {name}")
         if native.get("generator") == "probe_sampler_reset":
             from tools.renderer_oracle.sdvk153_probe_reset import validate_recipe
+            validate_recipe(scene)
+        if native.get("generator") == "lightmap_transition":
+            from tools.renderer_oracle.sdvk158_lightmap_transition import validate_recipe
             validate_recipe(scene)
         if native.get("generator") == "probe_owner_transition":
             transition = native.get("probe_owner_transition", {})
@@ -760,6 +763,71 @@ def _probe_owner_transition_members(scene: dict) -> tuple[dict[str, bytes], dict
     }
 
 
+def _sdvk158_lightmap_lump(textmap: bytes, *, width: int = 513, height: int = 513) -> tuple[bytes, str]:
+    """Version-5 retained floor/ceiling payload bound to the exact UDMF source."""
+    source_digest = hashlib.md5(textmap).digest()
+    area = width * height
+    header = struct.pack("<III16s", 5, 2, area * 2, source_digest)
+    # Exact SetupTileTransform production math for bounds [-1020,1020],
+    # sample distance 4 and horizontal floor/ceiling planes, including its
+    # +0.1 world-origin bias.
+    transform_floor = (-1023.9, -1023.9, -3.9, 0.25, 0.0, 0.0, 0.0, 0.25, 0.0)
+    transform_ceiling = (-1023.9, -1023.9, 156.1, 0.25, 0.0, 0.0, 0.0, 0.25, 0.0)
+    def entry(kind: int, pixels: int, transform: tuple[float, ...]) -> bytes:
+        return struct.pack("<IIIHHI9f", kind, 0, 0xffffffff, width, height, pixels * 3, *transform)
+    # ST_CEILING=4 and ST_FLOOR=5. Retained RGB is deliberately zero; wall
+    # tiles remain ordinarily dirty so hosted execution must still complete
+    # real lightmap work before the first stable phase.
+    raw = header + entry(4, 0, transform_ceiling) + entry(5, area, transform_floor)
+    raw += b"\0" * (area * 2 * 3 * 2)
+    return zlib.compress(raw, 9), source_digest.hex()
+
+
+def _lightmap_transition_members(scene: dict) -> tuple[dict[str, bytes], dict]:
+    native = scene["native"]
+    members = _base_members()
+    camera = native["camera"]["position"]
+    yaw = math.radians(native["camera"]["yaw"])
+    player_start = [camera[0] - round(48 * math.cos(yaw)),
+                    camera[1] - round(48 * math.sin(yaw))]
+    model = _Map(floor=0, ceiling=160, sky=False)
+    model.thing(1, player_start[0], player_start[1], tid=2001)
+    model.thing(32200, camera[0], camera[1], camera[2], tid=2002)
+    model.thing(9890, 0, 0, angle=0, pitch=0, lm_suncolor=16777215,
+                lm_sunintensity=0, lm_sampledist=4)
+    model.boundary([(-1020, -1020), (-1020, 1020), (1020, 1020), (1020, -1020)], ["SDVW"] * 4)
+    textmap = model.text().encode()
+    lightmap, source_digest = _sdvk158_lightmap_lump(textmap)
+    members[f"maps/{native['map']}.wad"] = pf_indexed.wad([
+        (native["map"], b""), ("TEXTMAP", textmap), ("LIGHTMAP", lightmap), ("ENDMAP", b"")
+    ])
+    members["MAPINFO"] = (
+        f'map {native["map"]} "SDVK retained multipage lightmap" {{ nointermission }}\n'
+        'DoomEdNums\n{\n 32200 = SDVKFixedCamera\n}\n'
+    ).encode()
+    return members, {
+        "geometry": "authored_udmf_single_large_room",
+        "textures": "generated_rgba_only",
+        "native_executed": False,
+        "camera_actor_tid": 2002,
+        "camera_position_world": camera,
+        "player_start_world": player_start,
+        "monsters": 0,
+        "animated_or_random_actors": 0,
+        "baked_lightmap_members": 1,
+        "counts": {kind: len(rows) for kind, rows in model.records.items()},
+        "boundary_signed_areas": list(model.polygon_areas),
+        "retained_lightmap": {
+            "version": 5, "source_digest_md5": source_digest,
+            "retained_bindings": ["ceiling:0", "floor:0"],
+            "retained_tile_extent": [513, 513],
+            "expected_minimum_atlas_pages": 2,
+            "freshness_scope": "MapData::GetChecksum authored map source; external resource bytes not content-addressed",
+        },
+        "transition_schedule": copy.deepcopy(native["lightmap_transition_schedule"]),
+    }
+
+
 def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     native = scene["native"]
     generator, map_name = native["generator"], native["map"]
@@ -771,6 +839,8 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     if generator == "probe_sampler_reset":
         from tools.renderer_oracle import sdvk153_probe_reset
         return sdvk153_probe_reset.authored_members(scene, sys.modules[__name__])
+    if generator == "lightmap_transition":
+        return _lightmap_transition_members(scene)
     members = _base_members()
     is_sun = generator in ("sun_probes", "sun_actor_occlusion")
     model = _Map(floor=32 if is_sun else 0,

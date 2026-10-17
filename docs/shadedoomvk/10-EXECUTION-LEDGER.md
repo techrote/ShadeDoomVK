@@ -1319,3 +1319,64 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Separate LIGHTMAP authored-content freshness, native repeated/multi-page and
   supported special-surface/material matrix remain. Physical STOP ACTIVE; physical
   cost/scaling/stability HELD / NOT ACCEPTED; historical cause UNDETERMINED.
+
+
+### 17 October 2026 — SDVK-158 retained freshness / multi-page implementation candidate
+
+- Reconciled accepted #156 / PR #157 and started #158 from
+  `master@d6b089d53bf53295604757f3924ce9ad3517ad3a`, tree
+  `8d3b6b928cb109abaaf24ce25858843d948a0216`.
+- Upgraded LIGHTMAP persistence to v5. Save writes `FLevelLocals::md5`;
+  load compares the retained digest before any retained transform/extents,
+  completion flags or RGB can mutate current tiles. Mismatch returns to the
+  ordinary dirty-tile bake path. Existing structural admission remains separate.
+- Reused `MapData::GetChecksum` as the minimum non-circular source authority:
+  TEXTMAP for UDMF or the stable authored binary map lumps plus BEHAVIOR;
+  LIGHTMAP/generated node data are excluded. External resource bytes behind
+  unchanged bindings remain an explicit freshness limitation.
+- Added passive lightmap lifecycle diagnostics: CPU/Vulkan page populations,
+  current valid/invalid tile receipts, dirty partitions, retained-load count,
+  completed per-frame tile updates and per-page live occupancy. Current page
+  publication to `vertex.lindex` remains source-pinned.
+- Added a retained-v5 SDV158 fixture with two 513×513 flat tiles forcing
+  multi-page allocation and ordinary dirty wall work. A fixed outcome-blind
+  presented-view driver performs invalidate → same-map reload → invalidate.
+  Two independent hosted processes must observe real update completion, clean
+  convergence, current page ownership and a fresh lightmap epoch after reload,
+  then repeat exact semantic state/RGB.
+- Registered the focused gate in the existing normal Avrea software-Vulkan job;
+  no extra runner or benchmark workflow is added. Exact-head source evidence,
+  full CI, native qualification, review/merge and exact-master verification are
+  still required at this checkpoint.
+- #14 remains OPEN / NOT SOFTWARE-COMPLETE. Special-surface/material lifecycle
+  coverage remains after this increment. Physical STOP ACTIVE; physical GPU
+  cost/scaling/stability HELD / NOT ACCEPTED; historical root cause UNDETERMINED.
+
+
+### 17 October 2026 — SDVK-158 first native transition failure and correction
+
+- Exact head `ea268351471fc5d352f48c47605e65827a6ee2c6` passed source
+  evidence, PF/oracle, all seven ordinary platform jobs, generic software Vulkan,
+  SDVK-010, SDVK-150 and SDVK-153. Only the newly introduced SDVK-158 transition
+  gate failed.
+- Run `38991258032`, job `117274393400`, artifact `12085488397` retained
+  transition-1. No stderr/device fault occurred. The observer stopped after
+  59/120 retained frames with `SDVK observation record/byte limit reached`
+  (13,036 records); two CPU/Vulkan pages, six current-valid live receipts, zero
+  invalid receipts and page occupancy [5,1] were still observed.
+- Before that cap, the first forced invalidation exposed a production
+  scheduling/admission mismatch: `NeedsInitialBake` stayed 6 while one tile was
+  submitted every frame. `InvalidateLightmap` did not set
+  `ReceivedNewLight`, but `VkLightmapper::SelectTiles` rejects tiles without
+  it. Submission therefore was not completion.
+- Repair: forced invalidation now sets both flags for every live tile. Vulkan
+  diagnostics separately count submitted tiles and actual dirty→clean
+  transitions after synchronous Raytrace/copy publication. CPU/source tests pin
+  the admission and post-Raytrace completion order.
+- Fixture correction: retain the existing 32-view warmup but request only 48
+  state frames, with fixed input boundaries 40/56/72. This preserves
+  invalidate→reload→invalidate and leaves enough frames for six one-at-a-time
+  tile completions while staying below the demonstrated observer cap.
+- This is a source/correctness correction, not a performance workaround. No
+  duplicate native run, quality reduction or physical-GPU claim is introduced.
+  Fresh exact-head CI remains required. #14 remains open; Physical STOP active.

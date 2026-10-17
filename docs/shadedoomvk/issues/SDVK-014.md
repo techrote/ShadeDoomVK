@@ -170,3 +170,50 @@ The old atlas-receipt ABA representation gap, bake-content digest limitation,
 multi-page/repeated native lightmap transitions and special-surface/material
 matrix remain outstanding. #14 NOT SOFTWARE-COMPLETE; Physical STOP ACTIVE;
 physical performance HELD; historical physical root cause UNDETERMINED.
+
+
+## SDVK-158 retained freshness + repeated multi-page transition candidate
+
+The next bounded continuation is tracked by #158 / PR #159. Retained LIGHTMAP
+persistence is upgraded to version 5 and binds saved RGB to the existing
+non-circular `MapData::GetChecksum` source identity. UDMF `TEXTMAP` (or the
+binary map header/THINGS/LINEDEFS/SIDEDEFS/SECTORS set) and BEHAVIOR participate;
+LIGHTMAP and generated node data do not.
+
+A mismatched retained source digest now fails before any current tile
+transform/extents/completion flags or retained pixels are applied. This preserves
+the ordinary dirty-tile bake path instead of accepting plausible stale RGB.
+Structural retained-entry admission remains an independent second gate.
+
+The same increment adds an outcome-blind hosted software-Vulkan fixture with a
+version-5 retained map whose two 513×513 flat tiles require at least two 1024²
+atlas pages. Fixed presented-view inputs perform invalidate → same-map reload →
+invalidate. Passive records require current CPU/Vulkan page-count agreement,
+valid live page receipts, per-page occupancy, accepted retained provenance, real
+completed tile updates, clean dirty-state convergence and a fresh Vulkan
+lightmap resource epoch after reload. Two independent runs must repeat exact
+semantic state and final RGB.
+
+The minimum v5 freshness contract authenticates authored map source and engine
+format/interpretation version. It does **not** content-address replacement bytes
+of external textures/material resources when the authored map binding is
+unchanged. That broader resource-content problem is not being silently claimed
+as solved.
+
+Exact-head CI/review/merge remain required before this candidate is accepted.
+After this increment, the principal remaining SDVK-014 software campaign item is
+the supported special-surface/material lifecycle matrix and its negative
+controls. Physical GPU bake/update cost, scaling and stability remain HELD /
+NOT ACCEPTED under active Physical STOP; historical physical root cause remains
+UNDETERMINED.
+
+
+The first SDVK-158 hosted transition attempt also demonstrated that
+`invalidatelightmap` must publish both background scheduling
+(`NeedsInitialBake`) and lightmapper admission (`ReceivedNewLight`). The
+retained failed run submitted one invalidated tile per frame without clearing
+dirty state until the observer record cap stopped the oversized capture.
+The candidate now fixes that production invariant and separately observes
+submitted versus dirty→clean-completed tile work. The state fixture is bounded to
+48 retained frames at fixed 40/56/72 main-view inputs; exact-head CI remains the
+acceptance authority.

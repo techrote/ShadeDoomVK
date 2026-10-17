@@ -218,7 +218,17 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertIsInstance(areas, list, "Missing boundary metadata: " + map_name)
             self.assertTrue(areas, "Empty boundary metadata: " + map_name)
             lumps = unpack_wad(members[f"maps/{map_name}.wad"])
-            self.assertEqual(set(lumps), {map_name, "TEXTMAP", "ENDMAP"})
+            expected_lumps = {map_name, "TEXTMAP", "ENDMAP"}
+            if scene["native"]["generator"] == "lightmap_transition":
+                expected_lumps.add("LIGHTMAP")
+            self.assertEqual(set(lumps), expected_lumps)
+            if "LIGHTMAP" in expected_lumps:
+                retained = zlib.decompress(lumps["LIGHTMAP"])
+                version, tile_count, pixel_count, source_digest = struct.unpack_from("<III16s", retained)
+                self.assertEqual(version, 5)
+                self.assertEqual(tile_count, 2)
+                self.assertEqual(pixel_count, 513 * 513 * 2)
+                self.assertEqual(source_digest, hashlib.md5(lumps["TEXTMAP"]).digest())
             records = parse_udmf(lumps["TEXTMAP"])
             for line in records["linedef"]:
                 self.assertLess(line["v1"], len(records["vertex"]))

@@ -23,6 +23,7 @@ def main():
                        line.split("=", 1)[1] for line in cache.splitlines())
     runtime = build / args.config if multi_config else build
     system = platform.system()
+    version_timeout = 60 if system == "Windows" else 20
     if system == "Windows":
         executables = [runtime / "vkdoom.exe", runtime / "vktool.exe"]
     elif system == "Darwin":
@@ -39,7 +40,7 @@ def main():
     with tempfile.TemporaryDirectory() as directory:
         for executable in executables:
             result = subprocess.run([str(executable), "--version"], cwd=directory,
-                                    env=environment, capture_output=True, text=True, timeout=20)
+                                    env=environment, capture_output=True, text=True, timeout=version_timeout)
             if result.returncode:
                 raise SystemExit(f"{executable} failed ({result.returncode}): {result.stderr}")
             lines = result.stdout.splitlines()

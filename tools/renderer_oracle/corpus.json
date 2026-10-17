@@ -444,6 +444,23 @@
       "native_rendering_proof": false,
       "retained_fixture": "tools/pf_oracle/tests/fixtures/sdvk153-pre-fix.json",
       "test_path": "tools/pf_oracle/tests/test_sdvk153_descriptor_lifetime.py"
+    },
+    "sdvk158-lightmap-lifecycle": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk014_retained_lifecycle.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sdvk014_retained_lifecycle.py",
+      "retained_fixture": "tools/pf_oracle/tests/fixtures/sdvk014_lightmap_pre_fix.json"
     }
   },
   "cvar_sources": {
@@ -17610,6 +17627,282 @@
         "wadsrc/static/zscript/events.zs"
       ],
       "title": "Probe pair stability: live filtering and anisotropy reset"
+    },
+    {
+      "classes": [
+        "resource_stress"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact repeated retained-load/invalidate/reload lifecycle state and final RGB",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk014_retained_lifecycle.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "sdvk158-lightmap-lifecycle"
+      ],
+      "id": "lightmap-retained-transition",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "158",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV158",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": 2002,
+          "camera_height": 0,
+          "pitch": 0,
+          "policy": "authored SDVKFixedCamera in retained multi-page room; no animation",
+          "position": [
+            -800,
+            0,
+            80
+          ],
+          "roll": 0,
+          "yaw": 0
+        },
+        "capture_script": "scenes/lightmap-retained-transition/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "ordinary_engine_clock_with_fixed_presented-view_input_schedule",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/lightmap-retained-transition/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites false",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480",
+          "lm_max_updates 1",
+          "lm_background_updates 1"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_multisample",
+          "gl_shadowmap_quality",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {},
+        "generator": "lightmap_transition",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "all referenced fixture textures are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "lightmap_transition_schedule": [
+          {
+            "after_main_views": 40,
+            "phase": "invalidate-1",
+            "command": "invalidatelightmap"
+          },
+          {
+            "after_main_views": 56,
+            "phase": "reload",
+            "command": "map SDV158"
+          },
+          {
+            "after_main_views": 72,
+            "phase": "invalidate-2",
+            "command": "invalidatelightmap"
+          }
+        ],
+        "manual_opt_in": true,
+        "map": "SDV158",
+        "map_guard": {
+          "field": "observed map name",
+          "equals": "SDV158"
+        },
+        "pending_coverage": [
+          "The v5 minimum freshness authority is MapData::GetChecksum over authored map source; external texture/resource byte replacement under unchanged bindings is explicitly not content-addressed here.",
+          "Hosted software Vulkan proves lifecycle/page correctness only; it does not qualify physical GPU bake cost, scaling or stability.",
+          "The separate supported special-surface/material lifecycle matrix remains under SDVK-014."
+        ],
+        "pk3": "scenes/lightmap-retained-transition/scene.pk3",
+        "recommended_warmup_frames": 32,
+        "required_native_evidence": [
+          "Every retained main view submits nonempty indexed LevelMesh side and flat ranges with the actual bound pipeline; legacy immediate wall/flat processing counters are not a mesh submission witness.",
+          "Version-5 retained floor and ceiling entries report accepted retained provenance on initial load and same-map reload.",
+          "At least two live CPU atlas pages exist in every retained frame and match the current Vulkan lightmap page population.",
+          "Every live tile has a valid current-page receipt and per-page occupancy accounts for every valid live tile.",
+          "Bounded invalidate -> reload -> invalidate phases each perform real completed tile work and converge NeedsInitialBake/GeometryUpdate/ReceivedNewLight to clean.",
+          "Same-map reload changes the Vulkan lightmap resource epoch while current-page ownership remains valid.",
+          "Two independent clean-state runs repeat exact semantic state and final RGB."
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 158,
+        "settings": {
+          "cl_capfps": true,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": true,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": false,
+          "gl_lightprobe": false,
+          "gl_lights": false,
+          "gl_multisample": 0,
+          "gl_spritelight": 0,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": false,
+          "r_drawplayersprites": false,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false,
+          "gl_shadowmap_quality": 128
+        },
+        "state_assertions": {},
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/pf_oracle/tests/fixtures/sdvk014_lightmap_pre_fix.json",
+        "tools/pf_oracle/tests/test_sdvk014_retained_lifecycle.py",
+        "tools/renderer_oracle/tests/test_sdvk158_lightmap_transition.py",
+        "tools/renderer_oracle/tests/test_sdvk_levelmesh_draw.py",
+        "tools/renderer_oracle/tests/test_sdvk158_repeatability.py",
+        "tools/renderer_oracle/tests/test_sdvk158_attempts.py"
+      ],
+      "required_state_channels": [
+        "context",
+        "resource",
+        "pipeline"
+      ],
+      "source_refs": [
+        "src/version.h",
+        "src/p_openmap.cpp",
+        "src/maploader/maploader.cpp",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+        "src/common/rendering/vulkan/textures/vk_texture.cpp",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "src/rendering/hwrenderer/doom_levelmesh.cpp",
+        "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
+        "tools/pf_oracle/tests/test_sdvk014_retained_lifecycle.py",
+        "tools/renderer_oracle/sdvk158_lightmap_transition.py",
+        "tools/renderer_oracle/tests/test_sdvk158_lightmap_transition.py",
+        "tools/renderer_oracle/prepare.py",
+        "tools/renderer_oracle/run.py",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/vk_renderstate.h",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawinfo.cpp",
+        "tools/renderer_oracle/validate.py",
+        "tools/renderer_oracle/tests/sdvk_levelmesh_draw_fixture.cpp"
+      ],
+      "title": "Retained v5 lightmap freshness with repeated multi-page invalidation/reload"
     }
   ],
   "schema": "sdvk-renderer-corpus/v1",

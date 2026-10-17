@@ -46,6 +46,8 @@ def build(directory: Path,original: bool=False) -> Path:
     save=save.split('\tFString fullpath = GetMapFilename(doomMap);')[0]
     save=save.replace('void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)',
                       'void DoomLevelMesh::SavePrefix()')
+    if not original:
+        save=save.replace('{\n\t/*', '{\n\tFLevelLocals doomMap{};\n\t/*', 1)
     save+='saved.assign(lumpFile.Bytes().begin(),lumpFile.Bytes().end());\n}'
     frame='void VulkanRenderDevice::PublishMesh() {\n'+block(source('frame'),'if (levelMeshChanged)')+'\n}'
     methods='\n'.join(source(k) for k in ('alloc','free','stats','release','invalidate','update'))

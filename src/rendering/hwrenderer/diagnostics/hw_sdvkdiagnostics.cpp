@@ -56,6 +56,9 @@ struct Observer
     // ordinary console CVAR commands after fixed main-view ordinals; it is not
     // part of the passive observation state and reads no renderer result.
     bool SamplerResetInput = false;
+    // SDVK-158 fixture input is also outcome-blind: fixed main-view ordinals
+    // queue ordinary console invalidate/reload commands and never inspect state.
+    bool LightmapTransitionInput = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -101,6 +104,31 @@ void DriveSamplerResetInput(const Observer& observer)
         AddCommandString(command.c_str());
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK153_SETTING %s=%s after_main_views=%u\n",
             phase.CVar, phase.Value, phase.AfterMainViews);
+    }
+}
+
+struct LightmapTransitionPhase
+{
+    unsigned AfterMainViews;
+    const char* Name;
+    const char* Command;
+};
+
+constexpr LightmapTransitionPhase LightmapTransitionPhases[] = {
+    {40, "invalidate-1", "invalidatelightmap"},
+    {56, "reload", "map SDV158"},
+    {72, "invalidate-2", "invalidatelightmap"},
+};
+
+void DriveLightmapTransitionInput(const Observer& observer)
+{
+    if (!observer.LightmapTransitionInput) return;
+    for (const auto& phase : LightmapTransitionPhases)
+    {
+        if (observer.Seen != phase.AfterMainViews) continue;
+        AddCommandString(phase.Command);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK158_LIGHTMAP_INPUT phase=%s after_main_views=%u\n",
+            phase.Name, phase.AfterMainViews);
     }
 }
 
@@ -183,10 +211,15 @@ void Initialize()
         observer.Quit = Args->CheckParm("-sdvkobservequit") != 0;
         observer.ProbeBuilderTrace = Args->CheckParm("-sdvkprobeownertrace") != 0;
         observer.SamplerResetInput = Args->CheckParm("-sdvk153samplerresetdriver") != 0;
+        observer.LightmapTransitionInput = Args->CheckParm("-sdvk158lightmapdriver") != 0;
         Require(!observer.ProbeBuilderTrace || observer.StateMode,
             "Probe-owner lifecycle trace is state-only");
         Require(!observer.SamplerResetInput || observer.StateMode,
             "SDVK-153 sampler-reset input driver is state-only");
+        Require(!observer.LightmapTransitionInput || observer.StateMode,
+            "SDVK-158 lightmap transition input driver is state-only");
+        Require(!(observer.SamplerResetInput && observer.LightmapTransitionInput),
+            "Only one SDVK outcome-blind input driver may be active");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
             .Str("identity", GetBuildIdentity()).Str("backend", screen->IsVulkan() ? "vulkan" : "other")
@@ -287,7 +320,7 @@ void Dump(bool complete)
             .Str("scope", "existing named Vulkan timestamp groups resolved after the graphics fence; groups may nest and are not total GPU frame time")
             .Raw("unavailable_batches", reasons).Json())
             .Raw("cpu_timing", Object().Bool("available", observer.Collected > 0).Str("scope", "steady-clock elapsed RenderView including its canvas, probe and scene work; excludes later presentation/finish and observer end serialization").Json())
-            .Raw("state", observer.StateMode && V_IsHardwareRenderer() ? Object().Bool("available", true).Str("scope", "observed immediate scene draws and actor per-pixel/CPU-aggregate light decisions; LevelMesh per-surface state remains unavailable").Json() : Unavailable(observer.StateMode ? "software scene state is covered by retained PF fixtures, not this hardware observer" : "timing mode does not collect per-draw state"))
+            .Raw("state", observer.StateMode && V_IsHardwareRenderer() ? Object().Bool("available", true).Str("scope", "observed immediate scene draws, LevelMesh indexed-range pipelines and actor per-pixel/CPU-aggregate light decisions; LevelMesh per-surface material/probe state remains unavailable").Json() : Unavailable(observer.StateMode ? "software scene state is covered by retained PF fixtures, not this hardware observer" : "timing mode does not collect per-draw state"))
             .Raw("gpu_total_frame", Unavailable("named timestamp groups are not an independently measured whole-frame duration"));
         const std::string rows = observer.Records.CloseJson();
         const bool pass = complete && observer.Records.Failure().empty() && observer.Records.DroppedCount() == 0;
@@ -594,6 +627,11 @@ void EndFrame()
         if (screen->IsVulkan()) VulkanResources(static_cast<VulkanRenderDevice*>(screen));
     }
     catch (const std::exception& error) { Fail(error.what()); }
+    // Per-draw state belongs to RenderView, including its final owner snapshot.
+    // Later HUD/wipe draws must not consume this frame's bounded record store.
+    // Keep Frame, EnabledFlag and GpuFlag alive for fence-resolved timestamps,
+    // cross-frame lifecycle callbacks and the ordinary presentation hook.
+    StateFlag.store(false, std::memory_order_relaxed);
 }
 
 void FramePresented()
@@ -607,6 +645,7 @@ void FramePresented()
         // command runs through the ordinary console CVAR path before a later
         // view; retained frame state independently verifies its real effect.
         DriveSamplerResetInput(observer);
+        DriveLightmapTransitionInput(observer);
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;

@@ -56,7 +56,7 @@ public:
     LevelMeshTileStats GatherTilePixelStats();
     void MarkMutation(LevelMeshMutationDomain) { ++mutations; }
 };
-struct FLevelLocals {};
+struct FLevelLocals { uint8_t md5[16] = {}; };
 class DoomLevelMesh: public LevelMesh {
 public:
     struct Info { int NextSurface=-1; };
@@ -66,7 +66,7 @@ public:
     void SavePrefix();
 };
 struct { DoomLevelMesh* levelMesh=nullptr; } level;
-static constexpr int LIGHTMAPVER=4;
+static constexpr int LIGHTMAPVER=5;
 struct Screen {
     int downloads=0;
     std::vector<int> baked;
@@ -153,11 +153,12 @@ static void run(const std::string& mode) {
         require(s.tiles.total==2 && s.tiles.dirty==2 && s.pixels.total==48 && s.pixels.dirty==48,"retired-statistics");
     } else if(mode=="save-bindings") {
         setupGhost(m);m.SavePrefix();
-        require(u32(m.saved,0)==4 && u32(m.saved,4)==2 && u32(m.saved,8)==48,"ghost-binding-serialized");
-        require(u32(m.saved,16)==100 && u32(m.saved,72)==400,"wrong-semantic-owner");
-        require(u32(m.saved,28)==0 && u32(m.saved,84)==48,"wrong-rgb-offset");
-        // Header 12 + 2*56 entries; row-major RGB uses A at x0 and D at x4.
-        size_t at=124;
+        require(u32(m.saved,0)==5 && u32(m.saved,4)==2 && u32(m.saved,8)==48,"ghost-binding-serialized");
+        for(size_t i=12;i<28;++i) require(m.saved[i]==0,"wrong-source-digest");
+        require(u32(m.saved,32)==100 && u32(m.saved,88)==400,"wrong-semantic-owner");
+        require(u32(m.saved,44)==0 && u32(m.saved,100)==48,"wrong-rgb-offset");
+        // Header 28 (including source digest) + 2*56 entries; row-major RGB uses A at x0 and D at x4.
+        size_t at=140;
         for(int which=0;which<2;++which) for(int y=0;y<4;++y) for(int x=0;x<(which?8:4);++x) {
             require(u16(m.saved,at)==1000 && u16(m.saved,at+2)==2000+x+(which?4:0) &&
                     u16(m.saved,at+4)==3000+y,"wrong-owner-pixels");at+=6;

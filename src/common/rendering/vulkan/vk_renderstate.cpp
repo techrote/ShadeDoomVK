@@ -1117,7 +1117,7 @@ void VkRenderState::DispatchLightTiles(const VSMatrix& worldToView, float m5)
 	fb->GetCommands()->PopGroup(cmdbuffer);
 }
 
-void VkRenderState::DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& drawList, bool masked, bool noFragmentShader)
+void VkRenderState::DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& drawList, LevelMeshDrawSurface surface, bool masked, bool noFragmentShader)
 {
 	int pipelineID = 0;
 	for (const TArray<MeshBufferRange>& ranges : drawList)
@@ -1129,6 +1129,8 @@ void VkRenderState::DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& dra
 			for (const MeshBufferRange& range : ranges)
 			{
 				mCommandBuffer->drawIndexed(range.Count(), 1, range.Start, 0, 0);
+				if (range.Count() > 0 && SdvkDiagnostics::StateEnabled())
+					SdvkDiagnostics::VulkanLevelMeshDraw(this, range.Start, range.Count(), surface);
 			}
 		}
 		pipelineID++;

@@ -328,3 +328,24 @@ surface-pointer generation scheme or authored-content digest. See
 [SDVK-156](../SDVK-156-ATLAS-INCARNATION.md) and its exact CPU receipt for the full
 producer/consumer map, historical negatives and pending publication gates. #14 is
 not software-complete; Physical STOP ACTIVE, physical performance HELD.
+
+
+## SDVK-158: persisted bake provenance is not an atlas receipt
+
+The accepted #156 atlas receipt establishes current runtime owner/slot/allocation
+identity. Those receipts are intentionally not serialized. SDVK-158 adds a
+separate persistent identity for retained lightmap **content**: LIGHTMAP v5 stores
+the current level's authored-map checksum and validates it before retained state
+can mutate the current tile population.
+
+This prevents an old structurally valid tile/pixel payload from becoming current
+merely because the same semantic binding and atlas geometry still exist. A
+source mismatch fails closed to ordinary rebake. Version 5 also provides an
+engine-side contract boundary: older payloads cannot be mistaken for a
+source-authenticated bake.
+
+Do not conflate this with a whole-resource content digest. The map checksum pins
+authored geometry, things/lights, sector/side bindings and behavior source, but
+does not hash arbitrary external texture/material bytes behind unchanged map
+names. Runtime descriptor/probe generations, atlas allocation incarnations and
+persisted bake provenance remain distinct identity domains.

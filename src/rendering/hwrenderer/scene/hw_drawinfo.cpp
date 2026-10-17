@@ -856,22 +856,22 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 	// To do: replace this with classic light lists
 	/*
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], false, true);
-	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], false, true);
+	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], LevelMeshDrawSurface::Side, false, true);
+	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], LevelMeshDrawSurface::Flat, false, true);
 	if (uselevelmesh)
 		state.DispatchLightTiles(VPUniforms.mViewMatrix, VPUniforms.mProjectionMatrix.get()[5]);
 	*/
 
 	RenderWall.Clock();
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], false, false);
+	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], LevelMeshDrawSurface::Side, false, false);
 	RenderWall.Unclock();
 
 	drawlists[GLDL_PLAINWALLS].DrawWalls(this, state, false);
 
 	RenderFlat.Clock();
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], false, false);
+	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Opaque)], LevelMeshDrawSurface::Flat, false, false);
 	RenderFlat.Unclock();
 
 	drawlists[GLDL_PLAINFLATS].DrawFlats(this, state, false);
@@ -881,14 +881,14 @@ void HWDrawInfo::RenderScene(FRenderState &state)
 
 	RenderWall.Clock();
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Masked)], true, false);
+	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Masked)], LevelMeshDrawSurface::Side, true, false);
 	RenderWall.Unclock();
 
 	drawlists[GLDL_MASKEDWALLS].DrawWalls(this, state, false);
 
 	RenderFlat.Clock();
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Masked)], true, false);
+	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Masked)], LevelMeshDrawSurface::Flat, true, false);
 	RenderFlat.Unclock();
 
 	drawlists[GLDL_MASKEDFLATS].DrawFlats(this, state, false);
@@ -1026,18 +1026,18 @@ void HWDrawInfo::RenderTranslucent(FRenderState &state)
 	state.EnableBrightmap(true);
 	drawlists[GLDL_TRANSLUCENTBORDER].Draw(this, state, true);
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::TranslucentBorder)], false, false);
-	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::TranslucentBorder)], false, false);
+	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::TranslucentBorder)], LevelMeshDrawSurface::Side, false, false);
+	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::TranslucentBorder)], LevelMeshDrawSurface::Flat, false, false);
 	state.SetDepthMask(false);
 
 	// To do: this needs to be sorted
 	RenderWall.Clock();
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Translucent)], false, false);
+	state.DrawLevelMeshList(SeenSidesDrawLists.List[static_cast<int>(LevelMeshDrawType::Translucent)], LevelMeshDrawSurface::Side, false, false);
 	RenderWall.Unclock();
 	RenderFlat.Clock();
 	state.ApplyLevelMesh();
-	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Translucent)], false, false);
+	state.DrawLevelMeshList(SeenFlatsDrawLists.List[static_cast<int>(LevelMeshDrawType::Translucent)], LevelMeshDrawSurface::Flat, false, false);
 	RenderFlat.Unclock();
 
 	drawlists[GLDL_TRANSLUCENT].DrawSorted(this, state);
