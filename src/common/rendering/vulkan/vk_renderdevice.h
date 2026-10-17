@@ -53,6 +53,7 @@ public:
 	VkRenderState *GetRenderState() { return mRenderState.get(); }
 	VkPostprocess *GetPostprocess() { return mPostprocess.get(); }
 	VkRenderBuffers *GetBuffers() { return mActiveRenderBuffers; }
+	int GetFrameTileUpdates() const { return FrameTileUpdates; }
 	FRenderState* RenderState() override;
 
 	bool IsRayQueryEnabled() const override { return mUseRayQuery; }
