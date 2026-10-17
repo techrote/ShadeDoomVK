@@ -100,7 +100,12 @@ static int InvalidateLightmap()
 			continue;
 		if (!tile.NeedsInitialBake)
 			++count;
+		// SelectTiles gates actual bake work on ReceivedNewLight. A forced
+		// invalidation must therefore set both the scheduling state and the
+		// lightmapper-admission state, otherwise a previously clean retained
+		// tile can remain permanently stale while being requested every frame.
 		tile.NeedsInitialBake = true;
+		tile.ReceivedNewLight = true;
 	}
 
 	return count;
