@@ -3296,6 +3296,7 @@ bool MapLoader::LoadLightmap(MapData* map)
 			Printf(PRINT_HIGH, "Pre-calculated LIGHTMAP surfaces do not match current level surfaces.\nPerhaps you forget to rebuild lightmaps after modifying the map?\n");
 	}
 
+	Level->levelMesh->Lightmap.RetainedTilesLoaded = static_cast<int>(foundBindings.Size());
 	return true;
 }
 
