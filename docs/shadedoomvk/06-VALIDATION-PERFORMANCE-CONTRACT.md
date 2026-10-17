@@ -281,8 +281,8 @@ native run is justified. Audit evidence does not waive software or physical gate
 
 ### SDVK-153 live material reset qualification boundary
 
-The prospective `sdvk153_probe_reset` gate uses the existing Avrea 16-vCPU
-software-Vulkan lane once per normal source-changing CI. Fixed input-driver
+The prospective `sdvk153_probe_reset` gate uses the existing GitHub-hosted
+Ubuntu 24.04 software-Vulkan lane once per normal source-changing CI. Fixed input-driver
 render counts request live filter/anisotropy changes independently of diagnostic
 results. Required raw within-process pair base/generation/epoch/span and content
 epoch are not normalized between resets; selected material sampler changes must
