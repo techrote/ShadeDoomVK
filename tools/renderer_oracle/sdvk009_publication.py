@@ -1049,9 +1049,9 @@ def qualify(args):
               "root_cause": "UNDETERMINED", "automatic_retries": 0,
               "plan": [{"name": name, "scene": scene, "publication_witness": witness,
                         "extent": [640, 480], "warmup_frames": 120, "frames": 1,
-                        "timeout_seconds": 1200, "mode": "state", "gpu_timestamps": False}
+                        "timeout_seconds": 1800, "mode": "state", "gpu_timestamps": False}
                        for name, scene, witness in PLAN],
-              "budget_scope": "GitHub-hosted software-only 1200s/process execution ceiling; unchanged workload/coverage; not the held physical 180s protocol",
+              "budget_scope": "GitHub-hosted software-only 1800s/process execution ceiling; unchanged workload/coverage; not the held physical 180s protocol",
               "evidence_scope": "Matching authored inputs and software publication; not failed physical runtime reconstruction"}
     steps = result["steps"]
     try:
@@ -1073,7 +1073,7 @@ def qualify(args):
         for name, scene, instrumented in PLAN:
             capture_args = argparse.Namespace(exe=args.exe, iwad=args.iwad, prepared=prepared,
                 out=out / "captures" / name, scene=scene, mode="state", frames=1, warmup=120,
-                timeout=1200, gpu=False, include_stress=True, image_policy="exact",
+                timeout=1800, gpu=False, include_stress=True, image_policy="exact",
                 collision_snapshot=instrumented, publication_witness=instrumented,
                 expected_commit=args.expected_commit, require_clean=True)
             steps.append(native_ci.attempt(out, name, lambda a=capture_args: run.capture(a), ("COLLECTED",)))

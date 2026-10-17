@@ -141,17 +141,21 @@ not establish byte equality.
 
 Every process uses 640x480, 120 warmup frames, one retained state/RGB frame and
 the unchanged authored settings. There are no timing samples or automatic
-retries. The GitHub-hosted software-only process execution ceiling is 1200 seconds.
+retries. The GitHub-hosted software-only process execution ceiling is 1800 seconds.
 The workload remains exactly 120 warmup frames plus one retained state/RGB frame,
-with no automatic retries. The ceiling is intentionally larger than the former
-600-second Avrea-oriented ceiling because the standard public GitHub Linux runner
-has four vCPUs; this is a runner-throughput accommodation, not a correctness or
-performance acceptance threshold, and it does not replace or qualify the held
-physical diagnostic's 180-second limit. A failed stage stops dependent stages
-and preserves the incomplete receipt. Workload, coverage, state/image thresholds
-and retry policy must not be relaxed after failure to obtain a pass; any future
-execution-ceiling change requires an explicit runner-policy decision and retained
-failure evidence.
+with no automatic retries. The ceiling is a runner-throughput accommodation, not
+a correctness or performance acceptance threshold, and it does not replace or
+qualify the held physical diagnostic's 180-second limit. The former 600-second
+Avrea-oriented ceiling and the first GitHub-hosted 1200-second ceiling are both
+retained as failed host-duration evidence. On the last accepted 16-vCPU run the
+three shadow publication captures completed in about 270-279 seconds each; on the
+standard four-vCPU GitHub host, shadow-control exceeded 1200 seconds without a
+renderer/device fault. That retained evidence authorizes the 1800-second ceiling
+while preserving the exact workload, oracle and zero-retry policy. A failed stage
+stops dependent stages and preserves the incomplete receipt. Workload, coverage,
+state/image thresholds and retry policy must not be relaxed after failure to
+obtain a pass; any future execution-ceiling change requires another explicit
+runner-policy decision and retained failure evidence.
 
 Both witnesses must match the shadow control through the existing exact RGB
 and normalized semantic-state oracle, preserving its decisions and capacities.
