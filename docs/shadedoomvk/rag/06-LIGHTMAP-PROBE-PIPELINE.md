@@ -301,3 +301,33 @@ saved; structural load admission still does not prove authored bake freshness.
 [SDVK-156](../SDVK-156-ATLAS-INCARNATION.md) records bounded CPU proof and normal-CI
 gates, not per-texel GPU readback or the full native multi-page/special-surface
 campaign. #14 remains unaccepted; physical requirements remain held.
+
+
+## SDVK-158 retained bake source identity and multi-page lifecycle
+
+Runtime atlas allocation identity (#156) and persisted bake provenance are
+different contracts. A current `RectPackerAllocation` proves that a tile still
+owns its runtime region; it says nothing about whether retained RGB was baked
+from the current authored level.
+
+SDVK-158 therefore versions the retained LIGHTMAP format to v5 and persists the
+same authored-map checksum already established by `MapData::GetChecksum`.
+Loader admission compares that digest with `FLevelLocals::md5` before applying
+retained transforms, dimensions, completion flags or pixels. Failure leaves
+current tiles on their ordinary initial-bake path. Existing range, binding,
+finite-transform and duplicate-entry checks remain independently mandatory.
+
+The hosted lifecycle witness keeps CPU atlas page count, Vulkan page count, live
+and valid tile counts, dirty partitions, completed tile updates and per-page
+occupancy separate. Current vertex sampling publication remains tied to
+`tile.AtlasLocation.ArrayIndex` and its vertex upload. The SDVK-158 fixture
+requires more than one current page across invalidate/reload cycles and a new
+lightmap resource epoch after same-map reload, with no stale current-page
+receipt.
+
+The v5 source checksum is intentionally a **minimum** freshness authority:
+authored map geometry/thing/light inputs, material bindings and BEHAVIOR source
+are covered through the map checksum; external texture/material file bytes
+changed behind the same binding are not content-addressed by this contract.
+Hosted llvmpipe evidence is correctness/lifecycle evidence only, not physical
+GPU bake/update performance.
