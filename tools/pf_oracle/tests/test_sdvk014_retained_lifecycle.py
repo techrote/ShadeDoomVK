@@ -159,10 +159,80 @@ class RetainedLifecycleTests(unittest.TestCase):
         cls.copy = current("copy_result")
         cls.pages = current("set_lightmap_count")
         cls.create = current("create_lightmap")
+        cls.freshness = current("lightmap_source_current")
         cls.helper = current("lightmap_span")
+        cls.save = current("save")
 
     def test_current_contract_has_no_known_lifecycle_error(self) -> None:
         self.assertEqual(contract_errors(self.load, self.select, self.copy, self.pages), [])
+
+
+    def test_retained_source_digest_is_admitted_before_any_tile_mutation(self) -> None:
+        read = "fr.Read(sourceDigest, sizeof(sourceDigest));"
+        gate = "if (!IsRetainedLightmapSourceCurrent(sourceDigest, Level->md5))"
+        mutation = "tile->AtlasLocation.Width = entry->width;"
+        self.assertIn(read, self.load)
+        self.assertIn(gate, self.load)
+        self.assertIn("return false;", self.load[self.load.index(gate):self.load.index("if (developer >= 5)")])
+        self.assertLess(self.load.index(read), self.load.index(gate))
+        self.assertLess(self.load.index(gate), self.load.index(mutation))
+        self.assertIn("lumpFile.Write(doomMap.md5, 16);", self.save)
+        self.assertIn("sizeof(int) + 2 * sizeof(uint32_t) + 16", self.save)
+        version = (ROOT / "src/version.h").read_text()
+        self.assertIn("#define LIGHTMAPVER 5", version)
+
+    def test_retained_source_digest_helper_accepts_only_exact_identity(self) -> None:
+        source = """#include <cstdint>
+#include <cstring>
+#include <iostream>
+""" + self.freshness + r"""
+int main(int argc, char** argv)
+{
+    uint8_t current[16] = {};
+    uint8_t retained[16] = {};
+    if (argc != 2) return 2;
+    if (std::string(argv[1]) == "equal") {}
+    else if (std::string(argv[1]) == "first") retained[0] = 1;
+    else if (std::string(argv[1]) == "last") retained[15] = 1;
+    else return 3;
+    const bool got = IsRetainedLightmapSourceCurrent(retained, current);
+    const bool expected = std::string(argv[1]) == "equal";
+    if (got != expected) return 11;
+    std::cout << "PASS " << argv[1] << "\n";
+    return 0;
+}
+"""
+        with tempfile.TemporaryDirectory(prefix="sdvk158-freshness-") as temp:
+            path = Path(temp) / "freshness.cpp"
+            path.write_text(source)
+            exe = compile_fixture(path, output_dir=Path(temp), name="freshness")
+            for case in ("equal", "first", "last"):
+                with self.subTest(case=case):
+                    p = subprocess.run([str(exe), case], text=True, capture_output=True, timeout=10)
+                    self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+                    self.assertIn("PASS " + case, p.stdout)
+
+    def test_digest_bypass_mutation_is_rejected(self) -> None:
+        needle = "std::memcmp(retainedDigest, currentDigest, 16) == 0"
+        self.assertEqual(self.freshness.count(needle), 1)
+        mutant = self.freshness.replace(needle, "true")
+        source = """#include <cstdint>
+#include <cstring>
+""" + mutant + r"""
+int main()
+{
+    uint8_t current[16] = {};
+    uint8_t retained[16] = {};
+    retained[15] = 1;
+    return IsRetainedLightmapSourceCurrent(retained, current) ? 11 : 0;
+}
+"""
+        with tempfile.TemporaryDirectory(prefix="sdvk158-freshness-mutant-") as temp:
+            path = Path(temp) / "freshness_mutant.cpp"
+            path.write_text(source)
+            exe = compile_fixture(path, output_dir=Path(temp), name="freshness_mutant")
+            p = subprocess.run([str(exe)], text=True, capture_output=True, timeout=10)
+            self.assertEqual(p.returncode, 11, p.stdout + p.stderr)
 
     def test_pixel_span_helper_executes_exact_boundaries(self) -> None:
         with tempfile.TemporaryDirectory(prefix="sdvk014-retained-span-") as temp:
