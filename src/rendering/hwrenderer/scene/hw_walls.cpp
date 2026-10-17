@@ -45,6 +45,8 @@
 #include "hw_skydome.h"
 #include "hw_walldispatcher.h"
 #include "d_main.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <optional>
 
 EXTERN_CVAR(Bool, lm_dynlights);
 
@@ -359,6 +361,7 @@ void HWWall::RenderTranslucentWall(HWWallDispatcher*di, FRenderState &state)
 //==========================================================================
 void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent)
 {
+	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedSurface;
 	bool paletteModeDisabled = false;
 	if (texture && texture->isHardwareCanvas() && !V_IsTrueColor())
 	{
@@ -371,6 +374,28 @@ void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent
 		SetupLights(di->di, state, lightdata);
 	}
 	MakeVertices(state, !!(flags & HWWall::HWF_TRANSLUCENT));
+	if (di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected() && seg && seg->sidedef
+		&& type != RENDERWALL_MIRRORSURFACE)
+	{
+		SdvkDiagnostics::SpecialSurfaceMetadata value;
+		value.Class = translucent ? "translucent-wall" : "wall";
+		static const DoomLevelMeshSurfaceType types[] = { ST_UPPERSIDE, ST_MIDDLESIDE, ST_MIDDLESIDE, ST_LOWERSIDE };
+		value.Type = type >= RENDERWALL_TOP && type <= RENDERWALL_BOTTOM ? types[type - RENDERWALL_TOP] : ST_NONE;
+		value.Side = seg->sidedef->Index();
+		value.Sector = seg->sidedef->sector->Index();
+		value.PortalGroup = seg->sidedef->sector->PortalGroup;
+		value.Tile = lightmaptile;
+		value.VertexLightmapPage = int(lindex);
+		value.VertexFirst = int(vertindex);
+		value.VertexCount = int(vertcount);
+		const auto normal = glseg.Normal();
+		value.Plane[0] = normal.X;
+		value.Plane[1] = normal.Z;
+		value.Plane[2] = normal.Y;
+		value.Plane[3] = (normal.X * glseg.x1 + normal.Z * glseg.y1);
+		value.HasPlane = true;
+		observedSurface.emplace(value);
+	}
 
 	state.SetNormal(glseg.Normal());
 	if (!translucent)

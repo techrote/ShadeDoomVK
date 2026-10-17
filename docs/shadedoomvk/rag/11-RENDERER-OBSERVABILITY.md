@@ -271,3 +271,27 @@ sector fields stay outside the frozen PF-009 snapshot. The native sunlight oracl
 state to the exact paired probe allocation and preregistered image ROIs. The combined driver
 `tools/renderer_oracle/sdvk010_acceptance.py` runs two fresh captures per scene with captured-record
 falsification and exact repeat comparisons, fail-stop on every dependency, in normal software CI.
+
+## SDVK-161 actual special-surface ranges and checkpoints
+
+The opt-in state-only special-surface driver adds read-only `surface` witnesses
+from actual submitted mesh triangle ranges and scoped immediate decal, glass,
+portal-stencil and horizon-contents draws. Mesh records join current geometry,
+uniform/light-uniform/material arrays and final bound pipeline. Current atlas
+receipt and per-vertex page/UV checks are independent; a current page cannot
+validate stale UVs into another region. Decals revalidate actual producer-written
+CPU UV snapshots at emission, with no GPU byte/readback claim. Scope storage and
+RAII live in common code; Vulkan only consumes the metadata.
+
+All 96 state frames retain frame/context/resource evidence; detailed draw rows
+and ordinary completed-view PNGs are sampled every 8 retained frames. Horizon
+contents record their first actual strip per producer while all strips still
+render. The authored manifest pins this bounded policy. Intermediate screenshots
+run after EndFrame has closed draw capture and before next-phase input; the
+existing final screenshot/quit path remains unchanged. Existing record/byte
+limits remain strict, with an additional 64-live-tile census limit.
+
+[SDVK-161](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md) requires independent complete
+attempt admission, same-attempt image/state identity, exact RGB for all 12
+checkpoints and named mutations of each admitted raw packet. It does not erase
+material/probe/owner fields or combine failed packets to obtain repeatability.

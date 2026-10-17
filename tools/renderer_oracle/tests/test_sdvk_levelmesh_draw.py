@@ -56,6 +56,7 @@ def build(directory: Path, *, missing_hook: bool = False):
             "std::string Shader(", "std::string Pipeline(")) + "\n}\n")
     (directory / "levelmesh_access.inc").write_text(
         "struct FSdvkDiagnosticAccess {\n" +
+        "static void LevelMeshSurfaces(VkRenderState*, int, int) { throw std::logic_error(\"SDVK-161 was not requested\"); }\n" +
         definition(observer, "static void LevelMeshDraw(") + "\n};\n")
     (directory / "levelmesh_callback.inc").write_text(
         "namespace SdvkDiagnostics {\n" +

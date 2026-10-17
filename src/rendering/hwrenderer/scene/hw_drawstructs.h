@@ -342,6 +342,8 @@ public:
 
 	float alpha;
 	HWSectorPlane plane;
+	// Source-model table axis, distinct from the emitted ceiling/floor facing.
+	int lightmapPlane = -1;
 	int lightlevel;
 	bool stack;
 	bool ceiling;
@@ -506,13 +508,19 @@ struct HWDecal
 	int dynlightindex;
 	sector_t *frontsector;
 	FVector3 Normal;
+	// SDVK-161 selected-frame provenance, carried to the later actual draw.
+	// Never an allocation/cache key and never consulted by rendering policy.
+	int sdvkTile = -1, sdvkPage = -1, sdvkType = 0;
+	int sdvkSide = -1, sdvkSector = -1, sdvkControlSector = -1;
+	float sdvkActualLightmapUV[8] = {};
+	bool sdvkHasUVSnapshot = false;
 
 	void DrawDecal(HWDrawInfo *di, FRenderState &state);
 };
 
 struct HWDecalCreateInfo
 {
-	void ProcessDecal(HWDrawInfo* di, FRenderState& state, int dynlightindex) const;
+	void ProcessDecal(HWDrawInfo* di, FRenderState& state, int dynlightindex, int lightmaptile) const;
 	int SetupLights(HWDrawInfo* di, FRenderState& state, FDynLightData& lightdata, FLightNode* node) const;
 
 	DBaseDecal* decal;
@@ -529,7 +537,10 @@ struct HWDecalCreateInfo
 
 	FGameTexture* texture;
 	TArray<lightlist_t>* lightlist;
-	int lightmaptile;
+	// Mesh construction runs before current receiving tiles are allocated.
+	// Retain semantic ownership, then resolve the current tile at draw emission.
+	DoomLevelMeshSurfaceType lightmapType = ST_NONE;
+	sector_t* lightmapControlSector = nullptr;
 
 	short lightlevel;
 	short rellight;

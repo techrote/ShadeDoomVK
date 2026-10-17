@@ -1,6 +1,27 @@
 # SDVK-014 — Lightmapper, dynamic-lightmap and probe robustness campaign
 
-## Current continuation — SDVK-156 atlas allocation identity
+## Current continuation — SDVK-161 special-surface/material lifecycle
+
+Live authority was reconciled at `master@130d09ac4267d02359c7c2603ceced723ceac746`
+after hosted-runner migration PR #160. Accepted child #158 / PR #159 merged as
+`7559b65f4ff70f2811e360a934a669f48f33ccf5`, tree
+`a56121a6542dff58c4d43b4041805c95240ba2e6`; retained freshness and repeated
+multi-page qualification are accepted prerequisites, not current open blockers.
+
+The current bounded software child is [#161](https://github.com/techrote/ShadeDoomVK/issues/161).
+Its [implementation, matrix and acceptance contract](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+records actual decal/warp/reflective/translucent/portal/horizon/solid-3D-floor
+paths, control-plane and current-receiver repairs, twelve exact lifecycle
+checkpoints, deterministic ownership negatives and explicit unsupported limits.
+Hosted exact-head acceptance remains pending. Earlier candidate notes below are
+historical and do not supersede accepted #150/#153/#156/#158 contracts.
+
+**Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
+hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+UNDETERMINED.** #14 remains open; this software child does not waive physical or
+other unqualified campaign criteria.
+
+## Historical continuation — SDVK-156 atlas allocation identity
 
 Accepted prerequisites now include #150 via PR #152 and #153 via PR #155 at
 `ad0833696804e57672ec425d2c33bf36732d05f1`. Older candidate/blocker paragraphs below

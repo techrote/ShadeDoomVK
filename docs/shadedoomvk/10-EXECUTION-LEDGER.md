@@ -662,7 +662,7 @@ exits0,60 raw blocks/40 retained scores and five exact image/state pairs with
 9,529,520 pixels/zero mismatch. Both actual warmups are inspected. All360 raw
 CPU intervals verify; every readiness observation finishes at30, maximum final
 ten11.711711711711711%. Independent raw audit rehashes84 output files, parses
-all60 blocks and independently decodes all12 PNGs. Before/after closure is exact.
+all60 blocks and independently decodes all 12 PNGs. Before/after closure is exact.
 Mean of paired CPU medians is18.3481→18.2598ms All including Finish/wait,
 3.6660→3.6319ms full Setup and3.6243→3.5910ms Sprite Setup; pair signs are mixed.
 
@@ -1380,3 +1380,22 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - This is a source/correctness correction, not a performance workaround. No
   duplicate native run, quality reduction or physical-GPU claim is introduced.
   Fresh exact-head CI remains required. #14 remains open; Physical STOP active.
+
+
+### 2026-10-17 — SDVK-161 special-surface/material software increment
+
+- Reconciled live master `130d09ac4267d02359c7c2603ceced723ceac746` after PR #160;
+  #158/PR #159 is accepted at merge `7559b65f4ff70f2811e360a934a669f48f33ccf5`
+  and tree `a56121a6542dff58c4d43b4041805c95240ba2e6`.
+- Created bounded child #161 under #14 and branch `sdvk014-special-surface-lifecycle`.
+- Repaired flat triangle ownership, selected/source-plane publication, retained
+  wrong-plane RGB admission, current semantic decal receivers and ownerless wall
+  portal tiles. Controlled bake-plane checks preserve ordinary seam coverage.
+- Added two deterministic authored maps, actual submitted range/material/UV/owner
+  witnesses, twelve lifecycle PNG checkpoints and per-attempt ownership negatives
+  in the existing hosted software-Vulkan lane.
+- [Authoritative scope and pending acceptance](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md).
+  Exact-head CI/review/native acceptance is pending; #14 remains open.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
+  hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED. No local renderer or physical device execution.

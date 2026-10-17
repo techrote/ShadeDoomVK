@@ -102,7 +102,7 @@ void VkRenderState::DoDraw(int dt, int index, int count, bool apply)
 
 		mCommandBuffer->draw(count, 1, index, 0);
 		if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, count, false);
-		if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, count, false);
+		if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, count, false, index);
 		#ifdef __APPLE__
 	}
 	#endif
@@ -115,7 +115,7 @@ void VkRenderState::DoDrawIndexed(int dt, int index, int count, bool apply)
 
 	mCommandBuffer->drawIndexed(count, 1, index, 0, 0);
 	if (Pf113ProbeDiagnostics::Observing()) Pf113ProbeDiagnostics::DrawEmitted(this, count, true);
-	if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, count, true);
+	if (SdvkDiagnostics::StateEnabled()) SdvkDiagnostics::VulkanDraw(this, count, true, index);
 }
 
 bool VkRenderState::SetDepthClamp(bool on)

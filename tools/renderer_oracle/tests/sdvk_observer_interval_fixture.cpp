@@ -80,6 +80,7 @@ static int gl_light_shadows = 0, gl_light_shadow_filter = 0;
 static int gl_ssao = 0, gl_tonemap = 0;
 static double gl_texture_filter_anisotropic = 1;
 static bool gl_levelmesh = true, gl_ubershaders = true, gl_lightprobe = true;
+static bool lm_dynlights = false;
 static bool vk_rayquery = false, cl_capfps = false, r_NoInterpolate = false, gl_bloom = false;
 static int rendered_lines = 0, rendered_flats = 0, rendered_sprites = 0;
 static int rendered_decals = 0, rendered_portals = 0, vertexcount = 0;
@@ -87,6 +88,7 @@ static int iter_dlight = 0, draw_dlight = 0, iter_dlightf = 0, draw_dlightf = 0;
 static int get_gl_spritelight() { return 0; }
 struct ShadowMap { static constexpr int LightsCandidates = 0, LightsShadowmapped = 0, LightsDropped = 0; };
 static const char* screenshot_type = "png";
+static bool screenshot_quiet = true;
 static void M_ScreenShot(const char*) { throw std::logic_error("CPU fixture cannot take screenshots"); }
 static void AddCommandString(const char*) { throw std::logic_error("CPU fixture cannot run console commands"); }
 static constexpr int PRINT_HIGH = 1, PRINT_NONOTIFY = 2;
@@ -106,12 +108,20 @@ void Initialize() { Require(Get().Initialized, "CPU observer must be preinitiali
 void WitnessObserverFrame(const char*, const Observer&) {}
 void DriveSamplerResetInput(const Observer&) {}
 void DriveLightmapTransitionInput(const Observer&) {}
+void DriveSpecialSurfaceInput(const Observer&) {}
 }
 #include "observer_dump.inc"
 
 namespace SdvkDiagnostics
 {
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
+bool SpecialSurfaceEnabled() { return false; }
+bool SpecialSurfaceFrameSelected() { return false; }
+const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata()
+{
+    static const SpecialSurfaceMetadata value;
+    return value;
+}
 }
 class VkRenderState
 {
@@ -122,7 +132,7 @@ static int WarmupDraws = 0, MainDraws = 0, CanvasDraws = 0, LateDraws = 0;
 static bool SnapshotFailure = false;
 struct FSdvkDiagnosticAccess
 {
-    static void Draw(VkRenderState* state, int count, bool indexed)
+    static void Draw(VkRenderState* state, int count, bool indexed, int)
     {
         const std::string phase = state->Phase;
         if (phase == "warmup") ++WarmupDraws;

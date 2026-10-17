@@ -348,3 +348,19 @@ Completion remains the accepted #151 contract: the current selected receipt is
 rendered/copied, the destination is transitioned back to shader-read, and only
 then are dirty flags cleared. SDVK-158 diagnostics distinguish the input tile
 count from tiles that actually make that dirty→clean transition.
+
+## SDVK-161 corrected planes and retained v5 interpretation
+
+Selected control-sector planes can differ from the earlier reconstruction based
+on facing. A retained v5 source checksum and XY transform cannot distinguish
+old RGB baked at that earlier wrong height. Corrected/alternative controlled
+planes carry RuntimeBakeOnly and skip retained pixels before transforms, flags
+or RGB can change; their ordinary fresh bake remains required. Allocation/free
+resets that runtime policy. Ordinary v5 source/structural admission, allocation
+incarnations and page/copy transitions remain unchanged.
+
+The [special-surface matrix](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md) uses zero
+authored probes with gl_lightprobe enabled to exercise the existing empty-owner
+reset path. It requires current runtime-zero fallback and advancing owner epochs
+on reload, without claiming live authored cubemap or per-texel probe readback.
+The required #150/#153 live-probe lanes remain authoritative and required.

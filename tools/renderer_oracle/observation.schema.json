@@ -293,7 +293,9 @@
             "pipeline",
             "timing",
             "sprite-basis",
-            "sprite-relief"
+            "sprite-relief",
+            "surface",
+            "surface-checkpoint"
           ]
         },
         "frame": {

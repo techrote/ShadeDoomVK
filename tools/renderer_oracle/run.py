@@ -243,6 +243,11 @@ def capture(args):
         from tools.renderer_oracle.sdvk158_lightmap_transition import FRAMES, WARMUP
         require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP,
                 "Lightmap transition gate needs its exact correctness-only frame budget")
+    if native.get("generator") == "special_surface_lifecycle":
+        from tools.renderer_oracle.sdvk161_special_surfaces import FRAMES, WARMUP, validate_recipe
+        validate_recipe(scene)
+        require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP and not args.gpu,
+                "Special-surface gate needs its exact correctness-only frame budget")
     extent = capture_extent(args, native, mode)
     frames = args.frames if args.frames is not None else (1 if mode == "state" else 120)
     warmup = args.warmup if args.warmup is not None else native.get("recommended_warmup_frames", 120)
@@ -337,6 +342,10 @@ def capture(args):
         if native.get("lightmap_transition_schedule"):
             require(mode == "state", "Lightmap transition driver is state-only")
             argv.append("-sdvk158lightmapdriver")
+        if native.get("special_surface_schedule"):
+            require(mode == "state" and native.get("generator") == "special_surface_lifecycle",
+                    "Special-surface driver requires its exact state recipe")
+            argv.append("-sdvk161surfacedriver")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
@@ -374,7 +383,7 @@ def capture(args):
         require(pin(exe) == executable, "Executable changed while capture was running")
         raw = read_json(out / "native.renderer.json")
         required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if mode == "state" else []
-        structural = validate.observation(raw, required_kinds=required, expected_map=native["map"],
+        structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
                                           expected_frames=frames, expected_extent=extent)
         require(raw["build"]["commit"] == source_commit and raw["build"]["working_tree"] == working_tree,
                 "Runtime and startup build identities disagree")
@@ -385,6 +394,10 @@ def capture(args):
         if native.get("generator") == "lightmap_transition":
             from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
             validate_transition_records(raw, text, native)
+        if native.get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle.sdvk161_special_surfaces import validate_transition_records as validate_special_surface_records, validate_checkpoint_images
+            validate_special_surface_records(raw, text, native)
+            validate_checkpoint_images(out, raw)
         if diagnostics is not None:
             publication_module().validate_capture_diagnostics(out, preregister)
         if mode == "state":
@@ -592,6 +605,16 @@ def _portal_actor_probe_assertions(records, spec):
     return selected
 
 
+def observation_map(scene):
+    # The special corpus owns a precise A/reload-A/B/reload-B schedule. Only
+    # that independently validated recipe may replace the generic one-map gate.
+    if scene["native"].get("generator") == "special_surface_lifecycle":
+        from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
+        validate_recipe(scene)
+        return None
+    return scene["native"]["map"]
+
+
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     camera = scene["native"]["camera"]
@@ -601,6 +624,9 @@ def _scene_assertions(raw, scene):
         expected_settings = scene["native"]["settings"]
         if scene["native"].get("generator") == "probe_sampler_reset":
             from tools.renderer_oracle.sdvk153_probe_reset import settings_for_frame
+            expected_settings = settings_for_frame(scene["native"], frame_number)
+        if scene["native"].get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle.sdvk161_special_surfaces import settings_for_frame
             expected_settings = settings_for_frame(scene["native"], frame_number)
         for key, expected in expected_settings.items():
             if key in frame["settings"]:
@@ -836,7 +862,7 @@ def _validate_run(path):
     require(loaded_packages(stdout, request["packages"], verify_files=False) == data["loaded_packages"],
             "Retained loaded-package inventory differs from actual startup output")
     required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if raw["mode"] == "state" else []
-    structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
+    structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
     if scene["native"].get("generator") == "probe_sampler_reset":
@@ -848,6 +874,15 @@ def _validate_run(path):
     if scene["native"].get("generator") == "lightmap_transition":
         from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
         validate_transition_records(raw, stdout, scene["native"])
+    if scene["native"].get("generator") == "special_surface_lifecycle":
+        from tools.renderer_oracle.sdvk161_special_surfaces import FRAMES, WARMUP, validate_transition_records as validate_special_surface_records, validate_checkpoint_images, validate_checkpoint_artifacts
+        require(request["argv"].count("-sdvk161surfacedriver") == 1 and data["mode"] == "state"
+                and raw["warmup_frames"] == WARMUP and raw["observed_frames"] == FRAMES
+                and raw["gpu_timing_requested"] is False,
+                "Special-surface request differs from its exact driver/frame policy")
+        validate_special_surface_records(raw, stdout, scene["native"])
+        validate_checkpoint_artifacts(artifacts)
+        validate_checkpoint_images(root, raw)
     if "diagnostics" in request:
         publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":

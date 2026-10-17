@@ -36,13 +36,31 @@ extern int gametic;
 EXTERN_CVAR(Bool, gl_levelmesh)
 EXTERN_CVAR(Bool, gl_ubershaders)
 EXTERN_CVAR(Bool, gl_lightprobe)
+EXTERN_CVAR(Bool, screenshot_quiet)
 EXTERN_CVAR(Bool, vk_rayquery)
 EXTERN_CVAR(Bool, cl_capfps)
+EXTERN_CVAR(Bool, lm_dynlights)
 EXTERN_CVAR(String, screenshot_type)
 
 namespace SdvkDiagnostics
 {
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
+namespace { thread_local SpecialSurfaceMetadata ImmediateSurface; }
+
+const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata() { return ImmediateSurface; }
+
+SpecialSurfaceScope::SpecialSurfaceScope(const SpecialSurfaceMetadata& value)
+{
+    if (!SpecialSurfaceFrameSelected()) return;
+    Previous = ImmediateSurface;
+    ImmediateSurface = value;
+    Active = true;
+}
+
+SpecialSurfaceScope::~SpecialSurfaceScope()
+{
+    if (Active) ImmediateSurface = Previous;
+}
 }
 
 namespace
@@ -59,6 +77,7 @@ struct Observer
     // SDVK-158 fixture input is also outcome-blind: fixed main-view ordinals
     // queue ordinary console invalidate/reload commands and never inspect state.
     bool LightmapTransitionInput = false;
+    bool SpecialSurfaceInput = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -128,6 +147,32 @@ void DriveLightmapTransitionInput(const Observer& observer)
         if (observer.Seen != phase.AfterMainViews) continue;
         AddCommandString(phase.Command);
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK158_LIGHTMAP_INPUT phase=%s after_main_views=%u\n",
+            phase.Name, phase.AfterMainViews);
+    }
+}
+
+constexpr LightmapTransitionPhase SpecialSurfacePhases[] = {
+    {40, "invalidate-a-1", "invalidatelightmap"},
+    {48, "filter-linear-a", "gl_texture_filter 4"},
+    {56, "reload-a", "map SDV161A"},
+    {64, "filter-nearest-a", "gl_texture_filter 0"},
+    {72, "invalidate-a-2", "invalidatelightmap"},
+    {80, "map-b", "map SDV161B"},
+    {88, "invalidate-b-1", "invalidatelightmap"},
+    {96, "filter-linear-b", "gl_texture_filter 4"},
+    {104, "reload-b", "map SDV161B"},
+    {112, "filter-nearest-b", "gl_texture_filter 0"},
+    {120, "invalidate-b-2", "invalidatelightmap"},
+};
+
+void DriveSpecialSurfaceInput(const Observer& observer)
+{
+    if (!observer.SpecialSurfaceInput) return;
+    for (const auto& phase : SpecialSurfacePhases)
+    {
+        if (observer.Seen != phase.AfterMainViews) continue;
+        AddCommandString(phase.Command);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_INPUT phase=%s after_main_views=%u\n",
             phase.Name, phase.AfterMainViews);
     }
 }
@@ -209,16 +254,20 @@ void Initialize()
         if (const char* count = Option("-sdvkobserveframes")) observer.Requested = ParseCount(count, 1, 4096);
         if (const char* count = Option("-sdvkobservewarmup")) observer.Warmup = ParseCount(count, 0, 100000);
         observer.Quit = Args->CheckParm("-sdvkobservequit") != 0;
+        observer.GpuRequested = Args->CheckParm("-sdvkobservegpu") != 0;
         observer.ProbeBuilderTrace = Args->CheckParm("-sdvkprobeownertrace") != 0;
         observer.SamplerResetInput = Args->CheckParm("-sdvk153samplerresetdriver") != 0;
         observer.LightmapTransitionInput = Args->CheckParm("-sdvk158lightmapdriver") != 0;
+        observer.SpecialSurfaceInput = Args->CheckParm("-sdvk161surfacedriver") != 0;
         Require(!observer.ProbeBuilderTrace || observer.StateMode,
             "Probe-owner lifecycle trace is state-only");
         Require(!observer.SamplerResetInput || observer.StateMode,
             "SDVK-153 sampler-reset input driver is state-only");
         Require(!observer.LightmapTransitionInput || observer.StateMode,
             "SDVK-158 lightmap transition input driver is state-only");
-        Require(!(observer.SamplerResetInput && observer.LightmapTransitionInput),
+        Require(!observer.SpecialSurfaceInput || (observer.StateMode && !observer.GpuRequested && observer.Warmup == 32 && observer.Requested == 96),
+            "SDVK-161 special-surface input needs its exact correctness-only frame budget");
+        Require(int(observer.SamplerResetInput) + int(observer.LightmapTransitionInput) + int(observer.SpecialSurfaceInput) <= 1,
             "Only one SDVK outcome-blind input driver may be active");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
@@ -230,7 +279,6 @@ void Initialize()
             Object().Bool("available", true).Str("path", CacheRoot()).Str("policy", "fresh shadercache.zdsc and pipelinecache.zdpc directory; driver-global cache uncontrolled").Json());
         observer.Build = build.Json();
         SdvkDiagnostics::EnabledFlag.store(true, std::memory_order_relaxed);
-        observer.GpuRequested = Args->CheckParm("-sdvkobservegpu") != 0;
         SdvkDiagnostics::GpuFlag.store(observer.GpuRequested && screen->IsVulkan(), std::memory_order_relaxed);
         if (!SdvkDiagnostics::GpuTimingRequested()) observer.GpuReasons.insert("GPU timestamp groups were not explicitly requested or backend is not Vulkan");
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK observation armed: %s frames=%u warmup=%u; %s.renderer.json\n",
@@ -494,6 +542,14 @@ void Emit(const char* kind, const std::string& object, bool deduplicate)
     if (Enabled() && frame) Get().Records.Add(kind, frame, object, deduplicate);
 }
 
+bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
+
+bool SpecialSurfaceFrameSelected()
+{
+    const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
+    return SpecialSurfaceEnabled() && StateEnabled() && frame > 0 && frame <= 96 && frame % 8 == 0;
+}
+
 bool BeginSceneGpuGroup()
 {
     if (!GpuTimingRequested() || !screen->IsVulkan()) return false;
@@ -585,6 +641,7 @@ void EndFrame()
                 .Raw("hardware_angles", '[' + Number(r_viewpoint.HWAngles.Yaw.Degrees()) + ',' + Number(r_viewpoint.HWAngles.Pitch.Degrees()) + ',' + Number(r_viewpoint.HWAngles.Roll.Degrees()) + ']')
                 .Num("fraction", r_viewpoint.TicFrac).Num("fov", r_viewpoint.FieldOfView.Degrees()).Json())
             .Raw("settings", Object().Int("vid_rendermode", int(vid_rendermode)).Bool("gl_levelmesh", bool(gl_levelmesh))
+                .Bool("lm_dynlights", bool(lm_dynlights))
                 .Bool("gl_ubershaders", bool(gl_ubershaders)).Bool("gl_lightprobe", bool(gl_lightprobe)).Bool("vk_rayquery", bool(vk_rayquery))
                 .Bool("cl_capfps", bool(cl_capfps)).Bool("r_nointerpolate", r_NoInterpolate).Int("gl_texture_filter", int(gl_texture_filter))
                 .Num("gl_texture_filter_anisotropic", double(gl_texture_filter_anisotropic)).Int("gl_multisample", int(gl_multisample))
@@ -641,11 +698,35 @@ void FramePresented()
     if (observer.Seen > observer.WitnessPresented)
     {
         WitnessObserverFrame("observer-frame-presented", observer);
+        // The same ordinary screenshot writer used by final capture reads the
+        // just-completed main view. No extra view/tic or fixture outcome is
+        // introduced, and the following input commands have not run yet.
+        const uint64_t frame = observer.Frame.load(std::memory_order_relaxed);
+        if (observer.SpecialSurfaceInput && frame > 0 && frame <= 96 && frame % 8 == 0)
+        {
+            try
+            {
+                const std::string suffix = ".surface-" + std::to_string(frame) + ".png";
+                const auto path = std::filesystem::u8path(observer.Prefix + suffix);
+                Require(!std::filesystem::exists(path), "SDVK-161 checkpoint image must be fresh");
+                Require(std::string(static_cast<const char*>(screenshot_type)) == "png",
+                    "SDVK-161 checkpoint requires screenshot_type=png");
+                Require(bool(screenshot_quiet), "SDVK-161 checkpoints require screenshot_quiet=true");
+                M_ScreenShot((observer.Prefix + suffix).c_str());
+                Require(std::filesystem::is_regular_file(path) && std::filesystem::file_size(path) > 0,
+                    "SDVK-161 completed-view checkpoint image missing");
+                Emit("surface-checkpoint", Object().Str("producer", "completed-main-view-screenshot")
+                    .Str("map", level.MapName.GetChars()).Str("image", path.filename().generic_u8string())
+                    .Int("main_views", observer.Seen).Json());
+            }
+            catch (const std::exception& error) { Fail(error.what()); }
+        }
         // Queue fixture input only once per newly presented main view. The
         // command runs through the ordinary console CVAR path before a later
         // view; retained frame state independently verifies its real effect.
         DriveSamplerResetInput(observer);
         DriveLightmapTransitionInput(observer);
+        DriveSpecialSurfaceInput(observer);
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;

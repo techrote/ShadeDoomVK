@@ -24,6 +24,10 @@ extern std::atomic<bool> EnabledFlag, StateFlag, GpuFlag;
 inline bool Enabled() { return EnabledFlag.load(std::memory_order_relaxed); }
 inline bool StateEnabled() { return StateFlag.load(std::memory_order_relaxed); }
 inline bool GpuTimingRequested() { return GpuFlag.load(std::memory_order_relaxed); }
+// Explicit SDVK-161 fixture requests twelve bounded submitted-work snapshots;
+// frame/resource/lifecycle evidence still covers every retained frame.
+bool SpecialSurfaceEnabled();
+bool SpecialSurfaceFrameSelected();
 
 void BeginFrame();
 void EndFrame();
@@ -59,7 +63,34 @@ void ClearActorSun();
 std::string CurrentActorSunJson();
 std::string CurrentActorProbeSelectionJson();
 std::string CurrentSpriteBasisJson();
-void VulkanDraw(VkRenderState* state, int count, bool indexed);
+// Transient producer provenance; the observer emits it only after an actual
+// Vulkan draw. Scopes restore the parent so recursion cannot inherit a decal.
+struct SpecialSurfaceMetadata
+{
+    const char* Class = nullptr;
+    int Type = 0, Side = -1, Sector = -1, ControlSector = -1, PortalGroup = -1;
+    int Tile = -1, VertexLightmapPage = -1;
+    int VertexFirst = -1, VertexCount = 0;
+    double Plane[4] = {};
+    bool HasPlane = false;
+    bool FirstDrawOnly = false;
+    struct UvVertexSnapshot { float X = 0, Y = 0, Z = 0, U = 0, V = 0; } UvVertices[4];
+    int UvVertexCount = 0;
+    const char* UvScope = "no receiving atlas UV validation is available for this producer";
+};
+const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata();
+class SpecialSurfaceScope
+{
+public:
+    explicit SpecialSurfaceScope(const SpecialSurfaceMetadata& value);
+    ~SpecialSurfaceScope();
+    SpecialSurfaceScope(const SpecialSurfaceScope&) = delete;
+    SpecialSurfaceScope& operator=(const SpecialSurfaceScope&) = delete;
+private:
+    SpecialSurfaceMetadata Previous;
+    bool Active = false;
+};
+void VulkanDraw(VkRenderState* state, int count, bool indexed, int firstIndex = 0);
 // Actual LevelMesh indexed submission only; per-surface material/probe state
 // comes from mesh storage and must not be borrowed from immediate uniforms.
 void VulkanLevelMeshDraw(VkRenderState* state, int firstIndex, int count, LevelMeshDrawSurface surface);

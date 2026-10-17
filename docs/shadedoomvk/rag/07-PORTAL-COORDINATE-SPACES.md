@@ -200,3 +200,21 @@ SDVK-010 integration keeps diagnostic source/render sector indices on `HWSprite`
 frozen PF-009 render-surface snapshot. They are captured at source processing and passed to the
 emitted actor-probe observer explicitly. The original final-quad snapshot and historical PF-009
 source derivation checks remain unchanged; no extra actor/context displacement is introduced.
+
+## SDVK-161 surface receiver boundary
+
+Portal-wall ST_NONE geometry serves traversal/stencil ownership and has no
+side-table/bake-target lightmap consumer. Its geometry, trace material and portal
+index remain current while receiving allocation is explicitly excluded. This
+rule is wall-specific: non-sky stack flat overlays can consume the existing
+immediate flat receiver table and retain their allocations.
+
+Ordinary material flats, including interior 3D-floor faces, have PortalIndex0;
+only actual flat portal draw types inherit a sector portal destination. Selected
+control-plane identity, owning destination sector, control model and subsector
+ordinal remain distinct. Observer owner.portal_group is the sector's actual
+PortalGroup, not the mesh connected-component group. The bounded native
+[SDVK-161 matrix](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md) witnesses linked line
+portals, mirrors and actual Line_Horizon floor/ceiling contents using inherited
+PF contexts. General native sector-stack and inverted-3D-floor coverage is not
+implied by those cells.

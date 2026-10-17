@@ -100,6 +100,9 @@ public:
 namespace SdvkDiagnostics
 {
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
+// This inherited indexed-range fixture does not opt in to SDVK-161 snapshots.
+bool SpecialSurfaceEnabled() { return false; }
+bool SpecialSurfaceFrameSelected() { return false; }
 std::string CurrentContextJson()
 {
     ++ContextReads;
@@ -117,7 +120,7 @@ void Fail(const char* message)
     Failure = message;
     StateFlag.store(false);
 }
-void VulkanDraw(VkRenderState*, int, bool)
+void VulkanDraw(VkRenderState*, int, bool, int)
 {
     ++ImmediateCalls;
     throw std::logic_error("LevelMesh cannot borrow immediate draw observation");

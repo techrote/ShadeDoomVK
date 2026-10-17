@@ -38,6 +38,8 @@
 #include "hw_lighting.h"
 #include "hw_drawcontext.h"
 #include "texturemanager.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <optional>
 
 EXTERN_CVAR(Int, r_mirror_recursions)
 EXTERN_CVAR(Bool, gl_portals)
@@ -225,6 +227,31 @@ void HWPortal::DrawPortalStencil(FRenderState &state, int pass)
 	
 	for (unsigned int i = 0; i < mPrimIndices.Size(); i += 2)
 	{
+		std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedSurface;
+		if (SdvkDiagnostics::SpecialSurfaceFrameSelected() && i / 2 < lines.Size())
+		{
+			const auto& line = lines[i / 2];
+			const char* name = GetName();
+			const char* klass = strcmp(name, "Horizon") == 0 ? "horizon" : strcmp(name, "Mirror") == 0 ? "mirror"
+				: strcmp(name, "LineToLine") == 0 ? "line-to-line-portal" : nullptr;
+			if (klass && line.seg && line.seg->sidedef)
+			{
+				SdvkDiagnostics::SpecialSurfaceMetadata value;
+				value.Class = klass;
+				value.Side = line.seg->sidedef->Index();
+				value.Sector = line.seg->sidedef->sector->Index();
+				value.PortalGroup = line.seg->sidedef->sector->PortalGroup;
+				value.VertexFirst = int(line.vertindex);
+				value.VertexCount = int(line.vertcount);
+				const auto normal = line.glseg.Normal();
+				value.Plane[0] = normal.X;
+				value.Plane[1] = normal.Z;
+				value.Plane[2] = normal.Y;
+				value.Plane[3] = (normal.X * line.glseg.x1 + normal.Z * line.glseg.y1);
+				value.HasPlane = true;
+				observedSurface.emplace(value);
+			}
+		}
 		state.Draw(DT_TriangleFan, mPrimIndices[i], mPrimIndices[i + 1], i == 0);
 	}
 	if (NeedCap() && lines.Size() > 1)
@@ -1065,6 +1092,32 @@ void HWHorizonPortal::DrawContents(HWDrawInfo *di, FRenderState &state)
 	state.SetRenderStyle(STYLE_Source);
 
 	bool texmatrix = SetPlaneTextureRotation(state, sp, texture);
+
+	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedSurface;
+	if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+	{
+		SdvkDiagnostics::SpecialSurfaceMetadata value;
+		value.Class = "horizon-contents";
+		value.Type = sp->plane.Normal().Z < 0 ? ST_CEILING : ST_FLOOR;
+		if (lines.Size() && lines[0].seg && lines[0].seg->sidedef)
+		{
+			value.Side = lines[0].seg->sidedef->Index();
+			value.Sector = lines[0].seg->sidedef->sector->Index();
+			value.PortalGroup = lines[0].seg->sidedef->sector->PortalGroup;
+		}
+		value.VertexFirst = int(voffset);
+		value.VertexCount = int(vcount + 10);
+		value.Plane[0] = sp->plane.Normal().X;
+		value.Plane[1] = sp->plane.Normal().Y;
+		value.Plane[2] = sp->plane.Normal().Z;
+		value.Plane[3] = -sp->plane.D;
+		value.HasPlane = true;
+		// This producer draws 256 strips plus a cap. The explicit SDVK-161
+		// request observes its first actual strip only, preserving every draw
+		// and retaining the global record/byte bounds.
+		value.FirstDrawOnly = true;
+		observedSurface.emplace(value);
+	}
 
 	for (unsigned i = 0; i < vcount; i += 4)
 	{

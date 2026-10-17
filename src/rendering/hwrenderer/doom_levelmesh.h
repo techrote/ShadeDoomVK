@@ -34,6 +34,8 @@ struct DoomSurfaceInfo
 	subsector_t* Subsector = nullptr;
 	side_t* Side = nullptr;
 	sector_t* ControlSector = nullptr;
+	int LightmapPlane = -1;
+	bool RuntimeBakeOnly = false;
 
 	int LightListSection = 0;
 
@@ -152,6 +154,11 @@ public:
 	}
 
 	void PrintSurfaceInfo(const LevelMeshSurface* surface);
+	// Passive diagnostics must not use GetDoomSurface, which may resize storage.
+	const DoomSurfaceInfo* GetSurfaceInfoForObservation(unsigned int index) const
+	{
+		return index < DoomSurfaceInfos.Size() ? &DoomSurfaceInfos[index] : nullptr;
+	}
 
 	void BeginFrame(FLevelLocals& doomMap);
 	bool TraceSky(const FVector3& start, FVector3 direction, float dist);
@@ -204,6 +211,7 @@ public:
 	Stats LastFrameStats, CurFrameStats;
 
 private:
+	int ResolveDecalLightmapTile(const HWDecalCreateInfo& decal) const;
 	void SetLimits(FLevelLocals& doomMap);
 
 	void CreateSurfaces(FLevelLocals& doomMap);
