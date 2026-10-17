@@ -163,6 +163,8 @@ class RetainedLifecycleTests(unittest.TestCase):
         cls.helper = current("lightmap_span")
         cls.save = current("save")
         cls.pack = current("pack_atlas")
+        cls.invalidate = current("invalidate")
+        cls.device_update = current("device_update_lightmaps")
 
     def test_current_contract_has_no_known_lifecycle_error(self) -> None:
         self.assertEqual(contract_errors(self.load, self.select, self.copy, self.pages), [])
@@ -247,6 +249,30 @@ int main()
             exe = compile_fixture(path, output_dir=Path(temp), name="freshness_mutant")
             p = subprocess.run([str(exe)], text=True, capture_output=True, timeout=10)
             self.assertEqual(p.returncode, 11, p.stdout + p.stderr)
+
+    def test_forced_invalidation_is_selectable_by_lightmapper(self) -> None:
+        needs = "tile.NeedsInitialBake = true;"
+        light = "tile.ReceivedNewLight = true;"
+        self.assertIn(needs, self.invalidate)
+        self.assertIn(light, self.invalidate)
+        self.assertLess(self.invalidate.index(needs), self.invalidate.index(light))
+
+    def test_forced_invalidation_without_lightmapper_admission_is_rejected(self) -> None:
+        line = "\t\ttile.ReceivedNewLight = true;\n"
+        self.assertEqual(self.invalidate.count(line), 1)
+        mutant = self.invalidate.replace(line, "")
+        self.assertIn("tile.NeedsInitialBake = true;", mutant)
+        self.assertNotIn("tile.ReceivedNewLight = true;", mutant)
+
+    def test_completion_observation_counts_post_raytrace_dirty_to_clean(self) -> None:
+        raytrace = "GetLightmapper()->Raytrace(tiles);"
+        completion = "FrameTileCompletions++;"
+        self.assertIn("FrameTileUpdates += (int)tiles.size();", self.device_update)
+        self.assertIn(raytrace, self.device_update)
+        self.assertIn(completion, self.device_update)
+        self.assertIn("tile->NeedsInitialBake || tile->GeometryUpdate || tile->ReceivedNewLight", self.device_update)
+        self.assertIn("!tile->NeedsInitialBake && !tile->GeometryUpdate && !tile->ReceivedNewLight", self.device_update)
+        self.assertLess(self.device_update.index(raytrace), self.device_update.index(completion))
 
     def test_current_page_is_republished_to_vertex_sampling_state(self) -> None:
         self.assertIn("Lightmap.TextureCount = (int)Lightmap.AtlasPacker->GetNumPages();", self.pack)
