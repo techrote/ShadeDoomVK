@@ -31,6 +31,50 @@ std::string Lifetime(const FRendererLifetimeStats& value)
         .Int("invalid_retires", value.InvalidRetires).Int("duplicate_activations", value.DuplicateActivations).Json();
 }
 
+std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages)
+{
+    if (!mesh || !mesh->Lightmap.AtlasPacker)
+        return Unavailable("no live level-mesh lightmap atlas owner");
+
+    uint64_t live = 0, valid = 0, invalid = 0;
+    uint64_t initialDirty = 0, geometryDirty = 0, lightDirty = 0;
+    std::vector<uint64_t> pageTiles(std::max(mesh->Lightmap.TextureCount, 0), 0);
+    for (const auto& tile : mesh->Lightmap.Tiles)
+    {
+        if (tile.UseCount <= 0) continue;
+        ++live;
+        if (tile.NeedsInitialBake) ++initialDirty;
+        if (tile.GeometryUpdate) ++geometryDirty;
+        if (tile.ReceivedNewLight) ++lightDirty;
+        if (!tile.HasValidAtlasRegion(*mesh->Lightmap.AtlasPacker,
+                mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount))
+        {
+            ++invalid;
+            continue;
+        }
+        ++valid;
+        ++pageTiles[tile.AtlasLocation.ArrayIndex];
+    }
+
+    std::string pages = "[";
+    for (size_t i = 0; i < pageTiles.size(); ++i)
+    {
+        if (i) pages += ',';
+        pages += std::to_string(pageTiles[i]);
+    }
+    pages += ']';
+
+    return Object().Bool("available", true).Str("map", level.MapName.GetChars())
+        .Int("texture_size", mesh->Lightmap.TextureSize).Int("texture_count", mesh->Lightmap.TextureCount)
+        .Int("vulkan_page_count", vulkanPages).Int("used_tiles", mesh->Lightmap.UsedTiles)
+        .Int("live_tiles", live).Int("valid_live_tiles", valid).Int("invalid_live_tiles", invalid)
+        .Int("initial_dirty", initialDirty).Int("geometry_dirty", geometryDirty).Int("light_dirty", lightDirty)
+        .Bool("all_clean", initialDirty == 0 && geometryDirty == 0 && lightDirty == 0)
+        .Bool("page_count_match", size_t(std::max(mesh->Lightmap.TextureCount, 0)) == vulkanPages)
+        .Bool("sampling_page_bounds_ok", invalid == 0).Raw("page_live_tiles", pages)
+        .Str("scope", "current live tile receipts and atlas page ownership; actual pixels remain image evidence").Json();
+}
+
 std::string Sampler(VulkanSampler* sampler)
 {
     if (!sampler || !sampler->GetCreationArguments().Captured)
@@ -302,7 +346,8 @@ void VulkanResources(VulkanRenderDevice* device)
             const auto& epochs = level.levelMesh->GetMutationEpochs();
             result.Raw("levelmesh", Object().Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
                 .Int("geometry", epochs.Geometry).Int("surface", epochs.Surface).Int("lights", epochs.Lights).Int("query", epochs.Query)
-                .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets).Json());
+                .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets).Json())
+                .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size()));
         }
         else result.Raw("levelmesh", Unavailable("no active level mesh"));
         result.Raw("sun", Object().Num("intensity", level.SunIntensity).Raw("direction", '[' + Number(level.SunDirection.X) + ',' + Number(level.SunDirection.Y) + ',' + Number(level.SunDirection.Z) + ']')
