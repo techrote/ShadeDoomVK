@@ -2696,7 +2696,7 @@ void SaveMapLumps(FileWriter* writer, const TArray<MapLump>& lumps, const char* 
 void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 {
 	/*
-	// LIGHTMAP version 4 pseudo-C specification:
+	// LIGHTMAP version 5 pseudo-C specification:
 
 	(Please update LIGHTMAPVER in version.h when upgrading this)
 
@@ -2705,6 +2705,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 		int version;
 		uint32_t tileCount;
 		uint32_t pixelCount;
+		uint8_t sourceDigest[16]; // MapData::GetChecksum for the authored source map
 		TileEntry tiles[surfaceCount];
 		uint16_t pixels[pixelCount * 3];
 	};
@@ -2759,7 +2760,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 
 	const int version = LIGHTMAPVER;
 
-	const uint32_t headerSize = sizeof(int) + 2 * sizeof(uint32_t);
+	const uint32_t headerSize = sizeof(int) + 2 * sizeof(uint32_t) + 16;
 	const uint32_t bytesPerTileEntry = sizeof(uint32_t) * 4 + sizeof(uint16_t) * 2 + sizeof(float) * 9;
 	const uint32_t bytesPerPixel = sizeof(uint16_t) * 3; // F16 RGB
 
@@ -2773,6 +2774,10 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	lumpFile.Write32(version);
 	lumpFile.Write32(tileCount);
 	lumpFile.Write32(static_cast<uint32_t>(pixelCount));
+	// MapData::GetChecksum excludes LIGHTMAP itself, so the saved source identity
+	// remains stable when this lump is replaced and changes whenever the map's
+	// authored geometry/light/material bindings or BEHAVIOR source changes.
+	lumpFile.Write(doomMap.md5, 16);
 
 	// Write tiles
 	uint32_t pixelsOffset = 0;
