@@ -84,9 +84,9 @@ commands after fixed newly presented main-view ordinals:
 
 | Main views | Input |
 | ---: | --- |
-| 56 | `invalidatelightmap` |
-| 88 | `map SDV158` (same-map retained reload) |
-| 120 | `invalidatelightmap` |
+| 40 | `invalidatelightmap` |
+| 56 | `map SDV158` (same-map retained reload) |
+| 72 | `invalidatelightmap` |
 
 The driver reads no renderer result and cannot decide whether to advance.
 Acceptance comes from passive resource records.
@@ -100,17 +100,27 @@ Each retained state frame records:
 - live/current-valid/invalid tile counts;
 - accepted retained tile count;
 - `NeedsInitialBake`, `GeometryUpdate` and `ReceivedNewLight` partitions;
-- completed `UpdateLightmaps` tile count for that frame;
+- submitted `UpdateLightmaps` tile count and, separately, tiles that actually
+  transition dirty→clean after synchronous copy/publication recording;
 - per-page live tile occupancy;
 - current page-bound receipt validity;
 - Lightmap resource epoch and LevelMesh mutation epochs.
 
 The gate requires every retained frame to have at least two current pages, exact
 CPU/Vulkan page-count agreement, zero invalid live receipts and complete
-per-page accounting. Both invalidation phases and the reload phase must perform
-real completed tile work and finish with all three dirty categories clear.
-Same-map reload must replace the Vulkan lightmap resource epoch while retaining
-valid current-page ownership.
+per-page accounting. Both forced invalidation phases must perform real
+dirty→clean completions and finish with all three dirty categories clear. Reload
+must perform real completion work, retire `NeedsInitialBake` and
+`GeometryUpdate`, replace the Vulkan lightmap resource epoch and retain valid
+current-page ownership; ordinary post-load `ReceivedNewLight` may remain pending
+until the following forced invalidation, which must then drain it to zero.
+
+The state capture keeps the established 32-view warmup but retains only 48
+state frames. The three input boundaries occur at main-view ordinals 40/56/72,
+leaving retained-frame windows 9–24, 25–40 and 41–48 for the two invalidations
+and reload. This stays inside the observer's demonstrated record envelope while
+leaving at least eight frames after the final six-tile invalidation at
+`lm_max_updates=1`.
 
 Two independent clean-state processes execute the full invalidate → reload →
 invalidate schedule and must repeat exact semantic state and final RGB.
@@ -144,3 +154,32 @@ negative controls it exposes.
 Physical GPU bake/update cost, representative scaling and hardware stability
 remain separately **HELD / NOT ACCEPTED**. **Physical STOP remains ACTIVE.**
 Historical physical root cause remains **UNDETERMINED**.
+
+
+## Retained first-native failure and causal correction
+
+Normal CI run `38991258032`, software-Vulkan job `117274393400`, retained
+artifact `12085488397`, passed PF/oracle, every ordinary platform build, the
+generic software-Vulkan corpus, SDVK-010, SDVK-150 and SDVK-153 before SDVK-158
+transition-1 stopped.
+
+The renderer did not fault. Its passive receipt reached 59 retained frames with
+two CPU/Vulkan atlas pages, six valid live receipts, zero invalid receipts and
+per-page occupancy `[5,1]`, then stopped with
+`SDVK observation record/byte limit reached` after 13,036 records. The oversized
+120-frame request was therefore a fixture-capacity error.
+
+The retained state also exposed a real production bug before the cap: after the
+first `invalidatelightmap`, `NeedsInitialBake` remained 6 indefinitely while
+one tile was submitted every frame. `InvalidateLightmap()` set only
+`NeedsInitialBake=true`, but `VkLightmapper::SelectTiles` admits actual bake
+work only when `ReceivedNewLight` is true. A previously clean retained tile
+could therefore be repeatedly scheduled yet never selected/copied/completed.
+
+The correction sets both flags for every live forced-invalidated tile. Diagnostic
+bookkeeping now separates submitted tiles from actual dirty→clean transitions
+observed after `Raytrace` returns from its copy/publication path. Source tests pin
+both the admission flag and post-Raytrace completion ordering. The native state
+window is reduced to 48 retained frames without removing any lifecycle phase.
+No quality, shader, light-selection, atlas-allocation or physical-performance
+policy changes.
