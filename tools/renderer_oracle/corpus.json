@@ -17790,17 +17790,17 @@
         },
         "lightmap_transition_schedule": [
           {
-            "after_main_views": 56,
+            "after_main_views": 40,
             "phase": "invalidate-1",
             "command": "invalidatelightmap"
           },
           {
-            "after_main_views": 88,
+            "after_main_views": 56,
             "phase": "reload",
             "command": "map SDV158"
           },
           {
-            "after_main_views": 120,
+            "after_main_views": 72,
             "phase": "invalidate-2",
             "command": "invalidatelightmap"
           }
@@ -17822,7 +17822,7 @@
           "Version-5 retained floor and ceiling entries report accepted retained provenance on initial load and same-map reload.",
           "At least two live CPU atlas pages exist in every retained frame and match the current Vulkan lightmap page population.",
           "Every live tile has a valid current-page receipt and per-page occupancy accounts for every valid live tile.",
-          "Fixed invalidate -> reload -> invalidate phases each perform real completed tile work and converge NeedsInitialBake/GeometryUpdate/ReceivedNewLight to clean.",
+          "Bounded invalidate -> reload -> invalidate phases each perform real completed tile work and converge NeedsInitialBake/GeometryUpdate/ReceivedNewLight to clean.",
           "Same-map reload changes the Vulkan lightmap resource epoch while current-page ownership remains valid.",
           "Two independent clean-state runs repeat exact semantic state and final RGB."
         ],
