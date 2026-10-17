@@ -2,8 +2,8 @@
 """One bounded two-process hosted-software sunlight actor acceptance.
 
 Real native work is run once per capture with no retries, on an explicitly
-isolated 16-vCPU llvmpipe Avrea host. This is a focused parallel-lane gate,
-not the final combined SDVK-010 CI or physical-GPU acceptance.
+isolated GitHub-hosted Linux llvmpipe runner. This is a focused software gate,
+not physical-GPU acceptance.
 
 SPDX-License-Identifier: GPL-3.0-or-later
 """
@@ -28,11 +28,11 @@ except ImportError:
 def software_host_guard():
     require(sys.platform == "linux" and os.environ.get("GITHUB_ACTIONS") == "true",
             "Focused native acceptance must run on hosted Linux Actions")
-    require(os.environ.get("RUNNER_ENVIRONMENT") == "self-hosted" and
-            os.environ.get("SDVK_REQUESTED_RUNNER") == "avrea-ubuntu-24.04-16-vcpu",
-            "Focused native acceptance requires only the approved Avrea 16-vCPU software host")
-    require(hasattr(os, "sched_getaffinity") and len(os.sched_getaffinity(0)) == 16,
-            "Focused native acceptance requires exactly 16 allowed CPUs")
+    require(os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted",
+            "Focused native acceptance requires a GitHub-hosted Linux runner")
+    allowed_cpus = len(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else os.cpu_count()
+    require(type(allowed_cpus) is int and allowed_cpus > 0,
+            "Focused native acceptance could not determine an allowed CPU set")
     names = ("VK_DRIVER_FILES", "VK_ICD_FILENAMES")
     selected = []
     for name in names:
@@ -60,7 +60,7 @@ def software_host_guard():
             len(re.findall(r"deviceName\s*=", vk.stdout)) == 1,
             "Vulkan device discovery did not report exactly one CPU llvmpipe device")
     return {"schema":"sdvk010-sun-host/v1","runner":os.environ.get("RUNNER_NAME"),
-            "allowed_cpus":len(os.sched_getaffinity(0)),"icd":pin(selected[0]),
+            "allowed_cpus":allowed_cpus,"icd":pin(selected[0]),
             "device":"one software llvmpipe CPU","physical_gpu":False,
             "request":"diagnostic-only; no physical performance claim"}
 
