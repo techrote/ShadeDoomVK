@@ -147,7 +147,7 @@ The reset and control PK3s are now byte-identical; only the executable input fla
 differs. This correction changes no production descriptor ownership or threshold.
 
 One unchanged-setting control and two independent reset captures are scheduled
-inside the existing normal Avrea 16-vCPU llvmpipe lane, reusing its build and
+inside the existing normal GitHub-hosted Ubuntu 24.04 llvmpipe lane, reusing its build and
 content. The reset runs require exact state/RGB repeatability under the existing
 comparison policy, and final reset RGB must equal the unchanged-setting control.
 No duplicate full runner, benchmark-only run, physical GPU or local Vulkan device
