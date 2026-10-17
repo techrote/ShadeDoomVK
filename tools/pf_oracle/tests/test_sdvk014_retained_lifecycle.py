@@ -181,10 +181,23 @@ class RetainedLifecycleTests(unittest.TestCase):
         version = (ROOT / "src/version.h").read_text()
         self.assertIn("#define LIGHTMAPVER 5", version)
 
+    def test_map_checksum_authority_is_non_circular_and_bake_relevant(self) -> None:
+        source = (ROOT / "src/p_openmap.cpp").read_text()
+        start = source.index("void MapData::GetChecksum(uint8_t cksum[16])")
+        end = source.index("}", source.index("md5.Final(cksum);", start)) + 1
+        body = source[start:end]
+        self.assertIn("ML_TEXTMAP", body)
+        for lump in ("ML_LABEL", "ML_THINGS", "ML_LINEDEFS", "ML_SIDEDEFS", "ML_SECTORS", "ML_BEHAVIOR"):
+            self.assertIn(lump, body)
+        self.assertNotIn("ML_LIGHTMAP", body)
+        self.assertNotIn("ML_NODES", body)
+        self.assertNotIn("ML_ZNODES", body)
+
     def test_retained_source_digest_helper_accepts_only_exact_identity(self) -> None:
         source = """#include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <string>
 """ + self.freshness + r"""
 int main(int argc, char** argv)
 {
