@@ -768,8 +768,11 @@ def _sdvk158_lightmap_lump(textmap: bytes, *, width: int = 513, height: int = 51
     source_digest = hashlib.md5(textmap).digest()
     area = width * height
     header = struct.pack("<III16s", 5, 2, area * 2, source_digest)
-    transform_floor = (-1024.0, -1024.0, -4.0, 0.25, 0.0, 0.0, 0.0, 0.25, 0.0)
-    transform_ceiling = (-1024.0, -1024.0, 156.0, 0.25, 0.0, 0.0, 0.0, 0.25, 0.0)
+    # Exact SetupTileTransform production math for bounds [-1020,1020],
+    # sample distance 4 and horizontal floor/ceiling planes, including its
+    # +0.1 world-origin bias.
+    transform_floor = (-1023.9, -1023.9, -3.9, 0.25, 0.0, 0.0, 0.0, 0.25, 0.0)
+    transform_ceiling = (-1023.9, -1023.9, 156.1, 0.25, 0.0, 0.0, 0.0, 0.25, 0.0)
     def entry(kind: int, pixels: int, transform: tuple[float, ...]) -> bytes:
         return struct.pack("<IIIHHI9f", kind, 0, 0xffffffff, width, height, pixels * 3, *transform)
     # ST_CEILING=4 and ST_FLOOR=5. Retained RGB is deliberately zero; wall
