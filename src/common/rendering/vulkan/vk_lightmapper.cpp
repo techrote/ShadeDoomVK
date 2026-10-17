@@ -78,6 +78,8 @@ void VkLightmapper::ReleaseResources()
 
 void VkLightmapper::SetLevelMesh(LevelMesh* level)
 {
+	selectedTiles.Clear();
+	for (auto& list : copylists) list.Clear();
 	mesh = level;
 
 	lightmapRaytraceLast.Reset();
@@ -151,18 +153,23 @@ void VkLightmapper::SelectTiles(const TArray<LightmapTile*>& tiles)
 		if (!tile->ReceivedNewLight)
 			continue;
 
+		mesh->ValidateLightmapTile(*tile);
+
 		// Only grab surfaces until our bake texture is full
-		auto result = packer->Alloc(tile->AtlasLocation.Width, tile->AtlasLocation.Height);
-		if (result->PageIndex == 0)
+		const auto scratchAllocation = packer->Alloc(tile->AtlasLocation.Width, tile->AtlasLocation.Height);
+		const auto result = packer->GetRegion(scratchAllocation);
+		if (result.PageIndex == 0)
 		{
 			SelectedTile selected;
 			selected.Tile = tile;
-			selected.X = result->X;
-			selected.Y = result->Y;
+			selected.AtlasAllocation = tile->AtlasLocation.Allocation;
+			selected.ScratchAllocation = scratchAllocation;
+			selected.X = result.X;
+			selected.Y = result.Y;
 			selectedTiles.Push(selected);
 
-			bakeImage.maxX = std::max<uint16_t>(bakeImage.maxX, uint16_t(result->X + tile->AtlasLocation.Width));
-			bakeImage.maxY = std::max<uint16_t>(bakeImage.maxY, uint16_t(result->Y + tile->AtlasLocation.Height));
+			bakeImage.maxX = std::max<uint16_t>(bakeImage.maxX, uint16_t(result.X + tile->AtlasLocation.Width));
+			bakeImage.maxY = std::max<uint16_t>(bakeImage.maxY, uint16_t(result.Y + tile->AtlasLocation.Height));
 
 		}
 	}
@@ -172,8 +179,26 @@ void VkLightmapper::SelectTiles(const TArray<LightmapTile*>& tiles)
 	bakeImage.maxY += 3;
 }
 
+void VkLightmapper::ValidateSelectedTile(const SelectedTile& selected) const
+{
+	if (!mesh || !mesh->Lightmap.AtlasPacker ||
+		!mesh->Lightmap.AtlasPacker->IsLive(selected.AtlasAllocation) ||
+		!packer || !packer->IsLive(selected.ScratchAllocation))
+		I_FatalError("Stale lightmap bake allocation receipt");
+	// Tile pointers are borrowed only during the synchronous Raytrace call.
+	// A recycled destination or scratch allocation must not inherit old work.
+	if (!selected.Tile || selected.Tile->AtlasLocation.Allocation != selected.AtlasAllocation)
+		I_FatalError("Lightmap bake destination allocation changed");
+	mesh->ValidateLightmapTile(*selected.Tile);
+	const auto scratch = packer->GetRegion(selected.ScratchAllocation);
+	if (scratch.PageIndex != 0 || selected.X != scratch.X || selected.Y != scratch.Y ||
+		selected.Tile->AtlasLocation.Width != scratch.Width || selected.Tile->AtlasLocation.Height != scratch.Height)
+		I_FatalError("Lightmap bake scratch region changed");
+}
+
 void VkLightmapper::Render()
 {
+	for (const auto& selected : selectedTiles) ValidateSelectedTile(selected);
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
 	fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.raytrace");
@@ -417,6 +442,7 @@ void VkLightmapper::CopyResult()
 		auto& selected = selectedTiles[i];
 		if (selected.Rendered)
 		{
+			ValidateSelectedTile(selected);
 			unsigned int pageIndex = (unsigned int)selected.Tile->AtlasLocation.ArrayIndex;
 			if (pageIndex >= destTexture.size() || pageIndex >= (unsigned int)mesh->Lightmap.TextureCount)
 			{

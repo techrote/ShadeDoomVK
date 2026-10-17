@@ -104,6 +104,17 @@ class PortalActorProbeAssertions(unittest.TestCase):
         selected = run._portal_actor_probe_assertions(good_rows(), SPEC)
         self.assertEqual([sample["role"] for sample, _ in selected], ["before", "on", "after"])
 
+    def test_context_position_allows_only_bounded_floating_roundoff(self):
+        rows = good_rows()
+        rows[0]["data"]["context"]["position"][0] = -320.00000000000006
+        selected = run._portal_actor_probe_assertions(rows, SPEC)
+        self.assertEqual([sample["role"] for sample, _ in selected], ["before", "on", "after"])
+
+        rows = good_rows()
+        rows[0]["data"]["context"]["position"][0] = -320.000001
+        with self.assertRaisesRegex(EvidenceError, "before"):
+            run._portal_actor_probe_assertions(rows, SPEC)
+
     def test_adversarial_transition_controls_reject(self):
         mutations = {
             "nearest-cross-group": lambda rows: rows[1]["data"]["actor_selection"].update(policy="spatial-nearest", spatial=True),

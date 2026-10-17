@@ -1,5 +1,23 @@
 # SDVK-014 — Lightmapper, dynamic-lightmap and probe robustness campaign
 
+## Current continuation — SDVK-156 atlas allocation identity
+
+Accepted prerequisites now include #150 via PR #152 and #153 via PR #155 at
+`ad0833696804e57672ec425d2c33bf36732d05f1`. Older candidate/blocker paragraphs below
+are historical checkpoints, not current open defects in those accepted scopes.
+
+The next bounded implementation is #156: owner/slot/allocation-incarnation atlas
+receipts, checked producers/consumers, preserved current-surface tombstones, pinned
+original copied-receipt ABA negatives, and free/Clear/rebuild/page/scratch-repack
+controls. [Implementation and source evidence](../SDVK-156-ATLAS-INCARNATION.md).
+Its exact-head normal CI, review, merge and matching-master verification govern
+acceptance of this increment; the CPU receipt alone is not merge acceptance.
+
+#14 remains **OPEN / NOT SOFTWARE-COMPLETE**. Remaining authored LIGHTMAP freshness,
+native repeated/multi-page transitions and supported special-surface/material
+matrix are not waived. **Physical STOP ACTIVE; physical GPU cost/scaling/stability
+HELD / NOT ACCEPTED; historical physical root cause UNDETERMINED.**
+
 ## Current audit status — 16 October 2026
 
 **Implementation in progress; software campaign NOT ACCEPTED.** PR #151's

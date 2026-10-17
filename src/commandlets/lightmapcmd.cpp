@@ -75,7 +75,7 @@ void LightmapBuildCmdlet::OnCommand(FArgs args)
 			tiles.Clear();
 			for (auto& e : level.levelMesh->Lightmap.Tiles)
 			{
-				if (e.HasLiveAtlasAllocation() && e.NeedsInitialBake)
+				if (e.HasLiveAtlasAllocation(*level.levelMesh->Lightmap.AtlasPacker) && e.NeedsInitialBake)
 				{
 					tiles.Push(&e);
 					if (tiles.Size() == 1001)

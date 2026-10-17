@@ -548,7 +548,7 @@ def _portal_actor_probe_assertions(records, spec):
                     and row["context"]["type"] == sample["context_type"]
                     and row["context"]["producer"] == sample["context_producer"]
                     and row["context"]["depth"] == sample["context_depth"]
-                    and row["context"]["position"] == sample["context_position"]
+                    and _numeric_vector_matches(row["context"]["position"], sample["context_position"])
                     and row["context"]["mirrored"] is sample["context_mirrored"]):
                 candidates.append(row)
         require(candidates, "Required linked-portal actor sample was not emitted: " + sample["role"])

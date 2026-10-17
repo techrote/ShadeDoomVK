@@ -1,5 +1,24 @@
 # Durable identity audit addendum — SDVK-014
 
+## Current follow-on status — SDVK-156
+
+#150 and #153 are accepted (PR #152 and PR #155). The audit findings below describe
+their assessed historical source, not a still-open descriptor defect. Current
+atlas code now uses captured `RectPackerAllocation` owner/slot/incarnation values,
+checked against the current packer before item access or Free. The copied-receipt
+Free/Clear ABA must reject; same-address new owners and page/rectangle reuse do not
+restore old validity. Original pre-156 atlas inputs and the original failing
+audit fixture remain pinned and executable separately.
+
+See [SDVK-156](../SDVK-156-ATLAS-INCARNATION.md) for the complete producer/consumer
+contract, existing tombstone preservation, exact-source tests and publication
+gates. This is not a native stale-consumer reachability claim or a content digest.
+Repeated/multi-page native and special-surface/material coverage remains outstanding;
+#14 NOT SOFTWARE-COMPLETE. Physical STOP ACTIVE; physical cost/scaling/stability
+HELD / NOT ACCEPTED; historical physical root cause UNDETERMINED.
+
+## Historical audit assessed source
+
 Assessed master: `ca254b6ea08228c8408562ebba26bbc1060a0311` (16 October 2026).
 Status: **audit reproduced blocked invariants; NOT a production repair**.
 

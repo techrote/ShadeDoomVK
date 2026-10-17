@@ -16,6 +16,7 @@ import unittest
 from tools.pf_oracle.fixture_runner import compile_fixture
 from tools.pf_oracle.tests.sdvk014_source import block
 from tools.pf_oracle.tests.sdvk153_source import retained
+from tools.pf_oracle.tests.sdvk156_source import RETAINED as ATLAS_RETAINED, retain_atlas_headers
 
 ROOT = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
@@ -62,7 +63,8 @@ def build(directory: Path, preserve_probe_slots: bool = False) -> Path:
     bounds = (ROOT / 'src/common/utility/bounds.cpp').read_text()
     (directory / 'audit_bounds.cpp').write_text('#define M_INFINITY 1e30f\n' + '\n'.join(
         block(bounds, signature) for signature in ('BBox::BBox()', 'void BBox::Clear()')))
-    (directory / 'audit_rectpacker.cpp').write_bytes((DATA / 'hw_rectpacker.cpp').read_bytes())
+    retain_atlas_headers(directory)
+    (directory / 'audit_rectpacker.cpp').write_bytes((ATLAS_RETAINED / 'hw_rectpacker.cpp').read_bytes())
     return compile_fixture(HERE / 'sdvk014_identity_audit_fixture.cpp', output_dir=directory,
                            includes=[directory, DATA, DESCRIPTORS, ROOT / 'src/common/rendering',
                                      ROOT / 'src/common/utility', ROOT / 'src/common/thirdparty'])
@@ -119,7 +121,7 @@ class DurableIdentityAuditTests(unittest.TestCase):
         doom = (ROOT / 'src/rendering/hwrenderer/doom_levelmesh.cpp').read_text()
         release = block(doom, 'void DoomLevelMesh::ReleaseTiles(')
         self.assertLess(release.index('Lightmap.AtlasPacker->Free('), release.index('FreeTile(tileIndex);'))
-        self.assertIn('tile.AtlasLocation.Item = nullptr;', release)
+        self.assertIn('tile.AtlasLocation.Allocation = {};', release)
         self.assertIn('tileIndex = -1;', release)
         mesh = (DATA / 'hw_levelmesh.h').read_text()
         retire = block(mesh, 'inline void LevelMesh::FreeTile(')

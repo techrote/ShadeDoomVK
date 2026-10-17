@@ -80,7 +80,9 @@ struct LightmapBakeImage
 
 struct SelectedTile
 {
-	LightmapTile* Tile = nullptr;
+	LightmapTile* Tile = nullptr; // synchronous Raytrace borrow, not a durable receipt
+	RectPackerAllocation AtlasAllocation;
+	RectPackerAllocation ScratchAllocation;
 	int X = -1;
 	int Y = -1;
 	bool Rendered = false;
@@ -118,6 +120,7 @@ private:
 	void ReleaseResources();
 
 	void SelectTiles(const TArray<LightmapTile*>& surfaces);
+	void ValidateSelectedTile(const SelectedTile& selected) const;
 	void UploadUniforms();
 	void Render();
 	void Resolve();

@@ -35,8 +35,8 @@ void* M_Calloc(size_t n,size_t m) { auto p=std::calloc(n,m); if(!p) throw std::b
 #undef private
 #include "sdvk014_rectpacker_under_test.cpp"
 
-struct Region { int x,y,w,h,page,requestedW,requestedH; RectPackerItem* item; };
-static Region receipt(RectPackerItem* p,int w,int h) { return {p->X,p->Y,p->Width,p->Height,p->PageIndex,w,h,p}; }
+struct Region { int x,y,w,h,page,requestedW,requestedH; RectPackerAllocation item; };
+static Region receipt(RectPacker& owner,RectPackerAllocation item,int w,int h) { const auto p=owner.GetRegion(item); return {p.X,p.Y,p.Width,p.Height,p.PageIndex,w,h,item}; }
 static std::string validate(const std::vector<Region>& regions,int size,int padding,int pages) {
     std::vector<int> occupied(static_cast<size_t>(size)*size*pages,-1);
     for(size_t i=0;i<regions.size();++i) {
@@ -59,18 +59,18 @@ static void run(const std::string& mode) {
         const int pad=mode=="full-height"?0:3;
         RectPacker p(16,16,pad);
         const int w=mode=="full-height"?8:10, h=16-pad*2;
-        auto a=receipt(p.Alloc(w,h),w,h);
+        auto a=receipt(p,p.Alloc(w,h),w,h);
         require(a.page==0 && a.x==pad && a.y==pad,"exact-fill-identity");
         require(validate({a},16,pad,1)=="valid","exact-fill-region");
         p.Free(a.item);
-        auto b=receipt(p.Alloc(w,h),w,h);
+        auto b=receipt(p,p.Alloc(w,h),w,h);
         require(b.page==0 && p.GetNumPages()==1,"freed-full-height-reuse");
     } else if(mode=="clear-rebuild") {
         RectPacker p(16,16,0);
         p.Alloc(8,8);
         p.Clear();
         require(p.GetNumPages()==0,"clear-page-count");
-        auto b=receipt(p.Alloc(8,8),8,8);
+        auto b=receipt(p,p.Alloc(8,8),8,8);
         require(validate({b},16,0,1)=="valid","clear-rebuild-region");
     } else if(mode=="invalid-atomic") {
         RectPacker p(16,16,2);
@@ -97,7 +97,7 @@ static void run(const std::string& mode) {
         RectPacker tiny(1,1,0); tiny.Alloc(1,1);
     } else if(mode=="oracle-negatives") {
         RectPacker p(16,16,0);
-        std::vector<Region> good{receipt(p.Alloc(16,16),16,16),receipt(p.Alloc(16,16),16,16)};
+        std::vector<Region> good{receipt(p,p.Alloc(16,16),16,16),receipt(p,p.Alloc(16,16),16,16)};
         require(validate(good,16,0,2)=="valid","two-page-baseline");
         auto bad=good; bad[1].page=0;
         require(validate(bad,16,0,2)=="overlap","swapped-page-not-detected");
@@ -113,7 +113,7 @@ static void run(const std::string& mode) {
             p.Clear(); std::vector<Region> live;
             for(int i=0;i<64;++i) {
                 const int w=1+(i*5)%11, h=1+(i*7)%9;
-                live.push_back(receipt(p.Alloc(w,h),w,h));
+                live.push_back(receipt(p,p.Alloc(w,h),w,h));
                 require(validate(live,32,1,p.GetNumPages())=="valid","stress-allocation-overlap");
             }
             for(int i=63;i>=0;i-=2) {
@@ -123,7 +123,7 @@ static void run(const std::string& mode) {
             }
             for(int i=0;i<32;++i) {
                 const int w=1+(i*5)%11, h=1+(i*7)%9;
-                live.push_back(receipt(p.Alloc(w,h),w,h));
+                live.push_back(receipt(p,p.Alloc(w,h),w,h));
                 require(validate(live,32,1,p.GetNumPages())=="valid","stress-reuse-overlap");
             }
             if(cycle==0) { warmItems=p.Items.size(); warmPages=p.GetNumPages(); }

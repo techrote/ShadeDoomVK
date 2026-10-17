@@ -206,6 +206,25 @@ public:
 
 	uint32_t AtlasPixelCount() const { return uint32_t(Lightmap.TextureCount * Lightmap.TextureSize * Lightmap.TextureSize); }
 	void PackLightmapAtlas();
+	// Atlas consumers must validate with this mesh's current owner, not an
+	// owner pointer retained in a potentially obsolete tile/receipt.
+	void ValidateLightmapTile(const LightmapTile& tile) const
+	{
+		if (!Lightmap.AtlasPacker || !tile.HasValidAtlasRegion(*Lightmap.AtlasPacker, Lightmap.TextureSize, Lightmap.TextureCount))
+			I_FatalError("Invalid or stale LevelMesh lightmap atlas receipt");
+	}
+	const LightmapTile& GetLightmapTile(int index) const
+	{
+		if (index < 0 || index >= (int)Lightmap.Tiles.Size())
+			I_FatalError("Invalid LevelMesh lightmap tile index: %d", index);
+		auto& tile = Lightmap.Tiles[index];
+		ValidateLightmapTile(tile);
+		return tile;
+	}
+	LightmapTile& GetLightmapTile(int index)
+	{
+		return const_cast<LightmapTile&>(static_cast<const LevelMesh*>(this)->GetLightmapTile(index));
+	}
 
 	void AddEmptyMesh();
 	
@@ -342,6 +361,8 @@ inline SurfaceAllocInfo LevelMesh::AllocSurface(int count)
 
 inline int LevelMesh::AllocTile(const LightmapTile& tile)
 {
+	if (tile.AtlasLocation.Allocation)
+		I_FatalError("Cannot copy an atlas allocation into a new LevelMesh tile");
 	Lightmap.UsedTiles++;
 	if (Lightmap.FreeTiles.Size() != 0)
 	{
@@ -400,7 +421,7 @@ inline void LevelMesh::FreeTile(int index)
 		if (freeIndex == index)
 			I_FatalError("Duplicate LevelMesh lightmap tile free: %d", index);
 	LightmapTile& tile = Lightmap.Tiles[index];
-	if (tile.UseCount != 0 || tile.AtlasLocation.Item)
+	if (tile.UseCount != 0 || tile.AtlasLocation.Allocation)
 		I_FatalError("LevelMesh lightmap tile still owns surfaces or an atlas allocation: %d", index);
 
 	// ReleaseTiles has relinquished the last surface and freed the atlas item.

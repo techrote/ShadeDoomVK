@@ -35,7 +35,7 @@ struct LightmapTile
 		int Width = 0;
 		int Height = 0;
 		int ArrayIndex = -1;
-		RectPackerItem* Item = nullptr;
+		RectPackerAllocation Allocation;
 		uint32_t Area() const { return Width * Height; }
 	} AtlasLocation;
 
@@ -80,17 +80,19 @@ struct LightmapTile
 	int LastSeen = 0;
 
 	// Pool slots survive release. A plausible rectangle is not a live owner.
-	bool HasLiveAtlasAllocation() const
+	bool HasLiveAtlasAllocation(const RectPacker& packer) const
 	{
-		return UseCount > 0 && AtlasLocation.Item && AtlasLocation.ArrayIndex >= 0;
+		return UseCount > 0 && AtlasLocation.ArrayIndex >= 0 && packer.IsLive(AtlasLocation.Allocation);
 	}
 
-	bool HasValidAtlasRegion(int textureSize, int pageCount) const
+	bool HasValidAtlasRegion(const RectPacker& packer, int textureSize, int pageCount) const
 	{
-		return HasLiveAtlasAllocation() && AtlasLocation.ArrayIndex < pageCount &&
-			AtlasLocation.ArrayIndex == AtlasLocation.Item->PageIndex &&
-			AtlasLocation.X == AtlasLocation.Item->X && AtlasLocation.Y == AtlasLocation.Item->Y &&
-			AtlasLocation.Width == AtlasLocation.Item->Width && AtlasLocation.Height == AtlasLocation.Item->Height &&
+		RectPackerRegion region;
+		return UseCount > 0 && AtlasLocation.ArrayIndex >= 0 &&
+			packer.TryGetRegion(AtlasLocation.Allocation, region) && AtlasLocation.ArrayIndex < pageCount &&
+			AtlasLocation.ArrayIndex == region.PageIndex &&
+			AtlasLocation.X == region.X && AtlasLocation.Y == region.Y &&
+			AtlasLocation.Width == region.Width && AtlasLocation.Height == region.Height &&
 			AtlasLocation.X >= 0 && AtlasLocation.Y >= 0 &&
 			AtlasLocation.Width > 0 && AtlasLocation.Height > 0 &&
 			AtlasLocation.Width <= textureSize && AtlasLocation.Height <= textureSize &&

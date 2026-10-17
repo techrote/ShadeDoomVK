@@ -1291,3 +1291,31 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Correct only the input driver: remove direct ZScript CVAR mutation and queue ordinary console CVAR commands from an explicit outcome-blind native presented-frame scheduler at the same 40/48/56/64 boundaries. Passive frame/material/probe records remain the acceptance witness. Production descriptor ownership, quality and thresholds are unchanged.
 - Focused renderer-oracle suite: 230 PASS; deterministic corpus preparation PASS; 27 directly affected PF/source tests PASS. The aggregate local checker exceeded the execution window and is not counted as a pass; exact-head normal CI remains authoritative.
 - #153 remains NOT ACCEPTED pending fresh exact-head native CI/review/merge. #14 remains NOT SOFTWARE-COMPLETE. Physical STOP ACTIVE; physical performance HELD; historical physical root cause UNDETERMINED.
+
+
+### 16 October 2026 (UTC) — SDVK-156 atlas allocation-incarnation implementation
+
+- Reconciled accepted PR #155 / #153 and master `ad0833696804e57672ec425d2c33bf36732d05f1`,
+  tree `ee9b0cffc10316a95a4cc74d2cfd4c0462cd2e29`; created bounded follow-on #156 under #14.
+  Source artifact 12076183304 from run 38969597322 was checksum-verified; its
+  synthetic CI merge checkout has the exact same source tree as accepted master.
+- Replaced public raw RectPacker receipts with independent owner/slot/incarnation
+  values. Free/Clear/owner recreation/counter exhaustion cannot refresh captured
+  old identity. Audited producers and draw/UV, decal, visible/background, retained
+  load/save, export, release and bake-scratch/destination consumers. Existing
+  current-surface tombstones, descriptor/probe ownership and valid geometry remain.
+- Pinned original atlas/header/driver bytes and kept original copied-receipt
+  counterexamples negative. Current exact-source tests cover 20 lifecycle cases,
+  eight compiled production mutants, and byte-identical 2,560-allocation/32-Clear
+  traces. Clang ASan/UBSan/leak checks pass all 20 current cases, including rejection
+  before touching a genuinely dangling old tile after mesh-owner replacement.
+- Bounded rebuild reaches four tile slots/four item objects/one page over 128
+  cycles and 512 allocations+retirements. ABI size deltas and complete source
+  hashes are in `evidence/SDVK-156-ATLAS-IDENTITY-CPU.json`; no physical/native
+  performance benefit or per-texel image identity proof is inferred.
+- Full local CPU gate and final source/PR identities are recorded in the validation
+  receipt and #156 publication thread. Normal CI, adversarial review, merge and
+  exact-master verification remain required; no blanket #14 acceptance follows.
+- Separate LIGHTMAP authored-content freshness, native repeated/multi-page and
+  supported special-surface/material matrix remain. Physical STOP ACTIVE; physical
+  cost/scaling/stability HELD / NOT ACCEPTED; historical cause UNDETERMINED.

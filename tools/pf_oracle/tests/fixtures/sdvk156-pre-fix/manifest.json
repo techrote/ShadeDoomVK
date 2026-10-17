@@ -1,0 +1,32 @@
+{
+  "schema": "sdvk156-retained-source/v1",
+  "assessed_master": "ad0833696804e57672ec425d2c33bf36732d05f1",
+  "assessed_tree": "ee9b0cffc10316a95a4cc74d2cfd4c0462cd2e29",
+  "files": {
+    "hw_rectpacker.h": {
+      "path": "src/common/rendering/hwrenderer/data/hw_rectpacker.h",
+      "sha256": "00152af6562efe4a5596c7d227a47b64a1a35596a0d633962da08ab57440a0c0",
+      "git_blob": "01dc9cc3d36d54178b760927e78603f4c38f74ad"
+    },
+    "hw_rectpacker.cpp": {
+      "path": "src/common/rendering/hwrenderer/data/hw_rectpacker.cpp",
+      "sha256": "90923109b21d650dc094c902e1c9ff1106a264cf4b8beeba542aa6cb8f17cbb8",
+      "git_blob": "9723a242ea1aa5648c96da38cd108c4cafb0066c"
+    },
+    "hw_lightmaptile.h": {
+      "path": "src/common/rendering/hwrenderer/data/hw_lightmaptile.h",
+      "sha256": "f29e54506ecc6107aa1653bd95ef1144664e2891b8911a1ca1739dbdd29546da",
+      "git_blob": "07ec390ac6352d894ede7b11a52b7e2ec771f55e"
+    },
+    "sdvk014_atlas_fixture.cpp": {
+      "path": "tools/pf_oracle/tests/sdvk014_atlas_fixture.cpp",
+      "sha256": "0fa5ca30add3bfe97efa19d531f4206e042f5403802465036546479529ac8bc3",
+      "git_blob": "6e9ff73d756888f7a1dbbb15ecb2c0066da6352f"
+    },
+    "sdvk014_tile_fixture.cpp": {
+      "path": "tools/pf_oracle/tests/sdvk014_tile_fixture.cpp",
+      "sha256": "237bd06661341d20a59b17f2250a7ace1cc7c9d7ebbdc3ffa422337781ce2288",
+      "git_blob": "3e7dbff8322de32ad66ac2aa526392de2169a8cc"
+    }
+  }
+}

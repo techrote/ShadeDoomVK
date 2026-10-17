@@ -15,6 +15,7 @@ import unittest
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT))
 from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.sdvk156_source import RETAINED, retain_atlas_headers
 from tools.pf_oracle.tests.sdvk014_source import block,current
 HERE=Path(__file__).resolve().parent
 DATA=ROOT/'src/common/rendering/hwrenderer/data'
@@ -33,7 +34,9 @@ def build(directory: Path,original: bool=False) -> Path:
     bounds=(ROOT/'src/common/utility/bounds.cpp').read_text()
     (directory/'sdvk014_bounds_under_test.cpp').write_text('#define M_INFINITY 1e30f\n'+
         '\n'.join(block(bounds,s) for s in ('BBox::BBox()','BBox::BBox(const FVector3','void BBox::Clear()')))
-    (directory/'sdvk014_rectpacker_under_test.cpp').write_text((DATA/'hw_rectpacker.cpp').read_text())
+    if original:
+        retain_atlas_headers(directory)
+    (directory/'sdvk014_rectpacker_under_test.cpp').write_text(((RETAINED if original else DATA)/'hw_rectpacker.cpp').read_text())
     doom=(ROOT/'src/rendering/hwrenderer/doom_levelmesh.cpp').read_text()
     # Preserve actual encoding; expose completed bytes, omit filesystem/compression.
     writer=doom[doom.index('class LumpWriter'):doom.index('\tTArray<uint8_t> DeflateCompress()')]
@@ -47,7 +50,12 @@ def build(directory: Path,original: bool=False) -> Path:
     frame='void VulkanRenderDevice::PublishMesh() {\n'+block(source('frame'),'if (levelMeshChanged)')+'\n}'
     methods='\n'.join(source(k) for k in ('alloc','free','stats','release','invalidate','update'))
     (directory/'sdvk014_tile_methods.cpp').write_text(writer+methods+'\n'+save+'\n'+frame)
-    return compile_fixture(HERE/'sdvk014_tile_fixture.cpp',output_dir=directory,
+    fixture = (RETAINED if original else HERE)/'sdvk014_tile_fixture.cpp'
+    if original:
+        local_fixture = directory / fixture.name
+        local_fixture.write_bytes(fixture.read_bytes())
+        fixture = local_fixture
+    return compile_fixture(fixture,output_dir=directory,
         includes=[directory,DATA,ROOT/'src/common/utility',ROOT/'src/common/thirdparty'])
 
 

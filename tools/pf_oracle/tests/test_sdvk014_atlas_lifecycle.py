@@ -11,6 +11,7 @@ import unittest
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.sdvk156_source import RETAINED, retain_atlas_headers
 
 HERE = Path(__file__).resolve().parent
 DATA = ROOT / 'src/common/rendering/hwrenderer/data'
@@ -23,7 +24,14 @@ def build(directory: Path, original: bool = False) -> Path:
     directory.mkdir(parents=True, exist_ok=True)
     text = (OLD if original else DATA/'hw_rectpacker.cpp').read_text()
     (directory/'sdvk014_rectpacker_under_test.cpp').write_text(text)
-    return compile_fixture(HERE/'sdvk014_atlas_fixture.cpp', output_dir=directory,
+    if original:
+        retain_atlas_headers(directory)
+    fixture = (RETAINED if original else HERE) / 'sdvk014_atlas_fixture.cpp'
+    if original:
+        local_fixture = directory / fixture.name
+        local_fixture.write_bytes(fixture.read_bytes())
+        fixture = local_fixture
+    return compile_fixture(fixture, output_dir=directory,
         includes=[directory, DATA, ROOT/'src/common/utility'])
 
 

@@ -427,7 +427,7 @@ void HWWall::ProcessDecal(HWDrawInfo* di, FRenderState& state, DBaseDecal *decal
 
 	if (!(decal->RenderFlags & RF_FULLBRIGHT) && lightmaptile >= 0)
 	{
-		LightmapTile* tile = &di->Level->levelMesh->Lightmap.Tiles[lightmaptile];
+		LightmapTile* tile = &di->Level->levelMesh->GetLightmapTile(lightmaptile);
 		float lightmapindex = (float)tile->AtlasLocation.ArrayIndex;
 
 		for (i = 0; i < 4; i++)
@@ -680,7 +680,7 @@ void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dy
 
 	if (!(decal->RenderFlags & RF_FULLBRIGHT) && lightmaptile >= 0)
 	{
-		LightmapTile* tile = &di->Level->levelMesh->Lightmap.Tiles[lightmaptile];
+		LightmapTile* tile = &di->Level->levelMesh->GetLightmapTile(lightmaptile);
 		float lightmapindex = (float)tile->AtlasLocation.ArrayIndex;
 
 		for (i = 0; i < 4; i++)

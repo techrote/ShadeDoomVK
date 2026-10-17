@@ -18,6 +18,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle.tests.test_sdvk014_identity_audit import CASES, SOURCES, build
 from tools.pf_oracle.tests.sdvk153_source import retained, RETAINED_SHA256
+from tools.pf_oracle.tests.sdvk156_source import retained_files
 
 BASE = 'ca254b6ea08228c8408562ebba26bbc1060a0311'
 TREE = 'ea20650fefbe454b5a43f82119e879df75ed8e4f'
@@ -71,7 +72,8 @@ def collect() -> dict:
                        'git_blob': hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest()}
     return {
         'schema': 'sdvk014-durable-identity-audit/v2',
-        'replay_scope': 'historical assessed producer fragments; current source is tested separately by SDVK-153',
+        'replay_scope': 'historical assessed descriptor and atlas producers; current source is tested separately by SDVK-153/156',
+        'retained_atlas_inputs': retained_files(),
         'retained_producer_snapshot_sha256': RETAINED_SHA256,
         'assessed_master': BASE, 'assessed_tree': TREE,
         'upstream_blocker': 153,
@@ -91,7 +93,7 @@ def collect() -> dict:
             'symbolic view objects and sampled-descriptor write sink; pending writes treated as submitted',
             'empty material/colormap populations; real PF-003 slot allocator and PF-012 CPU selection',
             'sampler hardware-reset counter; source check verifies retained probe samplers are outside that reset',
-            'real RectPacker, LightmapTile and BBox constructors; allocation/error services only',
+            'pinned pre-SDVK-156 RectPacker and LightmapTile; real BBox constructors; allocation/error services only',
             'counterfactual deletes only the probe retirement loop in an extracted temporary definition',
         ],
         'limits': {
