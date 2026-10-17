@@ -56,6 +56,9 @@ struct Observer
     // ordinary console CVAR commands after fixed main-view ordinals; it is not
     // part of the passive observation state and reads no renderer result.
     bool SamplerResetInput = false;
+    // SDVK-158 fixture input is also outcome-blind: fixed main-view ordinals
+    // queue ordinary console invalidate/reload commands and never inspect state.
+    bool LightmapTransitionInput = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -101,6 +104,31 @@ void DriveSamplerResetInput(const Observer& observer)
         AddCommandString(command.c_str());
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK153_SETTING %s=%s after_main_views=%u\n",
             phase.CVar, phase.Value, phase.AfterMainViews);
+    }
+}
+
+struct LightmapTransitionPhase
+{
+    unsigned AfterMainViews;
+    const char* Name;
+    const char* Command;
+};
+
+constexpr LightmapTransitionPhase LightmapTransitionPhases[] = {
+    {56, "invalidate-1", "invalidatelightmap"},
+    {88, "reload", "map SDV158"},
+    {120, "invalidate-2", "invalidatelightmap"},
+};
+
+void DriveLightmapTransitionInput(const Observer& observer)
+{
+    if (!observer.LightmapTransitionInput) return;
+    for (const auto& phase : LightmapTransitionPhases)
+    {
+        if (observer.Seen != phase.AfterMainViews) continue;
+        AddCommandString(phase.Command);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK158_LIGHTMAP_INPUT phase=%s after_main_views=%u\n",
+            phase.Name, phase.AfterMainViews);
     }
 }
 
@@ -183,10 +211,15 @@ void Initialize()
         observer.Quit = Args->CheckParm("-sdvkobservequit") != 0;
         observer.ProbeBuilderTrace = Args->CheckParm("-sdvkprobeownertrace") != 0;
         observer.SamplerResetInput = Args->CheckParm("-sdvk153samplerresetdriver") != 0;
+        observer.LightmapTransitionInput = Args->CheckParm("-sdvk158lightmapdriver") != 0;
         Require(!observer.ProbeBuilderTrace || observer.StateMode,
             "Probe-owner lifecycle trace is state-only");
         Require(!observer.SamplerResetInput || observer.StateMode,
             "SDVK-153 sampler-reset input driver is state-only");
+        Require(!observer.LightmapTransitionInput || observer.StateMode,
+            "SDVK-158 lightmap transition input driver is state-only");
+        Require(!(observer.SamplerResetInput && observer.LightmapTransitionInput),
+            "Only one SDVK outcome-blind input driver may be active");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
             .Str("identity", GetBuildIdentity()).Str("backend", screen->IsVulkan() ? "vulkan" : "other")
@@ -607,6 +640,7 @@ void FramePresented()
         // command runs through the ordinary console CVAR path before a later
         // view; retained frame state independently verifies its real effect.
         DriveSamplerResetInput(observer);
+        DriveLightmapTransitionInput(observer);
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;
