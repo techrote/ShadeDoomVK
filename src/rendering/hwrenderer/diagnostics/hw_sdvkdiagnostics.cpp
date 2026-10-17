@@ -115,9 +115,9 @@ struct LightmapTransitionPhase
 };
 
 constexpr LightmapTransitionPhase LightmapTransitionPhases[] = {
-    {56, "invalidate-1", "invalidatelightmap"},
-    {88, "reload", "map SDV158"},
-    {120, "invalidate-2", "invalidatelightmap"},
+    {40, "invalidate-1", "invalidatelightmap"},
+    {56, "reload", "map SDV158"},
+    {72, "invalidate-2", "invalidatelightmap"},
 };
 
 void DriveLightmapTransitionInput(const Observer& observer)
