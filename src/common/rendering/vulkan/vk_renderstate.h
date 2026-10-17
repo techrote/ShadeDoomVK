@@ -60,7 +60,7 @@ public:
 
 	// Draw level mesh
 	void ApplyLevelMesh() override;
-	void DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& drawList, bool masked, bool noFragmentShader) override;
+	void DrawLevelMeshList(const TArray<TArray<MeshBufferRange>>& drawList, LevelMeshDrawSurface surface, bool masked, bool noFragmentShader) override;
 	void DispatchLightTiles(const VSMatrix& worldToView, float m5) override;
 	int GetNextQueryIndex() override;
 	void BeginQuery() override;

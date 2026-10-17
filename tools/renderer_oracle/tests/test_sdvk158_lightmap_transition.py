@@ -40,6 +40,16 @@ def resource(frame: int, *, epoch: int = 3, updates: int = 0, completions: int =
     }}
 
 
+def levelmesh_draw(frame: int, surface: str):
+    return {"kind": "pipeline", "frame": frame, "count": 1, "data": {
+        "producer": "levelmesh-indexed-range", "surface": surface,
+        "indexed": True, "first_index": 0 if surface == "side" else 18, "draw_count": 6,
+        "key": {"shader": {"UseLevelMesh": 1}},
+        "context": {"available": True, "map": target.MAP, "type": "main", "root_type": "main",
+                    "depth": 0, "parent_identity": 0},
+    }}
+
+
 def good_raw():
     rows = []
     for frame in range(1, target.FRAMES + 1):
@@ -66,6 +76,8 @@ def good_raw():
                 completions=1 if frame == 41 else 0,
                 initial_dirty=5 if frame == 41 else 0,
                 light_dirty=5 if frame == 41 else 0))
+    rows.extend(levelmesh_draw(frame, surface)
+                for frame in range(1, target.FRAMES + 1) for surface in ("side", "flat"))
     return {"observed_frames": target.FRAMES, "records": rows}
 
 
@@ -82,6 +94,35 @@ class LightmapTransitionOracleTests(unittest.TestCase):
         self.assertEqual(result["status"], "PASS")
         self.assertGreaterEqual(result["minimum_pages"], 2)
         self.assertTrue(result["final_all_clean"])
+        self.assertEqual(result["levelmesh_draws"]["minimum_side_ranges_per_frame"], 1)
+        self.assertEqual(result["levelmesh_draws"]["minimum_flat_ranges_per_frame"], 1)
+
+    def test_each_frame_requires_actual_side_and_flat_submissions(self):
+        for surface in ("side", "flat"):
+            raw = good_raw()
+            raw["records"] = [row for row in raw["records"]
+                              if not (row["frame"] == 24 and row["data"].get("surface") == surface)]
+            with self.subTest(surface=surface), self.assertRaisesRegex(EvidenceError, "no actual LevelMesh"):
+                target.validate_transition_records(raw, stdout(), native_recipe())
+
+    def test_immediate_empty_unbound_or_foreign_draws_cannot_cover_mesh(self):
+        mutations = (
+            lambda row: row.pop("producer"),
+            lambda row: row.update(indexed=False),
+            lambda row: row.update(draw_count=0),
+            lambda row: row.update(first_index=-1),
+            lambda row: row["key"]["shader"].update(UseLevelMesh=0),
+            lambda row: row["context"].update(available=False),
+            lambda row: row["context"].update(type="portal", depth=1, parent_identity=1),
+            lambda row: row["context"].update(root_type="camera-texture"),
+            lambda row: row["context"].update(map="OTHER"),
+        )
+        for mutation in mutations:
+            raw = good_raw()
+            mutation(next(row["data"] for row in raw["records"]
+                          if row["frame"] == 41 and row["data"].get("surface") == "flat"))
+            with self.subTest(mutation=mutation), self.assertRaises(EvidenceError):
+                target.validate_transition_records(raw, stdout(), native_recipe())
 
     def test_single_page_or_invalid_live_receipt_rejects(self):
         for edit in ("single-page", "invalid"):
@@ -98,7 +139,7 @@ class LightmapTransitionOracleTests(unittest.TestCase):
     def test_missing_completed_work_or_clean_convergence_rejects(self):
         raw = good_raw()
         for record in raw["records"]:
-            if 9 <= record["frame"] <= 24:
+            if record["kind"] == "resource" and 9 <= record["frame"] <= 24:
                 record["data"]["lightmap_state"]["frame_tile_completions"] = 0
         with self.assertRaisesRegex(EvidenceError, "real lightmap tile work"):
             target.validate_transition_records(raw, stdout(), native_recipe())
@@ -112,7 +153,8 @@ class LightmapTransitionOracleTests(unittest.TestCase):
     def test_reload_requires_new_resource_epoch_and_retained_admission(self):
         raw = good_raw()
         for record in raw["records"]:
-            record["data"]["lightmap_epoch"] = 3
+            if record["kind"] == "resource":
+                record["data"]["lightmap_epoch"] = 3
         with self.assertRaisesRegex(EvidenceError, "resource epoch"):
             target.validate_transition_records(raw, stdout(), native_recipe())
 

@@ -382,6 +382,9 @@ def capture(args):
         require(raw["warmup_frames"] == warmup and raw["gpu_timing_requested"] is args.gpu,
                 "Actual observer warmup/GPU timing mode differs from preregistration")
         _scene_assertions(raw, scene)
+        if native.get("generator") == "lightmap_transition":
+            from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
+            validate_transition_records(raw, text, native)
         if diagnostics is not None:
             publication_module().validate_capture_diagnostics(out, preregister)
         if mode == "state":
@@ -950,7 +953,13 @@ def compare_runs(left, right, *, allow_build_change=False):
                 "Builds differ; use --allow-build-change for an explicit candidate comparison")
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
-    static = a["reproduction"]["clock"] == "static_after_initialization"
+    # SDVK-158 changes lightmap state at fixed presented-view ordinals in an
+    # unanimated room with a fixed camera. Simulation pacing is still ordinary,
+    # so tic/fraction labels are not transition identities. Reuse only the
+    # established clock-label projection; frame/phase/resource state stays exact.
+    fixed_view_lightmap = (a["scene"] == "lightmap-retained-transition"
+        and a["reproduction"]["clock"] == "ordinary_engine_clock_with_fixed_presented-view_input_schedule")
+    static = a["reproduction"]["clock"] == "static_after_initialization" or fixed_view_lightmap
     x = _sdvk150_repeatability_projection(
         _sdvk010_repeatability_projection(validate.state_projection(left_raw, static_scene=static), a["scene"]),
         a["scene"])
@@ -962,6 +971,8 @@ def compare_runs(left, right, *, allow_build_change=False):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     if a["scene"] == "probe-owner-transition":
         normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
+    if fixed_view_lightmap:
+        normalization += "; SDVK-158 fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",

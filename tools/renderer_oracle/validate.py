@@ -515,6 +515,12 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             require(isinstance(value.get("key"), dict) and isinstance(value["key"].get("shader"), dict)
                     and value["key"]["shader"], "Pipeline/shader field identity is missing")
             integer(value.get("draw_count"), "draw count")
+            if value.get("producer") == "levelmesh-indexed-range":
+                require(value.get("surface") in ("side", "flat") and value.get("indexed") is True,
+                        "LevelMesh draw must identify its indexed side/flat list")
+                integer(value.get("draw_count"), "LevelMesh index count", minimum=1)
+                integer(value.get("first_index"), "LevelMesh first index", minimum=0)
+                integer(value["key"]["shader"].get("UseLevelMesh"), "bound LevelMesh pipeline", minimum=1, maximum=1)
         elif kind == "resource":
             capacity = integer(value.get("descriptor_capacity"), "descriptor capacity", minimum=1)
             current = integer(value.get("descriptor_current"), "descriptor current")

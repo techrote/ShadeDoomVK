@@ -61,6 +61,35 @@ def _phase(rows: dict[int, dict], first: int, last: int) -> list[dict]:
     return [rows[frame] for frame in range(first, last + 1)]
 
 
+def _require_levelmesh_draws(raw: dict) -> dict:
+    # Legacy frame.walls/flats count immediate processing, which the retained
+    # mesh bypasses. Require the actual submitted ranges in each main view.
+    submitted = {frame: {"side": 0, "flat": 0} for frame in range(1, FRAMES + 1)}
+    for record in raw["records"]:
+        value = record.get("data", {})
+        if record.get("kind") != "pipeline" or value.get("producer") != "levelmesh-indexed-range":
+            continue
+        context = value.get("context", {})
+        surface = value.get("surface")
+        require(surface in ("side", "flat") and value.get("indexed") is True
+                and type(value.get("draw_count")) is int and value["draw_count"] > 0
+                and type(value.get("first_index")) is int and value["first_index"] >= 0
+                and value.get("key", {}).get("shader", {}).get("UseLevelMesh") == 1,
+                "SDVK-158 LevelMesh submission is not a nonempty bound indexed range")
+        if (context.get("available") is True and context.get("type") == "main"
+                and context.get("root_type") == "main" and context.get("depth") == 0
+                and context.get("parent_identity") == 0 and context.get("map") == MAP):
+            require(record.get("frame") in submitted and type(record.get("count")) is int
+                    and record["count"] > 0, "Invalid LevelMesh submission frame/multiplicity")
+            submitted[record["frame"]][surface] += record["count"]
+    for frame, counts in submitted.items():
+        for surface, count in counts.items():
+            require(count >= 1, f"SDVK-158 frame {frame} has no actual LevelMesh {surface} submission")
+    return {"minimum_side_ranges_per_frame": min(row["side"] for row in submitted.values()),
+            "minimum_flat_ranges_per_frame": min(row["flat"] for row in submitted.values()),
+            "scope": "submitted main-view indexed ranges by list class, not unique surfaces or GPU execution"}
+
+
 def _lightmap(row: dict) -> dict:
     state = row.get("lightmap_state", {})
     require(state.get("available") is True, "SDVK-158 lightmap lifecycle state unavailable")
@@ -129,12 +158,14 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
             "Same-map reload did not replace the Vulkan lightmap resource epoch")
     invalidate2 = _require_completed_cycle(_phase(rows, 41, 48), "second invalidation", require_all_clean=True)
 
+    levelmesh_draws = _require_levelmesh_draws(raw)
     final = _lightmap(rows[FRAMES])
     return {
         "status": "PASS",
         "frames": FRAMES,
         "minimum_pages": min(_lightmap(row)["texture_count"] for row in rows.values()),
         "retained_tiles_loaded": final["retained_tiles_loaded"],
+        "levelmesh_draws": levelmesh_draws,
         "cycles": {"invalidate_1": invalidate1, "reload": reload, "invalidate_2": invalidate2},
         "final_all_clean": final["all_clean"],
         "scope": "hosted emitted resource/lifecycle state and final image; no per-texel GPU readback",

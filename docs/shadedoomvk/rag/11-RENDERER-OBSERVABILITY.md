@@ -36,6 +36,14 @@ the actual uniform index, semantic layers, selected sampler creation arguments,
 probe uniform, canonical pipeline state and owner counters. It must not call
 descriptor/image creation or probe resolution just to observe a value.
 
+`DrawLevelMeshList` carries its explicit side/flat list class from `HWDrawInfo`.
+After a nonempty `drawIndexed`, a separate pipeline-only observer records the
+actual range and final overridden `mPipelineKey`. These batches read mesh
+storage, so this producer does not read the immediate material, sprite or probe
+uniforms. Ranges count submissions, not unique surfaces or completed GPU work.
+SDVK-158 requires both classes in every retained main view; legacy frame
+wall/flat processing counters do not establish mesh submissions.
+
 `hw_spritelight.cpp` emits actual selected/rejected leaves from both actor
 per-pixel and CPU aggregate routes. Qualification/reference-only traversals do
 not masquerade as rendering decisions. `CollectLights` reports actual shadow
@@ -68,6 +76,12 @@ workload-volume counters are excluded from semantic equality; capacity state,
 resets, cancellations, staging wrap/dedicated state and all failure/rejection
 diagnostics remain compared. Probe/light/shadow/material/
 pipeline decisions are never erased to obtain a pass.
+
+The exact SDVK-158 scene and its declared fixed-presented-view input policy also
+permit tic/fraction label normalization: its unanimated geometry/camera and
+transition driver do not use those labels. Raw clock values remain retained,
+and phase order, mesh ranges, page receipts, epochs and completed tile work
+remain compared. Other ordinary-clock scenes do not inherit this exception.
 
 Exact or preregistered tolerant RGB comparison is paired with state. Both
 inputs must share actual device/driver/content/settings; changing a build is an

@@ -131,6 +131,20 @@ std::string Pipeline(const VkPipelineKey& value)
 // or resolve a new probe merely to collect evidence.
 struct FSdvkDiagnosticAccess
 {
+    static void LevelMeshDraw(VkRenderState* state, int firstIndex, int count, LevelMeshDrawSurface surface)
+    {
+        using namespace SdvkObservation;
+        // ApplyLevelMeshPipeline has already stored the final overridden key.
+        // Mesh batches do not consume the immediate material/surface uniforms.
+        SdvkDiagnostics::Emit("pipeline", Object().Raw("context", SdvkDiagnostics::CurrentContextJson())
+            .Str("producer", "levelmesh-indexed-range").Str("surface", surface == LevelMeshDrawSurface::Side ? "side" : "flat")
+            .Raw("key", Pipeline(state->mPipelineKey)).Bool("indexed", true).Int("first_index", firstIndex).Int("draw_count", count)
+            .Int("target_width", state->mRenderTarget.Width).Int("target_height", state->mRenderTarget.Height)
+            .Int("target_format", int(state->mRenderTarget.Format)).Int("target_samples", int(state->mRenderTarget.Samples))
+            .Int("draw_buffers", state->mRenderTarget.DrawBuffers).Bool("depth_stencil", state->mRenderTarget.DepthStencil != nullptr)
+            .Str("basis", "bound pipeline and submitted LevelMesh indexed range; no per-surface material/probe or executed-shader claim").Json(), true);
+    }
+
     static void Draw(VkRenderState* state, int count, bool indexed)
     {
         using namespace SdvkObservation;
@@ -279,6 +293,13 @@ struct FSdvkDiagnosticAccess
 
 namespace SdvkDiagnostics
 {
+void VulkanLevelMeshDraw(VkRenderState* state, int firstIndex, int count, LevelMeshDrawSurface surface)
+{
+    if (!StateEnabled()) return;
+    try { FSdvkDiagnosticAccess::LevelMeshDraw(state, firstIndex, count, surface); }
+    catch (const std::exception& error) { Fail(error.what()); }
+}
+
 void VulkanDraw(VkRenderState* state, int count, bool indexed)
 {
     if (!StateEnabled()) return;

@@ -320,7 +320,7 @@ void Dump(bool complete)
             .Str("scope", "existing named Vulkan timestamp groups resolved after the graphics fence; groups may nest and are not total GPU frame time")
             .Raw("unavailable_batches", reasons).Json())
             .Raw("cpu_timing", Object().Bool("available", observer.Collected > 0).Str("scope", "steady-clock elapsed RenderView including its canvas, probe and scene work; excludes later presentation/finish and observer end serialization").Json())
-            .Raw("state", observer.StateMode && V_IsHardwareRenderer() ? Object().Bool("available", true).Str("scope", "observed immediate scene draws and actor per-pixel/CPU-aggregate light decisions; LevelMesh per-surface state remains unavailable").Json() : Unavailable(observer.StateMode ? "software scene state is covered by retained PF fixtures, not this hardware observer" : "timing mode does not collect per-draw state"))
+            .Raw("state", observer.StateMode && V_IsHardwareRenderer() ? Object().Bool("available", true).Str("scope", "observed immediate scene draws, LevelMesh indexed-range pipelines and actor per-pixel/CPU-aggregate light decisions; LevelMesh per-surface material/probe state remains unavailable").Json() : Unavailable(observer.StateMode ? "software scene state is covered by retained PF fixtures, not this hardware observer" : "timing mode does not collect per-draw state"))
             .Raw("gpu_total_frame", Unavailable("named timestamp groups are not an independently measured whole-frame duration"));
         const std::string rows = observer.Records.CloseJson();
         const bool pass = complete && observer.Records.Failure().empty() && observer.Records.DroppedCount() == 0;

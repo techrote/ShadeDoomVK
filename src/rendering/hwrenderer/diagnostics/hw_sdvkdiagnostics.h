@@ -14,6 +14,7 @@ class FMaterial;
 class VkRenderState;
 class VulkanRenderDevice;
 class VulkanSampler;
+enum class LevelMeshDrawSurface;
 
 // SDVK-002 default-off, bounded observation only. Hot callers perform one
 // relaxed flag load before constructing records or examining diagnostic state.
@@ -59,6 +60,9 @@ std::string CurrentActorSunJson();
 std::string CurrentActorProbeSelectionJson();
 std::string CurrentSpriteBasisJson();
 void VulkanDraw(VkRenderState* state, int count, bool indexed);
+// Actual LevelMesh indexed submission only; per-surface material/probe state
+// comes from mesh storage and must not be borrowed from immediate uniforms.
+void VulkanLevelMeshDraw(VkRenderState* state, int firstIndex, int count, LevelMeshDrawSurface surface);
 void VulkanResources(VulkanRenderDevice* device);
 std::string VulkanBuild(VulkanRenderDevice* device);
 void GpuGroup(const char* name, double milliseconds);

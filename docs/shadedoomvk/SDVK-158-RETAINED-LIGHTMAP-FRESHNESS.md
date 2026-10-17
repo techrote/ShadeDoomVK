@@ -95,6 +95,8 @@ Acceptance comes from passive resource records.
 
 Each retained state frame records:
 
+- actual nonempty LevelMesh side and flat indexed submissions from the main
+  view, including their final bound pipeline and target state;
 - CPU atlas texture size/page count;
 - current Vulkan lightmap page count;
 - live/current-valid/invalid tile counts;
@@ -124,6 +126,11 @@ intervals, leaving at least eight frames after the final six-tile invalidation a
 
 Two independent clean-state processes execute the full invalidate → reload →
 invalidate schedule and must repeat exact semantic state and final RGB.
+The room and camera are unanimated, and the driver reads presented-view ordinals
+rather than simulation time. The comparator normalizes only tic/fraction labels
+for this exact scene and its declared fixed-view input policy. Raw clock values
+remain in both receipts; draw ranges, frame/phase order, page ownership, epochs,
+tile completions/dirty state and final RGB remain exact.
 
 ## CPU/source falsifiers
 
@@ -195,6 +202,13 @@ in artifact `12085874925` (artifact ZIP SHA-256
 `8b8273c2bb6eed7ae3ced69f7029c56d90d2f0cc040d8d41d5cde251ee4d94cc`).
 The second transition process and dependent publication gate did not run.
 
+The downloaded original `native.renderer.json` has SHA-256
+`6f40b4759549825250b705801a65fcad96db84f2478eefeecba3e349583e35cc`.
+It reports the byte-limit failure at 27 observed frames, with only 26 complete
+frame/resource pairs retained, 13,166 records, 16,776,394 retained bytes and
+33,833 dropped records. Most draw rows have unavailable scene context; its tail
+contains post-view pipeline/material/probe/shadow records under frame 26.
+
 The observer's state flag remained enabled after `RenderView` returned.
 `D_Display` then emitted HUD/console/menu work and the reload screen wipe;
 `PerformWipe` can call `screen->Update()` repeatedly without another observed
@@ -208,8 +222,8 @@ probe-builder and Vulkan owner snapshots, and also after its exception handler.
 The placement preserves the state-only light-upload snapshot. It leaves the
 retained frame identity, observer enablement and GPU timing flag intact for
 ordinary fence resolution, lifecycle callbacks between views and the existing
-presentation/input/screenshot completion path. All in-view producers remain
-covered, including camera/probe/portal views, HUD models and weapon draws, and
+presentation/input/screenshot completion path. Existing in-view observations are
+preserved, including camera/probe/portal views, HUD models and weapon draws, and
 canvas draws with explicitly unavailable `HWDrawInfo` context.
 
 The compiled CPU regression executes the production observer boundary methods
@@ -226,3 +240,49 @@ The 32-view warmup, 48 retained frames, 40/56/72 input schedule, two independent
 captures, exact state/RGB requirements, 600-second deadline and all record
 limits are unchanged. No rendering, quality, atlas or lightmap behavior is
 changed by this interval repair.
+
+## CI-507 LevelMesh workload witness repair
+
+The interval repair was published as `bf31187b19c901cb4c4b56f9119af2de86ed9ed4`.
+Normal CI run [`39019823429`](https://github.com/techrote/ShadeDoomVK/actions/runs/39019823429),
+job [`117359710271`](https://github.com/techrote/ShadeDoomVK/actions/runs/39019823429/job/117359710271),
+then completed SDVK-158's first capture but failed its legacy `flats` frame
+assertion. The retained artifact is `12096388620`, ZIP SHA-256
+`82a8b484c7807275d453aedccd60df153efc061720724b6a4a60cd153aae81ff`.
+
+The downloaded receipt (`native.renderer.json`, SHA-256
+`9804a5f297dd5188366b0bbdee66265f4fcbe43f522e8ed21754952ec88b44d9`)
+contains all 48 requested frames, 432 records, 788,328 retained bytes and zero
+dropped records. Both legacy wall and flat counters are zero in every frame.
+Its required context/resource/pipeline channels passed; the pipeline rows are
+the immediate `PLAYA1` actor, not mesh submission evidence. Read-only replay of
+the lifecycle checks passes with two pages, six valid receipts, page occupancy
+`[5,1]`, and 6/4/6 completed tile updates across invalidate/reload/invalidate.
+This remains a failed native qualification: no second process or repeatability
+comparison ran.
+
+The legacy counters measure immediate geometry processing; steady LevelMesh
+rendering bypasses those increments. Mesh construction can itself increment a
+flat counter, so it cannot substitute for submitted work. The correction leaves
+those counters unchanged and observes each actual nonempty `drawIndexed` range
+in `VkRenderState::DrawLevelMeshList`. `HWDrawInfo` supplies the explicit side or
+flat list class, and the observer reads `mPipelineKey` after the final overrides
+have been applied. It emits pipeline-only state, without borrowing immediate
+material, sampler, sprite or probe uniforms.
+
+The SDVK-158 gate now requires both submitted classes in every retained main
+view. Immediate actor rows, empty ranges, a non-LevelMesh key and other view/map
+contexts cannot cover missing mesh work. These are range submissions, not unique
+surface counts, per-texel sampling or executed GPU/shader evidence. CPU controls
+execute the production draw and serialization methods, remove the hook to
+reproduce the missing witness, and reject altered/absent class and range state.
+The complete input/lifecycle/mesh check runs before each capture can report
+`COLLECTED`, so failure in the first process prevents the second process and
+dependent comparisons. Retained receipts are revalidated during comparison.
+
+Source review also found that the comparator treated the scene's ordinary tic
+labels as transition identities, despite its fixed-view schedule. The narrowly
+scoped clock-label correction is covered by independent-pacing CPU controls;
+altered lifecycle, range, camera, setting and RGB state must still fail. This
+was discovered before the native gate reached comparison, not observed as a
+two-process native failure. Fresh normal CI remains required for acceptance.

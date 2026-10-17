@@ -17767,14 +17767,7 @@
           640,
           480
         ],
-        "frame_assertions": {
-          "flats": {
-            "minimum": 1
-          },
-          "walls": {
-            "minimum": 1
-          }
-        },
+        "frame_assertions": {},
         "generator": "lightmap_transition",
         "generic_capture_supported": true,
         "iwad": {
@@ -17819,6 +17812,7 @@
         "pk3": "scenes/lightmap-retained-transition/scene.pk3",
         "recommended_warmup_frames": 32,
         "required_native_evidence": [
+          "Every retained main view submits nonempty indexed LevelMesh side and flat ranges with the actual bound pipeline; legacy immediate wall/flat processing counters are not a mesh submission witness.",
           "Version-5 retained floor and ceiling entries report accepted retained provenance on initial load and same-map reload.",
           "At least two live CPU atlas pages exist in every retained frame and match the current Vulkan lightmap page population.",
           "Every live tile has a valid current-page receipt and per-page occupancy accounts for every valid live tile.",
@@ -17877,7 +17871,10 @@
       "negative_fixtures": [
         "tools/pf_oracle/tests/fixtures/sdvk014_lightmap_pre_fix.json",
         "tools/pf_oracle/tests/test_sdvk014_retained_lifecycle.py",
-        "tools/renderer_oracle/tests/test_sdvk158_lightmap_transition.py"
+        "tools/renderer_oracle/tests/test_sdvk158_lightmap_transition.py",
+        "tools/renderer_oracle/tests/test_sdvk_levelmesh_draw.py",
+        "tools/renderer_oracle/tests/test_sdvk158_repeatability.py",
+        "tools/renderer_oracle/tests/test_sdvk158_attempts.py"
       ],
       "required_state_channels": [
         "context",
@@ -17897,7 +17894,13 @@
         "tools/renderer_oracle/sdvk158_lightmap_transition.py",
         "tools/renderer_oracle/tests/test_sdvk158_lightmap_transition.py",
         "tools/renderer_oracle/prepare.py",
-        "tools/renderer_oracle/run.py"
+        "tools/renderer_oracle/run.py",
+        "src/common/rendering/hwrenderer/data/hw_renderstate.h",
+        "src/common/rendering/vulkan/vk_renderstate.h",
+        "src/common/rendering/vulkan/vk_renderstate.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawinfo.cpp",
+        "tools/renderer_oracle/validate.py",
+        "tools/renderer_oracle/tests/sdvk_levelmesh_draw_fixture.cpp"
       ],
       "title": "Retained v5 lightmap freshness with repeated multi-page invalidation/reload"
     }
