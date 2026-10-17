@@ -144,7 +144,7 @@ class BuildIdentityTests(unittest.TestCase):
             "TOOLNAMELOWERCASE": '"vktool"', "VERSIONSTR": '"1.0pre"',
             "NETGAMEVERSION": "235", "LASTRUNVERSION": '"225"',
             "DEMOGAMEVERSION": "0x221", "MINDEMOVERSION": "0x221",
-            "SAVEVER": "4560", "MINSAVEVER": "4556", "LIGHTMAPVER": "4",
+            "SAVEVER": "4560", "MINSAVEVER": "4556", "LIGHTMAPVER": "5",
         }
         for name, value in expected.items():
             self.assertEqual(defines[name], value, name)
