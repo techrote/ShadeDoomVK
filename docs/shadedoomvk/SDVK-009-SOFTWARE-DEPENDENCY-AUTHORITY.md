@@ -78,7 +78,15 @@ PF-016 eligibility/order/portal-relative query semantics and PF-017's restored
 contiguous light path. PF-019's dormant tiled producer stays disabled; neither
 its truncated tile payload nor the rejected temporal-reuse candidate is revived.
 Do not obtain a pass or speedup by dropping eligible lights, changing quality,
-loosening state/image thresholds or extending a failed timeout.
+loosening state/image thresholds, reducing workload, or adding retries. A software-host
+execution ceiling may change only through an explicit runner-policy decision that
+preserves the exact workload/coverage and retained failed evidence; it is not a
+correctness or physical-performance acceptance threshold. For the GitHub-hosted
+migration, retained host-duration failures at 600 seconds and then 1200 seconds,
+with no renderer/device fault and unchanged 120-frame workload, authorize an
+1800-second per-process ceiling. This changes execution allowance only: exact
+state/RGB acceptance, publication/readback coverage and zero automatic retries
+remain unchanged.
 
 Preserve PF-002/003/004 lifetime/generation rules and PF-012/PF-113 probe authority:
 authored ordinal zero is valid; absent/unpublished selection uses the explicit

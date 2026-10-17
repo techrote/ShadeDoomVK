@@ -146,8 +146,8 @@ The cross-map probe lifecycle blocker has a dedicated repair candidate on
 The candidate replaces count-as-owner behavior with a process-unique authored
 probe-set revision, observes empty transitions, retains exact pre-fix same-count
 and partial-pass negatives, and adds a bounded state-only lifecycle witness.
-A focused same-process two-map fixture is registered in the existing Avrea
-16-vCPU software-Vulkan job.
+A focused same-process two-map fixture is registered in the existing
+GitHub-hosted Ubuntu 24.04 software-Vulkan job.
 
 This is **not yet accepted** until exact-head source evidence, normal CI, the
 focused native gate, review/merge and exact-master verification pass. #14 remains

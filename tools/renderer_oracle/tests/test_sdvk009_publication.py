@@ -429,7 +429,7 @@ class PublicationControls(unittest.TestCase):
                     result = publication.qualify(args)
                 self.assertEqual((result["status"], len(calls)), (status, expected))
                 for call in calls:
-                    self.assertEqual((call.warmup, call.frames, call.timeout, call.gpu, call.image_policy), (120, 1, 600, False, "exact"))
+                    self.assertEqual((call.warmup, call.frames, call.timeout, call.gpu, call.image_policy), (120, 1, 3600, False, "exact"))
                 self.assertEqual([call.publication_witness for call in calls[:2]], [False, False])
                 self.assertEqual([call.publication_witness for call in calls[2:]], [True] * max(0, expected - 2))
                 self.assertFalse(result["physical_gpu_qualified"])
