@@ -3038,6 +3038,11 @@ void MapLoader::InitLevelMesh(MapData* map)
 	}
 }
 
+static bool IsRetainedLightmapSourceCurrent(const uint8_t retainedDigest[16], const uint8_t currentDigest[16])
+{
+	return std::memcmp(retainedDigest, currentDigest, 16) == 0;
+}
+
 static bool IsValidLightmapPixelSpan(uint32_t pixelsOffset, uint16_t width, uint16_t height, uint32_t pixelCount)
 {
 	if (width == 0 || height == 0 || pixelsOffset % 3u != 0)
@@ -3075,6 +3080,19 @@ bool MapLoader::LoadLightmap(MapData* map)
 
 	uint32_t numTiles = fr.ReadUInt32();
 	uint32_t numTexPixels = fr.ReadUInt32();
+	uint8_t sourceDigest[16];
+	fr.Read(sourceDigest, sizeof(sourceDigest));
+
+	// Version 5 authenticates retained pixels against the current authored map
+	// source checksum. MapData::GetChecksum intentionally excludes LIGHTMAP and
+	// generated node lumps, so this cannot self-authenticate stale bake bytes.
+	// Reject before retained transforms/extents/completion flags can mutate the
+	// current tile set; the caller then follows the ordinary fail-closed bake path.
+	if (!IsRetainedLightmapSourceCurrent(sourceDigest, Level->md5))
+	{
+		Printf(PRINT_HIGH, "LoadLightmap: retained lightmap provenance does not match the current map; rebaking.\n");
+		return false;
+	}
 
 	if (developer >= 5)
 	{
