@@ -19,17 +19,19 @@ def native_recipe():
     }
 
 
-def resource(frame: int, *, epoch: int = 3, updates: int = 0, clean: bool = True,
+def resource(frame: int, *, epoch: int = 3, updates: int = 0, completions: int = 0,
+             initial_dirty: int = 0, geometry_dirty: int = 0, light_dirty: int = 0,
              pages=(3, 3), retained: int = 2, invalid: int = 0):
-    dirty = 0 if clean else 3
     state = {
         "available": True, "map": target.MAP, "texture_size": 1024,
         "texture_count": len(pages), "vulkan_page_count": len(pages),
         "used_tiles": sum(pages), "retained_tiles_loaded": retained,
-        "frame_tile_updates": updates, "live_tiles": sum(pages),
+        "frame_tile_updates": updates, "frame_tile_completions": completions,
+        "live_tiles": sum(pages),
         "valid_live_tiles": sum(pages) - invalid, "invalid_live_tiles": invalid,
-        "initial_dirty": dirty, "geometry_dirty": 0, "light_dirty": 0,
-        "all_clean": clean, "page_count_match": True,
+        "initial_dirty": initial_dirty, "geometry_dirty": geometry_dirty, "light_dirty": light_dirty,
+        "all_clean": initial_dirty == 0 and geometry_dirty == 0 and light_dirty == 0,
+        "page_count_match": True,
         "sampling_page_bounds_ok": invalid == 0, "page_live_tiles": list(pages),
         "scope": "fixture",
     }
@@ -41,17 +43,29 @@ def resource(frame: int, *, epoch: int = 3, updates: int = 0, clean: bool = True
 def good_raw():
     rows = []
     for frame in range(1, target.FRAMES + 1):
-        if frame <= 24:
-            rows.append(resource(frame, epoch=3, clean=True))
-        elif frame <= 56:
-            rows.append(resource(frame, epoch=3, updates=1 if frame == 25 else 0,
-                                 clean=frame != 25))
-        elif frame <= 88:
-            rows.append(resource(frame, epoch=4, updates=1 if frame == 57 else 0,
-                                 clean=frame != 57))
+        if frame <= 8:
+            rows.append(resource(frame, epoch=3, light_dirty=2))
+        elif frame <= 24:
+            rows.append(resource(
+                frame, epoch=3,
+                updates=1 if frame == 9 else 0,
+                completions=1 if frame == 9 else 0,
+                initial_dirty=5 if frame == 9 else 0,
+                light_dirty=5 if frame == 9 else 0))
+        elif frame <= 40:
+            rows.append(resource(
+                frame, epoch=4,
+                updates=1 if frame == 25 else 0,
+                completions=1 if frame == 25 else 0,
+                initial_dirty=3 if frame == 25 else 0,
+                light_dirty=2))
         else:
-            rows.append(resource(frame, epoch=4, updates=1 if frame == 89 else 0,
-                                 clean=frame != 89))
+            rows.append(resource(
+                frame, epoch=4,
+                updates=1 if frame == 41 else 0,
+                completions=1 if frame == 41 else 0,
+                initial_dirty=5 if frame == 41 else 0,
+                light_dirty=5 if frame == 41 else 0))
     return {"observed_frames": target.FRAMES, "records": rows}
 
 
@@ -84,14 +98,14 @@ class LightmapTransitionOracleTests(unittest.TestCase):
     def test_missing_completed_work_or_clean_convergence_rejects(self):
         raw = good_raw()
         for record in raw["records"]:
-            if 25 <= record["frame"] <= 56:
-                record["data"]["lightmap_state"]["frame_tile_updates"] = 0
+            if 9 <= record["frame"] <= 24:
+                record["data"]["lightmap_state"]["frame_tile_completions"] = 0
         with self.assertRaisesRegex(EvidenceError, "real lightmap tile work"):
             target.validate_transition_records(raw, stdout(), native_recipe())
 
         raw = good_raw()
-        raw["records"][55]["data"]["lightmap_state"].update(
-            all_clean=False, initial_dirty=1)
+        raw["records"][23]["data"]["lightmap_state"].update(
+            all_clean=False, light_dirty=1)
         with self.assertRaisesRegex(EvidenceError, "dirty/completion"):
             target.validate_transition_records(raw, stdout(), native_recipe())
 
@@ -103,12 +117,12 @@ class LightmapTransitionOracleTests(unittest.TestCase):
             target.validate_transition_records(raw, stdout(), native_recipe())
 
         raw = good_raw()
-        raw["records"][70]["data"]["lightmap_state"]["retained_tiles_loaded"] = 0
+        raw["records"][30]["data"]["lightmap_state"]["retained_tiles_loaded"] = 0
         with self.assertRaisesRegex(EvidenceError, "provenance"):
             target.validate_transition_records(raw, stdout(), native_recipe())
 
     def test_driver_markers_are_exact_and_outcome_independent(self):
-        bad = stdout().replace("after_main_views=88", "after_main_views=89")
+        bad = stdout().replace("after_main_views=56", "after_main_views=57")
         with self.assertRaisesRegex(EvidenceError, "driver order"):
             target.validate_transition_records(good_raw(), bad, native_recipe())
 
