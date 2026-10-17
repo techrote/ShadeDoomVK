@@ -206,3 +206,14 @@ the supported special-surface/material lifecycle matrix and its negative
 controls. Physical GPU bake/update cost, scaling and stability remain HELD /
 NOT ACCEPTED under active Physical STOP; historical physical root cause remains
 UNDETERMINED.
+
+
+The first SDVK-158 hosted transition attempt also demonstrated that
+`invalidatelightmap` must publish both background scheduling
+(`NeedsInitialBake`) and lightmapper admission (`ReceivedNewLight`). The
+retained failed run submitted one invalidated tile per frame without clearing
+dirty state until the observer record cap stopped the oversized capture.
+The candidate now fixes that production invariant and separately observes
+submitted versus dirty→clean-completed tile work. The state fixture is bounded to
+48 retained frames at fixed 40/56/72 main-view inputs; exact-head CI remains the
+acceptance authority.
