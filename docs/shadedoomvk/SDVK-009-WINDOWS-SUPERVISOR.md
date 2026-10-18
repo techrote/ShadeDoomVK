@@ -104,6 +104,48 @@ workloads, 120+120 timing frames, exact comparisons, `scene.immediate` coverage,
 work normalization, >1.20 in two of three repetitions and the 16.67 ms trigger.
 No threshold, workload or quality reduction follows from supervisor qualification.
 
+## Responsive integrity control
+
+A large closed-file inventory must not prevent the main supervisor from checking
+observers or publishing its control heartbeat. One bounded worker performs deep
+inventory, generated-input and append-only log audits. The main loop publishes
+heartbeats only while observer, process ownership, deadline, root guards and the
+latest integrity generation remain healthy. A separate timer cannot publish
+healthy heartbeats on behalf of a stalled control loop.
+
+The packet must explicitly declare the new integrity policy. Deep audits have a
+ten-second bound and generations may be at most ten seconds old from their start.
+Creation and resume additionally consume a newly requested, one-use generation:
+its finish must be less than half a second old, and the request/start deadlines
+must remain unexpired at the native call attempt. The recorded monotonic attempt
+is an observation immediately before the native call, not a kernel start time or
+an external execution attestation. Existing packets cannot silently acquire the
+new policy.
+
+The request binds the packet, stage, supervisor creation identity, source proof,
+role and nonce; target requests additionally bind the actual registered collector.
+The worker independently hashes generated target inputs. Retained byte locks and
+terminal native namespace notifications on local fixed NTFS protect generations;
+root and ancestor handles also retain directory identity. Unsupported filesystems,
+signals, path ambiguity or changed membership fail closed. A notification is
+never reset to reuse a generation.
+
+Both supervisor and collector check health during bounded gate waits. The exact
+live configuration remains locked through preparation and receipt writes, then
+is released in the final resume callback, followed by renewed safety and proof
+checks. Native create/resume code rechecks the returned minimum deadline at its
+recorded call attempt. Complete receipts are published without overwriting an
+existing destination. Final deep and native checks follow the last event and
+telemetry fences before collection can be reported complete.
+
+CPU controls include a realistic large inventory, deliberately slow audits,
+stalled workers and gates, changed membership and junctions, replayed or expired
+proofs, delayed configuration publication/handle release and process exit during
+identity verification. A positive exit exception requires the same retained
+handle, PID and creation time; it never authorizes termination of an ambiguous
+live process. A failed experiment remains failed and consumed. Any repaired
+successor requires separately qualified bytes, a new packet and a fresh decision.
+
 ## CPU qualification and privacy
 
 The suite uses synthetic feeds and benign CPU children. It exercises native

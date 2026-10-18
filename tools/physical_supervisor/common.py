@@ -139,12 +139,23 @@ def read_json(path):
             require(key not in result, "Duplicate JSON key")
             result[key] = value
         return result
-    return json.loads(Path(path).read_bytes(), object_pairs_hook=pairs,
+    with open_read(path) as stream:
+        raw=stream.read()
+    return json.loads(raw, object_pairs_hook=pairs,
                       parse_constant=lambda _: (_ for _ in ()).throw(Stop("Nonfinite JSON")))
 
 
+def open_read(path):
+    """Transient read compatibility, never an immutable-input lock or retry."""
+    if os.name=="nt":
+        # windows imports common; keep the native file adapter lazy.
+        from .windows import open_shared_read
+        return open_shared_read(path)
+    return Path(path).open("rb")
+
+
 def digest(path):
-    with Path(path).open("rb") as stream:
+    with open_read(path) as stream:
         return stream_digest(stream)
 
 
@@ -185,12 +196,25 @@ def verify_pin(row):
 
 
 def exclusive(path, value, *, raw=False):
-    """Never replace an existing receipt, even if its bytes are identical."""
+    """Publish complete bytes atomically without replacing an existing receipt.
+
+    A sibling temporary file is flushed before its no-overwrite atomic
+    publication. A crashed writer can leave pending evidence, never a partly
+    readable final coordination file. Windows rename refuses existing targets;
+    POSIX uses hard-link publication because rename there would overwrite.
+    """
     path = Path(path)
-    with path.open("xb") as stream:
+    pending=path.with_name(".pending-"+uuid.uuid4().hex)
+    with pending.open("xb") as stream:
         stream.write(value if raw else canonical(value))
         stream.flush()
         os.fsync(stream.fileno())
+    if os.name=="nt":os.rename(pending,path)
+    else:
+        os.link(pending,path)
+        try:pending.unlink()
+        except OSError:
+            pass  # Final complete receipt is published; retain pending evidence.
 
 
 class Journal:
@@ -223,6 +247,14 @@ class Journal:
         return previous
 
 
+INTEGRITY_POLICY={"timeout_seconds":10,"start_freshness_seconds":10,
+                  "boundary_finish_freshness_seconds":.5,"gate_busy_seconds":1,
+                  "heartbeat_period_seconds":.5,"heartbeat_freshness_seconds":2,
+                  "owned_exit_settle_milliseconds":50,
+                  "owned_exit_settle_operation":"QueryFullProcessImageNameW","owned_exit_settle_winerror":5,
+                  "filesystem":"local-fixed-NTFS","namespace_change":"terminal-stop"}
+
+
 class Gate:
     """All launchers serialize STOP, registration and resume with this OS lock.
 
@@ -235,12 +267,13 @@ class Gate:
         self.lock_path = self.root / "gate.lock"
         self.lock = None
 
-    def __enter__(self):
+    def acquire(self, timeout=10):
+        require(self.lock is None or self.lock.closed, "Gate already acquired")
         self.lock = self.lock_path.open("a+b")
         self.lock.seek(0)
         if os.name == "nt":
             import msvcrt
-            until = time.monotonic() + 10
+            until = time.monotonic() + timeout
             while True:
                 try:
                     msvcrt.locking(self.lock.fileno(), msvcrt.LK_NBLCK, 1)
@@ -248,11 +281,24 @@ class Gate:
                 except OSError:
                     if time.monotonic() >= until:
                         self.lock.close()
-                        raise Stop("Shared gate lock timeout")
+                        return False
                     time.sleep(.01)
         else:
             import fcntl
-            fcntl.flock(self.lock, fcntl.LOCK_EX)
+            until = time.monotonic() + timeout
+            while True:
+                try:
+                    fcntl.flock(self.lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    if time.monotonic() >= until:
+                        self.lock.close()
+                        return False
+                    time.sleep(.01)
+        return True
+
+    def __enter__(self):
+        require(self.acquire(), "Shared gate lock timeout")
         return self
 
     def __exit__(self, *args):
@@ -284,6 +330,7 @@ def future(text):
 
 def validate_packet(packet, *, check_files=True):
     require(packet["schema"] == "physical-supervisor/packet-v1", "Unsupported packet")
+    require(canonical(packet["integrity_policy"])==canonical(INTEGRITY_POLICY),"Missing/changed prospective integrity policy")
     require(re.fullmatch(r"[A-Za-z0-9_-]{8,100}", packet["experiment_id"]), "Invalid experiment ID")
     require(packet["kind"] == "diagnostic", "Campaign launch is not qualified by this diagnostic supervisor version")
     require(re.fullmatch(r"[0-9a-f]{40}", packet["source"]["commit"]) and
@@ -428,18 +475,32 @@ def verify_source(packet):
     return checks
 
 
-def verify_roots(packet):
+def root_expectations(packet):
+    """Canonical immutable expectations; never cache current disk membership."""
+    pinned = {normalized(row["path"]) for row in packet["files"]}
+    result = []
     for root in packet["runtime_roots"]:
         original = Path(root["path"])
         for part in [original, *original.parents]:
             require(not linklike(part), "Runtime root/ancestor is a link")
         directory = original.resolve(strict=True)
-        actual = {normalized(path) for path in directory.rglob("*") if path.is_file()}
-        require(not any(linklike(path)
-                        for path in directory.rglob("*")), "Runtime contains a link/junction")
         expected = {normalized(path) for path in root["files"]}
+        require(expected <= pinned, "Runtime file is not pinned")
+        result.append((original, directory, expected))
+    return result
+
+
+def verify_roots(packet, expectations=None):
+    for original, directory, expected in expectations or root_expectations(packet):
+        for part in [original, *original.parents]:
+            require(not linklike(part), "Runtime root/ancestor is a link")
+        require(original.resolve(strict=True) == directory, "Runtime root binding changed")
+        actual = set()
+        for path in directory.rglob("*"):
+            require(not linklike(path), "Runtime contains a link/junction")
+            if path.is_file():
+                actual.add(normalized(path))
         require(actual == expected, "Runtime file set changed")
-        require(expected <= {normalized(row["path"]) for row in packet["files"]}, "Runtime file is not pinned")
 
 
 def approve(packet, approval, packet_sha256, gate):

@@ -19,7 +19,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from .common import canonical, exclusive, pin, read_json, utc, environment_policy, source_check_requests
+from .common import canonical, exclusive, pin, read_json, utc, environment_policy, source_check_requests, INTEGRITY_POLICY
 from .readers import BoundedReaders,bounded_host_identity
 from .test_supervisor import EXPECTED, baseline, batch, raw
 
@@ -104,6 +104,7 @@ class EngineIntegrationTests(unittest.TestCase):
         exclusive(stop / "HELD.json", {"status": "HELD"})
         expires = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=1)).isoformat()
         self.packet = {"schema": "physical-supervisor/packet-v1", "experiment_id": "CPU-DIAG-TEST", "kind": "diagnostic",
+            "integrity_policy":dict(INTEGRITY_POLICY),
             "source": {"commit": "1"*40,"tree":"2"*40}, "created_utc": utc(), "expires_utc": expires,
             "host_identity":bounded_host_identity(),
             "stop_root": str(stop), "python": sys.executable, "renderer":str(self.cpu),
@@ -278,9 +279,9 @@ class EngineIntegrationTests(unittest.TestCase):
     def test_stop_after_collector_before_target_prevents_native_resume(self):
         from . import supervisor
         original = supervisor.Process.resume
-        def stop_before_resume(process, identity):
+        def stop_before_resume(process, identity, **kwargs):
             # Collector starts, but its first target gate sees durable STOP.
-            original(process,identity)
+            original(process,identity,**kwargs)
             exclusive(Path(self.packet["stop_root"])/"STOP-synthetic.json",{"status":"STOP"})
         with patch.object(supervisor.Process,"resume",new=stop_before_resume):
             result = self.run_engine()

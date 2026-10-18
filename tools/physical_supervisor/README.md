@@ -11,6 +11,10 @@ one state/RGB frame, 180 seconds, exact comparison and zero retries.
 `kind=campaign` is deliberately rejected. The separate 41-process campaign
 needs its own fully implemented workload/coverage gate and review.
 
+Closed runtime roots must be on local fixed NTFS volumes. The packet constructor
+adds an exact `integrity_policy`; packets without this policy require a new
+prospective review and approval. Existing packets are never upgraded at runtime.
+
 ## No-launch preparation
 
 Use Python 3.10 or later on Windows. A private seed supplies:
@@ -114,6 +118,50 @@ and the [System Informer native boot-time reader](https://github.com/winsiderss/
 
 ## Containment and evidence
 
+Deep closed-directory and append-only log audits run in one bounded worker,
+separate from the supervisor control loop. Canonical expected memberships are
+computed once; every audit still enumerates current membership and rejects
+reparse points. Each exclusive generation receipt records its packet, stage,
+supervisor creation identity, sequence, start/finish times, coverage and policy.
+The worker never publishes heartbeats or controls a process. A dead worker,
+failure, queue overflow, ten-second audit timeout or successful generation older
+than ten seconds from its start stops the experiment without a retry.
+
+Before collector and target creation, a new one-use request binds a nonce,
+source-preflight pin and the exact known owner. Its audit must start after the
+request and finish within ten seconds of it; the target audit independently
+rehashes every generated input while the collector's immutable locks are held.
+Creation, target acknowledgement and resume require that generation
+to have completed less than 0.5 seconds earlier. The same proof must remain valid
+through final native creation/resume checks; an expired proof stops rather than
+requesting another attempt. Heartbeats retain their 0.5-second schedule and strict
+two-second parent guard. Both processes poll the shared gate without blocking
+their health/deadline checks; one second of gate contention is a STOP.
+
+Retained no-delete directory handles bind roots and ancestors by volume/file ID.
+Recursive native change notifications are installed before audits, and a signal,
+invalid handle, changed path binding or reparse point permanently invalidates the
+generation. Signals are never reset. Existing immutable file locks protect bytes;
+notifications protect namespace membership between deep checks. This policy
+rejects remote and unsupported filesystems. See Microsoft's
+[change-notification limitations](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationw).
+Exact registry and process ownership readbacks remain in each serialized launch
+boundary. Completed JSON is flushed and atomically published without overwriting
+an existing receipt, so coordination readers cannot observe a partial writer.
+On Windows, transient JSON and hash readers request only `GENERIC_READ` and share
+read, write and delete access. This lets them coexist with a publication metadata
+handle holding `DELETE` access; a deterministic native control covers that sharing
+case. It does not establish the exact interleaving of any earlier intermittent
+failure. Malformed/partial JSON and genuine sharing or access denial fail on the
+first read. Immutable `FileLock` handles retain their original write/delete denial.
+Lifecycle records retain monotonic timestamps captured immediately before native
+creation/resume calls, after their final checks. These are call-attempt times;
+kernel creation FILETIME remains the separate process identity. The live mutable
+config stays locked through resume preparation and is verified/released in the
+last native callback. Its checked release requires successful `CloseHandle`;
+failure withholds native resume and the actual-release receipt. Release-ready
+and actual-release records are distinct.
+
 The supervisor creates a suspended collector in an inventory-only Windows job.
 The collector creates a suspended target, retains its process and primary-thread
 handles, registers exact PID/creation ticks/path/SHA-256 and the collector's own
@@ -123,6 +171,21 @@ independently opens and verifies the target. Native termination always uses an
 owned handle after rechecking target and retained-parent identity; it never uses
 `taskkill`, image-name killing or a job kill-on-close shortcut. Unowned matching
 renderer candidates cause STOP and are never terminated.
+
+After an exact full identity attestation, a resumed owned object can enter a
+native image-teardown interval: `QueryFullProcessImageNameW` may fail with access
+denied while its retained handle has not yet signaled exit. Only that structured
+native operation/error pair permits one requested 50ms exit observation per
+failed authentication call, with at least that much remaining caller budget.
+A positive exit signal must retain the same held PID/creation identity; there is
+no second image query and no termination through incomplete live identity.
+Initial registration and resume authentication stay strict. A known path, hash
+or parent mismatch, another native error, insufficient budget or a live timeout
+fails closed. Observations retain the original failure, requested and actual
+wait times, deadline and native results; elapsed scheduling time still counts
+against every caller deadline. Cleanup after STOP may make the same bounded
+observation without renewing a healthy heartbeat. The prospective packet policy
+includes the 50ms limit and exact reviewed operation/error pair.
 
 The collector checks a retained supervisor handle and fresh healthy heartbeat.
 Supervisor death or stalled protection causes authenticated target termination.
