@@ -12,7 +12,8 @@ import subprocess
 import tempfile
 import unittest
 
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import (
+    compile_legacy_fixture as compile_fixture, extracted_legacy_scope)
 from tools.pf_oracle.tests.sdvk014_source import block, current
 from tools.renderer_oracle import prepare
 from tools.renderer_oracle.common import EvidenceError
@@ -43,7 +44,9 @@ def build(directory: Path, original=False, mutation=None):
     retained = json.loads(RETAINED.read_text())['functions']
     methods = '\n'.join(retained[key]['content'] if original else current(key)
                         for key in ('probe_step','probe_full'))
-    (directory/'sdvk150_probe_methods.cpp').write_text(methods)
+    # The retained int progress counters consume bounded TArray populations.
+    # Keep these exact producer bodies while scoping their MSVC size diagnostic.
+    (directory/'sdvk150_probe_methods.cpp').write_text(extracted_legacy_scope(methods, (4267,)))
     script = prepare._probe_owner_transition_script(scene()['native']['probe_owner_transition']).decode()
     if mutation is not None:
         script = mutation(script)

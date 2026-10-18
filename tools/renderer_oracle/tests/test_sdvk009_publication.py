@@ -214,10 +214,10 @@ def synthetic_packet(root):
     text = "# cfx-publication-v1\nseq\tevent\tdetail\n" + "".join(
         str(row["seq"]) + "\t" + row["event"] + "\t" + " ".join(k + "=" + v for k, v in row["fields"].items()) + "\n"
         for row in rows)
-    (directory / "publication-witness.tsv").write_text(text)
+    (directory / "publication-witness.tsv").write_text(text, encoding="utf-8", newline="\n")
     completion = "schema=cfx-publication-complete-v1\nrecords=" + str(len(rows)) + "\nfailures=0\n"
     for leaf in ("publication-witness.complete", "publication-witness.complete.pending"):
-        (directory / leaf).write_text(completion)
+        (directory / leaf).write_text(completion, encoding="utf-8", newline="\n")
     return rows
 
 
@@ -341,7 +341,7 @@ class PublicationControls(unittest.TestCase):
             for payload in ("# cfx-publication-v1\nseq\tevent\tdetail\n1\tevent\tk=1 k=2\n",
                             "# cfx-publication-v1\nseq\tevent\tdetail\n2\tevent\tk=1\n",
                             "# cfx-publication-v1\nseq\tevent\tdetail\n1\tevent\tk=1"):
-                path.write_text(payload)
+                path.write_text(payload, encoding="utf-8", newline="\n")
                 with self.assertRaises(EvidenceError):
                     publication.parse_witness(path)
         target = self.root / "publication/readback-1.bin"

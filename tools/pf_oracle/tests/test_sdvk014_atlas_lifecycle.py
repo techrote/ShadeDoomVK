@@ -10,7 +10,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT))
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import compile_legacy_fixture as compile_fixture
 from tools.pf_oracle.tests.sdvk156_source import RETAINED, retain_atlas_headers
 
 HERE = Path(__file__).resolve().parent
@@ -29,7 +29,17 @@ def build(directory: Path, original: bool = False) -> Path:
     fixture = (RETAINED if original else HERE) / 'sdvk014_atlas_fixture.cpp'
     if original:
         local_fixture = directory / fixture.name
-        local_fixture.write_bytes(fixture.read_bytes())
+        # Keep the authenticated historical fixture unchanged in Git. Its one
+        # unsigned high-water assignment measures only this bounded fixture
+        # (96 allocations per cycle). Suppress that exact line only.
+        text = fixture.read_text()
+        line = '            if(cycle==0) { warmItems=p.Items.size(); warmPages=p.GetNumPages(); }'
+        if text.count(line) != 1:
+            raise AssertionError('Historical high-water assignment changed')
+        text = text.replace(line, '#ifdef _MSC_VER\n#pragma warning(push)\n'
+                            '#pragma warning(disable: 4267)\n#endif\n' + line +
+                            '\n#ifdef _MSC_VER\n#pragma warning(pop)\n#endif')
+        local_fixture.write_text(text, encoding='utf-8', newline='\n')
         fixture = local_fixture
     return compile_fixture(fixture, output_dir=directory,
         includes=[directory, DATA, ROOT/'src/common/utility'])

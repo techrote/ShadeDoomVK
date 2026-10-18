@@ -86,6 +86,16 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Select Python for Windows CPU containment controls
+      if: runner.os == 'Windows' && matrix.config.build_type == 'RelWithDebInfo'
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Qualify Windows native supervisor with benign CPU children only
+      if: runner.os == 'Windows' && matrix.config.build_type == 'RelWithDebInfo'
+      run: python -B -m unittest discover -s tools/physical_supervisor -t . -v
+
     - name: Install Dependencies
       shell: bash
       run: |

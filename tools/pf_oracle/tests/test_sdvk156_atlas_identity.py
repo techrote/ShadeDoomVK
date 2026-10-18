@@ -4,7 +4,8 @@ import subprocess
 import tempfile
 import unittest
 
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import (
+    compile_legacy_fixture as compile_fixture, extracted_legacy_scope)
 from tools.pf_oracle.tests.sdvk014_source import block
 from tools.pf_oracle.tests.sdvk156_source import ROOT, RETAINED, retained_files, retain_atlas_headers
 
@@ -43,7 +44,8 @@ def build(directory: Path, mutate=None) -> Path:
                 block(sources['mapper'],'void VkLightmapper::SetLevelMesh('),
                 block(sources['mapper'],'void VkLightmapper::SelectTiles('),
                 block(sources['mapper'],'void VkLightmapper::ValidateSelectedTile(')]
-    (directory/'sdvk156_methods.cpp').write_text('\n\n'.join(methods))
+    # Unchanged SelectTiles has nested loop-variable shadowing under MSVC /W4.
+    (directory/'sdvk156_methods.cpp').write_text(extracted_legacy_scope('\n\n'.join(methods), (4456,)))
     mapper_h=(ROOT/'src/common/rendering/vulkan/vk_lightmapper.h').read_text()
     (directory/'sdvk156_selected_type.cpp').write_text(block(mapper_h,'struct SelectedTile')+';\n')
     return compile_fixture(HERE/'sdvk156_atlas_identity_fixture.cpp',output_dir=directory,
