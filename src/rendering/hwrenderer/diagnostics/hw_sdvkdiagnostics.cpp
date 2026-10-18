@@ -11,6 +11,7 @@
 #include "version.h"
 #include "v_video.h"
 #include "d_main.h"
+#include "d_event.h"
 #include "g_levellocals.h"
 #include "portal.h"
 #include "a_dynlight.h"
@@ -32,6 +33,7 @@
 #include "vulkan/commands/vk_commandbuffer.h"
 #include <zvulkan/cfxtrace.h>
 #include <chrono>
+#include <cstring>
 #include <map>
 #include <set>
 #include <thread>
@@ -44,6 +46,8 @@ EXTERN_CVAR(Bool, screenshot_quiet)
 EXTERN_CVAR(Int, con_notifylines)
 EXTERN_CVAR(Bool, vk_rayquery)
 EXTERN_CVAR(Bool, cl_capfps)
+EXTERN_CVAR(Int, vid_maxfps)
+EXTERN_CVAR(Bool, vid_vsync)
 EXTERN_CVAR(Bool, lm_dynlights)
 EXTERN_CVAR(String, screenshot_type)
 
@@ -196,12 +200,49 @@ constexpr LightmapTransitionPhase SpecialSurfacePhases[] = {
     {120, "invalidate-b-2", "invalidatelightmap"},
 };
 
+// This is active fixture input bookkeeping, separate from passive observation.
+// The ordinary map command defers ga_newgame2 for a whole tic. Only this exact
+// queued request may postpone display until G_DoNewGame reports completion.
+struct SpecialSurfaceMapInput
+{
+    const LightmapTransitionPhase* Phase = nullptr;
+    uint64_t PreviousMeshOwner = 0;
+    unsigned Waits = 0;
+};
+SpecialSurfaceMapInput& PendingSpecialSurfaceMapInput()
+{
+    static SpecialSurfaceMapInput pending;
+    return pending;
+}
+
+bool SpecialSurfaceMapClockValid()
+{
+    // TryRunTics can return without a tic in uncapped mode. These authored
+    // settings select its ordinary waiting path even with vid_dontdowait.
+    return bool(cl_capfps) && int(vid_maxfps) == 0 && !bool(vid_vsync);
+}
+
 void DriveSpecialSurfaceInput(const Observer& observer)
 {
     if (!observer.SpecialSurfaceInput) return;
     for (const auto& phase : SpecialSurfacePhases)
     {
         if (observer.Seen != phase.AfterMainViews) continue;
+        if (std::strncmp(phase.Command, "map ", 4) == 0)
+        {
+            if (!SpecialSurfaceMapClockValid())
+            {
+                SdvkDiagnostics::Fail("SDVK-161 map input requires its authored waiting settings");
+                return;
+            }
+            auto& pending = PendingSpecialSurfaceMapInput();
+            if (pending.Phase || !level.levelMesh)
+            {
+                SdvkDiagnostics::Fail("SDVK-161 map input has no unique current mesh request");
+                return;
+            }
+            pending = { &phase, level.levelMesh->GetResourceOwner(), 0 };
+        }
         AddCommandString(phase.Command);
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_INPUT phase=%s after_main_views=%u\n",
             phase.Name, phase.AfterMainViews);
@@ -556,6 +597,50 @@ std::string ApplicationCacheFilename(const char* leaf)
 }
 
 void Fail(const char* message) { Get().Records.Fail(message); }
+
+bool SpecialSurfaceMapTransitionPending()
+{
+    auto& observer = Get();
+    if (!Enabled() || !observer.SpecialSurfaceInput) return false;
+    auto& pending = PendingSpecialSurfaceMapInput();
+    if (!pending.Phase) return false;
+    try
+    {
+        Require(SpecialSurfaceMapClockValid(), "SDVK-161 map transition changed its authored waiting settings");
+        Require(observer.Seen == pending.Phase->AfterMainViews &&
+            (gameaction == ga_newgame2 || gameaction == ga_newgame),
+            "SDVK-161 queued map action was cancelled or completed without its callback");
+        Require(++pending.Waits <= 2, "SDVK-161 queued map action did not complete within two ordinary loops");
+        return true;
+    }
+    catch (const std::exception& error) { Fail(error.what()); pending = {}; return false; }
+}
+
+void SpecialSurfaceMapTransitionCompleted()
+{
+    auto& observer = Get();
+    if (!Enabled() || !observer.SpecialSurfaceInput) return;
+    auto& pending = PendingSpecialSurfaceMapInput();
+    if (!pending.Phase) return;
+    try
+    {
+        Require(SpecialSurfaceMapClockValid(), "SDVK-161 map transition changed its authored waiting settings");
+        Require(observer.Seen == pending.Phase->AfterMainViews &&
+            gameaction == ga_nothing && level.levelMesh &&
+            level.MapName.Compare(pending.Phase->Command + 4) == 0,
+            "SDVK-161 map completion has no expected installed mesh");
+        const uint64_t owner = level.levelMesh->GetResourceOwner();
+        Require(owner > pending.PreviousMeshOwner,
+            "SDVK-161 map completion retained its previous mesh lifetime");
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_INPUT_COMPLETE phase=%s after_main_views=%u map=%s previous_mesh_owner=%llu mesh_owner=%llu next_retained_frame=%u\n",
+            pending.Phase->Name, pending.Phase->AfterMainViews, level.MapName.GetChars(),
+            static_cast<unsigned long long>(pending.PreviousMeshOwner), static_cast<unsigned long long>(owner),
+            observer.Collected + 1);
+    }
+    catch (const std::exception& error) { Fail(error.what()); }
+    pending = {};
+}
+
 
 void ProbeBuilderLifecycle(const char* event, uint64_t ownerRevision, int probeCount,
     int iteration, int nextIndex, int collected)

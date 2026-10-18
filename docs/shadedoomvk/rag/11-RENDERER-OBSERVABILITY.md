@@ -297,6 +297,21 @@ restricted to selected witness frames; it changes no ordinary draw or record
 limits and makes no GPU byte/readback claim. Scope storage and RAII live in common
 code; Vulkan only consumes the metadata.
 
+Every color-shaded LevelMesh child in an opted-in selected frame is emitted,
+including ordinary material names. The actual bound material cannot determine
+whether its own witness exists: a wrong material could otherwise hide its row
+beside a valid triangle. The consumer checks authored owner/material eligibility.
+Depth-only, alpha-only and zero-color parents retain their existing guard policy.
+The source-pinned indexed traversal either emits every eligible child or fails
+the capture; the parser separately requires each child to match its actual parent
+range, pipeline and context. A historical original-method negative retains the
+coherent ordinary-material suppression bug. The immutable 6ed content/hash is
+kept; the current replay backports only the additive `mesh_owner` serializer
+using an explicit CPU service. That metadata-adapted historical traversal is
+not an unmodified-body or native replay; the original pre-owner full-gate proof
+and hashes remain historical. This does not claim a generic parser
+proof of the complete parent-to-child partition.
+
 All 96 state frames retain frame/context/resource evidence; detailed draw rows
 and ordinary completed-view PNGs are sampled every 8 retained frames. Horizon
 contents record their first actual strip per producer while all strips still
@@ -309,6 +324,11 @@ limits remain strict, with an additional 64-live-tile census limit.
 attempt admission, same-attempt image/state identity, exact RGB for all 12
 checkpoints and named mutations of each admitted raw packet. It does not erase
 material/probe/owner fields or combine failed packets to obtain repeatability.
+Every A reflective-floor row additionally requires the authored upward Z=0
+plane and actual submitted Z extrema `0..0`. Current XY UVs, a valid allocation
+receipt and a correct neighboring row cannot validate a receiver at another
+height. Three of the 28 copied-capture controls falsify this plane/height rule
+while preserving the original current row.
 
 SDVK-161 uses map-specific authored cameras so its 3D-floor witnesses are actual
 main-view LevelMesh submissions while a separate linked-portal wall witness uses
@@ -328,3 +348,52 @@ writer's UV result. The repair belongs in final split-vertex production; neither
 the observer's copied values nor its `2^-21` tolerance changes. Individual native
 XYZ/UV samples and runtime BSP subdivisions are not serialized, so numeric
 extracted CPU counterexamples must not be described as recovered native vertices.
+
+
+### Actual mesh lifetime and completed map input
+
+`LevelMesh::ResourceOwner` is a positive immutable constructor identity from a
+process-wide atomic sequence; wrap/exhaustion fails closed. `Reset()` preserves
+the owner while the existing `ResourceEpoch` advances. Reconstructed instances
+can legitimately repeat local epoch 3, including at reused storage. Only
+`SpecialSurfaceEnabled()` adds `resource.levelmesh.owner` to resource rows;
+earlier native lanes retain their schema. Actual mesh and immediate surface
+rows carry `mesh_owner` plus `mesh_epoch`, both of which must equal their
+same-frame resource. Fixed incarnations keep the tuple exact, and construction
+must advance the actual owner. A SDVK-161-only shared first-seen bijection
+canonicalizes process-local owner labels for comparison while retaining every
+alias/order relationship and exact local epochs. It does not delete identity
+or change other scenes' normalization.
+
+The ordinary deferred map command spans `ga_newgame2` and `ga_newgame`. For the
+exact opted-in driver's pending command, `SpecialSurfaceMapTransitionPending()`
+may defer `D_Display` after ordinary `TryRunTics`, at most twice. It requires
+unchanged authored input ordinal/action and typed `cl_capfps=true`,
+`vid_maxfps=0`, `vid_vsync=false`, which select actual ordinary-tic waiting.
+`SpecialSurfaceMapTransitionCompleted()` runs after `G_InitNew` returns and
+`gameaction=ga_nothing`; it validates installed map/new constructor owner and
+emits one `SDVK161_INPUT_COMPLETE` receipt. Cancellation, a different action,
+missing callback, wrong installation or exhausted bound fails capture. No
+forced ticker call or renderer-result wait occurs. Other drivers are unaffected.
+
+The oracle requires the exact combined queue/completion sequence and joins
+previous/new owner IDs to retained boundaries 25/49/73. An old-owner frame 73
+followed by new-owner 74 is rejected. The recipe preregisters completion producer,
+wait policy, bound and identities. The raw 6ed packet remains rejected and
+unchanged; the repair is prospective.
+
+FOV admission uses the existing `round(float(value),9)` camera representation
+only for this scene's constant 90-degree view. Actual `AActor::GetFOV` source
+replay demonstrates ±1 ULP interpolation with equal endpoints; raw values remain
+mandatory. This is not a new RGB tolerance or generic clock policy. Actual
+camera geometry, material, ownership and phase differences still fail. The
+[frame/owner failure receipt](../evidence/SDVK-161-FRAME-OWNER-FAILURE.json)
+separates original native findings from CPU source proof and prospective repair.
+
+
+The integrated source/CPU candidate passes all ten `tools/check.py` stages:
+866 PF tests, 380 renderer tests, 45 identical scene preparations and identical
+PF oracle outputs. The [review receipt](../evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json)
+separately pins this current full check, the earlier pre-owner proof and the
+formatting-only failed preflight. These local CPU results do not supply hosted
+native observations. Fresh exact-head source/platform/native CI remains pending.

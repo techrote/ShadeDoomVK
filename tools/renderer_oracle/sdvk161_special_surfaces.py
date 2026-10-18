@@ -38,6 +38,13 @@ SCHEDULE = [
     {"after_main_views": 112, "phase": "filter-nearest-b", "command": "gl_texture_filter 0"},
     {"after_main_views": 120, "phase": "invalidate-b-2", "command": "invalidatelightmap"},
 ]
+MAP_COMPLETION_PROTOCOL = {
+    "producer": "G_DoNewGame-after-G_InitNew",
+    "presentation": "defer-only-pending-driver-map-before-D_Display",
+    "max_pending_loops": 2,
+    "next_retained_frames": [25, 49, 73],
+    "mesh_identity": "actual-constructor-owner-plus-local-resource-epoch",
+}
 MAP_CAMERAS = {
     MAP_A: {"position": [-192, 0, 64], "yaw": 0, "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002},
     MAP_B: {"position": [1060, -176, 64], "yaw": 90, "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002},
@@ -92,6 +99,8 @@ def validate_recipe(scene: dict) -> None:
             "SDVK-161 per-map camera recipe differs")
     require(native.get("special_surface_schedule") == SCHEDULE,
             "SDVK-161 special-surface schedule differs from preregistration")
+    require(native.get("special_surface_map_completion") == MAP_COMPLETION_PROTOCOL,
+            "SDVK-161 actual map-completion/mesh-identity protocol differs from preregistration")
     require(native.get("recommended_warmup_frames") == WARMUP,
             "SDVK-161 special-surface warmup differs")
     require(native.get("map_sequence") == [MAP_A, MAP_A, MAP_B, MAP_B]
@@ -115,6 +124,13 @@ def validate_recipe(scene: dict) -> None:
             "SDVK-161 requires static lightmapping with the LevelMesh path")
     require(settings.get("gl_lightprobe") is True,
             "SDVK-161 empty authored probe-owner resets must remain enabled")
+    require(settings.get("cl_capfps") is True and type(settings.get("vid_maxfps")) is int
+            and settings["vid_maxfps"] == 0 and settings.get("vid_vsync") is False,
+            "SDVK-161 map-completion ordinary tic wait policy differs")
+    require(not any(re.search(r"(?<![A-Za-z0-9_])(?:cl_capfps|vid_maxfps|vid_vsync)(?![A-Za-z0-9_])", part, re.IGNORECASE)
+                    for command in commands for part in re.split(r"[;\r\n]", command)),
+            "SDVK-161 late commands may not override the map-completion tic wait policy")
+
     require(settings.get("gl_texture_filter") == 0
             and settings.get("gl_texture_filter_anisotropic") == 1,
             "SDVK-161 material sampler baseline differs")
@@ -167,7 +183,8 @@ def _resource_state(row: dict, map_name: str) -> dict:
             and sum(occupancy) == live, "SDVK-161 atlas occupancy is incomplete")
     for key in ("lightmap_epoch", "probe_epoch"):
         _integer(row.get(key), "current " + key, 1)
-    _integer(row.get("levelmesh", {}).get("epoch"), "current mesh owner epoch", 1)
+    _integer(row.get("levelmesh", {}).get("owner"), "current mesh instance owner", 1)
+    _integer(row.get("levelmesh", {}).get("epoch"), "current mesh local epoch", 1)
     for key in ("initial_dirty", "geometry_dirty", "light_dirty", "frame_tile_updates", "frame_tile_completions"):
         _integer(state.get(key), key)
     require(state.get("all_clean") is (state["initial_dirty"] == state["geometry_dirty"] == state["light_dirty"] == 0),
@@ -329,6 +346,35 @@ def _camera_vector(actual, expected, label):
             and actual == expected, "SDVK-161 " + label + " differs from its authored view")
 
 
+def _retained_fov(value) -> None:
+    # AActor::GetFOV interpolates even equal constant endpoints, causing one-ULP
+    # noise. Match the existing renderer comparison_number view representation;
+    # preserve raw values, real camera changes, and exact RGB/state policy.
+    require(type(value) in (int, float) and math.isfinite(value)
+            and round(float(value), 9) == 90.0,
+            "SDVK-161 retained frame camera FOV differs")
+
+
+def _map_completions(stdout: str, owners: dict) -> list[dict]:
+    expected, completed = [], []
+    map_phases = {"reload-a": (1, MAP_A, 25), "map-b": (2, MAP_B, 49), "reload-b": (3, MAP_B, 73)}
+    for phase in SCHEDULE:
+        expected.append(f"SDVK161_INPUT phase={phase['phase']} after_main_views={phase['after_main_views']}")
+        if phase["phase"] not in map_phases:
+            continue
+        incarnation, map_name, next_frame = map_phases[phase["phase"]]
+        old_owner, owner = owners[incarnation - 1][2], owners[incarnation][2]
+        expected.append(f"SDVK161_INPUT_COMPLETE phase={phase['phase']} after_main_views={phase['after_main_views']} "
+                        f"map={map_name} previous_mesh_owner={old_owner} mesh_owner={owner} next_retained_frame={next_frame}")
+        completed.append({"phase": phase["phase"], "after_main_views": phase["after_main_views"],
+                          "map": map_name, "previous_mesh_owner": old_owner,
+                          "mesh_owner": owner, "next_retained_frame": next_frame})
+    actual = [line for line in stdout.splitlines() if line.startswith("SDVK161_INPUT")]
+    require(actual == expected,
+            "SDVK-161 map completion driver order/owner differs from actual fixed resource incarnation")
+    return completed
+
+
 def camera_for_map(native: dict, map_name: str) -> dict:
     require(map_name in MAP_CAMERAS and native.get("map_cameras") == MAP_CAMERAS,
             "SDVK-161 per-map camera recipe differs")
@@ -394,8 +440,9 @@ def _validate_submitted_surfaces(raw: dict, native: dict, resources: dict[int, d
         validate_surface_record(value)
         require(value.get("producer") in ("levelmesh-surface-range", "immediate-special-surface"),
                 "SDVK-161 surface row is an inventory rather than an actual submitted path")
-        require(value.get("mesh_epoch") == resources[frame]["levelmesh"]["epoch"],
-                "SDVK-161 submitted surface references a stale LevelMesh owner")
+        require(value.get("mesh_owner") == resources[frame]["levelmesh"]["owner"]
+                and value.get("mesh_epoch") == resources[frame]["levelmesh"]["epoch"],
+                "SDVK-161 submitted surface references another LevelMesh instance/local epoch")
         context = _context(value, MAP_A if frame <= 48 else MAP_B)
         owner = value.get("owner", {})
         require((owner.get("type") in (1, 2, 3, 4, 5) or
@@ -545,6 +592,10 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
                 and value["owner"]["side"] == -1 and value["owner"]["control_sector"] == -1
                 and value.get("alpha") == 0.75 and tile is not None,
                 "SDVK-161 reflective-floor row has wrong material/owner/alpha/current tile")
+        geometry = value["geometry"]
+        require(geometry["plane"] == [0, 0, 1, 0]
+                and geometry.get("vertex_z_min") == 0 and geometry.get("vertex_z_max") == 0,
+                "SDVK-161 reflective-floor plane/height differs from its authored floor")
     require(reflective,
             f"SDVK-161 frame {frame} lacks the actual reflective-floor path and inherited lightmap")
     contexts = [record["data"].get("context", {}) for record in raw["records"]
@@ -744,7 +795,8 @@ def validate_surface_record(value: dict) -> None:
             "Submitted surface owner type is invalid")
     for key, minimum in (("side", -1), ("sector", 0), ("control_sector", -1), ("portal_group", 0), ("type_index", 0)):
         _integer(owner.get(key), "surface owner " + key, minimum)
-    _integer(value.get("mesh_epoch"), "surface mesh epoch", 1)
+    _integer(value.get("mesh_owner"), "surface mesh instance owner", 1)
+    _integer(value.get("mesh_epoch"), "surface mesh local epoch", 1)
     _integer(value.get("draw_count"), "surface draw count", 1)
     material = value.get("material", {})
     portal_stencil = value.get("class") in ("horizon", "mirror", "line-to-line-portal")
@@ -818,7 +870,7 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
             "SDVK-161 retained frame budget differs")
     expected = [f"SDVK161_INPUT phase={phase['phase']} after_main_views={phase['after_main_views']}"
                 for phase in SCHEDULE]
-    actual = [line for line in stdout.splitlines() if line.startswith("SDVK161_INPUT")]
+    actual = [line for line in stdout.splitlines() if line.startswith("SDVK161_INPUT ")]
     require(actual == expected, "SDVK-161 input driver order/count differs from preregistration")
     frames = _one_per_frame(raw, "frame")
     resources = _one_per_frame(raw, "resource")
@@ -832,21 +884,28 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
         _camera_vector(frames[frame].get("camera", {}).get("position"), camera["position"], "retained frame camera position")
         _camera_vector(frames[frame].get("camera", {}).get("angles"), [camera["yaw"], 0, 0], "retained frame camera angles")
         _camera_vector(frames[frame].get("camera", {}).get("hardware_angles"), [270 - camera["yaw"], 0, 0], "retained frame hardware camera angles")
-        require(frames[frame].get("camera", {}).get("fov") == 90, "SDVK-161 retained frame camera FOV differs")
+        _retained_fov(frames[frame].get("camera", {}).get("fov"))
         settings = settings_for_frame(native, frame)
         for key in ("gl_levelmesh", "lm_dynlights", "gl_lightprobe", "gl_texture_filter", "gl_texture_filter_anisotropic"):
             require(frames[frame].get("settings", {}).get(key) == settings[key],
                     "SDVK-161 actual frame setting differs from fixed lifecycle phase")
         _resource_state(resources[frame], map_name)
         owner = (resources[frame]["lightmap_epoch"], resources[frame]["probe_epoch"],
-                 resources[frame]["levelmesh"]["epoch"])
+                 resources[frame]["levelmesh"]["owner"], resources[frame]["levelmesh"]["epoch"])
         if incarnation not in owners:
             owners[incarnation] = owner
         require(owners[incarnation] == owner,
                 "SDVK-161 material sampler reset replaced a retained atlas/probe/mesh owner")
     for incarnation in range(1, 4):
-        require(all(right > left for left, right in zip(owners[incarnation - 1], owners[incarnation])),
-                "SDVK-161 map reload did not advance every atlas/probe/mesh resource owner")
+        before, after = owners[incarnation - 1], owners[incarnation]
+        require(after[2] > before[2],
+                "SDVK-161 map reload reused or reordered an actual LevelMesh instance owner")
+        require(after[0] > before[0] and after[1] > before[1],
+                "SDVK-161 map reload did not advance atlas/probe resource epochs")
+        # Local mesh epochs belong to their instance and can equal3 again after
+        # construction. The actual instance owner, never this local counter,
+        # establishes replacement; both remain exact within an incarnation.
+    completions = _map_completions(stdout, owners)
     cycles = {"initial_retained_invalidation": _completed_cycle(resources, 1, 8, "initial retained A invalidation"),
               "invalidate_a_1": _completed_cycle(resources, 9, 24, "first A invalidation"),
               "reload_a": _completed_cycle(resources, 25, 40, "same-map A reload"),
@@ -858,7 +917,7 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
             "SDVK-161 lifecycle equivalent-state RGB witness has unconverged lightmap state")
     submitted = _validate_submitted_surfaces(raw, native, resources)
     return {"status": "PASS", "frames": FRAMES, "cycles": cycles,
-            "submitted_surfaces": submitted, "resource_owners": owners,
+            "submitted_surfaces": submitted, "resource_owners": owners, "map_completions": completions,
             "physical_gpu_qualified": False,
             "scope": "same-attempt submitted special-surface/material state and current atlas receipt owners; "
                      "no executed-shader or per-texel GPU probe-readback claim"}
@@ -1012,6 +1071,10 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
     first_frame = next(index for index, record in enumerate(records)
                        if record.get("kind") == "frame" and record.get("frame") == 25)
     tests = [
+        ("wrong-retained-camera-fov", b_camera_frame, ["data", "camera", "fov"], 91,
+         "retained frame camera FOV differs"),
+        ("stale-submitted-mesh-instance", wall, ["data", "mesh_owner"], records[wall]["data"]["mesh_owner"] + 1000,
+         "another LevelMesh instance/local epoch"),
         ("wrong-map-b-authored-camera", b_camera_frame, ["data", "camera", "position"], [-192, 0, 64],
          "retained frame camera position differs"),
         ("wrong-reverse-portal-receiver-path", reverse_receiver, ["data", "context", "producer"], "root",
@@ -1060,6 +1123,69 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
                              "mutant_sha256": sha256(canonical(changed))})
         else:
             raise EvidenceError("SDVK-161 captured negative was incorrectly accepted: " + name)
+    for name, geometry in (
+            ("wrong-actual-reflective-floor-height",
+             {"plane": [0, 0, 1, 64], "vertex_z_min": 64, "vertex_z_max": 64}),
+            ("wrong-actual-reflective-floor-normal", {"plane": [0, 0, -1, 0]}),
+            ("wrong-actual-reflective-floor-vertices", {"vertex_z_min": 64, "vertex_z_max": 64})):
+        changed = copy.deepcopy(raw)
+        correct = changed["records"][reflective]
+        wrong = copy.deepcopy(correct)
+        before = {key: copy.deepcopy(wrong["data"]["geometry"][key]) for key in geometry}
+        wrong["data"]["geometry"].update(geometry)
+        # Keep the correct actual neighbor: any bad submitted row must reject
+        # even when required coverage, current XY UVs and material still agree.
+        changed["records"].insert(reflective + 1, wrong)
+        try:
+            validate_transition_records(changed, stdout, native)
+        except EvidenceError as error:
+            require("reflective-floor plane/height differs from its authored floor" in str(error),
+                    "SDVK-161 reflective-plane control rejected for an unintended reason: " + name)
+            controls.append({"name": name, "status": "REJECTED", "reason": str(error),
+                             "record_index": reflective, "mutant_record_index": reflective + 1,
+                             "correct_neighbor_preserved": correct == records[reflective],
+                             "path": ["data", "geometry"], "before": before, "after": geometry,
+                             "mutant_sha256": sha256(canonical(changed))})
+        else:
+            raise EvidenceError("SDVK-161 captured negative accepted a wrong reflective plane: " + name)
+    changed = copy.deepcopy(raw)
+    first_owner = next(record["data"]["levelmesh"]["owner"] for record in records
+                       if record.get("kind") == "resource" and record.get("frame") == 1)
+    affected = []
+    for index, record in enumerate(changed["records"]):
+        if not 25 <= record.get("frame", -1) <= 48:
+            continue
+        if record.get("kind") == "resource":
+            record["data"]["levelmesh"]["owner"] = first_owner
+            affected.append(index)
+        elif record.get("kind") == "surface":
+            record["data"]["mesh_owner"] = first_owner
+            affected.append(index)
+    try:
+        validate_transition_records(changed, stdout, native)
+    except EvidenceError as error:
+        require("map reload reused or reordered an actual LevelMesh instance owner" in str(error),
+                "SDVK-161 reused mesh-instance control rejected for an unintended reason")
+        controls.append({"name": "reused-map-mesh-instance-with-local-epochs-preserved", "status": "REJECTED",
+                         "reason": str(error), "record_indices": affected, "replacement_owner": first_owner,
+                         "local_epochs_unchanged": True, "mutant_sha256": sha256(canonical(changed))})
+    else:
+        raise EvidenceError("SDVK-161 accepted a reused mesh instance across same-map reload")
+    line = next(line for line in stdout.splitlines() if line.startswith("SDVK161_INPUT_COMPLETE phase=reload-a "))
+    replaced = re.sub(r" mesh_owner=[0-9]+ ", f" mesh_owner={first_owner} ", line)
+    require(replaced != line, "SDVK-161 completion-owner control has no distinct current replacement")
+    changed_stdout = stdout.replace(line, replaced, 1)
+    try:
+        validate_transition_records(raw, changed_stdout, native)
+    except EvidenceError as error:
+        require("map completion driver order/owner differs" in str(error),
+                "SDVK-161 map completion control rejected for an unintended reason")
+        controls.append({"name": "wrong-actual-map-completion-mesh-owner", "status": "REJECTED",
+                         "reason": str(error), "before": line, "after": replaced,
+                         "raw_source_unchanged": True,
+                         "mutant_sha256": sha256(canonical({"raw_sha256": source_digest, "stdout": changed_stdout}))})
+    else:
+        raise EvidenceError("SDVK-161 accepted a foreign mesh owner in the map completion receipt")
     donor_index = target("S161NO", 8, surface_class="wall",
                          owner={"type": 1, "side": 8, "type_index": 8, "sector": 0,
                                 "control_sector": -1, "portal_group": 0})

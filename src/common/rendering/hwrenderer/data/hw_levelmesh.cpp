@@ -2,8 +2,29 @@
 #include "hw_levelmesh.h"
 #include "halffloat.h"
 #include "hw_dynlightdata.h"
+#include <atomic>
+#include <limits>
 
-LevelMesh::LevelMesh()
+namespace
+{
+// A local resource epoch can repeat in another mesh lifetime, including at the
+// same address. Keep this member identity separate from its reset generation.
+std::atomic<uint64_t> LevelMeshOwnerSequence{0};
+uint64_t NextLevelMeshOwner()
+{
+	uint64_t old = LevelMeshOwnerSequence.load(std::memory_order_relaxed);
+	for (;;)
+	{
+		if (old == std::numeric_limits<uint64_t>::max())
+			I_FatalError("LevelMesh owner identity exhausted");
+		if (LevelMeshOwnerSequence.compare_exchange_weak(old, old + 1, std::memory_order_relaxed))
+			return old + 1;
+	}
+}
+}
+
+
+LevelMesh::LevelMesh() : ResourceOwner(NextLevelMeshOwner())
 {
 	Lightmap.AtlasPacker = std::make_unique<RectPacker>(Lightmap.TextureSize, Lightmap.TextureSize, 0);
 

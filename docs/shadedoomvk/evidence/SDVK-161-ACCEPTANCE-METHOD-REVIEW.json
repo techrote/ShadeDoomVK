@@ -1,0 +1,697 @@
+{
+  "schema": "sdvk161-acceptance-method-review/v1",
+  "status": "INTEGRATED_SOURCE_CPU_PASS_NATIVE_PENDING",
+  "issue": 161,
+  "parent_issue": 14,
+  "pull_request": 162,
+  "basis": {
+    "pr_head": "6edac8ad5b5f4f2f1a778d0c32e754186ee95a91",
+    "tree": "2694a6771c39c0696726217258b4238cf9768647",
+    "master": "130d09ac4267d02359c7c2603ceced723ceac746",
+    "acceptance_awarded": false
+  },
+  "scope": "Software source/CPU acceptance-method repair; no local renderer/device or physical qualification",
+  "mesh_material_witness": {
+    "finding": "Actual bound material prefix hid a coherent wrong ordinary material while a correct neighbor satisfied required coverage",
+    "repair": "Emit every shaded child under the unchanged exact selected-frame opt-in; authored eligibility remains the consumer responsibility",
+    "pre_fix_method": {
+      "path": "tools/renderer_oracle/tests/fixtures/sdvk161-mesh-material-filter-pre-fix.json",
+      "bytes": 8213,
+      "sha256": "0e3d4266a9f45338f1eef2e103f0f18807116a674c8756128b9bb6e8c9d89e9b"
+    },
+    "pre_fix_method_content_sha256": "aa81247383d80f81cad610e7b018490edf32bb01251e0fe1d33ad68253c973f6",
+    "cpu_services": "Actual extracted complete observer, parent hook, wrapper, serializers, triangle resolver and current UV helper; explicit descriptor/probe payload services, no device",
+    "positive_owner_cells": [
+      "A S161NO wall",
+      "A ordinary SDVFL ceiling",
+      "B ordinary SDVW wall"
+    ],
+    "preserved_guards": [
+      "state-only enable",
+      "exact fixture opt-in",
+      "selected witness frame",
+      "NoFragmentShader",
+      "AlphaTestOnly",
+      "ColorMask"
+    ],
+    "parser_boundary": "Child-to-parent containment/context/pipeline is checked; complete partition is supplied by source-pinned unfiltered traversal with fail-closed exceptions/overflow, not a new generic parser coverage claim",
+    "historical_pre_owner_evidence": {
+      "pre_fix_emission": {
+        "full_gate_status": "PASS",
+        "reason": null,
+        "actual_records": [
+          {
+            "kind": "pipeline",
+            "producer": "levelmesh-indexed-range",
+            "material": null,
+            "first_index": 24,
+            "draw_count": 6
+          },
+          {
+            "kind": "surface",
+            "producer": "levelmesh-surface-range",
+            "material": "S161NO",
+            "first_index": 24,
+            "draw_count": 3
+          }
+        ]
+      },
+      "repaired_emission": {
+        "full_gate_status": "REJECTED",
+        "reason": "SDVK-161 A ordinary wall owner/material differs from its authored side",
+        "actual_records": [
+          {
+            "kind": "pipeline",
+            "producer": "levelmesh-indexed-range",
+            "material": null,
+            "first_index": 24,
+            "draw_count": 6
+          },
+          {
+            "kind": "surface",
+            "producer": "levelmesh-surface-range",
+            "material": "S161NO",
+            "first_index": 24,
+            "draw_count": 3
+          },
+          {
+            "kind": "surface",
+            "producer": "levelmesh-surface-range",
+            "material": "SDVFL",
+            "first_index": 27,
+            "draw_count": 3
+          }
+        ]
+      },
+      "test_files": [
+        {
+          "path": "tools/renderer_oracle/tests/test_sdvk161_mesh_material_witness.py",
+          "bytes": 8400,
+          "sha256": "e88d3e104be86c7ae3cc8b5ad8c0d48b2d762bab46993631e9ebada5d7a1dfc8"
+        },
+        {
+          "path": "tools/renderer_oracle/tests/sdvk161_mesh_material_witness_fixture.cpp",
+          "bytes": 8589,
+          "sha256": "97e765e02838b47f9890087e9fd7d35ec7a1b71f6791e61381d59901874d50b9"
+        }
+      ],
+      "actual_serializations": {
+        "path": "build/sdvk161-mesh-witness-control.json",
+        "bytes": 78989,
+        "sha256": "cdc5b568735a444cee444c3f7ce1f7525f87fd58023c186b076df1aa84cd33bd"
+      },
+      "focused_source_tests": {
+        "count": 69,
+        "status": "PASS",
+        "log": {
+          "path": "build/sdvk161-mesh-witness-tests.log",
+          "bytes": 16523,
+          "sha256": "a5d19edd8b1a5035edb1b703a97805cf2afe6bd47ac5b3e3e0428a778e92c7ee"
+        }
+      },
+      "scope": "Historical pre-owner source/CPU full-gate proof; unadapted immutable6ed method versus then-repaired method. Preserved hashes/results do not describe the current owner/completion full gate."
+    },
+    "current_historical_method_adapter": {
+      "scope": "Immutable retained6ed method/hash plus current metadata-only mesh_owner serializer; traversal and material filter unchanged. Not an unmodified-body or native replay.",
+      "mechanism": "After exact retained JSON/content hash validation, append only .Int(\"mesh_owner\", mesh->GetResourceOwner()) beside its original mesh_epoch serializer. Owner comes from explicit CPU resource input.",
+      "original_retained_json_unchanged": true,
+      "current_method": "Current complete production LevelMeshSurfaces method is source-extracted without the historical material-prefix filter."
+    }
+  },
+  "reflective_plane": {
+    "finding": "Per-row material/owner/alpha/current tile could not reject an authored-height mismatch with current XY UVs beside a correct receiver",
+    "repair": "Every reflective-floor row requires plane[0,0,1,0] and actual submitted minimum/maximumZ0",
+    "fixture_correction": "Positive RF CPU extrema were inherited from wall0..160; fixed to authored floor0..0 before independent before/after proof",
+    "historical_pre_owner_full_gate_proof": {
+      "schema": "sdvk161-reflective-plane-before-after/v1",
+      "scope": "exact6ed full validator and current full validator on independently valid authored CPU evidence; no renderer execution",
+      "pre_fix_head": "6edac8ad5b5f4f2f1a778d0c32e754186ee95a91",
+      "source": "tools/renderer_oracle/sdvk161_special_surfaces.py",
+      "pre_fix_source_sha256": "ec9485f4035697fd671835f7b49f403559c4d550a73125ef79ab0b9e7e0989b7",
+      "current_source_sha256": "6ecca7a2aed7453dbc26ce23ef0599e454056a819c6f0f98192b0ead17a019c1",
+      "baseline_sha256": "61c2d3b658822366370cd5cb5d69c5ec924ca68d9113b1dce18bd5532341cea0",
+      "baseline_admission": {
+        "pre_fix": "PASS",
+        "current": "PASS"
+      },
+      "cases": [
+        {
+          "case": "coherent-positive-height",
+          "position": "before",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "plane": [
+              0,
+              0,
+              1,
+              64
+            ],
+            "vertex_z_min": 64,
+            "vertex_z_max": 64
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "35f20ab294bbcd4ebe4a3880a0456819bd8e9198bac6719f3f5f635697db04b5"
+        },
+        {
+          "case": "coherent-positive-height",
+          "position": "after",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "plane": [
+              0,
+              0,
+              1,
+              64
+            ],
+            "vertex_z_min": 64,
+            "vertex_z_max": 64
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "a0ec1c941bb2b85a5cf9e78d98fe926ec7bc51466333ea6d6219193d67ac8681"
+        },
+        {
+          "case": "coherent-negative-height",
+          "position": "before",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "plane": [
+              0,
+              0,
+              1,
+              -64
+            ],
+            "vertex_z_min": -64,
+            "vertex_z_max": -64
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "a6e5f106c658d59e251cad42672a5fea4e85fd614604aee989d4c428cb1aa183"
+        },
+        {
+          "case": "coherent-negative-height",
+          "position": "after",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "plane": [
+              0,
+              0,
+              1,
+              -64
+            ],
+            "vertex_z_min": -64,
+            "vertex_z_max": -64
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "4fdec46509df0feb24f74a55089f40e328dd0226bd148e6c14e7ce39dd375fe0"
+        },
+        {
+          "case": "inverted-normal",
+          "position": "before",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "plane": [
+              0,
+              0,
+              -1,
+              0
+            ]
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "22ecef46b811fd0f86509e7fff6cbb4dafca0d2b80ac88b6dfd60e82f8cbca9a"
+        },
+        {
+          "case": "inverted-normal",
+          "position": "after",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "plane": [
+              0,
+              0,
+              -1,
+              0
+            ]
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "1f93ac20bae81a746977775356160b1999b085a620f820e97ddb01212b63db36"
+        },
+        {
+          "case": "wrong-vertices",
+          "position": "before",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "vertex_z_min": 64,
+            "vertex_z_max": 64
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "d123dc7c445f3ca976ff9b637daab669c2ae013e9e323559c308bbec3a9b3813"
+        },
+        {
+          "case": "wrong-vertices",
+          "position": "after",
+          "old_result": "INCORRECTLY_ACCEPTED",
+          "current_result": "REJECTED",
+          "reason": "SDVK-161 reflective-floor plane/height differs from its authored floor",
+          "correct_authored_neighbor_preserved": true,
+          "changed_geometry": {
+            "vertex_z_min": 64,
+            "vertex_z_max": 64
+          },
+          "unchanged_fields": [
+            "material",
+            "texture_index",
+            "owner",
+            "lightmap",
+            "probe",
+            "context",
+            "geometry.current_uv_valid",
+            "geometry.triangle_mapping_valid"
+          ],
+          "mutant_sha256": "f80bbff4a2bcabeeafe672dfd24675b90012ea631bc9a1d363520f20d4ee1601"
+        }
+      ],
+      "captured_controls": {
+        "count": 24,
+        "status": "PASS",
+        "source_unchanged": true
+      },
+      "status": "PASS"
+    },
+    "historical_pre_owner_proof_file": {
+      "path": "build/sdvk161-reflective-plane-before-after.json",
+      "bytes": 6913,
+      "sha256": "82944ee3fe1bad946523ee9fa669690aa3937bda104e970c903950fd342ec053"
+    },
+    "historical_pre_owner_focused_tests": {
+      "count": 54,
+      "status": "PASS",
+      "log": {
+        "path": "build/sdvk161-reflective-plane-corrected-fixture-tests.log",
+        "bytes": 11523,
+        "sha256": "ab77965991edd8aedb9ccfcc775acb594bbeb2cde64880c005ab2580e5743c8c"
+      }
+    },
+    "historical_pre_owner_captured_controls": {
+      "total": 24,
+      "new": [
+        "wrong-actual-reflective-floor-height",
+        "wrong-actual-reflective-floor-normal",
+        "wrong-actual-reflective-floor-vertices"
+      ],
+      "original_row_preserved": true,
+      "intended_error_required": true,
+      "raw_source_unchanged": true
+    },
+    "historical_scope": "Original corrected authored RF baseline, eight before/after mutants and24 controls; old/current labels inside this immutable proof refer to exact6ed versus the pre-owner repaired candidate, not the current28-control full gate."
+  },
+  "observer_bound": {
+    "historical_pre_owner_bound": {
+      "scope": "HISTORICAL PRE-OWNER source bound from authenticated cc3 parent ranges; not new native measurement and does not yet charge added constructor-owner fields.",
+      "report": {
+        "path": "build/cicc3/unfiltered-child-budget-frame-joined.json",
+        "bytes": 43751,
+        "sha256": "f5ff078ed0cc9ce5fb145f3e869e4829905fcc5a274de2fdc9ace5e08df1f471"
+      },
+      "maximum_added_records": 390,
+      "maximum_total_records": 3972,
+      "maximum_total_retained_bytes": 15217261,
+      "unchanged_max_records": 65536,
+      "unchanged_max_retained_bytes": 16777216,
+      "unchanged_max_record_bytes": 16384,
+      "unchanged_immediate_vertex_snapshot_limit": 4096
+    },
+    "current_prospective_owner_augmented_bound": {
+      "scope": "Prospective audited delta over original authenticated6ed packet for same authored workload; not new-head native measurement or general map bound",
+      "report": {
+        "path": "build/ci6ed/prospective-owner-child-budget.json",
+        "bytes": 9694,
+        "sha256": "63bd8fa465bcfc9e574bca8134b664320f198f76b9b578fd0b689cab7107b077"
+      },
+      "original_retained_bytes": 8826274,
+      "maximum_owner_growth_bytes": 15024,
+      "maximum_added_children": 390,
+      "new_child_charge": "full16384-byte admissible payload plus7-byte surface kind; includes owner metadata",
+      "maximum_total_retained_bytes": 15233788,
+      "retained_byte_margin": 1543428,
+      "maximum_total_records": 3972,
+      "largest_existing_payload_with_max_width_owner": 15034,
+      "new_child_per_record_fit": "Still required by new native admission; full-cap accounting is not a proof that each not-yet-emitted row fits",
+      "unchanged_max_records": 65536,
+      "unchanged_max_retained_bytes": 16777216,
+      "unchanged_max_record_bytes": 16384,
+      "unchanged_immediate_vertex_snapshot_limit": 4096,
+      "new_copied_vertices": 0,
+      "native_acceptance_awarded": false
+    }
+  },
+  "unchanged": [
+    "native authored assets",
+    "lifecycle input schedule",
+    "96 retained frames and12 witness frames",
+    "exact RGB and semantic-state comparison",
+    "current UV tolerance2^-21",
+    "accepted SDVK014 retained/probe/allocation/page/completion invariants"
+  ],
+  "review": {
+    "effort": "Extra High",
+    "source_findings_closed": [
+      "material-name observer suppression",
+      "reflective per-row plane/height admission"
+    ],
+    "unresolved_material_source_findings": [],
+    "native_acceptance_pending": true,
+    "new_python_source_findings": "Extra High review: no material finding in patch4cf2c1; fixed protocol/identity, established FOV representation and scene-only bijection reviewed",
+    "current_complete_cpu_and_exact_head_native_acceptance": "Complete integrated CPU PASS; exact-head normal native/platform/source CI PENDING; original6ed remains NOT_ACCEPTED"
+  },
+  "qualification": {
+    "normal_native_and_source_platform_ci": "REQUIRED on new published head",
+    "6ed_result_cannot_accept_repaired_branch": true,
+    "historical_pre_owner_normal_full_cpu": {
+      "status": "PASS",
+      "pf_tests": 862,
+      "renderer_tests": 371,
+      "all_ten_stages": true,
+      "deterministic_corpus_scenes": 45,
+      "oracle_and_preparations_identical": true,
+      "receipt": {
+        "path": "build/sdvk161-method-review-checks/verification.json",
+        "bytes": 3017,
+        "sha256": "c399409035026a33bd4c4aa89a772fa1f40551799cafa85b2d600fcf91e1f355"
+      },
+      "scope": "PASS before integrated FOV/constructor-owner/completion repair; not a current complete-check receipt"
+    },
+    "current_integrated_normal_full_cpu": {
+      "status": "PASS",
+      "pf_tests": 866,
+      "pf_seconds": 108.943,
+      "renderer_tests": 380,
+      "renderer_seconds": 60.225,
+      "all_ten_stages": true,
+      "deterministic_corpus_scenes": 45,
+      "oracle_and_preparations_identical": true,
+      "receipt": {
+        "path": "build/sdvk161-owner-review-checks/verification.json",
+        "bytes": 7961,
+        "sha256": "cda6b6cec455f81d24293244cf62a4dbaa5cdbd028ef2d7f7ad756b66e3dde13"
+      },
+      "catalog": {
+        "path": "tools/renderer_oracle/corpus.json",
+        "bytes": 595236,
+        "sha256": "921db2365d078049e0eed1da4d7fd223a123746cf5fbca12311276ec774bbee2"
+      },
+      "scope": "Current integrated source/CPU complete check only; new-head native/platform/source CI still required"
+    },
+    "isolated_python_candidate_focused_tests": {
+      "status": "PASS",
+      "tests": 72,
+      "modules": [
+        "test_sdvk161_special_surfaces",
+        "test_sdvk161_fov_representation",
+        "test_sdvk161_repeatability",
+        "test_sdvk158_repeatability",
+        "test_sdvk161_mesh_material_witness"
+      ],
+      "final_repeatability_rerun_tests": 4,
+      "scope": "CPU-only isolated Python candidate with additive production observer owner metadata; not native or complete integrated acceptance"
+    },
+    "first_integrated_cpu_preflight": {
+      "status": "FAILED_SOURCE_FORMAT_CONTRACT",
+      "pf_tests_executed": 866,
+      "test": "test_observer_messages_do_not_render_capture_paths_in_the_hud",
+      "cause": "Callback already used PRINT_HIGH | PRINT_NONOTIFY, but split Printf format literal across source lines; existing source regex requires one line",
+      "correction": "Only joined Printf first line and format literal; flag, emitted text and runtime behavior unchanged; test not weakened",
+      "classification": "local source-format contract finding, not native renderer failure",
+      "fresh_complete_integrated_check": "PASS; see current_integrated_normal_full_cpu",
+      "preserved_failed_logs": [
+        {
+          "path": "build/sdvk161-owner-preflight/driver.log",
+          "bytes": 2841,
+          "sha256": "4924b52064f69090e7382e79e8352dcc9dec655088c559381c8c6f0116674127"
+        },
+        {
+          "path": "build/sdvk161-owner-preflight/pf-tests.log",
+          "bytes": 2779,
+          "sha256": "59f24dccc37fcaaa4c12e05ba2a0b8cce21ad07c629dcc66bf51f6fb96e679db"
+        }
+      ]
+    }
+  },
+  "physical_status": "Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and hardware stability HELD / NOT ACCEPTED. Historical physical root cause UNDETERMINED.",
+  "actual_frame_and_mesh_lifetime_repair": {
+    "original_native_disposition": "NOT_ACCEPTED; raw packet unchanged; current repair requires fresh exact-head native admission",
+    "authenticated_failure": {
+      "path": "docs/shadedoomvk/evidence/SDVK-161-FRAME-OWNER-FAILURE.json",
+      "bytes": 17971,
+      "sha256": "fe6420d636ce29330265b1225514ccb385ca2f91c1692db2d8e3048591adc3b0"
+    },
+    "fov": {
+      "representation": "existing camera round(float(value),9)==90.0 only for SDVK161 constant authored FOV",
+      "actual_source": "AActor::GetFOV equal-endpoint interpolation; source-extracted CPU test demonstrates up to1ULP",
+      "raw_values_retained": true,
+      "RGB_policy": "exact unchanged"
+    },
+    "instance_identity": {
+      "resource": "resource.levelmesh.owner",
+      "submission": "surface.mesh_owner",
+      "local_epoch": "unchanged resource.levelmesh.epoch and surface.mesh_epoch",
+      "constructor_owner": "immutable positive atomic process-wide sequence; exhaustion fails closed",
+      "within_incarnation": "exact atlas/probe epochs and actual mesh owner/localepoch tuple",
+      "between_incarnations": "new constructor owner; localepoch may equal3 again",
+      "earlier_lanes": "resource.owner emitted only under SpecialSurfaceEnabled; prior schemas/projections preserved",
+      "comparison": "SDVK161-only shared first-seen owner-label bijection retains resource/surface aliasing and order; localepoch and other semantic fields remain exact"
+    },
+    "completion": {
+      "producer": "G_DoNewGame-after-G_InitNew",
+      "presentation": "defer-only-pending-driver-map-before-D_Display",
+      "max_pending_loops": 2,
+      "waiting_settings": {
+        "cl_capfps": true,
+        "vid_maxfps": 0,
+        "vid_vsync": false
+      },
+      "receipts": [
+        {
+          "phase": "reload-a",
+          "after_main_views": 56,
+          "map": "SDV161A",
+          "next_retained_frame": 25
+        },
+        {
+          "phase": "map-b",
+          "after_main_views": 80,
+          "map": "SDV161B",
+          "next_retained_frame": 49
+        },
+        {
+          "phase": "reload-b",
+          "after_main_views": 104,
+          "map": "SDV161B",
+          "next_retained_frame": 73
+        }
+      ],
+      "owner_join": "previous_mesh_owner and mesh_owner must equal actual fixed resource incarnations on either side of the boundary",
+      "ordering": "exact combined12queue+3completion sequence",
+      "forbidden": "no phase sliding, forced G_Ticker/map load, renderer-outcome waiting or cross-attempt evidence"
+    },
+    "captured_controls": {
+      "total": 28,
+      "added_to_historical24": [
+        "wrong-retained-camera-fov",
+        "stale-submitted-mesh-instance",
+        "reused-map-mesh-instance-with-local-epochs-preserved",
+        "wrong-actual-map-completion-mesh-owner"
+      ],
+      "intended_error_required": true,
+      "original_raw_unchanged": true
+    },
+    "incremental_python_patch": {
+      "path": "build/sdvk161-identity-oracle-fix.patch",
+      "bytes": 40740,
+      "sha256": "4cf2c1f470a4084f529ffd04422fee6844faa6d40b3934d0b9cfe84f2573b855"
+    },
+    "current_source_pins": [
+      {
+        "path": "tools/renderer_oracle/sdvk161_special_surfaces.py",
+        "bytes": 87598,
+        "sha256": "aa592fc6b0c8ee8091e75c87cbc62bd8faeb25ede767f1fbfb4ba14139076462"
+      },
+      {
+        "path": "tools/renderer_oracle/run.py",
+        "bytes": 72361,
+        "sha256": "22fb7d46094d8d6288b888d2e0485924d2c3cf848207dc0becac3864ce74100a"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/test_sdvk161_fov_representation.py",
+        "bytes": 3922,
+        "sha256": "1b391d4adb65423096b56c73e4f76ea017a166bc145d12143028233b89163124"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py",
+        "bytes": 80534,
+        "sha256": "9ae49adb9a78f8f0f7643078e06be6ad0ff346214a2d9682a489764bbb686abf"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/test_sdvk161_repeatability.py",
+        "bytes": 13083,
+        "sha256": "aabfc99d1302227aeae87fd19a0761a75ccb5197417e0dbf10ff1f243d01aa18"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/test_sdvk161_mesh_material_witness.py",
+        "bytes": 8974,
+        "sha256": "f7965db027fa2b80c47f6d98b68cf9e9a4f7d435234727244461419087c602e7"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/sdvk161_mesh_material_witness_fixture.cpp",
+        "bytes": 8706,
+        "sha256": "753ff7c692dacb5cc412f4c11f131e393eb0f25a5be6fdcb5adce2ef7572524d"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/test_sdvk161_driver.py",
+        "bytes": 7236,
+        "sha256": "b4f66c3b023619d1e47260cbb3500dc2034dd6cd278a49c31f485921b9293e16"
+      },
+      {
+        "path": "tools/renderer_oracle/tests/sdvk161_map_transition_fixture.cpp",
+        "bytes": 7979,
+        "sha256": "70e1def5e9149d2ac6f43a488e8546a07a30881f4fdba6cea461b0fd0053d5e2"
+      },
+      {
+        "path": "tools/pf_oracle/tests/test_sdvk161_mesh_owner.py",
+        "bytes": 5512,
+        "sha256": "2f87c836762912a126067e192308368ceb1b9722ccba13cdbf88b3806cd1e224"
+      },
+      {
+        "path": "tools/pf_oracle/tests/sdvk161_mesh_owner_fixture.cpp",
+        "bytes": 5332,
+        "sha256": "9fc6df97c209e41344316925c61fe1130ce1b8b257884dd58281c01fa033f4db"
+      },
+      {
+        "path": "src/playsim/p_mobj.cpp",
+        "bytes": 223025,
+        "sha256": "a3315b3c979e0533d2e518912fa309da7ddf582fca005b114fc56c7c1c91b202"
+      },
+      {
+        "path": "src/d_net.cpp",
+        "bytes": 70516,
+        "sha256": "1922ae2354ede6794a2132ff52c7e815541fa328aa7fc4ea08aecac7700e2ed8"
+      },
+      {
+        "path": "src/d_main.cpp",
+        "bytes": 115845,
+        "sha256": "4b3a573543ee9c1b9c7e397c65316d2eda7995c9b157c451178ce899c2ee7178"
+      },
+      {
+        "path": "src/g_level.cpp",
+        "bytes": 66671,
+        "sha256": "7c63b642079c9853fdcb4232b82ab224fcc4fccf8dc9205b8c31c51daca8158d"
+      },
+      {
+        "path": "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+        "bytes": 14228,
+        "sha256": "2d425bcb3abc09f45cf3ef23b410ccd99fef3abdc25887446549ca50a09c9f8b"
+      },
+      {
+        "path": "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+        "bytes": 9483,
+        "sha256": "89c514e8d292e431eacdba7b663decbdce9f7158ba4e41881ca3e2006a2b348f"
+      },
+      {
+        "path": "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.h",
+        "bytes": 5546,
+        "sha256": "196ff8016e6a8870c1359bb4f049e007a186e2ddbd07eee2c866ceaa56fa18cb"
+      },
+      {
+        "path": "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
+        "bytes": 55917,
+        "sha256": "5852bd993e100c6902394363f393aa76d7a40514be9dd9c3b9eeeaaca283d942"
+      },
+      {
+        "path": "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "bytes": 44042,
+        "sha256": "f45c2e4c8dffea3f70b438a69b40aadff5b7b1c705f016e4d21967d652c61980"
+      }
+    ]
+  }
+}

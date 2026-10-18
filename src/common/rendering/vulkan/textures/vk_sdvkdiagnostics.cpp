@@ -322,10 +322,9 @@ struct FSdvkDiagnosticAccess
             const auto info = mesh->GetSurfaceInfoForObservation(start.Surface);
             if (!info) throw std::runtime_error("SDVK-161 submitted surface has no semantic owner");
             const auto& materialState = data.Materials[start.Uniform];
-            const auto material = materialState.mMaterial;
-            const char* name = material && material->Source() ? material->Source()->GetName().GetChars() : "";
-            const bool target = strncmp(name, "S161", 4) == 0;
-            if (target)
+            // Every shaded child must remain observable, including a wrong
+            // bound material. The selected fixture frame bounds this work;
+            // authored owner/material validation belongs to the consumer.
             {
                 int vertexPage = -1;
                 float vertexZMin = 0, vertexZMax = 0;
@@ -373,7 +372,7 @@ struct FSdvkDiagnosticAccess
                     .Bool("indexed", true).Int("batch_first_index", firstIndex).Int("batch_index_count", count)
                     .Int("first_index", cursor).Int("index_count", end - cursor).Int("draw_count", end - cursor)
                     .Int("surface_index", start.Surface).Int("uniform_index", start.Uniform)
-                    .Int("texture_index", uniforms.uTextureIndex).Int("mesh_epoch", mesh->GetResourceEpoch().Generation)
+                    .Int("texture_index", uniforms.uTextureIndex).Int("mesh_owner", mesh->GetResourceOwner()).Int("mesh_epoch", mesh->GetResourceEpoch().Generation)
                     .Num("alpha", data.LightUniforms[start.Uniform].uVertexColor.W)
                     .Raw("material", Material(state->fb, materialState, uniforms, context))
                     .Raw("owner", Object().Int("type", info->Type).Int("type_index", info->TypeIndex).Int("side", side)
@@ -431,7 +430,7 @@ struct FSdvkDiagnosticAccess
             .Int("batch_first_index", firstIndex).Int("batch_index_count", count)
             .Int("surface_index", -1).Int("uniform_index", -1)
             .Int("texture_index", portal ? -1 : state->mSurfaceUniforms.uTextureIndex)
-            .Int("mesh_epoch", mesh ? mesh->GetResourceEpoch().Generation : 0).Num("alpha", state->mSurfaceUniforms.uVertexColor.W)
+            .Int("mesh_owner", mesh ? mesh->GetResourceOwner() : 0).Int("mesh_epoch", mesh ? mesh->GetResourceEpoch().Generation : 0).Num("alpha", state->mSurfaceUniforms.uVertexColor.W)
             .Raw("material", portal ? Object().Raw("material", Unavailable("portal stencil does not shade a material")).Json()
                 : Material(state->fb, state->mMaterial, state->mSurfaceUniforms, context))
             .Raw("owner", Object().Int("type", source.Type).Int("type_index", source.Side)
@@ -611,9 +610,14 @@ void VulkanResources(VulkanRenderDevice* device)
         if (level.levelMesh)
         {
             const auto& epochs = level.levelMesh->GetMutationEpochs();
-            result.Raw("levelmesh", Object().Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
+            Object meshState;
+            meshState.Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
                 .Int("geometry", epochs.Geometry).Int("surface", epochs.Surface).Int("lights", epochs.Lights).Int("query", epochs.Query)
-                .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets).Json())
+                .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets);
+            // Process-local construction IDs are the SDVK-161 lifetime witness.
+            // Ordinary corpus records retain their existing comparison shape.
+            if (SpecialSurfaceEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner());
+            result.Raw("levelmesh", meshState.Json())
                 .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size(),
                     device->GetFrameTileUpdates(), device->GetFrameTileCompletions()));
         }

@@ -981,6 +981,28 @@ def _sdvk150_repeatability_projection(records, scene):
     return result
 
 
+def _sdvk161_repeatability_projection(records, scene):
+    """Keep actual mesh-instance aliasing while canonicalizing process labels.
+
+    Constructor-assigned IDs are not semantic IDs across independent processes.
+    Their first-seen order and every surface/resource join remain exact; local
+    mesh epochs, atlas receipt identities, maps, phases and all other fields stay.
+    """
+    result = copy.deepcopy(records)
+    if scene != "special-surface-lifecycle":
+        return result
+    owners = {}
+    for record in result:
+        value = record.get("data", {})
+        target = value.get("levelmesh", {}) if record.get("kind") == "resource" else value
+        name = "owner" if record.get("kind") == "resource" else "mesh_owner"
+        if record.get("kind") not in ("resource", "surface") or type(target.get(name)) is not int:
+            continue
+        owner = target[name]
+        target[name] = owners.setdefault(owner, len(owners))
+    return result
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -1012,11 +1034,15 @@ def compare_runs(left, right, *, allow_build_change=False):
     y = _sdvk150_repeatability_projection(
         _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"]),
         b["scene"])
+    x = _sdvk161_repeatability_projection(x, a["scene"])
+    y = _sdvk161_repeatability_projection(y, b["scene"])
     normalization = "Validated context and live-slot identities; 1e-9 view-number canonicalization; static-scene clock labels; cumulative workload telemetry excluded; semantic state retained"
     if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     if a["scene"] == "probe-owner-transition":
         normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
+    if a["scene"] == "special-surface-lifecycle":
+        normalization += "; SDVK-161 actual mesh-instance labels normalized bijectively; instance birth order, resource/draw aliasing, local mesh epochs, atlas receipts and phase order remain exact"
     if fixed_view_lightmap:
         owner = "SDVK-158" if a["scene"] == "lightmap-retained-transition" else "SDVK-161"
         normalization += "; " + owner + " fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"

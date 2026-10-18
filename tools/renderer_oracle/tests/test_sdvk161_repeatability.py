@@ -62,7 +62,8 @@ class SpecialSurfaceRepeatabilityTests(unittest.TestCase):
     def compare(self,left,right,*,scene=SCENE,clock=CLOCK,changed_image=False):
         for data in (left,right):
             run.validate.observation(data,required_kinds=['context','resource'],expected_frames=96)
-            gate.validate_transition_records(data,stdout(),recipe()['native'])
+            owners=tuple(next(r['data']['levelmesh']['owner'] for r in data['records'] if r['kind']=='resource' and r['frame']==frame) for frame in (1,25,49,73))
+            gate.validate_transition_records(data,stdout(owners),recipe()['native'])
         with tempfile.TemporaryDirectory(prefix='sdvk161-compare-') as d:
             roots=[Path(d)/name for name in ('left','right')]
             for i,root in enumerate(roots):
@@ -96,6 +97,45 @@ class SpecialSurfaceRepeatabilityTests(unittest.TestCase):
         self.assertIn('SDVK-161 fixed-presented-view schedule',result['normalization'])
         self.assertEqual((left,right),raw)
 
+    def test_actual_mesh_instance_labels_are_bijective_and_local_epochs_remain_exact(self):
+        left=envelope();right=envelope(300,4,.875)
+        labels={70:900,71:903,72:908,73:912}
+        for record in right['records']:
+            value=record['data']
+            if record['kind']=='resource':value['levelmesh']['owner']=labels[value['levelmesh']['owner']]
+            elif record['kind']=='surface':value['mesh_owner']=labels[value['mesh_owner']]
+        original=copy.deepcopy((left,right))
+        old_left=run.validate.state_projection(left,static_scene=True)
+        old_right=run.validate.state_projection(right,static_scene=True)
+        self.assertNotEqual(old_left,old_right)
+        changes=run.differences(old_left,old_right,maximum=100000)
+        self.assertTrue(all(item['path'].endswith(('/levelmesh/owner','/mesh_owner')) for item in changes))
+        result=self.compare(left,right)
+        self.assertEqual(result['status'],'PASS');self.assertTrue(result['state_equal'])
+        self.assertIn('actual mesh-instance labels normalized bijectively',result['normalization'])
+        self.assertEqual((left,right),original)
+        self.assertEqual(run._sdvk161_repeatability_projection(old_right,'lights-zero'),old_right)
+        # The projection must retain resource/draw alias relationships, rather
+        # than deleting the instance fields once admission has checked them.
+        projected=run._sdvk161_repeatability_projection(old_right,SCENE)
+        stale=copy.deepcopy(old_right)
+        next(record['data'] for record in stale if record['kind']=='surface' and record['frame']==32)['mesh_owner']=900
+        stale_projected=run._sdvk161_repeatability_projection(stale,SCENE)
+        self.assertNotEqual(projected,stale_projected)
+        self.assertTrue(all(item['path'].endswith('/mesh_owner')
+                            for item in run.differences(projected,stale_projected)))
+
+        # Coherent local resource-epoch differences remain individually valid
+        # instance states, and must still fail the independent state comparison.
+        for record in right['records']:
+            if not 25<=record['frame']<=48:continue
+            if record['kind']=='resource':record['data']['levelmesh']['epoch']+=1
+            elif record['kind']=='surface':record['data']['mesh_epoch']+=1
+        result=self.compare(left,right)
+        self.assertEqual(result['status'],'FAIL');self.assertFalse(result['state_equal'])
+        self.assertTrue(all(item['path'].endswith(('/levelmesh/epoch','/mesh_epoch')) for item in result['first_state_differences']))
+        self.assertTrue(result['image']['passed'])
+
     def test_wrong_clock_and_ordinary_dynamic_scene_do_not_get_161_policy(self):
         left=envelope();right=envelope(300,4,.875)
         for scene,clock in ((SCENE,'ordinary_engine_clock'),(SCENE,CLOCK+'-wrong'),
@@ -113,6 +153,8 @@ class SpecialSurfaceRepeatabilityTests(unittest.TestCase):
             'uv':'Submitted receiver UVs do not match its current atlas allocation',
             'portal':'SDVK-161 material receiver inherited a portal destination/sky-only identity',
             'camera':'SDVK-161 retained frame camera position differs from its authored view',
+            'mesh-instance':'SDVK-161 submitted surface references another LevelMesh instance/local epoch',
+            'mesh-epoch':'SDVK-161 submitted surface references another LevelMesh instance/local epoch',
         }
         paths={
             'completion':['/17/data/lightmap_state/frame_tile_completions',
@@ -137,6 +179,8 @@ class SpecialSurfaceRepeatabilityTests(unittest.TestCase):
                 if change=='sampler':value['material']['layers'][0]['sampler']['min_filter']=1
                 if change=='uv':value['geometry']['current_uv_valid']=False
                 if change=='portal':value['geometry']['portal_index']=1
+                if change=='mesh-instance':value['mesh_owner']+=1000
+                if change=='mesh-epoch':value['mesh_epoch']+=1
                 if change=='camera':next(r['data'] for r in right['records'] if r['kind']=='frame' and r['frame']==56)['camera']['position'][0]+=1
             with self.subTest(change=change):
                 if change in errors:

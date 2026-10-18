@@ -1524,3 +1524,95 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
   and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
   UNDETERMINED.
+
+### 18 October 2026 (UTC) — SDVK-161 adversarial method closure
+
+- Extra High review of UV-repair head
+  `6edac8ad5b5f4f2f1a778d0c32e754186ee95a91`, tree
+  `2694a6771c39c0696726217258b4238cf9768647`, found two acceptance-method gaps.
+  That head was unaccepted during this source checkpoint; its subsequent normal
+  native failure is recorded in the next entry.
+- The mesh observer's actual material-name prefix suppressed a coherent wrong
+  ordinary-material child while a correct triangle preserved required coverage.
+  Selected color-shaded child traversal now emits every material. Existing
+  state/depth/color guards, actual parent/range/pipeline/context identity, current
+  material/receipt/UV checks and all observer limits remain unchanged.
+- The historical pre-owner proof executes the immutable original method and
+  incorrectly passes the then-current full gate with the bad child hidden;
+  repaired production emission exposes both children and
+  the unchanged authored owner/material rule rejects the wrong one. Correct
+  ordinary A ceiling and B wall controls pass. This is CPU method evidence, not
+  a claim of captured wrong pixels or new native admission.
+- Every reflected A floor row now requires its authored upward plane at Z=0 and
+  submitted vertex extrema `0..0`. Eight positive/negative height, normal and
+  extrema mutants fail before and after a valid neighboring row. The corrected
+  positive CPU packet describes the real floor height; the exact 6ed validator
+  still incorrectly accepts all eight mutants of that valid baseline.
+- Captured controls increase from 21 to 24 by adding wrong reflective height,
+  normal and vertex-extrema rows beside their original current receiver. Existing
+  controls and exact RGB/state comparison are unchanged. The
+  [committed review receipt](evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json) pins
+  both findings, source methods, before/after evidence and the bounded estimate.
+- Extra High review closes the source findings. Normal full CPU checks and fresh
+  native/ordinary/source CI on the repaired exact head remain required. No
+  failed-head rerun, new runner, tolerance/cap change or local renderer execution.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
+  and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED. #14 remains open.
+
+
+### 18 October 2026 (UTC) — SDVK-161 frame/owner failure and integrated repair candidate
+
+- Normal CI `39088355994`, software job `117560017505`, rejected head
+  `6edac8ad5b5f4f2f1a778d0c32e754186ee95a91`, tree
+  `2694a6771c39c0696726217258b4238cf9768647`. Runtime integration
+  `d6df41d73795cc0e49b10e76e7822b6c76199c74` has that exact tree and the expected
+  master/head parents. The [immutable failure receipt](evidence/SDVK-161-FRAME-OWNER-FAILURE.json)
+  authenticates the complete original log, archive and packet. **NOT ACCEPTED.**
+- Collection completed 96 retained/32 warmup frames, 3,582 records and 8,826,274
+  retained bytes without drops. All eligible current-UV checks passed, closing
+  the earlier 36-row split-wall manifestation on this head. The first admission
+  failure was literal FOV 90 versus fourteen actual constant-camera values at
+  90±1 ULP. Individual current-resource/semantic/completion and within-attempt
+  exact-RGB subchecks do not replace failed full admission. Attempt 2, captured
+  controls, cross-attempt comparison and the later SDVK-009 gate were suppressed.
+- Source replay of actual `AActor::GetFOV` proves the equal-endpoint rounding
+  effect. The prospective gate reuses established camera round-to-nine-decimal
+  representation, retaining raw data, real camera changes and exact RGB. No
+  generic numeric, clock or image policy changes.
+- Offline inspection separately found local mesh epoch 3 repeated in distinct
+  constructed meshes and the queued B reload unfinished at frame 73, completing
+  at 74. The repair supplies immutable constructor owners plus unchanged local
+  epochs, joining every submitted receiver to the same-frame actual instance.
+  A scene-only first-seen bijection retains identity alias/order relationships
+  across independent processes; earlier lanes keep their resource schema.
+- The ordinary driver waits only for its exact pending map action before the
+  next display, with a two-loop bound and exact waiting settings. The callback
+  after `G_InitNew` reports actual map/previous/new mesh owners. Fixed receipts
+  before frames 25/49/73 and their exact interleaving remain mandatory; no phase
+  sliding, forced tick/map load or renderer-outcome wait is introduced.
+- Captured controls increase from 24 to 28 with intended-reason FOV, stale mesh
+  instance, constructor-owner reuse and completion-owner negatives. The current
+  source fixture adapts only the retained filter method's additive owner metadata;
+  the immutable original JSON/hash and original unadapted pre-owner CPU/RF
+  before/after proofs are preserved and labeled separately from current pins.
+- The first 862 PF/371 renderer/all-ten-stage complete check belongs to the
+  pre-owner observer/RF candidate. The isolated Python repair passed 72 focused
+  tests, with a final four-test repeatability rerun. The complete integrated
+  `tools/check.py` run now passes all ten stages: 866 PF tests (108.943 seconds),
+  380 renderer tests (60.225 seconds), 45 scenes with identical preparations and
+  identical PF oracle outputs. Receipt `build/sdvk161-owner-review-checks/verification.json`
+  is 7,961 bytes, SHA256
+  `cda6b6cec455f81d24293244cf62a4dbaa5cdbd028ef2d7f7ad756b66e3dde13`.
+  The first local preflight's existing source-format assertion is preserved in
+  separate logs: joining the non-notifying `Printf` literal onto its first line
+  fixes that assertion without runtime behavior or test changes. Fresh exact-head
+  normal source/platform/native qualification remains required. The
+  earlier 15,217,261-byte bound remains historical pre-owner evidence. A revised
+  calculation over authenticated 6ed adds maximum-width IDs and all prospective
+  children: at most 15,233,788 bytes/3,972 records, within unchanged limits. This
+  is a source bound for the same authored workload, not new native measurement;
+  new-row size and full-capture admission remain mandatory.
+- No native retry, extra CI dispatch, local renderer/device or physical run.
+  Physical STOP ACTIVE; physical GPU cost, scaling and hardware stability
+  HELD / NOT ACCEPTED; historical physical root cause UNDETERMINED. #14 stays open.

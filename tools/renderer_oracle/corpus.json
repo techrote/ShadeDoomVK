@@ -591,6 +591,73 @@
       "native_rendering_proof": false,
       "test_path": "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
       "retained_fixture": "tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json"
+    },
+    "sdvk161-mesh-material-witness": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/renderer_oracle/tests",
+        "-p",
+        "test_sdvk161_mesh_material_witness.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/renderer_oracle/tests/test_sdvk161_mesh_material_witness.py",
+      "retained_fixture": "tools/renderer_oracle/tests/fixtures/sdvk161-mesh-material-filter-pre-fix.json"
+    },
+    "sdvk161-mesh-owner": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk161_mesh_owner.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sdvk161_mesh_owner.py",
+      "retained_fixture": "tools/pf_oracle/tests/sdvk161_mesh_owner_fixture.cpp"
+    },
+    "sdvk161-map-completion": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/renderer_oracle/tests",
+        "-p",
+        "test_sdvk161_driver.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/renderer_oracle/tests/test_sdvk161_driver.py",
+      "retained_fixture": "tools/renderer_oracle/tests/sdvk161_map_transition_fixture.cpp"
+    },
+    "sdvk161-fov-representation": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/renderer_oracle/tests",
+        "-p",
+        "test_sdvk161_fov_representation.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/renderer_oracle/tests/test_sdvk161_fov_representation.py"
     }
   },
   "cvar_sources": {
@@ -18148,6 +18215,50 @@
           "-p",
           "test_sdvk161_split_uv.py",
           "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk161_mesh_material_witness.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk161_mesh_owner.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk161_driver.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk161_fov_representation.py",
+          "-v"
         ]
       ],
       "cpu_contracts": [
@@ -18158,7 +18269,11 @@
         "sdvk161-material-reset",
         "sdvk161-receiver-writer",
         "sdvk161-notifications",
-        "sdvk161-split-uv"
+        "sdvk161-split-uv",
+        "sdvk161-mesh-material-witness",
+        "sdvk161-mesh-owner",
+        "sdvk161-map-completion",
+        "sdvk161-fov-representation"
       ],
       "id": "special-surface-lifecycle",
       "native": {
@@ -18304,7 +18419,8 @@
           "Material classification, texture/height/sampler policy, current atlas page and allocation incarnation match the same-frame production census.",
           "Decals consume the current receiving wall allocation as overlays; excluded horizon and portal draw paths do not inherit a receiver.",
           "Linked portal contexts and distinct 3D-floor owning/control sectors and selected planes are witnessed at submitted ranges.",
-          "Every attempt is independently valid before exact semantic state and RGB repeatability comparison; corrupt copied records must be rejected for the intended reason."
+          "Every attempt is independently valid before exact semantic state and RGB repeatability comparison; corrupt copied records must be rejected for the intended reason.",
+          "Actual constructor mesh owners and unchanged local epochs join every observed surface to its same-frame resource; G_DoNewGame completion receipts precede fixed new-owner frames25/49/73 under the bounded authored input driver."
         ],
         "screenshot": {
           "filename": "{prefix}.png",
@@ -18455,6 +18571,17 @@
             "roll": 0,
             "yaw": 90
           }
+        },
+        "special_surface_map_completion": {
+          "producer": "G_DoNewGame-after-G_InitNew",
+          "presentation": "defer-only-pending-driver-map-before-D_Display",
+          "max_pending_loops": 2,
+          "next_retained_frames": [
+            25,
+            49,
+            73
+          ],
+          "mesh_identity": "actual-constructor-owner-plus-local-resource-epoch"
         }
       },
       "negative_fixtures": [
@@ -18473,7 +18600,11 @@
         "tools/renderer_oracle/tests/test_sdvk161_camera.py",
         "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
         "tools/renderer_oracle/tests/test_sdvk161_repeatability.py",
-        "tools/pf_oracle/tests/test_sdvk161_split_uv.py"
+        "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
+        "tools/renderer_oracle/tests/test_sdvk161_mesh_material_witness.py",
+        "tools/pf_oracle/tests/test_sdvk161_mesh_owner.py",
+        "tools/renderer_oracle/tests/test_sdvk161_driver.py",
+        "tools/renderer_oracle/tests/test_sdvk161_fov_representation.py"
       ],
       "required_state_channels": [
         "context",
@@ -18541,7 +18672,20 @@
         "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
         "tools/renderer_oracle/tests/test_sdvk161_repeatability.py",
         "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
-        "tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json"
+        "tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json",
+        "tools/renderer_oracle/tests/test_sdvk161_mesh_material_witness.py",
+        "tools/renderer_oracle/tests/sdvk161_mesh_material_witness_fixture.cpp",
+        "tools/renderer_oracle/tests/fixtures/sdvk161-mesh-material-filter-pre-fix.json",
+        "tools/pf_oracle/tests/test_sdvk161_mesh_owner.py",
+        "tools/pf_oracle/tests/sdvk161_mesh_owner_fixture.cpp",
+        "tools/renderer_oracle/tests/test_sdvk161_driver.py",
+        "tools/renderer_oracle/tests/sdvk161_map_transition_fixture.cpp",
+        "tools/renderer_oracle/tests/test_sdvk161_fov_representation.py",
+        "src/d_main.cpp",
+        "src/g_game.cpp",
+        "src/g_level.cpp",
+        "src/d_net.cpp",
+        "src/playsim/p_mobj.cpp"
       ],
       "title": "Special-surface/material lifecycle and semantic ownership"
     }

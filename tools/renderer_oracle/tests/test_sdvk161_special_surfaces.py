@@ -15,6 +15,7 @@ from tools.renderer_oracle.common import EvidenceError
 def native_recipe():
     return {"generator": "special_surface_lifecycle", "map": "SDV161A",
             "special_surface_schedule": copy.deepcopy(gate.SCHEDULE),
+            "special_surface_map_completion": copy.deepcopy(gate.MAP_COMPLETION_PROTOCOL),
             "recommended_warmup_frames": 32,
             "camera": {"position": [-192, 0, 64], "yaw": 0, "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002},
             "map_cameras": {
@@ -24,21 +25,25 @@ def native_recipe():
             "surface_witness_frames": list(range(8, 97, 8)),
             "console_commands": ["lm_max_updates 128", "lm_background_updates 32", "screenshot_quiet true"],
             "settings": {"gl_levelmesh": True, "lm_dynlights": False, "gl_lightprobe": True, "con_notifylines": 0,
+                         "cl_capfps": True, "vid_maxfps": 0, "vid_vsync": False,
                          "gl_texture_filter": 0, "gl_texture_filter_anisotropic": 1}}
 
 
-def stdout():
+def stdout(owners=(70, 71, 72, 73)):
     # Independent literals preserve exact phase timing/order in the controls.
     return ("SDVK161_INPUT phase=invalidate-a-retained-start after_main_views=32\n"
             "SDVK161_INPUT phase=invalidate-a-1 after_main_views=40\n"
             "SDVK161_INPUT phase=filter-linear-a after_main_views=48\n"
-            "SDVK161_INPUT phase=reload-a after_main_views=56\n"
+            f"SDVK161_INPUT phase=reload-a after_main_views=56\n"
+            f"SDVK161_INPUT_COMPLETE phase=reload-a after_main_views=56 map=SDV161A previous_mesh_owner={owners[0]} mesh_owner={owners[1]} next_retained_frame=25\n"
             "SDVK161_INPUT phase=filter-nearest-a after_main_views=64\n"
             "SDVK161_INPUT phase=invalidate-a-2 after_main_views=72\n"
-            "SDVK161_INPUT phase=map-b after_main_views=80\n"
+            f"SDVK161_INPUT phase=map-b after_main_views=80\n"
+            f"SDVK161_INPUT_COMPLETE phase=map-b after_main_views=80 map=SDV161B previous_mesh_owner={owners[1]} mesh_owner={owners[2]} next_retained_frame=49\n"
             "SDVK161_INPUT phase=invalidate-b-1 after_main_views=88\n"
             "SDVK161_INPUT phase=filter-linear-b after_main_views=96\n"
-            "SDVK161_INPUT phase=reload-b after_main_views=104\n"
+            f"SDVK161_INPUT phase=reload-b after_main_views=104\n"
+            f"SDVK161_INPUT_COMPLETE phase=reload-b after_main_views=104 map=SDV161B previous_mesh_owner={owners[2]} mesh_owner={owners[3]} next_retained_frame=73\n"
             "SDVK161_INPUT phase=filter-nearest-b after_main_views=112\n"
             "SDVK161_INPUT phase=invalidate-b-2 after_main_views=120\n")
 
@@ -59,7 +64,7 @@ def lifecycle_raw():
         work = int(frame in (1, 9, 25, 41, 57, 73, 89))
         records.append({"kind": "resource", "frame": frame, "count": 1, "data": {
             "lightmap_epoch": 3 + incarnation, "probe_epoch": 5 + incarnation,
-            "levelmesh": {"epoch": 7 + incarnation},
+            "levelmesh": {"owner": 70 + incarnation, "epoch": 3},
             "lightmap_state": {
                 "available": True, "map": "SDV161B" if second else "SDV161A",
                 "texture_count": 1, "vulkan_page_count": 1, "page_count_match": True, "authored_probe_count": 0,
@@ -173,6 +178,47 @@ class SpecialSurfaceLifecycleTests(unittest.TestCase):
                     resource(raw, 17)[key] += 1
                 with self.subTest(key=key, mode=mode), self.assertRaises(EvidenceError):
                     self.validate(raw)
+
+    def test_equal_local_epochs_require_distinct_actual_mesh_instances(self):
+        raw = lifecycle_raw()
+        self.assertEqual({resource(raw, frame)["levelmesh"]["epoch"] for frame in range(1, 97)}, {3})
+        self.assertEqual(self.validate(raw)["status"], "PASS")
+        for frame in range(25, 49):
+            resource(raw, frame)["levelmesh"]["owner"] = 70
+        with self.assertRaisesRegex(EvidenceError, "map reload reused or reordered an actual LevelMesh instance owner"):
+            self.validate(raw)
+
+    def test_actual_map_completions_are_required_at_fixed_boundaries(self):
+        text = stdout()
+        completion = next(line for line in text.splitlines() if line.startswith("SDVK161_INPUT_COMPLETE phase=reload-b"))
+        mutations = [text.replace(completion + "\n", ""), text + completion + "\n",
+                     text.replace(completion, completion.replace("next_retained_frame=73", "next_retained_frame=74")),
+                     text.replace(completion, completion.replace("previous_mesh_owner=72", "previous_mesh_owner=70")),
+                     text.replace(completion, completion.replace("mesh_owner=73", "mesh_owner=999")),
+                     text.replace(completion, completion.replace("map=SDV161B", "map=SDV161A"))]
+        for bad in mutations:
+            with self.subTest(text=bad), self.assertRaisesRegex(EvidenceError, "map completion driver order/owner differs"):
+                self.validate(text=bad)
+        raw = lifecycle_raw()
+        resource(raw, 73)["levelmesh"] = copy.deepcopy(resource(raw, 72)["levelmesh"])
+        with self.assertRaisesRegex(EvidenceError, "material sampler reset replaced"):
+            self.validate(raw)
+
+    def test_completion_protocol_requires_actual_ordinary_tic_wait_settings(self):
+        for key, value in (("cl_capfps", False), ("vid_maxfps", 35), ("vid_maxfps", False), ("vid_vsync", True)):
+            native = native_recipe()
+            native["settings"][key] = value
+            with self.subTest(key=key, value=value), self.assertRaisesRegex(EvidenceError, "ordinary tic wait policy differs"):
+                self.validate(native=native)
+        for command in ("cl_capfps false", "echo ready; vid_maxfps 35", "VID_VSYNC true"):
+            native = native_recipe()
+            native["console_commands"].append(command)
+            with self.subTest(command=command), self.assertRaisesRegex(EvidenceError, "late commands may not override"):
+                self.validate(native=native)
+        native = native_recipe()
+        native["special_surface_map_completion"]["max_pending_loops"] = 3
+        with self.assertRaisesRegex(EvidenceError, "map-completion/mesh-identity protocol differs"):
+            self.validate(native=native)
 
     def test_actual_filter_state_cannot_be_substituted_by_input_markers(self):
         for frame in (17, 25, 33):
@@ -337,6 +383,7 @@ def full_raw():
                     "indexed": True, "first_index": first, "draw_count": 6, "key": copy.deepcopy(key),
                     "context": copy.deepcopy(context)}})
             value = {"producer": "levelmesh-surface-range", "class": cls,
+                     "mesh_owner": resource_row["levelmesh"]["owner"],
                      "mesh_epoch": resource_row["levelmesh"]["epoch"], "surface_index": ordinal,
                      "context": copy.deepcopy(context), "key": key, "indexed": True, "draw_count": 6,
                      "first_index": first, "index_count": 6, "batch_first_index": first, "batch_index_count": 6,
@@ -365,6 +412,8 @@ def full_raw():
                 value["probe"]["authored_scope"] = "current immediate authored uniform selector"
                 value["geometry"]["current_uv_valid"] = False
                 value["lightmap"].update(eligible=False, tile=-1, page=-1, valid=False)
+            if name == "S161RF":
+                value["geometry"].update(vertex_z_min=0, vertex_z_max=0)
             raw["records"].append({"kind": "surface", "frame": frame, "count": 1, "data": value})
         if not second:
             receiver = next(row["data"] for row in raw["records"] if row["kind"] == "surface"
@@ -519,6 +568,7 @@ class SubmittedSpecialSurfaceTests(unittest.TestCase):
             lambda value: value.update(batch_first_index=999),
             lambda value: value.update(draw_count=0),
             lambda value: value.update(mesh_epoch=6),
+            lambda value: value.update(mesh_owner=999),
             lambda value: value["key"]["shader"].update(EffectState=0),
             lambda value: value["key"]["shader"].update(UseLevelMesh=0),
             lambda value: value["key"]["shader"].update(NoFragmentShader=1),
@@ -855,6 +905,33 @@ class SubmittedSpecialSurfaceTests(unittest.TestCase):
                 with self.subTest(cls=cls, kind=kind, position=position), self.assertRaisesRegex(EvidenceError, reason):
                     self.validate(raw)
 
+    def test_wrong_reflective_plane_cannot_hide_beside_correct_neighbor(self):
+        mutations = (
+            {"plane": [0, 0, 1, 64], "vertex_z_min": 64, "vertex_z_max": 64},
+            {"plane": [0, 0, 1, -64], "vertex_z_min": -64, "vertex_z_max": -64},
+            {"plane": [0, 0, -1, 0]},
+            {"vertex_z_min": 64, "vertex_z_max": 64},
+        )
+        for mutation in mutations:
+            for position in ("before", "after"):
+                raw = full_raw()
+                records = raw["records"]
+                index = next(index for index, row in enumerate(records)
+                             if row["kind"] == "surface" and row["frame"] == 8
+                             and row["data"].get("class") == "reflective-floor")
+                correct = copy.deepcopy(records[index])
+                wrong = copy.deepcopy(correct)
+                wrong["data"]["geometry"].update(mutation)
+                records.insert(index + (position == "after"), wrong)
+                self.assertIn(correct, records)
+                for field in ("material", "texture_index", "owner", "lightmap", "probe", "context"):
+                    self.assertEqual(wrong["data"][field], correct["data"][field])
+                self.assertTrue(wrong["data"]["geometry"]["current_uv_valid"])
+                self.assertTrue(wrong["data"]["geometry"]["triangle_mapping_valid"])
+                with self.subTest(mutation=mutation, position=position), self.assertRaisesRegex(
+                        EvidenceError, "reflective-floor plane/height differs from its authored floor"):
+                    self.validate(raw)
+
     def test_repeated_correct_ordinary_and_controlled_receivers_are_admitted(self):
         raw = full_raw()
         repeated = [copy.deepcopy(row) for row in raw["records"]
@@ -1066,16 +1143,37 @@ class SubmittedSpecialSurfaceTests(unittest.TestCase):
 
 
 class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
-    def test_real_control_code_rejects_twenty_one_copies_without_mutating_admitted_source(self):
+    def test_real_control_code_rejects_twenty_eight_copies_without_mutating_admitted_source(self):
         raw = full_raw()
         original = copy.deepcopy(raw)
         result = gate.captured_negatives(raw, stdout(), native_recipe())
         self.assertEqual(result["status"], "PASS")
-        self.assertEqual(len(result["controls"]), 21)
+        self.assertEqual(len(result["controls"]), 28)
         self.assertTrue(all(control["status"] == "REJECTED" and control["reason"]
                             and len(control["mutant_sha256"]) == 64 for control in result["controls"]))
         self.assertEqual(raw, original)
         self.assertFalse(result["native_execution"])
+
+    def test_captured_reflective_plane_controls_preserve_the_correct_current_neighbor(self):
+        raw = full_raw()
+        original = copy.deepcopy(raw)
+        controls = {row["name"]: row for row in gate.captured_negatives(raw, stdout(), native_recipe())["controls"]}
+        for name, after in (
+                ("wrong-actual-reflective-floor-height",
+                 {"plane": [0, 0, 1, 64], "vertex_z_min": 64, "vertex_z_max": 64}),
+                ("wrong-actual-reflective-floor-normal", {"plane": [0, 0, -1, 0]}),
+                ("wrong-actual-reflective-floor-vertices", {"vertex_z_min": 64, "vertex_z_max": 64})):
+            control = controls[name]
+            correct = raw["records"][control["record_index"]]
+            self.assertEqual((correct["frame"], correct["data"]["class"], correct["data"]["material"]["name"]),
+                             (8, "reflective-floor", "S161RF"))
+            self.assertTrue(control["correct_neighbor_preserved"])
+            self.assertEqual(control["mutant_record_index"], control["record_index"] + 1)
+            self.assertEqual(control["path"], ["data", "geometry"])
+            self.assertEqual(control["after"], after)
+            self.assertEqual(control["before"], {key: correct["data"]["geometry"][key] for key in after})
+            self.assertIn("reflective-floor plane/height differs from its authored floor", control["reason"])
+        self.assertEqual(raw, original)
 
     def test_captured_special_material_controls_select_the_actual_class_and_owner(self):
         raw = full_raw()
@@ -1118,7 +1216,7 @@ class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
         original = copy.deepcopy(raw)
         baseline = gate.captured_negatives(full_raw(), stdout(), native_recipe())
         result = gate.captured_negatives(raw, stdout(), native_recipe())
-        self.assertEqual(len(result["controls"]), 21)
+        self.assertEqual(len(result["controls"]), 28)
         self.assertEqual({item["name"] for item in result["controls"]},
                          {item["name"] for item in baseline["controls"]})
         self.assertTrue(all(item["status"] == "REJECTED" for item in result["controls"]))
@@ -1152,7 +1250,7 @@ class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
             self.assertEqual((target["producer"], target["context"]["type"], target["context"]["depth"]),
                              ("levelmesh-surface-range", "main", 0))
             self.assertEqual(target["owner"]["side"], -1 if cls == "three-d-floor-ceiling" else 34)
-        self.assertEqual(len(result["controls"]), 21)
+        self.assertEqual(len(result["controls"]), 28)
 
     def test_captured_controls_cannot_promote_an_invalid_source(self):
         raw = full_raw()

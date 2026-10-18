@@ -36,6 +36,38 @@ clamped corner UVs; the repair projects final split positions through the curren
 tile while preserving geometry, ordinary texture UVs, ownership and the strict
 observer. Both independent native attempts and dependent gates remain required
 on a new reviewed head. No failed head was rerun or tolerance relaxed.
+Extra High review of the subsequent UV-repair head
+`6edac8ad5b5f4f2f1a778d0c32e754186ee95a91` found two additional acceptance-method
+gaps: a wrong ordinary material could suppress its own mesh child witness, and a
+wrong reflective-floor plane/height could survive beside a correct row. The
+[review receipt](../evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json) records the
+unfiltered selected-child observer, per-row authored reflective-plane checks and
+independent historical pre-owner before/after CPU controls. The current retained
+filter replay uses that immutable method plus only an explicit `mesh_owner`
+metadata adapter; historical proof hashes are separate from current source pins.
+Normal CI `39088355994` then rejected the complete 6ed packet for literal FOV
+comparison against constant-camera interpolation values 90±1 ULP. Offline
+inspection also found reused local mesh epoch 3 across new instances and an
+unfinished same-map B command at frame 73, completing at 74. The
+[authenticated failure receipt](../evidence/SDVK-161-FRAME-OWNER-FAILURE.json)
+retains these findings; all 36 earlier split-wall UV failures are absent.
+
+The integrated repair reuses the established nine-decimal camera representation,
+preserves raw FOV/RGB, adds immutable constructor owners alongside local epochs,
+and joins every actual submission to its current resource owner. Exact map
+completion receipts must link old/new owners before fixed frames 25/49/73.
+Only the driver's pending map action may defer display for at most two ordinary
+loops; typed `cl_capfps=true`, `vid_maxfps=0`, `vid_vsync=false` pin ordinary-tic
+waiting. No renderer outcome decides advancement. Earlier lanes retain their
+resource schema and comparison rules. Captured controls now total 28; authored
+assets, lifecycle inputs, frame budgets, exact RGB and caps stay unchanged.
+The 862 PF/371 renderer complete check remains historical pre-owner evidence.
+The integrated repair now passes all ten `tools/check.py` stages, including 866
+PF tests, 380 renderer tests and identical preparations for all 45 scenes. The
+[review receipt](../evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json) pins that
+complete-check receipt and preserves the formatting-only failed preflight.
+Fresh exact-head source/platform/native CI is still required. Head 6ed remains NOT ACCEPTED; individual passing diagnostics do not
+admit the failed attempt or replace dependent native gates.
 Earlier candidate notes below are historical and do not supersede accepted
 #150/#153/#156/#158 contracts.
 
