@@ -1,8 +1,9 @@
 """Real oracle preparation/PNG import path; zero renderer or collector Git children.
 
 Fixtures and pure regeneration are real. The executable/IWAD/package and parent
-supervisor transcript are explicitly synthetic CPU test inputs. Git runs only
-outside the protected adapter while preparing the ordinary authored fixture.
+supervisor transcript are explicitly synthetic CPU test inputs. Git and lazy
+read-only platform metadata probes run outside the protected adapter during
+ordinary fixture preparation; no renderer or Vulkan is executed.
 """
 from __future__ import annotations
 
@@ -44,6 +45,9 @@ class RealOracleAdapterTests(TempCase):
     def setup_packet(self):
         root=Path(__file__).resolve().parents[2]
         run=frozen_oracle(root)
+        # Linux Python3.10 can lazily run uname for real platform metadata.
+        # Warm its shared stdlib caches before the strict zero-process trap.
+        run.host_profile()
         prepared=self.root/"prepared"
         manifest=run.preparation_module().prepare(prepared,["compositing"])
         commit=manifest["source_identity"]["git_commit"]
