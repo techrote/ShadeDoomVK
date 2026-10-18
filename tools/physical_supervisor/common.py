@@ -139,12 +139,23 @@ def read_json(path):
             require(key not in result, "Duplicate JSON key")
             result[key] = value
         return result
-    return json.loads(Path(path).read_bytes(), object_pairs_hook=pairs,
+    with open_read(path) as stream:
+        raw=stream.read()
+    return json.loads(raw, object_pairs_hook=pairs,
                       parse_constant=lambda _: (_ for _ in ()).throw(Stop("Nonfinite JSON")))
 
 
+def open_read(path):
+    """Transient read compatibility, never an immutable-input lock or retry."""
+    if os.name=="nt":
+        # windows imports common; keep the native file adapter lazy.
+        from .windows import open_shared_read
+        return open_shared_read(path)
+    return Path(path).open("rb")
+
+
 def digest(path):
-    with Path(path).open("rb") as stream:
+    with open_read(path) as stream:
         return stream_digest(stream)
 
 
@@ -239,6 +250,8 @@ class Journal:
 INTEGRITY_POLICY={"timeout_seconds":10,"start_freshness_seconds":10,
                   "boundary_finish_freshness_seconds":.5,"gate_busy_seconds":1,
                   "heartbeat_period_seconds":.5,"heartbeat_freshness_seconds":2,
+                  "owned_exit_settle_milliseconds":50,
+                  "owned_exit_settle_operation":"QueryFullProcessImageNameW","owned_exit_settle_winerror":5,
                   "filesystem":"local-fixed-NTFS","namespace_change":"terminal-stop"}
 
 

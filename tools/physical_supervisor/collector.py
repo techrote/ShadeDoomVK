@@ -72,7 +72,7 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             if mutable_lock is not None and mutable_lock.handle:
                 mutable_lock.verify()
                 valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
-                mutable_lock.close()
+                mutable_lock.release_mutable()
                 mutable_release_monotonic=time.monotonic()
                 gate.check();guard.check();roots.check();verify_registry(packet)
                 valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
@@ -176,6 +176,9 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
                 termination = {"identity": identity, "terminated": child.kill(identity), "utc": utc()}
         except BaseException as termination_error:
             problems.append("Termination withheld: " + str(termination_error))
+            termination_failure=getattr(termination_error,"evidence",None)
+        else:termination_failure=None
+        exit_observations=child.take_exit_observations() if child is not None else []
         try:
             with gate:
                 gate.stop(error)
@@ -183,9 +186,11 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             problems.append("STOP write failed: " + str(stop_error))
         try:
             if termination:
-                exclusive(control / "collector-target-termination.json", {**termination, "errors": problems})
+                exclusive(control / "collector-target-termination.json", {**termination, "errors": problems,
+                    "exit_observations":exit_observations})
             else:
-                exclusive(control / "collector-termination-withheld.json", {"errors": problems, "utc": utc()})
+                exclusive(control / "collector-termination-withheld.json", {"errors": problems, "utc": utc(),
+                    "error_evidence":termination_failure,"exit_observations":exit_observations})
         except OSError:
             pass  # no receipt can be persisted; re-raise the original failure
         raise

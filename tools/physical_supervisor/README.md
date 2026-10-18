@@ -148,11 +148,19 @@ rejects remote and unsupported filesystems. See Microsoft's
 Exact registry and process ownership readbacks remain in each serialized launch
 boundary. Completed JSON is flushed and atomically published without overwriting
 an existing receipt, so coordination readers cannot observe a partial writer.
+On Windows, transient JSON and hash readers request only `GENERIC_READ` and share
+read, write and delete access. This lets them coexist with a publication metadata
+handle holding `DELETE` access; a deterministic native control covers that sharing
+case. It does not establish the exact interleaving of any earlier intermittent
+failure. Malformed/partial JSON and genuine sharing or access denial fail on the
+first read. Immutable `FileLock` handles retain their original write/delete denial.
 Lifecycle records retain monotonic timestamps captured immediately before native
 creation/resume calls, after their final checks. These are call-attempt times;
 kernel creation FILETIME remains the separate process identity. The live mutable
 config stays locked through resume preparation and is verified/released in the
-last native callback; its release-ready and actual-release records are distinct.
+last native callback. Its checked release requires successful `CloseHandle`;
+failure withholds native resume and the actual-release receipt. Release-ready
+and actual-release records are distinct.
 
 The supervisor creates a suspended collector in an inventory-only Windows job.
 The collector creates a suspended target, retains its process and primary-thread
@@ -163,6 +171,21 @@ independently opens and verifies the target. Native termination always uses an
 owned handle after rechecking target and retained-parent identity; it never uses
 `taskkill`, image-name killing or a job kill-on-close shortcut. Unowned matching
 renderer candidates cause STOP and are never terminated.
+
+After an exact full identity attestation, a resumed owned object can enter a
+native image-teardown interval: `QueryFullProcessImageNameW` may fail with access
+denied while its retained handle has not yet signaled exit. Only that structured
+native operation/error pair permits one requested 50ms exit observation per
+failed authentication call, with at least that much remaining caller budget.
+A positive exit signal must retain the same held PID/creation identity; there is
+no second image query and no termination through incomplete live identity.
+Initial registration and resume authentication stay strict. A known path, hash
+or parent mismatch, another native error, insufficient budget or a live timeout
+fails closed. Observations retain the original failure, requested and actual
+wait times, deadline and native results; elapsed scheduling time still counts
+against every caller deadline. Cleanup after STOP may make the same bounded
+observation without renewing a healthy heartbeat. The prospective packet policy
+includes the 50ms limit and exact reviewed operation/error pair.
 
 The collector checks a retained supervisor handle and fresh healthy heartbeat.
 Supervisor death or stalled protection causes authenticated target termination.

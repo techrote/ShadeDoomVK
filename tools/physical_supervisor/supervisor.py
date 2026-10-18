@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import math
 import os
 from pathlib import Path
 import queue
@@ -135,23 +136,28 @@ class Watch:
 
 class ModuleWatch:
     """Actual loaded DLL readback, bounded off the heartbeat/control thread."""
-    def __init__(self,packet,target,identity,journal,health):
+    def __init__(self,packet,target,identity,journal,health,*,target_deadline=None):
         self.packet,self.target,self.identity,self.journal,self.health=packet,target,identity,journal,health
         self.policy=packet["module_policy"]
         self.done=threading.Event();self.messages=queue.Queue(maxsize=1024)
         self.observed={};self.locks=[];self.failure=None;self.samples=0
         self.inflight_paths=[];self.inflight_additions=[];self.completed=False
+        self.target_deadline=target_deadline
         self.expected={normalized(row["path"]):row for row in packet["files"]}
         self.readers=BoundedReaders(self.sample,None,timeout=10)
         self.thread=threading.Thread(target=self.loop,daemon=True)
 
     def sample(self):
+        started=time.monotonic()
+        settle_deadline=min(started+10,self.target_deadline) if self.target_deadline is not None else started+10
         if self.target.poll() is not None:
             require(self.target.exited_owned(self.identity),"Actual module target exit identity differs")
             return {"state":"EXITED"}
         try:paths=self.target.modules(self.identity)
-        except BaseException:
-            if self.target.exited_owned(self.identity):return {"state":"EXITED"}
+        except BaseException as error:
+            if self.target.exited_owned(self.identity,error=error,operation="actual-module-authentication",
+                                        settle_deadline=settle_deadline):
+                return {"state":"EXITED","exit_observations":self.target.take_exit_observations()}
             raise
         self.inflight_paths=list(paths);self.inflight_additions=[]
         additions=[]
@@ -186,7 +192,8 @@ class ModuleWatch:
             self.failure=str(error)
             failure=Stop("Actual module reader: "+str(error))
             failure.evidence={"module_paths":self.inflight_paths,"new_module_pins":self.inflight_additions,
-                              "previously_observed_pins":list(self.observed.values()),"error":str(error)}
+                              "previously_observed_pins":list(self.observed.values()),"error":str(error),
+                              "error_evidence":getattr(error,"evidence",None)}
             self.health.fail(failure)
         finally:self.completed=True
 
@@ -269,6 +276,19 @@ def inventory(root):
     return rows
 
 
+def resume_receipt(control,identity):
+    path=control/"target-resumed.json"
+    if not path.exists():return None
+    value=read_json(path)
+    require(isinstance(value,dict) and set(value)=={"identity","utc","resume_native_call_attempt_monotonic"},
+            "Malformed target resume receipt")
+    attempt=value["resume_native_call_attempt_monotonic"]
+    require(value["identity"]==identity and isinstance(value["utc"],str) and
+            type(attempt) in (int,float) and math.isfinite(attempt) and 0<=attempt<=time.monotonic(),
+            "Target resume receipt identity/time differs")
+    return value
+
+
 def terminate_owned(owned, journal):
     """Attempt every authenticated handle even when evidence storage has failed."""
     errors = []
@@ -280,7 +300,9 @@ def terminate_owned(owned, journal):
             kind, row = "termination", {"role": role, "identity": identity, "terminated": terminated}
         except BaseException as error:
             errors.append(role + ": " + str(error))
-            kind, row = "termination-withheld", {"role": role, "error": str(error)}
+            kind, row = "termination-withheld", {"role": role, "error": str(error),"error_evidence":getattr(error,"evidence",None)}
+        if hasattr(process,"take_exit_observations"):
+            row["exit_observations"]=process.take_exit_observations()
         try:
             journal.append(kind, row)
         except BaseException as error:
@@ -365,14 +387,19 @@ def execute(packet, approval, output, *, readers=None):
             while integrity.latest is None:
                 watch.check();roots.check();integrity.check(require_ready=False)
                 time.sleep(.02)
-            heartbeat_index, next_heartbeat = 0, 0
+            heartbeat_index, next_heartbeat, heartbeat_stamp = 0, 0, 0
+            collector_active=False
             def heartbeat():
-                nonlocal heartbeat_index, next_heartbeat
+                nonlocal heartbeat_index, next_heartbeat, heartbeat_stamp
                 if time.monotonic() >= next_heartbeat:
                     receipt=integrity.check()
                     watch.check();roots.check()
+                    stamp=time.monotonic()
+                    if collector_active and collector.poll() is None:
+                        require(0<=stamp-heartbeat_stamp<2,"Supervisor control heartbeat budget expired before publication")
                     exclusive(control / f"heartbeat-{heartbeat_index:06d}.json", {"packet_sha256": packet_sha,
-                        "supervisor": supervisor_identity, "monotonic": time.monotonic(), "utc": utc(),"integrity_generation":receipt})
+                        "supervisor": supervisor_identity, "monotonic": stamp, "utc": utc(),"integrity_generation":receipt})
+                    heartbeat_stamp=stamp
                     heartbeat_index += 1
                     next_heartbeat = time.monotonic() + .5
             heartbeat()
@@ -429,6 +456,7 @@ def execute(packet, approval, output, *, readers=None):
                     roots.check()
                     valid_proof(spawn_proof,packet,stage,supervisor_identity,request=spawn_request,boundary=True)
                     collector.resume(collector_identity,before_resume=final_collector_boundary)
+                    collector_active=True
                     journal.append("collector-resumed", {"identity": collector_identity,
                         "resume_native_call_attempt_monotonic":collector.resume_native_call_attempt_monotonic})
                 started = time.monotonic()
@@ -440,6 +468,7 @@ def execute(packet, approval, output, *, readers=None):
                     integrity.check();roots.check()
                     if gate.acquire(timeout=0):
                         try:
+                            gate_entered=time.monotonic()
                             gate_busy=None
                             gate.check()
                             if target is None:
@@ -451,7 +480,15 @@ def execute(packet, approval, output, *, readers=None):
                                     target_registered_at = time.monotonic()
                             allowed = {collector.pid} | ({target.pid} if target else set())
                             require(job.pids() <= allowed, "Unregistered/orphan process in containment job")
-                            reject_unowned_renderer(packet["renderer"], [target_identity] if target_identity else [])
+                            resumed=resume_receipt(control,target_identity) if target is not None else None
+                            settle_deadline=min(heartbeat_stamp+2,gate_entered+GATE_BUSY_LIMIT,
+                                                started+stage["deadline_seconds"]+30,
+                                                target_registered_at+stage["deadline_seconds"]) if resumed else None
+                            observations=reject_unowned_renderer(packet["renderer"], [target_identity] if target_identity else [],
+                                owned=[target] if resumed else [],settle_deadline=settle_deadline)
+                            if observations:journal.append("owned-exit-observation",{"stage":stage["name"],"observations":observations})
+                            require(time.monotonic()-gate_entered<GATE_BUSY_LIMIT,"Shared gate critical section stalled")
+                            require(time.monotonic()-heartbeat_stamp<2,"Supervisor control heartbeat budget expired")
                             roots.check()
                             verify_registry(packet)
                         finally:
@@ -460,8 +497,9 @@ def execute(packet, approval, output, *, readers=None):
                         if gate_busy is None:gate_busy=time.monotonic()
                         require(time.monotonic()-gate_busy < GATE_BUSY_LIMIT,"Shared gate critical section stalled")
                     code = collector.poll()
-                    if target is not None and modules is None and packet.get("module_policy") and (control/"target-resumed.json").exists():
-                        modules=ModuleWatch(packet,target,target_identity,journal,watch);modules.start()
+                    if target is not None and modules is None and packet.get("module_policy") and resume_receipt(control,target_identity):
+                        modules=ModuleWatch(packet,target,target_identity,journal,watch,
+                            target_deadline=target_registered_at+stage["deadline_seconds"]);modules.start()
                     if target is not None and target.poll() is None:
                         require(time.monotonic() - target_registered_at <= stage["deadline_seconds"], "Independent renderer deadline exceeded")
                         require((control / "target-resumed.json").exists() or time.monotonic() - target_registered_at <= 2,

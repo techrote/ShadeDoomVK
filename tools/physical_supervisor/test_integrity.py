@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import os
 import sys
+import hashlib
 from pathlib import Path
 import queue
 import tempfile
@@ -15,7 +16,7 @@ import time
 import unittest
 from unittest.mock import patch
 
-from .common import Gate, Journal, Stop, exclusive, pin, read_json, root_expectations, verify_roots
+from .common import Gate, Journal, Stop, exclusive, pin, read_json, root_expectations, verify_roots, digest, open_read, normalized
 from .integrity import IntegrityWatch, valid_proof, POLICY
 from . import test_integration as fixture
 from . import test_supervisor as cpu_fixture
@@ -151,9 +152,113 @@ class NativeRootGuardTests(unittest.TestCase):
             finally:roots.close()
 
 
+@unittest.skipUnless(os.name=="nt","Native receipt sharing and ownership controls")
+class NativeReceiptReadTests(unittest.TestCase):
+    def publication_handle(self,path):
+        from . import windows
+        handle=windows.create_file(str(path),0x80000000|0x10000,1|2|4,None,3,0x80,None)
+        self.assertNotIn(handle,(None,windows.c.c_void_p(-1).value))
+        return handle
+
+    def test_delete_metadata_owner_allows_complete_json_digest_without_retry(self):
+        from . import windows
+        with tempfile.TemporaryDirectory() as directory:
+            pending=Path(directory)/"pending";final=Path(directory)/"receipt.json"
+            data=b'{"complete":"CPU publication control"}\n';pending.write_bytes(data)
+            handle=self.publication_handle(pending)
+            try:
+                os.rename(pending,final)
+                with self.assertRaises(PermissionError):final.read_bytes()
+                original=windows.create_file
+                with patch.object(windows,"create_file",wraps=original) as opened:
+                    self.assertEqual(read_json(final),{"complete":"CPU publication control"})
+                    self.assertEqual(digest(final),hashlib.sha256(data).hexdigest())
+                    self.assertEqual(pin(final)["size"],len(data))
+                    self.assertEqual(opened.call_count,3)
+                    for call in opened.call_args_list:
+                        self.assertEqual(call.args[1:3],(0x80000000,1|2|4))
+            finally:
+                windows.close(handle)
+
+    def test_partial_receipt_and_actual_sharing_denial_fail_immediately(self):
+        from . import windows
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/"receipt.json";path.write_bytes(b'{"incomplete":')
+            handle=self.publication_handle(path)
+            try:
+                with self.assertRaises(ValueError):read_json(path)
+            finally:windows.close(handle)
+            handle=windows.create_file(str(path),0x80000000,0,None,3,0x80,None)
+            self.assertNotIn(handle,(None,windows.c.c_void_p(-1).value))
+            try:
+                original=windows.create_file
+                with patch.object(windows,"create_file",wraps=original) as opened:
+                    with self.assertRaises(OSError):read_json(path)
+                    self.assertEqual(opened.call_count,1)
+            finally:windows.close(handle)
+
+    def test_transient_reader_does_not_weaken_immutable_file_lock(self):
+        from .windows import FileLock
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/"input";path.write_bytes(b"immutable CPU input")
+            lock=FileLock(pin(path))
+            try:
+                with open_read(path) as stream:
+                    self.assertFalse(os.get_inheritable(stream.fileno()))
+                    self.assertFalse(stream.writable())
+                    self.assertEqual(stream.read(),b"immutable CPU input")
+                    with self.assertRaises(OSError):path.write_bytes(b"changed")
+                    with self.assertRaises(OSError):path.unlink()
+                lock.verify()
+            finally:lock.close()
+
+    def test_native_to_crt_failure_closes_only_current_owner(self):
+        from . import windows
+        import msvcrt
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/"input";path.write_bytes(b"CPU input")
+            original=windows.close
+            with patch.object(msvcrt,"open_osfhandle",side_effect=OSError("CPU conversion fault")), \
+                 patch.object(windows,"close",wraps=original) as closed:
+                with self.assertRaises(OSError),open_read(path):pass
+                self.assertEqual(closed.call_count,1)
+            original_close=os.close
+            with patch.object(os,"fdopen",side_effect=OSError("CPU stream construction fault")), \
+                 patch.object(os,"close",wraps=original_close) as descriptor_close, \
+                 patch.object(windows,"close",wraps=original) as native_close:
+                with self.assertRaises(OSError),open_read(path):pass
+                self.assertEqual(descriptor_close.call_count,1);native_close.assert_not_called()
+
+    def test_stream_failure_cannot_consume_descriptor_or_close_an_unrelated_fd(self):
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/"input";path.write_bytes(b"CPU input")
+            other=Path(directory)/"unrelated";other.write_bytes(b"unrelated CPU file")
+            original=os.fdopen;unrelated=[];owned=[]
+            def failed(descriptor,*args,**kwargs):
+                owned.append(descriptor)
+                self.assertIs(kwargs.get("closefd"),False)
+                stream=original(descriptor,*args,**kwargs);stream.close()
+                self.assertEqual(os.fstat(descriptor).st_size,len(b"CPU input"))
+                unrelated.append(os.open(other,os.O_RDONLY|os.O_BINARY))
+                self.assertNotEqual(unrelated[-1],descriptor)
+                raise OSError("CPU failure after non-owning stream closed")
+            try:
+                with patch.object(os,"fdopen",side_effect=failed):
+                    with self.assertRaises(OSError),open_read(path):pass
+                with self.assertRaises(OSError):os.fstat(owned[0])
+                self.assertEqual(os.read(unrelated[0],99),b"unrelated CPU file")
+            finally:
+                for descriptor in unrelated:os.close(descriptor)
+
 @unittest.skipUnless(os.name=="nt","Native same-object exit transition controls")
 class NativeExitRaceTests(cpu_fixture.TempCase):
     spawn=cpu_fixture.NativeWindowsTests.spawn
+
+    @staticmethod
+    def image_error(code=5,operation="QueryFullProcessImageNameW"):
+        error=Stop("Synthetic native image-query failure")
+        error.evidence={"operation":operation,"winerror":code}
+        return error
 
     def test_exit_between_poll_and_image_query_never_terminates(self):
         from . import windows
@@ -165,6 +270,7 @@ class NativeExitRaceTests(cpu_fixture.TempCase):
         # Windows may return during teardown after an earlier active poll.
         with patch.object(child,"poll",side_effect=[None,0]), \
              patch.object(windows,"get_path",return_value=False), \
+             patch.object(windows.c,"get_last_error",return_value=5), \
              patch.object(windows,"terminate",side_effect=AssertionError("Exited object must not be terminated")) as kill:
             self.assertFalse(child.kill(identity));kill.assert_not_called()
         wrong={**identity,"creation_ticks":identity["creation_ticks"]+1}
@@ -175,9 +281,143 @@ class NativeExitRaceTests(cpu_fixture.TempCase):
         from . import windows
         child,identity=self.spawn("import time;time.sleep(5)");child.resume(identity)
         with patch.object(windows,"get_path",return_value=False), \
+             patch.object(windows.c,"get_last_error",return_value=5), \
              patch.object(windows,"terminate",side_effect=AssertionError("Unverified live object must not be terminated")) as kill:
             with self.assertRaises(Stop):child.kill(identity)
             kill.assert_not_called();self.assertIsNone(child.poll())
+
+    def test_real_benign_exit_signal_after_reviewed_image_failure(self):
+        from . import windows
+        ready=self.root/"ready";release=self.root/"release"
+        child,identity=self.spawn("from pathlib import Path;import time;Path("+repr(str(ready))+
+            ").write_text('ready')\nwhile not Path("+repr(str(release))+").exists():time.sleep(.001)")
+        child.resume(identity)
+        until=time.monotonic()+5
+        while not ready.exists() and time.monotonic()<until:time.sleep(.005)
+        self.assertTrue(ready.exists())
+        def deny(*args):release.write_text("exit");windows.c.set_last_error(5);return False
+        with patch.object(windows,"get_path",side_effect=deny) as image, \
+             patch.object(windows,"terminate",side_effect=AssertionError("No unverified termination")) as kill:
+            self.assertFalse(child.kill(identity));image.assert_called_once();kill.assert_not_called()
+        rows=child.take_exit_observations();self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]["requested_wait_milliseconds"],50)
+        self.assertEqual(rows[0]["native_wait_result"],0)
+        self.assertEqual(rows[0]["post_wait_creation_ticks"],identity["creation_ticks"])
+
+    def test_missing_nonfinite_or_insufficient_budget_never_waits(self):
+        from . import windows
+        child,identity=self.spawn("import time;time.sleep(5)");child.resume(identity)
+        native_wait=windows.wait
+        for deadline in (None,float("nan"),float("inf"),time.monotonic()+.01):
+            error=self.image_error()
+            with self.subTest(deadline=deadline),patch.object(windows,"wait",wraps=native_wait) as wait:
+                self.assertFalse(child.exited_owned(identity,error=error,settle_deadline=deadline))
+                self.assertNotIn(50,[call.args[1] for call in wait.call_args_list])
+                self.assertEqual(error.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+                self.assertIn("budget_checked_monotonic",error.evidence["exit_observation"])
+        self.assertEqual(len(child.take_exit_observations()),4)
+
+    def test_live_timeout_and_native_wait_failure_retain_facts_without_kill(self):
+        from . import windows
+        child,identity=self.spawn("import time;time.sleep(5)");child.resume(identity)
+        error=self.image_error()
+        self.assertFalse(child.exited_owned(identity,error=error,settle_deadline=time.monotonic()+1))
+        self.assertEqual(error.evidence["exit_observation"]["native_wait_result"],258)
+        native_wait=windows.wait
+        def failed(handle,milliseconds):return 0xffffffff if milliseconds==50 else native_wait(handle,milliseconds)
+        with patch.object(windows,"wait",side_effect=failed),patch.object(windows,"terminate") as kill:
+            error=self.image_error()
+            self.assertFalse(child.exited_owned(identity,error=error,settle_deadline=time.monotonic()+1))
+            kill.assert_not_called();self.assertEqual(error.evidence["exit_observation"]["native_wait_result"],0xffffffff)
+
+    def test_original_attestation_and_exact_error_are_required_even_after_exit(self):
+        child,identity=self.spawn("pass");child.resume(identity)
+        until=time.monotonic()+5
+        while child.poll() is None and time.monotonic()<until:time.sleep(.01)
+        self.assertEqual(child.poll(),0)
+        for key,value in (("creation_ticks",identity["creation_ticks"]+1),("path","wrong path"),
+                          ("sha256","f"*64),("parent_creation_ticks",0)):
+            with self.subTest(key=key):
+                self.assertFalse(child.exited_owned({**identity,key:value},error=self.image_error(),cleanup=True))
+        for error in (Stop("Known identity mismatch"),self.image_error(6),self.image_error(5,"EnumProcessModulesEx")):
+            self.assertFalse(child.exited_owned(identity,error=error,cleanup=True))
+        child.verified_identity={**identity,"sha256":"f"*64}
+        self.assertFalse(child.exited_owned(identity,error=self.image_error(),cleanup=True))
+
+    def test_budget_overrun_after_positive_signal_cannot_classify_success(self):
+        from . import windows
+        child,identity=self.spawn("pass");child.resume(identity)
+        until=time.monotonic()+5
+        while child.poll() is None and time.monotonic()<until:time.sleep(.01)
+        def delayed(handle,milliseconds):time.sleep(.06);return 0
+        error=self.image_error()
+        with patch.object(child,"poll",side_effect=[None,0]),patch.object(windows,"wait",side_effect=delayed):
+            self.assertFalse(child.exited_owned(identity,error=error,settle_deadline=time.monotonic()+.055))
+        row=error.evidence["exit_observation"]
+        self.assertGreaterEqual(row["actual_wait_seconds"],.06)
+        self.assertGreaterEqual(row["settle_deadline_monotonic"]-row["budget_checked_monotonic"],.05)
+        self.assertLessEqual(row["budget_checked_monotonic"],row["wait_started_monotonic"])
+        self.assertIn("budget expired",row["reason"])
+
+    def test_pre_wait_failure_keeps_original_native_fault(self):
+        child,identity=self.spawn("import time;time.sleep(5)");child.resume(identity)
+        error=self.image_error()
+        with patch.object(child,"poll",side_effect=Stop("Synthetic wait failure")):
+            self.assertFalse(child.exited_owned(identity,error=error,settle_deadline=time.monotonic()+1))
+        row=error.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],5)
+        self.assertEqual(row["pre_wait_error"],"Synthetic wait failure")
+
+    def test_known_identity_mismatch_is_not_erased_by_a_later_exit_signal(self):
+        from . import windows
+        child,identity=self.spawn("import time;time.sleep(5)");child.resume(identity)
+        for key,value in (("path","wrong path"),("sha256","f"*64),("parent_creation_ticks",0)):
+            with self.subTest(key=key),patch.object(child,"identity",return_value={**identity,key:value}), \
+                 patch.object(child,"poll",side_effect=[None,0]),patch.object(windows,"terminate") as kill:
+                with self.assertRaisesRegex(Stop,"identity/creation/parent/path/hash mismatch"):child.kill(identity)
+                kill.assert_not_called()
+
+    def test_reopened_inventory_candidate_requires_exact_retained_owner(self):
+        from .windows import Process
+        child,identity=self.spawn("pass");candidate=Process.open(child.pid)
+        self.addCleanup(candidate.close);child.resume(identity)
+        until=time.monotonic()+5
+        while child.poll() is None and time.monotonic()<until:time.sleep(.01)
+        self.assertEqual(child.poll(),0)
+        self.assertFalse(candidate.exited_owned(identity,error=self.image_error(),authorized_by=candidate,cleanup=True))
+        self.assertTrue(candidate.exited_owned(identity,error=self.image_error(),authorized_by=child,cleanup=True))
+        child.verified_identity={**identity,"sha256":"f"*64}
+        self.assertFalse(candidate.exited_owned(identity,error=self.image_error(),authorized_by=child,cleanup=True))
+        child.verified_identity=identity
+
+    def test_module_enumeration_and_hash_faults_cannot_become_exit_success(self):
+        from .supervisor import ModuleWatch
+        child,identity=self.spawn("import time;time.sleep(5)");child.resume(identity)
+        module=self.root/"module.dll";module.write_bytes(b"CPU file, never loaded")
+        packet={"module_policy":{"required_paths":[str(module)],"optional_paths":[]},"files":[pin(module)]}
+        health=type("Health",(),{"fail":lambda self,error:None})()
+        watcher=ModuleWatch(packet,child,identity,Journal(self.root/"journal"),health)
+        with patch.object(child,"poll",side_effect=[None,0]),patch.object(child,"modules",side_effect=Stop("EnumModules fault")):
+            with self.assertRaisesRegex(Stop,"EnumModules fault"):watcher.sample()
+        module.write_bytes(b"Changed CPU module")
+        with patch.object(child,"modules",return_value=[normalized(module)]), \
+             patch.object(child,"exited_owned",side_effect=AssertionError("Hash fault is not an exit transition")):
+            with self.assertRaisesRegex(Stop,"module differs"):watcher.sample()
+
+
+class ResumeReceiptTests(cpu_fixture.TempCase):
+    def test_resume_exception_eligibility_needs_complete_bound_finite_receipt(self):
+        from .supervisor import resume_receipt
+        identity={"pid":123,"creation_ticks":456};path=self.root/"target-resumed.json"
+        self.assertIsNone(resume_receipt(self.root,identity))
+        good={"identity":identity,"utc":"synthetic CPU time","resume_native_call_attempt_monotonic":time.monotonic()}
+        exclusive(path,good);self.assertEqual(resume_receipt(self.root,identity),good)
+        for delta in ({"identity":{}},{"resume_native_call_attempt_monotonic":float("nan")},
+                      {"resume_native_call_attempt_monotonic":True},{"extra":1}):
+            path.unlink();path.write_text(__import__("json").dumps({**good,**delta}))
+            with self.subTest(delta=delta),self.assertRaises(Stop):resume_receipt(self.root,identity)
+        path.write_text('{"identity":')
+        with self.assertRaises(ValueError):resume_receipt(self.root,identity)
 
 
 @unittest.skipUnless(os.name=="nt","Native benign CPU full-control integration")
@@ -358,17 +598,52 @@ class LivenessIntegrationTests(unittest.TestCase):
         def collector_with_delay(argv,cwd,stdout,stderr,**kwargs):
             prefix=("import sys;sys.path.insert(0,"+repr(str(Path(__file__).resolve().parents[2]))+");\n"
                 "import time\nfrom tools.physical_supervisor.windows import FileLock\n"
-                "close=FileLock.close\n"
+                "close=FileLock.release_mutable\n"
                 "def delayed(lock):\n"
                 " if lock.handle and lock.row['path']=="+repr(live)+":time.sleep(.6)\n"
                 " return close(lock)\n"
-                "FileLock.close=delayed\n")
+                "FileLock.release_mutable=delayed\n")
             altered=list(argv);altered[-1]=prefix+argv[-1]
             return original(altered,cwd,stdout,stderr,**kwargs)
         with patch.object(supervisor.Process,"spawn",side_effect=collector_with_delay):result=self.run_engine()
         self.assertEqual(result["status"],"FAILED_STOP");self.assertEqual(self.spawn_count(),1)
         self.assertTrue((self.root/"control/00-compositing/target-request.json").exists())
         self.assertFalse((self.root/"control/00-compositing/target-resumed.json").exists())
+
+    def test_failed_mutable_close_never_records_release_or_calls_native_resume(self):
+        from . import supervisor
+        self.config_pins();original=supervisor.Process.spawn
+        live=str(Path(self.stages[0]["capture"]["out"])/"fixture.ini")
+        attempted=self.root/"unexpected-native-resume.json"
+        def collector_with_failure(argv,cwd,stdout,stderr,**kwargs):
+            prefix=("import sys;sys.path.insert(0,"+repr(str(Path(__file__).resolve().parents[2]))+");\n"
+                "import ctypes\nimport tools.physical_supervisor.windows as native\n"
+                "from tools.physical_supervisor.common import exclusive\n"
+                "release=native.FileLock.release_mutable\n"
+                "def failed_release(lock):\n"
+                " if lock.row['path']!="+repr(live)+":return release(lock)\n"
+                " original=native.close\n"
+                " def denied(handle):\n"
+                "  if handle==lock.handle:ctypes.set_last_error(6);return False\n"
+                "  return original(handle)\n"
+                " native.close=denied\n"
+                " try:return release(lock)\n"
+                " finally:native.close=original\n"
+                "def forbidden(handle):\n"
+                " exclusive("+repr(str(attempted))+",{'native_resume_attempted':True})\n"
+                " raise AssertionError('Failed mutable close must withhold ResumeThread')\n"
+                "native.FileLock.release_mutable=failed_release\nnative.resume_thread=forbidden\n")
+            altered=list(argv);altered[-1]=prefix+argv[-1]
+            return original(altered,cwd,stdout,stderr,**kwargs)
+        with patch.object(supervisor.Process,"spawn",side_effect=collector_with_failure):result=self.run_engine()
+        self.assertEqual(result["status"],"FAILED_STOP");self.assertEqual(self.spawn_count(),1)
+        control=self.root/"control/00-compositing"
+        self.assertTrue((control/"target-request.json").exists())
+        self.assertTrue((control/"mutable-config-release-ready.json").exists())
+        self.assertFalse((control/"mutable-config-released.json").exists())
+        self.assertFalse((control/"target-resumed.json").exists());self.assertFalse(attempted.exists())
+        records=[read_json(p) for p in (self.root/"control/journal").glob("*-final-job-inventory.json")]
+        self.assertEqual(records[0]["value"]["remaining_pids"],[])
 
     def test_membership_change_after_generation_blocks_target_creation(self):
         original=IntegrityWatch.audit;changed=[]
