@@ -58,6 +58,23 @@ if os.name == "nt":
     n.NtQueryInformationProcess.restype = c.c_long
     n.NtQueryInformationProcess.argtypes = [w.HANDLE, c.c_int, c.c_void_p, w.ULONG, c.POINTER(w.ULONG)]
 
+    class OSVERSION(c.Structure):
+        _fields_=[("size",w.DWORD),("major",w.DWORD),("minor",w.DWORD),("build",w.DWORD),
+                  ("platform",w.DWORD),("service_pack",w.WCHAR*128)]
+
+    class TIMEOFDAY(c.Structure):
+        # Reviewed native-layout compatibility assumption: Microsoft's public
+        # SystemTimeOfDayInformation buffer is opaque and may change by OS.
+        # Never accept a changed size/status or fall back to a guessed boot time.
+        _fields_=[("boot",c.c_longlong),("current",c.c_longlong),("timezone_bias",c.c_longlong),
+                  ("timezone_id",w.ULONG),("reserved",w.ULONG),
+                  ("boot_bias",c.c_ulonglong),("sleep_bias",c.c_ulonglong)]
+
+    n.RtlGetVersion.restype=c.c_long
+    n.RtlGetVersion.argtypes=[c.POINTER(OSVERSION)]
+    n.NtQuerySystemInformation.restype=c.c_long
+    n.NtQuerySystemInformation.argtypes=[c.c_int,c.c_void_p,w.ULONG,c.POINTER(w.ULONG)]
+
 
 def checked(value, message):
     if not value:
@@ -67,6 +84,33 @@ def checked(value, message):
 
 def platform_check():
     require(os.name == "nt", "Native physical supervisor requires Windows")
+
+
+def host_identity():
+    """Read-only OS/boot identity; no subprocess, Vulkan or fallback reader."""
+    platform_check()
+    version=OSVERSION();version.size=c.sizeof(version)
+    status=n.RtlGetVersion(c.byref(version))
+    if status!=0:
+        error=Stop("Native OS version read failed; NTSTATUS="+str(status))
+        error.evidence={"reader":"native-host-identity","operation":"RtlGetVersion","ntstatus":status}
+        raise error
+    time_of_day=TIMEOFDAY();returned=w.ULONG()
+    require(c.sizeof(time_of_day)==48,"Unsupported native boot-time layout")
+    status=n.NtQuerySystemInformation(3,c.byref(time_of_day),c.sizeof(time_of_day),c.byref(returned))
+    if status!=0 or returned.value!=48:
+        error=Stop("Native boot-time read/layout failed; NTSTATUS="+str(status)+" returned_size="+str(returned.value))
+        error.evidence={"reader":"native-host-identity","operation":"NtQuerySystemInformation(3)",
+                        "ntstatus":status,"returned_size":returned.value,"expected_size":48}
+        raise error
+    if not 116444736000000000 <= time_of_day.boot <= time_of_day.current:
+        error=Stop("Native boot time is invalid/future")
+        error.evidence={"reader":"native-host-identity","boot_time_100ns":time_of_day.boot,
+                        "current_time_100ns":time_of_day.current}
+        raise error
+    return {"schema":"physical-supervisor/host-v1","native_pointer_bits":c.sizeof(c.c_void_p)*8,
+            "os_major":version.major,"os_minor":version.minor,"os_build":version.build,"os_platform_id":version.platform,
+            "service_pack":version.service_pack,"boot_time_100ns":time_of_day.boot}
 
 
 def creation(handle):

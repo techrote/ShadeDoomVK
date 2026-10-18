@@ -16,7 +16,7 @@ import sys
 import time
 import types
 
-from .common import Gate, Stop, canonical, digest, exclusive, normalized, pin, read_json, require, utc, verify_pin, verify_roots, sealed_environment, verify_registry, future
+from .common import Gate, Stop, canonical, digest, exclusive, normalized, pin, read_json, require, utc, verify_pin, verify_roots, sealed_environment, verify_registry, future, source_check_requests,verify_oracle_python_pins
 from .windows import FileLock, Process, reject_unowned_renderer
 
 
@@ -159,10 +159,54 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             guard.close()
 
 
-def run_oracle(packet, stage, control):
+def source_proof(packet,stage,control,receipt_pin):
+    require(Path(receipt_pin["path"])==control/"source-preflight.json","Source preflight receipt path differs")
+    verify_pin(receipt_pin)
+    proof=read_json(receipt_pin["path"])
+    require(proof["schema"]=="physical-supervisor/source-preflight-v1" and proof["packet_sha256"]==packet["packet_sha256"] and
+            proof["stage"]==stage["name"] and proof["source"]==packet["source"] and
+            normalized(proof["root"])==normalized(packet["oracle_source_root"]),"Stale/wrong source preflight proof")
+    require(proof["supervisor"]==read_json(control/"supervisor-identity.json"),"Source preflight supervisor identity differs")
+    require(proof["git"]==pin(packet["git"]),"Source preflight Git identity differs")
+    requests=source_check_requests(packet)
+    require(len(proof["checks"])==len(requests),"Incomplete source preflight proof")
+    for check,(argv,expected) in zip(proof["checks"],requests):
+        require(check["argv"]==argv and check["returncode"]==0 and check["stdout_utf8"].splitlines()==expected,
+                "Source preflight transcript differs")
+    return proof
+
+
+def prepare_subprocess_adapter(packet,stage,control,receipt_pin):
+    source_proof(packet,stage,control,receipt_pin)
+    used=False
+    def preverified(argv,**kwargs):
+        nonlocal used
+        expected=["git","cat-file","-e",packet["source"]["commit"]+"^{commit}"]
+        require(not used and argv==expected and set(kwargs)=={"cwd","capture_output","check"} and
+                normalized(kwargs["cwd"])==normalized(packet["oracle_source_root"]) and
+                kwargs["capture_output"] is True and kwargs["check"] is True,
+                "Unapproved preparation subprocess; no child created")
+        with Gate(packet["stop_root"],packet["packet_sha256"]) as gate:
+            gate.check();future(packet["expires_utc"])
+            source_proof(packet,stage,control,receipt_pin)
+            exclusive(control/"prepared-commit-existence.json",{
+                "provenance":"DECLARED_FROM_SEALED_PARENT_GIT_CHECK","argv":argv,"cwd":str(kwargs["cwd"]),
+                "source_preflight":receipt_pin,"actual_collector_git_process_created":False})
+        used=True
+        return subprocess.CompletedProcess(argv,0,stdout=b"",stderr=b"")
+    def denied(*args,**kwargs):
+        raise Stop("Unapproved preparation subprocess API; no child created")
+    return types.SimpleNamespace(run=preverified,SubprocessError=subprocess.SubprocessError,
+        CalledProcessError=subprocess.CalledProcessError,TimeoutExpired=subprocess.TimeoutExpired,
+        PIPE=subprocess.PIPE,STDOUT=subprocess.STDOUT,DEVNULL=subprocess.DEVNULL,
+        Popen=denied,call=denied,check_call=denied,check_output=denied,getoutput=denied,getstatusoutput=denied)
+
+
+def run_oracle(packet, stage, control,receipt_pin):
+    verify_oracle_python_pins(packet)
     # Do not let current tooling source shadow the frozen oracle package.
     for name in list(sys.modules):
-        if name == "tools.renderer_oracle" or name.startswith("tools.renderer_oracle."):
+        if name in ("tools.renderer_oracle","tools.pf_oracle") or name.startswith(("tools.renderer_oracle.","tools.pf_oracle.")):
             del sys.modules[name]
     tools_package = importlib.import_module("tools")
     tools_package.__path__ = [str(Path(packet["oracle_source_root"]) / "tools")]
@@ -172,6 +216,9 @@ def run_oracle(packet, stage, control):
     version = packet["declared_version_utf8"].encode("utf-8")
     require(run.version_identity(version) == (packet["source"]["commit"], "clean"), "Declared build identity invalid")
     original_subprocess = run.subprocess
+    preparation=run.preparation_module()
+    original_prepare_subprocess=preparation.subprocess
+    preparation.subprocess=prepare_subprocess_adapter(packet,stage,control,receipt_pin)
     original_write = run.write_json
     def labelled_write(path, value):
         if Path(path).name in ("run.json", "request.json"):
@@ -194,9 +241,9 @@ def run_oracle(packet, stage, control):
         require(kwargs.get("timeout") == 180 and kwargs.get("check") is False, "Oracle launch policy changed")
         require(kwargs.get("stdout") is not None and kwargs.get("stderr") is not None, "Missing raw output handles")
         return gated_target(packet, stage, control, list(argv), kwargs["cwd"], kwargs["stdout"], kwargs["stderr"], env=kwargs.get("env"))
-    # Shadow only the frozen run module. Its preparation verifier legitimately
-    # uses read-only git via its own subprocess module; never monkeypatch the
-    # shared stdlib module or accidentally admit that call as a renderer launch.
+    # Keep both shadows module-local. The sole preparation Git fact was checked
+    # by the supervisor before this collector entered the containment job.
+    # Pure source/member/recipe regeneration checks still execute unmodified.
     run.subprocess = types.SimpleNamespace(**{**vars(subprocess), "run": intercepted})
     try:
         args = argparse.Namespace(**stage["capture"])
@@ -220,10 +267,11 @@ def run_oracle(packet, stage, control):
                 "version_provenance": "DECLARED_NOT_EXECUTED; actual native build checked independently"}
     finally:
         run.subprocess = original_subprocess
+        preparation.subprocess=original_prepare_subprocess
         run.write_json = original_write
 
 
-def main(packet_path, stage_index, control_path):
+def main(packet_path, stage_index, control_path,receipt_pin):
     packet = read_json(packet_path)
     supplied_sha = packet.pop("packet_sha256")
     require(hashlib.sha256(canonical(packet)).hexdigest() == supplied_sha, "Collector packet changed")
@@ -234,7 +282,7 @@ def main(packet_path, stage_index, control_path):
     try:
         with gate:
             gate.check()
-        result = run_oracle(packet, stage, control)
+        result = run_oracle(packet, stage, control,receipt_pin)
         with gate:
             gate.check()
             exclusive(control / "stage-result.json", {"packet_sha256": supplied_sha, "stage": stage["name"],

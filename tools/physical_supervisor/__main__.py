@@ -17,6 +17,8 @@ def main(argv=None):
     prepare.add_argument("--packet", required=True, type=Path)
     baseline = sub.add_parser("event-baseline")
     baseline.add_argument("--out", required=True, type=Path)
+    host=sub.add_parser("host-identity")
+    host.add_argument("--out",required=True,type=Path)
     held = sub.add_parser("init-stop")
     held.add_argument("--root", required=True, type=Path)
     run = sub.add_parser("run")
@@ -29,6 +31,11 @@ def main(argv=None):
             args.root.mkdir(parents=True, exist_ok=False)
             exclusive(args.root / "HELD.json", {"status": "HELD", "physical_gpu_qualified": False})
             print(json.dumps({"status": "HELD", "root": str(args.root.resolve())}))
+        elif args.command == "host-identity":
+            from .readers import bounded_host_identity
+            value=bounded_host_identity()
+            exclusive(args.out,value)
+            print(json.dumps({"status":"READ_ONLY","out":str(args.out),"sha256":hashlib.sha256(canonical(value)).hexdigest()}))
         elif args.command == "event-baseline":
             from .readers import BoundedReaders, NativeEvents
             value = BoundedReaders(None, NativeEvents().snapshot).call("event")

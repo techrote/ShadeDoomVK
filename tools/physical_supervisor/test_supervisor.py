@@ -21,7 +21,7 @@ import unittest
 from unittest.mock import patch
 
 from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, environment_policy, sealed_environment, REGISTRY_KEYS, DISPLAY_CLASS, CONTROL_VIDEO, verify_registry, linklike
-from .readers import BoundedReaders, NativeEvents, continuity, telemetry, gpu_reader
+from .readers import BoundedReaders, NativeEvents, continuity, telemetry, gpu_reader,bounded_host_identity,check_host_identity
 from .supervisor import LogScanner, Watch, terminate_owned
 
 
@@ -44,6 +44,8 @@ EXPECTED = {"name": "synthetic GPU", "pci_bus_id": "synthetic PCI", "driver_vers
             "uuid": "synthetic UUID", "pci_device_id": "synthetic vendor/device", "default_power_limit_watts": 100}
 ROW = ["synthetic GPU", "synthetic PCI", "synthetic driver", "30", "12", "90", "300", "405", "0", "P8",
        "0x0000000000000001", "synthetic UUID", "synthetic vendor/device", "2100", "6000", "100"]
+SYNTHETIC_HOST={"schema":"physical-supervisor/host-v1","native_pointer_bits":64,"os_major":10,"os_minor":0,
+                "os_build":12345,"os_platform_id":2,"service_pack":"","boot_time_100ns":116444736000000100}
 
 
 def raw(row=ROW):
@@ -337,6 +339,16 @@ class TelemetryTests(unittest.TestCase):
 
 
 class ReaderTests(TempCase):
+    def test_boot_and_os_identity_drift_retains_readbacks(self):
+        check_host_identity(SYNTHETIC_HOST,dict(SYNTHETIC_HOST))
+        for key in ("boot_time_100ns","os_build","os_major"):
+            actual={**SYNTHETIC_HOST,key:SYNTHETIC_HOST[key]+1}
+            with self.subTest(key=key),self.assertRaises(Stop) as caught:check_host_identity(SYNTHETIC_HOST,actual)
+            self.assertEqual(caught.exception.evidence["actual"],actual)
+
+    def test_native_host_reader_error_has_no_fallback(self):
+        with patch("tools.physical_supervisor.windows.host_identity",side_effect=Stop("synthetic native layout failure")),self.assertRaises(Stop):
+            bounded_host_identity()
     def test_bad_raw_telemetry_survives_observer_failure(self):
         gate=self.gate();journal=Journal(self.root/"journal")
         row=list(ROW);row[3]="nan";bad=raw(row)
@@ -489,6 +501,10 @@ class PacketAndApprovalTests(TempCase):
         runtime=self.root/"runtime";runtime.mkdir()
         exe=runtime/"never-executed.exe";exe.write_bytes(b"synthetic executable bytes, never executed")
         source=self.root/"source";source.mkdir()
+        oracle=source/"tools/renderer_oracle";oracle.mkdir(parents=True)
+        (oracle/"run.py").write_text("# Synthetic never-executed oracle\n")
+        pf=source/"tools/pf_oracle";pf.mkdir(parents=True)
+        (pf/"run_freeze_dense_runtime.py").write_text("# Synthetic never-executed decoder\n")
         prepared=self.root/"prepared";prepared.mkdir()
         fixture=prepared/"fixture.ini";fixture.write_bytes(b"synthetic fixture")
         snapshot=self.root/"snapshot.json";exclusive(snapshot,{"synthetic":True})
@@ -499,6 +515,7 @@ class PacketAndApprovalTests(TempCase):
         expires=(dt.datetime.now(dt.timezone.utc)+dt.timedelta(hours=1)).isoformat()
         packet={"schema":"physical-supervisor/packet-v1","experiment_id":"CPU-PACKET-TEST","kind":"diagnostic",
                 "source":source_identity,"automatic_retries":0,"created_utc":utc(),"expires_utc":expires,
+                "host_identity":dict(SYNTHETIC_HOST),
                 "monitor":{"gpu_seconds":1,"event_seconds":5,"reader_timeout_seconds":10,"completion_grace_seconds":15},
                 "temperature_limit_c":80,"stop_root":str(self.root/"stop"),"telemetry":EXPECTED,"environment_policy":environment_policy(),
                 "python":str(exe),"renderer":str(exe),"nvidia_smi":str(exe),"git":str(exe),"oracle_source_root":str(source),
@@ -510,6 +527,8 @@ class PacketAndApprovalTests(TempCase):
                 "runtime_roots":[{"path":str(runtime),"files":[str(exe)]}]}
         packet["module_policy"]={"sample_seconds":.25,"reader_timeout_seconds":10,"unknown_policy":"record-system-only",
                                  "required_paths":[str(exe)],"optional_paths":[]}
+        packet["runtime_roots"] += [{"path":str(directory),"files":[str(path) for path in directory.iterdir()]} for directory in (oracle,pf)]
+        packet["files"] += [pin(path) for directory in (oracle,pf) for path in directory.iterdir()]
         stages=[]
         for index,name in enumerate(("compositing","shadow-boundary-1","shadow-boundary-2")):
             out=self.root/"captures"/name
@@ -585,6 +604,22 @@ class PacketAndApprovalTests(TempCase):
 
 @unittest.skipUnless(os.name == "nt", "Native Windows handle controls")
 class NativeWindowsTests(TempCase):
+    def test_native_os_boot_identity_is_stable_without_any_child(self):
+        with patch("subprocess.Popen",side_effect=AssertionError("Host query must not spawn a child")) as child:
+            before=bounded_host_identity();after=bounded_host_identity()
+        self.assertEqual(before,after);child.assert_not_called()
+        self.assertEqual(before["schema"],"physical-supervisor/host-v1")
+        self.assertEqual(before["native_pointer_bits"],64)
+        self.assertGreaterEqual(before["boot_time_100ns"],116444736000000000)
+
+    def test_native_host_layout_or_status_failure_retains_reader_details(self):
+        from . import windows
+        for status in (-1,0):
+            with patch.object(windows.n,"NtQuerySystemInformation",return_value=status),self.assertRaises(Stop) as caught:
+                bounded_host_identity()
+            self.assertEqual(caught.exception.evidence["ntstatus"],status)
+            self.assertEqual(caught.exception.evidence["returned_size"],0)
+            self.assertEqual(caught.exception.evidence["expected_size"],48)
     def spawn(self, script):
         from .windows import Process
         self.stdout = (self.root / "stdout.log").open("wb")

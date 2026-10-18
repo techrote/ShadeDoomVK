@@ -16,6 +16,9 @@ needs its own fully implemented workload/coverage gate and review.
 Use Python 3.10 or later on Windows. A private seed supplies:
 
 - `experiment_id`, timezone-aware `created_utc` and `expires_utc`;
+- a reviewed `host_identity` from the read-only native `host-identity` command:
+  exact OS version/build/platform/service-pack, native pointer width and boot
+  FILETIME; keep the independently surveyed CIM boot time as separate evidence;
 - `source: {commit, tree}`, an independently verified `build_receipt` pin,
   `oracle_source_root` (the clean frozen checkout), and a pinned Git executable;
 - absolute paths for `python`, `renderer`, `nvidia_smi`, `prepared`, `iwad`,
@@ -47,6 +50,7 @@ remain finite and inside the reviewed envelope. Native observer identity uses
 
 ```text
 python -B -m tools.physical_supervisor init-stop --root <fresh shared STOP directory>
+python -B -m tools.physical_supervisor host-identity --out <fresh private host identity receipt>
 python -B -m tools.physical_supervisor event-baseline --out <fresh private event receipt>
 python -B -m tools.physical_supervisor prepare --seed <private seed.json> --packet <fresh packet.json>
 python -B -m tools.physical_supervisor validate --packet <packet.json>
@@ -88,6 +92,19 @@ The shared root retains its initial `HELD.json`, one exact-packet release and a
 one-attempt claim. Every STOP is a new exclusive file; even a partial STOP file
 blocks all spawn/resume gates. Never remove a failed claim/STOP to retry. A new
 experiment requires a reviewed disposition and must preserve the previous root.
+Before approval release/claim and every collector creation, a bounded native
+read must match the packet's OS/boot identity. A reboot or OS identity change
+invalidates an unused approval even when the event-log epoch remains unchanged.
+There is no fallback or automatic update of the reviewed identity.
+
+The native reader uses documented `RtlGetVersion` fields and the reviewed
+48-byte `NtQuerySystemInformation(SystemTimeOfDayInformation)` native layout.
+Its boot-time offset is a compatibility assumption, not a documented stable
+Windows ABI: unknown size/status or implausible time fails closed. Independently
+compare the prospective native boot FILETIME with fresh CIM LastBootUpTime at
+CIM's reported precision before accepting a host packet. See Microsoft's
+[RtlGetVersion](https://learn.microsoft.com/en-us/windows/win32/devnotes/rtlgetversion)
+and the [System Informer native boot-time reader](https://github.com/winsiderss/systeminformer/blob/master/phlib/include/phnativeinl.h).
 
 ## Containment and evidence
 
@@ -128,9 +145,22 @@ The real native observer build/working-tree/device record must independently
 agree. Both collector and supervisor perform the frozen observer/state/RGB
 validation before another stage.
 
+Before collector creation the parent independently checks frozen HEAD/tree/clean
+state and the candidate commit's existence with pinned read-only Git, then seals
+a fresh stage receipt binding that transcript to the packet, stage and parent's
+creation identity. The frozen preparation verifier's single exact
+`git cat-file -e <candidate>^{commit}` request reuses that fact with explicit
+`DECLARED_FROM_SEALED_PARENT_GIT_CHECK` provenance. It creates no Git child in the
+collector's job. Every other preparation subprocess request is rejected. Actual
+fixture source/member/hash checks and pure regeneration still execute. The full
+frozen PF Python package, including the dynamically executed PNG decoder file,
+belongs to the pinned closed runtime and stays locked by the parent.
+
 An independent bounded reader enumerates the actual owned target's loaded
 modules and retains native paths plus SHA/size observations without launching an
-extra process. Required Vulkan-loader/selected-ICD/layer paths must be observed.
+extra process. Every configured required path, including the Vulkan loader and
+selected ICD, must be observed; optional registered layers stay pinned and are
+verified if observed.
 Any pre-pinned module must match. Previously unknown Windows-root modules are
 retained as post-launch observations; unreviewed external/driver/layer modules
 fail closed. Static DLL closure remains prospective until actual observation.

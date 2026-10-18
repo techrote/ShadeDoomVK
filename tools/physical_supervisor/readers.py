@@ -275,3 +275,15 @@ def gpu_reader(executable):
             raise failure
         return result.stdout
     return read
+
+
+def bounded_host_identity():
+    from .windows import host_identity
+    return BoundedReaders(host_identity,None,timeout=10).call("telemetry")
+
+
+def check_host_identity(expected,actual):
+    if actual != expected:
+        error=Stop("OS/boot identity changed after packet registration")
+        error.evidence={"reader":"native-host-identity","expected":expected,"actual":actual}
+        raise error

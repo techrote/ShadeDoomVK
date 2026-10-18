@@ -21,11 +21,13 @@ def checked_directory(path):
 
 def frozen_oracle(root):
     for name in list(sys.modules):
-        if name == "tools.renderer_oracle" or name.startswith("tools.renderer_oracle."):
+        if name in ("tools.renderer_oracle","tools.pf_oracle") or name.startswith(("tools.renderer_oracle.","tools.pf_oracle.")):
             del sys.modules[name]
     import tools
     tools.__path__ = [str(Path(root) / "tools")]
-    return importlib.import_module("tools.renderer_oracle.run")
+    run=importlib.import_module("tools.renderer_oracle.run")
+    require(normalized(run.__file__)==normalized(Path(root)/"tools/renderer_oracle/run.py"),"Wrong frozen oracle import origin")
+    return run
 
 
 def diagnostic_packet(seed):
@@ -86,6 +88,7 @@ def diagnostic_packet(seed):
     packet["stages"] = stages
     roots = [Path(row["path"]) for row in packet.get("runtime_roots", [])]
     roots += [Path(__file__).resolve().parent, Path(packet["oracle_source_root"]) / "tools/renderer_oracle",
+              Path(packet["oracle_source_root"]) / "tools/pf_oracle",
               Path(packet["oracle_source_root"]) / "specs", Path(packet["prepared"]), Path(packet["iwad"]).parent]
     unique = {str(checked_directory(path)): path for path in roots}
     packet["runtime_roots"] = [{"path": str(path.resolve()), "files": [str(p.resolve()) for p in sorted(path.rglob("*")) if p.is_file()]}

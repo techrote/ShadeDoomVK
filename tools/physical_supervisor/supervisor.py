@@ -10,7 +10,7 @@ import threading
 import time
 
 from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry
-from .readers import BoundedReaders, NativeEvents, continuity, gpu_reader, telemetry
+from .readers import BoundedReaders, NativeEvents, continuity, gpu_reader, telemetry,bounded_host_identity,check_host_identity
 from .windows import FileLock, Job, Process, platform_check, reject_unowned_renderer
 
 GRACE_SECONDS = 15  # Tests shorten only the synthetic CPU clock; CLI policy is fixed.
@@ -311,6 +311,9 @@ def execute(packet, approval, output, *, readers=None):
     try:
         for row in packet["files"]:
             locks.append(FileLock(row))
+        current_host=bounded_host_identity()
+        journal.append("host-preflight",current_host)
+        check_host_identity(packet["host_identity"],current_host)
         approve(packet, approval, packet_sha, gate)
         with gate:
             gate.check()
@@ -350,13 +353,23 @@ def execute(packet, approval, output, *, readers=None):
                 # Isolated interpreter; explicit new tooling path, then frozen
                 # oracle import in collector. Never use the historical launcher.
                 tooling_root = str(Path(__file__).resolve().parents[2])
-                code = ("import sys;sys.path.insert(0," + repr(tooling_root) + ");"
-                        "from tools.physical_supervisor.collector import main;"
-                        "raise SystemExit(main(" + repr(str(output / "packet.json")) + "," + str(index) + "," + repr(str(control)) + "))")
-                argv = [packet["python"], "-I", "-B", "-c", code]
                 for lock in locks:
                     lock.verify()
-                verify_source(packet)
+                checks=verify_source(packet)
+                current_host=bounded_host_identity()
+                journal.append("host-stage-preflight",{"stage":stage["name"],"identity":current_host})
+                check_host_identity(packet["host_identity"],current_host)
+                source_proof={"schema":"physical-supervisor/source-preflight-v1","packet_sha256":packet_sha,
+                              "stage":stage["name"],"source":packet["source"],"root":packet["oracle_source_root"],
+                              "git":pin(packet["git"]),"supervisor":supervisor_identity,"checks":checks,"utc":utc()}
+                exclusive(control/"source-preflight.json",source_proof)
+                source_proof_pin=pin(control/"source-preflight.json")
+                locks.append(FileLock(source_proof_pin))
+                journal.append("source-preflight",{"receipt":source_proof_pin,"checks":checks})
+                code = ("import sys;sys.path.insert(0," + repr(tooling_root) + ");"
+                        "from tools.physical_supervisor.collector import main;"
+                        "raise SystemExit(main(" + repr(str(output / "packet.json")) + "," + str(index) + "," + repr(str(control)) + ","+repr(source_proof_pin)+"))")
+                argv = [packet["python"], "-I", "-B", "-c", code]
                 watch.check()
                 with gate:
                     gate.check()

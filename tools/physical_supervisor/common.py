@@ -107,6 +107,18 @@ def verify_registry(packet):
     require(read_registry_enumeration_policy(enumeration)==enumeration,"Vulkan device registry key enumeration changed")
 
 
+def verify_oracle_python_pins(packet):
+    pins={normalized(row["path"]) for row in packet["files"]}
+    roots=[Path(row["path"]).resolve(strict=True) for row in packet["runtime_roots"]]
+    for relative in ("tools/renderer_oracle","tools/pf_oracle"):
+        directory=Path(packet["oracle_source_root"])/relative
+        require(directory.is_dir(),"Frozen oracle Python dependency package missing")
+        require(any(directory.resolve().is_relative_to(root) for root in roots),"Frozen oracle import root is not closed/pinned")
+        require(all(normalized(path) in pins for path in directory.rglob("*.py")),"Frozen oracle Python dependency is not pinned")
+    decoder=Path(packet["oracle_source_root"])/"tools/pf_oracle/run_freeze_dense_runtime.py"
+    require(normalized(decoder) in pins,"Frozen dynamic PNG decoder is not pinned")
+
+
 def require(condition, message):
     if not condition:
         raise Stop(message)
@@ -277,6 +289,14 @@ def validate_packet(packet, *, check_files=True):
     require(re.fullmatch(r"[0-9a-f]{40}", packet["source"]["commit"]) and
             re.fullmatch(r"[0-9a-f]{40}", packet["source"]["tree"]), "Missing source identity")
     require(packet["automatic_retries"] == 0, "Retries prohibited")
+    host=packet["host_identity"]
+    require(set(host)=={"schema","native_pointer_bits","os_major","os_minor","os_build","os_platform_id",
+                        "service_pack","boot_time_100ns"} and host["schema"]=="physical-supervisor/host-v1",
+            "Missing native OS/boot identity")
+    require(all(type(host[key]) is int for key in ("native_pointer_bits","os_major","os_minor","os_build","os_platform_id","boot_time_100ns"))
+            and host["native_pointer_bits"]==64 and host["os_major"]>0 and host["os_minor"]>=0 and host["os_build"]>0
+            and host["os_platform_id"]==2 and host["boot_time_100ns"]>=116444736000000000 and
+            isinstance(host["service_pack"],str),"Invalid native OS/boot identity")
     require(packet["monitor"] == {"gpu_seconds": 1, "event_seconds": 5, "reader_timeout_seconds": 10,
                                   "completion_grace_seconds": 15}, "Monitoring contract changed")
     require(0 < packet["temperature_limit_c"] <= 80 and math.isfinite(packet["temperature_limit_c"]), "Bad thermal limit")
@@ -310,6 +330,7 @@ def validate_packet(packet, *, check_files=True):
     names = [normalized(row["path"]) for row in packet["files"]]
     require(len(names) == len(set(names)), "Duplicate file pins")
     pins = {normalized(row["path"]): row for row in packet["files"]}
+    verify_oracle_python_pins(packet)
     module_policy=packet["module_policy"]
     require(module_policy["sample_seconds"]==.25 and module_policy["reader_timeout_seconds"]==10 and
             module_policy["unknown_policy"]=="record-system-only" and module_policy["required_paths"],"Actual module observer policy missing/changed")
@@ -386,15 +407,25 @@ def validate_packet(packet, *, check_files=True):
     return hashlib.sha256(canonical(packet)).hexdigest()
 
 
+def source_check_requests(packet):
+    return [([packet["git"], "--no-optional-locks", "-C", packet["oracle_source_root"], *arguments],expected)
+            for arguments,expected in ((["rev-parse","HEAD","HEAD^{tree}"],
+                                       [packet["source"]["commit"],packet["source"]["tree"]]),
+                                      (["status","--porcelain","--untracked-files=all"],[]),
+                                      (["cat-file","-e",packet["source"]["commit"]+"^{commit}"],[]))]
+
+
 def verify_source(packet):
-    """Read-only Git identity checks; never invoke a renderer for provenance."""
-    for arguments, expected in ((["rev-parse", "HEAD", "HEAD^{tree}"],
-                                  [packet["source"]["commit"], packet["source"]["tree"]]),
-                                 (["status", "--porcelain", "--untracked-files=all"], [])):
-        result = subprocess.run([packet["git"], "--no-optional-locks", "-C", packet["oracle_source_root"], *arguments],
+    """Read-only Git checks, including the exact existence fact reused by collector."""
+    checks=[]
+    for argv, expected in source_check_requests(packet):
+        result = subprocess.run(argv,
                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=10, check=False, env=sealed_environment(packet))
         require(result.returncode == 0 and result.stdout.decode("utf-8", errors="strict").splitlines() == expected,
                 "Frozen source HEAD/tree/dirty state changed")
+        checks.append({"argv":argv,"stdout_utf8":result.stdout.decode("utf-8",errors="strict"),
+                       "stderr_utf8":result.stderr.decode("utf-8",errors="strict"),"returncode":result.returncode})
+    return checks
 
 
 def verify_roots(packet):

@@ -32,6 +32,11 @@ cannot clear a permanent fault STOP. The shared gate serializes STOP, process
 creation, registration and resume. Missing, partial, expired or changed inputs
 fail closed. A failed experiment is never retried or relabelled.
 
+The packet also pins the current OS version and boot identity. A bounded native
+read checks these before release/claim and before every collector. The reviewed
+native boot layout must be qualified against a fresh CIM timestamp; unsupported
+or ambiguous native reads fail closed.
+
 ## Ownership and observation
 
 Collectors and renderer children are created suspended and authenticated before
@@ -83,6 +88,14 @@ No extra `--version` application process is launched. Expected version bytes are
 explicitly labelled `DECLARED_NOT_EXECUTED`; the real native observer must prove
 the actual build identity. Packaged shader-source hashes and retained cache
 modules do not establish the identity of an executed GPU instruction.
+
+The parent verifies Git source identity and commit existence before creating a
+collector, then locks a fresh stage-specific proof. Inside the collector, only
+the frozen oracle's exact commit-existence query uses that explicitly labelled
+parent proof; all recipe, regeneration and content checks still run. This keeps
+read-only Git helpers outside the strict collector job without admitting unknown
+children. Frozen PF generators and the dynamically loaded PNG decoder are also
+part of the closed, pinned Python input set.
 
 Only an accepted diagnostic can support a distinct full-campaign packet: 20
 reference captures, six high-resolution correctness captures, then 15 timing

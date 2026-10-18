@@ -19,13 +19,16 @@ import time
 import unittest
 from unittest.mock import patch
 
-from .common import canonical, exclusive, pin, read_json, utc, environment_policy
-from .readers import BoundedReaders
+from .common import canonical, exclusive, pin, read_json, utc, environment_policy, source_check_requests
+from .readers import BoundedReaders,bounded_host_identity
 from .test_supervisor import EXPECTED, baseline, batch, raw
 
 
 FAKE_ORACLE = '''import json, subprocess, os, threading, time
+import types
 from pathlib import Path
+_preparation=types.SimpleNamespace(subprocess=subprocess)
+def preparation_module():return _preparation
 def write_json(path, value):
     Path(path).write_text(json.dumps(value))
 def version_identity(value):
@@ -68,6 +71,12 @@ def capture(args):
 '''
 
 
+def synthetic_source_checks(packet):
+    """Explicitly synthetic provenance for the CPU-only fake oracle controls."""
+    return [{"argv":argv,"returncode":0,"stdout_utf8":"\n".join(expected)+("\n" if expected else ""),"stderr_utf8":""}
+            for argv,expected in source_check_requests(packet)]
+
+
 @unittest.skipUnless(os.name == "nt", "Native Windows supervisor/collector integration")
 class EngineIntegrationTests(unittest.TestCase):
     def setUp(self):
@@ -85,6 +94,9 @@ class EngineIntegrationTests(unittest.TestCase):
         oracle = source / "tools/renderer_oracle"
         oracle.mkdir(parents=True)
         (oracle / "run.py").write_text(FAKE_ORACLE)
+        pf=source/"tools/pf_oracle";pf.mkdir()
+        (pf/"__init__.py").write_text("# Synthetic CPU-only dependency package\n")
+        (pf/"run_freeze_dense_runtime.py").write_text("# Synthetic decoder, never imported\n")
         fixture = self.root / "fixture-original.txt"
         fixture.write_bytes(b"pinned synthetic fixture")
         stop = self.root / "stop"
@@ -93,7 +105,9 @@ class EngineIntegrationTests(unittest.TestCase):
         expires = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=1)).isoformat()
         self.packet = {"schema": "physical-supervisor/packet-v1", "experiment_id": "CPU-DIAG-TEST", "kind": "diagnostic",
             "source": {"commit": "1"*40,"tree":"2"*40}, "created_utc": utc(), "expires_utc": expires,
+            "host_identity":bounded_host_identity(),
             "stop_root": str(stop), "python": sys.executable, "renderer":str(self.cpu),
+            "git":sys.executable,
             "renderer_sha256":pin(self.cpu)["sha256"], "nvidia_smi":sys.executable,"oracle_source_root":str(source),
             "declared_version_utf8":"ShadeDoomVK synthetic CPU declaration\nCommit: " + "1"*40 + "\nWorking tree: clean\n",
             "native_device":{"device_type":2,"vendor_id":1,"device_id":2,"driver_version_raw":3},
@@ -102,7 +116,8 @@ class EngineIntegrationTests(unittest.TestCase):
             "registry_policy":[],
             "runtime_roots":[{"path":str(runtime),"files":[str(p) for p in runtime.iterdir()]},
                              {"path":str(oracle),"files":[str(oracle/"run.py")]}]}
-        self.packet["files"] = [pin(p) for p in [*runtime.iterdir(), oracle/"run.py", fixture, Path(sys.executable)]]
+        self.packet["runtime_roots"].append({"path":str(pf),"files":[str(p) for p in pf.iterdir()]})
+        self.packet["files"] = [pin(p) for p in [*runtime.iterdir(), oracle/"run.py",*pf.iterdir(), fixture, Path(sys.executable)]]
         self.stages = []
         for name in ("compositing","shadow-boundary-1","shadow-boundary-2"):
             out = self.root / "captures" / name
@@ -131,7 +146,7 @@ class EngineIntegrationTests(unittest.TestCase):
         # Only provenance is synthetic. Actual engine, collector, locks, handles,
         # registration, heartbeat, job inventory and target execution are real.
         with patch.object(supervisor,"validate_packet",return_value=packet_sha), \
-             patch.object(supervisor,"verify_source"), patch.object(supervisor,"GRACE_SECONDS",.05):
+             patch.object(supervisor,"verify_source",side_effect=synthetic_source_checks), patch.object(supervisor,"GRACE_SECONDS",.05):
             return supervisor.execute(self.packet, approval, self.root/"control",readers=readers)
 
     def spawn_count(self):
@@ -159,6 +174,23 @@ class EngineIntegrationTests(unittest.TestCase):
         rows=[read_json(p) for p in (self.root/"control/journal").glob("*-failure.json")]
         evidence=rows[0]["value"]["partial_reader_evidence"]["raw_stdout"]
         self.assertEqual(base64.b64decode(evidence["base64"]),bad)
+
+    def test_reboot_before_approval_release_creates_no_release_claim_or_collector(self):
+        from . import supervisor
+        actual={**self.packet["host_identity"],"boot_time_100ns":self.packet["host_identity"]["boot_time_100ns"]+1}
+        with patch.object(supervisor,"bounded_host_identity",return_value=actual):result=self.run_engine()
+        self.assertEqual(result["status"],"FAILED_STOP");self.assertEqual(self.spawn_count(),0)
+        root=Path(self.packet["stop_root"])
+        self.assertFalse(list(root.glob("release-*")));self.assertFalse(list(root.glob("claim-*")))
+        rows=[read_json(p) for p in (self.root/"control/journal").glob("*-failure.json")]
+        self.assertEqual(rows[0]["value"]["partial_reader_evidence"]["actual"],actual)
+
+    def test_changed_boot_identity_before_next_collector_blocks_continuation(self):
+        from . import supervisor
+        expected=self.packet["host_identity"]
+        changed={**expected,"boot_time_100ns":expected["boot_time_100ns"]+1}
+        with patch.object(supervisor,"bounded_host_identity",side_effect=[expected,expected,changed]):result=self.run_engine()
+        self.assertEqual(result["status"],"FAILED_STOP");self.assertEqual(self.spawn_count(),1)
 
     def test_stage_fence_bad_telemetry_retained_before_next_collector(self):
         from . import supervisor
@@ -307,9 +339,10 @@ from tools.physical_supervisor import supervisor
 from tools.physical_supervisor.common import canonical,utc
 from tools.physical_supervisor.readers import BoundedReaders
 from tools.physical_supervisor.test_supervisor import raw,batch
+from tools.physical_supervisor.test_integration import synthetic_source_checks
 p=json.loads(Path({str(packet_path)!r}).read_text()); sha=hashlib.sha256(canonical(p)).hexdigest()
 a={{"schema":"physical-supervisor/approval-v1","experiment_id":p["experiment_id"],"packet_sha256":sha,"phrase":"AUTHORIZE CPU-DIAG-TEST (three diagnostic processes only)","decided_utc":utc(),"expires_utc":p["expires_utc"]}}
-with patch.object(supervisor,"validate_packet",return_value=sha),patch.object(supervisor,"verify_source"),patch.object(supervisor,"GRACE_SECONDS",.05):
+with patch.object(supervisor,"validate_packet",return_value=sha),patch.object(supervisor,"verify_source",side_effect=synthetic_source_checks),patch.object(supervisor,"GRACE_SECONDS",.05):
  supervisor.execute(p,a,{str(self.root/"control")!r},readers=BoundedReaders(lambda:raw(),lambda previous:batch()))
 '''
         with (self.root/"driver-out.log").open("wb") as stdout, (self.root/"driver-err.log").open("wb") as stderr:
