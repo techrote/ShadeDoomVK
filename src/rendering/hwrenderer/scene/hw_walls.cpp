@@ -45,6 +45,8 @@
 #include "hw_skydome.h"
 #include "hw_walldispatcher.h"
 #include "d_main.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <optional>
 
 EXTERN_CVAR(Bool, lm_dynlights);
 
@@ -359,6 +361,7 @@ void HWWall::RenderTranslucentWall(HWWallDispatcher*di, FRenderState &state)
 //==========================================================================
 void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent)
 {
+	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedSurface;
 	bool paletteModeDisabled = false;
 	if (texture && texture->isHardwareCanvas() && !V_IsTrueColor())
 	{
@@ -370,7 +373,30 @@ void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent
 	{
 		SetupLights(di->di, state, lightdata);
 	}
-	MakeVertices(state, !!(flags & HWWall::HWF_TRANSLUCENT));
+	MakeVertices(state, !!(flags & HWWall::HWF_TRANSLUCENT), di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected());
+	if (di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected() && seg && seg->sidedef
+		&& type != RENDERWALL_MIRRORSURFACE)
+	{
+		SdvkDiagnostics::SpecialSurfaceMetadata value;
+		value.Class = translucent ? "translucent-wall" : "wall";
+		value.Type = LevelMeshInfo.Type;
+		value.ControlSector = LevelMeshInfo.ControlSector ? LevelMeshInfo.ControlSector->Index() : -1;
+		value.Side = seg->sidedef->Index();
+		value.Sector = seg->sidedef->sector->Index();
+		value.PortalGroup = seg->sidedef->sector->PortalGroup;
+		value.Tile = lightmaptile;
+		value.VertexLightmapPage = int(lindex);
+		value.VertexFirst = int(vertindex);
+		value.VertexCount = int(vertcount);
+		SdvkDiagnostics::ApplyWrittenVertices(value);
+		const auto normal = glseg.Normal();
+		value.Plane[0] = normal.X;
+		value.Plane[1] = normal.Z;
+		value.Plane[2] = normal.Y;
+		value.Plane[3] = (normal.X * glseg.x1 + normal.Z * glseg.y1);
+		value.HasPlane = true;
+		observedSurface.emplace(value);
+	}
 
 	state.SetNormal(glseg.Normal());
 	if (!translucent)
@@ -1174,18 +1200,13 @@ void HWWall::DoTexture(HWWallDispatcher *di, FRenderState& state, int _type,seg_
 	}
 	else
 	{
-		if (type >= RENDERWALL_TOP && type <= RENDERWALL_BOTTOM)
-		{
-			static const DoomLevelMeshSurfaceType surfTypes[] = { ST_UPPERSIDE, ST_MIDDLESIDE, ST_MIDDLESIDE, ST_LOWERSIDE };
-			LevelMeshInfo.Type = surfTypes[type - RENDERWALL_TOP];
-		}
-		else
-		{
-			LevelMeshInfo.Type = ST_NONE;
-		}
-		LevelMeshInfo.ControlSector = nullptr;
 		lightmaptile = -1;
 	}
+	// This semantic owner also belongs to immediate portal/mirror receivers
+	// and their decals, not only to the mesh-construction dispatcher.
+	static const DoomLevelMeshSurfaceType surfTypes[] = { ST_UPPERSIDE, ST_MIDDLESIDE, ST_MIDDLESIDE, ST_LOWERSIDE };
+	LevelMeshInfo.Type = type >= RENDERWALL_TOP && type <= RENDERWALL_BOTTOM ? surfTypes[type - RENDERWALL_TOP] : ST_NONE;
+	LevelMeshInfo.ControlSector = nullptr;
 
 	float floatceilingref = ceilingrefheight + tci.RowOffset(seg->sidedef->GetTextureYOffset(texpos));
 	if (peg) floatceilingref += tci.mRenderHeight - flh - v_offset;
@@ -1254,10 +1275,10 @@ void HWWall::DoMidTexture(HWWallDispatcher *di, FRenderState& state, seg_t * seg
 		}
 		else
 		{
-			LevelMeshInfo.Type = ST_MIDDLESIDE;
-			LevelMeshInfo.ControlSector = nullptr;
 			lightmaptile = -1;
 		}
+		LevelMeshInfo.Type = ST_MIDDLESIDE;
+		LevelMeshInfo.ControlSector = nullptr;
 
 		// Align the texture to the ORIGINAL sector's height!!
 		// At this point slopes don't matter because they don't affect the texture's z-position
@@ -1602,10 +1623,10 @@ void HWWall::BuildFFBlock(HWWallDispatcher *di, FRenderState& state, seg_t * seg
 	}
 	else
 	{
-		LevelMeshInfo.Type = ST_MIDDLESIDE;
-		LevelMeshInfo.ControlSector = rover->model;
 		lightmaptile = -1;
 	}
+	LevelMeshInfo.Type = ST_MIDDLESIDE;
+	LevelMeshInfo.ControlSector = rover->model;
 
 	if (rover->flags&FF_FOG)
 	{

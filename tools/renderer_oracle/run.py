@@ -243,6 +243,11 @@ def capture(args):
         from tools.renderer_oracle.sdvk158_lightmap_transition import FRAMES, WARMUP
         require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP,
                 "Lightmap transition gate needs its exact correctness-only frame budget")
+    if native.get("generator") == "special_surface_lifecycle":
+        from tools.renderer_oracle.sdvk161_special_surfaces import FRAMES, WARMUP, validate_recipe
+        validate_recipe(scene)
+        require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP and not args.gpu,
+                "Special-surface gate needs its exact correctness-only frame budget")
     extent = capture_extent(args, native, mode)
     frames = args.frames if args.frames is not None else (1 if mode == "state" else 120)
     warmup = args.warmup if args.warmup is not None else native.get("recommended_warmup_frames", 120)
@@ -317,6 +322,8 @@ def capture(args):
                    "gpu_timestamps_requested": args.gpu,
                    "probe_owner_trace": bool(native.get("probe_owner_trace", False)),
                    "image_policy": image_policy(scene, args.image_policy)}
+        if native.get("generator") == "special_surface_lifecycle":
+            profile["map_cameras"] = native["map_cameras"]
         prefix = _console_path(out / "native")
         substitutions = {"exe": str(exe), "iwad": str(out / "input" / iwad.name),
                          "pk3": str(out / "input" / "scene.pk3"), "config": str(out / "fixture.ini"),
@@ -337,6 +344,10 @@ def capture(args):
         if native.get("lightmap_transition_schedule"):
             require(mode == "state", "Lightmap transition driver is state-only")
             argv.append("-sdvk158lightmapdriver")
+        if native.get("special_surface_schedule"):
+            require(mode == "state" and native.get("generator") == "special_surface_lifecycle",
+                    "Special-surface driver requires its exact state recipe")
+            argv.append("-sdvk161surfacedriver")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
@@ -374,7 +385,7 @@ def capture(args):
         require(pin(exe) == executable, "Executable changed while capture was running")
         raw = read_json(out / "native.renderer.json")
         required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if mode == "state" else []
-        structural = validate.observation(raw, required_kinds=required, expected_map=native["map"],
+        structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
                                           expected_frames=frames, expected_extent=extent)
         require(raw["build"]["commit"] == source_commit and raw["build"]["working_tree"] == working_tree,
                 "Runtime and startup build identities disagree")
@@ -385,6 +396,10 @@ def capture(args):
         if native.get("generator") == "lightmap_transition":
             from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
             validate_transition_records(raw, text, native)
+        if native.get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle.sdvk161_special_surfaces import validate_transition_records as validate_special_surface_records, validate_checkpoint_images
+            validate_special_surface_records(raw, text, native)
+            validate_checkpoint_images(out, raw)
         if diagnostics is not None:
             publication_module().validate_capture_diagnostics(out, preregister)
         if mode == "state":
@@ -592,15 +607,33 @@ def _portal_actor_probe_assertions(records, spec):
     return selected
 
 
+def observation_map(scene):
+    # The special corpus owns a precise A/reload-A/B/reload-B schedule. Only
+    # that independently validated recipe may replace the generic one-map gate.
+    if scene["native"].get("generator") == "special_surface_lifecycle":
+        from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
+        validate_recipe(scene)
+        return None
+    return scene["native"]["map"]
+
+
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
-    camera = scene["native"]["camera"]
     for frame_number, frame in ((r["frame"], r["data"]) for r in raw["records"] if r["kind"] == "frame"):
+        camera = scene["native"]["camera"]
+        if scene["native"].get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
+            validate_recipe(scene)
+            camera = scene["native"]["map_cameras"].get(frame.get("map"))
+            require(camera is not None, "SDVK-161 frame has no authored map camera")
         require(_numeric_vector_matches(frame.get("camera", {}).get("position"), camera["position"]), "Actual camera position differs from the fixture")
         require(_numeric_vector_matches(frame["camera"].get("angles"), [camera["yaw"], camera["pitch"], camera["roll"]]), "Actual camera angles differ from the fixture")
         expected_settings = scene["native"]["settings"]
         if scene["native"].get("generator") == "probe_sampler_reset":
             from tools.renderer_oracle.sdvk153_probe_reset import settings_for_frame
+            expected_settings = settings_for_frame(scene["native"], frame_number)
+        if scene["native"].get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle.sdvk161_special_surfaces import settings_for_frame
             expected_settings = settings_for_frame(scene["native"], frame_number)
         for key, expected in expected_settings.items():
             if key in frame["settings"]:
@@ -801,6 +834,9 @@ def _validate_run(path):
     require(data["scene"] == profile["scene"] == scene["id"], "Scene identities disagree")
     for key in ("seed", "camera", "settings"):
         require(profile[key] == scene["native"][key], "Preregistered recipe value differs: " + key)
+    if scene["native"].get("generator") == "special_surface_lifecycle":
+        require(profile.get("map_cameras") == scene["native"]["map_cameras"],
+                "Preregistered map cameras differ from the SDVK-161 recipe")
     extent = validated_extent(profile, scene["native"], request["argv"])
     require(profile["clock"] == scene["native"]["clock"][data["mode"]], "Clock policy differs from the fixture")
     images.validate_policy(profile["image_policy"])
@@ -836,7 +872,7 @@ def _validate_run(path):
     require(loaded_packages(stdout, request["packages"], verify_files=False) == data["loaded_packages"],
             "Retained loaded-package inventory differs from actual startup output")
     required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if raw["mode"] == "state" else []
-    structural = validate.observation(raw, required_kinds=required, expected_map=scene["native"]["map"],
+    structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
     if scene["native"].get("generator") == "probe_sampler_reset":
@@ -848,6 +884,15 @@ def _validate_run(path):
     if scene["native"].get("generator") == "lightmap_transition":
         from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
         validate_transition_records(raw, stdout, scene["native"])
+    if scene["native"].get("generator") == "special_surface_lifecycle":
+        from tools.renderer_oracle.sdvk161_special_surfaces import FRAMES, WARMUP, validate_transition_records as validate_special_surface_records, validate_checkpoint_images, validate_checkpoint_artifacts
+        require(request["argv"].count("-sdvk161surfacedriver") == 1 and data["mode"] == "state"
+                and raw["warmup_frames"] == WARMUP and raw["observed_frames"] == FRAMES
+                and raw["gpu_timing_requested"] is False,
+                "Special-surface request differs from its exact driver/frame policy")
+        validate_special_surface_records(raw, stdout, scene["native"])
+        validate_checkpoint_artifacts(artifacts)
+        validate_checkpoint_images(root, raw)
     if "diagnostics" in request:
         publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":
@@ -936,6 +981,28 @@ def _sdvk150_repeatability_projection(records, scene):
     return result
 
 
+def _sdvk161_repeatability_projection(records, scene):
+    """Keep actual mesh-instance aliasing while canonicalizing process labels.
+
+    Constructor-assigned IDs are not semantic IDs across independent processes.
+    Their first-seen order and every surface/resource join remain exact; local
+    mesh epochs, atlas receipt identities, maps, phases and all other fields stay.
+    """
+    result = copy.deepcopy(records)
+    if scene != "special-surface-lifecycle":
+        return result
+    owners = {}
+    for record in result:
+        value = record.get("data", {})
+        target = value.get("levelmesh", {}) if record.get("kind") == "resource" else value
+        name = "owner" if record.get("kind") == "resource" else "mesh_owner"
+        if record.get("kind") not in ("resource", "surface") or type(target.get(name)) is not int:
+            continue
+        owner = target[name]
+        target[name] = owners.setdefault(owner, len(owners))
+    return result
+
+
 def compare_runs(left, right, *, allow_build_change=False):
     left_root, a, left_raw, _ = validate_run(left)
     right_root, b, right_raw, _ = validate_run(right)
@@ -953,11 +1020,12 @@ def compare_runs(left, right, *, allow_build_change=False):
                 "Builds differ; use --allow-build-change for an explicit candidate comparison")
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
-    # SDVK-158 changes lightmap state at fixed presented-view ordinals in an
-    # unanimated room with a fixed camera. Simulation pacing is still ordinary,
+    # SDVK-158/161 change lightmap/material state at fixed presented-view
+    # ordinals with pinned unanimated geometry and per-map fixed cameras.
+    # Simulation pacing is still ordinary,
     # so tic/fraction labels are not transition identities. Reuse only the
     # established clock-label projection; frame/phase/resource state stays exact.
-    fixed_view_lightmap = (a["scene"] == "lightmap-retained-transition"
+    fixed_view_lightmap = (a["scene"] in ("lightmap-retained-transition", "special-surface-lifecycle")
         and a["reproduction"]["clock"] == "ordinary_engine_clock_with_fixed_presented-view_input_schedule")
     static = a["reproduction"]["clock"] == "static_after_initialization" or fixed_view_lightmap
     x = _sdvk150_repeatability_projection(
@@ -966,13 +1034,18 @@ def compare_runs(left, right, *, allow_build_change=False):
     y = _sdvk150_repeatability_projection(
         _sdvk010_repeatability_projection(validate.state_projection(right_raw, static_scene=static), b["scene"]),
         b["scene"])
+    x = _sdvk161_repeatability_projection(x, a["scene"])
+    y = _sdvk161_repeatability_projection(y, b["scene"])
     normalization = "Validated context and live-slot identities; 1e-9 view-number canonicalization; static-scene clock labels; cumulative workload telemetry excluded; semantic state retained"
     if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     if a["scene"] == "probe-owner-transition":
         normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
+    if a["scene"] == "special-surface-lifecycle":
+        normalization += "; SDVK-161 actual mesh-instance labels normalized bijectively; instance birth order, resource/draw aliasing, local mesh epochs, atlas receipts and phase order remain exact"
     if fixed_view_lightmap:
-        normalization += "; SDVK-158 fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"
+        owner = "SDVK-158" if a["scene"] == "lightmap-retained-transition" else "SDVK-161"
+        normalization += "; " + owner + " fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",

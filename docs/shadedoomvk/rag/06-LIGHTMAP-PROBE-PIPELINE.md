@@ -348,3 +348,43 @@ Completion remains the accepted #151 contract: the current selected receipt is
 rendered/copied, the destination is transitioned back to shader-read, and only
 then are dirty flags cleared. SDVK-158 diagnostics distinguish the input tile
 count from tiles that actually make that dirty→clean transition.
+
+## SDVK-161 corrected planes and retained v5 interpretation
+
+Selected control-sector planes can differ from the earlier reconstruction based
+on facing. A retained v5 source checksum and XY transform cannot distinguish
+old RGB baked at that earlier wrong height. Corrected/alternative controlled
+planes carry RuntimeBakeOnly and skip retained pixels before transforms, flags
+or RGB can change; their ordinary fresh bake remains required. Allocation/free
+resets that runtime policy. Ordinary v5 source/structural admission, allocation
+incarnations and page/copy transitions remain unchanged.
+
+The [special-surface matrix](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md) uses zero
+authored probes with gl_lightprobe enabled to exercise the existing empty-owner
+reset path. It requires current runtime-zero fallback and advancing owner epochs
+on reload, without claiming live authored cubemap or per-texel probe readback.
+The required #150/#153 live-probe lanes remain authoritative and required.
+
+### SDVK-161 current decal receivers
+
+Cached main-view decals resolve the current receiving side's live surface chain,
+matching type, side and control-sector identity before consuming its centrally
+checked tile allocation. `TileBindings` is a per-rebuild deduplication table,
+cleared each frame; it is not a persistent receiver registry. Decals remain
+overlays and never allocate their own lightmap tile. Rebuild/reload can change
+the numeric tile slot without changing the decal's semantic receiver identity.
+
+### SDVK-161 split-wall lightmap UVs
+
+`HWWall::CreateVertices` projects the final written lightmapped vertices after
+edge subdivision. `LightmapTile::ToUV` clamps to the tile's inner border;
+interpolating previously clamped corner UVs is not equivalent to projecting an
+inserted vertex. `SetupTileTransform` can place a grid-aligned minimum just across
+that clamp boundary, so the rule also matters for static walls. Only `lu/lv`
+are updated after splitting. Geometry, base UVs, page, vertex order/count and
+current allocation checks remain unchanged; unsplit/unlightmapped paths retain
+their behavior. The main LevelMesh path already projects every final vertex.
+The [original hosted failure](../evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json) and
+extracted production CPU negative pin this producer defect. Actual copied writer
+UVs remain subject to the unchanged precise current-tile observer, independently
+of image equality. This is a correctness repair with no physical-cost claim.

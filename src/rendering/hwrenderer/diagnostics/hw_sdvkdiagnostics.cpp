@@ -3,6 +3,7 @@
 #include "hw_sdvkdiagnostics.h"
 #include "hw_sdvkdiagnosticcore.h"
 #include "hw_sdvkgpuscope.h"
+#include "hw_lineportalobservation.h"
 #include "c_dispatch.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -10,11 +11,15 @@
 #include "version.h"
 #include "v_video.h"
 #include "d_main.h"
+#include "d_event.h"
 #include "g_levellocals.h"
+#include "portal.h"
 #include "a_dynlight.h"
 #include "hw_clock.h"
 #include "hw_shadowmap.h"
 #include "hw_cvars.h"
+#include "hw_levelmesh.h"
+#include "flatvertices.h"
 #include "r_utility.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawcontext.h"
@@ -28,6 +33,7 @@
 #include "vulkan/commands/vk_commandbuffer.h"
 #include <zvulkan/cfxtrace.h>
 #include <chrono>
+#include <cstring>
 #include <map>
 #include <set>
 #include <thread>
@@ -36,13 +42,59 @@ extern int gametic;
 EXTERN_CVAR(Bool, gl_levelmesh)
 EXTERN_CVAR(Bool, gl_ubershaders)
 EXTERN_CVAR(Bool, gl_lightprobe)
+EXTERN_CVAR(Bool, screenshot_quiet)
+EXTERN_CVAR(Int, con_notifylines)
 EXTERN_CVAR(Bool, vk_rayquery)
 EXTERN_CVAR(Bool, cl_capfps)
+EXTERN_CVAR(Int, vid_maxfps)
+EXTERN_CVAR(Bool, vid_vsync)
+EXTERN_CVAR(Bool, lm_dynlights)
 EXTERN_CVAR(String, screenshot_type)
 
 namespace SdvkDiagnostics
 {
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
+namespace {
+thread_local SpecialSurfaceMetadata ImmediateSurface;
+// Workers author portal decals before the main thread submits them. This
+// frame-owned store is shared; only draw-scope metadata remains thread-local.
+SdvkSurfaceObservation::WrittenVertexStore WrittenVertices;
+}
+
+void CaptureWrittenVertices(const LevelMesh* mesh, int first, int count, int tile, const FFlatVertex* written)
+{
+    if (!SpecialSurfaceFrameSelected() || tile < 0) return;
+    try
+    {
+        if (!mesh) throw std::runtime_error("SDVK written vertex snapshot has no current mesh");
+        const auto& current = mesh->GetLightmapTile(tile);
+        WrittenVertices.Capture(first, count, tile, current.AtlasLocation.Allocation, written);
+    }
+    catch (const std::exception& error) { Fail(error.what()); }
+}
+
+void ApplyWrittenVertices(SpecialSurfaceMetadata& value)
+{
+    if (!SpecialSurfaceFrameSelected() || value.Tile < 0) return;
+    if (WrittenVertices.Copy(value.VertexFirst, value.VertexCount, value.Tile, value.WrittenUV))
+        value.UvScope = "actual producer-written CPU position/UV/page snapshot and allocation receipt revalidated at draw; not GPU readback";
+}
+
+
+const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata() { return ImmediateSurface; }
+
+SpecialSurfaceScope::SpecialSurfaceScope(const SpecialSurfaceMetadata& value)
+{
+    if (!SpecialSurfaceFrameSelected()) return;
+    Previous = ImmediateSurface;
+    ImmediateSurface = value;
+    Active = true;
+}
+
+SpecialSurfaceScope::~SpecialSurfaceScope()
+{
+    if (Active) ImmediateSurface = Previous;
+}
 }
 
 namespace
@@ -59,6 +111,7 @@ struct Observer
     // SDVK-158 fixture input is also outcome-blind: fixed main-view ordinals
     // queue ordinary console invalidate/reload commands and never inspect state.
     bool LightmapTransitionInput = false;
+    bool SpecialSurfaceInput = false;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -128,6 +181,70 @@ void DriveLightmapTransitionInput(const Observer& observer)
         if (observer.Seen != phase.AfterMainViews) continue;
         AddCommandString(phase.Command);
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK158_LIGHTMAP_INPUT phase=%s after_main_views=%u\n",
+            phase.Name, phase.AfterMainViews);
+    }
+}
+
+constexpr LightmapTransitionPhase SpecialSurfacePhases[] = {
+    {32, "invalidate-a-retained-start", "invalidatelightmap"},
+    {40, "invalidate-a-1", "invalidatelightmap"},
+    {48, "filter-linear-a", "gl_texture_filter 4"},
+    {56, "reload-a", "map SDV161A"},
+    {64, "filter-nearest-a", "gl_texture_filter 0"},
+    {72, "invalidate-a-2", "invalidatelightmap"},
+    {80, "map-b", "map SDV161B"},
+    {88, "invalidate-b-1", "invalidatelightmap"},
+    {96, "filter-linear-b", "gl_texture_filter 4"},
+    {104, "reload-b", "map SDV161B"},
+    {112, "filter-nearest-b", "gl_texture_filter 0"},
+    {120, "invalidate-b-2", "invalidatelightmap"},
+};
+
+// This is active fixture input bookkeeping, separate from passive observation.
+// The ordinary map command defers ga_newgame2 for a whole tic. Only this exact
+// queued request may postpone display until G_DoNewGame reports completion.
+struct SpecialSurfaceMapInput
+{
+    const LightmapTransitionPhase* Phase = nullptr;
+    uint64_t PreviousMeshOwner = 0;
+    unsigned Waits = 0;
+};
+SpecialSurfaceMapInput& PendingSpecialSurfaceMapInput()
+{
+    static SpecialSurfaceMapInput pending;
+    return pending;
+}
+
+bool SpecialSurfaceMapClockValid()
+{
+    // TryRunTics can return without a tic in uncapped mode. These authored
+    // settings select its ordinary waiting path even with vid_dontdowait.
+    return bool(cl_capfps) && int(vid_maxfps) == 0 && !bool(vid_vsync);
+}
+
+void DriveSpecialSurfaceInput(const Observer& observer)
+{
+    if (!observer.SpecialSurfaceInput) return;
+    for (const auto& phase : SpecialSurfacePhases)
+    {
+        if (observer.Seen != phase.AfterMainViews) continue;
+        if (std::strncmp(phase.Command, "map ", 4) == 0)
+        {
+            if (!SpecialSurfaceMapClockValid())
+            {
+                SdvkDiagnostics::Fail("SDVK-161 map input requires its authored waiting settings");
+                return;
+            }
+            auto& pending = PendingSpecialSurfaceMapInput();
+            if (pending.Phase || !level.levelMesh)
+            {
+                SdvkDiagnostics::Fail("SDVK-161 map input has no unique current mesh request");
+                return;
+            }
+            pending = { &phase, level.levelMesh->GetResourceOwner(), 0 };
+        }
+        AddCommandString(phase.Command);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_INPUT phase=%s after_main_views=%u\n",
             phase.Name, phase.AfterMainViews);
     }
 }
@@ -209,16 +326,20 @@ void Initialize()
         if (const char* count = Option("-sdvkobserveframes")) observer.Requested = ParseCount(count, 1, 4096);
         if (const char* count = Option("-sdvkobservewarmup")) observer.Warmup = ParseCount(count, 0, 100000);
         observer.Quit = Args->CheckParm("-sdvkobservequit") != 0;
+        observer.GpuRequested = Args->CheckParm("-sdvkobservegpu") != 0;
         observer.ProbeBuilderTrace = Args->CheckParm("-sdvkprobeownertrace") != 0;
         observer.SamplerResetInput = Args->CheckParm("-sdvk153samplerresetdriver") != 0;
         observer.LightmapTransitionInput = Args->CheckParm("-sdvk158lightmapdriver") != 0;
+        observer.SpecialSurfaceInput = Args->CheckParm("-sdvk161surfacedriver") != 0;
         Require(!observer.ProbeBuilderTrace || observer.StateMode,
             "Probe-owner lifecycle trace is state-only");
         Require(!observer.SamplerResetInput || observer.StateMode,
             "SDVK-153 sampler-reset input driver is state-only");
         Require(!observer.LightmapTransitionInput || observer.StateMode,
             "SDVK-158 lightmap transition input driver is state-only");
-        Require(!(observer.SamplerResetInput && observer.LightmapTransitionInput),
+        Require(!observer.SpecialSurfaceInput || (observer.StateMode && !observer.GpuRequested && observer.Warmup == 32 && observer.Requested == 96),
+            "SDVK-161 special-surface input needs its exact correctness-only frame budget");
+        Require(int(observer.SamplerResetInput) + int(observer.LightmapTransitionInput) + int(observer.SpecialSurfaceInput) <= 1,
             "Only one SDVK outcome-blind input driver may be active");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
@@ -230,7 +351,6 @@ void Initialize()
             Object().Bool("available", true).Str("path", CacheRoot()).Str("policy", "fresh shadercache.zdsc and pipelinecache.zdpc directory; driver-global cache uncontrolled").Json());
         observer.Build = build.Json();
         SdvkDiagnostics::EnabledFlag.store(true, std::memory_order_relaxed);
-        observer.GpuRequested = Args->CheckParm("-sdvkobservegpu") != 0;
         SdvkDiagnostics::GpuFlag.store(observer.GpuRequested && screen->IsVulkan(), std::memory_order_relaxed);
         if (!SdvkDiagnostics::GpuTimingRequested()) observer.GpuReasons.insert("GPU timestamp groups were not explicitly requested or backend is not Vulkan");
         Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK observation armed: %s frames=%u warmup=%u; %s.renderer.json\n",
@@ -275,6 +395,21 @@ std::string VisualTime(const HWRenderContext& context)
         .Str("discontinuity", RenderVisualTime::ReasonName(time.Discontinuity)).Json();
 }
 
+std::string SelectedLinePortalContext(const HWDrawInfo* di)
+{
+    const auto* portal = dynamic_cast<const HWLineToLinePortal*>(di->mCurrentPortal);
+    if (!portal) return Unavailable("current context is not a LineToLine portal");
+    SdvkPortalObservation::SelectedLinePortal selection;
+    if (!di->Level || !SdvkPortalObservation::ResolveSelectedLinePortal(portal->glport,
+        di->Level->lines.Size(), di->Level->sectors.Size(), selection))
+        return Unavailable("selected LineToLine endpoints are missing or outside the current level");
+    return Object().Bool("available", true).Int("selected_span_index", 0)
+        .Int("origin_line", selection.OriginLine).Int("destination_line", selection.DestinationLine)
+        .Int("source_sector", selection.SourceSector).Int("destination_sector", selection.DestinationSector)
+        .Int("source_group", selection.SourceGroup).Int("destination_group", selection.DestinationGroup)
+        .Str("scope", "actual selected LineToLine span[0] endpoints; viewpoint sector is separate").Json();
+}
+
 std::string Context(const HWDrawInfo* di)
 {
     if (!di || !di->drawctx) return Unavailable("no active HWDrawInfo context");
@@ -291,7 +426,8 @@ std::string Context(const HWDrawInfo* di)
     const std::string semantic = map + ':' + HWRenderContextTypeName(context.rootType) + ':' +
         std::to_string(context.probeFace) + ':' + std::to_string(context.eyeIndex) + ':' +
         std::to_string(context.recursionDepth) + ':' + kind + ':' + std::to_string(group) + ':' + position + ':' + angles;
-    return Object().Bool("available", true).Str("semantic_key", semantic).Str("producer", kind).Str("map", map)
+    Object result;
+    result.Bool("available", true).Str("semantic_key", semantic).Str("producer", kind).Str("map", map)
         .Str("type", HWRenderContextTypeName(context.type)).Str("root_type", HWRenderContextTypeName(context.rootType))
         .Int("epoch", context.epoch).Int("identity", context.identity).Int("parent_identity", context.parentIdentity)
         .Int("depth", context.recursionDepth).Int("face", context.probeFace).Int("eye", context.eyeIndex).Int("portal_group", group)
@@ -299,7 +435,14 @@ std::string Context(const HWDrawInfo* di)
         .Bool("history_eligible", context.historyEligible).Bool("postprocess_eligible", context.postprocessEligible)
         .Raw("visual_time", VisualTime(context))
         .Raw("position", position).Raw("angles", angles).Str("angle_space", "hardware-view")
-        .Num("fraction", vp.TicFrac).Int("gametic", gametic).Json();
+        .Num("fraction", vp.TicFrac).Int("gametic", gametic);
+    // Preserve the accepted legacy portal_group/semantic_key meaning: both
+    // describe Viewpoint.sector, which line portals can inherit from parent.
+    // The opted-in surface oracle joins selected destination ownership using
+    // the explicit endpoint evidence below, never by reinterpreting that field.
+    if (SdvkDiagnostics::SpecialSurfaceEnabled())
+        result.Raw("line_portal_selection", SelectedLinePortalContext(di));
+    return result.Json();
 }
 
 void Dump(bool complete)
@@ -455,6 +598,50 @@ std::string ApplicationCacheFilename(const char* leaf)
 
 void Fail(const char* message) { Get().Records.Fail(message); }
 
+bool SpecialSurfaceMapTransitionPending()
+{
+    auto& observer = Get();
+    if (!Enabled() || !observer.SpecialSurfaceInput) return false;
+    auto& pending = PendingSpecialSurfaceMapInput();
+    if (!pending.Phase) return false;
+    try
+    {
+        Require(SpecialSurfaceMapClockValid(), "SDVK-161 map transition changed its authored waiting settings");
+        Require(observer.Seen == pending.Phase->AfterMainViews &&
+            (gameaction == ga_newgame2 || gameaction == ga_newgame),
+            "SDVK-161 queued map action was cancelled or completed without its callback");
+        Require(++pending.Waits <= 2, "SDVK-161 queued map action did not complete within two ordinary loops");
+        return true;
+    }
+    catch (const std::exception& error) { Fail(error.what()); pending = {}; return false; }
+}
+
+void SpecialSurfaceMapTransitionCompleted()
+{
+    auto& observer = Get();
+    if (!Enabled() || !observer.SpecialSurfaceInput) return;
+    auto& pending = PendingSpecialSurfaceMapInput();
+    if (!pending.Phase) return;
+    try
+    {
+        Require(SpecialSurfaceMapClockValid(), "SDVK-161 map transition changed its authored waiting settings");
+        Require(observer.Seen == pending.Phase->AfterMainViews &&
+            gameaction == ga_nothing && level.levelMesh &&
+            level.MapName.Compare(pending.Phase->Command + 4) == 0,
+            "SDVK-161 map completion has no expected installed mesh");
+        const uint64_t owner = level.levelMesh->GetResourceOwner();
+        Require(owner > pending.PreviousMeshOwner,
+            "SDVK-161 map completion retained its previous mesh lifetime");
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_INPUT_COMPLETE phase=%s after_main_views=%u map=%s previous_mesh_owner=%llu mesh_owner=%llu next_retained_frame=%u\n",
+            pending.Phase->Name, pending.Phase->AfterMainViews, level.MapName.GetChars(),
+            static_cast<unsigned long long>(pending.PreviousMeshOwner), static_cast<unsigned long long>(owner),
+            observer.Collected + 1);
+    }
+    catch (const std::exception& error) { Fail(error.what()); }
+    pending = {};
+}
+
+
 void ProbeBuilderLifecycle(const char* event, uint64_t ownerRevision, int probeCount,
     int iteration, int nextIndex, int collected)
 {
@@ -494,6 +681,14 @@ void Emit(const char* kind, const std::string& object, bool deduplicate)
     if (Enabled() && frame) Get().Records.Add(kind, frame, object, deduplicate);
 }
 
+bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
+
+bool SpecialSurfaceFrameSelected()
+{
+    const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
+    return SpecialSurfaceEnabled() && StateEnabled() && frame > 0 && frame <= 96 && frame % 8 == 0;
+}
+
 bool BeginSceneGpuGroup()
 {
     if (!GpuTimingRequested() || !screen->IsVulkan()) return false;
@@ -520,6 +715,7 @@ void BeginFrame()
 {
     Initialize();
     if (!Enabled()) return;
+    WrittenVertices.Clear();
     auto& observer = Get();
     try
     {
@@ -585,6 +781,7 @@ void EndFrame()
                 .Raw("hardware_angles", '[' + Number(r_viewpoint.HWAngles.Yaw.Degrees()) + ',' + Number(r_viewpoint.HWAngles.Pitch.Degrees()) + ',' + Number(r_viewpoint.HWAngles.Roll.Degrees()) + ']')
                 .Num("fraction", r_viewpoint.TicFrac).Num("fov", r_viewpoint.FieldOfView.Degrees()).Json())
             .Raw("settings", Object().Int("vid_rendermode", int(vid_rendermode)).Bool("gl_levelmesh", bool(gl_levelmesh))
+                .Bool("lm_dynlights", bool(lm_dynlights))
                 .Bool("gl_ubershaders", bool(gl_ubershaders)).Bool("gl_lightprobe", bool(gl_lightprobe)).Bool("vk_rayquery", bool(vk_rayquery))
                 .Bool("cl_capfps", bool(cl_capfps)).Bool("r_nointerpolate", r_NoInterpolate).Int("gl_texture_filter", int(gl_texture_filter))
                 .Num("gl_texture_filter_anisotropic", double(gl_texture_filter_anisotropic)).Int("gl_multisample", int(gl_multisample))
@@ -641,11 +838,36 @@ void FramePresented()
     if (observer.Seen > observer.WitnessPresented)
     {
         WitnessObserverFrame("observer-frame-presented", observer);
+        // The same ordinary screenshot writer used by final capture reads the
+        // just-completed main view. No extra view/tic or fixture outcome is
+        // introduced, and the following input commands have not run yet.
+        const uint64_t frame = observer.Frame.load(std::memory_order_relaxed);
+        if (observer.SpecialSurfaceInput && frame > 0 && frame <= 96 && frame % 8 == 0)
+        {
+            try
+            {
+                const std::string suffix = ".surface-" + std::to_string(frame) + ".png";
+                const auto path = std::filesystem::u8path(observer.Prefix + suffix);
+                Require(!std::filesystem::exists(path), "SDVK-161 checkpoint image must be fresh");
+                Require(std::string(static_cast<const char*>(screenshot_type)) == "png",
+                    "SDVK-161 checkpoint requires screenshot_type=png");
+                Require(bool(screenshot_quiet), "SDVK-161 checkpoints require screenshot_quiet=true");
+                Require(int(con_notifylines) == 0, "SDVK-161 checkpoints require con_notifylines=0");
+                M_ScreenShot((observer.Prefix + suffix).c_str());
+                Require(std::filesystem::is_regular_file(path) && std::filesystem::file_size(path) > 0,
+                    "SDVK-161 completed-view checkpoint image missing");
+                Emit("surface-checkpoint", Object().Str("producer", "completed-main-view-screenshot")
+                    .Str("map", level.MapName.GetChars()).Str("image", path.filename().generic_u8string())
+                    .Int("main_views", observer.Seen).Json());
+            }
+            catch (const std::exception& error) { Fail(error.what()); }
+        }
         // Queue fixture input only once per newly presented main view. The
         // command runs through the ordinary console CVAR path before a later
         // view; retained frame state independently verifies its real effect.
         DriveSamplerResetInput(observer);
         DriveLightmapTransitionInput(observer);
+        DriveSpecialSurfaceInput(observer);
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;

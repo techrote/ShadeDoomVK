@@ -1,0 +1,7 @@
+{
+  "commit": "631e3abcde6fb7c9d6569ffe97c19951b1403fd1",
+  "path": "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+  "signature": "void VkDescriptorSetManager::ResetHWTextureSets()",
+  "sha256": "baf7a4ee907a44312ba2945b2e96a9ea8326cb320a91184243b2664f6180e63e",
+  "content": "void VkDescriptorSetManager::ResetHWTextureSets()\n{\n\tfor (auto mat : Materials)\n\t\tmat->DeleteDescriptors();\n\n\tfor (FSWColormap* colormap : Colormaps)\n\t{\n\t\tif (colormap->Renderdev.bindIndex != -1)\n\t\t{\n\t\t\tFreeBindlessSlot(colormap->Renderdev.bindIndex);\n\t\t\tcolormap->Renderdev.bindIndex = -1;\n\t\t}\n\t}\n\tColormaps.clear();\n\n\t// Probe-map texels retain these raw pair bases. Their image/view and probe\n\t// sampler owners live for the device, independently of hardware material\n\t// filtering and precache resets. Keep the ordinal -> pair mapping stable\n\t// until the bindless set/texture/sampler owners are torn down together.\n\t// Freeing them here lets the shared exact-size allocator rebind a retained\n\t// texel to a different probe or a material. Content rebakes use the same\n\t// views; ResetLightProbes/#150 governs the separate content epoch.\n}"
+}

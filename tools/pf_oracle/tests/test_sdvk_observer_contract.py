@@ -33,7 +33,11 @@ class SdvkObserverTests(unittest.TestCase):
             self.assertNotRegex(executable, rf"\b{name}\s*\(")
         self.assertIn("GetLayerDiagnostic", source)
         self.assertIn("GetCreationArguments", source)
-        self.assertIn("candidate.bindlessIndex == state->mSurfaceUniforms.uTextureIndex", source)
+        # The shared serializer reads the exact already-bound uniform index in
+        # both immediate and submitted-mesh paths, without resolving resources.
+        self.assertIn("candidate.bindlessIndex == uniforms.uTextureIndex", source)
+        self.assertIn("Material(fb, state->mMaterial, state->mSurfaceUniforms, context)", source)
+        self.assertIn("Material(state->fb, materialState, uniforms, context)", source)
 
     def test_pipeline_serialization_covers_canonical_fields(self):
         source = (ROOT / "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp").read_text()
@@ -90,9 +94,17 @@ class SdvkObserverTests(unittest.TestCase):
         completion = observer.split("void FramePresented()", 1)[1].split("void SceneBegin(", 1)[0]
         # A console screenshot only schedules ga_screenshot. The completion
         # path must use the existing writer before quit, with tracing stopped.
-        self.assertLess(completion.index("StateFlag.store(false"), completion.index("M_ScreenShot("))
-        self.assertLess(completion.index("GpuFlag.store(false"), completion.index("M_ScreenShot("))
-        self.assertLess(completion.index("M_ScreenShot("), completion.index('AddCommandString("quit")'))
+        final_capture = completion.split("const bool complete =", 1)[1]
+        self.assertLess(final_capture.index("StateFlag.store(false"), final_capture.index("M_ScreenShot("))
+        self.assertLess(final_capture.index("GpuFlag.store(false"), final_capture.index("M_ScreenShot("))
+        self.assertLess(final_capture.index("M_ScreenShot("), final_capture.index('AddCommandString("quit")'))
+        # Opt-in intermediate checkpoints are state-only and run after EndFrame
+        # has closed per-draw capture, before any next-phase input is queued.
+        end_frame = observer.split("void EndFrame()", 1)[1].split("void FramePresented()", 1)[0]
+        self.assertIn("StateFlag.store(false", end_frame)
+        checkpoint = completion.split("const bool complete =", 1)[0]
+        self.assertIn("observer.SpecialSurfaceInput && frame > 0 && frame <= 96 && frame % 8 == 0", checkpoint)
+        self.assertLess(checkpoint.index("M_ScreenShot("), checkpoint.index("DriveSpecialSurfaceInput(observer)"))
 
     def test_context_producer_and_fallback_slots_are_explicit(self):
         hardware = (ROOT / "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp").read_text(encoding="utf-8")

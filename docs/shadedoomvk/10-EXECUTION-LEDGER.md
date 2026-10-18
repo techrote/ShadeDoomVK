@@ -1380,3 +1380,239 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - This is a source/correctness correction, not a performance workaround. No
   duplicate native run, quality reduction or physical-GPU claim is introduced.
   Fresh exact-head CI remains required. #14 remains open; Physical STOP active.
+
+
+### 2026-10-17 — SDVK-161 special-surface/material software increment
+
+- Reconciled live master `130d09ac4267d02359c7c2603ceced723ceac746` after PR #160;
+  #158/PR #159 is accepted at merge `7559b65f4ff70f2811e360a934a669f48f33ccf5`
+  and tree `a56121a6542dff58c4d43b4041805c95240ba2e6`.
+- Created bounded child #161 under #14 and branch `sdvk014-special-surface-lifecycle`.
+- Repaired flat triangle ownership, selected/source-plane publication, retained
+  wrong-plane RGB admission, current semantic decal receivers and ownerless wall
+  portal tiles. Controlled bake-plane checks preserve ordinary seam coverage.
+- Added two deterministic authored maps, actual submitted range/material/UV/owner
+  witnesses, twelve lifecycle PNG checkpoints and per-attempt ownership negatives
+  in the existing hosted software-Vulkan lane.
+- [Authoritative scope and pending acceptance](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md).
+  Exact-head CI/review/native acceptance is pending; #14 remains open.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
+  hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED. No local renderer or physical device execution.
+
+
+### 17 October 2026 (UTC) — SDVK-161 first hosted failure and root-cause corrections
+
+- Exact PR #162 head `631e3abcde6fb7c9d6569ffe97c19951b1403fd1`, tree
+  `228189c9660194e39632741d2bef829a631054e5`, passed the PF/oracle gate, all seven
+  ordinary platform builds, renderer source evidence, general software Vulkan,
+  and SDVK-010/150/153/158. Normal run `39076666750` stopped in SDVK-161; the later
+  SDVK-009 publication command did not execute.
+- Job `117525798641` retained artifact `12118685788`, SHA-256
+  `93f70fdbfcacc976a31a42c44e74ea15e80c3e38acac0497b1304886f1c1cbb4`.
+  Runtime integration commit `2898e6973948194cb321f2695e75b29f0ff6d215` has the
+  exact PR tree. Archive and all 16 original run artifact pins were verified.
+  [Failure identity, retained hashes and findings](evidence/SDVK-161-FIRST-NATIVE-FAILURE.json).
+- The passive observer failed during witness frame 24 with a submitted material
+  index that had no current descriptor entry. Filter reset had retired material
+  variants without scheduling cached LevelMesh raster uniforms and tracer
+  surface indices for refresh. Frame 23 is the last completed resource snapshot;
+  queued reload text does not prove that a reload generation was rendered.
+- The same retained packet exposed an ephemeral-map decal lookup, absent actual
+  immediate receiving-wall UV evidence, and a portal decal oracle that could
+  only join main-view receivers. These require producer or observer/relationship
+  repairs; the current-allocation and UV assertions remain binding.
+- Invalidation text changes 1,216 checkpoint pixels in the top seven rows.
+  Initial bake work already completed during warmup, leaving retained frames
+  1–8 with no update work. The prospective fixture pins notification suppression
+  and explicitly invalidates at main view 32, preserving the 32/96 frame budgets
+  and twelve checkpoints. It must observe actual retained work and exact RGB.
+- Adversarial CPU counterexamples retain a correct neighboring witness while
+  adding a wrong material with a coherent current descriptor. Admission must
+  validate every submitted semantic owner/class before counting coverage;
+  required owner fields must reject corruption rather than skip validation.
+- Extra High review of the corrections found that recursive portal views use
+  immediate BSP geometry, making a portal-context LevelMesh requirement
+  unreachable. The bounded B camera now targets main-view mesh slabs and an
+  independent actual reverse-portal wall, retaining two maps and all frame/PNG
+  budgets. Selected portal endpoints/groups are additive evidence; inherited
+  viewpoint-sector context semantics stay unchanged.
+- The same review rejected thread-local writer snapshot storage: BSP workers
+  can produce portal decals consumed on the main thread. A shared synchronized
+  frame store preserves actual writer UVs and one 4096-vertex budget; an actual
+  worker/main production-method counterfactual pins the original missing copy.
+- No failed-head retry, dependent second capture or extra runner was launched.
+  Corrected production/fixture/oracle code, CPU controls and Extra High review
+  must pass before normal CI on a new head. This checkpoint is not acceptance.
+- #14 remains OPEN. Physical STOP ACTIVE; physical GPU bake/update cost,
+  representative scaling and hardware stability HELD / NOT ACCEPTED; historical
+  physical root cause UNDETERMINED. No local renderer/device execution.
+
+
+### 18 October 2026 (UTC) — SDVK-161 observer namespace build correction
+
+- Head `7f11b25d0a8995c7a383b9cbb2422a1489771028`, tree
+  `60047c27552ce81d55b5aa9da98949b0c2580991`, passed the normal PF/oracle gate
+  (859 PF tests, 362 renderer-oracle tests, all ten CPU stages and the 45-scene
+  corpus) and renderer source workflow `39082865576`.
+- Normal CI `39082865659` rejected the additive portal context observer at
+  compilation: its anonymous-namespace `Context` helper called
+  `SpecialSurfaceEnabled` without its `SdvkDiagnostics::` qualification. Windows,
+  macOS and Linux report the same source error. The software-Vulkan job failed
+  at Build; no renderer qualification or native SDVK-161 capture ran.
+- [The build-failure receipt](evidence/SDVK-161-COMPILE-FAILURE.json) retains
+  exact source/integration identities, complete log hashes and passed source/CPU
+  artifact identities. The original frame-24 native failure remains separately
+  retained; evidence from the two failed heads is not pooled.
+- The correction qualifies the existing declaration and updates the focused
+  source regression. Follow-up Extra High review confirms the namespace cause
+  and finds no second unqualified external observer call. Renderer policy,
+  ownership checks, native fixture and acceptance limits are unchanged.
+- A new commit must pass ordinary exact-head CI and hosted native acceptance.
+  No failed-head rerun or additional runner is used. #14 remains open.
+- Before publication, prospective acceptance review found that SDVK-161 did not
+  select the existing SDVK-158 fixed-view clock-label projection. Its declared
+  ordinary engine clock schedules lifecycle commands by presented-view ordinal;
+  Warp2 speed is fixed at zero. The narrowly named scene/clock combination now
+  excludes only incidental tic/fraction labels from comparison copies. Raw clock
+  evidence, frame/order/owner/resource/material state and exact RGB remain
+  binding. CPU counterfactuals pin both the original mismatch and preserved
+  semantic failures; Extra High review rejects any global projection change.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
+  and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED. No local renderer or device execution.
+
+### 18 October 2026 (UTC) — SDVK-161 split-wall UV failure and producer repair
+
+- Exact head `cc3ad459ac3d40c2d38a67ee7960d5ad56af0497`, tree
+  `6a9a887214af557cb92c9231e92034d6a1e7acf8`, passed all eight non-software CI
+  jobs, source workflow `39084389819`, 859 PF/365 renderer tests and the preceding
+  general/SDVK-008-control/010/150/153/158 hosted software gates. Runtime
+  integration `3350b95a5843f95077f79064f05a24328203bc79` has that exact tree and
+  master/head parents. Master remained `130d09ac4267d02359c7c2603ceced723ceac746`.
+- Normal CI `39084389673`, software job `117548214210`, collected all 96 retained
+  frames and twelve SDVK-161 checkpoints, with zero dropped records, but rejected
+  the first attempt for 36 immediate six-vertex S161NO wall UV failures in mirror
+  recursion. [Separate failure receipt](evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json)
+  pins artifact `12120967612`, SHA-256
+  `886fc7cdb320d556042fbdd7cd533c58c83ab6e2f91332be50ef1b77b81a500c`, the full
+  job log, original artifact/PNG hashes and all failing raw record indices.
+- Authored material/portal/3D-floor semantics, current resource censuses, seven
+  actual completion cycles and within-attempt exact RGB independently pass on
+  the original packet. They do not override failed UV admission. Attempt 2,
+  captured negatives, cross-attempt comparisons and later SDVK-009 publication
+  were suppressed; the failed packet is not pooled with another attempt.
+- Extracted production `SetupTileTransform`, `ToUV`, all four edge splitters and
+  `CreateVertices` reproduce interpolation of already-clamped corner UVs. The
+  current writer now projects the final split positions through the current tile
+  before observation. Only lightmap UVs change; geometry, ordinary UVs, page,
+  ordering/count, unsplit/unlightmapped behavior and allocation checks remain.
+  The actual copied writer evidence and precise `2^-21` tolerance are unchanged.
+- Full CPU preflight caught the accepted SDVK-156 single checked wall-tile lookup
+  source pin. The writer reuses its original validated tile for corner and final
+  split-position projection; intervening splitters do not mutate tile storage.
+  The accepted contract stays unchanged. Seventeen focused tests, including the
+  complete atlas-identity module, pass after this refinement.
+- The immutable original writer fails the named current-UV check in both
+  horizontal orientations and on vertical edges. Six positive cases and exact
+  unchanged controls pass; all twelve focused tests pass. Extra High closure
+  review has no material finding. Explicit CPU seam inputs are not represented
+  as recovered native vertices, which the raw packet does not serialize.
+- Normal full CPU/oracle checks and a new exact-head native attempt remain
+  required. No failed-head retry, extra runner, image tolerance change or local
+  renderer/device execution. This checkpoint is not acceptance; #14 remains open.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
+  and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED.
+
+### 18 October 2026 (UTC) — SDVK-161 adversarial method closure
+
+- Extra High review of UV-repair head
+  `6edac8ad5b5f4f2f1a778d0c32e754186ee95a91`, tree
+  `2694a6771c39c0696726217258b4238cf9768647`, found two acceptance-method gaps.
+  That head was unaccepted during this source checkpoint; its subsequent normal
+  native failure is recorded in the next entry.
+- The mesh observer's actual material-name prefix suppressed a coherent wrong
+  ordinary-material child while a correct triangle preserved required coverage.
+  Selected color-shaded child traversal now emits every material. Existing
+  state/depth/color guards, actual parent/range/pipeline/context identity, current
+  material/receipt/UV checks and all observer limits remain unchanged.
+- The historical pre-owner proof executes the immutable original method and
+  incorrectly passes the then-current full gate with the bad child hidden;
+  repaired production emission exposes both children and
+  the unchanged authored owner/material rule rejects the wrong one. Correct
+  ordinary A ceiling and B wall controls pass. This is CPU method evidence, not
+  a claim of captured wrong pixels or new native admission.
+- Every reflected A floor row now requires its authored upward plane at Z=0 and
+  submitted vertex extrema `0..0`. Eight positive/negative height, normal and
+  extrema mutants fail before and after a valid neighboring row. The corrected
+  positive CPU packet describes the real floor height; the exact 6ed validator
+  still incorrectly accepts all eight mutants of that valid baseline.
+- Captured controls increase from 21 to 24 by adding wrong reflective height,
+  normal and vertex-extrema rows beside their original current receiver. Existing
+  controls and exact RGB/state comparison are unchanged. The
+  [committed review receipt](evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json) pins
+  both findings, source methods, before/after evidence and the bounded estimate.
+- Extra High review closes the source findings. Normal full CPU checks and fresh
+  native/ordinary/source CI on the repaired exact head remain required. No
+  failed-head rerun, new runner, tolerance/cap change or local renderer execution.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
+  and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED. #14 remains open.
+
+
+### 18 October 2026 (UTC) — SDVK-161 frame/owner failure and integrated repair candidate
+
+- Normal CI `39088355994`, software job `117560017505`, rejected head
+  `6edac8ad5b5f4f2f1a778d0c32e754186ee95a91`, tree
+  `2694a6771c39c0696726217258b4238cf9768647`. Runtime integration
+  `d6df41d73795cc0e49b10e76e7822b6c76199c74` has that exact tree and the expected
+  master/head parents. The [immutable failure receipt](evidence/SDVK-161-FRAME-OWNER-FAILURE.json)
+  authenticates the complete original log, archive and packet. **NOT ACCEPTED.**
+- Collection completed 96 retained/32 warmup frames, 3,582 records and 8,826,274
+  retained bytes without drops. All eligible current-UV checks passed, closing
+  the earlier 36-row split-wall manifestation on this head. The first admission
+  failure was literal FOV 90 versus fourteen actual constant-camera values at
+  90±1 ULP. Individual current-resource/semantic/completion and within-attempt
+  exact-RGB subchecks do not replace failed full admission. Attempt 2, captured
+  controls, cross-attempt comparison and the later SDVK-009 gate were suppressed.
+- Source replay of actual `AActor::GetFOV` proves the equal-endpoint rounding
+  effect. The prospective gate reuses established camera round-to-nine-decimal
+  representation, retaining raw data, real camera changes and exact RGB. No
+  generic numeric, clock or image policy changes.
+- Offline inspection separately found local mesh epoch 3 repeated in distinct
+  constructed meshes and the queued B reload unfinished at frame 73, completing
+  at 74. The repair supplies immutable constructor owners plus unchanged local
+  epochs, joining every submitted receiver to the same-frame actual instance.
+  A scene-only first-seen bijection retains identity alias/order relationships
+  across independent processes; earlier lanes keep their resource schema.
+- The ordinary driver waits only for its exact pending map action before the
+  next display, with a two-loop bound and exact waiting settings. The callback
+  after `G_InitNew` reports actual map/previous/new mesh owners. Fixed receipts
+  before frames 25/49/73 and their exact interleaving remain mandatory; no phase
+  sliding, forced tick/map load or renderer-outcome wait is introduced.
+- Captured controls increase from 24 to 28 with intended-reason FOV, stale mesh
+  instance, constructor-owner reuse and completion-owner negatives. The current
+  source fixture adapts only the retained filter method's additive owner metadata;
+  the immutable original JSON/hash and original unadapted pre-owner CPU/RF
+  before/after proofs are preserved and labeled separately from current pins.
+- The first 862 PF/371 renderer/all-ten-stage complete check belongs to the
+  pre-owner observer/RF candidate. The isolated Python repair passed 72 focused
+  tests, with a final four-test repeatability rerun. The complete integrated
+  `tools/check.py` run now passes all ten stages: 866 PF tests (108.943 seconds),
+  380 renderer tests (60.225 seconds), 45 scenes with identical preparations and
+  identical PF oracle outputs. Receipt `build/sdvk161-owner-review-checks/verification.json`
+  is 7,961 bytes, SHA256
+  `cda6b6cec455f81d24293244cf62a4dbaa5cdbd028ef2d7f7ad756b66e3dde13`.
+  The first local preflight's existing source-format assertion is preserved in
+  separate logs: joining the non-notifying `Printf` literal onto its first line
+  fixes that assertion without runtime behavior or test changes. Fresh exact-head
+  normal source/platform/native qualification remains required. The
+  earlier 15,217,261-byte bound remains historical pre-owner evidence. A revised
+  calculation over authenticated 6ed adds maximum-width IDs and all prospective
+  children: at most 15,233,788 bytes/3,972 records, within unchanged limits. This
+  is a source bound for the same authored workload, not new native measurement;
+  new-row size and full-capture admission remain mandatory.
+- No native retry, extra CI dispatch, local renderer/device or physical run.
+  Physical STOP ACTIVE; physical GPU cost, scaling and hardware stability
+  HELD / NOT ACCEPTED; historical physical root cause UNDETERMINED. #14 stays open.

@@ -1,6 +1,82 @@
 # SDVK-014 — Lightmapper, dynamic-lightmap and probe robustness campaign
 
-## Current continuation — SDVK-156 atlas allocation identity
+## Current continuation — SDVK-161 special-surface/material lifecycle
+
+Live authority was reconciled at `master@130d09ac4267d02359c7c2603ceced723ceac746`
+after hosted-runner migration PR #160. Accepted child #158 / PR #159 merged as
+`7559b65f4ff70f2811e360a934a669f48f33ccf5`, tree
+`a56121a6542dff58c4d43b4041805c95240ba2e6`; retained freshness and repeated
+multi-page qualification are accepted prerequisites, not current open blockers.
+
+The current bounded software child is [#161](https://github.com/techrote/ShadeDoomVK/issues/161).
+Its [implementation, matrix and acceptance contract](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+records actual decal/warp/reflective/translucent/portal/horizon/solid-3D-floor
+paths, control-plane and current-receiver repairs, twelve exact lifecycle
+checkpoints, deterministic ownership negatives and explicit unsupported limits.
+The first hosted attempt on PR #162 head `631e3abcde6fb7c9d6569ffe97c19951b1403fd1`
+failed at retained frame 24 after a material filter reset. The
+[authenticated failure record](../evidence/SDVK-161-FIRST-NATIVE-FAILURE.json)
+separates the stale LevelMesh material-index defect, candidate decal lookup,
+immediate-wall UV witness and fixture/oracle findings. Corrections require a new
+reviewed head and normal hosted CI; the partial capture is not accepted.
+The next normal CI head `7f11b25d0a8995c7a383b9cbb2422a1489771028` passed
+859 PF tests, 362 renderer-oracle tests, the deterministic corpus and source
+evidence, but platform compilation rejected an unqualified diagnostics call in
+the new portal context observer. No renderer qualification ran on that head.
+The [build-failure record](../evidence/SDVK-161-COMPILE-FAILURE.json) retains the
+common compiler error and exact logs. The namespace correction preserves all
+renderer/observer semantics and still requires new normal exact-head CI.
+Head `cc3ad459ac3d40c2d38a67ee7960d5ad56af0497` compiled on all platforms and
+passed PF/source evidence and all earlier hosted software lanes. Its complete
+96-frame SDVK-161 capture was rejected for 36 immediate split-wall UV witnesses
+in mirror recursion. The [split-wall failure receipt](../evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json)
+retains the exact packet and distinguishes passing diagnostic subchecks from
+full admission. Extracted production replay exposes interpolation of already
+clamped corner UVs; the repair projects final split positions through the current
+tile while preserving geometry, ordinary texture UVs, ownership and the strict
+observer. Both independent native attempts and dependent gates remain required
+on a new reviewed head. No failed head was rerun or tolerance relaxed.
+Extra High review of the subsequent UV-repair head
+`6edac8ad5b5f4f2f1a778d0c32e754186ee95a91` found two additional acceptance-method
+gaps: a wrong ordinary material could suppress its own mesh child witness, and a
+wrong reflective-floor plane/height could survive beside a correct row. The
+[review receipt](../evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json) records the
+unfiltered selected-child observer, per-row authored reflective-plane checks and
+independent historical pre-owner before/after CPU controls. The current retained
+filter replay uses that immutable method plus only an explicit `mesh_owner`
+metadata adapter; historical proof hashes are separate from current source pins.
+Normal CI `39088355994` then rejected the complete 6ed packet for literal FOV
+comparison against constant-camera interpolation values 90±1 ULP. Offline
+inspection also found reused local mesh epoch 3 across new instances and an
+unfinished same-map B command at frame 73, completing at 74. The
+[authenticated failure receipt](../evidence/SDVK-161-FRAME-OWNER-FAILURE.json)
+retains these findings; all 36 earlier split-wall UV failures are absent.
+
+The integrated repair reuses the established nine-decimal camera representation,
+preserves raw FOV/RGB, adds immutable constructor owners alongside local epochs,
+and joins every actual submission to its current resource owner. Exact map
+completion receipts must link old/new owners before fixed frames 25/49/73.
+Only the driver's pending map action may defer display for at most two ordinary
+loops; typed `cl_capfps=true`, `vid_maxfps=0`, `vid_vsync=false` pin ordinary-tic
+waiting. No renderer outcome decides advancement. Earlier lanes retain their
+resource schema and comparison rules. Captured controls now total 28; authored
+assets, lifecycle inputs, frame budgets, exact RGB and caps stay unchanged.
+The 862 PF/371 renderer complete check remains historical pre-owner evidence.
+The integrated repair now passes all ten `tools/check.py` stages, including 866
+PF tests, 380 renderer tests and identical preparations for all 45 scenes. The
+[review receipt](../evidence/SDVK-161-ACCEPTANCE-METHOD-REVIEW.json) pins that
+complete-check receipt and preserves the formatting-only failed preflight.
+Fresh exact-head source/platform/native CI is still required. Head 6ed remains NOT ACCEPTED; individual passing diagnostics do not
+admit the failed attempt or replace dependent native gates.
+Earlier candidate notes below are historical and do not supersede accepted
+#150/#153/#156/#158 contracts.
+
+**Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
+hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+UNDETERMINED.** #14 remains open; this software child does not waive physical or
+other unqualified campaign criteria.
+
+## Historical continuation — SDVK-156 atlas allocation identity
 
 Accepted prerequisites now include #150 via PR #152 and #153 via PR #155 at
 `ad0833696804e57672ec425d2c33bf36732d05f1`. Older candidate/blocker paragraphs below

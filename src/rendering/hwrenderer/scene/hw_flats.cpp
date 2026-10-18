@@ -434,6 +434,7 @@ inline void HWFlat::PutFlat(HWFlatDispatcher *di, bool fog)
 
 void HWFlat::Process(HWFlatDispatcher *di, FRenderState& state, sector_t * model, int whichplane, bool fog)
 {
+	lightmapPlane = whichplane;
 	plane.GetFromSector(model, whichplane);
 	model->ceilingplane.dithertransflag = false; // Resetting this every frame
 	model->floorplane.dithertransflag = false; // Resetting this every frame

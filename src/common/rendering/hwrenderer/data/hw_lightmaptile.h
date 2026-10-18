@@ -67,6 +67,11 @@ struct LightmapTile
 	// Flats must always use XY axis (slopes may change rapidly in a way that causes artifacts otherwise)
 	bool UseXYAxis = false;
 
+	// v5 predates corrected source-plane identity for inverted/alternative
+	// 3D-floor faces. Its XY transforms cannot distinguish wrong-height RGB.
+	// Such current tiles must bake at runtime instead of trusting retained RGB.
+	bool RuntimeBakeOnly = false;
+
 	// Initial tile for surfaces that can be baked in the background
 	bool NeedsInitialBake = false;
 

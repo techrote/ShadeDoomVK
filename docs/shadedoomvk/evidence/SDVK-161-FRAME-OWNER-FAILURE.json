@@ -1,0 +1,502 @@
+{
+  "schema": "sdvk161-frame-owner-native-failure/v1",
+  "status": "REJECTED_REPAIR_REQUIRED",
+  "issue": 161,
+  "parent_issue": 14,
+  "pull_request": 162,
+  "physical_status": "Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and hardware stability HELD / NOT ACCEPTED. Historical physical root cause UNDETERMINED.",
+  "original_failure": {
+    "acceptance_awarded": false,
+    "capture": {
+      "dropped_records": 0,
+      "eligible_current_UV_invalid_rows": 0,
+      "frames": 96,
+      "limits": {
+        "max_frames": 4096,
+        "max_record_bytes": 16384,
+        "max_records": 65536,
+        "max_retained_bytes": 16777216,
+        "retained_bytes": 8826274,
+        "retained_records": 3582
+      },
+      "raw_error": "",
+      "raw_status": "COLLECTED_PENDING_VALIDATION",
+      "warmup": 32
+    },
+    "dispatches": 0,
+    "expected_parents": [
+      "130d09ac4267d02359c7c2603ceced723ceac746",
+      "6edac8ad5b5f4f2f1a778d0c32e754186ee95a91"
+    ],
+    "first_failure": {
+      "all_nonexact_FOV_rows": [
+        {
+          "fov": 90.00000000000001,
+          "frame": 4,
+          "record_index": 26
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 35,
+          "record_index": 1947
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 44,
+          "record_index": 2436
+        },
+        {
+          "fov": 90.00000000000001,
+          "frame": 56,
+          "record_index": 3004
+        },
+        {
+          "fov": 90.00000000000001,
+          "frame": 58,
+          "record_index": 3013
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 64,
+          "record_index": 3119
+        },
+        {
+          "fov": 90.00000000000001,
+          "frame": 68,
+          "record_index": 3136
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 75,
+          "record_index": 3247
+        },
+        {
+          "fov": 90.00000000000001,
+          "frame": 76,
+          "record_index": 3251
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 79,
+          "record_index": 3263
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 80,
+          "record_index": 3349
+        },
+        {
+          "fov": 90.00000000000001,
+          "frame": 88,
+          "record_index": 3464
+        },
+        {
+          "fov": 90.00000000000001,
+          "frame": 89,
+          "record_index": 3469
+        },
+        {
+          "fov": 89.99999999999999,
+          "frame": 93,
+          "record_index": 3485
+        }
+      ],
+      "error": "SDVK-161 retained frame camera FOV differs",
+      "first_nonexact_FOV_record": {
+        "fov": 90.00000000000001,
+        "frame": 4,
+        "record_index": 26
+      },
+      "maximum_absolute_FOV_error": 1.4210854715202004e-14,
+      "time_utc": "2026-10-18T02:36:33.6052094Z"
+    },
+    "frozen_validator_source": "/tmp/sdvk-6ed-validator at exact6ed",
+    "github_artifact": {
+      "bytes": 35066492,
+      "id": 12121789533,
+      "sha256": "49a1e39d81eaf4c796072a99c4f821ec82cd6f05e4f0862967eaae71a5685ec5"
+    },
+    "historical_physical_root_cause": "UNDETERMINED",
+    "independent_blocker": "Material-prefix observer filtering gap; 6ed remains unaccepted regardless existing gate outcomes.",
+    "native_executions_locally": 0,
+    "normal_workflow": 39088355994,
+    "not_executed": [
+      "lifecycle-2",
+      "captured-negative-controls",
+      "cross-attempt-state-RGB",
+      "cross-attempt-checkpoint-RGB",
+      "SDVK-009-publication"
+    ],
+    "observed_resource_owner_transitions": [
+      {
+        "frame": 1,
+        "identity": [
+          "SDV161A",
+          4,
+          2,
+          3,
+          [
+            3
+          ]
+        ]
+      },
+      {
+        "frame": 25,
+        "identity": [
+          "SDV161A",
+          5,
+          3,
+          3,
+          [
+            6
+          ]
+        ]
+      },
+      {
+        "frame": 49,
+        "identity": [
+          "SDV161B",
+          6,
+          4,
+          3,
+          [
+            8
+          ]
+        ]
+      },
+      {
+        "frame": 74,
+        "identity": [
+          "SDV161B",
+          7,
+          5,
+          3,
+          [
+            10
+          ]
+        ]
+      }
+    ],
+    "original_raw": {
+      "bytes": 8975182,
+      "path": "renderer-sdvk161/lifecycle-1/native.renderer.json",
+      "sha256": "be0cc81274ef70a65b771ad09ac80ac7de2479d214ade4eb86cb754aa38a9ade"
+    },
+    "original_run": {
+      "bytes": 4856,
+      "path": "renderer-sdvk161/lifecycle-1/run.json",
+      "sha256": "029131d1780ca5f01afb27c24b83cc3acd1af7c4df032efe624eeb2248082c58"
+    },
+    "original_run_artifact_pin_count": 26,
+    "performance_accepted": false,
+    "physical_gpu_qualified": false,
+    "physical_stop_active": true,
+    "pins": {
+      "extraction-verification.json": {
+        "bytes": 138,
+        "path": "extraction-verification.json",
+        "sha256": "37f1c3c77314bd200c21516b70cb9a9c68d8cdb426effd998dc0d16ccbe6cff5"
+      },
+      "independent-failed-capture-subchecks.json": {
+        "bytes": 17829,
+        "path": "independent-failed-capture-subchecks.json",
+        "sha256": "19e70e3e35e5d8a3cbaaaea7f6349d88c6a28c300f7a739f273ba7a7e0677596"
+      },
+      "renderer-software-vulkan-6ed.zip": {
+        "bytes": 35066492,
+        "path": "renderer-software-vulkan-6ed.zip",
+        "sha256": "49a1e39d81eaf4c796072a99c4f821ec82cd6f05e4f0862967eaae71a5685ec5"
+      },
+      "renderer-software-vulkan.tar.xz": {
+        "bytes": 35066316,
+        "path": "renderer-software-vulkan.tar.xz",
+        "sha256": "d69a6b1eedc056a244476ecdefb406856973ef7a1806632ea1f0ea25820ce453"
+      },
+      "software-artifact-metadata.json": {
+        "bytes": 1685,
+        "path": "software-artifact-metadata.json",
+        "sha256": "3651e8a32d3ac49d10d6cd29bcde0e5dfff15024a4955edda5e0466b36ebdb36"
+      },
+      "software-job-complete.log": {
+        "bytes": 1027746,
+        "path": "software-job-complete.log",
+        "sha256": "9af371344bfbfe8d25a2f05d501750f69dccab5b1cbc7b8d62a9c94142965d63"
+      }
+    },
+    "reruns": 0,
+    "reviewed_head": "6edac8ad5b5f4f2f1a778d0c32e754186ee95a91",
+    "reviewed_tree": "2694a6771c39c0696726217258b4238cf9768647",
+    "runtime_integration": "d6df41d73795cc0e49b10e76e7822b6c76199c74",
+    "safe_extraction_root": "/tmp/sdvk-6ed-audit-packet/evidence",
+    "schema": "sdvk161-software-ci-fov-failure-verification/v1",
+    "secondary_observation": "B same-map reload current atlas/probe owners change at frame74; frame73 remains old owner. LevelMesh per-object resource epoch is3 throughout all96frames, while atlas/probe epochs and allocation owners change. Source/lifecycle semantics need diagnosis; no waiver or invented replacement identity.",
+    "secondary_subcheck_failure": "SDVK-161 material reset replaced its retained atlas allocation owner",
+    "software_job": 117560017505,
+    "status": "FAIL"
+  },
+  "original_artifact_pin_base": "original software artifact/evidence/renderer-sdvk161/lifecycle-1",
+  "all_original_artifacts": {
+    "capture.cfg": {
+      "bytes": 1418,
+      "path": "capture.cfg",
+      "sha256": "b0bcc630038f39ef290ecee1c1ed79dff3f121ef0e4204bf79d848b7540425ac"
+    },
+    "fixture.ini": {
+      "bytes": 16987,
+      "path": "fixture.ini",
+      "sha256": "9f33ce91b0a477247ca8a38d1f54333e14d32695021233c50dde8951dd7c9073"
+    },
+    "input/fixture.ini": {
+      "bytes": 754,
+      "path": "input/fixture.ini",
+      "sha256": "1eabb29a75aee6f458f9f0e23e20c00767a757bf3c81ff70fb6cf6bbf789eb8b"
+    },
+    "input/freedoom2.wad": {
+      "bytes": 28787748,
+      "path": "input/freedoom2.wad",
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    "input/scene.pk3": {
+      "bytes": 307273,
+      "path": "input/scene.pk3",
+      "sha256": "f81aec6e370c73e78730728af84edc34f94a4b202883d953ff4877bb9c7be577"
+    },
+    "native.png": {
+      "bytes": 61201,
+      "path": "native.png",
+      "sha256": "2ec47bdc73caa96b45fbbb8ed2bcf88a47011a36b12477faa9ea6f8141a1c7a0"
+    },
+    "native.renderer.json": {
+      "bytes": 8975182,
+      "path": "native.renderer.json",
+      "sha256": "be0cc81274ef70a65b771ad09ac80ac7de2479d214ade4eb86cb754aa38a9ade"
+    },
+    "native.surface-16.png": {
+      "bytes": 90799,
+      "path": "native.surface-16.png",
+      "sha256": "84b4c32a8f1cc17a77ac49e32d660463373e816a367addd805f7b9700dd58b65"
+    },
+    "native.surface-24.png": {
+      "bytes": 231690,
+      "path": "native.surface-24.png",
+      "sha256": "44704a4125208b4631ed1a98828550e3ab7021e8931f949d8bf7dd30ff6da579"
+    },
+    "native.surface-32.png": {
+      "bytes": 231690,
+      "path": "native.surface-32.png",
+      "sha256": "44704a4125208b4631ed1a98828550e3ab7021e8931f949d8bf7dd30ff6da579"
+    },
+    "native.surface-40.png": {
+      "bytes": 90799,
+      "path": "native.surface-40.png",
+      "sha256": "84b4c32a8f1cc17a77ac49e32d660463373e816a367addd805f7b9700dd58b65"
+    },
+    "native.surface-48.png": {
+      "bytes": 90799,
+      "path": "native.surface-48.png",
+      "sha256": "84b4c32a8f1cc17a77ac49e32d660463373e816a367addd805f7b9700dd58b65"
+    },
+    "native.surface-56.png": {
+      "bytes": 61228,
+      "path": "native.surface-56.png",
+      "sha256": "0b600bf53241e664aed652dc09ed61a1a9ff3d32f49a0ce117c992265b173c12"
+    },
+    "native.surface-64.png": {
+      "bytes": 61228,
+      "path": "native.surface-64.png",
+      "sha256": "0b600bf53241e664aed652dc09ed61a1a9ff3d32f49a0ce117c992265b173c12"
+    },
+    "native.surface-72.png": {
+      "bytes": 153936,
+      "path": "native.surface-72.png",
+      "sha256": "e34d1238d427eb4f64f85b06a9505040da1a72f4b571c41d13aa3f68dd7bb622"
+    },
+    "native.surface-8.png": {
+      "bytes": 90799,
+      "path": "native.surface-8.png",
+      "sha256": "84b4c32a8f1cc17a77ac49e32d660463373e816a367addd805f7b9700dd58b65"
+    },
+    "native.surface-80.png": {
+      "bytes": 153936,
+      "path": "native.surface-80.png",
+      "sha256": "e34d1238d427eb4f64f85b06a9505040da1a72f4b571c41d13aa3f68dd7bb622"
+    },
+    "native.surface-88.png": {
+      "bytes": 61228,
+      "path": "native.surface-88.png",
+      "sha256": "0b600bf53241e664aed652dc09ed61a1a9ff3d32f49a0ce117c992265b173c12"
+    },
+    "native.surface-96.png": {
+      "bytes": 61228,
+      "path": "native.surface-96.png",
+      "sha256": "0b600bf53241e664aed652dc09ed61a1a9ff3d32f49a0ce117c992265b173c12"
+    },
+    "prepared.json": {
+      "bytes": 100191,
+      "path": "prepared.json",
+      "sha256": "83f5f8e085bfd1d5d7b525ed694f69671362e3d790c92160b4c2698a12f83795"
+    },
+    "recipe.json": {
+      "bytes": 15302,
+      "path": "recipe.json",
+      "sha256": "db7ce1ae02d53d03f5ffd7bfabd4df6995d731e02cff420ce97d96b2d54062d0"
+    },
+    "request.json": {
+      "bytes": 7237,
+      "path": "request.json",
+      "sha256": "dae96c4723b090d4a6ab76897c398caa60bc0fc72be4703bcc74dda5fffad114"
+    },
+    "stderr.log": {
+      "bytes": 92,
+      "path": "stderr.log",
+      "sha256": "40d1be44a93d0b505eb7579666e7a87b81ffdd2400eb48e54ab6fad21ff9ead3"
+    },
+    "stdout.log": {
+      "bytes": 5807,
+      "path": "stdout.log",
+      "sha256": "06f1382d7bd185699ae14d37d403bc90adf6926d378d2c554d6c3ca90151e777"
+    },
+    "version-stderr.txt": {
+      "bytes": 0,
+      "path": "version-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "version.txt": {
+      "bytes": 249,
+      "path": "version.txt",
+      "sha256": "9b6d1c0a103fdb23ed3d1a8b6443552ff6f3f3052e0a61a7ad2a8ad094948459"
+    }
+  },
+  "original_receipt": {
+    "path": "build/ci6ed/software-ci-failure-verification.json",
+    "bytes": 6173,
+    "sha256": "17ba6f3bfa42132c63c6024e78f4eddf8290adf843195a5a091df1907c93f486"
+  },
+  "source_and_ordinary_ci": {
+    "status": "PASS",
+    "receipt": {
+      "path": "build/ci6ed/ordinary-ci-verification.json",
+      "bytes": 9493,
+      "sha256": "f471f6db634444997ecbc718c86be6cfdd1f20a58ffb4c191e1e2d75ffab35b6"
+    },
+    "source_workflow": 39088355971,
+    "source_artifact": 12121901272,
+    "source_zip_sha256": "544f58551cd75537e4b9beeb0af7eae3547bef6fbb7122a84548d862f22aa713",
+    "cpu_artifact": 12121523380,
+    "cpu_zip_sha256": "080e936226f10d51ffd23cc82c2ce705c8bcd4848ad0a199708259507179aa8a",
+    "pf_tests": 862,
+    "renderer_tests": 365,
+    "nonsoftware_jobs": 8
+  },
+  "uv_repair_diagnostic": {
+    "status": "PASS_NOT_CAPTURE_ADMISSION",
+    "eligible_observed_receiver_rows": 216,
+    "current_uv_valid_rows": 216,
+    "corrected_six_vertex_S161NO_rows": 36,
+    "by_context_producer": {
+      "Mirror": 12,
+      "Planemirror floor": 24
+    },
+    "scope": "Actual current-writer UV witnesses of the retained observed paths; the full capture is rejected and ordinary-name mesh children remain unobserved on6ed"
+  },
+  "source_diagnosis": [
+    {
+      "finding": "One-ULP FOV representation rejected by literal90 admission",
+      "producer_chain": [
+        "D_Display calls cam->GetFOV(I_GetTimeFrac())",
+        "AActor::GetFOV interpolates PrevFOV*(1-ticFrac)+fov*ticFrac even for equal90 endpoints",
+        "Frame observer retains r_viewpoint.FieldOfView.Degrees()",
+        "SDVK161 compares raw FOV directly to90, unlike established canonical camera comparison"
+      ],
+      "classification": "Oracle camera representation mismatch; not wrong rendered FOV or RGB evidence",
+      "repair_boundary": "Align only FOV admission with established view-number representation; preserve raw FOV, renderer clocks, exact RGB and all other state"
+    },
+    {
+      "finding": "Fixed presented-view map boundary inferred from queued console command",
+      "producer_chain": [
+        "CCMD(map) calls G_SetMap then G_DeferedInitNew",
+        "G_DeferedInitNew sets ga_newgame2",
+        "G_Ticker changes ga_newgame2 to ga_newgame and breaks before later actual G_DoNewGame",
+        "The first later presented frame can still own the old map"
+      ],
+      "classification": "Active fixture-driver completion assumption; original frame73 retains old B lifetime",
+      "repair_boundary": "An exact owned SDVK161 map request must finish through ordinary tic processing before another retained display; preserve32/96/12 budgets and fixed25/49/73 ownership boundaries with actual completion receipts"
+    },
+    {
+      "finding": "Per-object reset generation mistaken for cross-object mesh identity",
+      "producer_chain": [
+        "FRendererEpoch initializes Generation1 per object",
+        "LevelMesh::Reset invalidates that local generation",
+        "New LevelMesh instances legitimately repeat generation3",
+        "Resource and surface evidence currently serialize only local mesh epoch"
+      ],
+      "classification": "Observer identity gap and oracle lifetime assumption; no demonstrated renderer reuse from generation equality alone",
+      "repair_boundary": "Add constructor-assigned immutable actual mesh lifetime identity paired with unchanged local generation; resource/draw/completion joins must reject old lifetime even with matching generation"
+    }
+  ],
+  "source_pins": [
+    {
+      "path": "src/d_main.cpp",
+      "bytes": 115481,
+      "sha256": "dc3d300da0e9976cbbd49bbc1fffd89cf0609fc72c3ed8eea762a6d1c770a591",
+      "git_blob": "e6d28983f675bbd8c170f80a3aa002f1f8cb5c3e"
+    },
+    {
+      "path": "src/g_game.cpp",
+      "bytes": 75833,
+      "sha256": "e9e252a764722666b16899e98706aa60ed1db21516ae5a401d30595c4621db20",
+      "git_blob": "0e225bcbad5bdc91fd157a19697233115a46fdd2"
+    },
+    {
+      "path": "src/playsim/p_mobj.cpp",
+      "bytes": 223025,
+      "sha256": "a3315b3c979e0533d2e518912fa309da7ddf582fca005b114fc56c7c1c91b202",
+      "git_blob": "0541f9ed22bc42b529beb6489055bb601d31fd27"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_resourcegeneration.h",
+      "bytes": 3625,
+      "sha256": "154f9711206f2422661778c2ea8235e4d180bb2277c6031aae77a7d0e50dd754",
+      "git_blob": "2f06b3351c904b9261074b80f1308e724f5f5860"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_levelmesh.h",
+      "bytes": 14136,
+      "sha256": "e95e339f2c6d6312eec5574eaa783a7db3c8b80d82764e2784aa6056660af08d",
+      "git_blob": "f1a81365ccc6ac6da03559e0bb76ea014ba2c8b0"
+    },
+    {
+      "path": "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+      "bytes": 8845,
+      "sha256": "bec698b729ddd25efdc3eddc88972aaa252b3b736e569207b782ea5c23c83a61",
+      "git_blob": "5aa3657a3261194b76a826487f16320e527cc2cf"
+    },
+    {
+      "path": "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
+      "bytes": 52311,
+      "sha256": "53d540bb978f9102663a203a82f222f5562097651287223a4583303053b0b55f",
+      "git_blob": "4f5a0bd002ec0c7aafcaff8a8d57ae3ec3a248f5"
+    },
+    {
+      "path": "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+      "bytes": 43657,
+      "sha256": "9ee0f1f201c5f79bd88fac2feb2d1334550d3578f850b4a8e21dbd269a1b1c57",
+      "git_blob": "05099298fedaab3270fc4290fde42e804a08f991"
+    },
+    {
+      "path": "tools/renderer_oracle/sdvk161_special_surfaces.py",
+      "bytes": 79394,
+      "sha256": "ec9485f4035697fd671835f7b49f403559c4d550a73125ef79ab0b9e7e0989b7",
+      "git_blob": "508953a829197835d3c632473a510c4fe3ec050a"
+    },
+    {
+      "path": "tools/renderer_oracle/validate.py",
+      "bytes": 52042,
+      "sha256": "ed4bfa983af1dabd0d745504ebeae32322cacf726fc1a78375e5549c1d5352c5",
+      "git_blob": "ca3e75289b73d6fb622e3f4822d8c25adac93ed3"
+    }
+  ],
+  "independent_reviewed_repairs": "Mesh-name witness suppression and per-row reflective plane gaps are separately closed in SDVK-161-ACCEPTANCE-METHOD-REVIEW.json; they do not admit this old capture",
+  "next_required": "New normal exact-head source/CPU/ordinary/native qualification after coherent fixes and Extra High review; no failed-head rerun or pooled attempts",
+  "accepted": false
+}

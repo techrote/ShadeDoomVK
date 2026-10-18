@@ -178,6 +178,14 @@ jobs:
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk158 \
           --expected-commit "$(git rev-parse HEAD)"
+        # SDVK-161: bounded special surfaces with current submitted owners and
+        # exact checkpoint RGB across both maps and their same-map reloads.
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_special_surfaces \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk161 \
+          --expected-commit "$(git rev-parse HEAD)"
         PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_publication qualify \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
@@ -190,7 +198,7 @@ jobs:
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158; do
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi

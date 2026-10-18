@@ -24,6 +24,7 @@
 #include "r_defs.h"
 #include "flatvertices.h"
 #include "hw_renderstate.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawstructs.h"
 #include "doom_levelmesh.h"
@@ -195,9 +196,10 @@ void HWWall::SplitRightEdge(FFlatVertex *&ptr)
 
 int HWWall::CreateVertices(FFlatVertex *&ptr, bool split)
 {
+	LightmapTile* tile = nullptr;
 	if (lightmaptile >= 0)
 	{
-		LightmapTile* tile = &level.levelMesh->GetLightmapTile(lightmaptile);
+		tile = &level.levelMesh->GetLightmapTile(lightmaptile);
 		FVector2 lolft = tile->ToUV(FVector3(glseg.x1, glseg.y1, zbottom[0]), level.levelMesh->Lightmap.TextureSize);
 		FVector2 uplft = tile->ToUV(FVector3(glseg.x1, glseg.y1, ztop[0]), level.levelMesh->Lightmap.TextureSize);
 		FVector2 uprgt = tile->ToUV(FVector3(glseg.x2, glseg.y2, ztop[1]), level.levelMesh->Lightmap.TextureSize);
@@ -230,6 +232,18 @@ int HWWall::CreateVertices(FFlatVertex *&ptr, bool split)
 	ptr->Set(glseg.x2, zbottom[1], glseg.y2, tcs[LORGT].u, tcs[LORGT].v, lightuv[LORGT].u, lightuv[LORGT].v, lindex);
 	ptr++;
 	if (split && !(flags & HWF_NOSPLITLOWER) && seg->sidedef->numsegs > 1) SplitLowerEdge(ptr);
+	if (split && tile)
+	{
+		// ToUV clamps at the tile border. Interpolating already-clamped corner
+		// UVs does not give the projection of an inserted edge vertex. Project
+		// the final written positions, preserving geometry and base-texture UVs.
+		for (auto vertex = oo; vertex != ptr; ++vertex)
+		{
+			const auto uv = tile->ToUV(vertex->fPos(), level.levelMesh->Lightmap.TextureSize);
+			vertex->lu = uv.X;
+			vertex->lv = uv.Y;
+		}
+	}
 	return int(ptr - oo);
 }
 
@@ -307,14 +321,17 @@ int HWWall::CountVertices()
 //
 //==========================================================================
 
-void HWWall::MakeVertices(FRenderState& state, bool nosplit)
+void HWWall::MakeVertices(FRenderState& state, bool nosplit, bool observeWritten)
 {
 	if (vertcount == 0)
 	{
 		bool split = (gl_seamless && !nosplit && seg->sidedef != nullptr && !(seg->sidedef->Flags & WALLF_POLYOBJ) && !(flags & HWF_NOSPLIT));
 		auto ret = state.AllocVertices(split ? CountVertices() : 4);
 		vertindex = ret.second;
+		const auto written = ret.first;
 		vertcount = CreateVertices(ret.first, split);
+		if (observeWritten && SdvkDiagnostics::SpecialSurfaceFrameSelected() && lightmaptile >= 0)
+			SdvkDiagnostics::CaptureWrittenVertices(level.levelMesh, int(vertindex), int(vertcount), lightmaptile, written);
 	}
 }
 

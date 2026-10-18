@@ -727,7 +727,7 @@ void DoomLevelMesh::AddSidesToDrawLists(const TArray<int>& sides, LevelMeshDrawL
 
 				for (const HWDecalCreateInfo& info : decals)
 				{
-					info.ProcessDecal(di, state, dynlightindex);
+					info.ProcessDecal(di, state, dynlightindex, ResolveDecalLightmapTile(info));
 				}
 			}
 		}
@@ -739,6 +739,35 @@ void DoomLevelMesh::AddSidesToDrawLists(const TArray<int>& sides, LevelMeshDrawL
 			di->ProcessSeg(seg, state);
 		}
 	}
+}
+
+int DoomLevelMesh::ResolveDecalLightmapTile(const HWDecalCreateInfo& decal) const
+{
+	if (!decal.seg || !decal.seg->sidedef || decal.lightmapType == ST_NONE)
+		return -1;
+
+	const auto sideIndex = decal.seg->sidedef->Index();
+	if (sideIndex >= Sides.Size()) return -1;
+	const uint32_t control = decal.lightmapControlSector ? decal.lightmapControlSector->Index() : (uint32_t)0xffffffffUL;
+	// TileBindings only deduplicates this frame's geometry rebuild and is
+	// cleared by BeginFrame. Follow the receiving side's CURRENT live surfaces
+	// instead; an unchanged wall must keep its overlay lightmapped too.
+	for (int surfaceIndex = Sides[sideIndex].FirstSurface; surfaceIndex != -1;
+		surfaceIndex = DoomSurfaceInfos[surfaceIndex].NextSurface)
+	{
+		const auto& info = DoomSurfaceInfos[surfaceIndex];
+		const uint32_t owner = info.ControlSector ? info.ControlSector->Index() : (uint32_t)0xffffffffUL;
+		if (info.Type != decal.lightmapType || info.TypeIndex != sideIndex || owner != control) continue;
+		const int tileIndex = Mesh.Surfaces[surfaceIndex].LightmapTileIndex;
+		if (tileIndex < 0) continue;
+		// Centralized current atlas-owner/receipt validation precedes UV use.
+		const auto& tile = GetLightmapTile(tileIndex);
+		if (tile.Binding.Type != uint32_t(decal.lightmapType) || tile.Binding.TypeIndex != sideIndex
+			|| tile.Binding.ControlSector != control)
+			I_FatalError("Decal receiver references another lightmap binding");
+		return tileIndex;
+	}
+	return -1; // No receiving surface: decals never allocate a tile themselves.
 }
 
 void DoomLevelMesh::BeginFrame(FLevelLocals& doomMap)
@@ -1810,6 +1839,8 @@ void DoomLevelMesh::CreateWallSurface(side_t* side, HWWallDispatcher& disp, Mesh
 		DoomSurfaceInfo& info = *GetDoomSurface(sinfo);
 		info.Type = wallpart.LevelMeshInfo.Type;
 		info.ControlSector = wallpart.LevelMeshInfo.ControlSector;
+		info.LightmapPlane = -1;
+		info.RuntimeBakeOnly = false;
 		info.TypeIndex = side->Index();
 		info.Side = side;
 
@@ -1832,7 +1863,10 @@ void DoomLevelMesh::CreateWallSurface(side_t* side, HWWallDispatcher& disp, Mesh
 		surface->LightList.Pos = lightlist.Start;
 		surface->LightList.Count = lightlist.Count;
 
-		if (disp.Level->lightmaps && !surface->IsSky)
+		// Wall portal geometry is a trace/stencil boundary, not a receiving
+		// wall. ST_NONE has no side-table or bake-target consumer. Keep its
+		// geometry and portal identity, but never give it a recyclable tile.
+		if (disp.Level->lightmaps && !surface->IsSky && drawType != LevelMeshDrawType::Portal)
 		{
 			surface->LightmapTileIndex = AddSurfaceToTile(info, *surface, sampleDimension, !!(side->sector->Flags & SECF_LM_DYNAMIC));
 			Lightmap.AddedSurfaces.Push(sinfo.Index);
@@ -1877,6 +1911,15 @@ int DoomLevelMesh::AddSurfaceToTile(const DoomSurfaceInfo& info, const LevelMesh
 		int index = it->second;
 
 		LightmapTile& tile = Lightmap.Tiles[index];
+		if (tile.UseXYAxis && (tile.Plane.X != surf.Plane.X || tile.Plane.Y != surf.Plane.Y ||
+			tile.Plane.Z != surf.Plane.Z || tile.Plane.W != surf.Plane.W))
+		{
+			// The retained binding and raster table have only one plane per
+			// facing/control owner. FF_BOTHPLANES can require two. Do not merge
+			// their bounds or silently drop baked/dynamic lighting on one face.
+			I_FatalError("Unsupported ambiguous flat lightmap binding (type %u, subsector %u, control sector %u): multiple planes require distinct identities", binding.Type, binding.TypeIndex, binding.ControlSector);
+		}
+		tile.RuntimeBakeOnly = tile.RuntimeBakeOnly || info.RuntimeBakeOnly;
 		tile.Bounds.min.X = std::min(tile.Bounds.min.X, surf.Bounds.min.X);
 		tile.Bounds.min.Y = std::min(tile.Bounds.min.Y, surf.Bounds.min.Y);
 		tile.Bounds.min.Z = std::min(tile.Bounds.min.Z, surf.Bounds.min.Z);
@@ -1896,6 +1939,7 @@ int DoomLevelMesh::AddSurfaceToTile(const DoomSurfaceInfo& info, const LevelMesh
 		tile.SampleDimension = GetSampleDimension(sampleDimension);
 		tile.UseCount = 1;
 		tile.UseXYAxis = (info.Type == ST_CEILING || info.Type == ST_FLOOR);
+		tile.RuntimeBakeOnly = info.RuntimeBakeOnly;
 
 		int index = AllocTile(tile);
 		Lightmap.AddedTiles.Push(index);
@@ -2023,13 +2067,16 @@ void DoomLevelMesh::CreateFlatSurface(HWFlatDispatcher& disp, MeshBuilder& state
 		DoomSurfaceInfo info;
 		info.Type = flatpart.ceiling ? ST_CEILING : ST_FLOOR;
 		info.ControlSector = flatpart.controlsector ? flatpart.controlsector->model : nullptr;
+		info.LightmapPlane = flatpart.lightmapPlane;
 
 		LevelMeshSurface surf;
 		surf.SectorGroup = sectorGroup[flatpart.sector->Index()];
 		surf.Alpha = flatpart.alpha;
 		surf.Texture = flatpart.texture;
 		surf.PipelineID = pipelineID;
-		surf.PortalIndex = sectorPortals[flatpart.ceiling][flatpart.sector->Index()];
+		// Only the actual sector boundary carries its displacement. A 3D-floor
+		// face inside that sector is not another instance of the same portal.
+		surf.PortalIndex = drawType == LevelMeshDrawType::Portal ? sectorPortals[flatpart.ceiling][flatpart.sector->Index()] : 0;
 		if(drawType == LevelMeshDrawType::Portal)
 		{
 			FSectorPortal* port = flatpart.sector->GetPortal(flatpart.ceiling ? sector_t::ceiling : sector_t::floor);
@@ -2040,11 +2087,19 @@ void DoomLevelMesh::CreateFlatSurface(HWFlatDispatcher& disp, MeshBuilder& state
 			surf.IsSky = false;
 		}
 
-		auto plane = info.ControlSector ? info.ControlSector->GetSecPlane(!flatpart.ceiling) : flatpart.sector->GetSecPlane(flatpart.ceiling);
+		// HWFlat::Process already selects the actual model plane and orients it
+		// for this emitted face. Facing alone cannot reconstruct a 3D-floor
+		// source plane (for example an inverted top face).
+		auto plane = flatpart.plane.plane;
 		surf.Plane = FVector4((float)plane.Normal().X, (float)plane.Normal().Y, (float)plane.Normal().Z, -(float)plane.D);
-
 		if (info.ControlSector)
-			surf.Plane = -surf.Plane;
+		{
+			auto legacyPlane = info.ControlSector->GetSecPlane(!flatpart.ceiling);
+			legacyPlane.FlipVert();
+			// An old v5 bake can have the same authored checksum and XY
+			// transform while its RGB was produced at the reconstructed plane.
+			info.RuntimeBakeOnly = flatpart.lightmapPlane != int(!flatpart.ceiling) || !(flatpart.plane.plane == legacyPlane);
+		}
 
 		float skyZ = flatpart.ceiling ? 32768.0f : -32768.0f;
 		bool useSkyZ = (drawType == LevelMeshDrawType::Portal && flatpart.plane.texture == skyflatnum);
@@ -2135,9 +2190,6 @@ void DoomLevelMesh::CreateFlatSurface(HWFlatDispatcher& disp, MeshBuilder& state
 			*GetSurface(sinfo) = surf;
 			*GetDoomSurface(sinfo) = info;
 
-			for (int i = ginfo.IndexStart / 3, end = (ginfo.IndexStart + ginfo.IndexCount) / 3; i < end; i++)
-				Mesh.SurfaceIndexes[i] = sinfo.Index;
-
 			SetSubsectorLightmap(sinfo.Index);
 		}
 
@@ -2157,7 +2209,11 @@ void DoomLevelMesh::SetSubsectorLightmap(int surfaceIndex)
 	}
 	else
 	{
-		int index = surface->Type == ST_CEILING ? 0 : 1;
+		// The immediate vertex producer records model h/isceiling, not emitted
+		// facing. Inverted 3D floors exchange facing without exchanging that h.
+		int index = surface->LightmapPlane;
+		if (index != sector_t::floor && index != sector_t::ceiling)
+			I_FatalError("Invalid 3D-floor source plane for lightmap publication");
 		const auto& ffloors = surface->Subsector->sector->e->XFloor.ffloors;
 		for (unsigned int i = 0; i < ffloors.Size(); i++)
 		{
@@ -2255,7 +2311,16 @@ void DoomLevelMesh::GetVisibleSurfaces(LightmapTile* tile, TArray<int>& outSurfa
 				uint32_t controlSector = sinfo.ControlSector ? (uint32_t)sinfo.ControlSector->Index() : (uint32_t)0xffffffffUL;
 				if (sinfo.Type == (DoomLevelMeshSurfaceType)tile->Binding.Type && controlSector == tile->Binding.ControlSector)
 				{
-					outSurfaces.Push(surf);
+					// Facing/control can select different source planes for normal
+					// and inverted rovers in neighboring subsectors. Controlled
+					// tiles require their selected plane; all remain occluders.
+					// Ordinary neighbors retain height-group seam/padding coverage,
+					// including the differing planes intentionally grouped above.
+					const auto& plane = Mesh.Surfaces[surf].Plane;
+					if (tile->Binding.ControlSector == (uint32_t)0xffffffffUL ||
+						(plane.X == tile->Plane.X && plane.Y == tile->Plane.Y &&
+						 plane.Z == tile->Plane.Z && plane.W == tile->Plane.W))
+						outSurfaces.Push(surf);
 				}
 				surf = sinfo.NextSubsectorSurface;
 			}

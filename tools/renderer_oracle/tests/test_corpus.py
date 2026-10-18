@@ -200,7 +200,18 @@ class AuthoredSceneTests(unittest.TestCase):
         bounds would hide malformed A input from the generic authoring gate.
         """
         transition = scene["native"].get("probe_owner_transition")
-        if transition is None:
+        special = scene["native"].get("generator") == "special_surface_lifecycle"
+        if special:
+            self.assertEqual(scene["id"], "special-surface-lifecycle")
+            self.assertEqual(scene["native"]["special_surface_schedule"][0], {
+                "after_main_views": 32, "phase": "invalidate-a-retained-start", "command": "invalidatelightmap"})
+            self.assertEqual(metadata["initial_retained_work"]["retained_frames"], [1, 8])
+            self.assertEqual(scene["native"]["map_sequence"], ["SDV161A", "SDV161A", "SDV161B", "SDV161B"])
+            map_names = ["SDV161A", "SDV161B"]
+            owners = metadata.get("maps")
+            self.assertIsInstance(owners, list)
+            self.assertEqual([owner.get("map") for owner in owners], map_names)
+        elif transition is None:
             map_names = [scene["native"]["map"]]
             owners = [metadata]
         else:
@@ -237,7 +248,9 @@ class AuthoredSceneTests(unittest.TestCase):
             cameras = [t for t in records["thing"] if t["type"] == 32200]
             self.assertEqual(len(cameras), 1)
             camera = cameras[0]
-            expected = scene["native"]["camera"]
+            expected = scene["native"]["map_cameras"][map_name] if special else scene["native"]["camera"]
+            if special:
+                self.assertEqual(owner["camera"], expected)
             self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"], "Authored camera position differs: " + map_name)
             self.assertEqual(camera["id"], expected["actor_tid"])
             authored = scene["native"].get("authored_camera_angles", expected)
@@ -249,9 +262,79 @@ class AuthoredSceneTests(unittest.TestCase):
             view = math.radians(expected["yaw"])
             behind = ((player["x"] - camera["x"]) * math.cos(view)
                       + (player["y"] - camera["y"]) * math.sin(view))
-            self.assertLess(behind, 0)
-            self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
-            if scene["native"]["generator"] == "portal_probes":
+            if special and map_name == "SDV161B":
+                from fractions import Fraction
+                self.assertEqual(expected["position"], [1060, -176, 64])
+                self.assertEqual([player["x"], player["y"]], [-240, 0])
+                # Pin the two real walls that block the original pawn, rather
+                # than exempting the fixture based on its camera angle.
+                for index, endpoints in ((9, [(1024, -192), (1024, -64)]),
+                                         (4, [(0, -64), (0, -192)])):
+                    wall = records["linedef"][index]
+                    self.assertTrue(wall["blocking"])
+                    self.assertNotIn("sideback", wall)
+                    self.assertEqual([(records["vertex"][wall[key]]["x"], records["vertex"][wall[key]]["y"])
+                                      for key in ("v1", "v2")], endpoints)
+                main_crossing = Fraction(-176) + 176 * Fraction(1060 - 1024, 1060 + 240)
+                self.assertTrue(-192 < main_crossing < -64)
+                # Reverse portal translates x by -1024 with zero linked rotation.
+                aperture = records["linedef"][3]
+                self.assertEqual(aperture["special"], 156)
+                self.assertEqual(aperture["arg2"], 3)
+                self.assertEqual([(records["vertex"][aperture[key]]["x"], records["vertex"][aperture[key]]["y"])
+                                  for key in ("v1", "v2")], [(0, 64), (0, -64)])
+                virtual_x, virtual_y = 1060 - 1024, -176
+                reverse_crossing = virtual_y + 176 * Fraction(virtual_x, virtual_x + 240)
+                self.assertEqual(reverse_crossing, Fraction(-3520, 23))
+                self.assertTrue(-192 < reverse_crossing < -64)
+                north_wedge = sorted(virtual_x - virtual_x * Fraction(192 - virtual_y, endpoint_y - virtual_y)
+                                     for endpoint_y in (-64, 64))
+                self.assertEqual(north_wedge, [Fraction(-576, 7), Fraction(-96, 5)])
+                self.assertLess(player["x"], north_wedge[0])
+            else:
+                self.assertLess(behind, 0)
+            self.assertEqual((owner if special else metadata)["player_start_world"], [player["x"], player["y"]])
+            if special:
+                # This narrow two-map corpus has several clockwise exterior
+                # loops and one counterclockwise inset. Recompute every area
+                # from the serialized vertices instead of exempting winding.
+                rings = ([list(range(9))] if map_name == "SDV161A" else
+                         [list(range(6)), list(range(8, 14)), [3, 6, 7, 4], [9, 14, 15, 10],
+                          list(range(16, 20)), list(range(20, 24)), list(range(24, 28))])
+                vertices = records["vertex"]
+                actual_areas = [sum(vertices[a]["x"] * vertices[b]["y"] - vertices[b]["x"] * vertices[a]["y"]
+                                    for a, b in zip(ring, ring[1:] + ring[:1])) / 2 for ring in rings]
+                expected_areas = ([-196608.0] if map_name == "SDV161A" else
+                                  [-147456.0, -147456.0, -16384.0, -16384.0, -4096.0, -4096.0, 46080.0])
+                self.assertEqual(actual_areas, expected_areas, "Special fixture serialized boundary differs")
+                self.assertEqual(areas, actual_areas, "Special fixture boundary metadata differs")
+                self.assertEqual(owner.get("counts"), {kind: len(rows) for kind, rows in records.items()})
+                for line in records["linedef"]:
+                    if "sideback" in line:
+                        self.assertLess(line["sideback"], len(records["sidedef"]))
+                for side in records["sidedef"]:
+                    self.assertLess(side["sector"], len(records["sector"]))
+                if map_name == "SDV161A":
+                    self.assertEqual([records["linedef"][i].get("special") for i in (2, 6)], [9, 182])
+                    self.assertEqual(records["linedef"][9]["alpha"], 0.5)
+                    self.assertEqual(records["sector"][0]["floor_reflect"], 0.25)
+                else:
+                    self.assertEqual([(records["linedef"][i]["id"], records["linedef"][i]["special"])
+                                      for i in (3, 10)], [(101, 156), (102, 156)])
+                    self.assertEqual([(records["sector"][i]["heightfloor"], records["sector"][i]["heightceiling"])
+                                      for i in (4, 5)], [(32, 48), (96, 112)])
+                    self.assertEqual(records["sector"][6]["id"], 161)
+                    self.assertEqual([(records["sector"][i]["heightfloor"], records["sector"][i]["heightceiling"])
+                                      for i in (1, 6)], [(0, 160), (16, 144)])
+                    self.assertEqual([(records["sidedef"][i]["sector"], records["sidedef"][i+1]["sector"])
+                                      for i in (28, 30, 32, 34)], [(1, 6)] * 4)
+                    for side_index in (28, 30, 32, 34):
+                        front, back = records["sidedef"][side_index:side_index + 2]
+                        self.assertEqual([front.get(key, "-") for key in ("texturetop", "texturemiddle", "texturebottom")],
+                                         ["S161PN", "-", "S161HO"])
+                        self.assertEqual([back.get(key, "-") for key in ("texturetop", "texturemiddle", "texturebottom")],
+                                         ["-", "-", "-"])
+            elif scene["native"]["generator"] == "portal_probes":
                 self.assertEqual(areas,
                                  [-147456.0, -147456.0, -16384.0, -16384.0])
             else:
@@ -288,7 +371,30 @@ class AuthoredSceneTests(unittest.TestCase):
                         self.assertLessEqual(image["width"], 256)
                         self.assertLessEqual(image["height"], 256)
                         self.assertEqual(len(pixels), image["width"] * image["height"] * 4)
-                        self.assertRegex(Path(path).stem, r"^(SDV|SM)")
+                        if scene["id"] == "special-surface-lifecycle" and Path(path).stem.startswith("S161"):
+                            self.assertIn(Path(path).stem, {"S161PH", "S161PN", "S161WP", "S161HO", "S161NO",
+                                                           "S161GL", "S161RF", "S161DCL", "S161B4", "S161T4", "S161S4",
+                                                           "S161B5", "S161T5", "S161S5"})
+                        else:
+                            self.assertRegex(Path(path).stem, r"^(SDV|SM)")
+
+    def test_special_surface_b_original_pawn_requires_exact_serialized_occlusion_geometry(self):
+        from tools.renderer_oracle import sdvk161_fixtures as fixture
+        scene = scene_named("special-surface-lifecycle")
+        _, members, metadata = prepare.scene_assets(scene)
+        for edit in ("pawn", "main-wall", "reverse-wall", "aperture"):
+            models, _ = fixture.models(prepare)
+            records = models["SDV161B"].records
+            if edit == "pawn":
+                next(thing for thing in records["thing"] if thing["type"] == 1)["x"] += 1
+            elif edit == "main-wall": records["linedef"][9]["blocking"] = False
+            elif edit == "reverse-wall": records["linedef"][4]["blocking"] = False
+            else: records["vertex"][3]["y"] = 65
+            changed = dict(members)
+            changed["maps/SDV161B.wad"] = prepare.pf_indexed.wad([
+                ("SDV161B", b""), ("TEXTMAP", models["SDV161B"].text().encode()), ("ENDMAP", b"")])
+            with self.subTest(edit=edit), self.assertRaises(AssertionError):
+                self.assert_authored_maps(scene, changed, copy.deepcopy(metadata))
 
     def test_transition_map_inventory_and_owner_metadata_negatives(self):
         scene = scene_named("probe-owner-transition")
