@@ -9,9 +9,10 @@ import re
 import threading
 import time
 
-from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry
+from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry, root_expectations
 from .readers import BoundedReaders, NativeEvents, continuity, gpu_reader, telemetry,bounded_host_identity,check_host_identity
-from .windows import FileLock, Job, Process, platform_check, reject_unowned_renderer
+from .windows import FileLock, Job, Process, RootGuard, platform_check, reject_unowned_renderer
+from .integrity import IntegrityWatch, valid_proof, collector_boundary, proof_deadline, GATE_BUSY_LIMIT
 
 GRACE_SECONDS = 15  # Tests shorten only the synthetic CPU clock; CLI policy is fixed.
 
@@ -35,13 +36,18 @@ class LogScanner:
             self.identities[path] = identity
             require(metadata.st_size >= offset, "Output log truncated")
             with path.open("rb") as stream:
-                previous = hashlib.sha256(stream.read(offset)).hexdigest()
+                hasher=hashlib.sha256();remaining=offset
+                while remaining:
+                    chunk=stream.read(min(remaining,1024*1024))
+                    require(chunk,"Output log truncated during prefix audit")
+                    hasher.update(chunk);remaining-=len(chunk)
+                previous = hasher.hexdigest()
                 require(path not in self.prefixes or previous == self.prefixes[path], "Output log prefix overwritten")
                 data = stream.read(16 * 1024 * 1024 + 1)
                 require(len(data) <= 16 * 1024 * 1024, "Unread log evidence budget exceeded")
                 self.offsets[path] = stream.tell()
-                stream.seek(0)
-                self.prefixes[path] = hashlib.sha256(stream.read(self.offsets[path])).hexdigest()
+                hasher.update(data)
+                self.prefixes[path] = hasher.hexdigest()
             text = self.tails.get(path, b"") + data
             require(not FAULT.search(text), "Renderer/collector fault marker")
             self.tails[path] = text[-512:]
@@ -140,10 +146,12 @@ class ModuleWatch:
         self.thread=threading.Thread(target=self.loop,daemon=True)
 
     def sample(self):
-        if self.target.poll() is not None:return {"state":"EXITED"}
+        if self.target.poll() is not None:
+            require(self.target.exited_owned(self.identity),"Actual module target exit identity differs")
+            return {"state":"EXITED"}
         try:paths=self.target.modules(self.identity)
         except BaseException:
-            if self.target.poll() is not None:return {"state":"EXITED"}
+            if self.target.exited_owned(self.identity):return {"state":"EXITED"}
             raise
         self.inflight_paths=list(paths);self.inflight_additions=[]
         additions=[]
@@ -217,8 +225,16 @@ def _registration(packet, stage, control, collector, collector_identity, journal
     require(request["argv"] == stage["expected_argv"] and normalized(request["cwd"]) == normalized(stage["capture"]["out"]),
             "Registered argv/cwd differs")
     require(request["generated_pins"] == stage["generated_pins"], "Generated assets changed")
-    for row in stage["generated_pins"]:
-        verify_pin(row)
+    proof=request["integrity_generation"]
+    sealed=read_json(control/"integrity-target-proof.json")
+    require(Path(sealed["receipt"]["path"])==control/f"integrity-{proof['generation']:06d}.json",
+            "Registered generation receipt path differs")
+    verify_pin(sealed["receipt"])
+    require(proof==read_json(sealed["receipt"]["path"]) and proof["request"]==sealed["request"] and
+            proof["request"]==read_json(control/"integrity-target-request.json") and proof["request"]["role"]=="target",
+            "Registered target generation differs from sealed worker proof")
+    valid_proof(proof,packet,stage,read_json(control/"supervisor-identity.json"),request=proof["request"],boundary=True)
+    require(proof["request"]["collector"]==collector_identity,"Target generation collector differs")
     target = Process.open(request["target"]["pid"])
     authenticated=False
     try:
@@ -231,6 +247,7 @@ def _registration(packet, stage, control, collector, collector_identity, journal
         authenticated=True
         journal.append("target-registered", request)
         before_ack()
+        valid_proof(proof,packet,stage,read_json(control/"supervisor-identity.json"),request=proof["request"],boundary=True)
         exclusive(control / "target-ack.json", {"request_sha256": digest(path), "packet_sha256": packet["packet_sha256"]})
         return target, identity
     except BaseException as error:
@@ -304,13 +321,15 @@ def execute(packet, approval, output, *, readers=None):
     packet = {**packet, "packet_sha256": packet_sha}
     exclusive(output / "packet.json", packet)
     gate = Gate(packet["stop_root"], packet_sha)
-    locks, collector, target, job, watch,modules = [], None, None, None, None,None
+    locks, collector, target, job, watch,modules,integrity,roots = [], None, None, None, None,None,None,None
     collector_identity = target_identity = None
     status, error = "FAILED_STOP", "Incomplete supervisor"
     claim = gate.root / ("claim-" + packet_sha + ".json")
     try:
         for row in packet["files"]:
             locks.append(FileLock(row))
+        roots=RootGuard(packet)
+        expectations=root_expectations(packet)
         current_host=bounded_host_identity()
         journal.append("host-preflight",current_host)
         check_host_identity(packet["host_identity"],current_host)
@@ -339,12 +358,21 @@ def execute(packet, approval, output, *, readers=None):
             finally:
                 self_process.close()
             exclusive(control / "supervisor-identity.json", supervisor_identity)
+            logs = [control / "collector-stdout.log", control / "collector-stderr.log",
+                    Path(stage["capture"]["out"]) / "stdout.log", Path(stage["capture"]["out"]) / "stderr.log"]
+            integrity=IntegrityWatch(packet,stage,control,supervisor_identity,expectations,scanner,logs,journal)
+            integrity.start()
+            while integrity.latest is None:
+                watch.check();roots.check();integrity.check(require_ready=False)
+                time.sleep(.02)
             heartbeat_index, next_heartbeat = 0, 0
             def heartbeat():
                 nonlocal heartbeat_index, next_heartbeat
                 if time.monotonic() >= next_heartbeat:
+                    receipt=integrity.check()
+                    watch.check();roots.check()
                     exclusive(control / f"heartbeat-{heartbeat_index:06d}.json", {"packet_sha256": packet_sha,
-                        "supervisor": supervisor_identity, "monotonic": time.monotonic(), "utc": utc()})
+                        "supervisor": supervisor_identity, "monotonic": time.monotonic(), "utc": utc(),"integrity_generation":receipt})
                     heartbeat_index += 1
                     next_heartbeat = time.monotonic() + .5
             heartbeat()
@@ -371,46 +399,66 @@ def execute(packet, approval, output, *, readers=None):
                         "raise SystemExit(main(" + repr(str(output / "packet.json")) + "," + str(index) + "," + repr(str(control)) + ","+repr(source_proof_pin)+"))")
                 argv = [packet["python"], "-I", "-B", "-c", code]
                 watch.check()
+                def pump():
+                    watch.check();integrity.check();roots.check();heartbeat()
+                spawn_proof,spawn_request=collector_boundary(packet,stage,control,supervisor_identity,pump)
+                def final_collector_boundary():
+                    gate.check();watch.check();roots.check();verify_registry(packet)
+                    valid_proof(spawn_proof,packet,stage,supervisor_identity,request=spawn_request,boundary=True)
+                    return proof_deadline(spawn_proof)
                 with gate:
                     gate.check()
                     future(packet["expires_utc"])
-                    verify_roots(packet)
+                    roots.check();integrity.check()
+                    valid_proof(spawn_proof,packet,stage,supervisor_identity,request=spawn_request,boundary=True)
                     verify_registry(packet)
                     require(not job.pids(), "Previous collector/target remains")
                     reject_unowned_renderer(packet["renderer"])
                     gate.check()
-                    collector = Process.spawn(argv, tooling_root, stdout, stderr, job=job, env=sealed_environment(packet))
+                    collector = Process.spawn(argv, tooling_root, stdout, stderr, job=job, env=sealed_environment(packet),before_create=final_collector_boundary)
                     collector_identity = collector.identity()
-                    journal.append("collector-spawn", {"argv": argv, "identity": collector_identity, "state": "SUSPENDED"})
+                    exclusive(control/"collector-identity.json",collector_identity)
+                    journal.append("collector-spawn", {"argv": argv, "identity": collector_identity, "state": "SUSPENDED",
+                        "create_native_call_attempt_monotonic":collector.create_native_call_attempt_monotonic})
                     require(not hasattr(collector, "assignment_error"), getattr(collector, "assignment_error", "Job assignment failed"))
                     require(collector_identity["path"] == normalized(packet["python"]), "Collector executable changed")
                     next_heartbeat = 0
                     heartbeat()
                     watch.check()
                     gate.check()
-                    collector.resume(collector_identity)
-                    journal.append("collector-resumed", {"identity": collector_identity})
+                    roots.check()
+                    valid_proof(spawn_proof,packet,stage,supervisor_identity,request=spawn_request,boundary=True)
+                    collector.resume(collector_identity,before_resume=final_collector_boundary)
+                    journal.append("collector-resumed", {"identity": collector_identity,
+                        "resume_native_call_attempt_monotonic":collector.resume_native_call_attempt_monotonic})
                 started = time.monotonic()
                 target, target_identity = None, None
-                logs = [control / "collector-stdout.log", control / "collector-stderr.log",
-                        Path(stage["capture"]["out"]) / "stdout.log", Path(stage["capture"]["out"]) / "stderr.log"]
+                gate_busy=None
                 while True:
                     watch.check()
                     if modules:modules.check()
-                    heartbeat()
-                    scanner.check(logs)
-                    with gate:
-                        gate.check()
-                        if target is None:
-                            watch.check()
-                            target, target_identity = _registration(packet, stage, control, collector, collector_identity, journal,watch.check)
-                            if target is not None:
-                                target_registered_at = time.monotonic()
-                        allowed = {collector.pid} | ({target.pid} if target else set())
-                        require(job.pids() <= allowed, "Unregistered/orphan process in containment job")
-                        reject_unowned_renderer(packet["renderer"], [target_identity] if target_identity else [])
-                        verify_roots(packet)
-                        verify_registry(packet)
+                    integrity.check();roots.check()
+                    if gate.acquire(timeout=0):
+                        try:
+                            gate_busy=None
+                            gate.check()
+                            if target is None:
+                                watch.check()
+                                def registration_health():
+                                    watch.check();integrity.check();roots.check();verify_registry(packet)
+                                target, target_identity = _registration(packet, stage, control, collector, collector_identity, journal,registration_health)
+                                if target is not None:
+                                    target_registered_at = time.monotonic()
+                            allowed = {collector.pid} | ({target.pid} if target else set())
+                            require(job.pids() <= allowed, "Unregistered/orphan process in containment job")
+                            reject_unowned_renderer(packet["renderer"], [target_identity] if target_identity else [])
+                            roots.check()
+                            verify_registry(packet)
+                        finally:
+                            gate.__exit__()
+                    else:
+                        if gate_busy is None:gate_busy=time.monotonic()
+                        require(time.monotonic()-gate_busy < GATE_BUSY_LIMIT,"Shared gate critical section stalled")
                     code = collector.poll()
                     if target is not None and modules is None and packet.get("module_policy") and (control/"target-resumed.json").exists():
                         modules=ModuleWatch(packet,target,target_identity,journal,watch);modules.start()
@@ -422,6 +470,7 @@ def execute(packet, approval, output, *, readers=None):
                             "Collector deadline/hang (includes bounded preparation/finalization)")
                     if target is None:
                         require(time.monotonic() - started <= 30, "Collector failed to register target")
+                    heartbeat()
                     if code is not None:
                         require(code == 0 and target is not None, "Collector failed/exited without target")
                         require(target.poll() == 0, "Renderer remained/orphaned or exited with error")
@@ -448,7 +497,7 @@ def execute(packet, approval, output, *, readers=None):
                 while time.monotonic() < until:
                     watch.check()
                     heartbeat()
-                    scanner.check(logs)
+                    integrity.check();roots.check()
                     with gate:
                         gate.check()
                         require(not job.pids(), "Orphan child after collector exit")
@@ -463,10 +512,12 @@ def execute(packet, approval, output, *, readers=None):
                 journal.append("stage-telemetry-fence", {"raw_utf8": raw.decode(errors="replace"), "readback": telemetry(raw, packet["telemetry"], packet["temperature_limit_c"])})
                 with gate:
                     gate.check()
+                    roots.check();integrity.check();verify_registry(packet)
                     for lock in locks:
                         lock.verify()
                     journal.append("stage-complete", {"stage": stage["name"], "late_event_grace_seconds": 15})
                     journal.append("stage-artifacts", {"root": stage["capture"]["out"], "files": inventory(stage["capture"]["out"])})
+                integrity.finish();last_integrity=integrity;integrity=None
                 watch = Watch(packet, fence_baseline, journal, watch.readers)
                 watch.start()
                 target.close()
@@ -474,15 +525,25 @@ def execute(packet, approval, output, *, readers=None):
                 collector.close()
                 collector = None
         watch.finish()
+        # No process can launch again. Fence observers outside the spawn lock;
+        # the final serialized native checks still reject any intervening STOP.
+        final = watch.readers.call("event", watch.baseline)
+        watch.baseline = continuity(watch.baseline, final)
+        journal.append("final-events", final)
+        raw = watch.readers.call("telemetry")
+        journal.append("final-telemetry", {"raw_utf8": raw.decode(errors="replace"), "readback": telemetry(raw, packet["telemetry"], packet["temperature_limit_c"])})
+        # No target/collector remains. Complete an explicit bounded fresh deep
+        # audit after the final asynchronous observers before final acceptance.
+        final_integrity_start=time.monotonic()
+        last_integrity.audit_request=None
+        final_integrity_checks=last_integrity.reader.call("telemetry")
+        journal.append("integrity-final-fence",{"schema":"physical-supervisor/integrity-final-fence-v1","packet_sha256":packet_sha,"stage":stage["name"],
+            "supervisor":supervisor_identity,"started_monotonic":final_integrity_start,
+            "finished_monotonic":time.monotonic(),"checks":final_integrity_checks,"status":"PASS","policy":last_integrity.latest[0]["policy"]})
         with gate:
             gate.check()
-            # A final synchronous native read fences the completed async grace.
-            final = watch.readers.call("event", watch.baseline)
-            watch.baseline = continuity(watch.baseline, final)
-            journal.append("final-events", final)
-            raw = watch.readers.call("telemetry")
-            journal.append("final-telemetry", {"raw_utf8": raw.decode(errors="replace"), "readback": telemetry(raw, packet["telemetry"], packet["temperature_limit_c"])})
             require(not job.pids(), "Final orphan process")
+            roots.check();verify_registry(packet)
             status, error = "COLLECTED_PENDING_ACCEPTANCE", ""
     except BaseException as caught:
         status = "FAILED_STOP"
@@ -504,6 +565,13 @@ def execute(packet, approval, output, *, readers=None):
         except BaseException as receipt_error:
             error += "; failure receipt: " + str(receipt_error)
     finally:
+        if integrity:
+            try:integrity.finish()
+            except BaseException as integrity_error:
+                status,error="FAILED_STOP",error+"; integrity completion: "+str(integrity_error)
+                try:
+                    with gate:gate.stop(error)
+                except BaseException:pass
         if modules:
             try:modules.finish(require_complete=False)
             except BaseException as module_error:
@@ -540,6 +608,7 @@ def execute(packet, approval, output, *, readers=None):
                 process.close()
         for lock in locks:
             lock.close()
+        if roots:roots.close()
         journal.append("final", {"status": status, "error": error, "physical_gpu_qualified": False,
                                   "performance_accepted": False, "automatic_retries": 0})
         phase_artifacts = [{"root": stage["capture"]["out"], "files": inventory(stage["capture"]["out"])}

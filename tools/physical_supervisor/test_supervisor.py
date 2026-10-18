@@ -21,7 +21,7 @@ import types
 import unittest
 from unittest.mock import patch
 
-from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, environment_policy, sealed_environment, REGISTRY_KEYS, DISPLAY_CLASS, CONTROL_VIDEO, verify_registry, linklike
+from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, environment_policy, sealed_environment, REGISTRY_KEYS, DISPLAY_CLASS, CONTROL_VIDEO, verify_registry, linklike, INTEGRITY_POLICY
 from .readers import BoundedReaders, NativeEvents, continuity, telemetry, gpu_reader,bounded_host_identity,check_host_identity,NVML_POWER_USAGE_MAX_WATTS,NVML_POWER_USAGE_CSV_MAX_WATTS
 from .supervisor import LogScanner, Watch, terminate_owned
 
@@ -533,6 +533,7 @@ class PacketAndApprovalTests(TempCase):
                          "configuration":"synthetic","toolchain":"synthetic","flags":[],"source_snapshot":pin(snapshot)})
         expires=(dt.datetime.now(dt.timezone.utc)+dt.timedelta(hours=1)).isoformat()
         packet={"schema":"physical-supervisor/packet-v1","experiment_id":"CPU-PACKET-TEST","kind":"diagnostic",
+                "integrity_policy":dict(INTEGRITY_POLICY),
                 "source":source_identity,"automatic_retries":0,"created_utc":utc(),"expires_utc":expires,
                 "host_identity":dict(SYNTHETIC_HOST),
                 "monitor":{"gpu_seconds":1,"event_seconds":5,"reader_timeout_seconds":10,"completion_grace_seconds":15},

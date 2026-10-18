@@ -12,6 +12,7 @@ import hashlib
 import os
 from pathlib import Path
 import subprocess
+import time
 
 from .common import Stop, normalized, require, stream_digest
 
@@ -50,6 +51,16 @@ if os.name == "nt":
     next_process = signature("Process32NextW", w.BOOL, [w.HANDLE, c.POINTER(PROCESSENTRY)])
     enum_modules = signature("K32EnumProcessModulesEx", w.BOOL, [w.HANDLE, c.POINTER(w.HMODULE), w.DWORD, c.POINTER(w.DWORD), w.DWORD])
     module_path = signature("K32GetModuleFileNameExW", w.DWORD, [w.HANDLE, w.HMODULE, w.LPWSTR, w.DWORD])
+    change_first = signature("FindFirstChangeNotificationW", w.HANDLE, [w.LPCWSTR, w.BOOL, w.DWORD])
+    change_close = signature("FindCloseChangeNotification", w.BOOL, [w.HANDLE])
+    volume_path = signature("GetVolumePathNameW", w.BOOL, [w.LPCWSTR, w.LPWSTR, w.DWORD])
+    volume_info = signature("GetVolumeInformationW", w.BOOL, [w.LPCWSTR,w.LPWSTR,w.DWORD,c.c_void_p,c.c_void_p,c.c_void_p,w.LPWSTR,w.DWORD])
+    drive_type = signature("GetDriveTypeW", w.UINT, [w.LPCWSTR])
+    class FILEINFO(c.Structure):
+        _fields_ = [("attributes",w.DWORD),("created",w.FILETIME),("accessed",w.FILETIME),("written",w.FILETIME),
+                    ("volume",w.DWORD),("size_high",w.DWORD),("size_low",w.DWORD),("links",w.DWORD),
+                    ("index_high",w.DWORD),("index_low",w.DWORD)]
+    file_info = signature("GetFileInformationByHandle",w.BOOL,[w.HANDLE,c.POINTER(FILEINFO)])
 
     class BASIC(c.Structure):
         _fields_ = [("Reserved1", c.c_void_p), ("Peb", c.c_void_p),
@@ -151,6 +162,79 @@ class FileLock:
             self.handle = None
 
 
+class RootGuard:
+    """Terminal native invalidation, established before any audited generation.
+
+    Notifications exclude the watched root itself, so retained no-delete
+    handles and path/file-ID/reparse checks also cover every root ancestor.
+    This policy supports local fixed NTFS only; it never resets a signal.
+    """
+    def __init__(self, packet):
+        from .common import linklike
+        platform_check()
+        self.directories, self.changes = [], []
+        self.failure = None;self.closed=False
+        try:
+            paths = set()
+            for row in packet["runtime_roots"]:
+                root = Path(row["path"])
+                for path in (root, *root.parents):
+                    require(not linklike(path), "Root guard encountered reparse point")
+                    paths.add(path)
+                volume=c.create_unicode_buffer(32768)
+                checked(volume_path(str(root),volume,len(volume)),"Read guarded volume")
+                filesystem=c.create_unicode_buffer(256)
+                checked(volume_info(volume.value,None,0,None,None,None,filesystem,len(filesystem)),"Read guarded filesystem")
+                require(drive_type(volume.value)==3 and filesystem.value=="NTFS", "Root guard requires local fixed NTFS")
+            for path in sorted(paths):
+                handle=create_file(str(path),0x80,3,None,3,0x02000000,None)
+                require(handle not in (None,c.c_void_p(-1).value),"Cannot retain guarded directory")
+                try:identity=self._identity(handle)
+                except BaseException:
+                    close(handle)
+                    raise
+                self.directories.append((path,handle,identity))
+            for row in packet["runtime_roots"]:
+                handle=change_first(row["path"],True,0x1|0x2|0x4|0x8|0x10|0x100)
+                require(handle not in (None,c.c_void_p(-1).value),"Cannot establish runtime change notification")
+                self.changes.append(handle)
+            self.check()
+        except BaseException:
+            self.close()
+            raise
+
+    @staticmethod
+    def _identity(handle):
+        info=FILEINFO()
+        checked(file_info(handle,c.byref(info)),"Read guarded directory identity")
+        require(info.attributes & 0x10 and not info.attributes & 0x400,"Guarded directory became reparse point")
+        return (info.volume,info.index_high,info.index_low)
+
+    def check(self):
+        from .common import linklike
+        require(not self.closed,"Root guard is closed")
+        require(self.failure is None,self.failure or "Root guard invalid")
+        try:
+            for handle in self.changes:
+                require(wait(handle,0)==258,"Runtime change notification signaled/failed; proof invalidated")
+            for path,handle,expected in self.directories:
+                require(not linklike(path),"Guarded root/ancestor became reparse point")
+                current=create_file(str(path),0x80,3,None,3,0x02000000,None)
+                require(current not in (None,c.c_void_p(-1).value),"Cannot re-open guarded directory binding")
+                try:require(self._identity(current)==expected,"Guarded directory path identity changed")
+                finally:close(current)
+                require(self._identity(handle)==expected,"Guarded directory handle identity changed")
+        except BaseException as error:
+            self.failure=str(error)
+            raise
+
+    def close(self):
+        for handle in self.changes:change_close(handle)
+        for _,handle,_ in self.directories:close(handle)
+        self.changes,self.directories=[],[]
+        self.closed=True
+
+
 class Process:
     def __init__(self, handle, thread=None, pid=None):
         self.handle, self.thread = handle, thread
@@ -163,7 +247,7 @@ class Process:
         return cls(checked(open_process(0x1000 | 0x0400 | 0x00100000 | 1 | 0x10, False, pid), "Open owned process"), pid=pid)
 
     @classmethod
-    def spawn(cls, argv, cwd, stdout, stderr, *, env=None, job=None):
+    def spawn(cls, argv, cwd, stdout, stderr, *, env=None, job=None, before_create=None):
         platform_check()
         import _winapi
         import msvcrt
@@ -176,12 +260,19 @@ class Process:
             startup.hStdInput, startup.hStdOutput, startup.hStdError = handles
             startup.lpAttributeList = {"handle_list": handles}
             try:
-                handle, thread, pid, _ = _winapi.CreateProcess(str(Path(argv[0]).resolve(strict=True)),
-                    subprocess.list2cmdline(argv), None, None, True, 0x4 | 0x200, env, str(cwd), startup)
+                executable=str(Path(argv[0]).resolve(strict=True))
+                command_line=subprocess.list2cmdline(argv)
+                working_directory=str(cwd)
+                not_after=before_create() if before_create else None
+                create_attempt=time.monotonic()
+                require(not_after is None or create_attempt<not_after,"Native creation proof expired before call attempt")
+                handle, thread, pid, _ = _winapi.CreateProcess(executable,
+                    command_line, None, None, True, 0x4 | 0x200, env, working_directory, startup)
             finally:
                 for item in handles:
                     os.set_handle_inheritable(item, False)
         result = cls(handle, thread, pid)
+        result.create_native_call_attempt_monotonic=create_attempt
         # Retain the suspended owned handle on assign failure so caller can
         # record/verify/terminate it. No renderer code runs before assignment.
         if job:
@@ -221,9 +312,13 @@ class Process:
         checked(get_exit(self.handle, c.byref(value)), "Process exit read")
         return value.value
 
-    def resume(self, expected):
+    def resume(self, expected, *, before_resume=None):
         self.verify(expected)
         require(self.thread is not None, "No owned primary thread")
+        not_after=before_resume() if before_resume else None
+        resume_attempt=time.monotonic()
+        require(not_after is None or resume_attempt<not_after,"Native resume proof expired before call attempt")
+        self.resume_native_call_attempt_monotonic=resume_attempt
         require(resume_thread(self.thread) == 1, "Primary thread was not suspended exactly once")
         close(self.thread)
         self.thread = None
@@ -231,10 +326,22 @@ class Process:
     def kill(self, expected):
         if self.poll() is not None:
             return False
-        self.verify(expected)
+        try:self.verify(expected)
+        except BaseException:
+            if self.exited_owned(expected):return False
+            raise
         checked(terminate(self.handle, 0xE0000001), "Terminate owned authenticated handle")
         require(wait(self.handle, 5000) == 0, "Owned termination did not complete")
         return True
+
+    def exited_owned(self, expected):
+        """Classify only a positively exited SAME held object; never terminate.
+
+        Windows can tear down image-path information between an active poll
+        and identity query. No live/inaccessible object receives this exception.
+        """
+        return (self.poll() is not None and get_pid(self.handle)==self.pid==expected["pid"] and
+                creation(self.handle)==expected["creation_ticks"])
 
     def modules(self, expected):
         self.verify(expected)
@@ -306,7 +413,9 @@ def reject_unowned_renderer(renderer, allowed=()):
                 process = Process.open(row.pid)
                 try:
                     if process.poll() is None:
-                        process.verify(expected[row.pid])
+                        try:process.verify(expected[row.pid])
+                        except BaseException:
+                            if not process.exited_owned(expected[row.pid]):raise
                     else:
                         # An already owned, held object can be observed during
                         # image teardown when QueryFullProcessImageName fails.

@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 import shutil
 
-from .common import exclusive, normalized, pin, require, utc, validate_packet, environment_policy, read_registry_policy, REGISTRY_KEYS, read_registry_enumeration_policy, DISPLAY_CLASS, CONTROL_VIDEO, linklike
+from .common import exclusive, normalized, pin, require, utc, validate_packet, environment_policy, read_registry_policy, REGISTRY_KEYS, read_registry_enumeration_policy, DISPLAY_CLASS, CONTROL_VIDEO, linklike, INTEGRITY_POLICY
 
 
 def checked_directory(path):
@@ -41,6 +41,7 @@ def diagnostic_packet(seed):
                  seed["prepared"],Path(seed["iwad"]).parent]:
         checked_directory(path)
     packet.update(schema="physical-supervisor/packet-v1", kind="diagnostic", automatic_retries=0,
+                  integrity_policy=dict(INTEGRITY_POLICY),
                   monitor={"gpu_seconds": 1, "event_seconds": 5, "reader_timeout_seconds": 10,
                            "completion_grace_seconds": 15}, temperature_limit_c=seed.get("temperature_limit_c", 80))
     packet.setdefault("created_utc", utc())

@@ -11,6 +11,10 @@ one state/RGB frame, 180 seconds, exact comparison and zero retries.
 `kind=campaign` is deliberately rejected. The separate 41-process campaign
 needs its own fully implemented workload/coverage gate and review.
 
+Closed runtime roots must be on local fixed NTFS volumes. The packet constructor
+adds an exact `integrity_policy`; packets without this policy require a new
+prospective review and approval. Existing packets are never upgraded at runtime.
+
 ## No-launch preparation
 
 Use Python 3.10 or later on Windows. A private seed supplies:
@@ -113,6 +117,42 @@ CIM's reported precision before accepting a host packet. See Microsoft's
 and the [System Informer native boot-time reader](https://github.com/winsiderss/systeminformer/blob/master/phlib/include/phnativeinl.h).
 
 ## Containment and evidence
+
+Deep closed-directory and append-only log audits run in one bounded worker,
+separate from the supervisor control loop. Canonical expected memberships are
+computed once; every audit still enumerates current membership and rejects
+reparse points. Each exclusive generation receipt records its packet, stage,
+supervisor creation identity, sequence, start/finish times, coverage and policy.
+The worker never publishes heartbeats or controls a process. A dead worker,
+failure, queue overflow, ten-second audit timeout or successful generation older
+than ten seconds from its start stops the experiment without a retry.
+
+Before collector and target creation, a new one-use request binds a nonce,
+source-preflight pin and the exact known owner. Its audit must start after the
+request and finish within ten seconds of it; the target audit independently
+rehashes every generated input while the collector's immutable locks are held.
+Creation, target acknowledgement and resume require that generation
+to have completed less than 0.5 seconds earlier. The same proof must remain valid
+through final native creation/resume checks; an expired proof stops rather than
+requesting another attempt. Heartbeats retain their 0.5-second schedule and strict
+two-second parent guard. Both processes poll the shared gate without blocking
+their health/deadline checks; one second of gate contention is a STOP.
+
+Retained no-delete directory handles bind roots and ancestors by volume/file ID.
+Recursive native change notifications are installed before audits, and a signal,
+invalid handle, changed path binding or reparse point permanently invalidates the
+generation. Signals are never reset. Existing immutable file locks protect bytes;
+notifications protect namespace membership between deep checks. This policy
+rejects remote and unsupported filesystems. See Microsoft's
+[change-notification limitations](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-findfirstchangenotificationw).
+Exact registry and process ownership readbacks remain in each serialized launch
+boundary. Completed JSON is flushed and atomically published without overwriting
+an existing receipt, so coordination readers cannot observe a partial writer.
+Lifecycle records retain monotonic timestamps captured immediately before native
+creation/resume calls, after their final checks. These are call-attempt times;
+kernel creation FILETIME remains the separate process identity. The live mutable
+config stays locked through resume preparation and is verified/released in the
+last native callback; its release-ready and actual-release records are distinct.
 
 The supervisor creates a suspended collector in an inventory-only Windows job.
 The collector creates a suspended target, retains its process and primary-thread
