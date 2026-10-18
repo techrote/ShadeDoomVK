@@ -8,7 +8,8 @@ import subprocess
 import tempfile
 import unittest
 
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import (
+    compile_legacy_fixture as compile_fixture, extracted_legacy_scope)
 from tools.pf_oracle.tests.sdvk014_source import block, current as builder_source
 from tools.pf_oracle.tests.sdvk153_source import ROOT, fragments, retained
 from tools.pf_oracle.tests import pf113_source_extract
@@ -34,7 +35,9 @@ def build(directory: Path, original: bool=False, mutate=None) -> Path:
     if mutate is not None:
         mutate(source)
     (directory/'sdvk153_producers.cpp').write_text('\n\n'.join(source.values()))
-    (directory/'sdvk153_builder.cpp').write_text('\n\n'.join(builder_source(key) for key in ('probe_step','probe_full')))
+    # Preserve exact builder bodies; only bounded size_t-to-int warning is scoped.
+    (directory/'sdvk153_builder.cpp').write_text(extracted_legacy_scope(
+        '\n\n'.join(builder_source(key) for key in ('probe_step','probe_full')), (4267,)))
     return compile_fixture(HERE/'sdvk153_descriptor_lifetime_fixture.cpp',output_dir=directory,
         includes=[directory,DATA,DESCRIPTORS,ROOT/'src/common/rendering',
                   ROOT/'src/common/utility',ROOT/'src/common/thirdparty'])

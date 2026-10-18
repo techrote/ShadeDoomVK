@@ -1380,3 +1380,27 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - This is a source/correctness correction, not a performance workaround. No
   duplicate native run, quality reduction or physical-GPU claim is introduced.
   Fresh exact-head CI remains required. #14 remains open; Physical STOP active.
+
+### 18 October 2026 — SDVK-009 Windows supervisor qualification candidate
+
+- Kept the renderer candidate frozen at accepted `130d09ac4267d02359c7c2603ceced723ceac746`,
+  tree `50c749a848c35f04780140e4d06e9f4fdeb57ff6`; the independent supervisor has
+  a separate software identity. No pending SDVK-014 renderer source is imported.
+- Added no-launch packet preparation and a Windows diagnostic supervisor with
+  suspended process registration, creation-time ownership, immutable input pins,
+  durable STOP serialization, bounded telemetry/System-event readers, registry
+  and loaded-module observation, stage fences and independently repeated native
+  receipt validation. Historical private launchers are never executed.
+- Added synthetic failure controls and benign Windows CPU child integration
+  tests to the existing CPU gate and existing Windows RelWithDebInfo job. The
+  nine-job GitHub-hosted policy is preserved; physical tests do not run in CI.
+- Fixed Windows test portability: retain authenticated historical fixture bytes,
+  limit legacy MSVC warning treatment to exact fixture header scopes, and write
+  synthetic publication witnesses with explicit LF. Production renderer code,
+  thresholds and historical negative evidence are unchanged.
+- [The supervisor contract](SDVK-009-WINDOWS-SUPERVISOR.md) describes separate
+  packet authorization, the three-process diagnostic and the later campaign
+  boundary. Final software checks, independent review and actual physical
+  receipts remain required. This entry awards no diagnostic or performance PASS.
+- Issue #9 remains OPEN / NOT ACCEPTED. Physical STOP remains active until a
+  reviewed experiment is authorized; historical NVIDIA cause is UNDETERMINED.

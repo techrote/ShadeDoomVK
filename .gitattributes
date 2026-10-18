@@ -29,3 +29,13 @@ language.*	text
 
 # PF-113 original-source snapshots are hash-pinned data; preserve exact bytes.
 tools/pf_oracle/fixtures/pf113-original/* -text
+
+# Immutable historical CPU fixture inputs are authenticated by their Git bytes.
+# Windows autocrlf must not rewrite these receipts or retained source snapshots.
+tools/pf_oracle/tests/fixtures/*pre_fix* -text
+tools/pf_oracle/tests/fixtures/*-pre-fix* -text
+tools/pf_oracle/tests/fixtures/sdvk156-pre-fix/* -text
+
+# Supervisor source pins must survive Windows checkout without byte drift.
+tools/physical_supervisor/** text eol=lf
+tools/pf_oracle/tests/legacy_msvc_fixture.py text eol=lf
