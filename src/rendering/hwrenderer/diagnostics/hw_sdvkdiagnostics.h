@@ -2,8 +2,11 @@
 #include <atomic>
 #include <cstdint>
 #include <string>
+#include "hw_specialsurfacecontract.h"
 
 struct HWDrawInfo;
+struct FFlatVertex;
+class LevelMesh;
 struct HWSpriteRenderSurfaceState;
 struct HWSpriteTangentBasis;
 namespace HWActorProbeSelection { struct Result; }
@@ -74,10 +77,12 @@ struct SpecialSurfaceMetadata
     double Plane[4] = {};
     bool HasPlane = false;
     bool FirstDrawOnly = false;
-    struct UvVertexSnapshot { float X = 0, Y = 0, Z = 0, U = 0, V = 0; } UvVertices[4];
-    int UvVertexCount = 0;
+    SdvkSurfaceObservation::WrittenVertices WrittenUV;
     const char* UvScope = "no receiving atlas UV validation is available for this producer";
 };
+// Frame-owned copies of the actual writer output; collection is default-off.
+void CaptureWrittenVertices(const LevelMesh* mesh, int first, int count, int tile, const FFlatVertex* written);
+void ApplyWrittenVertices(SpecialSurfaceMetadata& value);
 const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata();
 class SpecialSurfaceScope
 {

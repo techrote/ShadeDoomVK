@@ -89,6 +89,7 @@ static int get_gl_spritelight() { return 0; }
 struct ShadowMap { static constexpr int LightsCandidates = 0, LightsShadowmapped = 0, LightsDropped = 0; };
 static const char* screenshot_type = "png";
 static bool screenshot_quiet = true;
+static int con_notifylines = 0;
 static void M_ScreenShot(const char*) { throw std::logic_error("CPU fixture cannot take screenshots"); }
 static void AddCommandString(const char*) { throw std::logic_error("CPU fixture cannot run console commands"); }
 static constexpr int PRINT_HIGH = 1, PRINT_NONOTIFY = 2;
@@ -115,6 +116,7 @@ void DriveSpecialSurfaceInput(const Observer&) {}
 namespace SdvkDiagnostics
 {
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
+SdvkSurfaceObservation::WrittenVertexStore WrittenVertices;
 bool SpecialSurfaceEnabled() { return false; }
 bool SpecialSurfaceFrameSelected() { return false; }
 const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata()

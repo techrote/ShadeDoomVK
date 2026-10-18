@@ -525,11 +525,63 @@
       "kind": "cpu_contract",
       "native_rendering_proof": false,
       "test_path": "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py"
+    },
+    "sdvk161-material-reset": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk161_material_reset.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sdvk161_material_reset.py",
+      "retained_fixture": "tools/pf_oracle/tests/fixtures/sdvk161-material-reset-pre-fix.json"
+    },
+    "sdvk161-receiver-writer": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk161_receiver_writer.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sdvk161_receiver_writer.py"
+    },
+    "sdvk161-notifications": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/renderer_oracle/tests",
+        "-p",
+        "test_sdvk161_notifications.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/renderer_oracle/tests/test_sdvk161_notifications.py"
     }
   },
   "cvar_sources": {
     "cl_capfps": [
       "src/common/rendering/v_framebuffer.cpp"
+    ],
+    "con_notifylines": [
+      "src/console/c_notifybuffer.cpp"
     ],
     "crosshair": [
       "src/g_statusbar/shared_sbar.cpp"
@@ -18035,13 +18087,49 @@
           "-p",
           "test_sdvk161_special_surfaces.py",
           "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk161_material_reset.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk161_receiver_writer.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk161_notifications.py",
+          "-v"
         ]
       ],
       "cpu_contracts": [
         "sdvk161-flat-ownership",
         "sdvk161-decal-ownership",
         "sdvk161-retained-plane",
-        "sdvk161-submitted-state"
+        "sdvk161-submitted-state",
+        "sdvk161-material-reset",
+        "sdvk161-receiver-writer",
+        "sdvk161-notifications"
       ],
       "id": "special-surface-lifecycle",
       "native": {
@@ -18103,6 +18191,7 @@
         ],
         "console_queries": [
           "cl_capfps",
+          "con_notifylines",
           "crosshair",
           "gl_bloom",
           "gl_customshader",
@@ -18162,7 +18251,12 @@
         },
         "manual_opt_in": true,
         "map": "SDV161A",
-        "map_sequence": ["SDV161A", "SDV161A", "SDV161B", "SDV161B"],
+        "map_sequence": [
+          "SDV161A",
+          "SDV161A",
+          "SDV161B",
+          "SDV161B"
+        ],
         "map_guard": {
           "equals": "SDV161A",
           "field": "observed map name"
@@ -18191,6 +18285,7 @@
         "seed": 161,
         "settings": {
           "cl_capfps": true,
+          "con_notifylines": 0,
           "crosshair": 0,
           "gl_bloom": false,
           "gl_customshader": true,
@@ -18229,6 +18324,11 @@
           "vk_rayquery": false
         },
         "special_surface_schedule": [
+          {
+            "after_main_views": 32,
+            "command": "invalidatelightmap",
+            "phase": "invalidate-a-retained-start"
+          },
           {
             "after_main_views": 40,
             "command": "invalidatelightmap",
@@ -18300,7 +18400,33 @@
           80,
           88,
           96
-        ]
+        ],
+        "map_cameras": {
+          "SDV161A": {
+            "actor_tid": 2002,
+            "camera_height": 0,
+            "pitch": 0,
+            "position": [
+              -192,
+              0,
+              64
+            ],
+            "roll": 0,
+            "yaw": 0
+          },
+          "SDV161B": {
+            "actor_tid": 2002,
+            "camera_height": 0,
+            "pitch": 0,
+            "position": [
+              1060,
+              -176,
+              64
+            ],
+            "roll": 0,
+            "yaw": 90
+          }
+        }
       },
       "negative_fixtures": [
         "tools/pf_oracle/tests/test_sdvk014_flat_surface_ownership.py",
@@ -18311,7 +18437,12 @@
         "tools/pf_oracle/tests/test_sdvk014_portal_receivers.py",
         "tools/pf_oracle/tests/test_sdvk014_flat_bake_plane.py",
         "tools/pf_oracle/tests/test_sdvk014_decal_ownership.py",
-        "tools/pf_oracle/tests/test_sdvk014_retained_plane.py"
+        "tools/pf_oracle/tests/test_sdvk014_retained_plane.py",
+        "tools/pf_oracle/tests/test_sdvk161_material_reset.py",
+        "tools/pf_oracle/tests/test_sdvk161_receiver_writer.py",
+        "tools/renderer_oracle/tests/test_sdvk161_notifications.py",
+        "tools/renderer_oracle/tests/test_sdvk161_camera.py",
+        "tools/pf_oracle/tests/test_sdvk161_portal_selection.py"
       ],
       "required_state_channels": [
         "context",
@@ -18344,7 +18475,39 @@
         "src/rendering/hwrenderer/scene/hw_portal.cpp",
         "tools/renderer_oracle/tests/test_sdvk161_checkpoints.py",
         "tools/renderer_oracle/tests/test_sdvk161_surface_observer.py",
-        "src/rendering/hwrenderer/diagnostics/hw_specialsurfacecontract.h"
+        "src/rendering/hwrenderer/diagnostics/hw_specialsurfacecontract.h",
+        "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp",
+        "src/common/rendering/hwrenderer/data/hw_lightmaptile.h",
+        "src/common/rendering/hwrenderer/data/hw_surfaceuniforms.h",
+        "src/common/rendering/vulkan/descriptorsets/vk_descriptorset.cpp",
+        "src/common/rendering/vulkan/textures/vk_hwtexture.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.cpp",
+        "src/common/rendering/vulkan/vk_renderdevice.h",
+        "src/common/rendering/vulkan/vk_levelmesh.cpp",
+        "src/common/rendering/vulkan/vk_levelmesh.h",
+        "src/rendering/hwrenderer/scene/hw_walls_vertex.cpp",
+        "src/rendering/hwrenderer/scene/hw_walls.cpp",
+        "src/rendering/hwrenderer/scene/hw_drawstructs.h",
+        "src/rendering/hwrenderer/scene/hw_drawlistadd.cpp",
+        "src/rendering/hwrenderer/scene/hw_bsp.cpp",
+        "src/rendering/hwrenderer/scene/hw_portal.h",
+        "src/rendering/hwrenderer/doom_levelmesh.h",
+        "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.h",
+        "src/console/c_notifybuffer.cpp",
+        "src/common/console/c_notifybufferbase.cpp",
+        "tools/pf_oracle/tests/sdvk014_source.py",
+        "tools/pf_oracle/tests/test_sdvk014_decal_ownership.py",
+        "tools/pf_oracle/tests/test_sdvk161_material_reset.py",
+        "tools/pf_oracle/tests/sdvk161_material_reset_fixture.cpp",
+        "tools/pf_oracle/tests/fixtures/sdvk161-material-reset-pre-fix.json",
+        "tools/pf_oracle/tests/test_sdvk161_receiver_writer.py",
+        "tools/renderer_oracle/tests/test_sdvk161_notifications.py",
+        "tools/renderer_oracle/tests/test_sdvk161_camera.py",
+        "src/rendering/r_utility.cpp",
+        "src/playsim/portal.h",
+        "src/playsim/portal.cpp",
+        "src/rendering/hwrenderer/diagnostics/hw_lineportalobservation.h",
+        "tools/pf_oracle/tests/test_sdvk161_portal_selection.py"
       ],
       "title": "Special-surface/material lifecycle and semantic ownership"
     }

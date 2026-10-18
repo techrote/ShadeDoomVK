@@ -179,7 +179,9 @@ class SpecialSurfaceCheckpointArtifactTests(unittest.TestCase):
     def test_retained_run_calls_original_manifest_gate_before_checkpoint_readmission(self):
         tree = ast.parse(inspect.getsource(run._validate_run))
         branches = [node for node in ast.walk(tree) if isinstance(node, ast.If)
-                    and "special_surface_lifecycle" in ast.unparse(node.test)]
+                    and "special_surface_lifecycle" in ast.unparse(node.test)
+                    and any(isinstance(call, ast.Call) and isinstance(call.func, ast.Name)
+                            and call.func.id == "validate_checkpoint_images" for call in ast.walk(node))]
         self.assertEqual(len(branches), 1)
         calls = [node for node in ast.walk(branches[0]) if isinstance(node, ast.Call)
                  and isinstance(node.func, ast.Name)]

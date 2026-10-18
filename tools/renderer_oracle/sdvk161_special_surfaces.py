@@ -25,6 +25,7 @@ WARMUP = 32
 FRAMES = 96
 DEADLINE = 600
 SCHEDULE = [
+    {"after_main_views": 32, "phase": "invalidate-a-retained-start", "command": "invalidatelightmap"},
     {"after_main_views": 40, "phase": "invalidate-a-1", "command": "invalidatelightmap"},
     {"after_main_views": 48, "phase": "filter-linear-a", "command": "gl_texture_filter 4"},
     {"after_main_views": 56, "phase": "reload-a", "command": "map SDV161A"},
@@ -37,6 +38,30 @@ SCHEDULE = [
     {"after_main_views": 112, "phase": "filter-nearest-b", "command": "gl_texture_filter 0"},
     {"after_main_views": 120, "phase": "invalidate-b-2", "command": "invalidatelightmap"},
 ]
+MAP_CAMERAS = {
+    MAP_A: {"position": [-192, 0, 64], "yaw": 0, "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002},
+    MAP_B: {"position": [1060, -176, 64], "yaw": 90, "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002},
+}
+
+# Independent complete ownership recipe for the authored B map. Missing texture
+# slots and the excluded inverse/both-side 3D-floor paths are not receivers.
+B_SIDE_SECTORS = (0, 0, 0, 0, 2, 0, 0, 2, 2, 2, 1, 1, 3, 1, 1, 1, 1, 3, 3, 3,
+                  4, 4, 4, 4, 5, 5, 5, 5, 1, 6, 1, 6, 1, 6, 1, 6)
+B_SECTOR_GROUPS = {0: 1, 1: 2, 2: 1, 3: 2, 4: 0, 5: 0, 6: 2}
+B_WALL_MATERIALS = {
+    **{(side, 1, -1): "SDVW" for side in (0, 1, 2, 5, 6, 7, 8, 9, 10, 13, 14, 15, 16, 17, 18, 19)},
+    **{(side, 1, -1): f"S161S{control}" for control, sides in ((4, range(20, 24)), (5, range(24, 28))) for side in sides},
+    **{(side, kind, -1): name for side in (28, 30, 32, 34) for kind, name in ((2, "S161PN"), (3, "S161HO"))},
+    **{(side, 1, control): f"S161S{control}" for side in (28, 30, 32, 34) for control in (4, 5)},
+}
+B_ORDINARY_FLATS = {
+    **{(sector, kind): ("SDVFL", height) for sector, floor, ceiling in
+       ((0, 0, 160), (1, 0, 160), (2, 0, 160), (3, 0, 160), (6, 16, 144))
+       for kind, height in ((5, floor), (4, ceiling))},
+    **{(sector, kind): (f"S161{plane}{sector}", height) for sector, floor, ceiling in ((4, 32, 48), (5, 96, 112))
+       for kind, plane, height in ((5, "B", floor), (4, "T", ceiling))},
+}
+
 WITNESS_FRAMES = tuple(range(8, FRAMES + 1, 8))
 CURRENT_UV_TOLERANCE = 2.0 ** -21  # Four IEEE-754 float epsilons; never an RGB tolerance.
 LIFECYCLE_RGB_GROUPS = (
@@ -63,6 +88,8 @@ def validate_recipe(scene: dict) -> None:
     native = scene["native"]
     require(scene["id"] == SCENE and native.get("generator") == "special_surface_lifecycle"
             and native.get("map") == MAP_A, "Unknown SDVK-161 special-surface recipe")
+    require(native.get("camera") == MAP_CAMERAS[MAP_A] and native.get("map_cameras") == MAP_CAMERAS,
+            "SDVK-161 per-map camera recipe differs")
     require(native.get("special_surface_schedule") == SCHEDULE,
             "SDVK-161 special-surface schedule differs from preregistration")
     require(native.get("recommended_warmup_frames") == WARMUP,
@@ -79,6 +106,11 @@ def validate_recipe(scene: dict) -> None:
     require(quiet == ["screenshot_quiet true"],
             "SDVK-161 checkpoint screenshots require exactly one quiet-output command")
     settings = native["settings"]
+    require(type(settings.get("con_notifylines")) is int and settings["con_notifylines"] == 0,
+            "SDVK-161 checkpoint notification lines require typed con_notifylines=0")
+    require(not any(re.search(r"(?<![A-Za-z0-9_])con_notifylines(?![A-Za-z0-9_])", part, re.IGNORECASE)
+                    for command in commands for part in re.split(r"[;\r\n]", command)),
+            "SDVK-161 late console_commands may not override con_notifylines")
     require(settings.get("gl_levelmesh") is True and settings.get("lm_dynlights") is False,
             "SDVK-161 requires static lightmapping with the LevelMesh path")
     require(settings.get("gl_lightprobe") is True,
@@ -291,6 +323,18 @@ def _surface_lightmap(value: dict, resource: dict, tiles: dict[int, dict]) -> tu
     return (tile, lightmap["page"], *receipt)
 
 
+def _camera_vector(actual, expected, label):
+    require(isinstance(actual, list) and len(actual) == len(expected)
+            and all(type(value) in (int, float) and math.isfinite(value) for value in actual)
+            and actual == expected, "SDVK-161 " + label + " differs from its authored view")
+
+
+def camera_for_map(native: dict, map_name: str) -> dict:
+    require(map_name in MAP_CAMERAS and native.get("map_cameras") == MAP_CAMERAS,
+            "SDVK-161 per-map camera recipe differs")
+    return native["map_cameras"][map_name]
+
+
 def _context(value: dict, map_name: str) -> dict:
     context = value.get("context", {})
     require(context.get("available") is True and context.get("map") == map_name
@@ -303,6 +347,12 @@ def _context(value: dict, map_name: str) -> dict:
             or (depth > 0 and context.get("type") == "portal"
                 and type(context.get("parent_identity")) is int and context["parent_identity"] > 0),
             "SDVK-161 submitted surface context parent/depth is inconsistent")
+    if context["type"] == "main":
+        camera = MAP_CAMERAS[map_name]
+        _camera_vector(context.get("position"), camera["position"], "main context camera position")
+        _camera_vector(context.get("angles"), [270 - camera["yaw"], 0, 0], "main context camera angles")
+        require(context.get("portal_group") == (0 if map_name == MAP_A else 2),
+                "SDVK-161 main context portal group differs from its authored camera sector")
     return context
 
 
@@ -424,6 +474,29 @@ def _validate_submitted_surfaces(raw: dict, native: dict, resources: dict[int, d
 
 
 def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
+    ordinary_materials = {0: "S161NO", 1: "S161NO", 3: "S161PH", 4: "S161WP",
+                          5: "S161PN", 7: "S161HO", 8: "S161NO", 9: "S161GL", 10: "S161GL"}
+    for value, tile in draws:
+        owner = value["owner"]
+        require(owner["sector"] == 0 and owner["control_sector"] == -1 and owner["portal_group"] == 0,
+                "SDVK-161 A submitted owner differs from its only authored sector/control/portal group")
+        if value.get("class") in ("decal", "reflective-floor", "horizon", "horizon-contents", "mirror"):
+            continue
+        side = owner["side"]
+        if value.get("class") == "flat":
+            require(owner["type"] == 4 and side == -1
+                    and value.get("material", {}).get("name") == "SDVFL",
+                    "SDVK-161 A ordinary ceiling owner/material differs from its authored plane")
+            _plane(value, z=160, normal=-1)
+            continue
+        require(value.get("class") in ("wall", "translucent-wall")
+                and owner["type"] == 1 and side in ordinary_materials and owner["type_index"] == side
+                and value.get("material", {}).get("name") == ordinary_materials[side],
+                "SDVK-161 A ordinary wall owner/material differs from its authored side")
+        if side in (9, 10):
+            require(value["producer"] == "immediate-special-surface"
+                    and value.get("alpha") == 0.5 and tile is None,
+                    "SDVK-161 A glass owner lacks its immediate translucent unlightmapped fallback")
     materials = {}
     for name, side in (("S161PH", 3), ("S161WP", 4), ("S161PN", 5), ("S161HO", 7), ("S161NO", 8)):
         matches = [(value, tile) for value, tile in draws
@@ -436,15 +509,27 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
         require(matches and all(tile is not None for _, tile in matches),
                 f"SDVK-161 frame {frame} lacks actually lightmapped main-view {name} side {side}")
         materials[name] = matches
-    decals = [(value, tile) for value, tile in draws if value.get("class") == "decal"
-              and value.get("material", {}).get("name") == "S161DCL"]
-    require(decals and all(value["producer"] == "immediate-special-surface"
-                          and value["owner"]["sector"] == 0 and value["owner"]["side"] == 3
-                          and value["owner"]["control_sector"] == -1 and tile is not None
-                          and any(tile == receiving and value["context"] == wall["context"]
-                                  for wall, receiving in materials["S161PH"])
-                          for value, tile in decals),
-            f"SDVK-161 frame {frame} lacks an actual decal inheriting its current receiver tile")
+    ph_receivers = [(value, tile) for value, tile in draws
+                    if value.get("class") == "wall" and value.get("material", {}).get("name") == "S161PH"
+                    and all(value["owner"].get(key) == expected for key, expected in
+                            {"type": 1, "side": 3, "type_index": 3, "sector": 0,
+                             "control_sector": -1, "portal_group": 0}.items())
+                    and (value["context"]["type"] == "portal"
+                         or value["producer"] == "levelmesh-surface-range")]
+    decals = [(value, tile) for value, tile in draws if value.get("class") == "decal"]
+    for value, tile in decals:
+        require(value.get("material", {}).get("name") == "S161DCL"
+                and value["producer"] == "immediate-special-surface"
+                and all(value["owner"].get(key) == expected for key, expected in
+                        {"type": 1, "side": 3, "type_index": 3, "sector": 0,
+                         "control_sector": -1, "portal_group": 0}.items())
+                and tile is not None
+                and any(tile == receiving and value["context"] == wall["context"]
+                        for wall, receiving in ph_receivers),
+                "SDVK-161 decal row has wrong material/owner/current receiver context")
+    require(any(value["context"]["type"] == "main" and value["context"]["depth"] == 0
+                for value, _ in decals),
+            f"SDVK-161 frame {frame} lacks an actual main-view decal inheriting its current receiver tile")
     glass = [(value, tile) for value, tile in draws
              if value.get("material", {}).get("name") == "S161GL"]
     require(glass and all(value["owner"]["sector"] == 0 and value["owner"]["side"] in (9, 10)
@@ -453,12 +538,14 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
                          and value.get("alpha") == 0.5 and tile is None for value, tile in glass),
             f"SDVK-161 frame {frame} lacks the real translucent-wall material/alpha and explicit unlightmapped fallback")
     reflective = [(value, tile) for value, tile in draws
-                  if value.get("class") == "reflective-floor"
-                  and value.get("material", {}).get("name") == "S161RF"]
-    require(reflective and all(value["owner"]["sector"] == 0 and value["owner"]["type"] == 5
-                              and value["owner"]["control_sector"] == -1
-                              and value.get("alpha") == 0.75 and tile is not None
-                              for value, tile in reflective),
+                  if value.get("class") == "reflective-floor"]
+    for value, tile in reflective:
+        require(value.get("material", {}).get("name") == "S161RF"
+                and value["owner"]["sector"] == 0 and value["owner"]["type"] == 5
+                and value["owner"]["side"] == -1 and value["owner"]["control_sector"] == -1
+                and value.get("alpha") == 0.75 and tile is not None,
+                "SDVK-161 reflective-floor row has wrong material/owner/alpha/current tile")
+    require(reflective,
             f"SDVK-161 frame {frame} lacks the actual reflective-floor path and inherited lightmap")
     contexts = [record["data"].get("context", {}) for record in raw["records"]
                 if record.get("kind") == "context" and record.get("frame") == frame]
@@ -469,9 +556,23 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
                 and context.get("type") == "portal" and context.get("depth", 0) > 0 for context in contexts),
             f"SDVK-161 frame {frame} lacks a real reflective-floor plane-mirror render context")
     horizon = [(value, tile) for value, tile in draws if value.get("class") == "horizon"]
-    require(horizon and all(value["owner"]["side"] == 2 and value["owner"]["sector"] == 0
-                           for value, _ in horizon),
+    require(horizon and all(value["owner"]["side"] == 2 and value["owner"]["type_index"] == 2
+                           and value["owner"]["type"] == 0 for value, _ in horizon),
             f"SDVK-161 frame {frame} lacks an actual Line_Horizon submission")
+    for value, tile in draws:
+        if value.get("class") != "horizon-contents":
+            continue
+        kind = value["owner"]["type"]
+        expected = {4: ("SDVFL", 160, -1), 5: ("S161RF", 0, 1)}.get(kind)
+        require(expected is not None
+                and value.get("material", {}).get("name") == expected[0]
+                and value["producer"] == "immediate-special-surface" and tile is None
+                and all(value["owner"].get(key) == owner for key, owner in
+                        {"side": 2, "type_index": 2, "sector": 0,
+                         "control_sector": -1, "portal_group": 0}.items())
+                and value.get("alpha") == 1 and value["draw_count"] == 4,
+                "SDVK-161 horizon-contents row has wrong material/type/owner/unlightmapped policy")
+        _plane(value, z=expected[1], normal=expected[2])
     horizon_planes = []
     for name, kind, z, normal in (("S161RF", 5, 0, 1), ("SDVFL", 4, 160, -1)):
         contents = [(value, tile) for value, tile in draws if value.get("class") == "horizon-contents"
@@ -485,50 +586,111 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
         for value, _ in contents:
             _plane(value, z=z, normal=normal)
         horizon_planes.append(name)
-    mirrors = [value for value, _ in draws if value.get("class") == "mirror"
-               and value["owner"]["side"] == 6 and value["owner"]["sector"] == 0]
-    require(mirrors, f"SDVK-161 frame {frame} lacks an actual line-mirror stencil submission")
+    mirrors = [value for value, _ in draws if value.get("class") == "mirror"]
+    require(mirrors and all(value["owner"]["side"] == 6 and value["owner"]["type_index"] == 6
+                           and value["owner"]["type"] == 0 for value in mirrors), f"SDVK-161 frame {frame} lacks an actual line-mirror stencil submission")
     return {"materials": list(materials), "decal_receiver_shared": True,
             "translucent_wall": "explicit immediate unlightmapped fallback", "reflective_floor": True,
             "line_mirror_context": True, "plane_mirror_context": True, "horizon_submission": True,
             "horizon_contents": horizon_planes}
 
 
+def _b_required_main_mesh(value: dict, cls: str, owner: dict) -> bool:
+    context = value["context"]
+    return (value["producer"] == "levelmesh-surface-range" and value.get("class") == cls
+            and all(value["owner"].get(key) == expected for key, expected in owner.items())
+            and context.get("type") == "main" and context.get("producer") == "root"
+            and context.get("depth") == 0 and context.get("portal_group") == 2)
+
+
 def _require_b_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
+    controlled_flats = {"three-d-floor-ceiling": 4, "three-d-floor-floor": 5}
+    for value, tile in draws:
+        owner = value["owner"]
+        name = value.get("material", {}).get("name")
+        cls = value.get("class")
+        if cls == "line-to-line-portal":
+            side = owner["side"]
+            require(side in (3, 11) and owner["type"] == 0 and owner["type_index"] == side
+                    and owner["sector"] == B_SIDE_SECTORS[side] and owner["control_sector"] == -1
+                    and owner["portal_group"] == B_SECTOR_GROUPS[B_SIDE_SECTORS[side]] and tile is None,
+                    "SDVK-161 B portal mask owner differs from its authored side")
+        elif cls in controlled_flats:
+            require(owner["sector"] == 6 and owner["control_sector"] in (4, 5)
+                    and owner["side"] == -1 and owner["type"] == controlled_flats[cls]
+                    and owner["portal_group"] == 2,
+                    "SDVK-161 B controlled flat owner/type differs from its authored receiver")
+            control, kind = owner["control_sector"], owner["type"]
+            expected = f"S161{'B' if kind == 4 else 'T'}{control}"
+            require(name == expected,
+                    "SDVK-161 B receiver owner/material differs from its authored control plane")
+            _plane(value, z={4: {4: 32, 5: 48}, 5: {4: 96, 5: 112}}[control][kind],
+                   normal=-1 if kind == 4 else 1)
+        elif cls == "flat":
+            cell = (owner["sector"], owner["type"])
+            require(owner["side"] == -1 and owner["control_sector"] == -1 and cell in B_ORDINARY_FLATS
+                    and owner["portal_group"] == B_SECTOR_GROUPS[owner["sector"]],
+                    "SDVK-161 B ordinary flat owner/type differs from its authored sector")
+            expected, height = B_ORDINARY_FLATS[cell]
+            require(name == expected, "SDVK-161 B ordinary flat material differs from its authored sector")
+            _plane(value, z=height, normal=-1 if owner["type"] == 4 else 1)
+        else:
+            require(cls in ("wall", "translucent-wall", "three-d-floor-side"),
+                    "SDVK-161 B submitted class has no authored supported receiver")
+            side = owner["side"]
+            require(0 <= side < len(B_SIDE_SECTORS) and owner["sector"] == B_SIDE_SECTORS[side]
+                    and owner["type_index"] == side
+                    and owner["portal_group"] == B_SECTOR_GROUPS[B_SIDE_SECTORS[side]],
+                    "SDVK-161 B target side owner differs from its authored receiver")
+            cell = (side, owner["type"], owner["control_sector"])
+            require(cell in B_WALL_MATERIALS and name == B_WALL_MATERIALS[cell]
+                    and (cls != "three-d-floor-side" or owner["control_sector"] in (4, 5)),
+                    "SDVK-161 B receiver owner/material differs from its authored side slot")
     results = {}
     for name, kind, control, z, normal in (("S161T4", 5, 4, 48, 1), ("S161B5", 4, 5, 96, -1)):
-        matches = [(value, tile) for value, tile in draws if value.get("material", {}).get("name") == name]
-        require(matches, f"SDVK-161 frame {frame} lacks actually submitted {name} 3D-floor plane")
+        matches = [(value, tile) for value, tile in draws
+                   if value.get("material", {}).get("name") == name
+                   and _b_required_main_mesh(value, "three-d-floor-ceiling" if kind == 4 else "three-d-floor-floor",
+                       {"type": kind, "side": -1, "sector": 6, "control_sector": control, "portal_group": 2})]
+        require(matches, f"SDVK-161 frame {frame} lacks actually submitted main LevelMesh {name} 3D-floor plane")
         for value, tile in matches:
             owner, context = value["owner"], value["context"]
             require(value["producer"] == "levelmesh-surface-range" and tile is not None
                     and owner["type"] == kind and owner["sector"] == 6 and owner["control_sector"] == control
                     and owner["portal_group"] == 2 and owner["side"] == -1,
                     "SDVK-161 3D-floor plane used the wrong sector/control/type/portal ownership")
-            require(context.get("type") == "portal" and context.get("producer") == "LineToLine"
-                    and context.get("depth", 0) > 0 and context.get("portal_group") == 2,
-                    "SDVK-161 3D-floor plane is not submitted through the actual linked portal")
+            require(context.get("type") == "main" and context.get("producer") == "root"
+                    and context.get("depth") == 0 and context.get("portal_group") == 2,
+                    "SDVK-161 3D-floor plane is not submitted through the actual main LevelMesh path")
             _plane(value, z=z, normal=normal)
         results[name] = len(matches)
     for name, control in (("S161S4", 4), ("S161S5", 5)):
         matches = [(value, tile) for value, tile in draws if value.get("material", {}).get("name") == name
-                   and value["owner"]["side"] == 34]
+                   and _b_required_main_mesh(value, "three-d-floor-side",
+                       {"type": 1, "type_index": 34, "side": 34, "sector": 1,
+                        "control_sector": control, "portal_group": 2})]
         require(matches and all(value["producer"] == "levelmesh-surface-range" and tile is not None
                                 and value["owner"]["type"] == 1 and value["owner"]["sector"] == 1
                                 and value["owner"]["control_sector"] == control
-                                and value["owner"]["portal_group"] == 2 for value, tile in matches),
+                                and value["owner"]["portal_group"] == 2
+                                and value["context"].get("type") == "main" and value["context"].get("depth") == 0
+                                and value["context"].get("portal_group") == 2 for value, tile in matches),
                 f"SDVK-161 frame {frame} lacks the same-side distinct-control {name} receiver")
         results[name] = len(matches)
     wall_bands = {}
     for name, kind, lower, upper in (("S161PN", 2, 144, 160), ("S161HO", 3, 0, 16)):
         matches = [(value, tile) for value, tile in draws
-                   if value.get("material", {}).get("name") == name and value["owner"]["side"] == 34]
+                   if value.get("material", {}).get("name") == name
+                   and _b_required_main_mesh(value, "wall",
+                       {"type": kind, "type_index": 34, "side": 34, "sector": 1,
+                        "control_sector": -1, "portal_group": 2})]
         require(matches and all(value["producer"] == "levelmesh-surface-range" and value.get("class") == "wall"
                                 and tile is not None and value["owner"]["type"] == kind
                                 and value["owner"]["type_index"] == 34 and value["owner"]["sector"] == 1
                                 and value["owner"]["control_sector"] == -1 and value["owner"]["portal_group"] == 2
-                                and value["context"].get("type") == "portal"
-                                and value["context"].get("producer") == "LineToLine"
+                                and value["context"].get("type") == "main"
+                                and value["context"].get("producer") == "root"
+                                and value["context"].get("depth") == 0
                                 and value["context"].get("portal_group") == 2
                                 and value["geometry"].get("vertex_z_min") == lower
                                 and value["geometry"].get("vertex_z_max") == upper
@@ -536,11 +698,37 @@ def _require_b_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
                 f"SDVK-161 frame {frame} lacks actual ordinary upper/lower {name} wall band with current slot/type/owner/height")
         wall_bands[name] = {"type": kind, "side": 34, "sector": 1, "control_sector": -1,
                             "vertex_z_min": lower, "vertex_z_max": upper, "ranges": len(matches)}
+    portal_receivers = []
+    for value, tile in draws:
+        if value.get("class") != "wall" or value["owner"]["side"] != 1:
+            continue
+        context = value["context"]
+        require(value["producer"] == "immediate-special-surface"
+                and value.get("material", {}).get("name") == "SDVW"
+                and all(value["owner"].get(key) == expected for key, expected in
+                        {"type": 1, "type_index": 1, "side": 1, "sector": 0,
+                         "control_sector": -1, "portal_group": 1}.items())
+                and context.get("type") == "portal" and context.get("producer") == "LineToLine"
+                and context.get("depth", 0) > 0 and context.get("portal_group") == 2
+                and context.get("line_portal_selection", {}).get("available") is True
+                and all(context["line_portal_selection"].get(key) == expected for key, expected in
+                        {"selected_span_index": 0, "source_sector": 1, "destination_sector": 0,
+                         "source_group": 2, "destination_group": 1, "origin_line": 10, "destination_line": 3}.items())
+                and tile is not None and value.get("alpha") == 1,
+                "SDVK-161 reverse portal receiver has wrong actual path/material/owner/current tile")
+        _camera_vector(context.get("position"), [36, -176, 64], "reverse portal context position")
+        _camera_vector(context.get("angles"), [180, 0, 0], "reverse portal context angles")
+        _camera_vector(value["geometry"]["plane"], [0, -1, 0, -192], "reverse portal receiving plane")
+        portal_receivers.append(value)
+    require(portal_receivers, f"SDVK-161 frame {frame} lacks an actual reverse linked-portal receiving wall")
     stencils = [value for value, _ in draws if value.get("class") == "line-to-line-portal"
-                and value["owner"]["side"] in (3, 10) and value["owner"]["sector"] in (0, 1)]
-    require(stencils, f"SDVK-161 frame {frame} lacks an actual linked-portal stencil submission")
-    return {"submitted_3d_floor_controls": results, "ordinary_wall_bands": wall_bands, "linked_portal": True,
-            "control_planes": {"4": 48, "5": 96}}
+                and value["owner"]["side"] == 11 and value["owner"]["sector"] == 1
+                and value["owner"]["portal_group"] == 2 and value["context"].get("type") == "main"]
+    require(stencils, f"SDVK-161 frame {frame} lacks an actual reverse linked-portal stencil submission")
+    return {"submitted_3d_floor_controls": results, "ordinary_wall_bands": wall_bands,
+            "linked_portal": True, "reverse_portal_receivers": len(portal_receivers),
+            "control_planes": {"4": 48, "5": 96},
+            "scope": "main-view LevelMesh 3D floors/bands plus actual immediate reverse-portal wall; recursive 3D flat path unclaimed"}
 
 
 def validate_surface_record(value: dict) -> None:
@@ -640,6 +828,11 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
         incarnation = (frame - 1) // 24
         require(frames[frame].get("map") == map_name,
                 "SDVK-161 frame map owner differs from fixed lifecycle phase")
+        camera = camera_for_map(native, map_name)
+        _camera_vector(frames[frame].get("camera", {}).get("position"), camera["position"], "retained frame camera position")
+        _camera_vector(frames[frame].get("camera", {}).get("angles"), [camera["yaw"], 0, 0], "retained frame camera angles")
+        _camera_vector(frames[frame].get("camera", {}).get("hardware_angles"), [270 - camera["yaw"], 0, 0], "retained frame hardware camera angles")
+        require(frames[frame].get("camera", {}).get("fov") == 90, "SDVK-161 retained frame camera FOV differs")
         settings = settings_for_frame(native, frame)
         for key in ("gl_levelmesh", "lm_dynlights", "gl_lightprobe", "gl_texture_filter", "gl_texture_filter_anisotropic"):
             require(frames[frame].get("settings", {}).get(key) == settings[key],
@@ -654,7 +847,8 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
     for incarnation in range(1, 4):
         require(all(right > left for left, right in zip(owners[incarnation - 1], owners[incarnation])),
                 "SDVK-161 map reload did not advance every atlas/probe/mesh resource owner")
-    cycles = {"invalidate_a_1": _completed_cycle(resources, 9, 24, "first A invalidation"),
+    cycles = {"initial_retained_invalidation": _completed_cycle(resources, 1, 8, "initial retained A invalidation"),
+              "invalidate_a_1": _completed_cycle(resources, 9, 24, "first A invalidation"),
               "reload_a": _completed_cycle(resources, 25, 40, "same-map A reload"),
               "invalidate_a_2": _completed_cycle(resources, 41, 48, "second A invalidation"),
               "invalidate_b_1": _completed_cycle(resources, 57, 72, "first B invalidation"),
@@ -771,23 +965,57 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
     source_digest = sha256(canonical(raw))
     records = raw["records"]
 
-    def target(name, frame, *, side=None):
+    def target(name, frame, *, side=None, surface_class=None, owner=None, producer=None, context=None):
         matches = [index for index, record in enumerate(records)
                    if record.get("kind") == "surface" and record.get("frame") == frame
                    and record["data"].get("material", {}).get("name") == name
-                   and (side is None or record["data"].get("owner", {}).get("side") == side)]
+                   and (side is None or record["data"].get("owner", {}).get("side") == side)
+                   and (surface_class is None or record["data"].get("class") == surface_class)
+                   and all(record["data"].get("owner", {}).get(key) == value
+                           for key, value in (owner or {}).items())
+                   and (producer is None or record["data"].get("producer") == producer)
+                   and all(record["data"].get("context", {}).get(key) == value
+                           for key, value in (context or {}).items())]
         require(matches, "SDVK-161 captured negative lacks its actual emitted target: " + name)
         return matches[0]
 
-    wall = target("S161PH", 8)
-    underside = target("S161B5", 56)
-    side = target("S161S5", 56)
-    horizon = target("SDVFL", 8)
-    ordinary_upper = target("S161PN", 56, side=34)
-    ordinary_lower = target("S161HO", 56, side=34)
+    wall = target("S161PH", 8, surface_class="wall", producer="levelmesh-surface-range",
+                  context={"type": "main", "depth": 0},
+                  owner={"type": 1, "side": 3, "type_index": 3, "sector": 0,
+                         "control_sector": -1, "portal_group": 0})
+    underside = target("S161B5", 56, surface_class="three-d-floor-ceiling", producer="levelmesh-surface-range",
+                       context={"type": "main", "producer": "root", "depth": 0, "portal_group": 2},
+                       owner={"type": 4, "side": -1, "sector": 6, "control_sector": 5, "portal_group": 2})
+    side = target("S161S5", 56, surface_class="three-d-floor-side", producer="levelmesh-surface-range",
+                  context={"type": "main", "producer": "root", "depth": 0, "portal_group": 2},
+                  owner={"type": 1, "side": 34, "type_index": 34, "sector": 1, "control_sector": 5, "portal_group": 2})
+    horizon = target("SDVFL", 8, surface_class="horizon-contents",
+                     owner={"type": 4, "side": 2, "type_index": 2, "sector": 0,
+                            "control_sector": -1, "portal_group": 0})
+    decal = target("S161DCL", 8, surface_class="decal",
+                   owner={"type": 1, "side": 3, "type_index": 3, "sector": 0,
+                          "control_sector": -1, "portal_group": 0})
+    reflective = target("S161RF", 8, surface_class="reflective-floor",
+                        owner={"type": 5, "side": -1, "sector": 0, "control_sector": -1})
+    ordinary_upper = target("S161PN", 56, surface_class="wall", producer="levelmesh-surface-range",
+                            context={"type": "main", "producer": "root", "depth": 0, "portal_group": 2},
+                            owner={"type": 2, "side": 34, "type_index": 34, "sector": 1, "control_sector": -1, "portal_group": 2})
+    ordinary_lower = target("S161HO", 56, surface_class="wall", producer="levelmesh-surface-range",
+                            context={"type": "main", "producer": "root", "depth": 0, "portal_group": 2},
+                            owner={"type": 3, "side": 34, "type_index": 34, "sector": 1, "control_sector": -1, "portal_group": 2})
+    reverse_receiver = target("SDVW", 56, surface_class="wall", producer="immediate-special-surface",
+                              owner={"type": 1, "side": 1, "type_index": 1, "sector": 0,
+                                     "control_sector": -1, "portal_group": 1},
+                              context={"type": "portal", "producer": "LineToLine", "portal_group": 2})
+    b_camera_frame = next(index for index, record in enumerate(records)
+                          if record.get("kind") == "frame" and record.get("frame") == 56)
     first_frame = next(index for index, record in enumerate(records)
                        if record.get("kind") == "frame" and record.get("frame") == 25)
     tests = [
+        ("wrong-map-b-authored-camera", b_camera_frame, ["data", "camera", "position"], [-192, 0, 64],
+         "retained frame camera position differs"),
+        ("wrong-reverse-portal-receiver-path", reverse_receiver, ["data", "context", "producer"], "root",
+         "reverse portal receiver has wrong actual path/material/owner/current tile"),
         ("wrong-submitted-mesh-path", wall, ["data", "key", "shader", "UseLevelMesh"], 0,
          "immediate/unindexed pipeline"),
         ("wrong-bound-material-shader", wall, ["data", "key", "shader", "EffectState"], 0,
@@ -804,8 +1032,6 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
          "inherited a portal destination"),
         ("wrong-actual-horizon-plane", horizon, ["data", "geometry", "plane"], [0, 0, -1, -112],
          "selected/flipped control plane"),
-        ("wrong-actual-horizon-material", horizon, ["data", "material", "name"], "S161NO",
-         "lacks actual SDVFL horizon contents"),
         ("wrong-ordinary-upper-wall-slot-type", ordinary_upper, ["data", "owner", "type"], 1,
          "another side/sector/control namespace"),
         ("wrong-ordinary-lower-wall-control-owner", ordinary_lower, ["data", "owner", "control_sector"], 4,
@@ -834,6 +1060,40 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
                              "mutant_sha256": sha256(canonical(changed))})
         else:
             raise EvidenceError("SDVK-161 captured negative was incorrectly accepted: " + name)
+    donor_index = target("S161NO", 8, surface_class="wall",
+                         owner={"type": 1, "side": 8, "type_index": 8, "sector": 0,
+                                "control_sector": -1, "portal_group": 0})
+    wall_donor_index = target("S161PN", 8, surface_class="wall", producer="levelmesh-surface-range",
+                              context={"type": "main", "depth": 0}, owner={"type": 1, "side": 5, "type_index": 5, "sector": 0,
+                                     "control_sector": -1, "portal_group": 0})
+    for name, index, source_index, expected in (
+            ("wrong-actual-horizon-material", horizon, donor_index,
+             "horizon-contents row has wrong material/type/owner/unlightmapped policy"),
+            ("wrong-actual-decal-material", decal, donor_index,
+             "decal row has wrong material/owner/current receiver context"),
+            ("wrong-actual-reflective-floor-material", reflective, donor_index,
+             "reflective-floor row has wrong material/owner/alpha/current tile"),
+            ("wrong-actual-ordinary-wall-material", wall, wall_donor_index,
+             "A ordinary wall owner/material differs from its authored side")):
+        donor = records[source_index]["data"]
+        changed = copy.deepcopy(raw)
+        current = changed["records"][index]["data"]
+        before = {"material": copy.deepcopy(current["material"]), "texture_index": current["texture_index"]}
+        current["material"] = copy.deepcopy(donor["material"])
+        if "context" in current["material"]:
+            current["material"]["context"] = copy.deepcopy(current["context"])
+        current["texture_index"] = donor["texture_index"]
+        after = {"material": copy.deepcopy(current["material"]), "texture_index": current["texture_index"]}
+        try:
+            validate_transition_records(changed, stdout, native)
+        except EvidenceError as error:
+            require(expected in str(error), "SDVK-161 coherent special-material control rejected for an unintended reason: " + name)
+            controls.append({"name": name, "status": "REJECTED", "reason": str(error),
+                             "record_index": index, "source_record_index": source_index,
+                             "source_frame": records[source_index]["frame"], "source_material": donor["material"]["name"],
+                             "before": before, "after": after, "mutant_sha256": sha256(canonical(changed))})
+        else:
+            raise EvidenceError("SDVK-161 captured negative accepted a coherent wrong special material: " + name)
     changed = copy.deepcopy(raw)
     warp_index, height_index = target("S161WP", 8), target("S161HO", 8)
     warp = changed["records"][warp_index]["data"]

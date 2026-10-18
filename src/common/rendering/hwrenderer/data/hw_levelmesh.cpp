@@ -66,6 +66,27 @@ void LevelMesh::Reset()
 	FreeLists.Light.Reset(Mesh.Lights.Size());
 }
 
+void LevelMesh::InvalidateMaterialBindings()
+{
+	// Both raster uniforms and tracer surfaces cache bindless material indices.
+	// Re-resolve them in the normal uploader, after the reset's new samplers are
+	// current. Retired/capacity holes may retain old material pointers: schedule
+	// only the allocator's live spans, without rebuilding geometry or the atlas.
+	auto markLive = [](const MeshBufferAllocator& allocator, MeshBufferUploads& uploads)
+	{
+		int start = 0;
+		for (const MeshBufferRange& unused : allocator.GetFreeRanges())
+		{
+			uploads.Add(start, unused.Start - start);
+			start = unused.End;
+		}
+		uploads.Add(start, allocator.GetTotalSize() - start);
+	};
+	markLive(FreeLists.Uniforms, UploadRanges.Uniforms);
+	markLive(FreeLists.Surface, UploadRanges.Surface);
+	MarkMutation(LevelMeshMutationDomain::Surface);
+}
+
 void LevelMesh::AddEmptyMesh()
 {
 	GeometryAllocInfo ginfo = AllocGeometry(12, 3 * 4);

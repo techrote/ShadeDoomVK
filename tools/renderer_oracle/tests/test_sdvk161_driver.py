@@ -43,6 +43,9 @@ int main() {
             path.write_text(adapter)
             binary = compile_fixture(path, output_dir=directory)
             result = subprocess.run([str(binary)], check=True, capture_output=True, text=True, timeout=10)
+        self.assertEqual(SCHEDULE[0], {"after_main_views": 32, "phase": "invalidate-a-retained-start",
+                                       "command": "invalidatelightmap"})
+        self.assertEqual([row["after_main_views"] for row in SCHEDULE], list(range(32, 121, 8)))
         expected = ["ENABLED"]
         for row in SCHEDULE:
             expected += ["COMMAND " + row["command"],

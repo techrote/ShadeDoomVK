@@ -409,19 +409,16 @@ struct FSdvkDiagnosticAccess
         bool currentUV = false;
         // This TU is compiled with precise math. Producer code may use fast
         // math, so finite/UV validation belongs here rather than in the writer.
-        if (mapping && source.Tile >= 0 && source.UvVertexCount == 4 && mesh
+        if (mapping && source.Tile >= 0 && source.WrittenUV.Tile == source.Tile
+            && source.WrittenUV.First == source.VertexFirst
+            && source.WrittenUV.Vertices.size() == size_t(source.VertexCount) && mesh
             && size_t(source.Tile) < mesh->Lightmap.Tiles.Size() && mesh->Lightmap.AtlasPacker)
         {
             const auto& tile = mesh->Lightmap.Tiles[source.Tile];
             currentUV = tile.HasValidAtlasRegion(*mesh->Lightmap.AtlasPacker,
-                mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount);
-            for (int i = 0; i < source.UvVertexCount; ++i)
-            {
-                const auto& snapshot = source.UvVertices[i];
-                FFlatVertex actual;
-                actual.Set(snapshot.X, snapshot.Z, snapshot.Y, 0, 0, snapshot.U, snapshot.V, float(source.VertexLightmapPage));
-                currentUV = currentUV && SdvkSurfaceObservation::CurrentVertexUV(tile, mesh->Lightmap.TextureSize, actual);
-            }
+                mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount)
+                && SdvkSurfaceObservation::CurrentWrittenUV<FFlatVertex>(source.WrittenUV, tile,
+                    mesh->Lightmap.TextureSize, firstIndex, count);
         }
         if (!portal && (state->mPipelineKey.ShaderKey.NoFragmentShader
             || state->mPipelineKey.ShaderKey.AlphaTestOnly || !state->mPipelineKey.ColorMask)) return;

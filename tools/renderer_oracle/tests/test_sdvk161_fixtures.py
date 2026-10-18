@@ -14,7 +14,7 @@ from tools.renderer_oracle import sdvk161_fixtures as fixture
 def recipe():
     return {"id": fixture.SCENE, "native": {
         "generator": fixture.GENERATOR, "map": fixture.MAPS[0],
-        "camera": copy.deepcopy(fixture.CAMERA),
+        "camera": copy.deepcopy(fixture.CAMERA), "map_cameras": copy.deepcopy(fixture.MAP_CAMERAS),
         "settings": {"gl_levelmesh": True, "lm_dynlights": False}}}
 
 
@@ -44,6 +44,9 @@ class SpecialSurfaceFixturesTests(unittest.TestCase):
         self.assertIs(meta["native_executed"], False)
         self.assertEqual(meta["textures"], "generated_rgba_only")
         self.assertEqual(meta["baked_lightmap_members"], 0)
+        self.assertEqual(meta["initial_retained_work"], {
+            "after_main_views": 32, "phase": "invalidate-a-retained-start", "command": "invalidatelightmap",
+            "retained_frames": [1, 8], "scope": "explicit forced update after warmup; not observed initial construction bake"})
         self.assertEqual(meta["animated_or_random_actors"], 0)
         self.assertEqual([row["counts"]["linedef"] for row in meta["maps"]], [10, 30])
         for name in fixture.MAPS:
@@ -54,6 +57,62 @@ class SpecialSurfaceFixturesTests(unittest.TestCase):
         for name, payload in first.items():
             if name.endswith(".png"):
                 self.assertTrue(payload.startswith(b"\x89PNG\r\n\x1a\n"))
+
+    def test_per_map_camera_and_reverse_portal_recipe_are_serialized_without_geometry_growth(self):
+        from tools.renderer_oracle.tests.test_corpus import parse_udmf
+        members, metadata = fixture.authored_members(recipe(), prepare)
+        for name, position, yaw, player in (("SDV161A", [-192, 0, 64], 0, [-240, 0]),
+                                             ("SDV161B", [1060, -176, 64], 90, [-240, 0])):
+            rows = parse_udmf(wad_lumps(members[f"maps/{name}.wad"])["TEXTMAP"])
+            camera = next(row for row in rows["thing"] if row["type"] == 32200)
+            self.assertEqual([camera[key] for key in ("x", "y", "height")], position)
+            self.assertEqual(camera["angle"], yaw)
+            owner = next(row for row in metadata["maps"] if row["map"] == name)
+            self.assertEqual(owner["camera"]["position"], position)
+            self.assertEqual(owner["player_start_world"], player)
+        b = parse_udmf(wad_lumps(members["maps/SDV161B.wad"])["TEXTMAP"])
+        self.assertEqual(b["sidedef"][1], {"sector": 0, "texturemiddle": "SDVW"})
+        line = b["linedef"][1]
+        self.assertEqual([b["vertex"][line[key]] for key in ("v1", "v2")],
+                         [{"x": -384, "y": 192}, {"x": 0, "y": 192}])
+        self.assertEqual([len(b[key]) for key in ("vertex", "linedef", "sidedef", "sector", "thing")],
+                         [28, 30, 36, 7, 3])
+        for name in fixture.MAPS:
+            models, ownership = fixture.models(prepare)
+            camera = next(row for row in models[name].records["thing"] if row["type"] == 32200)
+            camera["angle"] += 1
+            with self.subTest(map=name), self.assertRaisesRegex(ValueError, "per-map authored camera"):
+                fixture.validate_geometry(models, ownership)
+
+    def test_oracle_b_material_ownership_matches_every_authored_slot_and_ordinary_plane(self):
+        from tools.renderer_oracle import sdvk161_special_surfaces as gate
+        models, ownership = fixture.models(prepare)
+        rows = models["SDV161B"].records
+        self.assertEqual(gate.B_SIDE_SECTORS, tuple(side["sector"] for side in rows["sidedef"]))
+        walls = {}
+        for side_index, side in enumerate(rows["sidedef"]):
+            for kind, key in ((1, "texturemiddle"), (2, "texturetop"), (3, "texturebottom")):
+                texture = side.get(key, "-")
+                if texture != "-": walls[(side_index, kind, -1)] = texture
+        for control in ownership["three_d_floor_sides"]:
+            for side in control["side_indices"]:
+                walls[(side, 1, control["control_sector"])] = control["material"]
+        self.assertEqual(gate.B_WALL_MATERIALS, walls)
+        flats = {(sector, kind): (row[key], row[height]) for sector, row in enumerate(rows["sector"])
+                 for kind, key, height in ((5, "texturefloor", "heightfloor"), (4, "textureceiling", "heightceiling"))}
+        self.assertEqual(gate.B_ORDINARY_FLATS, flats)
+        groups = {sector: 0 for sector in range(len(rows["sector"]))}
+        for group, seed in ((1, 0), (2, 1)):
+            pending = [seed]
+            while pending:
+                sector = pending.pop()
+                if groups[sector] != 0: continue
+                groups[sector] = group
+                for line in rows["linedef"]:
+                    if "sideback" not in line: continue
+                    pair = [rows["sidedef"][line[key]]["sector"] for key in ("sidefront", "sideback")]
+                    if sector in pair: pending.extend(other for other in pair if other != sector and groups[other] == 0)
+        self.assertEqual(gate.B_SECTOR_GROUPS, groups)
 
     def test_decal_overlay_has_attached_and_out_of_trace_distance_controls(self):
         members, _ = fixture.authored_members(recipe(), prepare)

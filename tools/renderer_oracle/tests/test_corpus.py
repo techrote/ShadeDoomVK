@@ -203,6 +203,9 @@ class AuthoredSceneTests(unittest.TestCase):
         special = scene["native"].get("generator") == "special_surface_lifecycle"
         if special:
             self.assertEqual(scene["id"], "special-surface-lifecycle")
+            self.assertEqual(scene["native"]["special_surface_schedule"][0], {
+                "after_main_views": 32, "phase": "invalidate-a-retained-start", "command": "invalidatelightmap"})
+            self.assertEqual(metadata["initial_retained_work"]["retained_frames"], [1, 8])
             self.assertEqual(scene["native"]["map_sequence"], ["SDV161A", "SDV161A", "SDV161B", "SDV161B"])
             map_names = ["SDV161A", "SDV161B"]
             owners = metadata.get("maps")
@@ -245,7 +248,9 @@ class AuthoredSceneTests(unittest.TestCase):
             cameras = [t for t in records["thing"] if t["type"] == 32200]
             self.assertEqual(len(cameras), 1)
             camera = cameras[0]
-            expected = scene["native"]["camera"]
+            expected = scene["native"]["map_cameras"][map_name] if special else scene["native"]["camera"]
+            if special:
+                self.assertEqual(owner["camera"], expected)
             self.assertEqual([camera["x"], camera["y"], camera["height"] + records["sector"][0]["heightfloor"]], expected["position"], "Authored camera position differs: " + map_name)
             self.assertEqual(camera["id"], expected["actor_tid"])
             authored = scene["native"].get("authored_camera_angles", expected)
@@ -257,8 +262,38 @@ class AuthoredSceneTests(unittest.TestCase):
             view = math.radians(expected["yaw"])
             behind = ((player["x"] - camera["x"]) * math.cos(view)
                       + (player["y"] - camera["y"]) * math.sin(view))
-            self.assertLess(behind, 0)
-            self.assertEqual(metadata["player_start_world"], [player["x"], player["y"]])
+            if special and map_name == "SDV161B":
+                from fractions import Fraction
+                self.assertEqual(expected["position"], [1060, -176, 64])
+                self.assertEqual([player["x"], player["y"]], [-240, 0])
+                # Pin the two real walls that block the original pawn, rather
+                # than exempting the fixture based on its camera angle.
+                for index, endpoints in ((9, [(1024, -192), (1024, -64)]),
+                                         (4, [(0, -64), (0, -192)])):
+                    wall = records["linedef"][index]
+                    self.assertTrue(wall["blocking"])
+                    self.assertNotIn("sideback", wall)
+                    self.assertEqual([(records["vertex"][wall[key]]["x"], records["vertex"][wall[key]]["y"])
+                                      for key in ("v1", "v2")], endpoints)
+                main_crossing = Fraction(-176) + 176 * Fraction(1060 - 1024, 1060 + 240)
+                self.assertTrue(-192 < main_crossing < -64)
+                # Reverse portal translates x by -1024 with zero linked rotation.
+                aperture = records["linedef"][3]
+                self.assertEqual(aperture["special"], 156)
+                self.assertEqual(aperture["arg2"], 3)
+                self.assertEqual([(records["vertex"][aperture[key]]["x"], records["vertex"][aperture[key]]["y"])
+                                  for key in ("v1", "v2")], [(0, 64), (0, -64)])
+                virtual_x, virtual_y = 1060 - 1024, -176
+                reverse_crossing = virtual_y + 176 * Fraction(virtual_x, virtual_x + 240)
+                self.assertEqual(reverse_crossing, Fraction(-3520, 23))
+                self.assertTrue(-192 < reverse_crossing < -64)
+                north_wedge = sorted(virtual_x - virtual_x * Fraction(192 - virtual_y, endpoint_y - virtual_y)
+                                     for endpoint_y in (-64, 64))
+                self.assertEqual(north_wedge, [Fraction(-576, 7), Fraction(-96, 5)])
+                self.assertLess(player["x"], north_wedge[0])
+            else:
+                self.assertLess(behind, 0)
+            self.assertEqual((owner if special else metadata)["player_start_world"], [player["x"], player["y"]])
             if special:
                 # This narrow two-map corpus has several clockwise exterior
                 # loops and one counterclockwise inset. Recompute every area
@@ -342,6 +377,24 @@ class AuthoredSceneTests(unittest.TestCase):
                                                            "S161B5", "S161T5", "S161S5"})
                         else:
                             self.assertRegex(Path(path).stem, r"^(SDV|SM)")
+
+    def test_special_surface_b_original_pawn_requires_exact_serialized_occlusion_geometry(self):
+        from tools.renderer_oracle import sdvk161_fixtures as fixture
+        scene = scene_named("special-surface-lifecycle")
+        _, members, metadata = prepare.scene_assets(scene)
+        for edit in ("pawn", "main-wall", "reverse-wall", "aperture"):
+            models, _ = fixture.models(prepare)
+            records = models["SDV161B"].records
+            if edit == "pawn":
+                next(thing for thing in records["thing"] if thing["type"] == 1)["x"] += 1
+            elif edit == "main-wall": records["linedef"][9]["blocking"] = False
+            elif edit == "reverse-wall": records["linedef"][4]["blocking"] = False
+            else: records["vertex"][3]["y"] = 65
+            changed = dict(members)
+            changed["maps/SDV161B.wad"] = prepare.pf_indexed.wad([
+                ("SDV161B", b""), ("TEXTMAP", models["SDV161B"].text().encode()), ("ENDMAP", b"")])
+            with self.subTest(edit=edit), self.assertRaises(AssertionError):
+                self.assert_authored_maps(scene, changed, copy.deepcopy(metadata))
 
     def test_transition_map_inventory_and_owner_metadata_negatives(self):
         scene = scene_named("probe-owner-transition")

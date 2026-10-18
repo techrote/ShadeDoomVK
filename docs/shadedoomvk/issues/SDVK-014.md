@@ -13,8 +13,14 @@ Its [implementation, matrix and acceptance contract](../SDVK-161-SPECIAL-SURFACE
 records actual decal/warp/reflective/translucent/portal/horizon/solid-3D-floor
 paths, control-plane and current-receiver repairs, twelve exact lifecycle
 checkpoints, deterministic ownership negatives and explicit unsupported limits.
-Hosted exact-head acceptance remains pending. Earlier candidate notes below are
-historical and do not supersede accepted #150/#153/#156/#158 contracts.
+The first hosted attempt on PR #162 head `631e3abcde6fb7c9d6569ffe97c19951b1403fd1`
+failed at retained frame 24 after a material filter reset. The
+[authenticated failure record](../evidence/SDVK-161-FIRST-NATIVE-FAILURE.json)
+separates the stale LevelMesh material-index defect, candidate decal lookup,
+immediate-wall UV witness and fixture/oracle findings. Corrections require a new
+reviewed head and normal hosted CI; the partial capture is not accepted.
+Earlier candidate notes below are historical and do not supersede accepted
+#150/#153/#156/#158 contracts.
 
 **Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
 hardware stability HELD / NOT ACCEPTED. Historical physical root cause

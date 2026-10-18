@@ -279,9 +279,19 @@ from actual submitted mesh triangle ranges and scoped immediate decal, glass,
 portal-stencil and horizon-contents draws. Mesh records join current geometry,
 uniform/light-uniform/material arrays and final bound pipeline. Current atlas
 receipt and per-vertex page/UV checks are independent; a current page cannot
-validate stale UVs into another region. Decals revalidate actual producer-written
-CPU UV snapshots at emission, with no GPU byte/readback claim. Scope storage and
-RAII live in common code; Vulkan only consumes the metadata.
+validate stale UVs into another region. Immediate walls and decals copy their
+actual producer-written CPU positions, UVs and per-vertex pages after writing,
+including every split wall vertex. Frame-owned storage holds at most 4096 copied
+vertices and fails on overflow; no raw allocation pointer survives the writer.
+The store is shared across BSP worker producers and main-thread draw consumers;
+capture/copy/clear and total budget accounting use one mutex. The existing worker
+join precedes submission, and the next frame clears the completed frame's store.
+At the actual draw, precise Vulkan code checks only the submitted subrange
+against the current tile transform and the writer's allocation owner/incarnation/
+slot. Same-page rectangle reuse cannot pass by matching UVs alone. Collection is
+restricted to selected witness frames; it changes no ordinary draw or record
+limits and makes no GPU byte/readback claim. Scope storage and RAII live in common
+code; Vulkan only consumes the metadata.
 
 All 96 state frames retain frame/context/resource evidence; detailed draw rows
 and ordinary completed-view PNGs are sampled every 8 retained frames. Horizon
@@ -295,3 +305,13 @@ limits remain strict, with an additional 64-live-tile census limit.
 attempt admission, same-attempt image/state identity, exact RGB for all 12
 checkpoints and named mutations of each admitted raw packet. It does not erase
 material/probe/owner fields or combine failed packets to obtain repeatability.
+
+SDVK-161 uses map-specific authored cameras so its 3D-floor witnesses are actual
+main-view LevelMesh submissions while a separate linked-portal wall witness uses
+the actual immediate BSP path. Recursive portal views have `outer != nullptr`
+and intentionally do not use LevelMesh drawing. The native oracle cannot assign
+that producer to a portal row based on mesh inventory alone. Legacy context
+`portal_group` and `semantic_key` remain based on the viewpoint's sector;
+`line_portal_selection` separately observes the actual selected endpoint lines
+and source/destination groups. A translated receiver joins the selected
+destination, preserving the accepted source-sector context meaning.

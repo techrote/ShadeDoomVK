@@ -70,6 +70,7 @@ public:
 	int Backend() override { return 1; }
 	void SetTextureFilterMode() override;
 	void StartPrecaching() override;
+	void InvalidateMaterialBindings();
 	void BeginFrame() override;
 	void BlurScene(float amount) override;
 	void PostProcessScene(bool swscene, int fixedcm, float flash, bool palettePostprocess, const std::function<void()> &afterBloomDrawEndScene2D) override;

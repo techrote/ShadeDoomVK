@@ -246,7 +246,7 @@ public:
 
 	void SetupLights(HWDrawInfo* di, FRenderState& state, FDynLightData& lightdata);
 
-	void MakeVertices(FRenderState& state, bool nosplit);
+	void MakeVertices(FRenderState& state, bool nosplit, bool observeWritten = false);
 
 	void SkyPlane(HWWallDispatcher* di, FRenderState& state, sector_t* sector, int plane, bool allowmirror);
 	void SkyLine(HWWallDispatcher* di, FRenderState& state, sector_t* sec, line_t* line);
@@ -512,8 +512,6 @@ struct HWDecal
 	// Never an allocation/cache key and never consulted by rendering policy.
 	int sdvkTile = -1, sdvkPage = -1, sdvkType = 0;
 	int sdvkSide = -1, sdvkSector = -1, sdvkControlSector = -1;
-	float sdvkActualLightmapUV[8] = {};
-	bool sdvkHasUVSnapshot = false;
 
 	void DrawDecal(HWDrawInfo *di, FRenderState &state);
 };

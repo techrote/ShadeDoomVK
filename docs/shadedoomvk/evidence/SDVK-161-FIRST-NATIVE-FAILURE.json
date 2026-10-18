@@ -1,0 +1,268 @@
+{
+  "schema": "sdvk161-first-native-failure/v1",
+  "disposition": "FAILED software attempt; no dependent capture or acceptance",
+  "repository": "techrote/ShadeDoomVK",
+  "parent_issue": 14,
+  "child_issue": 161,
+  "pull_request": 162,
+  "identity": {
+    "pr_head": "631e3abcde6fb7c9d6569ffe97c19951b1403fd1",
+    "tree": "228189c9660194e39632741d2bef829a631054e5",
+    "base_master": "130d09ac4267d02359c7c2603ceced723ceac746",
+    "native_integration_commit": "2898e6973948194cb321f2695e75b29f0ff6d215",
+    "native_working_tree": "clean"
+  },
+  "ci": {
+    "run_id": 39076666750,
+    "job_id": 117525798641,
+    "run_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39076666750",
+    "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39076666750/job/117525798641",
+    "other_jobs_succeeded": 8,
+    "earlier_software_gates_passed": [
+      "general-corpus",
+      "SDVK-010",
+      "SDVK-150",
+      "SDVK-153",
+      "SDVK-158"
+    ],
+    "SDVK-009-publication": "not executed after sequential failure",
+    "source_workflow": 39076666701,
+    "source_artifact": 12117805141,
+    "source_artifact_sha256": "60148e9d60da14ef2b2a9f4d8a10253b83123b4a7c8eea7a91266455845f7bca"
+  },
+  "artifact": {
+    "id": 12118685788,
+    "bytes": 34726948,
+    "sha256": "93f70fdbfcacc976a31a42c44e74ea15e80c3e38acac0497b1304886f1c1cbb4",
+    "github_expected_sha256": "93f70fdbfcacc976a31a42c44e74ea15e80c3e38acac0497b1304886f1c1cbb4"
+  },
+  "job_log": {
+    "bytes": 1026562,
+    "sha256": "b666f8b4e9f411055826c26981981298acb4d90a6d2518bdeb9d73f39d9021db"
+  },
+  "retained_files": [
+    {
+      "path": "renderer-sdvk161/lifecycle-1/run.json",
+      "bytes": 3067,
+      "sha256": "90df0f102e24de1138d182d5aad60366489765188b18e64e21976667273f5782"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/native.renderer.json",
+      "bytes": 2210450,
+      "sha256": "97adb6704924b28ac22ddcacdc4263337504487dc961aa11fe296b12e8231dd8"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/stdout.log",
+      "bytes": 4877,
+      "sha256": "3772037ca986b4ce5059b25184875d08ab23be903236b99b15f0b9e5bcc3f03c"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/stderr.log",
+      "bytes": 92,
+      "sha256": "40d1be44a93d0b505eb7579666e7a87b81ffdd2400eb48e54ab6fad21ff9ead3"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/prepared.json",
+      "bytes": 87433,
+      "sha256": "1e85f0d268d0922f0f6e4efb17d4cca35d6873ada4aa65fe6afeece0de8737ac"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/recipe.json",
+      "bytes": 11420,
+      "sha256": "e450465ff67f862ff112efaa86c199944f6b26d8d34eb20416aa34f83e89b133"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/request.json",
+      "bytes": 6749,
+      "sha256": "f69bdc0e2022af9725bd46c69eeca69adb893c94dabb0a105e764bb0de7900f3"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-8.png",
+      "bytes": 90799,
+      "sha256": "ee0d02da373af28926c9ca106fcf3e8ba2785b352e77c236a003b02039b5875e"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-16.png",
+      "bytes": 91622,
+      "sha256": "4a7028f6c2522ed8fc9039c331ccbb0285077834e8527059a373047d761d1585"
+    },
+    {
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-24.png",
+      "bytes": 143969,
+      "sha256": "11cc14a86f4bc50c9116320ec633ce603acfa8884cb723183a767c14a39d790f"
+    }
+  ],
+  "original_run_artifact_pins_verified": 16,
+  "primary_failure": {
+    "message": "Emitted SDVK material index has no existing descriptor entry",
+    "classification": "production material-descriptor reset leaves cached LevelMesh consumers unrefreshed",
+    "last_completed_frame": 23,
+    "incomplete_witness_frame": 24,
+    "sampler_phase": "linear A after input at main view 48",
+    "last_submitted_pipeline_range": {
+      "first_index": 108,
+      "draw_count": 12,
+      "UseLevelMesh": 1,
+      "EffectState": 0
+    },
+    "earlier_same_range": {
+      "material": "S161NO",
+      "texture_index": 263
+    },
+    "source_chain": [
+      "VulkanRenderDevice::SetTextureFilterMode",
+      "VkDescriptorSetManager::ResetHWTextureSets",
+      "VkMaterial::DeleteDescriptors",
+      "VkLevelMeshUploader::UploadUniforms",
+      "VkLevelMeshUploader::UploadSurfaces"
+    ],
+    "reload_causality": "queued reload log is not a completed reload witness; no frame 25 generation was captured"
+  },
+  "observer": {
+    "status": "FAIL",
+    "observed_frames": 24,
+    "completed_frames": 23,
+    "dropped_records": 425,
+    "limits": {
+      "max_frames": 4096,
+      "max_records": 65536,
+      "max_record_bytes": 16384,
+      "max_retained_bytes": 16777216,
+      "retained_records": 1015,
+      "retained_bytes": 2166882
+    },
+    "record_cap_reached": false,
+    "drop_reason": "RecordStore retains its first error and rejects subsequent observations"
+  },
+  "additional_findings": [
+    {
+      "classification": "fixture nondeterministic HUD input",
+      "evidence": {
+        "changed_pixels": 1216,
+        "max_channel_error": 205,
+        "bbox": [
+          0,
+          0,
+          247,
+          7
+        ],
+        "visible_text_frame16": "MARKED 11 OUT OF 11 TILES FOR UPDATE.",
+        "all_pixels_below_row6_exact": true
+      },
+      "correction": "pin typed con_notifylines=0, reject overrides, and require actual zero immediately before every checkpoint; keep exact RGB"
+    },
+    {
+      "classification": "candidate decal receiver lookup uses ephemeral construction state",
+      "main_decal": {
+        "eligible": false,
+        "tile": -1
+      },
+      "main_PH_receiver": {
+        "tile": 2,
+        "receipt": {
+          "owner": 3,
+          "incarnation": 8,
+          "slot": 8
+        }
+      },
+      "plane_mirror_decal": {
+        "tile": 2,
+        "current_uv_valid": true
+      },
+      "source": "DoomLevelMesh::BeginFrame clears TileBindings; cached decals require a persistent current-surface lookup"
+    },
+    {
+      "classification": "observer receiving-wall UV gap",
+      "failed_rows": 26,
+      "witness_frames": [
+        8,
+        16
+      ],
+      "rows_per_frame": 13,
+      "scope": "actual immediate receiving walls have no captured writer UVs; strict UV validation correctly rejects them",
+      "correction": "capture actual producer-written vertices and revalidate against the current allocation at draw emission"
+    },
+    {
+      "classification": "oracle portal decal context join",
+      "scope": "correct plane-mirror decal and PH immediate wall share context identity 4 and tile 2; old oracle selects main-view receivers only",
+      "correction": "join every decal to an actual same-context PH receiving submission while still requiring the main mesh/decal pair"
+    },
+    {
+      "classification": "fixture initial work already completed during warmup",
+      "retained_cycles": {
+        "initial-retained": {
+          "frames": [
+            1,
+            8
+          ],
+          "updates": 0,
+          "completions": 0,
+          "final_all_clean": true
+        },
+        "invalidate-a-1": {
+          "frames": [
+            9,
+            16
+          ],
+          "updates": 11,
+          "completions": 11,
+          "final_all_clean": true
+        },
+        "linear-a-partial": {
+          "frames": [
+            17,
+            23
+          ],
+          "updates": 0,
+          "completions": 0,
+          "final_all_clean": true
+        }
+      },
+      "correction": "prospective fixed invalidation after main view 32 before retained frame 1; require real retained updates/completions rather than claim warmup work"
+    },
+    {
+      "classification": "oracle coherent wrong-material neighbor acceptance",
+      "source": "separate exact-head CPU counterexamples",
+      "scope": [
+        "horizon-contents",
+        "decal",
+        "reflective-floor",
+        "ordinary PH wall"
+      ],
+      "counterexample": "retain correct witness and add a wrong-material row with a coherent current same-frame descriptor; material-first existential filtering admits it",
+      "correction": "validate every observed semantic owner/class against its authored material before coverage presence; keep current descriptor and receiver checks"
+    },
+    {
+      "classification": "negative-control target multiplicity",
+      "scope": "two actual ceiling horizon-content rows per observed witness, root and plane-mirror contexts",
+      "correction": "one context/owner-qualified target with complete coherent donor material substitution; require intended semantic rejection even while valid neighbors survive"
+    }
+  ],
+  "acceptance_awarded": false,
+  "dependent_capture_started": false,
+  "automatic_retries": 0,
+  "local_native_executions": 0,
+  "physical": {
+    "stop": "ACTIVE",
+    "GPU_bake_update_cost_representative_scaling_hardware_stability": "HELD / NOT ACCEPTED",
+    "historical_root_cause": "UNDETERMINED"
+  },
+  "policy": "Original failed packet remains unchanged. Corrections require a new reviewed commit and normal CI; partial evidence is never combined across attempts.",
+  "post_failure_adversarial_review": [
+    {
+      "classification": "unreachable fixture production-method requirement",
+      "evidence": "HWDrawInfo::RenderPVS sends outer views through RenderBSP, which sets uselevelmesh = gl_levelmesh && !outer; immediate flats have no mesh surface producer",
+      "correction": "Keep two maps and the same 32+96/12 bounds; move authored B camera to [1060,-176,64], yaw 90; require actual main-view LevelMesh slab/band rows and an independent actual immediate reverse-portal north-wall receiver. No portal rendering feature is enabled."
+    },
+    {
+      "classification": "prospective observer worker/main snapshot ownership",
+      "evidence": "BSP portal decals can be written on WorkerThread and consumed on main after future.wait(); a thread-local store separates those observations",
+      "correction": "Use shared frame-owned copied snapshots with one synchronized 4096-vertex budget and next-frame clear; the original TLS counterfactual must fail worker-writer-main-snapshot-missing."
+    },
+    {
+      "classification": "linked-portal context source versus selected destination identity",
+      "evidence": "LineToLine Setup translates the copied viewpoint but does not replace vp.sector; existing context portal_group remains the inherited viewpoint sector group",
+      "correction": "Preserve accepted context semantics and add actual line_portal_selection endpoint/group metadata; join receiver ownership to the selected destination."
+    }
+  ]
+}

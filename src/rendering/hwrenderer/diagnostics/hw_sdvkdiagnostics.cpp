@@ -3,6 +3,7 @@
 #include "hw_sdvkdiagnostics.h"
 #include "hw_sdvkdiagnosticcore.h"
 #include "hw_sdvkgpuscope.h"
+#include "hw_lineportalobservation.h"
 #include "c_dispatch.h"
 #include "m_argv.h"
 #include "m_misc.h"
@@ -11,10 +12,13 @@
 #include "v_video.h"
 #include "d_main.h"
 #include "g_levellocals.h"
+#include "portal.h"
 #include "a_dynlight.h"
 #include "hw_clock.h"
 #include "hw_shadowmap.h"
 #include "hw_cvars.h"
+#include "hw_levelmesh.h"
+#include "flatvertices.h"
 #include "r_utility.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawcontext.h"
@@ -37,6 +41,7 @@ EXTERN_CVAR(Bool, gl_levelmesh)
 EXTERN_CVAR(Bool, gl_ubershaders)
 EXTERN_CVAR(Bool, gl_lightprobe)
 EXTERN_CVAR(Bool, screenshot_quiet)
+EXTERN_CVAR(Int, con_notifylines)
 EXTERN_CVAR(Bool, vk_rayquery)
 EXTERN_CVAR(Bool, cl_capfps)
 EXTERN_CVAR(Bool, lm_dynlights)
@@ -45,7 +50,32 @@ EXTERN_CVAR(String, screenshot_type)
 namespace SdvkDiagnostics
 {
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
-namespace { thread_local SpecialSurfaceMetadata ImmediateSurface; }
+namespace {
+thread_local SpecialSurfaceMetadata ImmediateSurface;
+// Workers author portal decals before the main thread submits them. This
+// frame-owned store is shared; only draw-scope metadata remains thread-local.
+SdvkSurfaceObservation::WrittenVertexStore WrittenVertices;
+}
+
+void CaptureWrittenVertices(const LevelMesh* mesh, int first, int count, int tile, const FFlatVertex* written)
+{
+    if (!SpecialSurfaceFrameSelected() || tile < 0) return;
+    try
+    {
+        if (!mesh) throw std::runtime_error("SDVK written vertex snapshot has no current mesh");
+        const auto& current = mesh->GetLightmapTile(tile);
+        WrittenVertices.Capture(first, count, tile, current.AtlasLocation.Allocation, written);
+    }
+    catch (const std::exception& error) { Fail(error.what()); }
+}
+
+void ApplyWrittenVertices(SpecialSurfaceMetadata& value)
+{
+    if (!SpecialSurfaceFrameSelected() || value.Tile < 0) return;
+    if (WrittenVertices.Copy(value.VertexFirst, value.VertexCount, value.Tile, value.WrittenUV))
+        value.UvScope = "actual producer-written CPU position/UV/page snapshot and allocation receipt revalidated at draw; not GPU readback";
+}
+
 
 const SpecialSurfaceMetadata& CurrentSpecialSurfaceMetadata() { return ImmediateSurface; }
 
@@ -152,6 +182,7 @@ void DriveLightmapTransitionInput(const Observer& observer)
 }
 
 constexpr LightmapTransitionPhase SpecialSurfacePhases[] = {
+    {32, "invalidate-a-retained-start", "invalidatelightmap"},
     {40, "invalidate-a-1", "invalidatelightmap"},
     {48, "filter-linear-a", "gl_texture_filter 4"},
     {56, "reload-a", "map SDV161A"},
@@ -323,6 +354,21 @@ std::string VisualTime(const HWRenderContext& context)
         .Str("discontinuity", RenderVisualTime::ReasonName(time.Discontinuity)).Json();
 }
 
+std::string SelectedLinePortalContext(const HWDrawInfo* di)
+{
+    const auto* portal = dynamic_cast<const HWLineToLinePortal*>(di->mCurrentPortal);
+    if (!portal) return Unavailable("current context is not a LineToLine portal");
+    SdvkPortalObservation::SelectedLinePortal selection;
+    if (!di->Level || !SdvkPortalObservation::ResolveSelectedLinePortal(portal->glport,
+        di->Level->lines.Size(), di->Level->sectors.Size(), selection))
+        return Unavailable("selected LineToLine endpoints are missing or outside the current level");
+    return Object().Bool("available", true).Int("selected_span_index", 0)
+        .Int("origin_line", selection.OriginLine).Int("destination_line", selection.DestinationLine)
+        .Int("source_sector", selection.SourceSector).Int("destination_sector", selection.DestinationSector)
+        .Int("source_group", selection.SourceGroup).Int("destination_group", selection.DestinationGroup)
+        .Str("scope", "actual selected LineToLine span[0] endpoints; viewpoint sector is separate").Json();
+}
+
 std::string Context(const HWDrawInfo* di)
 {
     if (!di || !di->drawctx) return Unavailable("no active HWDrawInfo context");
@@ -339,7 +385,8 @@ std::string Context(const HWDrawInfo* di)
     const std::string semantic = map + ':' + HWRenderContextTypeName(context.rootType) + ':' +
         std::to_string(context.probeFace) + ':' + std::to_string(context.eyeIndex) + ':' +
         std::to_string(context.recursionDepth) + ':' + kind + ':' + std::to_string(group) + ':' + position + ':' + angles;
-    return Object().Bool("available", true).Str("semantic_key", semantic).Str("producer", kind).Str("map", map)
+    Object result;
+    result.Bool("available", true).Str("semantic_key", semantic).Str("producer", kind).Str("map", map)
         .Str("type", HWRenderContextTypeName(context.type)).Str("root_type", HWRenderContextTypeName(context.rootType))
         .Int("epoch", context.epoch).Int("identity", context.identity).Int("parent_identity", context.parentIdentity)
         .Int("depth", context.recursionDepth).Int("face", context.probeFace).Int("eye", context.eyeIndex).Int("portal_group", group)
@@ -347,7 +394,14 @@ std::string Context(const HWDrawInfo* di)
         .Bool("history_eligible", context.historyEligible).Bool("postprocess_eligible", context.postprocessEligible)
         .Raw("visual_time", VisualTime(context))
         .Raw("position", position).Raw("angles", angles).Str("angle_space", "hardware-view")
-        .Num("fraction", vp.TicFrac).Int("gametic", gametic).Json();
+        .Num("fraction", vp.TicFrac).Int("gametic", gametic);
+    // Preserve the accepted legacy portal_group/semantic_key meaning: both
+    // describe Viewpoint.sector, which line portals can inherit from parent.
+    // The opted-in surface oracle joins selected destination ownership using
+    // the explicit endpoint evidence below, never by reinterpreting that field.
+    if (SpecialSurfaceEnabled())
+        result.Raw("line_portal_selection", SelectedLinePortalContext(di));
+    return result.Json();
 }
 
 void Dump(bool complete)
@@ -576,6 +630,7 @@ void BeginFrame()
 {
     Initialize();
     if (!Enabled()) return;
+    WrittenVertices.Clear();
     auto& observer = Get();
     try
     {
@@ -712,6 +767,7 @@ void FramePresented()
                 Require(std::string(static_cast<const char*>(screenshot_type)) == "png",
                     "SDVK-161 checkpoint requires screenshot_type=png");
                 Require(bool(screenshot_quiet), "SDVK-161 checkpoints require screenshot_quiet=true");
+                Require(int(con_notifylines) == 0, "SDVK-161 checkpoints require con_notifylines=0");
                 M_ScreenShot((observer.Prefix + suffix).c_str());
                 Require(std::filesystem::is_regular_file(path) && std::filesystem::file_size(path) > 0,
                     "SDVK-161 completed-view checkpoint image missing");

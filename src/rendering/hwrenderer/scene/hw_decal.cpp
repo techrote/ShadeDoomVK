@@ -67,14 +67,7 @@ void HWDecal::DrawDecal(HWDrawInfo *di, FRenderState &state)
 		value.VertexLightmapPage = sdvkPage;
 		value.VertexFirst = int(vertindex);
 		value.VertexCount = 4;
-		if (sdvkHasUVSnapshot)
-		{
-			value.UvVertexCount = 4;
-			for (int i = 0; i < 4; ++i)
-				value.UvVertices[i] = {dv[i].x, dv[i].y, dv[i].z,
-					sdvkActualLightmapUV[2 * i], sdvkActualLightmapUV[2 * i + 1]};
-			value.UvScope = "actual producer-written CPU UV snapshot revalidated against current tile at draw; not GPU readback";
-		}
+		SdvkDiagnostics::ApplyWrittenVertices(value);
 		value.Plane[0] = Normal.X;
 		value.Plane[1] = Normal.Z;
 		value.Plane[2] = Normal.Y;
@@ -433,7 +426,6 @@ void HWWall::ProcessDecal(HWDrawInfo* di, FRenderState& state, DBaseDecal *decal
 		gldecal->sdvkControlSector = LevelMeshInfo.ControlSector ? LevelMeshInfo.ControlSector->Index() : -1;
 		gldecal->sdvkTile = -1;
 		gldecal->sdvkPage = -1;
-		gldecal->sdvkHasUVSnapshot = false;
 	}
 
 
@@ -485,12 +477,8 @@ void HWWall::ProcessDecal(HWDrawInfo* di, FRenderState& state, DBaseDecal *decal
 		}
 		if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
 		{
-			for (int vertex = 0; vertex < 4; ++vertex)
-			{
-				gldecal->sdvkActualLightmapUV[2 * vertex] = verts.first[vertex].lu;
-				gldecal->sdvkActualLightmapUV[2 * vertex + 1] = verts.first[vertex].lv;
-			}
-			gldecal->sdvkHasUVSnapshot = true;
+			SdvkDiagnostics::CaptureWrittenVertices(di->Level->levelMesh, int(gldecal->vertindex), 4,
+				lightmaptile, verts.first);
 		}
 	}
 	else
@@ -712,7 +700,6 @@ void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dy
 		gldecal->sdvkControlSector = lightmapControlSector ? lightmapControlSector->Index() : -1;
 		gldecal->sdvkTile = -1;
 		gldecal->sdvkPage = -1;
-		gldecal->sdvkHasUVSnapshot = false;
 	}
 
 
@@ -764,12 +751,8 @@ void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dy
 		}
 		if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
 		{
-			for (int vertex = 0; vertex < 4; ++vertex)
-			{
-				gldecal->sdvkActualLightmapUV[2 * vertex] = verts.first[vertex].lu;
-				gldecal->sdvkActualLightmapUV[2 * vertex + 1] = verts.first[vertex].lv;
-			}
-			gldecal->sdvkHasUVSnapshot = true;
+			SdvkDiagnostics::CaptureWrittenVertices(di->Level->levelMesh, int(gldecal->vertindex), 4,
+				lightmaptile, verts.first);
 		}
 	}
 	else

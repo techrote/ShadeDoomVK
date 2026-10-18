@@ -364,3 +364,12 @@ authored probes with gl_lightprobe enabled to exercise the existing empty-owner
 reset path. It requires current runtime-zero fallback and advancing owner epochs
 on reload, without claiming live authored cubemap or per-texel probe readback.
 The required #150/#153 live-probe lanes remain authoritative and required.
+
+### SDVK-161 current decal receivers
+
+Cached main-view decals resolve the current receiving side's live surface chain,
+matching type, side and control-sector identity before consuming its centrally
+checked tile allocation. `TileBindings` is a per-rebuild deduplication table,
+cleared each frame; it is not a persistent receiver registry. Decals remain
+overlays and never allocate their own lightmap tile. Rebuild/reload can change
+the numeric tile slot without changing the decal's semantic receiver identity.

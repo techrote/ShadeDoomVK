@@ -322,6 +322,8 @@ def capture(args):
                    "gpu_timestamps_requested": args.gpu,
                    "probe_owner_trace": bool(native.get("probe_owner_trace", False)),
                    "image_policy": image_policy(scene, args.image_policy)}
+        if native.get("generator") == "special_surface_lifecycle":
+            profile["map_cameras"] = native["map_cameras"]
         prefix = _console_path(out / "native")
         substitutions = {"exe": str(exe), "iwad": str(out / "input" / iwad.name),
                          "pk3": str(out / "input" / "scene.pk3"), "config": str(out / "fixture.ini"),
@@ -617,8 +619,13 @@ def observation_map(scene):
 
 def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
-    camera = scene["native"]["camera"]
     for frame_number, frame in ((r["frame"], r["data"]) for r in raw["records"] if r["kind"] == "frame"):
+        camera = scene["native"]["camera"]
+        if scene["native"].get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
+            validate_recipe(scene)
+            camera = scene["native"]["map_cameras"].get(frame.get("map"))
+            require(camera is not None, "SDVK-161 frame has no authored map camera")
         require(_numeric_vector_matches(frame.get("camera", {}).get("position"), camera["position"]), "Actual camera position differs from the fixture")
         require(_numeric_vector_matches(frame["camera"].get("angles"), [camera["yaw"], camera["pitch"], camera["roll"]]), "Actual camera angles differ from the fixture")
         expected_settings = scene["native"]["settings"]
@@ -827,6 +834,9 @@ def _validate_run(path):
     require(data["scene"] == profile["scene"] == scene["id"], "Scene identities disagree")
     for key in ("seed", "camera", "settings"):
         require(profile[key] == scene["native"][key], "Preregistered recipe value differs: " + key)
+    if scene["native"].get("generator") == "special_surface_lifecycle":
+        require(profile.get("map_cameras") == scene["native"]["map_cameras"],
+                "Preregistered map cameras differ from the SDVK-161 recipe")
     extent = validated_extent(profile, scene["native"], request["argv"])
     require(profile["clock"] == scene["native"]["clock"][data["mode"]], "Clock policy differs from the fixture")
     images.validate_policy(profile["image_policy"])

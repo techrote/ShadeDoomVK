@@ -746,14 +746,28 @@ int DoomLevelMesh::ResolveDecalLightmapTile(const HWDecalCreateInfo& decal) cons
 	if (!decal.seg || !decal.seg->sidedef || decal.lightmapType == ST_NONE)
 		return -1;
 
-	LightmapTileBinding binding;
-	binding.Type = decal.lightmapType;
-	binding.TypeIndex = decal.seg->sidedef->Index();
-	binding.ControlSector = decal.lightmapControlSector ? decal.lightmapControlSector->Index() : (uint32_t)0xffffffffUL;
-	auto found = TileBindings.find(binding);
-	// This is an overlay on the current receiving surface, never a tile owner.
-	// ProcessDecal keeps GetLightmapTile's current-owner/receipt validation at UV use.
-	return found == TileBindings.end() ? -1 : found->second;
+	const auto sideIndex = decal.seg->sidedef->Index();
+	if (sideIndex >= Sides.Size()) return -1;
+	const uint32_t control = decal.lightmapControlSector ? decal.lightmapControlSector->Index() : (uint32_t)0xffffffffUL;
+	// TileBindings only deduplicates this frame's geometry rebuild and is
+	// cleared by BeginFrame. Follow the receiving side's CURRENT live surfaces
+	// instead; an unchanged wall must keep its overlay lightmapped too.
+	for (int surfaceIndex = Sides[sideIndex].FirstSurface; surfaceIndex != -1;
+		surfaceIndex = DoomSurfaceInfos[surfaceIndex].NextSurface)
+	{
+		const auto& info = DoomSurfaceInfos[surfaceIndex];
+		const uint32_t owner = info.ControlSector ? info.ControlSector->Index() : (uint32_t)0xffffffffUL;
+		if (info.Type != decal.lightmapType || info.TypeIndex != sideIndex || owner != control) continue;
+		const int tileIndex = Mesh.Surfaces[surfaceIndex].LightmapTileIndex;
+		if (tileIndex < 0) continue;
+		// Centralized current atlas-owner/receipt validation precedes UV use.
+		const auto& tile = GetLightmapTile(tileIndex);
+		if (tile.Binding.Type != uint32_t(decal.lightmapType) || tile.Binding.TypeIndex != sideIndex
+			|| tile.Binding.ControlSector != control)
+			I_FatalError("Decal receiver references another lightmap binding");
+		return tileIndex;
+	}
+	return -1; // No receiving surface: decals never allocate a tile themselves.
 }
 
 void DoomLevelMesh::BeginFrame(FLevelLocals& doomMap)

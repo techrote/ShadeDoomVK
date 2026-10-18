@@ -24,6 +24,7 @@
 #include "r_defs.h"
 #include "flatvertices.h"
 #include "hw_renderstate.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include "hwrenderer/scene/hw_drawinfo.h"
 #include "hwrenderer/scene/hw_drawstructs.h"
 #include "doom_levelmesh.h"
@@ -307,14 +308,17 @@ int HWWall::CountVertices()
 //
 //==========================================================================
 
-void HWWall::MakeVertices(FRenderState& state, bool nosplit)
+void HWWall::MakeVertices(FRenderState& state, bool nosplit, bool observeWritten)
 {
 	if (vertcount == 0)
 	{
 		bool split = (gl_seamless && !nosplit && seg->sidedef != nullptr && !(seg->sidedef->Flags & WALLF_POLYOBJ) && !(flags & HWF_NOSPLIT));
 		auto ret = state.AllocVertices(split ? CountVertices() : 4);
 		vertindex = ret.second;
+		const auto written = ret.first;
 		vertcount = CreateVertices(ret.first, split);
+		if (observeWritten && SdvkDiagnostics::SpecialSurfaceFrameSelected() && lightmaptile >= 0)
+			SdvkDiagnostics::CaptureWrittenVertices(level.levelMesh, int(vertindex), int(vertcount), lightmaptile, written);
 	}
 }
 

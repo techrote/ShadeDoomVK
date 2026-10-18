@@ -218,3 +218,15 @@ PortalGroup, not the mesh connected-component group. The bounded native
 portals, mirrors and actual Line_Horizon floor/ceiling contents using inherited
 PF contexts. General native sector-stack and inverted-3D-floor coverage is not
 implied by those cells.
+
+Recursive portal draw infos have an outer view and select the immediate BSP
+renderer. SDVK-161 therefore witnesses opaque 3D-floor LevelMesh surfaces in
+the main view and a separate immediate lightmapped wall through the reverse
+linked portal; it does not claim a recursive portal mesh submission. The legacy
+observer context `portal_group` describes `Viewpoint.sector`, which LineToLine
+setup can inherit from its parent while translating the camera. Opted-in
+`line_portal_selection` reads the actual selected `glport->lines[0]` origin and
+destination, including line/sector/group identities. The receiving sector group
+must agree with that selected destination; the inherited context field and
+semantic key remain unchanged. No alternate portal transform or XY sector
+lookup is introduced by this observation.

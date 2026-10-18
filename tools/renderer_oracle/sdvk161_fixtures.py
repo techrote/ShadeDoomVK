@@ -13,6 +13,9 @@ SCENE = "special-surface-lifecycle"
 MAPS = ("SDV161A", "SDV161B")
 GENERATOR = "special_surface_lifecycle"
 CAMERA = {"position": [-192, 0, 64], "yaw": 0, "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002}
+MAP_CAMERAS = {MAPS[0]: CAMERA, MAPS[1]: {"position": [1060, -176, 64], "yaw": 90,
+               "pitch": 0, "roll": 0, "camera_height": 0, "actor_tid": 2002}}
+PLAYER_STARTS = {MAPS[0]: [-240, 0], MAPS[1]: [-240, 0]}
 
 # Semantic identities, never renderer-local surface/tile/descriptor ordinals.
 MATERIALS = {
@@ -32,7 +35,8 @@ MATERIALS = {
 def validate_recipe(scene: dict) -> None:
     native = scene.get("native", {})
     if (scene.get("id") != SCENE or native.get("generator") != GENERATOR
-            or native.get("map") != MAPS[0] or native.get("camera") != CAMERA):
+            or native.get("map") != MAPS[0] or native.get("camera") != CAMERA
+            or native.get("map_cameras") != MAP_CAMERAS):
         raise ValueError("SDVK-161 needs its exact authored scene/map/camera")
     if (native.get("settings", {}).get("gl_levelmesh") is not True
             or native.get("settings", {}).get("lm_dynlights") is not False):
@@ -65,9 +69,10 @@ def _ring(model, points, front, texture, *, back=None):
     return lines, sides
 
 
-def _common_things(model):
-    model.thing(1, -240, 0, tid=2001)
-    model.thing(32200, -192, 0, 64, tid=2002)
+def _common_things(model, map_name):
+    camera = MAP_CAMERAS[map_name]
+    model.thing(1, *PLAYER_STARTS[map_name], tid=2001)
+    model.thing(32200, *camera["position"], camera["yaw"], tid=camera["actor_tid"])
     model.thing(9890, -96, 0, angle=0, pitch=0, lm_suncolor=16777215,
                 lm_sunintensity=0, lm_sampledist=32)
 
@@ -85,7 +90,7 @@ def models(author):
     first.records["sidedef"] += [{"sector": 0, "texturemiddle": "S161GL"}] * 2
     first.records["linedef"].append({"v1": 9, "v2": 10, "sidefront": 9, "sideback": 10,
                                         "twosided": True, "blocking": False, "alpha": 0.5, "id": 16150})
-    _common_things(first)
+    _common_things(first, MAPS[0])
     first.thing(9200, 240, 96, 80, 180, 2030, arg0=25061 & 255, arg1=25061 >> 8)
     first.thing(9200, 0, 96, 80, 180, 2031, arg0=25061 & 255, arg1=25061 >> 8)
 
@@ -105,7 +110,7 @@ def models(author):
         [(1100, -96), (1340, -96), (1340, 96), (1100, 96)], 1, "-", back=6)
     for side in target_sides:
         second.records["sidedef"][side].update(texturetop="S161PN", texturebottom="S161HO")
-    _common_things(second)
+    _common_things(second, MAPS[1])
     metadata = {"linked_portal": portals, "target_sector": 6, "target_lines": target_lines,
                 "outside_sides": target_sides, "controls": [4, 5],
                 "ordinary_height_bands": [
@@ -129,6 +134,16 @@ def validate_geometry(authored, ownership):
     if set(authored) != set(MAPS):
         raise ValueError("SDVK-161 map population differs")
     first, second = (authored[name].records for name in MAPS)
+    for name in MAPS:
+        rows = authored[name].records
+        cameras = [thing for thing in rows["thing"] if thing["type"] == 32200]
+        camera = MAP_CAMERAS[name]
+        if (len(cameras) != 1 or [cameras[0][key] for key in ("x", "y", "height")] != camera["position"]
+                or cameras[0]["angle"] != camera["yaw"] or cameras[0]["id"] != camera["actor_tid"]):
+            raise ValueError("SDVK-161 per-map authored camera differs: " + name)
+        players = [thing for thing in rows["thing"] if thing["type"] == 1]
+        if len(players) != 1 or [players[0][key] for key in ("x", "y")] != PLAYER_STARTS[name]:
+            raise ValueError("SDVK-161 per-map player start differs: " + name)
     if (first["linedef"][2].get("special") != 9 or first["linedef"][6].get("special") != 182
             or first["linedef"][9].get("alpha") != 0.5
             or first["sector"][0].get("floor_reflect") != 0.25):
@@ -199,13 +214,25 @@ def authored_members(scene, author):
         "camera_actor_tid": 2002, "camera_position_world": copy.deepcopy(CAMERA["position"]),
         "player_start_world": [-240, 0], "monsters": 0, "animated_or_random_actors": 0,
         "baked_lightmap_members": 0, "materials": copy.deepcopy(MATERIALS),
+        "initial_retained_work": {"after_main_views": 32, "phase": "invalidate-a-retained-start",
+                                  "command": "invalidatelightmap", "retained_frames": [1, 8],
+                                  "scope": "explicit forced update after warmup; not observed initial construction bake"},
         "warp": {"material": "S161WP", "style": 2, "shader_speed": 0,
                  "scope": "static spatial Warp2 UV displacement; animated clock unclaimed"},
         "horizon_observation": "first emitted nonindexed strip from every actual horizon contents producer on selected witness frames; all render commands execute",
         "decal": {"attached_tid": 2030, "negative_tid": 2031, "expected_side": 3,
                   "attached_distance": 16, "negative_distance": 256, "search_limit": 64,
                   "route": "decal overlay; never a standalone baked receiver"},
+        "reverse_portal_receiver": {"side": 1, "owner_sector": 0, "control_sector": -1,
+                                    "portal_group": 1, "material": "SDVW", "producer": "immediate-special-surface",
+                                    "virtual_camera_world": [36, -176, 64], "yaw": 90,
+                                    "legacy_context_portal_group": 2,
+                                    "line_portal_selection": {"selected_span_index": 0, "origin_line": 10,
+                                        "destination_line": 3, "source_sector": 1, "destination_sector": 0,
+                                        "source_group": 2, "destination_group": 1}},
         "ownership": ownership,
-        "maps": [{"map": name, "counts": {kind: len(rows) for kind, rows in model.records.items()},
+        "maps": [{"map": name, "camera": copy.deepcopy(MAP_CAMERAS[name]),
+                  "player_start_world": copy.deepcopy(PLAYER_STARTS[name]), "counts": {kind: len(rows) for kind, rows in model.records.items()},
                   "boundary_signed_areas": model.polygon_areas} for name, model in authored.items()],
-        "excluded": ["inverted/both-plane 3D floors", "animated warp time", "physical GPU qualification"]}
+        "excluded": ["inverted/both-plane 3D floors", "animated warp time", "physical GPU qualification",
+                     "recursive 3D-flat native submission (source-only boundary)"]}

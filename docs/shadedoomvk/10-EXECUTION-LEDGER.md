@@ -662,7 +662,7 @@ exits0,60 raw blocks/40 retained scores and five exact image/state pairs with
 9,529,520 pixels/zero mismatch. Both actual warmups are inspected. All360 raw
 CPU intervals verify; every readiness observation finishes at30, maximum final
 ten11.711711711711711%. Independent raw audit rehashes84 output files, parses
-all60 blocks and independently decodes all 12 PNGs. Before/after closure is exact.
+all60 blocks and independently decodes all12 PNGs. Before/after closure is exact.
 Mean of paired CPU medians is18.3481→18.2598ms All including Finish/wait,
 3.6660→3.6319ms full Setup and3.6243→3.5910ms Sprite Setup; pair signs are mixed.
 
@@ -1399,3 +1399,51 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
   hardware stability HELD / NOT ACCEPTED. Historical physical root cause
   UNDETERMINED. No local renderer or physical device execution.
+
+
+### 17 October 2026 (UTC) — SDVK-161 first hosted failure and root-cause corrections
+
+- Exact PR #162 head `631e3abcde6fb7c9d6569ffe97c19951b1403fd1`, tree
+  `228189c9660194e39632741d2bef829a631054e5`, passed the PF/oracle gate, all seven
+  ordinary platform builds, renderer source evidence, general software Vulkan,
+  and SDVK-010/150/153/158. Normal run `39076666750` stopped in SDVK-161; the later
+  SDVK-009 publication command did not execute.
+- Job `117525798641` retained artifact `12118685788`, SHA-256
+  `93f70fdbfcacc976a31a42c44e74ea15e80c3e38acac0497b1304886f1c1cbb4`.
+  Runtime integration commit `2898e6973948194cb321f2695e75b29f0ff6d215` has the
+  exact PR tree. Archive and all 16 original run artifact pins were verified.
+  [Failure identity, retained hashes and findings](evidence/SDVK-161-FIRST-NATIVE-FAILURE.json).
+- The passive observer failed during witness frame 24 with a submitted material
+  index that had no current descriptor entry. Filter reset had retired material
+  variants without scheduling cached LevelMesh raster uniforms and tracer
+  surface indices for refresh. Frame 23 is the last completed resource snapshot;
+  queued reload text does not prove that a reload generation was rendered.
+- The same retained packet exposed an ephemeral-map decal lookup, absent actual
+  immediate receiving-wall UV evidence, and a portal decal oracle that could
+  only join main-view receivers. These require producer or observer/relationship
+  repairs; the current-allocation and UV assertions remain binding.
+- Invalidation text changes 1,216 checkpoint pixels in the top seven rows.
+  Initial bake work already completed during warmup, leaving retained frames
+  1–8 with no update work. The prospective fixture pins notification suppression
+  and explicitly invalidates at main view 32, preserving the 32/96 frame budgets
+  and twelve checkpoints. It must observe actual retained work and exact RGB.
+- Adversarial CPU counterexamples retain a correct neighboring witness while
+  adding a wrong material with a coherent current descriptor. Admission must
+  validate every submitted semantic owner/class before counting coverage;
+  required owner fields must reject corruption rather than skip validation.
+- Extra High review of the corrections found that recursive portal views use
+  immediate BSP geometry, making a portal-context LevelMesh requirement
+  unreachable. The bounded B camera now targets main-view mesh slabs and an
+  independent actual reverse-portal wall, retaining two maps and all frame/PNG
+  budgets. Selected portal endpoints/groups are additive evidence; inherited
+  viewpoint-sector context semantics stay unchanged.
+- The same review rejected thread-local writer snapshot storage: BSP workers
+  can produce portal decals consumed on the main thread. A shared synchronized
+  frame store preserves actual writer UVs and one 4096-vertex budget; an actual
+  worker/main production-method counterfactual pins the original missing copy.
+- No failed-head retry, dependent second capture or extra runner was launched.
+  Corrected production/fixture/oracle code, CPU controls and Extra High review
+  must pass before normal CI on a new head. This checkpoint is not acceptance.
+- #14 remains OPEN. Physical STOP ACTIVE; physical GPU bake/update cost,
+  representative scaling and hardware stability HELD / NOT ACCEPTED; historical
+  physical root cause UNDETERMINED. No local renderer/device execution.

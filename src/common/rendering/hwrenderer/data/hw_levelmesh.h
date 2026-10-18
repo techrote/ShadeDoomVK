@@ -113,6 +113,7 @@ public:
 
 	// Sets the initial sizes of the GPU buffers and empties the mesh
 	virtual void Reset();
+	void InvalidateMaterialBindings();
 
 	FRendererEpochToken GetResourceEpoch() const { return ResourceEpoch.Snapshot(); }
 	bool ValidateResourceEpoch(FRendererEpochToken token) { return ResourceEpoch.Validate(token); }
