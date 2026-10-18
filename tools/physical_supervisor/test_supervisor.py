@@ -9,6 +9,7 @@ import copy
 import base64
 import datetime as dt
 import hashlib
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -21,7 +22,7 @@ import unittest
 from unittest.mock import patch
 
 from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, environment_policy, sealed_environment, REGISTRY_KEYS, DISPLAY_CLASS, CONTROL_VIDEO, verify_registry, linklike
-from .readers import BoundedReaders, NativeEvents, continuity, telemetry, gpu_reader,bounded_host_identity,check_host_identity
+from .readers import BoundedReaders, NativeEvents, continuity, telemetry, gpu_reader,bounded_host_identity,check_host_identity,NVML_POWER_USAGE_MAX_WATTS,NVML_POWER_USAGE_CSV_MAX_WATTS
 from .supervisor import LogScanner, Watch, terminate_owned
 
 
@@ -291,6 +292,24 @@ class EventTests(unittest.TestCase):
 class TelemetryTests(unittest.TestCase):
     def test_valid_idle_finite_readback(self):
         self.assertEqual(telemetry(raw(), EXPECTED, 80)["temperature_c"], 30)
+
+    def test_power_draw_unsigned_milliwatt_boundary_and_transient_above_limit(self):
+        self.assertEqual(NVML_POWER_USAGE_MAX_WATTS,4294967.295)
+        self.assertEqual(NVML_POWER_USAGE_CSV_MAX_WATTS,4294967.30)
+        for value in (0,90,110,NVML_POWER_USAGE_MAX_WATTS,NVML_POWER_USAGE_CSV_MAX_WATTS):
+            row=list(ROW);row[4]=str(value)
+            with self.subTest(value=value):
+                self.assertEqual(telemetry(raw(row),EXPECTED,80)["power_draw_watts"],value)
+
+    def test_overrange_finite_power_draw_retains_failed_raw_stdout(self):
+        for value in (math.nextafter(NVML_POWER_USAGE_CSV_MAX_WATTS,math.inf),NVML_POWER_USAGE_CSV_MAX_WATTS+.01,1e300):
+            row=list(ROW);row[4]=str(value);bad=raw(row)
+            with self.subTest(value=value),self.assertRaisesRegex(Stop,"NVML unsigned milliwatt") as caught:
+                telemetry(bad,EXPECTED,80)
+            evidence=caught.exception.evidence["raw_stdout"]
+            self.assertEqual(base64.b64decode(evidence["base64"]),bad)
+            self.assertEqual(evidence["sha256"],hashlib.sha256(bad).hexdigest())
+            self.assertFalse(evidence["truncated"])
 
     def test_nonfinite_temp_power_clock_or_utilization(self):
         for index in (3, 4, 5, 6, 7, 8, 13, 14, 15):

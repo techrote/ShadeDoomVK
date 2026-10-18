@@ -16,6 +16,10 @@ from .common import Stop, canonical, require
 
 NS = {"e": "http://schemas.microsoft.com/win/2004/08/events/event"}
 FIELDS = "name,pci.bus_id,driver_version,temperature.gpu,power.draw,power.limit,clocks.gr,clocks.mem,utilization.gpu,pstate,clocks_event_reasons.active,uuid,pci.device_id,clocks.max.graphics,clocks.max.memory,power.default_limit"
+# NVML nvmlDeviceGetPowerUsage returns unsigned 32-bit milliwatts.
+NVML_POWER_USAGE_MAX_WATTS = ((1 << 32) - 1) / 1000
+# Permit observed nvidia-smi centiwatt rounding of the maximum unsigned value.
+NVML_POWER_USAGE_CSV_MAX_WATTS = (((1 << 32) - 1 + 9) // 10) / 100
 
 
 def raw_evidence(raw, *, maximum=65536):
@@ -49,6 +53,7 @@ def _telemetry(raw, expected, limit):
         require(math.isfinite(value) and value >= 0, "Nonfinite/negative telemetry")
         numbers.append(value)
     require(numbers[0] < limit, "Temperature stop")
+    require(numbers[1] <= NVML_POWER_USAGE_CSV_MAX_WATTS, "Power draw exceeds NVML unsigned milliwatt CSV representation")
     require(numbers[2] == expected["power_limit_watts"], "Power limit drift")
     require(numbers[3] <= expected["max_graphics_clock_mhz"] and numbers[4] <= expected["max_memory_clock_mhz"], "Clock outside reviewed envelope")
     require(numbers[5] <= 100 and row[9] in {"P"+str(value) for value in range(16)}, "Invalid GPU status")

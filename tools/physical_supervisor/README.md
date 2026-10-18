@@ -48,6 +48,12 @@ explicit allow-list of hexadecimal clock event reasons. Transient clocks must
 remain finite and inside the reviewed envelope. Native observer identity uses
 `vendor_id`, `device_id`, `device_type` and `driver_version_raw`.
 
+Power draw must fit NVML's unsigned 32-bit milliwatt representation, allowing
+observed centiwatt CSV rounding up to 4294967.30 watts. This checks representation;
+finite readings above the configured power limit remain valid.
+[NVIDIA's power-usage API](https://docs.nvidia.com/deploy/nvml-api/latest/api/group__nvmlDeviceQueries.html)
+documents the unsigned milliwatt result.
+
 ```text
 python -B -m tools.physical_supervisor init-stop --root <fresh shared STOP directory>
 python -B -m tools.physical_supervisor host-identity --out <fresh private host identity receipt>
