@@ -43,6 +43,8 @@ class RealOracleAdapterTests(TempCase):
             self.assertEqual(Path(prepare.pf_view.__file__).resolve(),root/"tools/pf_oracle/prepare_freeze_view_fixture.py")
 
     def setup_packet(self):
+        # Match production execute(), including Windows TEMP short-name aliases.
+        self.root=self.root.resolve(strict=True)
         root=Path(__file__).resolve().parents[2]
         run=frozen_oracle(root)
         # Linux Python3.10 can lazily run uname for real platform metadata.
@@ -79,6 +81,18 @@ class RealOracleAdapterTests(TempCase):
                "checks":synthetic_source_checks(packet),"utc":utc(),"test_scope":"synthetic parent transcript; no physical evidence"}
         exclusive(control/"source-preflight.json",proof)
         return packet,stage,control,pin(control/"source-preflight.json")
+
+    def test_fixture_root_is_canonical_but_proof_guard_still_rejects_alias(self):
+        canonical=self.root.resolve(strict=True)
+        (canonical/"spelling").mkdir()
+        self.root=canonical/"spelling"/".."
+        packet,stage,control,receipt=self.setup_packet()
+        self.assertEqual(self.root,canonical)
+        self.assertEqual(control,canonical/"control")
+        self.assertEqual(Path(receipt["path"]),control/"source-preflight.json")
+        source_proof(packet,stage,control,receipt)
+        (control/"spelling").mkdir()
+        with self.assertRaises(Stop):source_proof(packet,stage,control/"spelling"/"..",receipt)
 
     def test_real_prepared_capture_reaches_target_gate_without_any_process(self):
         packet,stage,control,receipt=self.setup_packet()
