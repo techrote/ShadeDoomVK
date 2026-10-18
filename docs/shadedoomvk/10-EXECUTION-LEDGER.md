@@ -1447,3 +1447,37 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - #14 remains OPEN. Physical STOP ACTIVE; physical GPU bake/update cost,
   representative scaling and hardware stability HELD / NOT ACCEPTED; historical
   physical root cause UNDETERMINED. No local renderer/device execution.
+
+
+### 18 October 2026 (UTC) — SDVK-161 observer namespace build correction
+
+- Head `7f11b25d0a8995c7a383b9cbb2422a1489771028`, tree
+  `60047c27552ce81d55b5aa9da98949b0c2580991`, passed the normal PF/oracle gate
+  (859 PF tests, 362 renderer-oracle tests, all ten CPU stages and the 45-scene
+  corpus) and renderer source workflow `39082865576`.
+- Normal CI `39082865659` rejected the additive portal context observer at
+  compilation: its anonymous-namespace `Context` helper called
+  `SpecialSurfaceEnabled` without its `SdvkDiagnostics::` qualification. Windows,
+  macOS and Linux report the same source error. The software-Vulkan job failed
+  at Build; no renderer qualification or native SDVK-161 capture ran.
+- [The build-failure receipt](evidence/SDVK-161-COMPILE-FAILURE.json) retains
+  exact source/integration identities, complete log hashes and passed source/CPU
+  artifact identities. The original frame-24 native failure remains separately
+  retained; evidence from the two failed heads is not pooled.
+- The correction qualifies the existing declaration and updates the focused
+  source regression. Follow-up Extra High review confirms the namespace cause
+  and finds no second unqualified external observer call. Renderer policy,
+  ownership checks, native fixture and acceptance limits are unchanged.
+- A new commit must pass ordinary exact-head CI and hosted native acceptance.
+  No failed-head rerun or additional runner is used. #14 remains open.
+- Before publication, prospective acceptance review found that SDVK-161 did not
+  select the existing SDVK-158 fixed-view clock-label projection. Its declared
+  ordinary engine clock schedules lifecycle commands by presented-view ordinal;
+  Warp2 speed is fixed at zero. The narrowly named scene/clock combination now
+  excludes only incidental tic/fraction labels from comparison copies. Raw clock
+  evidence, frame/order/owner/resource/material state and exact RGB remain
+  binding. CPU counterfactuals pin both the original mismatch and preserved
+  semantic failures; Extra High review rejects any global projection change.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
+  and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED. No local renderer or device execution.

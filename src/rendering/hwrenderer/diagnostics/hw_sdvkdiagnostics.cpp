@@ -399,7 +399,7 @@ std::string Context(const HWDrawInfo* di)
     // describe Viewpoint.sector, which line portals can inherit from parent.
     // The opted-in surface oracle joins selected destination ownership using
     // the explicit endpoint evidence below, never by reinterpreting that field.
-    if (SpecialSurfaceEnabled())
+    if (SdvkDiagnostics::SpecialSurfaceEnabled())
         result.Raw("line_portal_selection", SelectedLinePortalContext(di));
     return result.Json();
 }

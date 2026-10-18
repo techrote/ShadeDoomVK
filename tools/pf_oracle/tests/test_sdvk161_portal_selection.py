@@ -95,7 +95,8 @@ class PortalSelectionTests(unittest.TestCase):
         self.assertIn('const int group = vp.sector ? vp.sector->PortalGroup : -1;',context)
         self.assertIn('Int("portal_group", group)',context)
         self.assertIn('std::to_string(group)',context)
-        self.assertIn('if (SpecialSurfaceEnabled())\n        result.Raw("line_portal_selection", SelectedLinePortalContext(di));',context)
+        # Context is in the anonymous namespace, outside SdvkDiagnostics.
+        self.assertIn('if (SdvkDiagnostics::SpecialSurfaceEnabled())\n        result.Raw("line_portal_selection", SelectedLinePortalContext(di));',context)
         selected=block(source,'std::string SelectedLinePortalContext(')
         self.assertIn('dynamic_cast<const HWLineToLinePortal*>(di->mCurrentPortal)',selected)
         self.assertIn('ResolveSelectedLinePortal(portal->glport,',selected)

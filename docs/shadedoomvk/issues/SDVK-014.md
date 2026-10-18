@@ -19,6 +19,13 @@ failed at retained frame 24 after a material filter reset. The
 separates the stale LevelMesh material-index defect, candidate decal lookup,
 immediate-wall UV witness and fixture/oracle findings. Corrections require a new
 reviewed head and normal hosted CI; the partial capture is not accepted.
+The next normal CI head `7f11b25d0a8995c7a383b9cbb2422a1489771028` passed
+859 PF tests, 362 renderer-oracle tests, the deterministic corpus and source
+evidence, but platform compilation rejected an unqualified diagnostics call in
+the new portal context observer. No renderer qualification ran on that head.
+The [build-failure record](../evidence/SDVK-161-COMPILE-FAILURE.json) retains the
+common compiler error and exact logs. The namespace correction preserves all
+renderer/observer semantics and still requires new normal exact-head CI.
 Earlier candidate notes below are historical and do not supersede accepted
 #150/#153/#156/#158 contracts.
 

@@ -77,11 +77,15 @@ resets, cancellations, staging wrap/dedicated state and all failure/rejection
 diagnostics remain compared. Probe/light/shadow/material/
 pipeline decisions are never erased to obtain a pass.
 
-The exact SDVK-158 scene and its declared fixed-presented-view input policy also
-permit tic/fraction label normalization: its unanimated geometry/camera and
-transition driver do not use those labels. Raw clock values remain retained,
+The exact SDVK-158 and SDVK-161 scenes and their declared fixed-presented-view
+input policy also permit tic/fraction label normalization: their unanimated
+geometry/cameras and transition drivers do not use those labels. Raw clock values remain retained,
 and phase order, mesh ranges, page receipts, epochs and completed tile work
-remain compared. Other ordinary-clock scenes do not inherit this exception.
+remain compared. SDVK-161 fixes Warp2 shader speed at zero; its spatial warp,
+material/height/sampler state, portal/control/plane ownership, current allocation
+receipts and all twelve checkpoint RGB comparisons remain checked. Neither the
+wrong scene ID nor a different clock string selects this projection. Other
+ordinary-clock scenes do not inherit this exception.
 
 Exact or preregistered tolerant RGB comparison is paired with state. Both
 inputs must share actual device/driver/content/settings; changing a build is an

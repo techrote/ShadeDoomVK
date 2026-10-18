@@ -286,3 +286,29 @@ notification pixels and pre-retention completion. Extra High source review of
 the repairs caught worker/main snapshot ownership and the unreachable portal
 mesh requirement. All corrections require a new normal-CI head; the failed
 packet remains failed and unchanged.
+
+The corrected head `7f11b25d0a8995c7a383b9cbb2422a1489771028` passed the
+859-test PF suite, 362-test renderer-oracle suite, 45-scene deterministic corpus
+and source-evidence workflow. Normal CI `39082865659` then rejected the new
+anonymous-namespace context serializer's unqualified `SpecialSurfaceEnabled`
+call during platform compilation, including the software-Vulkan build. There
+was no native renderer attempt on that head. The
+[retained build-failure record](evidence/SDVK-161-COMPILE-FAILURE.json) pins the
+shared error and complete logs. Qualifying the existing declaration as
+`SdvkDiagnostics::SpecialSurfaceEnabled()` repairs the namespace error without
+changing portal ownership or observation policy. The focused source regression
+pins the correct scope; normal platform compilation and native qualification on
+the next exact head remain required.
+
+Prospective comparison review also found that SDVK-161 had not selected the
+existing SDVK-158 fixed-presented-view clock-label projection. Both use ordinary
+simulation pacing with inputs scheduled by presented-view ordinal. SDVK-161 now
+selects that existing projection only for its exact scene ID and declared clock
+string. Raw frame/context simulation tics and interpolation fractions remain
+mandatory evidence; comparison copies exclude only those incidental labels.
+Warp2 speed is authored and validated as zero, retaining spatial warping without
+an animation-time equality claim. Frame/map/phase order, camera geometry,
+portal/sector/control/plane ownership, material and sampler semantics, resource
+epochs, allocation receipts, dirty/completion state and every RGB comparison
+remain checked. CPU controls reproduce the pre-fix label-only difference, reject
+wrong-scene/wrong-clock routing and preserve semantic and image differences.

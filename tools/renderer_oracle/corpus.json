@@ -18442,7 +18442,8 @@
         "tools/pf_oracle/tests/test_sdvk161_receiver_writer.py",
         "tools/renderer_oracle/tests/test_sdvk161_notifications.py",
         "tools/renderer_oracle/tests/test_sdvk161_camera.py",
-        "tools/pf_oracle/tests/test_sdvk161_portal_selection.py"
+        "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
+        "tools/renderer_oracle/tests/test_sdvk161_repeatability.py"
       ],
       "required_state_channels": [
         "context",
@@ -18507,7 +18508,8 @@
         "src/playsim/portal.h",
         "src/playsim/portal.cpp",
         "src/rendering/hwrenderer/diagnostics/hw_lineportalobservation.h",
-        "tools/pf_oracle/tests/test_sdvk161_portal_selection.py"
+        "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
+        "tools/renderer_oracle/tests/test_sdvk161_repeatability.py"
       ],
       "title": "Special-surface/material lifecycle and semantic ownership"
     }

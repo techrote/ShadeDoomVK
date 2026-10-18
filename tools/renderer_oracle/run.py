@@ -998,11 +998,12 @@ def compare_runs(left, right, *, allow_build_change=False):
                 "Builds differ; use --allow-build-change for an explicit candidate comparison")
         require(package_identity(a) == package_identity(b), "Loaded engine/content package identities differ")
     require(a["build"]["working_tree"] == b["build"]["working_tree"] == "clean", "Controlled comparisons require clean identified native builds")
-    # SDVK-158 changes lightmap state at fixed presented-view ordinals in an
-    # unanimated room with a fixed camera. Simulation pacing is still ordinary,
+    # SDVK-158/161 change lightmap/material state at fixed presented-view
+    # ordinals with pinned unanimated geometry and per-map fixed cameras.
+    # Simulation pacing is still ordinary,
     # so tic/fraction labels are not transition identities. Reuse only the
     # established clock-label projection; frame/phase/resource state stays exact.
-    fixed_view_lightmap = (a["scene"] == "lightmap-retained-transition"
+    fixed_view_lightmap = (a["scene"] in ("lightmap-retained-transition", "special-surface-lifecycle")
         and a["reproduction"]["clock"] == "ordinary_engine_clock_with_fixed_presented-view_input_schedule")
     static = a["reproduction"]["clock"] == "static_after_initialization" or fixed_view_lightmap
     x = _sdvk150_repeatability_projection(
@@ -1017,7 +1018,8 @@ def compare_runs(left, right, *, allow_build_change=False):
     if a["scene"] == "probe-owner-transition":
         normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
     if fixed_view_lightmap:
-        normalization += "; SDVK-158 fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"
+        owner = "SDVK-158" if a["scene"] == "lightmap-retained-transition" else "SDVK-161"
+        normalization += "; " + owner + " fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
