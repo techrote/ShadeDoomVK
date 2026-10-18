@@ -373,3 +373,18 @@ checked tile allocation. `TileBindings` is a per-rebuild deduplication table,
 cleared each frame; it is not a persistent receiver registry. Decals remain
 overlays and never allocate their own lightmap tile. Rebuild/reload can change
 the numeric tile slot without changing the decal's semantic receiver identity.
+
+### SDVK-161 split-wall lightmap UVs
+
+`HWWall::CreateVertices` projects the final written lightmapped vertices after
+edge subdivision. `LightmapTile::ToUV` clamps to the tile's inner border;
+interpolating previously clamped corner UVs is not equivalent to projecting an
+inserted vertex. `SetupTileTransform` can place a grid-aligned minimum just across
+that clamp boundary, so the rule also matters for static walls. Only `lu/lv`
+are updated after splitting. Geometry, base UVs, page, vertex order/count and
+current allocation checks remain unchanged; unsplit/unlightmapped paths retain
+their behavior. The main LevelMesh path already projects every final vertex.
+The [original hosted failure](../evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json) and
+extracted production CPU negative pin this producer defect. Actual copied writer
+UVs remain subject to the unchanged precise current-tile observer, independently
+of image equality. This is a correctness repair with no physical-cost claim.

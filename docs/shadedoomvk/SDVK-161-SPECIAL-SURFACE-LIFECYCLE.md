@@ -119,6 +119,19 @@ method claim. No portal renderer policy is changed to satisfy the fixture.
    and main-thread consumption, with one 4096-vertex limit and next-frame clear.
    A thread-local store would miss worker-produced portal decals. Observation
    remains opt-in and changes no drawing or material eligibility policy.
+10. **Final split-wall UV projection.** Immediate edge splitters previously
+    interpolated already-clamped corner lightmap UVs. The current tile transform
+    clamps at its border, so an inserted vertex could have incorrect UVs even
+    on ordinary grid-aligned static walls. After subdivision, `CreateVertices`
+    projects each final lightmapped vertex position through that current tile.
+    Only lightmap UVs change; geometry, base-texture UVs, page, order/count and
+    allocation ownership remain intact. One checked tile lookup supplies both
+    corner and final-position projection through the synchronous writer; the
+    accepted SDVK-156 consumer contract is unchanged. Unsplit and unlightmapped
+    behavior is preserved. The actual writer snapshot and precise `2^-21` UV gate remain
+    unchanged. Extracted production replay pins the original clamped-split
+    defect in both horizontal directions and on vertical edges, with exact
+    unsplit, unclamped and unlightmapped controls.
 
 Supported control-plane reconstruction is additionally replayed through changing
 heights and reusable CPU storage. This exercises real construction/publication
@@ -312,3 +325,26 @@ portal/sector/control/plane ownership, material and sampler semantics, resource
 epochs, allocation receipts, dirty/completion state and every RGB comparison
 remain checked. CPU controls reproduce the pre-fix label-only difference, reject
 wrong-scene/wrong-clock routing and preserve semantic and image differences.
+
+Head `cc3ad459ac3d40c2d38a67ee7960d5ad56af0497`, tree
+`6a9a887214af557cb92c9231e92034d6a1e7acf8`, then passed all ordinary platform
+builds, 859 PF and 365 renderer tests, the deterministic corpus, source workflow
+`39084389819`, and the preceding general/SDVK-008-control/010/150/153/158 hosted
+software gates. Normal CI `39084389673` collected all 96 SDVK-161 frames and
+twelve checkpoints, but rejected the first attempt for 36 immediate six-vertex
+`S161NO` wall rows with invalid current-allocation UVs in mirror recursion.
+The [separate split-wall failure receipt](evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json)
+pins the original packet, complete job log and integration commit. No record
+dropped; collection used 3,582 records and 8,824,771 retained bytes under the
+unchanged bounds. Independently passing original-packet material/portal/3D-floor,
+resource, completion and within-attempt RGB subchecks do not admit that capture.
+Attempt 2, captured controls, cross-attempt comparison and the later SDVK-009
+publication gate were suppressed.
+
+The extracted production replay proves that interpolation of clamped corner UVs
+can fail the unchanged precise current-tile check. The native packet records
+actual copied-span validity but does not serialize individual XYZ/UV values or
+runtime BSP subdivisions; the replay's explicit split coordinates are source
+counterexamples, not recovered native vertices. The final-position projection
+repair above requires a new normal exact-head native attempt. The failed packet
+remains rejected and is not combined with any later attempt.

@@ -319,3 +319,12 @@ that producer to a portal row based on mesh inventory alone. Legacy context
 `line_portal_selection` separately observes the actual selected endpoint lines
 and source/destination groups. A translated receiver joins the selected
 destination, preserving the accepted source-sector context meaning.
+
+The second hosted native SDVK-161 packet completed collection but failed current
+UV admission on split immediate mirror walls despite exact within-attempt RGB.
+The [retained failure](../evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json) demonstrates
+that a valid page/receipt and plausible pixels cannot substitute for the actual
+writer's UV result. The repair belongs in final split-vertex production; neither
+the observer's copied values nor its `2^-21` tolerance changes. Individual native
+XYZ/UV samples and runtime BSP subdivisions are not serialized, so numeric
+extracted CPU counterexamples must not be described as recovered native vertices.

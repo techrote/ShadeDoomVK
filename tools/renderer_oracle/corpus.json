@@ -574,6 +574,23 @@
       "kind": "cpu_contract",
       "native_rendering_proof": false,
       "test_path": "tools/renderer_oracle/tests/test_sdvk161_notifications.py"
+    },
+    "sdvk161-split-uv": {
+      "command": [
+        "{python}",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tools/pf_oracle/tests",
+        "-p",
+        "test_sdvk161_split_uv.py",
+        "-v"
+      ],
+      "kind": "cpu_contract",
+      "native_rendering_proof": false,
+      "test_path": "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
+      "retained_fixture": "tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json"
     }
   },
   "cvar_sources": {
@@ -18120,6 +18137,17 @@
           "-p",
           "test_sdvk161_notifications.py",
           "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_sdvk161_split_uv.py",
+          "-v"
         ]
       ],
       "cpu_contracts": [
@@ -18129,7 +18157,8 @@
         "sdvk161-submitted-state",
         "sdvk161-material-reset",
         "sdvk161-receiver-writer",
-        "sdvk161-notifications"
+        "sdvk161-notifications",
+        "sdvk161-split-uv"
       ],
       "id": "special-surface-lifecycle",
       "native": {
@@ -18443,7 +18472,8 @@
         "tools/renderer_oracle/tests/test_sdvk161_notifications.py",
         "tools/renderer_oracle/tests/test_sdvk161_camera.py",
         "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
-        "tools/renderer_oracle/tests/test_sdvk161_repeatability.py"
+        "tools/renderer_oracle/tests/test_sdvk161_repeatability.py",
+        "tools/pf_oracle/tests/test_sdvk161_split_uv.py"
       ],
       "required_state_channels": [
         "context",
@@ -18509,7 +18539,9 @@
         "src/playsim/portal.cpp",
         "src/rendering/hwrenderer/diagnostics/hw_lineportalobservation.h",
         "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
-        "tools/renderer_oracle/tests/test_sdvk161_repeatability.py"
+        "tools/renderer_oracle/tests/test_sdvk161_repeatability.py",
+        "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
+        "tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json"
       ],
       "title": "Special-surface/material lifecycle and semantic ownership"
     }

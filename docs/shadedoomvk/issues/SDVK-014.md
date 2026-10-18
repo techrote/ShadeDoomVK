@@ -26,6 +26,16 @@ the new portal context observer. No renderer qualification ran on that head.
 The [build-failure record](../evidence/SDVK-161-COMPILE-FAILURE.json) retains the
 common compiler error and exact logs. The namespace correction preserves all
 renderer/observer semantics and still requires new normal exact-head CI.
+Head `cc3ad459ac3d40c2d38a67ee7960d5ad56af0497` compiled on all platforms and
+passed PF/source evidence and all earlier hosted software lanes. Its complete
+96-frame SDVK-161 capture was rejected for 36 immediate split-wall UV witnesses
+in mirror recursion. The [split-wall failure receipt](../evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json)
+retains the exact packet and distinguishes passing diagnostic subchecks from
+full admission. Extracted production replay exposes interpolation of already
+clamped corner UVs; the repair projects final split positions through the current
+tile while preserving geometry, ordinary texture UVs, ownership and the strict
+observer. Both independent native attempts and dependent gates remain required
+on a new reviewed head. No failed head was rerun or tolerance relaxed.
 Earlier candidate notes below are historical and do not supersede accepted
 #150/#153/#156/#158 contracts.
 

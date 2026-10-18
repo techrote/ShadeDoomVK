@@ -1,0 +1,477 @@
+{
+  "schema": "sdvk161-split-wall-uv-native-failure/v1",
+  "disposition": "FAILED software attempt; diagnostic subchecks do not award admission or repeatability",
+  "repository": "techrote/ShadeDoomVK",
+  "parent_issue": 14,
+  "child_issue": 161,
+  "pull_request": 162,
+  "identity": {
+    "pr_head": "cc3ad459ac3d40c2d38a67ee7960d5ad56af0497",
+    "tree": "6a9a887214af557cb92c9231e92034d6a1e7acf8",
+    "base_master": "130d09ac4267d02359c7c2603ceced723ceac746",
+    "native_integration_commit": "3350b95a5843f95077f79064f05a24328203bc79",
+    "native_working_tree": "clean"
+  },
+  "ci": {
+    "run_id": 39084389673,
+    "job_id": 117548214210,
+    "run_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39084389673",
+    "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39084389673/job/117548214210",
+    "other_jobs_succeeded": 8,
+    "source_workflow": 39084389819,
+    "source_artifact": 12119839185,
+    "source_artifact_sha256": "e8b482638dc161e4ee2c58434b448dce8d35082912a63f63887f4517181f70ea",
+    "cpu_artifact": 12119948906,
+    "cpu_artifact_sha256": "7326219008c2880307e636adf449ef6e03fad86844c45388af6cb61fcfc00468",
+    "pf_tests": 859,
+    "renderer_tests": 365,
+    "earlier_software_gates_independently_admitted": [
+      "renderer-native",
+      "renderer-sdvk008-control",
+      "renderer-sdvk010",
+      "renderer-sdvk150",
+      "renderer-sdvk153",
+      "renderer-sdvk158"
+    ],
+    "not_executed": [
+      "lifecycle-2",
+      "captured-negative-controls",
+      "cross-attempt-state-RGB",
+      "cross-attempt-checkpoint-RGB",
+      "SDVK-009-publication"
+    ]
+  },
+  "artifact": {
+    "bytes": 35056280,
+    "id": 12120967612,
+    "name": "renderer-software-vulkan",
+    "sha256": "886fc7cdb320d556042fbdd7cd533c58c83ab6e2f91332be50ef1b77b81a500c"
+  },
+  "tar": {
+    "bytes": 35056104,
+    "path": "packet/renderer-software-vulkan.tar.xz",
+    "sha256": "499848d795ef0b1b5790070ec5923ea3e1201b7d1c2be543a2ee15fe82af8c37"
+  },
+  "job_log": {
+    "bytes": 1027768,
+    "path": "software-job-complete.log",
+    "sha256": "f6e8227c6b633f3dc5f33970f8a5897838082a0c489e1cff89c9521fcb854b11"
+  },
+  "retained_files": [
+    {
+      "bytes": 4877,
+      "path": "renderer-sdvk161/lifecycle-1/run.json",
+      "sha256": "0f99dd026cb028ccd356fa4e848963919b79e8415911dbe89fb34180bd5a2ea5"
+    },
+    {
+      "bytes": 1418,
+      "path": "renderer-sdvk161/lifecycle-1/capture.cfg",
+      "sha256": "b0bcc630038f39ef290ecee1c1ed79dff3f121ef0e4204bf79d848b7540425ac"
+    },
+    {
+      "bytes": 16987,
+      "path": "renderer-sdvk161/lifecycle-1/fixture.ini",
+      "sha256": "4a2f6febf7843f218b5c2530c9f5facf218ce7b0745a869cbaefab3f924390ac"
+    },
+    {
+      "bytes": 754,
+      "path": "renderer-sdvk161/lifecycle-1/input/fixture.ini",
+      "sha256": "1eabb29a75aee6f458f9f0e23e20c00767a757bf3c81ff70fb6cf6bbf789eb8b"
+    },
+    {
+      "bytes": 28787748,
+      "path": "renderer-sdvk161/lifecycle-1/input/freedoom2.wad",
+      "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+    },
+    {
+      "bytes": 307273,
+      "path": "renderer-sdvk161/lifecycle-1/input/scene.pk3",
+      "sha256": "f81aec6e370c73e78730728af84edc34f94a4b202883d953ff4877bb9c7be577"
+    },
+    {
+      "bytes": 61201,
+      "path": "renderer-sdvk161/lifecycle-1/native.png",
+      "sha256": "0c00d6659443ff97efd979f767b0e7b415ca43bb71197fd13cffe46ab09eeb44"
+    },
+    {
+      "bytes": 8973679,
+      "path": "renderer-sdvk161/lifecycle-1/native.renderer.json",
+      "sha256": "1c195ad15ade3529240d80d1e44dd363d848b3fab771229a26031d646bffdccc"
+    },
+    {
+      "bytes": 90799,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-16.png",
+      "sha256": "886ce88d93c339d9883aa8adf1b6d247ed4ebeaf7bbdb14b9409351354271fdd"
+    },
+    {
+      "bytes": 231690,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-24.png",
+      "sha256": "aa6e2137a3bfe460becb1514ced0b32333895535e66dd3f2a6e4da49915faf26"
+    },
+    {
+      "bytes": 231690,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-32.png",
+      "sha256": "aa6e2137a3bfe460becb1514ced0b32333895535e66dd3f2a6e4da49915faf26"
+    },
+    {
+      "bytes": 90799,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-40.png",
+      "sha256": "886ce88d93c339d9883aa8adf1b6d247ed4ebeaf7bbdb14b9409351354271fdd"
+    },
+    {
+      "bytes": 90799,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-48.png",
+      "sha256": "886ce88d93c339d9883aa8adf1b6d247ed4ebeaf7bbdb14b9409351354271fdd"
+    },
+    {
+      "bytes": 61228,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-56.png",
+      "sha256": "3660d4fbac9263450d54f17f12149c24dbdb3d655c140e1af058786407d17e5b"
+    },
+    {
+      "bytes": 61228,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-64.png",
+      "sha256": "3660d4fbac9263450d54f17f12149c24dbdb3d655c140e1af058786407d17e5b"
+    },
+    {
+      "bytes": 153936,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-72.png",
+      "sha256": "55132f47d134a87f228a06fcd1867427868bbfb42ed6394a3fed5da0c432f7ff"
+    },
+    {
+      "bytes": 90799,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-8.png",
+      "sha256": "886ce88d93c339d9883aa8adf1b6d247ed4ebeaf7bbdb14b9409351354271fdd"
+    },
+    {
+      "bytes": 153936,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-80.png",
+      "sha256": "55132f47d134a87f228a06fcd1867427868bbfb42ed6394a3fed5da0c432f7ff"
+    },
+    {
+      "bytes": 61228,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-88.png",
+      "sha256": "3660d4fbac9263450d54f17f12149c24dbdb3d655c140e1af058786407d17e5b"
+    },
+    {
+      "bytes": 61228,
+      "path": "renderer-sdvk161/lifecycle-1/native.surface-96.png",
+      "sha256": "3660d4fbac9263450d54f17f12149c24dbdb3d655c140e1af058786407d17e5b"
+    },
+    {
+      "bytes": 98916,
+      "path": "renderer-sdvk161/lifecycle-1/prepared.json",
+      "sha256": "a57795db8ead5924544c5235682a22947d99e693d539a5aa8a2802eee6bd8144"
+    },
+    {
+      "bytes": 14923,
+      "path": "renderer-sdvk161/lifecycle-1/recipe.json",
+      "sha256": "13440aa49116bde0a6a070a97e510a190f02b5aee8037c1f9333e298fc0a0a0e"
+    },
+    {
+      "bytes": 7236,
+      "path": "renderer-sdvk161/lifecycle-1/request.json",
+      "sha256": "01378a50566243d888d19cce132c805177bcef099086a237b48cdddd12e16b21"
+    },
+    {
+      "bytes": 92,
+      "path": "renderer-sdvk161/lifecycle-1/stderr.log",
+      "sha256": "40d1be44a93d0b505eb7579666e7a87b81ffdd2400eb48e54ab6fad21ff9ead3"
+    },
+    {
+      "bytes": 5815,
+      "path": "renderer-sdvk161/lifecycle-1/stdout.log",
+      "sha256": "ffb3aa53097e00994c02d248a367dd2552cdf4a869d4595f2c7ad58feafba57e"
+    },
+    {
+      "bytes": 0,
+      "path": "renderer-sdvk161/lifecycle-1/version-stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 249,
+      "path": "renderer-sdvk161/lifecycle-1/version.txt",
+      "sha256": "90663007d4bef6354ae483b94abc4382029a858e2fae34878971099609fa715f"
+    }
+  ],
+  "original_run_artifact_pins_verified": 26,
+  "observer": {
+    "status": "FAIL",
+    "raw_status": "COLLECTED_PENDING_VALIDATION",
+    "raw_error": "",
+    "observed_frames": 96,
+    "warmup_frames": 32,
+    "dropped_records": 0,
+    "limits": {
+      "max_frames": 4096,
+      "max_record_bytes": 16384,
+      "max_records": 65536,
+      "max_retained_bytes": 16777216,
+      "retained_bytes": 8824771,
+      "retained_records": 3582
+    }
+  },
+  "primary_failure": {
+    "attempt": "lifecycle-1",
+    "error": "Submitted receiver UVs do not match its current atlas allocation",
+    "first_bad_record_index": 109,
+    "lane": "SDVK-161",
+    "time_utc": "2026-10-18T01:21:29.4447362Z",
+    "classification": "Source-proven production split-wall UV defect consistent with rejected native writer snapshots; no numeric native vertex recovery"
+  },
+  "bad_rows": {
+    "record_indices": [
+      109,
+      140,
+      150,
+      279,
+      284,
+      329,
+      591,
+      622,
+      632,
+      761,
+      766,
+      811,
+      1073,
+      1104,
+      1114,
+      1243,
+      1248,
+      1293,
+      1555,
+      1586,
+      1596,
+      1725,
+      1730,
+      1775,
+      2037,
+      2068,
+      2078,
+      2207,
+      2212,
+      2257,
+      2519,
+      2550,
+      2560,
+      2689,
+      2694,
+      2739
+    ],
+    "count": 36,
+    "material": "S161NO",
+    "class": "wall",
+    "producer": "immediate-special-surface",
+    "sector": 0,
+    "control_sector": -1,
+    "portal_group": 0,
+    "witness_frames": [
+      8,
+      16,
+      24,
+      32,
+      40,
+      48
+    ],
+    "contexts": [
+      {
+        "depth": 1,
+        "draw_count": 6,
+        "producer": "Mirror",
+        "side": 8,
+        "total_rows": 6
+      },
+      {
+        "depth": 2,
+        "draw_count": 6,
+        "producer": "Planemirror floor",
+        "side": 8,
+        "total_rows": 6
+      },
+      {
+        "depth": 2,
+        "draw_count": 6,
+        "producer": "Planemirror floor",
+        "side": 1,
+        "total_rows": 6
+      },
+      {
+        "depth": 1,
+        "draw_count": 6,
+        "producer": "Planemirror floor",
+        "side": 1,
+        "total_rows": 6
+      },
+      {
+        "depth": 1,
+        "draw_count": 6,
+        "producer": "Planemirror floor",
+        "side": 8,
+        "total_rows": 6
+      },
+      {
+        "depth": 2,
+        "draw_count": 6,
+        "producer": "Mirror",
+        "side": 8,
+        "total_rows": 6
+      }
+    ],
+    "current_receipt_valid": true,
+    "triangle_mapping_valid": true,
+    "current_uv_valid": false
+  },
+  "diagnostic_subchecks": {
+    "status": "NOT_ACCEPTED",
+    "scope": "Original failed capture only; per-record checks and independent authored surface/resource/receipt/material/lifecycle/RGB subchecks do not award full native acceptance.",
+    "all_original_artifact_and_checkpoint_pins": "PASS",
+    "twelve_checkpoint_dimensions_and_within_attempt_exact_RGB_groups": "PASS",
+    "all_96_resource_states": "PASS",
+    "seven_actual_completion_cycles": "PASS",
+    "authored_A_and_B_submitted_semantics_all_witnesses": "PASS",
+    "per_record_failures": "Exactly the 36 current-UV failures; no other generic/context/material/sampler/receipt failures",
+    "dependent_attempt_and_comparisons": "NOT EXECUTED"
+  },
+  "source_mechanism": {
+    "producer": "HWWall::CreateVertices plus SplitUpperEdge/SplitLowerEdge/SplitLeftEdge/SplitRightEdge",
+    "transform": "LightmapTile::SetupTileTransform and ToUV",
+    "defect": "Interpolating clamped corner lightmap UVs is not equivalent to projecting the actual inserted vertex through the current clamping tile transform. The grid-aligned minimum is shifted by +0.1 world units, so even static authored wall corners can cross that clamp boundary.",
+    "source_counterexample": "At the authored glass partition x32, exact float32 source equations produce split-wall UV error 1.3113e-6 to1.3411e-6 across all legal atlas X offsets, exceeding2^-21. Runtime BSP seam/snapshot coordinates and exact tile transform are not serialized, so this is a source counterexample consistent with the capture, not recovered native vertices.",
+    "evidence_limit": "Raw observations retain the validity result, exact submitted and copied spans, page and receipt, but not individual XYZ/UV samples or runtime BSP split coordinates. Calculated seam errors are source/CPU counterexamples, not recovered native values.",
+    "repair_contract": "Project the final lightmapped wall vertex positions after splitting, in production before writer capture. Preserve geometry, ordinary texture UVs, page, order/count, unlightmapped fallback, allocation checks and the unchanged 2^-21 precise observer.",
+    "next_native_gate": "New reviewed head must independently admit both complete captures and all dependent controls/comparisons; this failed packet remains unchanged and rejected."
+  },
+  "local_verification_pins": [
+    {
+      "path": "build/cicc3/software-ci-verification.json",
+      "bytes": 8286,
+      "sha256": "b57db2149bb0ca10f5deb687f7024177e459db388cba35d1a0c3a4acb9a24899"
+    },
+    {
+      "path": "build/cicc3/ordinary-ci-verification.json",
+      "bytes": 9186,
+      "sha256": "1ae933a06263a6c3f381188dadef8d0fc99f74be2b97bbd0aa42da1078720509"
+    },
+    {
+      "path": "build/cicc3/full-offline-packet-audit-isolated.json",
+      "bytes": 24419,
+      "sha256": "a3bcc44099eab3e6304d6d769a61682439c4f6accb1c0ee47ff11dfc544d4af0"
+    },
+    {
+      "path": "build/cicc3/independent-failed-capture-subchecks.json",
+      "bytes": 2091684,
+      "sha256": "5be643d68a7e33c765f2e663dcc602aaac5dc827c52d219eb7a7c62002a6fb66"
+    },
+    {
+      "path": "build/cicc3/source-split-uv-calculation.json",
+      "bytes": 3359,
+      "sha256": "a90da279ef0a45c5f2d6b9c0e08a293f3b9dc2911fb7deb4d31da382bbfa9d27"
+    }
+  ],
+  "archive_authentication": {
+    "members": 1669,
+    "expanded_bytes": 2042255442,
+    "safe_extraction": "Original ZIP SHA equals GitHub artifact SHA; all members authenticated. Full audit used fresh extraction outside workspace synchronization after extra temporary copies were detected in the workspace extraction. Original members were not modified or removed."
+  },
+  "scope": {
+    "acceptance_awarded": false,
+    "local_native_executions": 0,
+    "failed_head_reruns": 0,
+    "dispatches": 0,
+    "extra_runners": 0,
+    "physical_stop_active": true,
+    "physical_gpu_qualified": false,
+    "performance_accepted": false,
+    "physical_bake_update_scaling_hardware_stability": "HELD / NOT ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  },
+  "production_cpu_replay": {
+    "status": "PASS after repair; retained original fails for intended UV reason",
+    "test": "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
+    "historical_production": {
+      "path": "tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json",
+      "bytes": 2167,
+      "sha256": "edcd9f6db0565b7504e8e3e474b052366d9f9a3cc5a093f7a7ce7c93dbcfef0c"
+    },
+    "source_extractions": [
+      "LightmapTile::SetupTileTransform",
+      "LightmapTile::ToUV",
+      "HWWall::CreateVertices",
+      "HWWall::SplitUpperEdge",
+      "HWWall::SplitLowerEdge",
+      "HWWall::SplitLeftEdge",
+      "HWWall::SplitRightEdge",
+      "HWWall::CountVertices",
+      "HWWall::MakeVertices",
+      "SdvkSurfaceObservation::CurrentWrittenUV"
+    ],
+    "positive_scenarios": [
+      "north",
+      "south",
+      "vertical",
+      "unsplit",
+      "affine",
+      "unlightmapped"
+    ],
+    "historical_failures": {
+      "north": "split-clamped-uv-not-current",
+      "south": "split-clamped-uv-not-current",
+      "vertical": "split-clamped-uv-not-current"
+    },
+    "historical_exact_controls": [
+      "unsplit",
+      "affine",
+      "unlightmapped"
+    ],
+    "all_scenarios_preserve": "Exact hex-float XYZ, ordinary texture UV, lightmap page, vertex order and count",
+    "historical_normalized_error": {
+      "horizontal_U": "1.33365e-6",
+      "vertical_V": "1.52364e-6"
+    },
+    "precise_gate_tolerance": "2^-21 unchanged",
+    "focused_tests_passed": 12,
+    "new_test_methods": 3,
+    "review": "Extra High source/production-method closure: no remaining material finding",
+    "scope": "CPU source replay, not recovered native XYZ/UV or native acceptance",
+    "pins": [
+      {
+        "path": "build/sdvk161-mirror-uv-before.log",
+        "bytes": 3664,
+        "sha256": "ae4303ebb773cd79d3a2eb3b73e495f8a88b4b5825ef41706349897bca7b6872"
+      },
+      {
+        "path": "build/sdvk161-mirror-uv-after.log",
+        "bytes": 2853,
+        "sha256": "784a3f20fb3495fa8dfb359544458c064203518999b6ec7c426a6519c4010e4f"
+      },
+      {
+        "path": "build/sdvk161-mirror-uv-fix-verification.json",
+        "bytes": 1615,
+        "sha256": "856ce8a440267035c492e1a80f1544876d5f9cee84a7d739cc4ad59c1e906b00"
+      }
+    ],
+    "single_checked_lookup_refinement": {
+      "reason": "Full CPU preflight caught the unchanged SDVK-156 single checked wall tile lookup source contract. Reuse the original validated tile throughout synchronous CreateVertices rather than adding a second lookup.",
+      "accepted_source_contract_changed": false,
+      "focused_tests_passed": 17,
+      "intervening_operations": "The four splitters only read geometry and write vertices; no tile allocation, reset, mutation or callback invalidates the retained pointer.",
+      "pins": [
+        {
+          "path": "build/sdvk161-split-uv-checks-driver.log",
+          "bytes": 3050,
+          "sha256": "75e612a02312171d036141cb9f48818dcb2c3bc665b802d70dafe11003c87242"
+        },
+        {
+          "path": "build/sdvk161-mirror-uv-lookup-reuse-tests.log",
+          "bytes": 3746,
+          "sha256": "ce0133125060e04a4b7d82eddb244acc4ab419004e49d7fb15feee6a946361ec"
+        },
+        {
+          "path": "build/sdvk161-mirror-uv-lookup-reuse-verification.json",
+          "bytes": 1438,
+          "sha256": "b3e50d11836d6dd6fadcdf2d345a6fe8662ef7950cfa190f2dcab9a442316e2f"
+        }
+      ]
+    }
+  }
+}

@@ -1481,3 +1481,46 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
   and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
   UNDETERMINED. No local renderer or device execution.
+
+### 18 October 2026 (UTC) — SDVK-161 split-wall UV failure and producer repair
+
+- Exact head `cc3ad459ac3d40c2d38a67ee7960d5ad56af0497`, tree
+  `6a9a887214af557cb92c9231e92034d6a1e7acf8`, passed all eight non-software CI
+  jobs, source workflow `39084389819`, 859 PF/365 renderer tests and the preceding
+  general/SDVK-008-control/010/150/153/158 hosted software gates. Runtime
+  integration `3350b95a5843f95077f79064f05a24328203bc79` has that exact tree and
+  master/head parents. Master remained `130d09ac4267d02359c7c2603ceced723ceac746`.
+- Normal CI `39084389673`, software job `117548214210`, collected all 96 retained
+  frames and twelve SDVK-161 checkpoints, with zero dropped records, but rejected
+  the first attempt for 36 immediate six-vertex S161NO wall UV failures in mirror
+  recursion. [Separate failure receipt](evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json)
+  pins artifact `12120967612`, SHA-256
+  `886fc7cdb320d556042fbdd7cd533c58c83ab6e2f91332be50ef1b77b81a500c`, the full
+  job log, original artifact/PNG hashes and all failing raw record indices.
+- Authored material/portal/3D-floor semantics, current resource censuses, seven
+  actual completion cycles and within-attempt exact RGB independently pass on
+  the original packet. They do not override failed UV admission. Attempt 2,
+  captured negatives, cross-attempt comparisons and later SDVK-009 publication
+  were suppressed; the failed packet is not pooled with another attempt.
+- Extracted production `SetupTileTransform`, `ToUV`, all four edge splitters and
+  `CreateVertices` reproduce interpolation of already-clamped corner UVs. The
+  current writer now projects the final split positions through the current tile
+  before observation. Only lightmap UVs change; geometry, ordinary UVs, page,
+  ordering/count, unsplit/unlightmapped behavior and allocation checks remain.
+  The actual copied writer evidence and precise `2^-21` tolerance are unchanged.
+- Full CPU preflight caught the accepted SDVK-156 single checked wall-tile lookup
+  source pin. The writer reuses its original validated tile for corner and final
+  split-position projection; intervening splitters do not mutate tile storage.
+  The accepted contract stays unchanged. Seventeen focused tests, including the
+  complete atlas-identity module, pass after this refinement.
+- The immutable original writer fails the named current-UV check in both
+  horizontal orientations and on vertical edges. Six positive cases and exact
+  unchanged controls pass; all twelve focused tests pass. Extra High closure
+  review has no material finding. Explicit CPU seam inputs are not represented
+  as recovered native vertices, which the raw packet does not serialize.
+- Normal full CPU/oracle checks and a new exact-head native attempt remain
+  required. No failed-head retry, extra runner, image tolerance change or local
+  renderer/device execution. This checkpoint is not acceptance; #14 remains open.
+- Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling
+  and hardware stability HELD / NOT ACCEPTED. Historical physical root cause
+  UNDETERMINED.
