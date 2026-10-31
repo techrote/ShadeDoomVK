@@ -302,3 +302,14 @@ generate and validate actual commands without launching them; the old physical
 tooling merge, software-Vulkan success or 23 source-precursor mutation rejections
 into `SDVK-009-PHYSICAL` acceptance. Issue #9 stays OPEN, physical STOP ACTIVE,
 historical root cause UNDETERMINED, and the distinct 41-process campaign HELD.
+
+## SDVK-009 no-launch input review traps
+
+The command/native-input correction remains a software candidate until accepted
+under a new supervisor pin. Capture metadata alone cannot authenticate an argv
+array; native property key presence cannot authenticate null values; missing
+legacy Drivers keys do not exclude device-specific Vulkan registrations; and a
+layer registry DWORD of zero enables discovery. Static manifest/library hashes
+and environment controls need packet custody independently of registry values.
+See [correction scope and CPU controls](../SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md).
+These corrections confer no physical permission or hardware qualification.

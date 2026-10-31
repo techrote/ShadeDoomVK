@@ -51,6 +51,29 @@ actual/default power limits, measured maximum graphics/memory clocks and an
 explicit allow-list of hexadecimal clock event reasons. Transient clocks must
 remain finite and inside the reviewed envelope. Native observer identity uses
 `vendor_id`, `device_id`, `device_type` and `driver_version_raw`.
+The `native_device` map must contain exactly these four uint32 integers, with
+device type 1 or 2. Nulls, booleans, metadata keys and nonphysical device types
+fail validation and the approval boundary. Keep unavailable/readback provenance
+outside this map. PCI/NVML values cannot replace native Vulkan properties.
+An incomplete inventory remains private evidence, not a successfully prepared
+packet. Obtaining missing properties requires separate explicit authorization;
+the tooling never obtains them by creating a Vulkan instance.
+
+Validation re-derives every stage's complete command from the frozen oracle,
+including input/output paths and observer flags. Changing a command while
+leaving capture metadata intact must fail before any execution workflow.
+
+Native64 registered driver/layer JSON files must be in `files`, together with
+every referenced library. Libraries must also appear in the module policy, and
+manifest `enable_environment`/`disable_environment` names must be explicitly
+captured (including absent values) through `environment_extra_keys`. Static
+inspection reads registry snapshots, JSON and file bytes only; it never loads
+the loader, ICD or layer. Bare DLL search names require separately resolved
+evidence and fail this static path. A DWORD 0 legacy registration is enabled for
+discovery; nonzero is disabled. Device `VulkanDriverName`/`VulkanImplicitLayers`
+values are separate discovery sources even if legacy Drivers keys are absent.
+The current x64 validator does not interpret WoW registrations as x64 inputs.
+Actual loader selection and native device readback remain separate evidence.
 
 Power draw must fit NVML's unsigned 32-bit milliwatt representation, allowing
 observed centiwatt CSV rounding up to 4294967.30 watts. This checks representation;

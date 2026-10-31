@@ -328,6 +328,16 @@ def future(text):
     require(value > dt.datetime.now(dt.timezone.utc), "Expired packet/approval")
 
 
+def verify_native_device(native):
+    """Require only genuine native-property fields, never inventory placeholders."""
+    fields = {"vendor_id", "device_id", "device_type", "driver_version_raw"}
+    require(isinstance(native, dict) and set(native) == fields,
+            "Native device requires exactly four native property fields; keep attestation metadata separate")
+    require(all(type(native[key]) is int and 0 <= native[key] <= 0xffffffff for key in fields),
+            "Native device properties must be complete uint32 readbacks; placeholders are not executable inputs")
+    require(native["device_type"] in (1, 2), "Native device must be an integrated or discrete physical GPU")
+
+
 def validate_packet(packet, *, check_files=True):
     require(packet["schema"] == "physical-supervisor/packet-v1", "Unsupported packet")
     require(canonical(packet["integrity_policy"])==canonical(INTEGRITY_POLICY),"Missing/changed prospective integrity policy")
@@ -336,6 +346,7 @@ def validate_packet(packet, *, check_files=True):
     require(re.fullmatch(r"[0-9a-f]{40}", packet["source"]["commit"]) and
             re.fullmatch(r"[0-9a-f]{40}", packet["source"]["tree"]), "Missing source identity")
     require(packet["automatic_retries"] == 0, "Retries prohibited")
+    verify_native_device(packet.get("native_device"))
     host=packet["host_identity"]
     require(set(host)=={"schema","native_pointer_bits","os_major","os_minor","os_build","os_platform_id",
                         "service_pack","boot_time_100ns"} and host["schema"]=="physical-supervisor/host-v1",
@@ -394,7 +405,6 @@ def validate_packet(packet, *, check_files=True):
     require(build["configuration"] and build["toolchain"] and "flags" in build, "Build toolchain provenance missing")
     require(normalized(build["source_snapshot"]["path"]) in pins, "Build source snapshot unpinned")
     require(packet["renderer_sha256"] == pins[normalized(packet["renderer"])]["sha256"], "Renderer declared hash differs")
-    require(set(packet["native_device"]) >= {"vendor_id", "device_id", "device_type", "driver_version_raw"}, "Native device readbacks missing")
     require(any(normalized(packet["renderer"]) in {normalized(p) for p in r["files"]}
                 for r in packet["runtime_roots"]), "Renderer runtime inventory missing")
     require(packet["stages"], "No approved stages")
@@ -451,7 +461,48 @@ def validate_packet(packet, *, check_files=True):
         verify_pin(build["source_snapshot"])
         verify_pin(build["executable"])
         verify_source(packet)
+        from .vulkan_inventory import verify_manifest_closure
+        verify_manifest_closure(packet)
+        verify_stage_commands(packet)
     return hashlib.sha256(canonical(packet)).hexdigest()
+
+
+def verify_stage_commands(packet):
+    """Re-derive every prospective command from the pinned frozen oracle recipe."""
+    from .prepare import frozen_oracle
+
+    run = frozen_oracle(packet["oracle_source_root"])
+    for stage in packet["stages"]:
+        capture = stage["capture"]
+        _, _, recipe = run.prepared_scene(packet["prepared"], capture["scene"])
+        native = recipe["native"]
+        out = Path(capture["out"])
+        substitutions = {
+            "exe": packet["renderer"],
+            "iwad": str(out / "input" / Path(packet["iwad"]).name),
+            "pk3": str(out / "input/scene.pk3"),
+            "config": str(out / "fixture.ini"),
+            "capture_script": str(out / "capture.cfg"),
+        }
+        argv = run.apply_extent(
+            [part.format(**substitutions) for part in native["argv"]], [640, 480]
+        )
+        run.validate_bootstrap_argv(native, argv)
+        argv += [
+            "-savedir", str(out / "save"),
+            "-sdvkobserve", run._console_path(out / "native"),
+            "-sdvkobserveframes", str(capture["frames"]),
+            "-sdvkobservewarmup", str(capture["warmup"]),
+            "-sdvkobservemode", capture["mode"],
+        ]
+        if capture["gpu"]:
+            argv.append("-sdvkobservegpu")
+        argv += [
+            "-sdvkobservecache", run._console_path(out / "cache"),
+            "-sdvkobservequit",
+        ]
+        require(stage["expected_argv"] == argv,
+                "Stage command differs from the frozen scene/observer recipe")
 
 
 def source_check_requests(packet):
@@ -504,6 +555,7 @@ def verify_roots(packet, expectations=None):
 
 
 def approve(packet, approval, packet_sha256, gate):
+    verify_native_device(packet.get("native_device"))
     expected = f"AUTHORIZE {packet['experiment_id']} ({'three diagnostic processes only' if packet['kind'] == 'diagnostic' else '41 campaign processes only'})"
     require(approval["schema"] == "physical-supervisor/approval-v1" and approval["phrase"] == expected,
             "Fresh explicit exact-scope approval required")
