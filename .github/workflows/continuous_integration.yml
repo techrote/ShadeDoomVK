@@ -98,15 +98,9 @@ jobs:
 
     - name: Install Dependencies
       shell: bash
-      run: |
-        if [[ -n "${{ matrix.config.deps_cmdline }}" ]]; then
-          eval ${{ matrix.config.deps_cmdline }}
-        fi
-        if [[ "${{ runner.os }}" == 'macOS' ]]; then
-          python3 tools/fetch_build_deps.py --platform macos --output build/deps
-        elif [[ "${{ runner.os }}" == 'Linux' ]]; then
-          python3 tools/fetch_build_deps.py --platform linux --output build/deps
-        fi
+      env:
+        SDVK_SYSTEM_DEPS_COMMAND: ${{ matrix.config.deps_cmdline || '' }}
+      run: bash tools/ci/parallel_hosted_deps.sh
 
     - name: Configure
       shell: bash
@@ -117,7 +111,15 @@ jobs:
       shell: bash
       run: |
         export MAKEFLAGS=--keep-going
-        cmake --build build --config ${{ matrix.config.build_type }} --parallel 3
+        build_parallelism=3
+        if [[ "${{ matrix.config.native_renderer || false }}" == "true" ]]; then
+          visible_cpus=$(nproc)
+          if (( visible_cpus >= 4 )); then
+            build_parallelism=4
+          fi
+        fi
+        echo "CMake build parallelism: $build_parallelism (native renderer: ${{ matrix.config.native_renderer || false }})"
+        cmake --build build --config ${{ matrix.config.build_type }} --parallel "$build_parallelism"
 
     - name: Verify executable project and commit identity
       shell: bash
@@ -195,19 +197,15 @@ jobs:
           --out build/renderer-sdvk009-publication \
           --expected-commit "$GITHUB_SHA"
 
+    - name: Report original SDVK-009 publication process timings
+      if: always() && matrix.config.native_renderer
+      shell: bash
+      run: python3 tools/ci/renderer_publication_timings.py build/renderer-sdvk009-publication
+
     - name: Package complete software Vulkan evidence losslessly
       if: always() && matrix.config.native_renderer
       shell: bash
-      run: |
-        sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158; do
-          if [[ -d "build/$sdvk_evidence_dir" ]]; then
-            sdvk_evidence_dirs+=("$sdvk_evidence_dir")
-          fi
-        done
-        if [[ "${#sdvk_evidence_dirs[@]}" -gt 0 ]]; then
-          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
-        fi
+      run: bash tools/ci/package_renderer_evidence.sh
 
     - name: Upload complete software Vulkan evidence
       if: always() && matrix.config.native_renderer
