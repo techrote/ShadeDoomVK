@@ -212,7 +212,7 @@ class RootGuard:
     handles and path/file-ID/reparse checks also cover every root ancestor.
     This policy supports local fixed NTFS only; it never resets a signal.
     """
-    def __init__(self, packet):
+    def __init__(self, packet, *, mutable_membership=False):
         from .common import linklike
         platform_check()
         self.directories, self.changes = [], []
@@ -237,10 +237,11 @@ class RootGuard:
                     close(handle)
                     raise
                 self.directories.append((path,handle,identity))
-            for row in packet["runtime_roots"]:
-                handle=change_first(row["path"],True,0x1|0x2|0x4|0x8|0x10|0x100)
-                require(handle not in (None,c.c_void_p(-1).value),"Cannot establish runtime change notification")
-                self.changes.append(handle)
+            if not mutable_membership:
+                for row in packet["runtime_roots"]:
+                    handle=change_first(row["path"],True,0x1|0x2|0x4|0x8|0x10|0x100)
+                    require(handle not in (None,c.c_void_p(-1).value),"Cannot establish runtime change notification")
+                    self.changes.append(handle)
             self.check()
         except BaseException:
             self.close()

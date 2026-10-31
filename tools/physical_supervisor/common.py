@@ -315,6 +315,14 @@ class Gate:
         release = read_json(self.root / ("release-" + self.packet_sha256 + ".json"))
         require(release["packet_sha256"] == self.packet_sha256, "Missing exact packet release")
         future(release["expires_utc"])
+        if release.get("schema") == "physical-supervisor/conditional-approval-v2":
+            from .conditional_grant import digest as value_digest
+            row = release["grant_pin"]
+            verify_pin(row)
+            grant = read_json(row["path"])
+            future(grant["expires_utc"])
+            future(release["plan_review"]["expires_utc"])
+            require(value_digest(grant) == release["plan_review"]["grant_sha256"], "Released grant changed")
 
     def stop(self, reason):
         require(self.lock is not None and not self.lock.closed, "STOP publication gate is not locked")
@@ -556,6 +564,19 @@ def verify_roots(packet, expectations=None):
 
 def approve(packet, approval, packet_sha256, gate):
     verify_native_device(packet.get("native_device"))
+    if "conditional_grant" in packet:
+        from .conditional_grant import Ledger, validate_conditional_review
+        grant, review = validate_conditional_review(packet, approval, packet_sha256)
+        with gate:
+            require(read_json(gate.root / "HELD.json")["status"] == "HELD", "Missing initial STOP")
+            require(not list(gate.root.glob("STOP-*.json")), "STOP latched; new reviewed experiment/root required")
+            require(not list(gate.root.glob("release-*.json")) and not list(gate.root.glob("claim-*.json")),
+                    "Experiment gate was already released or claimed")
+            with Ledger(grant) as ledger:
+                ledger.start(packet_sha256, packet["stop_root"], review)
+                exclusive(gate.root / ("release-" + packet_sha256 + ".json"),
+                          {**approval, "grant_pin": packet["conditional_grant"]})
+        return
     expected = f"AUTHORIZE {packet['experiment_id']} ({'three diagnostic processes only' if packet['kind'] == 'diagnostic' else '41 campaign processes only'})"
     require(approval["schema"] == "physical-supervisor/approval-v1" and approval["phrase"] == expected,
             "Fresh explicit exact-scope approval required")

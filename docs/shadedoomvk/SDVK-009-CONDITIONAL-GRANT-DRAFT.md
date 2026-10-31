@@ -1,32 +1,51 @@
-# Conditional renderer grant adapter — non-executable draft
+# Conditional renderer grant and atomic attempt accounting
 
-The current v1 gate requires a fresh exact-packet approval and records its
-`decided_utc`. A broad earlier user grant with later agent plan review must not
-be converted into a fictitious later human decision or a quote the user never
-typed. `conditional_grant.py` starts a separate, explicit resolution format.
+The original CPU-only `resolve_for_review` output remains a deliberately
+non-executable draft. It cannot release the v1 gate. The integrated path is a
+separate `physical-supervisor/conditional-approval-v2`; the existing exact-packet
+human approval remains unchanged for packets without a conditional grant.
 
-The draft keeps the grant's recorded time and verbatim instructions separate
-from the later plan review. It binds both digests, checks condition/source
-blockers, and checks finite total and per-test attempt counts including failed
-creation attempts. Retries/repetitions need a new packet and reviewed
-disposition. Duplicate packet/test charges, attempt gaps, expanded budgets,
-missing conditions and unaccepted source fail closed. The default existing
-packet still has no automatic retries.
+The grant retains the owner's actual instruction/addendum, identity, recorded
+time, unique ledger root, finite expiry and limits. A later plan review binds
+the exact packet and grant digests, accepted clean supervisor commit/tree,
+source/CPU evidence, fulfilled conditions and reviewer provenance. It cannot
+claim a later human `decided_utc` or invented approval phrase. Self-review must
+be labelled as such. Source acceptance/CI are required before physical use.
 
-The resolution is deliberately marked `execution_ready:false`, has no
-`decided_utc`, and is not a v1 approval. The existing approval function rejects
-it. This code does not create an approval, publish a release, write a budget
-claim, clear STOP or start a process. Its four CPU tests include 24 finite
-synthetic reservations, global/per-test exhaustion, replay rejection and proof
-that the result cannot release the existing gate.
+The reviewed maximum is 24 renderer creation attempts, with at most three
+retries per named test (four attempts total). The supported workload still has
+only compositing, shadow-boundary-1 and shadow-boundary-2 in that order, hence
+at most 12 attempts across these three tests. The maximum is not a quota and
+does not authorize inventing more tests. Each packet has zero automatic retries.
 
-Remaining integration work is an independently reviewed prospective approval
-schema and an atomic owner/packet/test-bound budget reservation before native
-creation. Failure/abort/retry accounting and release/claim coupling must be
-qualified with native CPU controls before any renderer uses this adapter.
-The worker/controller/instance attestation is a separate candidate. Genuine
-native properties are not a renderer diagnostic or physical acceptance.
+Initialize a new ledger once with `initialize_ledger(grant)`, then pin its
+`grant.json` as `packet.conditional_grant` and in `packet.files`. The absolute
+root and grant/owner identity are part of those immutable reviewed bytes; an
+execution never silently creates or resets a missing ledger. The OS byte-range
+lock serializes an append-only, numbered hash chain. Complete exclusive records
+are flushed before publication. Pending publications, chain gaps and unresolved
+sessions block successors. Release, session claim and the existing experiment
+claim remain bound to the packet and its fresh STOP root.
 
-Physical qualification remains HELD / NOT ACCEPTED; historical STOP records and
-failures stay immutable, and issue #9 remains open. This draft confers no new
-physical authority beyond a real owner's recorded instructions.
+The collector charges once in the final native creation callback, before
+`CreateProcess`, under the shared spawn gate and budget lock. Failed creation,
+expired proof after charging, collector death and later failed validation all
+consume the attempt. No reservation is refunded. Resume does not charge twice.
+A later stage cannot charge until independent validation and the preceding
+stage's telemetry/System-event grace fence complete. Final receipts retain
+failure or collected-pending-acceptance, never physical approval.
+
+A successor requires a fresh packet, output and experiment root, retained final
+result pins and explicit assessed predecessor digests plus a written retry or
+repetition disposition. A crashed session without a terminal receipt remains
+held for investigation; this interface supplies no automatic recovery or STOP
+removal. Hardware faults are assessed before any proposed retry. Global and
+per-test caps remain shared across all successors using the grant.
+
+CPU controls cover concurrent native reservations, global/per-test exhaustion,
+order/fence/replay rejection, interrupted publication, chain corruption, forged
+later decisions and missing prerequisites. Native end-to-end controls use only
+benign Python targets: three serial successful stages, failed creation, observer
+failure and collector death after durable charge. No control creates Vulkan
+objects or launches the renderer. Historical STOP/failure bytes are immutable,
+Physical STOP remains active, SDVK-009-PHYSICAL held and issue #9 open.
