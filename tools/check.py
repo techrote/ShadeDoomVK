@@ -34,6 +34,7 @@ def main():
     run("cfx-tests", ["tools/test_cfx_capture.py"])
     run("renderer-oracle-tests", ["-m", "unittest", "discover", "-s", "tools/renderer_oracle/tests", "-q"])
     run("physical-supervisor-cpu", ["-B", "-m", "unittest", "discover", "-s", "tools/physical_supervisor", "-t", ".", "-q"])
+    run("hosted-ci-helper-tests", ["-B", "-m", "unittest", "discover", "-s", "tools/ci/tests", "-q"])
     run("renderer-corpus", ["tools/renderer_oracle/run.py", "ci", "--out", output / "renderer-corpus"])
     for suffix in ("a", "b"):
         run("oracle-" + suffix, ["tools/pf_oracle/run.py", "--baseline",
