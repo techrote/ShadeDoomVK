@@ -82,7 +82,11 @@ class FrozenCommandInterfaceTests(TempCase):
         # Only unrelated source-cleanliness/registry authority is synthetic.
         # Command rederivation, file pins, real oracle and public CLI are intact.
         with patch("tools.physical_supervisor.common.verify_source"), \
-             patch("tools.physical_supervisor.common.verify_registry"):
+             patch("tools.physical_supervisor.common.verify_registry"), \
+             patch("tools.physical_supervisor.prepare.read_registry_policy",
+                   side_effect=AssertionError("Supplied registry policy must not evaluate a native default")), \
+             patch("tools.physical_supervisor.prepare.read_registry_enumeration_policy",
+                   side_effect=AssertionError("Supplied registry enumeration must not evaluate a native default")):
             stdout = io.StringIO()
             with contextlib.redirect_stdout(stdout):
                 self.assertEqual(main(["prepare", "--seed", str(seed), "--packet", str(target)]), 0, stdout.getvalue())
