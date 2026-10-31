@@ -32,7 +32,7 @@ def report(root: Path) -> str:
     for name in STAGES:
         receipt = root / "steps" / (name + ".json")
         if not receipt.is_file():
-            rows.append(f"| \x60{name}\x60 | Not reached | — |")
+            rows.append(f"| `{name}` | Not reached | — |")
             continue
         if receipt.stat().st_size > 1024 * 1024:
             raise ValueError(f"Oversized publication step receipt: {receipt}")
@@ -42,7 +42,7 @@ def report(root: Path) -> str:
         elapsed = seconds_between(data["started_utc"], data["finished_utc"])
         total += elapsed
         seen += 1
-        rows.append(f"| \x60{name}\x60 | {data['status']} | {elapsed / 60:.1f} min |")
+        rows.append(f"| `{name}` | {data['status']} | {elapsed / 60:.1f} min |")
     rows.append(f"\nObserved processes: {seen}/{len(STAGES)}; sum of observed process-step wall times: {total / 60:.1f} min.")
     rows.append("These are descriptive hosted software-Vulkan times, not physical-GPU performance acceptance.")
     return "\n".join(rows) + "\n"
