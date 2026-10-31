@@ -356,7 +356,36 @@ with patch.object(supervisor,"validate_packet",return_value=sha),patch.object(su
             until=time.monotonic()+8
             while not started.exists() and owner.poll() is None and time.monotonic()<until:
                 time.sleep(.02)
-            self.assertTrue(started.exists(),(self.root/"driver-err.log").read_text())
+            if not started.exists():
+                # On a hostile/loaded CI host, a fail-closed supervisor may exit
+                # before the synthetic target's marker is written. Preserve its
+                # real source-matched failure, not just a blank driver stderr:
+                # supervisor.execute() deliberately returns FAILED_STOP without
+                # writing a traceback to the embedding driver's stderr.
+                control = self.root/"control"
+                evidence = {"supervisor_exit_code":owner.poll(),"started_marker_present":False}
+                for path in (
+                    self.root/"driver-out.log", self.root/"driver-err.log",
+                    control/"result.json", control/"manifest.json",
+                    control/"00-compositing/collector-stdout.log",
+                    control/"00-compositing/collector-stderr.log",
+                    control/"00-compositing/stage-failed.json",
+                    control/"00-compositing/target-request.json",
+                ):
+                    if path.is_file():
+                        evidence[str(path.relative_to(self.root))] = path.read_text(
+                            encoding="utf-8",errors="replace")[-5000:]
+                journal = control/"journal"
+                if journal.is_dir():
+                    recent = sorted(journal.glob("*.json"))[-12:]
+                    evidence["journal"] = {
+                        path.name:path.read_text(encoding="utf-8",errors="replace")[-1500:]
+                        for path in recent
+                    }
+                evidence["stop_filenames"] = sorted(
+                    path.name for path in Path(self.packet["stop_root"]).glob("STOP-*.json"))
+                self.fail("Native benign supervisor-death fixture did not reach target start; "
+                          +json.dumps(evidence,sort_keys=True))
             request = read_json(self.root/"control/00-compositing/target-request.json")
             target = Process.open(request["target"]["pid"])
             target.verify(request["target"])

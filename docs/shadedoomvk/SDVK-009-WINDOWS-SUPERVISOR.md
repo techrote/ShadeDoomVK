@@ -27,6 +27,15 @@ Approval provenance must accurately record the actual human decision; a generate
 scope phrase must never be presented as text the human typed. Publication and
 green CI alone confer no physical launch permission.
 
+The no-launch input correction candidate requires all four native device
+properties to be uint32 integers (physical device type 1 or 2), without inventory
+status keys. It re-derives complete stage commands from the frozen oracle and
+checks registered manifest/library/environment closure. An incomplete private
+inventory is retained as incomplete evidence; it cannot pass this stricter
+packet validator or publish an approval release. See
+[input correction scope](SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md). This candidate
+does not replace an accepted supervisor source pin without normal review.
+
 The initial HELD record is retained. A packet-specific release and one-use claim
 cannot clear a permanent fault STOP. The shared gate serializes STOP, process
 creation, registration and resume. Missing, partial, expired or changed inputs

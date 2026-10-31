@@ -269,3 +269,14 @@ clustered attempt must first establish a portal/consumer-correct eligibility
 representation, preserve ordering/classes/shadow state, and then prove that its
 spatial indirection actually reduces physical GPU work. See the SDVK-009
 non-GPU report and physical qualification protocol.
+
+## SDVK-009 no-launch input review traps
+
+The command/native-input correction remains a software candidate until accepted
+under a new supervisor pin. Capture metadata alone cannot authenticate an argv
+array; native property key presence cannot authenticate null values; missing
+legacy Drivers keys do not exclude device-specific Vulkan registrations; and a
+layer registry DWORD of zero enables discovery. Static manifest/library hashes
+and environment controls need packet custody independently of registry values.
+See [correction scope and CPU controls](../SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md).
+These corrections confer no physical permission or hardware qualification.

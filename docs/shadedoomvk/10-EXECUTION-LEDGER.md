@@ -1404,3 +1404,22 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   receipts remain required. This entry awards no diagnostic or performance PASS.
 - Issue #9 remains OPEN / NOT ACCEPTED. Physical STOP remains active until a
   reviewed experiment is authorized; historical NVIDIA cause is UNDETERMINED.
+
+## 31 October 2026 — local no-launch input correction candidate
+
+- The isolated correction checks full oracle-derived stage commands, exact typed
+  native-device inputs before validation/release, and registered native64
+  manifest/library/module/environment custody. It adds CPU-only positive and
+  adversarial controls and carries the reviewed PR #166 test failure receipts.
+- Private source reconciliation assigns each of all 20 public file pins to its
+  own frozen supervisor or renderer commit/tree. Static device registrations and
+  DWORD-zero implicit layers must not be misreported as absent or disabled.
+- This is unaccepted software candidate work. Neither frozen accepted source pin
+  is advanced. The real host packet remains PACKET_INCOMPLETE_HOST_INPUTS, not
+  ready for separate owner review. Native Vulkan properties remain unavailable.
+- Physical STOP ACTIVE; SDVK-009-PHYSICAL HELD / NOT ACCEPTED; issue #9 OPEN;
+  historical fault cause UNDETERMINED. No Vulkan, renderer, diagnostic, campaign,
+  physical approval or public evidence publication is authorized or performed.
+- See [scope and CPU controls](SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md). Normal source
+  review/checks, a new accepted pin and separately authorized genuine host
+  attestation are required before a fresh packet can be reconsidered.
