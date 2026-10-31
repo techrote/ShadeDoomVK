@@ -1404,3 +1404,55 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   receipts remain required. This entry awards no diagnostic or performance PASS.
 - Issue #9 remains OPEN / NOT ACCEPTED. Physical STOP remains active until a
   reviewed experiment is authorized; historical NVIDIA cause is UNDETERMINED.
+
+### 31 October 2026 — SDVK-009 supervisor PR #164 merge and no-launch source precursor
+
+- Fresh audit established `master@60273af8ceee64b23e338bd6ea95d1b615dc028f` and
+  exact PR #164 head `2b26172d2eb8e014a4f8aff58681fdedbe9230f6`. The eleven-file
+  supervisor repair was independently source-reviewed, with review record
+  [#5720509471](https://github.com/techrote/ShadeDoomVK/pull/164), including
+  bounded off-thread inventory/log audits, owner/source/packet/stage-bound
+  single-use generations, terminal native NTFS guards, atomic complete receipts,
+  checked mutable-config handle release and the exact-identity 50 ms native
+  exit-confirmation exception. No material release-blocking software defect
+  was demonstrated in the inspected head; actual host-specific protection and
+  physical fault attribution remain separate.
+- Required exact-head [CI #39107722480](https://github.com/techrote/ShadeDoomVK/actions/runs/39107722480)
+  **PASS (9/9)** and [source evidence #39107722465](https://github.com/techrote/ShadeDoomVK/actions/runs/39107722465)
+  **PASS**. Hosted Windows RelWithDebInfo native benign-CPU suite:
+  **129 tests run, one expected privilege skip**, with positive and negative
+  process/NTFS/heartbeat/evidence tests; renderer physical GPU not invoked
+  by supervisor validation. All other required matrix jobs PASS.
+- PR #164 marked ready and merged with unchanged expected head SHA.
+  Verified exact merge commit `2f7681e749f6e6a8560bb7b831857d356b99193d`
+  on `master`, parents base/head unchanged, tree
+  `790300c3f0cd995d1af85fd13414dd7b59b78a78` exactly equal to reviewed
+  PR head tree. **SUPERVISOR_SOFTWARE_ACCEPTED**, limited to reviewed software
+  source and positive native-CPU/hosted checks. The automatic merge-push CI
+  [#41158494086](https://github.com/techrote/ShadeDoomVK/actions/runs/41158494086)
+  and source evidence [#41158494017](https://github.com/techrote/ShadeDoomVK/actions/runs/41158494017)
+  were initiated; their final conclusions must be verified separately and are
+  **not claimed PASS by this ledger entry**.
+- Separately selected accepted renderer source remains
+  `130d09ac4267d02359c7c2603ceced723ceac746`, tree
+  `50c749a848c35f04780140e4d06e9f4fdeb57ff6`; no automatic
+  renderer advance to the supervisor merge. Published
+  [no-launch precursor JSON](evidence/SDVK-009-NO-LAUNCH-PRECURSOR-20261031.json)
+  with independently verified Git-backed sizes/SHA-256 for 15 supervisor
+  source/doc files and five frozen renderer oracle/recipe/PF files.
+  Source-only negative policy mutations **23/23 rejected**; this is not a
+  substitute for actual Windows host/packet negative testing.
+- [Private-host completion instructions](SDVK-009-NO-LAUNCH-DIAGNOSTIC-20261031.md)
+  explicitly require the fresh Windows build/EXE/PDB, Python/IWAD/fixtures,
+  actual GTX 1650 SUPER identity/driver/NVML state, loader/ICD/layers/registry,
+  OS boot/CIM check, System event epoch/bookmark and NTFS evidence. Three serial
+  640×480, 120-warmup, one state/RGB, 180-second, zero-retry stage commands
+  are **prospective templates**, not validated absolute argv. No actual
+  `prepare` or `validate` was possible without the host/private inputs.
+- Source-only publication status: **PACKET_INCOMPLETE_HOST_INPUTS**.
+  **PHYSICAL_HELD_NOT_ACCEPTED**; physical STOP ACTIVE; historical NVIDIA/CFX
+  fault root cause UNDETERMINED. No executable launch, Vulkan device, approval,
+  release, failed-packet retry, 41-process campaign or physical/performance/
+  architecture acceptance; original negative evidence remains immutable.
+  Issue #9 stays OPEN. PR #162's distinct renderer/ledger work is not merged
+  or modified by this qualification.
