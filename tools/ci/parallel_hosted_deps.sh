@@ -3,21 +3,21 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 set -euo pipefail
 
-case "\${RUNNER_OS:-}" in
+case "${RUNNER_OS:-}" in
   Windows) exit 0 ;;
   Linux) platform=linux ;;
   macOS) platform=macos ;;
-  *) echo "Unsupported CI runner OS: \${RUNNER_OS:-unset}" >&2; exit 2 ;;
+  *) echo "Unsupported CI runner OS: ${RUNNER_OS:-unset}" >&2; exit 2 ;;
 esac
 
-: "\${RUNNER_TEMP:?RUNNER_TEMP must be defined by Actions}"
+: "${RUNNER_TEMP:?RUNNER_TEMP must be defined by Actions}"
 system_log=$(mktemp "$RUNNER_TEMP/sdvk-system-deps.XXXXXX")
 zmusic_log=$(mktemp "$RUNNER_TEMP/sdvk-zmusic-deps.XXXXXX")
 
 # Independent package trees: OS package manager vs hash-checked build/deps/zmusic.
 # Both start before either wait; neither failure can be masked by the other.
 (
-  if [[ -n "\${SDVK_SYSTEM_DEPS_COMMAND:-}" ]]; then
+  if [[ -n "${SDVK_SYSTEM_DEPS_COMMAND:-}" ]]; then
     bash -euo pipefail -c "$SDVK_SYSTEM_DEPS_COMMAND"
   fi
 ) >"$system_log" 2>&1 &
