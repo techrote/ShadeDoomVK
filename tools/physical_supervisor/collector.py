@@ -17,12 +17,13 @@ import time
 import types
 
 from .common import Gate, Stop, canonical, digest, exclusive, normalized, pin, read_json, require, utc, verify_pin, verify_roots, sealed_environment, verify_registry, future, source_check_requests,verify_oracle_python_pins
-from .windows import FileLock, Process, reject_unowned_renderer
+from .windows import FileLock, Process, RootGuard, reject_unowned_renderer
+from .integrity import boundary_request, valid_proof, responsive_gate, proof_deadline
 
 
 class ParentGuard:
-    def __init__(self, packet, control):
-        self.packet, self.control = packet, control
+    def __init__(self, packet, control, stage):
+        self.packet, self.control, self.stage = packet, control, stage
         self.expected = read_json(control / "supervisor-identity.json")
         self.parent = Process.open(self.expected["pid"])
         self.parent.verify(self.expected)
@@ -36,6 +37,12 @@ class ParentGuard:
                 "Supervisor heartbeat identity changed")
         age = time.monotonic() - heartbeat["monotonic"]
         require(0 <= age < 2, "Supervisor heartbeat/observers stalled")
+        receipt=heartbeat["integrity_generation"]
+        require(Path(receipt["path"]).parent==self.control,"Heartbeat integrity proof path differs")
+        verify_pin(receipt)
+        proof=read_json(receipt["path"])
+        require(Path(receipt["path"]).name==f"integrity-{proof['generation']:06d}.json","Heartbeat generation name differs")
+        valid_proof(proof,self.packet,self.stage,self.expected)
 
     def close(self):
         self.parent.close()
@@ -46,24 +53,41 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
     require(argv == stage["expected_argv"] and normalized(cwd) == normalized(stage["capture"]["out"]),
             "Oracle target argv/cwd differs from approved packet")
     gate = Gate(packet["stop_root"], packet["packet_sha256"])
-    locks, child, identity, guard = [], None, None, None
+    locks, child, identity, guard, roots = [], None, None, None, None
     try:
-        guard = ParentGuard(packet, control)
+        guard = ParentGuard(packet, control, stage)
         guard.check()
         expected_env = sealed_environment(packet)
         require(env is None or env == expected_env, "Oracle requested an unreviewed renderer environment")
         for row in stage["generated_pins"]:
             verify_pin(row)
             locks.append(FileLock(row))
-        with gate:
+        roots=RootGuard(packet)
+        proof,proof_request=boundary_request(packet,stage,control,guard,roots)
+        mutable_lock=None;mutable_release_monotonic=None
+        def final_boundary():
+            nonlocal mutable_release_monotonic
+            gate.check();guard.check();roots.check();verify_registry(packet)
+            valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
+            if mutable_lock is not None and mutable_lock.handle:
+                mutable_lock.verify()
+                valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
+                mutable_lock.release_mutable()
+                mutable_release_monotonic=time.monotonic()
+                gate.check();guard.check();roots.check();verify_registry(packet)
+                valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
+            return proof_deadline(proof)
+        def health():guard.check();roots.check()
+        with responsive_gate(gate,health):
             gate.check()
             future(packet["expires_utc"])
             reject_unowned_renderer(packet["renderer"])
-            verify_roots(packet)
+            guard.check();roots.check()
+            valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
             verify_registry(packet)
             gate.check()
             require(not (control / "target-request.json").exists(), "No retry/second renderer allowed")
-            child = Process.spawn(argv, cwd, stdout, stderr, env=expected_env)
+            child = Process.spawn(argv, cwd, stdout, stderr, env=expected_env,before_create=final_boundary)
             identity = child.identity()
             require(identity["path"] == normalized(packet["renderer"]) and
                     identity["sha256"] == packet["renderer_sha256"], "Renderer identity mismatch")
@@ -77,13 +101,15 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             request = {"packet_sha256": packet["packet_sha256"], "stage": stage["name"],
                        "collector": owner_identity, "target": identity, "argv": argv, "cwd": str(cwd),
                        "generated_pins": stage["generated_pins"], "created_utc": utc(), "state": "SUSPENDED"}
+            request["integrity_generation"]=proof
+            request["create_native_call_attempt_monotonic"]=child.create_native_call_attempt_monotonic
             exclusive(control / "target-request.json", request)
         until = time.monotonic() + 10
         while not (control / "target-ack.json").exists():
             guard.check()
             sealed_environment(packet)
             verify_registry(packet)
-            with gate:
+            with responsive_gate(gate,health):
                 gate.check()
             require(time.monotonic() < until, "Parent registration/handshake timed out")
             time.sleep(.02)
@@ -91,34 +117,47 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
         require(ack == {"request_sha256": digest(control / "target-request.json"), "packet_sha256": packet["packet_sha256"]},
                 "Parent registration acknowledgement mismatch")
         until = time.monotonic() + stage["deadline_seconds"]
-        with gate:
+        # All generated assets were authenticated/locked before the generation
+        # request. Only the exact live mutable config needs a final byte check.
+        with responsive_gate(gate,health):
             gate.check()
             guard.check()
             future(packet["expires_utc"])
             reject_unowned_renderer(packet["renderer"], [identity])
-            verify_roots(packet)
-            for lock in locks:
-                lock.verify()
+            roots.check()
+            valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
+            verify_registry(packet)
             mutable = stage.get("mutable_runtime_config")
             if mutable is not None:
                 require(Path(mutable["path"]) == Path(stage["capture"]["out"]) / "fixture.ini" and
                         mutable in stage["generated_pins"], "Unexpected mutable runtime exemption")
                 for lock in locks:
                     if lock.row == mutable:
+                        lock.verify()
                         # GZDoom normally persists the live -config on exit.
                         # Original input/fixture.ini remains locked. Release the
                         # exact live copy only after its final under-gate check.
-                        lock.close()
-                exclusive(control / "mutable-config-released.json", {"initial": mutable,
-                    "policy": "only live fixture.ini may be persisted by the owned renderer after resume",
-                    "immutable_original": str(Path(stage["capture"]["out"]) / "input/fixture.ini"), "utc": utc()})
+                        mutable_lock=lock
+                require(mutable_lock is not None,"Mutable configuration lock missing")
+                exclusive(control / "mutable-config-release-ready.json", {"initial": mutable,
+                    "state":"PLANNED_ONLY; live configuration remains locked until final native resume callback","utc":utc()})
             gate.check()
             guard.check()
-            child.resume(identity)
-            exclusive(control / "target-resumed.json", {"identity": identity, "utc": utc()})
+            child.resume(identity,before_resume=final_boundary)
+            if mutable is not None:
+                exclusive(control / "mutable-config-released.json", {"initial": mutable,
+                    "policy": "only live fixture.ini may be persisted by the owned renderer after resume",
+                    "immutable_original": str(Path(stage["capture"]["out"]) / "input/fixture.ini"),"utc":utc(),
+                    "release_monotonic":mutable_release_monotonic,
+                    "resume_native_call_attempt_monotonic":child.resume_native_call_attempt_monotonic})
+            exclusive(control / "target-resumed.json", {"identity": identity, "utc": utc(),
+                "resume_native_call_attempt_monotonic":child.resume_native_call_attempt_monotonic})
         while child.poll() is None:
             guard.check()
-            with gate:
+            def running_health():
+                health()
+                require(time.monotonic()<until,"Renderer process deadline exceeded")
+            with responsive_gate(gate,running_health):
                 gate.check()
             require(time.monotonic() < until, "Renderer process deadline exceeded")
             time.sleep(.05)
@@ -137,6 +176,9 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
                 termination = {"identity": identity, "terminated": child.kill(identity), "utc": utc()}
         except BaseException as termination_error:
             problems.append("Termination withheld: " + str(termination_error))
+            termination_failure=getattr(termination_error,"evidence",None)
+        else:termination_failure=None
+        exit_observations=child.take_exit_observations() if child is not None else []
         try:
             with gate:
                 gate.stop(error)
@@ -144,9 +186,11 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             problems.append("STOP write failed: " + str(stop_error))
         try:
             if termination:
-                exclusive(control / "collector-target-termination.json", {**termination, "errors": problems})
+                exclusive(control / "collector-target-termination.json", {**termination, "errors": problems,
+                    "exit_observations":exit_observations})
             else:
-                exclusive(control / "collector-termination-withheld.json", {"errors": problems, "utc": utc()})
+                exclusive(control / "collector-termination-withheld.json", {"errors": problems, "utc": utc(),
+                    "error_evidence":termination_failure,"exit_observations":exit_observations})
         except OSError:
             pass  # no receipt can be persisted; re-raise the original failure
         raise
@@ -157,6 +201,8 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             lock.close()
         if guard:
             guard.close()
+        if roots:
+            roots.close()
 
 
 def source_proof(packet,stage,control,receipt_pin):
