@@ -12,7 +12,7 @@ import subprocess
 from pathlib import Path
 
 from .common import (Gate, canonical, exclusive, future, linklike, pin,
-                     read_json, require, utc, verify_pin)
+                     read_json, require, sealed_environment, utc, verify_pin)
 
 STAGES = ["compositing", "shadow-boundary-1", "shadow-boundary-2"]
 
@@ -102,7 +102,7 @@ def initialize_ledger(grant):
     for part in root.parents:
         require(not linklike(part), "Budget ancestor is a link/junction")
     root.mkdir(exist_ok=False)
-    exclusive(root / "grant.json", grant)
+    exclusive(root / "grant.json", grant, durable=True)
     return pin(root / "grant.json")
 
 
@@ -157,7 +157,7 @@ class Ledger:
         if self.guard: self.guard.check()
         row = {"index": len(self.rows), "previous_sha256": self.previous,
                "grant_sha256": digest(self.grant), "utc": utc(), "kind": kind, "value": value}
-        exclusive(self.root / f"event-{len(self.rows):06d}.json", row)
+        exclusive(self.root / f"event-{len(self.rows):06d}.json", row, durable=True)
         self.rows.append(row)
         self.previous = digest(row)
         return row
@@ -263,7 +263,7 @@ def verify_supervisor_source(packet, source):
                 ("status", "--porcelain=v1", "--untracked-files=all")]
     for args, expected in zip(commands, (source["commit"], source["tree"], "")):
         result = subprocess.run([packet["git"], "--no-optional-locks", "-C", str(root), *args],
-                                capture_output=True, timeout=10, check=False)
+                                capture_output=True, timeout=10, check=False, env=sealed_environment(packet))
         require(result.returncode == 0 and not result.stderr and result.stdout.decode().strip() == expected,
                 "Accepted supervisor source identity changed")
     pinned = {str(Path(row["path"]).resolve()) for row in packet["files"]}

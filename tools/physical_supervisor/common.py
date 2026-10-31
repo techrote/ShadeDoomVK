@@ -195,7 +195,7 @@ def verify_pin(row):
     return actual
 
 
-def exclusive(path, value, *, raw=False):
+def exclusive(path, value, *, raw=False, durable=False):
     """Publish complete bytes atomically without replacing an existing receipt.
 
     A sibling temporary file is flushed before its no-overwrite atomic
@@ -209,12 +209,26 @@ def exclusive(path, value, *, raw=False):
         stream.write(value if raw else canonical(value))
         stream.flush()
         os.fsync(stream.fileno())
-    if os.name=="nt":os.rename(pending,path)
+    if os.name=="nt":
+        if durable:
+            import ctypes
+            from ctypes import wintypes
+            move = ctypes.WinDLL("kernel32", use_last_error=True).MoveFileExW
+            move.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
+            move.restype = wintypes.BOOL
+            # WRITE_THROUGH only: no replacement, cross-volume copy or reboot.
+            if not move(str(pending), str(path), 0x8):
+                raise ctypes.WinError(ctypes.get_last_error())
+        else:os.rename(pending,path)
     else:
         os.link(pending,path)
         try:pending.unlink()
         except OSError:
             pass  # Final complete receipt is published; retain pending evidence.
+        if durable:
+            descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+            try:os.fsync(descriptor)
+            finally:os.close(descriptor)
 
 
 class Journal:

@@ -305,3 +305,9 @@ abrupt supervisor/collector death, orphan containment, late event fence and conf
 persistence. They do not launch a renderer, renderer version command or Vulkan.
 The existing GitHub-hosted Windows RelWithDebInfo job runs these controls; no
 physical campaign is dispatched by CI.
+
+Run native CPU qualification invocations serially on a host: separate suites
+use the same benign target basename and deliberately reject one another as
+unowned candidates. Optional `SDVK_CPU_FAILURE_EVIDENCE_ROOT` retains unexpected
+failing integration fixtures before temporary cleanup. Candidate STOP receipts
+retain PID, parent PID and name as observations, never executable attribution.

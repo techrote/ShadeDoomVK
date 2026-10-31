@@ -1498,3 +1498,8 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - Source acceptance remains subject to the candidate's normal required checks
   and review. Physical STOP stays active, SDVK-009-PHYSICAL held and #9 open.
   No campaign or hardware settings change follows from this source candidate.
+- Source review additionally requires write-through exclusive budget publication
+  before a charge returns. A second local CPU run overlapped another CPU suite
+  and correctly rejected its same-name unowned target; that negative and its
+  fixture are retained. Final qualification runs serially, and candidate STOP
+  diagnostics now retain PID/parent/name without inferring executable identity.

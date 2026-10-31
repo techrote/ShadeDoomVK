@@ -27,6 +27,13 @@ are flushed before publication. Pending publications, chain gaps and unresolved
 sessions block successors. Release, session claim and the existing experiment
 claim remain bound to the packet and its fresh STOP root.
 
+Budget publications additionally use Windows `MoveFileExW` with only
+`MOVEFILE_WRITE_THROUGH` (no replace/copy/reboot flags), or directory `fsync`
+after exclusive hard-link publication on POSIX CPU controls. The native
+[publication contract](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-movefileexw)
+is required before returning a charge; there is no ordinary-rename fallback on
+failure. This requests OS durability, not a claim to survive broken storage.
+
 The collector charges once in the final native creation callback, before
 `CreateProcess`, under the shared spawn gate and budget lock. Failed creation,
 expired proof after charging, collector death and later failed validation all

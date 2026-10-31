@@ -756,7 +756,13 @@ class NativeWindowsTests(TempCase):
         from .windows import reject_unowned_renderer
         child,identity=self.spawn("import time;time.sleep(20)")
         child.resume(identity)
-        with self.assertRaises(Stop):reject_unowned_renderer(sys.executable)
+        with self.assertRaises(Stop) as caught:reject_unowned_renderer(sys.executable)
+        evidence = caught.exception.evidence
+        self.assertEqual(evidence["operation"], "renderer-candidate-inventory")
+        self.assertEqual(evidence["candidate_name"].casefold(), Path(sys.executable).name.casefold())
+        self.assertGreater(evidence["candidate_pid"], 0)
+        self.assertEqual(evidence["allowed_pids"], [])
+        self.assertTrue(evidence["name_is_not_executable_identity"])
         self.assertIsNone(child.poll())
 
     def test_actual_benign_cpu_loaded_module_identity(self):
