@@ -11,6 +11,12 @@ one state/RGB frame, 180 seconds, exact comparison and zero retries.
 `kind=campaign` is deliberately rejected. The separate 41-process campaign
 needs its own fully implemented workload/coverage gate and review.
 
+An explicitly recorded conditional allowance may use the separate v2 approval
+and durable attempt ledger described in
+[the conditional grant contract](../../docs/shadedoomvk/SDVK-009-CONDITIONAL-GRANT-DRAFT.md).
+It preserves zero automatic retries; a later reviewed successor consumes the
+same finite budget and cannot reset historical claims or STOP records.
+
 Closed runtime roots must be on local fixed NTFS volumes. The packet constructor
 adds an exact `integrity_policy`; packets without this policy require a new
 prospective review and approval. Existing packets are never upgraded at runtime.
@@ -299,3 +305,9 @@ abrupt supervisor/collector death, orphan containment, late event fence and conf
 persistence. They do not launch a renderer, renderer version command or Vulkan.
 The existing GitHub-hosted Windows RelWithDebInfo job runs these controls; no
 physical campaign is dispatched by CI.
+
+Run native CPU qualification invocations serially on a host: separate suites
+use the same benign target basename and deliberately reject one another as
+unowned candidates. Optional `SDVK_CPU_FAILURE_EVIDENCE_ROOT` retains unexpected
+failing integration fixtures before temporary cleanup. Candidate STOP receipts
+retain PID, parent PID and name as observations, never executable attribution.

@@ -1475,3 +1475,31 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - See [scope and CPU controls](SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md). Normal source
   review/checks, a new accepted pin and separately authorized genuine host
   attestation are required before a fresh packet can be reconsidered.
+
+## 31 October 2026 — conditional grant accounting source candidate
+
+- The v2 conditional review keeps the earlier owner instruction distinct from
+  later agent review, binds accepted source/CPU receipts and the exact packet,
+  and forbids a fabricated later human decision. The original draft resolution
+  remains non-executable and v1 human approvals keep their existing contract.
+- A once-created, owner/grant-bound ledger serializes sessions and durable
+  creation-attempt charges under OS locks, with retained local-NTFS directory
+  identity. Failed creation and post-charge death consume allowance. Completed
+  safety fences gate later stages; retained assessed predecessors gate repeats.
+  Caps are at most 24 total and three retries per test. The fixed three-test
+  diagnostic permits at most 12 attempts and never automatically retries.
+- CPU controls use benign Python children only and cover contention, caps,
+  publication/chain failures, replay/order/fence checks, native failed creation,
+  observer failure and death after charge. The first extended local suite
+  retained a strict-stop executable-path query error 31; three focused CPU
+  repetitions passed without expanding the accepted error exception. Its cause
+  remains unattributed. Unexpected CPU fixture failures can now retain full
+  private evidence before temporary cleanup; no failure is relabelled a pass.
+- Source acceptance remains subject to the candidate's normal required checks
+  and review. Physical STOP stays active, SDVK-009-PHYSICAL held and #9 open.
+  No campaign or hardware settings change follows from this source candidate.
+- Source review additionally requires write-through exclusive budget publication
+  before a charge returns. A second local CPU run overlapped another CPU suite
+  and correctly rejected its same-name unowned target; that negative and its
+  fixture are retained. Final qualification runs serially, and candidate STOP
+  diagnostics now retain PID/parent/name without inferring executable identity.

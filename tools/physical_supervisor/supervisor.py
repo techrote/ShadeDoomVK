@@ -346,6 +346,7 @@ def execute(packet, approval, output, *, readers=None):
     locks, collector, target, job, watch,modules,integrity,roots = [], None, None, None, None,None,None,None
     collector_identity = target_identity = None
     status, error = "FAILED_STOP", "Incomplete supervisor"
+    conditional_started = False
     claim = gate.root / ("claim-" + packet_sha + ".json")
     try:
         for row in packet["files"]:
@@ -356,6 +357,7 @@ def execute(packet, approval, output, *, readers=None):
         journal.append("host-preflight",current_host)
         check_host_identity(packet["host_identity"],current_host)
         approve(packet, approval, packet_sha, gate)
+        conditional_started = "conditional_grant" in packet
         with gate:
             gate.check()
             require(not list(gate.root.glob("claim-*.json")), "Experiment already attempted or another supervisor owns gate")
@@ -555,6 +557,8 @@ def execute(packet, approval, output, *, readers=None):
                         lock.verify()
                     journal.append("stage-complete", {"stage": stage["name"], "late_event_grace_seconds": 15})
                     journal.append("stage-artifacts", {"root": stage["capture"]["out"], "files": inventory(stage["capture"]["out"])})
+                    from .conditional_grant import complete_stage
+                    complete_stage(packet, stage)
                 integrity.finish();last_integrity=integrity;integrity=None
                 watch = Watch(packet, fence_baseline, journal, watch.readers)
                 watch.start()
@@ -655,4 +659,14 @@ def execute(packet, approval, output, *, readers=None):
                                                "journal_head_sha256": Journal.audit(output / "journal")})
         exclusive(output / "result.json", {"status": status, "error": error, "manifest": pin(output / "manifest.json"),
                                              "physical_gpu_qualified": False, "performance_accepted": False})
+        if conditional_started:
+            from .conditional_grant import finish_session
+            try:
+                finish_session(packet, pin(output / "result.json"))
+            except BaseException as budget_error:
+                # The retained result describes collected data only. An
+                # unresolved accounting session forbids every successor.
+                with gate:
+                    gate.stop("Budget finalization failed: " + str(budget_error))
+                raise Stop("Budget finalization failed; experiment remains held: " + str(budget_error))
     return read_json(output / "result.json")
