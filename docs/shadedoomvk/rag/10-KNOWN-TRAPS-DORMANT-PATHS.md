@@ -270,6 +270,39 @@ representation, preserve ordering/classes/shadow state, and then prove that its
 spatial indirection actually reduces physical GPU work. See the SDVK-009
 non-GPU report and physical qualification protocol.
 
+## SDVK-009 no-launch source identities and false authority traps
+
+The 18 October Windows supervisor heartbeat repair is accepted as **software
+containment tooling only** through [PR #164](https://github.com/techrote/ShadeDoomVK/pull/164),
+merged at `2f7681e749f6e6a8560bb7b831857d356b99193d`, tree
+`790300c3f0cd995d1af85fd13414dd7b59b78a78`. The control loop must
+publish heartbeats only after observer and integrity health, while one separate,
+bounded worker audits whole pinned inventories, append-only logs and new one-use
+boundary generations. Terminal local-NTFS namespace invalidation, retained file
+locks, process creation-time ownership, bounded native proof deadlines and
+fail-closed receipt errors are **supervisor properties**, not evidence that the
+earlier NVIDIA fault is understood or that the renderer now runs stably.
+
+Never confuse the *independently accepted* renderer source
+`130d09ac4267d02359c7c2603ceced723ceac746`, tree
+`50c749a848c35f04780140e4d06e9f4fdeb57ff6`, with the newer supervisor
+merge. Updating the supervisor must not silently advance a candidate renderer
+or manufacture a new executable/PDB identity. Its no-launch `prepare`/`validate`
+interfaces require fresh, real, private Windows build/runtime/boot/GPU/loader/
+System-event pins; public Git commits and historical hashes cannot provide them.
+Even a subsequently validated packet is **not** release, claim or approval.
+
+The [31 October diagnostic handoff](../SDVK-009-NO-LAUNCH-DIAGNOSTIC-20261031.md)
+and [public source-only SHA-256 inventory](../evidence/SDVK-009-NO-LAUNCH-PRECURSOR-20261031.json)
+contain three prospective compositing → shadow-boundary/1 → shadow-boundary/2
+command **templates** (640×480, 120 warmup, one state/RGB, 180 s, zero retries).
+Unresolved private paths are not validated argv. A separate Windows operator must
+generate and validate actual commands without launching them; the old physical
+`--execute` driver remains prohibited for this purpose. No one may convert the
+tooling merge, software-Vulkan success or 23 source-precursor mutation rejections
+into `SDVK-009-PHYSICAL` acceptance. Issue #9 stays OPEN, physical STOP ACTIVE,
+historical root cause UNDETERMINED, and the distinct 41-process campaign HELD.
+
 ## SDVK-009 no-launch input review traps
 
 The command/native-input correction remains a software candidate until accepted
