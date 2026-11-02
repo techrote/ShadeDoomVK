@@ -45,9 +45,15 @@ def diagnostic_packet(seed):
                   monitor={"gpu_seconds": 1, "event_seconds": 5, "reader_timeout_seconds": 10,
                            "completion_grace_seconds": 15}, temperature_limit_c=seed.get("temperature_limit_c", 80))
     packet.setdefault("created_utc", utc())
-    packet.setdefault("environment_policy", environment_policy(packet.get("environment_extra_keys", ())))
-    packet.setdefault("registry_policy", read_registry_policy([{"hive":hive,"key":key} for hive in ("HKLM","HKCU") for key in REGISTRY_KEYS]))
-    packet.setdefault("registry_enumeration_policy", read_registry_enumeration_policy([{"hive":"HKLM","key":key} for key in (DISPLAY_CLASS,CONTROL_VIDEO)]))
+    # setdefault evaluates its default eagerly, even for a supplied policy.
+    # Synthetic CPU controls supply their authority explicitly; native reads
+    # remain mandatory in validate_packet, never incidental default evaluation.
+    if "environment_policy" not in packet:
+        packet["environment_policy"] = environment_policy(packet.get("environment_extra_keys", ()))
+    if "registry_policy" not in packet:
+        packet["registry_policy"] = read_registry_policy([{"hive":hive,"key":key} for hive in ("HKLM","HKCU") for key in REGISTRY_KEYS])
+    if "registry_enumeration_policy" not in packet:
+        packet["registry_enumeration_policy"] = read_registry_enumeration_policy([{"hive":"HKLM","key":key} for key in (DISPLAY_CLASS,CONTROL_VIDEO)])
     packet.setdefault("git", shutil.which("git"))
     require(packet["git"], "Read-only source verification requires a pinned Git executable")
     commit = packet["source"]["commit"]

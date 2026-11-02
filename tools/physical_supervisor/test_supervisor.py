@@ -21,7 +21,7 @@ import types
 import unittest
 from unittest.mock import patch
 
-from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, environment_policy, sealed_environment, REGISTRY_KEYS, DISPLAY_CLASS, CONTROL_VIDEO, verify_registry, linklike, INTEGRITY_POLICY
+from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, environment_policy, sealed_environment, REGISTRY_KEYS, DISPLAY_CLASS, CONTROL_VIDEO, verify_registry, verify_stage_commands, linklike, INTEGRITY_POLICY
 from .readers import BoundedReaders, NativeEvents, continuity, telemetry, gpu_reader,bounded_host_identity,check_host_identity,NVML_POWER_USAGE_MAX_WATTS,NVML_POWER_USAGE_CSV_MAX_WATTS
 from .supervisor import LogScanner, Watch, terminate_owned
 
@@ -567,7 +567,7 @@ class PacketAndApprovalTests(TempCase):
 
     def test_positive_complete_packet_and_negative_workload_mutations(self):
         packet=self.packet()
-        with patch("tools.physical_supervisor.common.verify_source"),patch("tools.physical_supervisor.common.verify_registry"):
+        with patch("tools.physical_supervisor.common.verify_source"),patch("tools.physical_supervisor.common.verify_registry"),patch("tools.physical_supervisor.common.verify_stage_commands"):
             self.assertEqual(validate_packet(packet),hashlib.sha256(canonical(packet)).hexdigest())
             changes=[("scene","lights-zero"),("image_policy","tolerant"),("gpu",True),("require_clean",False),
                      ("expected_commit","3"*40),("extent","1904x1001"),("warmup",119),("frames",2),("timeout",181)]
@@ -581,6 +581,52 @@ class PacketAndApprovalTests(TempCase):
                              lambda p:p["environment_policy"].update(VK_DRIVER_FILES="unreviewed")):
                 changed=copy.deepcopy(packet);mutation(changed)
                 with self.subTest(mutation=mutation),self.assertRaises((Stop,OSError)):validate_packet(changed)
+
+    def test_frozen_stage_command_rederivation_rejects_observer_warmup_edit(self):
+        out=self.root/"captures"/"compositing"
+        exe=self.root/"never-executed.exe"
+        iwad=self.root/"input.wad"
+        recipe={"native":{"argv":["{exe}","-iwad","{iwad}","-file","{pk3}","+exec","{config}","-width","320","-height","200"],
+                          "pk3":"scene.pk3","config":"fixture.ini","capture_script":"capture.cfg"}}
+
+        class SyntheticRun:
+            @staticmethod
+            def prepared_scene(directory, identity):
+                return Path(directory), {}, recipe
+
+            @staticmethod
+            def apply_extent(argv, extent):
+                result=list(argv)
+                for flag,value in (("-width",extent[0]),("-height",extent[1])):
+                    result[result.index(flag)+1]=str(value)
+                return result
+
+            @staticmethod
+            def validate_bootstrap_argv(native, argv):
+                return None
+
+            @staticmethod
+            def _console_path(path):
+                return str(path)
+
+        capture={"scene":"compositing","out":str(out),"frames":1,"warmup":120,
+                 "mode":"state","gpu":False}
+        packet={"oracle_source_root":str(self.root/"source"),"prepared":str(self.root/"prepared"),
+                "renderer":str(exe),"iwad":str(iwad),"stages":[{"capture":capture,"expected_argv":[]}]}
+        substitutions={"exe":str(exe),"iwad":str(out/"input"/iwad.name),"pk3":str(out/"input/scene.pk3"),
+                       "config":str(out/"fixture.ini"),"capture_script":str(out/"capture.cfg")}
+        expected=[part.format(**substitutions) for part in recipe["native"]["argv"]]
+        expected=SyntheticRun.apply_extent(expected,[640,480])
+        expected += ["-savedir",str(out/"save"),"-sdvkobserve",str(out/"native"),
+                     "-sdvkobserveframes","1","-sdvkobservewarmup","120","-sdvkobservemode","state",
+                     "-sdvkobservecache",str(out/"cache"),"-sdvkobservequit"]
+        packet["stages"][0]["expected_argv"]=expected
+        with patch("tools.physical_supervisor.prepare.frozen_oracle",return_value=SyntheticRun):
+            verify_stage_commands(packet)
+            changed=copy.deepcopy(packet)
+            index=changed["stages"][0]["expected_argv"].index("-sdvkobservewarmup")
+            changed["stages"][0]["expected_argv"][index+1]="119"
+            with self.assertRaises(Stop):verify_stage_commands(changed)
 
     def test_loader_environment_absent_and_changed_controls(self):
         packet={"environment_policy":environment_policy()}
