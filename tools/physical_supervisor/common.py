@@ -454,8 +454,10 @@ def validate_packet(packet, *, check_files=True):
                     stage["capture"]["extent"] == "640x480", "Diagnostic workload changed")
             capture = stage["capture"]
             require(set(capture) == {"exe", "iwad", "prepared", "out", "scene", "mode", "frames", "warmup", "timeout",
-                                     "gpu", "include_stress", "image_policy", "extent", "expected_commit", "require_clean"},
+                                     "gpu", "include_stress", "image_policy", "extent", "expected_commit", "require_clean"} |
+                    ({"iwad_support"} if "iwad_support" in packet else set()),
                     "Unexpected/missing diagnostic capture controls")
+            require(capture.get("iwad_support") == packet.get("iwad_support"), "Capture support declaration differs")
             require(capture["scene"] == expected_scenes[index] and capture["image_policy"] == "exact" and
                     capture["gpu"] is False and capture["include_stress"] is True and capture["require_clean"] is True and
                     capture["expected_commit"] == packet["source"]["commit"], "Diagnostic fixture/oracle policy changed")
@@ -486,7 +488,25 @@ def validate_packet(packet, *, check_files=True):
         from .vulkan_inventory import verify_manifest_closure
         verify_manifest_closure(packet)
         verify_stage_commands(packet)
+    if "iwad_support" in packet:
+        verify_iwad_support(packet, check_files=check_files)
     return hashlib.sha256(canonical(packet)).hexdigest()
+
+
+def verify_iwad_support(packet, *, check_files=True):
+    from .prepare import frozen_oracle
+    run = frozen_oracle(packet["oracle_source_root"])
+    pins = {normalized(row["path"]): row for row in packet["files"]}
+    require(normalized(packet["iwad"]) in pins, "Support-bound IWAD is unpinned")
+    iwad = pins[normalized(packet["iwad"])]
+    iwad = {"path": iwad["path"], "sha256": iwad["sha256"], "bytes": iwad["size"]}
+    require(hasattr(run, "support_package_pins"), "Frozen oracle does not support explicit IWAD resources")
+    resources = run.support_package_pins(packet["iwad_support"], iwad, packet["renderer"], verify_files=check_files)
+    require(resources, "Explicit support declaration is empty")
+    for path, row in resources.items():
+        require(normalized(path) in pins and row == {"path": pins[normalized(path)]["path"],
+                "sha256": pins[normalized(path)]["sha256"], "bytes": pins[normalized(path)]["size"]},
+                "Support resource is absent from packet custody or differs")
 
 
 def verify_stage_commands(packet):
@@ -528,11 +548,40 @@ def verify_stage_commands(packet):
 
 
 def source_check_requests(packet):
-    return [([packet["git"], "--no-optional-locks", "-C", packet["oracle_source_root"], *arguments],expected)
-            for arguments,expected in ((["rev-parse","HEAD","HEAD^{tree}"],
-                                       [packet["source"]["commit"],packet["source"]["tree"]]),
-                                      (["status","--porcelain","--untracked-files=all"],[]),
-                                      (["cat-file","-e",packet["source"]["commit"]+"^{commit}"],[]))]
+    """Keep the executed renderer identity separate from reviewed oracle tooling.
+
+    Older packets intentionally retain their single-root, three-check contract.
+    The optional pair is prospective: it cannot silently change old packets or
+    make a new oracle commit the expected native renderer build.
+    """
+    separated = {"renderer_source_root", "oracle_source"} & set(packet)
+    require(not separated or separated == {"renderer_source_root", "oracle_source"},
+            "Renderer/oracle source separation requires both prospective fields")
+    roots = [(packet["oracle_source_root"], packet["source"])]
+    if separated:
+        oracle = packet["oracle_source"]
+        require(isinstance(oracle, dict) and set(oracle) == {"commit", "tree"} and
+                all(isinstance(oracle[key], str) and re.fullmatch(r"[0-9a-f]{40}", oracle[key])
+                    for key in ("commit", "tree")), "Missing/invalid oracle source identity")
+        roots = [(packet["renderer_source_root"], packet["source"]),
+                 (packet["oracle_source_root"], oracle)]
+        for root, _ in roots:
+            directory = Path(root)
+            require(directory.is_absolute() and directory.is_dir(),
+                    "Separated source requires absolute checkout directories")
+            require(all(not linklike(part) for part in (directory, *directory.parents)),
+                    "Separated source checkout/ancestor is a link/junction")
+    requests = []
+    for root, source in roots:
+        # Preparation retains the renderer-era manifest and asks whether that
+        # renderer commit exists in the oracle checkout. Both roots prove that
+        # same existence fact, while HEAD/tree/clean checks use their own pins.
+        for arguments, expected in ((["rev-parse", "HEAD", "HEAD^{tree}"],
+                                     [source["commit"], source["tree"]]),
+                                    (["status", "--porcelain", "--untracked-files=all"], []),
+                                    (["cat-file", "-e", packet["source"]["commit"] + "^{commit}"], [])):
+            requests.append(([packet["git"], "--no-optional-locks", "-C", root, *arguments], expected))
+    return requests
 
 
 def verify_source(packet):
