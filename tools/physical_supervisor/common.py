@@ -195,7 +195,7 @@ def verify_pin(row):
     return actual
 
 
-def exclusive(path, value, *, raw=False):
+def exclusive(path, value, *, raw=False, durable=False):
     """Publish complete bytes atomically without replacing an existing receipt.
 
     A sibling temporary file is flushed before its no-overwrite atomic
@@ -209,12 +209,26 @@ def exclusive(path, value, *, raw=False):
         stream.write(value if raw else canonical(value))
         stream.flush()
         os.fsync(stream.fileno())
-    if os.name=="nt":os.rename(pending,path)
+    if os.name=="nt":
+        if durable:
+            import ctypes
+            from ctypes import wintypes
+            move = ctypes.WinDLL("kernel32", use_last_error=True).MoveFileExW
+            move.argtypes = [wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD]
+            move.restype = wintypes.BOOL
+            # WRITE_THROUGH only: no replacement, cross-volume copy or reboot.
+            if not move(str(pending), str(path), 0x8):
+                raise ctypes.WinError(ctypes.get_last_error())
+        else:os.rename(pending,path)
     else:
         os.link(pending,path)
         try:pending.unlink()
         except OSError:
             pass  # Final complete receipt is published; retain pending evidence.
+        if durable:
+            descriptor = os.open(path.parent, os.O_RDONLY | os.O_DIRECTORY)
+            try:os.fsync(descriptor)
+            finally:os.close(descriptor)
 
 
 class Journal:
@@ -315,6 +329,14 @@ class Gate:
         release = read_json(self.root / ("release-" + self.packet_sha256 + ".json"))
         require(release["packet_sha256"] == self.packet_sha256, "Missing exact packet release")
         future(release["expires_utc"])
+        if release.get("schema") == "physical-supervisor/conditional-approval-v2":
+            from .conditional_grant import digest as value_digest
+            row = release["grant_pin"]
+            verify_pin(row)
+            grant = read_json(row["path"])
+            future(grant["expires_utc"])
+            future(release["plan_review"]["expires_utc"])
+            require(value_digest(grant) == release["plan_review"]["grant_sha256"], "Released grant changed")
 
     def stop(self, reason):
         require(self.lock is not None and not self.lock.closed, "STOP publication gate is not locked")
@@ -556,6 +578,19 @@ def verify_roots(packet, expectations=None):
 
 def approve(packet, approval, packet_sha256, gate):
     verify_native_device(packet.get("native_device"))
+    if "conditional_grant" in packet:
+        from .conditional_grant import Ledger, validate_conditional_review
+        grant, review = validate_conditional_review(packet, approval, packet_sha256)
+        with gate:
+            require(read_json(gate.root / "HELD.json")["status"] == "HELD", "Missing initial STOP")
+            require(not list(gate.root.glob("STOP-*.json")), "STOP latched; new reviewed experiment/root required")
+            require(not list(gate.root.glob("release-*.json")) and not list(gate.root.glob("claim-*.json")),
+                    "Experiment gate was already released or claimed")
+            with Ledger(grant) as ledger:
+                ledger.start(packet_sha256, packet["stop_root"], review)
+                exclusive(gate.root / ("release-" + packet_sha256 + ".json"),
+                          {**approval, "grant_pin": packet["conditional_grant"]})
+        return
     expected = f"AUTHORIZE {packet['experiment_id']} ({'three diagnostic processes only' if packet['kind'] == 'diagnostic' else '41 campaign processes only'})"
     require(approval["schema"] == "physical-supervisor/approval-v1" and approval["phrase"] == expected,
             "Fresh explicit exact-scope approval required")

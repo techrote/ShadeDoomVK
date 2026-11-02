@@ -87,7 +87,16 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             verify_registry(packet)
             gate.check()
             require(not (control / "target-request.json").exists(), "No retry/second renderer allowed")
-            child = Process.spawn(argv, cwd, stdout, stderr, env=expected_env,before_create=final_boundary)
+            def charged_boundary():
+                deadline = final_boundary()
+                if "conditional_grant" in packet:
+                    from .conditional_grant import boundary_charge
+                    boundary_charge(packet, stage)
+                    # A slow/failed durable publication consumes the attempt,
+                    # but cannot extend the original native proof deadline.
+                    gate.check(); guard.check(); roots.check()
+                return deadline
+            child = Process.spawn(argv, cwd, stdout, stderr, env=expected_env,before_create=charged_boundary)
             identity = child.identity()
             require(identity["path"] == normalized(packet["renderer"]) and
                     identity["sha256"] == packet["renderer_sha256"], "Renderer identity mismatch")

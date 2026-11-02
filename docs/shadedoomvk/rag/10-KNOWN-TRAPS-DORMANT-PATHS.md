@@ -313,3 +313,10 @@ layer registry DWORD of zero enables discovery. Static manifest/library hashes
 and environment controls need packet custody independently of registry values.
 See [correction scope and CPU controls](../SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md).
 These corrections confer no physical permission or hardware qualification.
+
+An earlier conditional owner allowance is not a fresh human exact-packet
+decision. The [v2 conditional grant gate](../SDVK-009-CONDITIONAL-GRANT-DRAFT.md)
+retains that distinction, charges durably before native renderer creation and
+shares total/per-test accounting across fresh successor packets. Failed creates
+consume the allowance; unresolved or unassessed predecessors block repeats.
+No automatic retry, STOP reset, campaign or physical acceptance follows.

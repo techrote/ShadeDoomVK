@@ -135,6 +135,17 @@ class EngineIntegrationTests(unittest.TestCase):
         # Native containment has completed before cleanup; failure leaves a
         # diagnostic traceback rather than deleting a live process's artifacts.
         self.doCleanups()
+        evidence_root = os.environ.get("SDVK_CPU_FAILURE_EVIDENCE_ROOT")
+        outcome = getattr(self, "_outcome", None)
+        result = getattr(outcome, "result", None)
+        failed = result is not None and any(test is self for test, _ in (*result.failures, *result.errors))
+        if evidence_root and failed:
+            # Only explicitly synthetic CPU fixtures live in this directory.
+            # Copy before TemporaryDirectory cleanup; keep failed receipts,
+            # journals, native errors and output together for investigation.
+            destination = Path(evidence_root) / (self.id() + "-" + str(time.time_ns()))
+            shutil.copytree(self.root, destination)
+            print("Retained failed CPU fixture: " + str(destination), flush=True)
         self.temp.cleanup()
 
     def run_engine(self, *, event_function=None,telemetry_function=None):

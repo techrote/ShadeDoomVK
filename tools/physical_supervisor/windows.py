@@ -212,7 +212,7 @@ class RootGuard:
     handles and path/file-ID/reparse checks also cover every root ancestor.
     This policy supports local fixed NTFS only; it never resets a signal.
     """
-    def __init__(self, packet):
+    def __init__(self, packet, *, mutable_membership=False):
         from .common import linklike
         platform_check()
         self.directories, self.changes = [], []
@@ -237,10 +237,11 @@ class RootGuard:
                     close(handle)
                     raise
                 self.directories.append((path,handle,identity))
-            for row in packet["runtime_roots"]:
-                handle=change_first(row["path"],True,0x1|0x2|0x4|0x8|0x10|0x100)
-                require(handle not in (None,c.c_void_p(-1).value),"Cannot establish runtime change notification")
-                self.changes.append(handle)
+            if not mutable_membership:
+                for row in packet["runtime_roots"]:
+                    handle=change_first(row["path"],True,0x1|0x2|0x4|0x8|0x10|0x100)
+                    require(handle not in (None,c.c_void_p(-1).value),"Cannot establish runtime change notification")
+                    self.changes.append(handle)
             self.check()
         except BaseException:
             self.close()
@@ -539,7 +540,12 @@ def reject_unowned_renderer(renderer, allowed=(), *, owned=(), settle_deadline=N
         require(ok, "Cannot begin process inventory")
         while ok:
             if row.name.casefold() == Path(renderer).name.casefold():
-                require(row.pid in expected, "Existing/unowned renderer candidate; no termination")
+                if row.pid not in expected:
+                    error = Stop("Existing/unowned renderer candidate; no termination")
+                    error.evidence = {"operation": "renderer-candidate-inventory", "candidate_pid": row.pid,
+                                      "candidate_parent_pid": row.parent_pid, "candidate_name": row.name,
+                                      "allowed_pids": sorted(expected), "name_is_not_executable_identity": True}
+                    raise error
                 process = Process.open(row.pid)
                 try:
                     if process.poll() is None:

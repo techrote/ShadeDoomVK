@@ -1,5 +1,11 @@
 # SDVK-009 Windows resumption supervisor
 
+The optional [conditional grant adapter](SDVK-009-CONDITIONAL-GRANT-DRAFT.md)
+adds truthful v2 plan review and durable finite attempt accounting. It keeps
+the earlier human instruction separate from later agent review, charges before
+native creation, and requires retained, assessed results before any successor.
+It does not relax workload/monitoring, enable automatic retries or clear STOP.
+
 This tooling prepares and supervises a separately registered experiment. It does
 not qualify physical GPU stability, attribute either historical fault, or award
 the SDVK-009 performance decision. Issue #9 remains open until actual accepted
