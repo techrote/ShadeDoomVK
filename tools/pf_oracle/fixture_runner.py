@@ -77,13 +77,17 @@ def compile_fixture(source: str | Path, *, output_dir: str | Path,
         raise ValueError("Fixture name must be a single filename component")
     compiler = select_compiler() if compiler is None else compiler
     executable = output_dir / (name + (".exe" if os.name == "nt" or is_msvc(compiler) else ""))
+    # A reused output directory must not let a compiler no-op or misconfigured
+    # wrapper certify an executable left by a different source/build attempt.
+    if executable.exists() or executable.is_symlink():
+        executable.unlink()
     command = compilation_command(
         compiler, source, [_root_path(path, root) for path in includes], executable
     )
     # MSVC may emit ancillary files; compile in the output directory as well as
     # naming object/PDB outputs explicitly so none can enter a source checkout.
     subprocess.run(command, cwd=output_dir, check=True, timeout=120)
-    if not executable.is_file():
+    if not executable.is_file() or executable.is_symlink():
         raise RuntimeError(f"PF CPU compiler succeeded without an executable: {executable}")
     return executable
 
