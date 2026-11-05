@@ -83,7 +83,10 @@ def main():
         "mesh_vertex_count": [m["vertex_count"] for m in meshes.values()],
         "mesh_uv_count": [m["uv_count"] for m in meshes.values()],
     }.items():
-        identities[field] = all(value == values[0] for value in values)
+        # Three matching failed attempts are not three successful controls.
+        # Ordinary fields assert identity; exit_zero asserts every run succeeded.
+        identities[field] = (all(values) if field == "exit_zero" else
+                             all(value == values[0] for value in values))
     result = {
         "schema": "cfx-002-safe-equivalence-v1",
         "runs": {name: {"id": manifests[name]["run_id"], "path": str(runs[name]),
