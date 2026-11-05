@@ -3,7 +3,7 @@ import pathlib
 import tempfile
 import unittest
 
-from cfx_capture import scan_failure
+from cfx_capture import scan_failure, failure_metadata
 
 
 class FailureClassificationTests(unittest.TestCase):
@@ -50,6 +50,24 @@ class FailureClassificationTests(unittest.TestCase):
     def test_cpu_exception_status(self):
         self.assertEqual(self.classify(timed_out=False, code=0xC0000005),
                          "application CPU exception status; inspect Windows Application event")
+
+    def test_posix_signals_do_not_claim_windows_cpu_exception(self):
+        for code in (-1, -9, -11, -15):
+            with self.subTest(returncode=code):
+                self.assertEqual(self.classify(timed_out=False, code=code),
+                                 "nonzero application exit; inspect stdout/stderr")
+        # An explicit timeout remains authoritative even when the child was killed.
+        self.assertEqual(self.classify(timed_out=True, code=-9),
+                         "timeout; no Vulkan return proven")
+
+    def test_signal_after_host_abort_cannot_replace_primary_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = pathlib.Path(directory)
+            paths = [root / name for name in ("timeline.tsv", "stdout.log", "stderr.log")]
+            result = failure_metadata(*paths, timed_out=False, returncode=-9,
+                                      host_abort=["host activation failed"])
+        self.assertIsNone(result["application_observation"])
+        self.assertEqual(result["first_observed_failure"], "host activation failed")
 
 
 if __name__ == "__main__":
