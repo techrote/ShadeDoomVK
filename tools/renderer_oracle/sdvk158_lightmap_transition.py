@@ -152,9 +152,18 @@ def validate_transition_records(raw: dict, stdout: str, native: dict) -> dict:
     before_reload_epoch = rows[24].get("lightmap_epoch")
     invalidate1 = _require_completed_cycle(_phase(rows, 9, 24), "first invalidation", require_all_clean=True)
     reload = _require_completed_cycle(_phase(rows, 25, 40), "same-map retained reload", require_all_clean=False)
-    reload_epochs = {row.get("lightmap_epoch") for row in _phase(rows, 25, 40)}
-    require(type(before_reload_epoch) is int and all(type(value) is int for value in reload_epochs)
-            and any(value != before_reload_epoch for value in reload_epochs),
+    # The reload must acquire a later resource incarnation and never return to
+    # an earlier epoch, including during the subsequent invalidation phase.
+    # Allow a bounded transition interval still reporting the previous epoch,
+    # but not a rollback after the new epoch has been observed.
+    after_reload_epochs = [rows[frame].get("lightmap_epoch") for frame in range(25, FRAMES + 1)]
+    require(type(before_reload_epoch) is int and before_reload_epoch >= 0
+            and all(type(value) is int and value >= 0 for value in after_reload_epochs),
+            "Lightmap resource epochs must be nonnegative integers")
+    require(all(later >= earlier for earlier, later in zip(
+                [before_reload_epoch, *after_reload_epochs], after_reload_epochs)),
+            "Lightmap resource epoch regressed after same-map reload")
+    require(any(value > before_reload_epoch for value in after_reload_epochs[:16]),
             "Same-map reload did not replace the Vulkan lightmap resource epoch")
     invalidate2 = _require_completed_cycle(_phase(rows, 41, 48), "second invalidation", require_all_clean=True)
 
