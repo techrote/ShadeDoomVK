@@ -13,6 +13,26 @@ except ImportError:
 
 CHANNELS = ("context", "material", "lights", "probe", "shadow", "resources", "pipeline", "timing", "images")
 
+# An index describes existing producer collections, not truthy scalar metadata.
+# Preserve optional/empty channels as not_collected; malformed populated
+# collections cannot be promoted to source_present evidence.
+LIST_FIELDS = {"records", "keyLookups", "images", "cases", "draws", "events"}
+OBJECT_FIELDS = {"workerState", "resources"}
+
+
+def _present(source, key):
+    if key not in source or source[key] in ([], {}, None):
+        return False
+    value = source[key]
+    if key in LIST_FIELDS:
+        require(isinstance(value, list) and all(isinstance(row, dict) and row for row in value),
+                f"Malformed PF producer {key} observation rows")
+    else:
+        require(key in OBJECT_FIELDS and isinstance(value, dict),
+                f"Malformed PF producer {key} observation object")
+    return True
+
+
 # The selections are paths in the original JSON, not substitute values. Users
 # inspect the complete source document, including each producer's limitations.
 FORMATS = {
@@ -46,7 +66,8 @@ FORMATS = {
 
 def adapt(path):
     source = read_json(path)
-    require(isinstance(source, dict) and source.get("schema") in FORMATS, "Unknown PF producer schema")
+    require(isinstance(source, dict) and isinstance(source.get("schema"), str) and
+            source["schema"] in FORMATS, "Unknown PF producer schema")
     specification = FORMATS[source["schema"]]
     require(source.get("status") in specification["states"] and not source.get("error"),
             "Failed/incomplete PF producer cannot be imported as collected evidence")
@@ -58,7 +79,7 @@ def adapt(path):
               "channels": {}, "original": source}
     for channel in CHANNELS:
         requested = specification["channels"].get(channel, [])
-        fields = [key for key in requested if key in source and source[key] not in ([], {}, None)]
+        fields = [key for key in requested if _present(source, key)]
         result["channels"][channel] = (
             {"status": "source_present", "json_pointers": ["/" + key for key in fields],
              "qualification": "Only the original producer's documented subset; not complete channel coverage"}
