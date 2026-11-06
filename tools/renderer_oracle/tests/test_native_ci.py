@@ -82,6 +82,38 @@ class Controls(unittest.TestCase):
         self.assertEqual(native_ci.device_evidence(self.summary, full)["device"]["apiVersion"],
                          "1.3.0")
 
+
+    def test_full_report_packed_versions_match_and_check_packed_values(self):
+        # Retained hosted #182 evidence: summary versions 1.4.318 / 25.2.8,
+        # full vulkaninfo versions 1.4.318 (4211006) / 25.2.8 (104865800).
+        summary = (self.summary.replace("apiVersion = 1.3.0", "apiVersion = 1.4.318")
+                   .replace("driverVersion = 0.0.0", "driverVersion = 25.2.8"))
+        full = (self.full.replace("apiVersion = 1.3.0", "apiVersion = 1.4.318 (4211006)")
+                .replace("driverVersion = 0.0.0", "driverVersion = 25.2.8 (104865800)"))
+        self.assertEqual(native_ci.device_evidence(summary, full)["device"]["apiVersion"],
+                         "1.4.318")
+        self.assertEqual(native_ci.device_evidence(summary, full)["device"]["driverVersion"],
+                         "25.2.8")
+        variants = {
+            "api-packed-mismatch": full.replace("(4211006)", "(4211007)"),
+            "driver-packed-mismatch": full.replace("(104865800)", "(104865801)"),
+            "api-dotted-mismatch": full.replace("1.4.318 (4211006)", "1.4.319 (4211006)"),
+            "driver-dotted-mismatch": full.replace("25.2.8 (104865800)",
+                                                    "25.2.9 (104865800)"),
+            "api-nonnumeric": full.replace("(4211006)", "(not-a-number)"),
+            "driver-nonnumeric": full.replace("(104865800)", "(invalid)"),
+            "contradictory-duplicate": full + "\napiVersion = 1.4.319 (4211007)\n",
+            "invalid-component": full.replace("1.4.318 (4211006)",
+                                              "1.4.4096 (4214784)"),
+        }
+        for kind, bad_full in variants.items():
+            with self.subTest(kind=kind), self.assertRaises(EvidenceError):
+                native_ci.device_evidence(summary, bad_full)
+        # Legitimate repetitions with consistent packed representation are valid.
+        repeated = full + "\napiVersion = 1.4.318 (4211006)\n"
+        self.assertEqual(native_ci.device_evidence(summary, repeated)["device"]["driverName"],
+                         "llvmpipe")
+
     def fake_summary(self, gpu=True):
         return {'status': 'DESCRIPTIVE', 'repeatability_evidence': True,
                 'runs': [{'summary': {'gpu_groups': {'Opaque': {'samples_ms': [0.1]}} if gpu else {}}} for _ in range(3)]}
