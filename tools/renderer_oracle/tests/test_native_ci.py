@@ -61,6 +61,27 @@ class Controls(unittest.TestCase):
         with self.assertRaises(EvidenceError):
             native_ci.device_evidence(self.summary, self.full + '\nGPU1:\n')
 
+    def test_full_report_driver_and_api_identity_must_match_summary(self):
+        # Two independent vulkaninfo calls can no longer be combined into one
+        # apparently qualified host receipt when their provenance disagrees.
+        properties = {"driverInfo": "synthetic unit fixture", "apiVersion": "1.3.0",
+                      "driverVersion": "0.0.0"}
+        for name, original in properties.items():
+            mutations = {
+                "conflicting": self.full.replace(f"{name} = {original}", f"{name} = mismatched"),
+                "missing": self.full.replace(f"    {name} = {original}\n", ""),
+                "contradictory_duplicate": self.full + f"\n{name} = mismatched",
+            }
+            for kind, mutated in mutations.items():
+                with self.subTest(property=name, mutation=kind):
+                    with self.assertRaises(EvidenceError):
+                        native_ci.device_evidence(self.summary, mutated)
+        # Identical repeated fields remain harmless; do not tighten the device
+        # inventory or driver-property output policy beyond identity equality.
+        full = self.full + "\napiVersion = 1.3.0"
+        self.assertEqual(native_ci.device_evidence(self.summary, full)["device"]["apiVersion"],
+                         "1.3.0")
+
     def fake_summary(self, gpu=True):
         return {'status': 'DESCRIPTIVE', 'repeatability_evidence': True,
                 'runs': [{'summary': {'gpu_groups': {'Opaque': {'samples_ms': [0.1]}} if gpu else {}}} for _ in range(3)]}

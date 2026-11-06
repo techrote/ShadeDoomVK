@@ -59,6 +59,12 @@ def device_evidence(summary, full):
         identity[name] = values[0]
     require(identity["deviceName"].startswith("llvmpipe (") and
             fields(full, "deviceName") == [identity["deviceName"]], "llvmpipe device identities differ")
+    # Both reports are independent process invocations. Never attribute feature
+    # bits from one driver/API build to the identity recorded by the other.
+    for name in ("driverInfo", "apiVersion", "driverVersion"):
+        values = fields(full, name)
+        require(values and all(value == identity[name] for value in values),
+                "Vulkan property differs between summary and full: " + name)
     for name in FEATURES:
         values = fields(full, name)
         require(values and all(value == "true" for value in values), "Required Vulkan feature unavailable: " + name)
