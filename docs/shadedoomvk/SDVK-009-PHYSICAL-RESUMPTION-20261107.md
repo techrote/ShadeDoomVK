@@ -26,7 +26,8 @@ Two independently reviewed diagnostics now have retained results. Generation 01
 rendered compositing but stopped on an external module reader's error 299 near
 process teardown. Its original exit status is unknown; it remains FAILED_STOP.
 The bounded reader repair admits only an already exiting, fully attested process
-with prior complete module coverage, and passed 174 native CPU controls.
+with prior complete module coverage. Its 174-test native CPU suite passed with
+one expected privilege skip.
 
 Generation 02 used observer `307fc30517fd0c03a3c193bdb171fffd675ae97c`,
 the unchanged renderer/build/content above and a new three-creation, zero-retry
@@ -44,9 +45,10 @@ The generation-02 packet SHA-256 is
 the failed-attempt manifest SHA-256 is
 `2def23ed1cce57afb7cd53ada046b44ad97bd2c5d851814a827f3e1bce0b6fd9`.
 The OS did not reboot and the GPU returned to idle. A later readback reports
-90 W instead of the failed packet's 100 W limit; no setting was changed by this
-session. This unexplained operating-state difference must remain explicit in any
-prospective comparison, and prevents a matched performance claim.
+90 W instead of the failed packet's 100 W limit. The owner subsequently confirmed
+that 90 W is intended; no setting was changed by the agent. New prospective
+packets use that owner-configured state. The difference must remain explicit
+in comparisons and prevents a matched performance claim against the failed run.
 
 The requested unmodified stock VKDoom comparison is a prospective engine
 discriminator, not an unchanged failed-workload retry. Stock source is exactly
