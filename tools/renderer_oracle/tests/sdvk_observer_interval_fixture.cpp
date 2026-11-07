@@ -3,6 +3,7 @@
 // Vulkan device, command submission, screenshot or native evidence is created.
 #include <atomic>
 #include <chrono>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include <set>
