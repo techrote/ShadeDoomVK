@@ -306,15 +306,17 @@ def _sprite_relief(value):
             "Relief sample upper bound disagrees with shader cap")
     _context(value.get("context"))
 
-def observation(data, *, required_kinds=(), expected_map=None, expected_frames=None, expected_extent=None):
+def observation(data, *, required_kinds=(), expected_map=None, expected_frames=None, expected_extent=None,
+                gameplay_recipe=None):
     try:
         return _observation(data, required_kinds=required_kinds, expected_map=expected_map,
-                            expected_frames=expected_frames, expected_extent=expected_extent)
+                            expected_frames=expected_frames, expected_extent=expected_extent,
+                            gameplay_recipe=gameplay_recipe)
     except (KeyError, TypeError, AttributeError, IndexError) as error:
         raise EvidenceError("Malformed native observation field: " + str(error)) from error
 
 
-def _observation(data, *, required_kinds, expected_map, expected_frames, expected_extent):
+def _observation(data, *, required_kinds, expected_map, expected_frames, expected_extent, gameplay_recipe):
     require(isinstance(data, dict) and data.get("schema") == "sdvk-renderer-observation/v1", "Unknown native observation schema")
     finite(data)
     require(data.get("status") == "COLLECTED_PENDING_VALIDATION" and data.get("error") == "",
@@ -626,11 +628,21 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
         if context and context.get("available"):
             require(contexts.get((record["frame"], context["epoch"], context["identity"])) == context,
                     "Draw/query references an unobserved or inconsistent context")
-    require(set(required_kinds).issubset(KINDS), "Required observation kind is unknown")
-    require(set(required_kinds).issubset(kinds), "Required observation channels missing: " + ", ".join(sorted(set(required_kinds) - kinds)))
+    required_kinds = set(required_kinds)
+    detailed, sampled_kinds = None, set()
+    if gameplay_recipe is not None:
+        from tools.renderer_oracle.gameplay_smoke import observation_detail_frames, DETAIL_KINDS
+        detailed = observation_detail_frames(data, gameplay_recipe)
+        sampled_kinds = DETAIL_KINDS
+        # The bounded detail policy never samples the actual player, ownership,
+        # frame or submitted weapon state, even if a caller omits a channel.
+        required_kinds |= {"frame", "gameplay", "resource", "viewmodel"} | DETAIL_KINDS
+    require(required_kinds.issubset(KINDS), "Required observation kind is unknown")
+    require(required_kinds.issubset(kinds), "Required observation channels missing: " + ", ".join(sorted(required_kinds - kinds)))
     for frame in range(1, count + 1):
-        require(set(required_kinds).issubset(frame_kinds[frame]), f"Frame {frame} is missing a required observation channel")
-        if "material" in required_kinds:
+        frame_required = required_kinds if detailed is None or frame in detailed else required_kinds - sampled_kinds
+        require(frame_required.issubset(frame_kinds[frame]), f"Frame {frame} is missing a required observation channel")
+        if "material" in frame_required:
             require(frame in material_frames, f"Frame {frame} has no actual material binding")
     gpu_groups = sum(r["count"] for r in records if r["kind"] == "timing" and r["data"].get("clock") == "gpu")
     require(integer(availability["gpu_timing"].get("groups"), "resolved GPU groups") == gpu_groups

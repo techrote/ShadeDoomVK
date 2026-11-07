@@ -60,6 +60,13 @@ all 223 payload rows from the retained real legacy capture, demonstrates the
 prior 128-frame overflow, and checks the selected policy with additional
 maximum-size gameplay and checkpoint records reserved at their full cadence. This is a capacity
 regression test; it does not qualify a native gameplay run or performance.
+The structural admission exception is explicitly bound to this validated recipe:
+all 128 critical snapshots remain mandatory, and only the four detail families
+use the nine frames derived from actual player/map/extralight state. A retained
+4be native capture supplies the CPU regression: its original attempt remains
+`FAILED_STOP` because the former structural gate required detail on every frame.
+Replaying those unchanged records with the corrected gate is a CPU validation
+result, not a new native run or acceptance of the failed attempt.
 The retained payload exhausts the old policy at frame 39. The selected replay
 uses 9,890,888 bytes against the unchanged 16,777,216-byte limit, including those
 maximum-size reservations, and verifies the stored frame IDs after serialization.

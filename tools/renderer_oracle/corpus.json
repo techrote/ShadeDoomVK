@@ -22176,7 +22176,10 @@
         "tools/renderer_oracle/tests/gameplay_resource_fixture.cpp",
         "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py",
         "tools/renderer_oracle/tests/gameplay_budget_fixture.cpp",
-        "tools/renderer_oracle/tests/fixtures/viewmodel-legacy-record-payload.tsv.gz"
+        "tools/renderer_oracle/tests/fixtures/viewmodel-legacy-record-payload.tsv.gz",
+        "tools/renderer_oracle/tests/test_gameplay_coverage.py",
+        "tools/renderer_oracle/tests/fixtures/gameplay-motion-4be.renderer.json.gz",
+        "tools/renderer_oracle/tests/fixtures/gameplay-motion-4be.renderer.json.provenance.json"
       ],
       "required_state_channels": [
         "context",

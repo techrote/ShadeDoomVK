@@ -127,6 +127,30 @@ def detail_frames(raw):
     return set(CHECKPOINTS) | set(muzzle_frames(gameplay).values())
 
 
+def observation_detail_frames(raw, scene):
+    """The sole sampled-channel exception, bound to the ordinary-input recipe.
+
+    Derive the two firing samples from actual player light/map state; the
+    producer's detail flag confirms that selection rather than authorizing it.
+    """
+    validate_recipe(scene)
+    require(raw.get("mode") == "state" and raw.get("warmup_frames") == WARMUP
+            and raw.get("observed_frames") == FRAMES and raw.get("gpu_timing_requested") is False,
+            "Gameplay detail coverage requires its exact state/frame policy")
+    gameplay = {}
+    for row in raw["records"]:
+        if row["kind"] == "gameplay":
+            validate_gameplay(row["data"])
+            require(row["count"] == 1 and row["frame"] not in gameplay, "Duplicate/multiplied gameplay state")
+            gameplay[row["frame"]] = row["data"]
+    detailed = detail_frames(raw)
+    require(len(detailed) == 9 and all(value["detail_selected"] is (frame in detailed)
+            for frame, value in gameplay.items()), "Gameplay detail selection differs from its seven checkpoints and first actual muzzle frames")
+    require(all(row["frame"] in detailed for row in raw["records"] if row["kind"] in DETAIL_KINDS),
+            "Gameplay retained a detailed draw family outside its declared nine frames")
+    return detailed
+
+
 def validate_records(raw, native):
     validate_recipe({"id": SCENE, "native": native})
     require(raw.get("warmup_frames") == WARMUP and raw.get("observed_frames") == FRAMES

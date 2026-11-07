@@ -455,7 +455,8 @@ def capture(args):
         raw = read_json(out / "native.renderer.json")
         required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if mode == "state" else []
         structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
-                                          expected_frames=frames, expected_extent=extent)
+                                          expected_frames=frames, expected_extent=extent,
+                                          gameplay_recipe=scene if native.get("generator") == "gameplay_smoke" else None)
         require(raw["build"]["commit"] == source_commit and raw["build"]["working_tree"] == working_tree,
                 "Runtime and startup build identities disagree")
         require(raw["build"]["backend"] == "vulkan", "Requested Vulkan backend did not initialize")
@@ -974,7 +975,8 @@ def _validate_run(path):
             "Retained loaded-package inventory differs from actual startup output")
     required = [CHANNEL_KIND.get(name, name) for name in scene["required_state_channels"] if name != "sprites"] if raw["mode"] == "state" else []
     structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
-                                      expected_frames=request["reproduction"]["frames"], expected_extent=extent)
+                                      expected_frames=request["reproduction"]["frames"], expected_extent=extent,
+                                      gameplay_recipe=scene if scene["native"].get("generator") == "gameplay_smoke" else None)
     _scene_assertions(raw, scene)
     if scene["native"].get("generator") == "gameplay_smoke":
         from tools.renderer_oracle.gameplay_smoke import FRAMES, WARMUP, validate_records, validate_checkpoints, validate_input_log, validate_checkpoint_artifacts
