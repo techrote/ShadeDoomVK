@@ -269,6 +269,8 @@ streams. They remain within the source plane's existing height/UV update span.
 Unlightmapped opposite faces keep the shared stream. These render-only identities
 do not change mutation callbacks or gameplay; general FF_FIX/Vavoom, copied-plane
 topology and recursive/inverted native coverage remain outside the CPU proof.
+`FreeFlat` detaches both immediate source-axis tables before tile release, so
+faces omitted by a height reconstruction cannot publish retired/reused tile slots.
 
 Decal creation retains semantic type/side/control identity and resolves the
 current receiver at draw construction; it does not retain a recyclable numeric

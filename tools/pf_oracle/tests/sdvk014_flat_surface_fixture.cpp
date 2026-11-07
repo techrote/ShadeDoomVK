@@ -90,6 +90,15 @@ struct subsector_t
     int Index() const { return id; }
 };
 struct FSection { TArray<subsector_t*> subsectors; };
+struct FLevelLocals
+{
+    TArray<sector_t> sectors{1};
+    struct
+    {
+        TArray<FSection> entries;
+        TArray<FSection>& SectionsForSector(sector_t*) { return entries; }
+    } sections;
+};
 struct SurfaceUniforms { float uVertexColor = 1, uDesaturationFactor = 0, uLightLevel = 1; };
 // Distinct fields let the oracle check unmodified whole material state copying.
 struct FMaterialState { int albedo = 17, normal = 29, height = 41, sampler = 53; };
@@ -128,7 +137,7 @@ struct HWFlat
     { DrawSubsectors(dispatcher, state); }
 };
 struct GeometryAllocInfo { int VertexStart, VertexCount, IndexStart, IndexCount; };
-struct UniformsAllocInfo { int Start; };
+struct UniformsAllocInfo { int Start; int Count=1; };
 struct SurfaceAllocInfo { int Index; };
 struct LightListAllocInfo { int Start = 0, Count = 0; };
 struct DoomSurfaceInfo
@@ -189,9 +198,12 @@ public:
         TArray<GeometryAllocInfo> Geometries;
         TArray<UniformsAllocInfo> Uniforms;
         TArray<int> DrawRanges;
+        TArray<LightListAllocInfo> Lights;
         int FirstSurface = -1;
     };
     TArray<FlatBlock> Flats{1};
+    FLevelLocals level;
+    TArray<int> SubsectorSurfaces = TArray<int>(128,-1);
     TArray<int> sectorGroup{5};
     int sectorPortals[2][1]{{7}, {11}};
     struct
@@ -250,6 +262,11 @@ public:
     int AllocTile(const LightmapTile&);
     void FreeTile(int);
     void ReleaseTiles(int);
+    void FreeFlat(FLevelLocals&, unsigned int);
+    void FreeSurface(int) {}
+    void FreeLightList(int,int) {}
+    void FreeGeometry(int,int,int,int) {}
+    void FreeUniforms(int,int) {}
     void MarkMutation(LevelMeshMutationDomain) {}
     uint16_t GetSampleDimension(uint16_t dimension) { return dimension; }
     int AddSurfaceToTile(const DoomSurfaceInfo&, const LevelMeshSurface&, uint16_t, uint8_t);
@@ -264,6 +281,7 @@ public:
 // @PRODUCTION_SET_SUBSECTOR_LIGHTMAP@
 // @PRODUCTION_TILE_POOL_METHODS@
 // @PRODUCTION_RELEASE_TILES@
+// @PRODUCTION_FREE_FLAT@
 
 static bool close(float left, float right) { return std::abs(left - right) < 0.0001f; }
 static bool fail(const char* message) { std::cerr << message << '\n'; return false; }
@@ -309,8 +327,16 @@ static bool bothPlanes()
             if (mesh.Mesh.SurfaceIndexes[e/3]!=surface || !close(mesh.Mesh.Vertices[mesh.Mesh.Indexes[e]].z,z))
                 return fail("distinct-plane-submitted-geometry");
     }
-    mesh.ReleaseTiles(mesh.Flats[0].FirstSurface);
+    mesh.level.sections.entries.Push(section);
+    mesh.FreeFlat(mesh.level,0);
     if (mesh.Lightmap.UsedTiles!=0 || mesh.Lightmap.FreeTiles.Size()!=4) return fail("distinct-plane-retirement");
+    // A later height selection leaves only one of the four faces. Reuse an old
+    // tile slot and require that vanished receivers cannot publish its new owner.
+    mesh.TileBindings.clear();list.resize(1);
+    mesh.CreateFlatSurface(dispatcher,state,list,LevelMeshDrawType::Opaque,false,0,{37,2},5);
+    for (int axis=0;axis<2;axis++) for (int facing=0;facing<2;facing++)
+        if ((axis!=0 || facing!=0) && sub.LightmapTiles[axis][1+facing]!=-1)
+            return fail("vanished-facing-retains-retired-tile");
     return true;
 }
 

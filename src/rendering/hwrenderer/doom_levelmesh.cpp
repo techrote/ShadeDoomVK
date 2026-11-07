@@ -1120,6 +1120,10 @@ void DoomLevelMesh::FreeFlat(FLevelLocals& doomMap, unsigned int sectorIndex)
 		for (subsector_t* subsector : section.subsectors)
 		{
 			SubsectorSurfaces[subsector->Index()] = -1;
+			// Reconstruction may stop emitting a formerly visible face. Detach
+			// every immediate receiver before its old tile slot can be recycled.
+			for (auto& plane : subsector->LightmapTiles)
+				for (int& tile : plane) tile = -1;
 		}
 	}
 

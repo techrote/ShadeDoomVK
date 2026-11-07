@@ -39,6 +39,9 @@ when supplied distinct current tiles.
   follows the existing `ProcessSector` flag predicates. Source-plane vertex
   ranges include every new stream, so existing height updates and UV uploads
   continue to reach them.
+- `FreeFlat` detaches all immediate source/facing slots before releasing old
+  tiles. A height reconstruction can stop emitting a face; its unused slot must
+  not retain a retired numeric tile or alias another face after pool reuse.
 - Controlled bake receivers must match source axis and the actual oriented
   plane. Ordinary height-group seam/padding contributors retain their existing
   differing-plane coverage.
@@ -64,7 +67,7 @@ runtime owners, dirty flags and normal bake/copy path remain unchanged.
 ## Focused evidence and limits
 
 [The CPU receipt](evidence/SDVK-014-CONTROLLED-PLANES-CPU.json) pins the production
-working bytes, **42 passing focused tests** (16.937 seconds), retained failed
+working bytes, **43 passing focused tests** (18.903 seconds), retained failed
 fixture-compilation attempts and **six passing real translation-unit compiles**.
 The latter reuse generated build headers with isolated current source headers;
 they are compile-only evidence, not a fresh linked build.
@@ -72,11 +75,11 @@ they are compile-only evidence, not a fresh linked build.
 Compiled CPU fixtures execute actual `CreateFlatSurface`, `AddSurfaceToTile`,
 publication/retirement, indexed-flat creation, height updates, immediate UV
 publication, `LightmapTile::ToUV`, retained admission and serialization code.
-The exact old binding and indexed producer are retained with source commit and
+The exact old binding, indexed producer and retirement method are retained with source commit and
 SHA-256 in `tools/pf_oracle/tests/fixtures/sdvk014-controlled-plane-pre-fix.json`.
 They fail the named distinct-plane and wrong-page/UV controls. Same-key unequal
 planes, ordinary output, normal/inverted paths, no-lightmap sharing, source
-height spans, current allocation retirement and v5 save omission are checked.
+height spans, disappearing-face detachment before retirement/reuse and v5 save omission are checked.
 
 The CPU adapters supply storage and preselected faces; they do not prove a
 native authored `FF_BOTHPLANES` draw, pixels, bake convergence or physical cost.

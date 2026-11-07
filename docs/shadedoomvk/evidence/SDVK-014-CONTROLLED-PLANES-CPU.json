@@ -10,31 +10,36 @@
     "src/maploader/maploader.cpp": "9e6fe98290969dc47b887cc9cdea10f5818459fbc255bac7e03ec411d690c047",
     "src/playsim/p_3dfloors.cpp": "91fcab9eddf54570edfca7c815fd1bab2cbdd48c4a351d8a7318bd564290a053",
     "src/playsim/p_3dfloors.h": "55a37316df2c193471a87ec2563d830a27a0812d3364009893aa45387157f975",
-    "src/rendering/hwrenderer/doom_levelmesh.cpp": "51bca236583c9f89643c43ec24e7f68b60841452a82ea244155a3e6bdf1ad221",
+    "src/rendering/hwrenderer/doom_levelmesh.cpp": "4159b038232888691b6eb5e483eb066a48bf598d9e311be728af4e61915f3cd7",
     "src/rendering/hwrenderer/hw_vertexbuilder.cpp": "c85545a51daa5cc1463393bbf8a680fcd9566bf8383888f0bfe74d299726927f",
     "src/rendering/hwrenderer/scene/hw_flats.cpp": "a9276675e0814da54b1b9314c3dcc27d4238acafee51cac738c6f72317e2f3c9"
   },
   "focused_tests": {
     "command": "python -B -m unittest tools.pf_oracle.tests.test_sdvk014_flat_surface_ownership tools.pf_oracle.tests.test_sdvk014_flat_bake_plane tools.pf_oracle.tests.test_sdvk014_retained_plane tools.pf_oracle.tests.test_sdvk014_controlled_vertices tools.pf_oracle.tests.test_sdvk014_tile_lifecycle tools.pf_oracle.tests.test_sdvk014_retained_lifecycle -v",
     "compiler": "MSVC 19.44.35207 x64; /W4 /WX; bounded existing legacy-header adapter and extracted-first-entry C4702 scope only",
-    "tests": 42,
-    "elapsed_seconds": 16.937,
+    "tests": 43,
+    "elapsed_seconds": 18.903,
     "exit_code": 0,
-    "log": "physical-evidence/resumption-20261107/controlled-plane-focused-06.log",
-    "log_sha256": "c39225c59e3d05468ca44534cbffdf661303746055e913ff04e6125742b535f1"
+    "log": "physical-evidence/resumption-20261107/controlled-plane-focused-07.log",
+    "log_sha256": "9bfafcdf788f327ed1d467ba9eca9352ebf4ce28b91621fd830bdd288f6b5a11"
   },
   "actual_translation_units": {
     "count": 6,
     "all_passed": true,
     "scope": "compile_only_with_isolated_current_headers_and_reused_generated_headers_NO_LINK_NO_RENDERER_EXECUTION",
-    "receipt_sha256": "5d8532c556a7de41afbe3d1d88ea607a0f9f80c1e01d6e14ed8414806b3239ec",
     "source_sha256": {
-      "src/rendering/hwrenderer/doom_levelmesh.cpp": "51bca236583c9f89643c43ec24e7f68b60841452a82ea244155a3e6bdf1ad221",
+      "src/rendering/hwrenderer/doom_levelmesh.cpp": "4159b038232888691b6eb5e483eb066a48bf598d9e311be728af4e61915f3cd7",
       "src/rendering/hwrenderer/hw_vertexbuilder.cpp": "c85545a51daa5cc1463393bbf8a680fcd9566bf8383888f0bfe74d299726927f",
       "src/rendering/hwrenderer/scene/hw_flats.cpp": "a9276675e0814da54b1b9314c3dcc27d4238acafee51cac738c6f72317e2f3c9",
       "src/maploader/maploader.cpp": "9e6fe98290969dc47b887cc9cdea10f5818459fbc255bac7e03ec411d690c047",
       "src/playsim/p_3dfloors.cpp": "91fcab9eddf54570edfca7c815fd1bab2cbdd48c4a351d8a7318bd564290a053",
       "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp": "a6da555936dd6fbd88738f17aba2a7d51dcb23e3ed991c0cc6f929fb8cf15e6b"
+    },
+    "receipt_basis": {
+      "unchanged_five_tus": "controlled-plane-tu-01/receipt.json",
+      "unchanged_five_tus_receipt_sha256": "5d8532c556a7de41afbe3d1d88ea607a0f9f80c1e01d6e14ed8414806b3239ec",
+      "changed_doom_levelmesh_recompiled": "controlled-plane-tu-02/receipt.json",
+      "changed_tu_receipt_sha256": "100e2b7d1ce0287ac33d3fe50e0e3a76eb494d3579c4d4a69168eec281af7805"
     }
   },
   "retained_pre_fix": "tools/pf_oracle/tests/fixtures/sdvk014-controlled-plane-pre-fix.json",
@@ -43,7 +48,8 @@
     "exact pre-fix indexed producer samples wrong actual page/UV on shared opposite-facing vertices",
     "same full runtime binding still rejects unequal planes before bounds/use-count mutation",
     "coplanar but different source axis is not an interchangeable bake target",
-    "RuntimeBakeOnly v5 omission preserves live owner and dirty flags"
+    "RuntimeBakeOnly v5 omission preserves live owner and dirty flags",
+    "exact pre-fix FreeFlat retains retired/reused tile slots for faces omitted by a height reconstruction"
   ],
   "retained_attempts": [
     {
@@ -75,6 +81,11 @@
       "log": "controlled-plane-focused-06.log",
       "sha256": "c39225c59e3d05468ca44534cbffdf661303746055e913ff04e6125742b535f1",
       "status": "PASS"
+    },
+    {
+      "log": "controlled-plane-focused-07.log",
+      "sha256": "9bfafcdf788f327ed1d467ba9eca9352ebf4ce28b91621fd830bdd288f6b5a11",
+      "status": "PASS"
     }
   ],
   "not_claimed": [
@@ -84,5 +95,6 @@
     "general FF_FIX/Vavoom, copied-plane topology or recursive/sloped native acceptance",
     "whole SDVK-014 acceptance"
   ],
-  "physical_renderer_executions": 0
+  "physical_renderer_executions": 0,
+  "reviewed_predecessor": "2d6e2ec4263e9499dd95cbfad127047f67048ac6; successor additionally repairs actual disappearing-face retirement; independent successor review pending"
 }

@@ -141,6 +141,8 @@ They still consume ordinary live atlas allocation receipts. Retained v5 does not
 persist this discriminator; unrepresentable or historically aliased BOTHPLANES
 RGB stays RuntimeBakeOnly and is excluded from save. See
 [the bounded controlled-plane follow-on](../SDVK-014-CONTROLLED-PLANES.md).
+`FreeFlat` clears every immediate table slot before retiring its old tiles; a
+face omitted by reconstruction must not retain a recycled numeric tile identity.
 
 CFX-009 / #102 / PR104 tracks `Bindless.PublishedLightmapPages` and plans the checked union of current/previous pages through `VkPlanLightmapDescriptorPublication`. Before normal submission, current pages retain their real views and removed pages receive persistent typed neutral fallback views; the count advances after descriptor execution. Existing frame fences continue to govern old atlas destruction. `VkTextureManager::LightmapFallback` reuses the constructor1×1 pair, initialized RGBA16F0/R16_UINT0, outside active atlas/bake ownership. This closes the stale reserved-view state without keeping old atlas allocations. Three independent exact DBP37 reproducer runs now pass with diagnostic retention OFF and ordinary atlas retirement, alongside equivalent safe image/state, separately activated core/sync validation and focused regressions. See [CFX-009](../CFX-009-CAUSAL-REPAIR.md) for identities and acceptance status. An unused undefined descriptor is not itself proof of a Vulkan violation; the executing shader and driver instruction remain unidentified.
 
