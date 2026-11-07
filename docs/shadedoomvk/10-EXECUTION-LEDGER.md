@@ -1503,3 +1503,21 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
   and correctly rejected its same-name unowned target; that negative and its
   fixture are retained. Final qualification runs serially, and candidate STOP
   diagnostics now retain PID/parent/name without inferring executable identity.
+
+## 2 November 2026 — SDVK-009 IWAD support-resource tooling correction
+
+The capture oracle can omit an IWAD-selected support WAD from its expected
+loaded-package set despite that file being pinned in a closed runtime inventory.
+The correction adds exact prospective IWAD/support-resource declarations,
+prelaunch and independent reconciliation, and separate renderer/oracle source
+identities. It changes no renderer or workload. CPU controls and required source
+CI qualify tooling only; private failed captures stay failed. Physical STOP stays
+active, SDVK-009-PHYSICAL held and issue #9 open. No campaign or physical
+acceptance follows from this source change.
+
+Local oracle CPU qualification passed 276 tests (one privilege skip); the serial
+Windows supervisor suite passed 166 tests (privilege and unconfigured optional
+probe-worker skips). The existing required Windows CI builds that unchanged
+worker and exercises its CPU lifetime control. A new adapter test fixture error
+and a compiler-environment setup failure were corrected and remain retained as
+negative qualification records. No physical launch is part of these controls.

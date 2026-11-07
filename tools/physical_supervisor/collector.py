@@ -313,6 +313,8 @@ def run_oracle(packet, stage, control,receipt_pin):
         for key, expected in packet["native_device"].items():
             require(vulkan.get(key) == expected, "Native device identity differs: " + key)
         run.validate_run(Path(stage["capture"]["out"]))
+        require(read_json(Path(stage["capture"]["out"]) / "request.json").get("iwad_support") ==
+                packet.get("iwad_support"), "Collected support declaration differs from packet")
         comparison = None
         if stage.get("compare_with"):
             comparison = run.compare_runs(Path(stage["compare_with"]), Path(stage["capture"]["out"]))

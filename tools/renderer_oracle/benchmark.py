@@ -37,8 +37,27 @@ def distribution(samples, *, minimum_samples=30):
 
 
 def summarize(observation, *, minimum_samples=30):
+    # This is a supplementary admission check, not a replacement for the full
+    # native envelope and artifact verification performed by run.validate_run.
+    require(isinstance(observation, dict) and observation.get("schema") == "sdvk-renderer-observation/v1",
+            "Unknown native timing observation schema")
     require(observation.get("mode") == "timing", "State/capture observations are not ordinary timing evidence")
-    frames = [r for r in observation["records"] if r["kind"] == "frame"]
+    require(observation.get("status") == "COLLECTED_PENDING_VALIDATION" and observation.get("error") == "",
+            "Failed or incomplete native timing collection")
+    require(observation.get("performance_accepted") is False,
+            "Native collector cannot award performance acceptance")
+    count = integer(observation.get("requested_frames"), "requested timing frames", minimum=1, maximum=4096)
+    require(integer(observation.get("observed_frames"), "observed timing frames", minimum=1, maximum=4096) == count,
+            "Native timing interval is incomplete")
+    require(type(observation.get("dropped_records")) is int and observation["dropped_records"] == 0,
+            "Truncated native timing collection cannot be summarized")
+    records = observation.get("records")
+    require(isinstance(records, list) and all(isinstance(r, dict) and isinstance(r.get("kind"), str)
+                                               for r in records), "Malformed native timing records")
+    frames = [r for r in records if r["kind"] == "frame"]
+    require(len(frames) == count and all(r.get("count") == 1 for r in frames) and
+            {integer(r.get("frame"), "timing frame index", minimum=1, maximum=count) for r in frames}
+            == set(range(1, count + 1)), "Missing, duplicated or multiplied native timing frame")
     values = [r["data"]["cpu_render_view_ms"] for r in frames]
     result = {"schema": "sdvk-renderer-benchmark/v1", "source": "actual native observer frames",
               "scope": "CPU RenderView; excludes simulation and presentation outside this call",

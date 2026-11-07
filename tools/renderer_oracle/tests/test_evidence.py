@@ -96,6 +96,15 @@ class ImagePolicyTests(unittest.TestCase):
 
 
 class BenchmarkTests(unittest.TestCase):
+    @staticmethod
+    def timing_observation():
+        return {"schema": "sdvk-renderer-observation/v1",
+                "status": "COLLECTED_PENDING_VALIDATION", "error": "", "mode": "timing",
+                "performance_accepted": False, "requested_frames": 30, "observed_frames": 30,
+                "dropped_records": 0,
+                "records": [{"kind": "frame", "frame": i, "count": 1,
+                             "data": {"cpu_render_view_ms": 2}} for i in range(1, 31)]}
+
     def test_known_percentiles_and_raw_sample_count(self):
         summary = benchmark.distribution([1, 2, 3, 4], minimum_samples=4)
         self.assertEqual(summary["p50"], 2.5)
@@ -111,16 +120,47 @@ class BenchmarkTests(unittest.TestCase):
             benchmark.distribution([1] * 29)
 
     def test_state_capture_cannot_be_relabelled_as_ordinary_timing(self):
-        with self.assertRaises(common.EvidenceError):
-            benchmark.summarize({"mode": "state", "records": []})
+        observation = self.timing_observation()
+        observation["mode"] = "state"
+        with self.assertRaisesRegex(common.EvidenceError, "State/capture"):
+            benchmark.summarize(observation)
 
     def test_gpu_nested_groups_stay_separate(self):
-        records = [{"kind": "frame", "data": {"cpu_render_view_ms": 2}}] * 30
-        records += [{"kind": "timing", "data": {"clock": "gpu", "name": name, "milliseconds": value}}
-                    for name, value in (("Scene", 10), ("Scene/Opaque", 8))]
-        summary = benchmark.summarize({"mode": "timing", "records": records})
+        observation = self.timing_observation()
+        observation["records"] += [
+            {"kind": "timing", "frame": 30, "count": 1,
+             "data": {"clock": "gpu", "name": name, "milliseconds": value}}
+            for name, value in (("Scene", 10), ("Scene/Opaque", 8))]
+        summary = benchmark.summarize(observation)
         self.assertNotIn("gpu_frame_ms", summary)
         self.assertEqual(set(summary["gpu_groups"]), {"Scene", "Scene/Opaque"})
+
+    def test_failed_or_incomplete_timing_cannot_produce_descriptive_statistics(self):
+        self.assertEqual(benchmark.summarize(self.timing_observation())["cpu_render_view"]["count"], 30)
+        for key, bad in (("schema", "wrong"), ("status", "FAIL"), ("status", "COLLECTING"),
+                         ("error", "write failed"), ("performance_accepted", True),
+                         ("requested_frames", 31), ("observed_frames", 29),
+                         ("dropped_records", 1), ("dropped_records", True)):
+            with self.subTest(key=key, bad=bad), self.assertRaises(common.EvidenceError):
+                observation = self.timing_observation()
+                observation[key] = bad
+                benchmark.summarize(observation)
+
+    def test_timing_frame_gaps_duplicates_and_multiplicity_are_not_summarized(self):
+        for mutation in ("missing", "duplicate", "multiplied", "boolean-frame", "malformed"):
+            with self.subTest(mutation=mutation), self.assertRaises(common.EvidenceError):
+                observation = self.timing_observation()
+                if mutation == "missing":
+                    observation["records"].pop(0)
+                elif mutation == "duplicate":
+                    observation["records"][0]["frame"] = 2
+                elif mutation == "multiplied":
+                    observation["records"][0]["count"] = 2
+                elif mutation == "boolean-frame":
+                    observation["records"][0]["frame"] = True
+                else:
+                    observation["records"].append("malformed")
+                benchmark.summarize(observation)
 
 
 class PFImportTests(unittest.TestCase):

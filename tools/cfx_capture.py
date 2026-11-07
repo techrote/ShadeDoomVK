@@ -58,7 +58,10 @@ def scan_failure(trace, stdout, stderr, timed_out, returncode):
         return "other Vulkan error"
     if timed_out:
         return "timeout; no Vulkan return proven"
-    if returncode and (returncode & 0xC0000000) == 0xC0000000:
+    # POSIX subprocess return codes -N indicate signal N, not Windows CPU
+    # exceptions. Only unsigned 32-bit exit statuses admit NTSTATUS decoding.
+    if (returncode is not None and 0 < returncode <= 0xFFFFFFFF and
+            (returncode & 0xC0000000) == 0xC0000000):
         return "application CPU exception status; inspect Windows Application event"
     if returncode and returncode != 0:
         return "nonzero application exit; inspect stdout/stderr"
