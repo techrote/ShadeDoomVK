@@ -550,6 +550,14 @@ void VulkanRenderDevice::StartPrecaching()
 	mDescriptorSetManager->UpdateFixedTextureDescriptors();
 }
 
+void VulkanRenderDevice::InvalidateMaterialBindings()
+{
+	// SetLevelMesh updates this logical owner immediately. The Vulkan mirror can
+	// still refer to the previous map until BeginFrame, so do not invalidate it.
+	if (levelMesh)
+		levelMesh->InvalidateMaterialBindings();
+}
+
 void VulkanRenderDevice::BlurScene(float amount)
 {
 	if (mPostprocess)

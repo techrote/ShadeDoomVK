@@ -113,7 +113,9 @@ public:
 
 	// Sets the initial sizes of the GPU buffers and empties the mesh
 	virtual void Reset();
+	void InvalidateMaterialBindings();
 
+	uint64_t GetResourceOwner() const { return ResourceOwner; }
 	FRendererEpochToken GetResourceEpoch() const { return ResourceEpoch.Snapshot(); }
 	bool ValidateResourceEpoch(FRendererEpochToken token) { return ResourceEpoch.Validate(token); }
 	const FRendererEpochStats& GetResourceEpochStats() const { return ResourceEpoch.GetStats(); }
@@ -235,6 +237,7 @@ public:
 	void CreateCollision();
 
 private:
+	const uint64_t ResourceOwner;
 	FRendererEpoch ResourceEpoch;
 	LevelMeshMutationEpochs MutationEpochs;
 };

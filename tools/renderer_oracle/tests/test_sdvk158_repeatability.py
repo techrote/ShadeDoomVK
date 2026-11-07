@@ -182,6 +182,12 @@ class LightmapRepeatabilityTests(unittest.TestCase):
                         elif mutation == "settings":
                             value["settings"]["gl_levelmesh"] = False
             with self.subTest(mutation=mutation):
+                if mutation == "lightmap-epoch":
+                    # A one-frame jump followed by a return is now rejected at
+                    # admission, before semantic comparison can run.
+                    with self.assertRaisesRegex(common.EvidenceError, "epoch regressed"):
+                        self.compare(left, right)
+                    continue
                 result = self.compare(left, right)
                 self.assertEqual(result["status"], "FAIL")
                 self.assertFalse(result["state_equal"])

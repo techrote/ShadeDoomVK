@@ -1,0 +1,225 @@
+{
+  "schema": "sdvk161-exact-head-compile-failure/v1",
+  "observed_utc": "2026-10-18T00:42:45.005249+00:00",
+  "pr_head": "7f11b25d0a8995c7a383b9cbb2422a1489771028",
+  "tree": "60047c27552ce81d55b5aa9da98949b0c2580991",
+  "runtime_merge_commit": "8daa3ad4777264dd3003ac5cec3fade0bca4b829",
+  "ci_run": 39082865659,
+  "source_run": 39082865576,
+  "source_status": "PASS",
+  "cpu_status": "PASS",
+  "ordinary_platform_status": "FAIL",
+  "acceptance_awarded": false,
+  "common_compile_error": {
+    "path": "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
+    "line": 402,
+    "scope": "anonymous-namespace Context serializer",
+    "symbol": "SpecialSurfaceEnabled",
+    "reason": "unqualified call cannot resolve SdvkDiagnostics namespace declaration",
+    "suggested_repair": "SdvkDiagnostics::SpecialSurfaceEnabled()"
+  },
+  "completed_failures": [
+    {
+      "job_id": 117543864643,
+      "name": "Visual Studio 2022 | RelWithDebInfo",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864643",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864643.log",
+        "bytes": 47245,
+        "sha256": "fcbd47907a14003bd0eccc237e2dc4f72d89d2744bc2bd42041255691a381b47"
+      },
+      "compile_errors": [
+        "2026-10-18T00:35:16.0987335Z D:\\a\\ShadeDoomVK\\ShadeDoomVK\\src\\rendering\\hwrenderer\\diagnostics\\hw_sdvkdiagnostics.cpp(402,9): error C3861: 'SpecialSurfaceEnabled': identifier not found [D:\\a\\ShadeDoomVK\\ShadeDoomVK\\build\\src\\zengine.vcxproj]"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864647,
+      "name": "Linux Clang 11 | Debug",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864647",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864647.log",
+        "bytes": 235828,
+        "sha256": "5d062a52dd2242652945f6c5b0f02f4dd7a6c717010cbd7bef0ec3a3366ef4c3"
+      },
+      "compile_errors": [
+        "2026-10-18T00:36:32.9621628Z /home/runner/work/ShadeDoomVK/ShadeDoomVK/src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp:402:9: error: use of undeclared identifier 'SpecialSurfaceEnabled'; did you mean 'SdvkDiagnostics::SpecialSurfaceEnabled'?"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864652,
+      "name": "Visual Studio 2022 | Debug",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864652",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864652.log",
+        "bytes": 46787,
+        "sha256": "f7b3db4e4d97ab817c4d1d0d9ebb6bfa0d69769b8930cbb892e6abe182cb3a95"
+      },
+      "compile_errors": [
+        "2026-10-18T00:34:12.8371014Z D:\\a\\ShadeDoomVK\\ShadeDoomVK\\src\\rendering\\hwrenderer\\diagnostics\\hw_sdvkdiagnostics.cpp(402,9): error C3861: 'SpecialSurfaceEnabled': identifier not found [D:\\a\\ShadeDoomVK\\ShadeDoomVK\\build\\src\\zengine.vcxproj]"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864661,
+      "name": "macOS | Release",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864661",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864661.log",
+        "bytes": 207477,
+        "sha256": "e0732d8822234b4d7c8a7bf4526c25d8d9ef4a0dc9fbf6ff2d6b420ec9c6223f"
+      },
+      "compile_errors": [
+        "2026-10-18T00:34:43.3389360Z /Users/runner/work/ShadeDoomVK/ShadeDoomVK/src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp:402:9: error: use of undeclared identifier 'SpecialSurfaceEnabled'; did you mean 'SdvkDiagnostics::SpecialSurfaceEnabled'?"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864670,
+      "name": "Linux software Vulkan | RelWithDebInfo",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864670",
+      "complete_log": {
+        "path": "build/ci7f11/software-job-complete.log",
+        "bytes": 973239,
+        "sha256": "3226103469aa479109472da5f8599af350e86390b15016ea727e626553c79833"
+      },
+      "compile_errors": [
+        "2026-10-18T00:39:17.2922878Z /home/runner/work/ShadeDoomVK/ShadeDoomVK/src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp:402:9: error: \u2018SpecialSurfaceEnabled\u2019 was not declared in this scope; did you mean \u2018SdvkDiagnostics::SpecialSurfaceEnabled\u2019?"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864671,
+      "name": "macOS | Debug",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864671",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864671.log",
+        "bytes": 1216905,
+        "sha256": "bf4db88b2e12ee2a746c41802990606d3eec19f0c4a5d9afa5ed3843a10c222e"
+      },
+      "compile_errors": [
+        "2026-10-18T00:34:25.5825910Z /Users/runner/work/ShadeDoomVK/ShadeDoomVK/src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp:402:9: error: use of undeclared identifier 'SpecialSurfaceEnabled'; did you mean 'SdvkDiagnostics::SpecialSurfaceEnabled'?"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864752,
+      "name": "Linux Clang 15 | Release",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864752",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864752.log",
+        "bytes": 231147,
+        "sha256": "90f2c49f8659c4cd93c49de46d9e5c381ba056cea55dc44dbc972becbc7aeb70"
+      },
+      "compile_errors": [
+        "2026-10-18T00:38:11.0103822Z /home/runner/work/ShadeDoomVK/ShadeDoomVK/src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp:402:9: error: use of undeclared identifier 'SpecialSurfaceEnabled'; did you mean 'SdvkDiagnostics::SpecialSurfaceEnabled'?"
+      ],
+      "checkout_merge_commit_seen": true
+    },
+    {
+      "job_id": 117543864734,
+      "name": "Linux GCC 12 | RelWithDebInfo",
+      "status": "completed",
+      "conclusion": "failure",
+      "run_id": 39082865659,
+      "github_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/39082865659/job/117543864734",
+      "complete_log": {
+        "path": "build/ci7f11/failures/117543864734.log",
+        "bytes": 948618,
+        "sha256": "6645bef70140ad3796cc9497600e7ca0a9f7ac3cb23a0b5125460161d3f055fa"
+      },
+      "compile_errors": [
+        "2026-10-18T00:41:42.2905966Z /home/runner/work/ShadeDoomVK/ShadeDoomVK/src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp:402:9: error: \u2018SpecialSurfaceEnabled\u2019 was not declared in this scope; did you mean \u2018SdvkDiagnostics::SpecialSurfaceEnabled\u2019?"
+      ],
+      "checkout_merge_commit_seen": true
+    }
+  ],
+  "last_observed_incomplete_jobs": [],
+  "source_evidence": {
+    "verification": {
+      "path": "build/ci7f11/source/verification.json",
+      "bytes": 1057,
+      "sha256": "fe1e8904d3e999c295fd00f31b3be4df18f7a77fc67b20ddc56e92c1d8061486"
+    },
+    "artifact_id": 12119472727,
+    "artifact_sha256": "de7fc13029c1946a420bad8facd7be345e740c0686f1c985cba8b66ece69c484",
+    "internal_sha256s": {
+      "source.bundle": true,
+      "COMMIT.txt": true,
+      "TREE.txt": true
+    },
+    "source_commit_tree": "60047c27552ce81d55b5aa9da98949b0c2580991",
+    "complete_joblog": {
+      "path": "build/ci7f11/source/source-job-complete.log",
+      "bytes": 32333,
+      "sha256": "a73ca74dd3e32fa176532f73cdca9d396bda38bf8ad5fd7e678c1323d2fc29f0"
+    }
+  },
+  "cpu_evidence": {
+    "verification": {
+      "path": "build/ci7f11/cpu/verification.json",
+      "bytes": 1275,
+      "sha256": "8351437479141c412feb9219da9b681ced13d97a325a9ee7b3d37deeb8b4366c"
+    },
+    "artifact_id": 12120095929,
+    "artifact_sha256": "627d21c0c08f66dff23dc77c91739e93dc1b7d6499fa0badeeb1b3c545750e4c",
+    "unit_tests": {
+      "pf-tests": 859,
+      "renderer-oracle-tests": 362
+    },
+    "source_pin_count": 289,
+    "generated_fixture_pin_count": 135,
+    "prepared_receipts_equal": true,
+    "complete_joblog": {
+      "path": "build/ci7f11/cpu/pf-job-complete.log",
+      "bytes": 14790,
+      "sha256": "2c8dae132d90ce4b5edfe946a5d9f60f93a608cf0da272afa2f135bb4a6d1271"
+    }
+  },
+  "scope": {
+    "qualification": "software correctness only",
+    "local_native_executions": 0,
+    "reruns": 0,
+    "dispatches": 0,
+    "software_native_steps": "not reached; build failed before executable identity/native collection",
+    "physical_stop": "ACTIVE",
+    "physical_bake_update_cost_scaling_hardware_stability": "HELD / NOT ACCEPTED",
+    "historical_physical_root_cause": "UNDETERMINED"
+  },
+  "all_nine_ci_jobs_completed": true,
+  "ci_conclusion": "failure",
+  "ci_jobs_final_snapshot": {
+    "path": "build/ci7f11/ci-jobs-latest.json",
+    "bytes": 19988,
+    "sha256": "d8b3fdc10eb4df971da5000da0d5d32f896847f15834d1f515c3a680f75cb553"
+  },
+  "repair": {
+    "change": "Qualify the existing diagnostics namespace call in anonymous-namespace Context",
+    "source_regression": "tools/pf_oracle/tests/test_sdvk161_portal_selection.py",
+    "scope": "No portal rendering, observation policy, ownership rule, fixture or acceptance-limit change",
+    "review": "Extra High narrow namespace closure: declaration available; no second unqualified external observer call found",
+    "disposition": "New exact-head normal CI and native acceptance required"
+  }
+}

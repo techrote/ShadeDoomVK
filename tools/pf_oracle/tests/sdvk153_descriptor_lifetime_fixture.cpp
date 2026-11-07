@@ -96,6 +96,9 @@ public:
     VkDescriptorSetManager* GetDescriptorSetManager(){return mDescriptorSetManager;}
     void SetTextureFilterMode();
     void StartPrecaching();
+    // SDVK-161 mesh dirty scheduling is qualified by its separate production
+    // uploader fixture. This descriptor/probe-only service has no mesh buffers.
+    void InvalidateMaterialBindings() {}
     void ResetLightProbes(){Textures.ResetLightProbes();}
     int Passes=0, ActiveContent=0, ActiveCount=0;
     void EndLightProbePass(){

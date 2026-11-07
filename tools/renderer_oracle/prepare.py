@@ -28,7 +28,7 @@ CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
               "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
-              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "sprite_mirror", "sprite_relief"}
+              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "special_surface_lifecycle", "sprite_mirror", "sprite_relief"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -151,6 +151,10 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
         if native.get("generator") == "lightmap_transition":
             from tools.renderer_oracle.sdvk158_lightmap_transition import validate_recipe
             validate_recipe(scene)
+        if native.get("generator") == "special_surface_lifecycle":
+            from tools.renderer_oracle import sdvk161_fixtures, sdvk161_special_surfaces
+            sdvk161_fixtures.validate_recipe(scene)
+            sdvk161_special_surfaces.validate_recipe(scene)
         if native.get("generator") == "probe_owner_transition":
             transition = native.get("probe_owner_transition", {})
             owners = transition.get("owners")
@@ -841,6 +845,9 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
         return sdvk153_probe_reset.authored_members(scene, sys.modules[__name__])
     if generator == "lightmap_transition":
         return _lightmap_transition_members(scene)
+    if generator == "special_surface_lifecycle":
+        from tools.renderer_oracle import sdvk161_fixtures
+        return sdvk161_fixtures.authored_members(scene, sys.modules[__name__])
     members = _base_members()
     is_sun = generator in ("sun_probes", "sun_actor_occlusion")
     model = _Map(floor=32 if is_sun else 0,

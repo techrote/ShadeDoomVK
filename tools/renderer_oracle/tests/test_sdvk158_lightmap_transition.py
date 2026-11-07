@@ -163,6 +163,24 @@ class LightmapTransitionOracleTests(unittest.TestCase):
         with self.assertRaisesRegex(EvidenceError, "provenance"):
             target.validate_transition_records(raw, stdout(), native_recipe())
 
+    def test_reload_epoch_never_rolls_back_during_or_after_reload(self):
+        # The former set-membership check accepted a new epoch even when the
+        # resource later reverted to an earlier (potentially stale) incarnation.
+        for frame, epoch in ((25, 2), (30, 3), (45, 3), (29, -1), (29, True)):
+            raw = good_raw()
+            raw["records"][frame - 1]["data"]["lightmap_epoch"] = epoch
+            with self.subTest(frame=frame, epoch=epoch), self.assertRaisesRegex(
+                    EvidenceError, "resource epoch"):
+                target.validate_transition_records(raw, stdout(), native_recipe())
+
+    def test_reload_epoch_can_advance_again_without_rollback(self):
+        raw = good_raw()
+        for record in raw["records"]:
+            if record["kind"] == "resource" and record["frame"] >= 41:
+                record["data"]["lightmap_epoch"] = 5
+        self.assertEqual(target.validate_transition_records(
+            raw, stdout(), native_recipe())["status"], "PASS")
+
     def test_driver_markers_are_exact_and_outcome_independent(self):
         bad = stdout().replace("after_main_views=56", "after_main_views=57")
         with self.assertRaisesRegex(EvidenceError, "driver order"):

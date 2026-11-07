@@ -3196,6 +3196,7 @@ bool MapLoader::LoadLightmap(MapData* map)
 	// A malformed or duplicate entry cannot partially rewrite a live owner.
 	TArray<std::pair<const TileEntry*, LightmapTile*>> foundBindings;
 	std::set<LightmapTile*> foundTiles;
+	unsigned int runtimeBakeOnlyTiles = 0;
 	for (const TileEntry& entry : tileEntries)
 	{
 		LightmapTileBinding binding;
@@ -3222,6 +3223,13 @@ bool MapLoader::LoadLightmap(MapData* map)
 		}
 
 		LightmapTile* tile = it->second;
+		if (tile->RuntimeBakeOnly)
+		{
+			// v5 cannot authenticate the old source-plane interpretation for
+			// these bindings. Leave transforms, pixels and dirty flags current.
+			runtimeBakeOnlyTiles++;
+			continue;
+		}
 		if (!foundTiles.insert(tile).second)
 		{
 			if (errors < 100 && developer >= 1)
@@ -3232,6 +3240,8 @@ bool MapLoader::LoadLightmap(MapData* map)
 
 		foundBindings.Push({ &entry, tile });
 	}
+	if (runtimeBakeOnlyTiles != 0)
+		Printf(PRINT_HIGH, "LoadLightmap: %u corrected 3D-floor plane tiles require a current runtime bake; retained v5 RGB skipped.\n", runtimeBakeOnlyTiles);
 
 	// Only fully admitted entries may replace transforms, extents or completion
 	// flags. Invalid retained state therefore falls back to the current tile's
