@@ -168,12 +168,12 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
         test "${#sdvk_publication_icds[@]}" -eq 1
         {
-          printf 'VK_DRIVER_FILES=%s\\n' "$sdvk_publication_icds"
-          printf 'VK_ICD_FILENAMES=%s\\n' "$sdvk_publication_icds"
-          printf 'SDL_VIDEODRIVER=x11\\n'
+          printf 'VK_DRIVER_FILES=%s\n' "$sdvk_publication_icds"
+          printf 'VK_ICD_FILENAMES=%s\n' "$sdvk_publication_icds"
+          printf 'SDL_VIDEODRIVER=x11\n'
         } >> "$GITHUB_ENV"
         python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
 
