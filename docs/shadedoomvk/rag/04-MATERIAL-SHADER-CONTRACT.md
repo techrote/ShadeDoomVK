@@ -101,11 +101,11 @@ Sprite precache material identity is the same `scaleflags` contract as live mate
 PF-013 changes only the GGX distribution's numerically unstable denominator representation. For positive roughness the new form is algebraically equivalent:
 
 ```text
-1 + NdotHÂ² * (aÂ² - 1)
-â‰¡ (1 - NdotHÂ²) + NdotHÂ² * aÂ²
+1 + NdotHÃ‚Â² * (aÃ‚Â² - 1)
+Ã¢â€°Â¡ (1 - NdotHÃ‚Â²) + NdotHÃ‚Â² * aÃ‚Â²
 ```
 
-where the shader's `a = roughnessÂ²`. The right-hand form avoids catastrophic cancellation near `NdotH=1` and very small roughness. At exactly zero lobe width the finite sampled-BRDF fallback is `0`, avoiding the inherited `0/0`; no roughness remap, minimum aesthetic roughness, light scale or PF-011 compatibility constant is introduced.
+where the shader's `a = roughnessÃ‚Â²`. The right-hand form avoids catastrophic cancellation near `NdotH=1` and very small roughness. At exactly zero lobe width the finite sampled-BRDF fallback is `0`, avoiding the inherited `0/0`; no roughness remap, minimum aesthetic roughness, light scale or PF-011 compatibility constant is introduced.
 
 ## Sampling/color-space direction
 
@@ -266,3 +266,7 @@ Actor PBR cards retain SDVK-005 semantic normal/metallic/roughness/AO filters an
 ## SDVK-011 viewmodel candidate
 
 See [viewmodel lighting](../SDVK-011-VIEWMODEL-LIGHTING.md). Two appended surface uniforms select an explicit camera-oriented card basis and one world lighting sample. Default/world draws retain existing positions; shader-key ABI, material order and sampling are unchanged. HUD relief is disabled; unsupported projection/material cases have diagnosed fallback. Native qualification and review remain required.
+
+## SDVK-011 candidate
+
+Two appended SDVK-011 surface uniforms select an explicit camera-oriented HUD-card basis and one world lighting sample. Other draws retain original positions; material order/sampling and shader-key ABI are unchanged. Unsupported projection/material cases have diagnosed fallback. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.
