@@ -267,6 +267,8 @@ INTEGRITY_POLICY={"timeout_seconds":10,"start_freshness_seconds":10,
                   "heartbeat_period_seconds":.5,"heartbeat_freshness_seconds":2,
                   "owned_exit_settle_milliseconds":50,
                   "owned_exit_settle_operation":"QueryFullProcessImageNameW","owned_exit_settle_winerror":5,
+                  "owned_module_exit_settle_operation":"EnumProcessModulesEx","owned_module_exit_settle_winerror":299,
+                  "owned_module_exit_settle_requires":"prior-complete-required-module-observation",
                   "filesystem":"local-fixed-NTFS","namespace_change":"terminal-stop"}
 
 

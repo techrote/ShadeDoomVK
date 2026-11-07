@@ -155,9 +155,16 @@ class ModuleWatch:
             return {"state":"EXITED"}
         try:paths=self.target.modules(self.identity)
         except BaseException as error:
+            # DLL teardown can race a final enumeration. Never ignore 299 on a
+            # live/unknown target or before a complete required-module sample.
+            # The native helper retains the error and only accepts positive
+            # same-held-object exit confirmation within the existing 50 ms bound.
+            required={normalized(path) for path in self.policy["required_paths"]}
+            prior_coverage=self.samples>0 and bool(required) and required<=set(self.observed)
             if self.target.exited_owned(self.identity,error=error,operation="actual-module-authentication",
-                                        settle_deadline=settle_deadline):
-                return {"state":"EXITED","exit_observations":self.target.take_exit_observations()}
+                                        settle_deadline=settle_deadline,module_teardown=prior_coverage):
+                return {"state":"EXITED","prior_required_module_coverage":prior_coverage,
+                        "exit_observations":self.target.take_exit_observations()}
             raise
         self.inflight_paths=list(paths);self.inflight_additions=[]
         additions=[]
