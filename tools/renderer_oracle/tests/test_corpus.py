@@ -201,6 +201,7 @@ class AuthoredSceneTests(unittest.TestCase):
         """
         transition = scene["native"].get("probe_owner_transition")
         special = scene["native"].get("generator") == "special_surface_lifecycle"
+        gameplay = scene["native"].get("generator") == "gameplay_smoke"
         if special:
             self.assertEqual(scene["id"], "special-surface-lifecycle")
             self.assertEqual(scene["native"]["special_surface_schedule"][0], {
@@ -211,6 +212,14 @@ class AuthoredSceneTests(unittest.TestCase):
             owners = metadata.get("maps")
             self.assertIsInstance(owners, list)
             self.assertEqual([owner.get("map") for owner in owners], map_names)
+        elif gameplay:
+            self.assertEqual(scene["id"], "gameplay-smoke")
+            self.assertEqual(scene["native"]["gameplay_smoke"]["maps"], ["SDVGPA", "SDVGPB", "SDVGPA"])
+            map_names = ["SDVGPA", "SDVGPB"]
+            self.assertEqual(metadata["maps"], map_names)
+            # Both WADs author the same room, each with a real player start.
+            # Validate each serialized owner below; no final-map shortcut.
+            owners = [metadata, metadata]
         elif transition is None:
             map_names = [scene["native"]["map"]]
             owners = [metadata]
@@ -246,12 +255,21 @@ class AuthoredSceneTests(unittest.TestCase):
                 self.assertLess(line["v2"], len(records["vertex"]))
                 self.assertLess(line["sidefront"], len(records["sidedef"]))
             cameras = [t for t in records["thing"] if t["type"] == 32200]
-            if scene["native"]["generator"] == "viewmodel":
+            if scene["native"]["generator"] in ("viewmodel", "gameplay_smoke"):
                 self.assertEqual(cameras, [], "Live viewmodel fixture must use the player camera")
                 players = [t for t in records["thing"] if t["type"] == 1]
                 self.assertEqual(len(players), 1)
                 self.assertEqual([players[0]["x"], players[0]["y"]], scene["native"]["camera"]["position"][:2])
                 self.assertTrue(owner["live_player_camera"])
+                if gameplay:
+                    lines, vertices = records["linedef"], records["vertex"]
+                    self.assertEqual([(line["v1"], line["v2"]) for line in lines],
+                                     [(i, (i + 1) % 4) for i in range(4)], "Gameplay boundary connectivity differs")
+                    actual_area = sum(vertices[line["v1"]]["x"] * vertices[line["v2"]]["y"]
+                                      - vertices[line["v2"]]["x"] * vertices[line["v1"]]["y"]
+                                      for line in lines) / 2
+                    self.assertEqual(areas, [actual_area], "Gameplay boundary metadata differs from WAD geometry")
+                    self.assertLess(actual_area, 0, "Gameplay boundary must be clockwise")
                 continue
             self.assertEqual(len(cameras), 1)
             camera = cameras[0]
@@ -384,6 +402,29 @@ class AuthoredSceneTests(unittest.TestCase):
                                                            "S161B5", "S161T5", "S161S5"})
                         else:
                             self.assertRegex(Path(path).stem, r"^(SDV|SM)")
+
+    def test_gameplay_second_map_inventory_player_and_boundary_are_checked(self):
+        scene = scene_named("gameplay-smoke")
+        _, members, metadata = prepare.scene_assets(scene)
+        for defect in ("missing-b", "b-player", "b-boundary"):
+            changed = dict(members)
+            if defect == "missing-b":
+                del changed["maps/SDVGPB.wad"]
+            else:
+                lumps = unpack_wad(changed["maps/SDVGPB.wad"])
+                text = lumps["TEXTMAP"].decode()
+                if defect == "b-player":
+                    def move_player(match):
+                        row = parse_udmf(match.group().encode())["thing"][0]
+                        return (re.sub(r"\bx\s*=\s*[^;]+;", "x=1;", match.group(), count=1)
+                                if row["type"] == 1 else match.group())
+                    text = re.sub(r"thing\s*\{[^}]*\}", move_player, text)
+                else:
+                    text = re.sub(r"\bx\s*=\s*-256;", "x=-257;", text, count=1)
+                changed["maps/SDVGPB.wad"] = pf_indexed.wad([
+                    ("SDVGPB", b""), ("TEXTMAP", text.encode()), ("ENDMAP", b"")])
+            with self.subTest(defect=defect), self.assertRaises(AssertionError):
+                self.assert_authored_maps(scene, changed, metadata)
 
     def test_special_surface_b_original_pawn_requires_exact_serialized_occlusion_geometry(self):
         from tools.renderer_oracle import sdvk161_fixtures as fixture
@@ -752,7 +793,8 @@ class AuthoredSceneTests(unittest.TestCase):
             self.assertIn("screenshot_type png", commands)
             self.assertIn(b"screenshot_type=png\n", prepare.configuration(scene))
             self.assertEqual(scene["native"]["settings"]["screenshot_type"], "png")
-            self.assertEqual(scene["native"]["settings"]["r_drawplayersprites"], scene["native"]["generator"] == "viewmodel")
+            self.assertEqual(scene["native"]["settings"]["r_drawplayersprites"],
+                             scene["native"]["generator"] in ("viewmodel", "gameplay_smoke"))
             self.assertEqual(scene["native"]["settings"]["screenblocks"], 12)
             self.assertEqual(scene["native"]["settings"]["crosshair"], 0)
             blocked = [c for c in commands if c.split()[0] in ("quit", "screenshot", "wait", "freeze")]
