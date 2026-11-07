@@ -180,7 +180,7 @@ class ProofTests(unittest.TestCase):
 
 class WorkerTests(unittest.TestCase):
     def worker(self,root):
-        control=root/"control";control.mkdir()
+        control=root/"control";control.mkdir();control=control.resolve(strict=True)
         packet={"packet_sha256":"a"*64,"runtime_roots":[],"files":[],"integrity_policy":POLICY}
         scanner=type("CPUScanner",(),{"check":lambda self,paths:None})()
         return IntegrityWatch(packet,{"name":"cpu","generated_pins":[]},control,{"pid":1,"creation_ticks":2},[],scanner,[],Journal(root/"journal"))
@@ -190,7 +190,12 @@ class WorkerTests(unittest.TestCase):
         from .windows import Process
         for delay in (0, .8):
             with self.subTest(journal_flush_delay=delay), tempfile.TemporaryDirectory() as directory:
-                worker=self.worker(Path(directory));control=worker.control
+                parent=Path(directory);(parent/"spelling").mkdir()
+                spelled=parent/"spelling"/".."
+                worker=self.worker(spelled);control=worker.control
+                # Deliberately preserve a noncanonical spelling on every host,
+                # including hosts whose default TEMP has no Windows8.3 alias.
+                self.assertNotEqual(spelled/"control",(parent/"control").resolve(strict=True))
                 exclusive(control/"source-preflight.json",{"scope":"constructed CPU boundary only"})
                 # Isolate the actual queue-drain -> durable Journal.append path.
                 # The queued proof is constructed; no audit/process thread runs.
