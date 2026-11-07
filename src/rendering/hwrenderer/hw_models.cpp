@@ -116,6 +116,13 @@ void FHWModelRenderer::BeginDrawHUDModel(FRenderStyle style, const VSMatrix &obj
 	worldNormalValid = true;
 	for (int i = 0; i < 16; ++i)
 		worldNormalValid = worldNormalValid && std::isfinite(normalModelMatrix.get()[i]);
+	if (viewmodel && viewmodel->viewmodelMode == HWViewmodel::Enhanced && !worldNormalValid)
+	{
+		// A finite but singular authored scale can leave a drawable plane.
+		// Keep its geometry, but do not pass NaNs to sector fallback shading
+		// or emitted diagnostics. Per-skin admission retains the invalid flag.
+		normalModelMatrix.loadIdentity();
+	}
 	state.SetModelMatrix(objectToWorldMatrix, normalModelMatrix);
 }
 

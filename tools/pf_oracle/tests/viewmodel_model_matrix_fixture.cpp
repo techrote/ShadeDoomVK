@@ -18,6 +18,17 @@ static float dot3(const FVector4& a, const FVector4& b)
 
 int main()
 {
+	// A finite authored transform can have a nonfinite inverse transpose.
+	// Such a model needs sector fallback rather than enhanced material normals.
+	VSMatrix singular = VSMatrix::identity();
+	singular.scale(1.f, 1.f, 0.f);
+	VSMatrix singularNormal;
+	singularNormal.computeNormalMatrix(singular);
+	bool finite = true;
+	for (int i = 0; i < 16; ++i) finite = finite && std::isfinite(singularNormal.get()[i]);
+	assert(!finite);
+	singularNormal.loadIdentity();
+	for (int i = 0; i < 16; ++i) assert(std::isfinite(singularNormal.get()[i]));
     for (float mirror : {1.f, -1.f})
     {
         VSMatrix view = VSMatrix::identity();
