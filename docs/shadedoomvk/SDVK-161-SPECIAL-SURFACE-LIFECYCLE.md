@@ -548,3 +548,14 @@ explicit; all six wall writer/snapshot/split tests pass with `/WX` and unchanged
 retained-source negatives. Production functions and original receipts are not
 edited. The complete local MSVC PF suite is not claimed passing; the normal
 required Linux full-CPU and Windows build/supervisor matrix remains the merge gate.
+
+
+### Stacked integration qualification
+
+The prospective #172 consolidated tooling head
+`fceba206734e62af371ca5947e69d10ad95e686c` and #185 supervisor repair head
+`e014cceda3da29a82231d4dba0eb7d072faeee93` are merged as ancestors so normal
+exact-head CI qualifies their combined content with this renderer increment.
+Only append-only observability documentation conflicted; both sections remain.
+Those upstream PRs require their own guarded master integration before #162 can
+merge. No earlier CI result is relabeled as qualification of this combined head.

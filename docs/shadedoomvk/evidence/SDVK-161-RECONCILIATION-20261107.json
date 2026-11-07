@@ -104,5 +104,20 @@
     "observed_failures": 2,
     "observed_errors": 12,
     "diagnosis": "strict MSVC extracted-fixture diagnostics plus historical CRLF checkout bytes; canonical unchanged historical inputs and focused wall-writer compile adapter repaired; full Linux CPU and Windows native normal CI still required"
-  }
+  },
+  "stacked_integration_heads": [
+    {
+      "pull_request": 172,
+      "head": "fceba206734e62af371ca5947e69d10ad95e686c",
+      "status": "MERGED_AS_ANCESTOR_PENDING_GUARDED_MASTER_INTEGRATION",
+      "independent_review": "No blocking finding; exact-head required CI must pass"
+    },
+    {
+      "pull_request": 185,
+      "head": "e014cceda3da29a82231d4dba0eb7d072faeee93",
+      "status": "MERGED_AS_ANCESTOR_PENDING_GUARDED_MASTER_INTEGRATION",
+      "independent_review": "Root review pending; focused native3 and proof-retention5 PASS reported by implementation owner, full suite pending"
+    }
+  ],
+  "stacked_scope": "Reconciled feature and integration blocker content is qualified together; upstream PRs must merge to master before guarded PR162 merge. No separate historical result is promoted to this new head."
 }
