@@ -352,3 +352,14 @@ PID/creation identity, wait result and exit code remain in the exit observation;
 the collector still requires exit code zero. Historical failed packets stay failed.
 Microsoft documents [module-list changes during enumeration](https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocessmodulesex)
 as a possible failure cause; that alone cannot establish normal exit.
+
+The stock VKDoom comparison also encountered a module-path read failure at
+normal exit. Its historical observer discarded the native return/error code,
+so that attempt remains failed. Prospective source now retains the exact
+`GetModuleFileNameExW` zero return, error code, module handle, PID, buffer size
+and observation time, clearing stale thread error state before the native call.
+Only that precise zero-read operation with error6 or299 can use the same
+previous complete coverage, full retained-object attestation and bounded
+positive-exit discriminator. A truncated path, changed identity, live/unknown
+object, zero/unknown error code, missing prior coverage or exhausted caller budget still stops. No path
+read is retried and no running target termination authority changes.

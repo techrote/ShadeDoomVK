@@ -429,6 +429,97 @@ class NativeExitRaceTests(cpu_fixture.TempCase):
         self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],17)
         self.assertEqual(child.poll(),17)  # Collector admission independently requires native return code zero.
 
+    def test_zero_module_path_after_prior_coverage_confirms_native_exit_with_exact_error(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control(exit_code=17)
+        def teardown(*args):release.write_text("exit");windows.c.set_last_error(6);return 0
+        with patch.object(windows,"module_path",side_effect=teardown) as read,patch.object(windows,"terminate") as kill:
+            value=watcher.sample();read.assert_called_once();kill.assert_not_called()
+        self.assertEqual(value["state"],"EXITED");self.assertTrue(value["prior_required_module_coverage"])
+        row=value["exit_observations"][0];native=row["original_error_evidence"]
+        self.assertEqual(native["operation"],"GetModuleFileNameExW");self.assertEqual(native["winerror"],6)
+        self.assertEqual(native["returned_characters"],0);self.assertEqual(native["buffer_characters"],32768)
+        self.assertEqual(native["pid"],child.pid);self.assertGreater(native["module_handle"],0)
+        self.assertGreater(native["observed_monotonic"],0)
+        self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],17)
+        self.assertEqual(child.poll(),17)  # A normal collector still rejects this nonzero code.
+
+    def test_zero_module_path_on_live_object_stops_without_retry_or_termination(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def denied(*args):windows.c.set_last_error(299);return 0
+        with patch.object(windows,"module_path",side_effect=denied) as read,patch.object(windows,"terminate") as kill:
+            with self.assertRaises(Stop) as caught:watcher.sample()
+            read.assert_called_once();kill.assert_not_called()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],299)
+        self.assertEqual(row["requested_wait_milliseconds"],50);self.assertEqual(row["native_wait_result"],258)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_without_prior_required_coverage_cannot_settle(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        missing=self.root/"unobserved.dll";missing.write_bytes(b"CPU placeholder, never loaded")
+        watcher.policy["required_paths"].append(str(missing))
+        def denied(*args):windows.c.set_last_error(6);return 0
+        with patch.object(windows,"module_path",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_clears_stale_error_and_rejects_missing_native_code(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        windows.c.set_last_error(299)
+        with patch.object(windows,"module_path",return_value=0):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],0)
+        self.assertEqual(row["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_with_unreviewed_native_code_cannot_settle(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def denied(*args):windows.c.set_last_error(31);return 0
+        with patch.object(windows,"module_path",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],31)
+        self.assertEqual(row["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_truncated_module_path_is_not_a_zero_read_exit_discriminator(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        with patch.object(windows,"module_path",return_value=32767) as read:
+            with self.assertRaisesRegex(Stop,"path truncated") as caught:watcher.sample()
+            read.assert_called_once()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_needs_existing_deadline_budget(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control();watcher.target_deadline=time.monotonic()+.01
+        def denied(*args):windows.c.set_last_error(6);return 0
+        with patch.object(windows,"module_path",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_requires_exact_pid_count_and_original_attestation(self):
+        child,identity=self.spawn("pass");child.resume(identity)
+        until=time.monotonic()+5
+        while child.poll() is None and time.monotonic()<until:time.sleep(.01)
+        self.assertEqual(child.poll(),0)
+        original={"operation":"GetModuleFileNameExW","winerror":6,"pid":child.pid,"returned_characters":0}
+        for change in ({"pid":child.pid+1},{"returned_characters":1},{"returned_characters":False},{"winerror":None}):
+            error=Stop("Controlled native path failure");error.evidence={**original,**change}
+            self.assertFalse(child.exited_owned(identity,error=error,operation="actual-module-authentication",module_teardown=True,cleanup=True))
+        error=Stop("Controlled native path failure");error.evidence=original
+        child.verified_identity={**identity,"sha256":"f"*64}
+        self.assertFalse(child.exited_owned(identity,error=error,operation="actual-module-authentication",module_teardown=True,cleanup=True))
+
     @staticmethod
     def image_error(code=5,operation="QueryFullProcessImageNameW"):
         error=Stop("Synthetic native image-query failure")

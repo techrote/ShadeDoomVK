@@ -155,8 +155,8 @@ class ModuleWatch:
             return {"state":"EXITED"}
         try:paths=self.target.modules(self.identity)
         except BaseException as error:
-            # DLL teardown can race a final enumeration. Never ignore 299 on a
-            # live/unknown target or before a complete required-module sample.
+            # DLL teardown can race enumeration or an individual path read.
+            # Never forgive a live/unknown target or incomplete prior sample.
             # The native helper retains the error and only accepts positive
             # same-held-object exit confirmation within the existing 50 ms bound.
             required={normalized(path) for path in self.policy["required_paths"]}

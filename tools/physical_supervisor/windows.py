@@ -398,7 +398,8 @@ class Process:
         """One bounded observation per reviewed failed-authentication call.
 
         Actual image-query ERROR_ACCESS_DENIED 5, or the separately admitted
-        module-reader ERROR_PARTIAL_COPY 299 after prior required module coverage,
+        module-reader ERROR_PARTIAL_COPY 299 or exact zero module-path read after
+        prior required module coverage,
         can receive one 50 ms settle observation after full attestation of this same
         object. It never retries a path query, masks known identity mismatches,
         extends caller deadlines or authorizes termination of a live object.
@@ -431,6 +432,10 @@ class Process:
         if module_teardown is True and operation=="actual-module-authentication":
             native=native or (isinstance(original,dict) and original.get("operation")=="EnumProcessModulesEx" and
                 original.get("winerror")==299 and original.get("pid")==expected["pid"])
+            native=native or (isinstance(original,dict) and original.get("operation")=="GetModuleFileNameExW" and
+                type(original.get("returned_characters")) is int and original["returned_characters"]==0 and
+                type(original.get("winerror")) is int and original["winerror"] in (6,299) and
+                original.get("pid")==expected["pid"])
         owner=self if authorized_by is None else authorized_by
         try:
             before=self.poll();row["pre_wait_exit_code"]=before
@@ -490,8 +495,16 @@ class Process:
         paths=[]
         for handle in handles[:needed.value//c.sizeof(w.HMODULE)]:
             buffer=c.create_unicode_buffer(32768)
+            c.set_last_error(0)
             count=module_path(self.handle,handle,buffer,len(buffer))
-            require(0 < count < len(buffer)-1,"Cannot identify actual owned module path")
+            if count==0:
+                code=c.get_last_error()
+                error=Stop("Identify actual owned module path: "+str(c.WinError(code)))
+                error.evidence={"operation":"GetModuleFileNameExW","winerror":code,"pid":self.pid,
+                                "returned_characters":count,"buffer_characters":len(buffer),
+                                "module_handle":int(handle or 0),"observed_monotonic":time.monotonic()}
+                raise error
+            require(0 < count < len(buffer)-1,"Actual owned module path truncated/invalid")
             paths.append(normalized(buffer.value))
         require(paths and len(paths)==len(set(paths)),"Missing/duplicate actual module inventory")
         return sorted(paths)
