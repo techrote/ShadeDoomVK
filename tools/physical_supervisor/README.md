@@ -290,6 +290,23 @@ nothing about a historical fault's cause.
 
 ## CPU qualification
 
+When an IWAD selects a support WAD, the prospective seed can declare
+`iwad_support = {"iwad": <oracle pin>, "packages": [<oracle pin>, ...]}`.
+Oracle pins have `path`, `sha256` and `bytes`; packet custody pins use `size`.
+The original IWAD pin must match exactly, and each support WAD must be a regular
+file directly beside the executable and present with identical bytes in packet
+custody. The oracle adds only these declared resources, retaining exact loaded-set
+equality. Every capture/request/profile must preserve the declaration, and the
+supervisor independently compares it with the packet. Unknown, missing, duplicate,
+changed, unbound or path-aliased packages remain failures.
+
+To update only the oracle, declare both `renderer_source_root` and `oracle_source`
+(`commit`/`tree`); `source` continues to identify the renderer, while
+`oracle_source_root` names the corrected oracle checkout. Both checkouts are
+verified clean against their own pins. A fresh accepted tooling source, packet and
+prospective review are required; sealed historical renderer/oracle inputs and
+failed run statuses cannot be rewritten.
+
 ```text
 python -B -m unittest discover -s tools/physical_supervisor -t . -v
 ```

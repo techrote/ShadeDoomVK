@@ -85,6 +85,8 @@ def diagnostic_packet(seed):
                    "out": str(out), "scene": scene, "mode": "state", "frames": 1, "warmup": 120,
                    "timeout": 180, "gpu": False, "include_stress": True, "image_policy": "exact", "extent": "640x480",
                    "expected_commit": commit, "require_clean": True}
+        if "iwad_support" in packet:
+            capture["iwad_support"] = packet["iwad_support"]
         stage = {"name": name, "mode": "oracle", "deadline_seconds": 180, "expected_argv": argv,
                  "generated_pins": generated, "capture": capture,
                  "mutable_runtime_config": next(row for row in generated if Path(row["path"]) == out / "fixture.ini"),

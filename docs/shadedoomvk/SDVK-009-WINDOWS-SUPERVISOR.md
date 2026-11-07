@@ -25,6 +25,24 @@ compiler/configuration, executable and source-file inventory. Engine packages,
 shader sources, dependencies, official IWAD and generated fixtures are pinned
 separately. Installing newer tooling must not silently advance the renderer.
 
+A corrected oracle may be frozen separately from the renderer. Such packets
+provide `renderer_source_root` and `oracle_source` (exact `commit`/`tree`), while
+`oracle_source_root` identifies that oracle checkout. Both checkouts must be
+clean and match their separate identities. The renderer commit must exist in
+both histories for the sealed preparation proof; this does not claim that the
+new oracle commit built the renderer. Legacy packets keep their single checkout.
+
+IWAD-selected support WADs require an explicit prospective `iwad_support`
+declaration: `iwad` is the exact original IWAD oracle pin (`path`, `sha256`,
+`bytes`), and `packages` is a nonempty list of exact support-WAD oracle pins.
+Only declared regular WADs directly beside the renderer are added to its expected
+loaded set. The declaration is copied into each capture, request and reproduction
+profile and reconciled with the packet's closed file inventory. Independent
+validation binds it to the retained IWAD and checks the exact loaded package set.
+Absent declarations add no resources. Presence beside an executable or appearance
+in stdout never confers acceptance. These declarations do not change workloads,
+the renderer, or a failed historical capture's status.
+
 `prepare` and `validate` are no-launch operations. A packet includes a fresh
 experiment ID, expiry, complete file inventories, exact stage commands, current
 read-only hardware policy and a native System event bookmark/epoch. `run` requires

@@ -114,6 +114,23 @@ class RealOracleAdapterTests(TempCase):
         self.assertEqual(decoder_path,Path(packet["oracle_source_root"])/"tools/pf_oracle/run_freeze_dense_runtime.py")
         self.assertIn(str(decoder_path),{row["path"] for row in packet["files"]})
 
+    def test_real_adapter_preregisters_exact_support_before_target_boundary(self):
+        packet,stage,control,receipt=self.setup_packet()
+        run=frozen_oracle(packet["oracle_source_root"])
+        support=Path(packet["renderer"]).parent/"id24res.wad"
+        support.write_bytes(b"Synthetic support WAD; never loaded")
+        declaration={"iwad":run.pin(stage["capture"]["iwad"]),"packages":[run.pin(support)]}
+        packet["iwad_support"]=declaration
+        stage["capture"]["iwad_support"]=declaration
+        packet["files"].append(pin(support))
+        with patch("subprocess.Popen",side_effect=AssertionError("No native process permitted")) as native, \
+             patch("tools.physical_supervisor.collector.gated_target",side_effect=NoTarget("CPU target boundary")) as target:
+            with self.assertRaises(NoTarget):run_oracle(packet,stage,control,receipt)
+        native.assert_not_called();target.assert_called_once()
+        request=read_json(Path(stage["capture"]["out"])/"request.json")
+        self.assertEqual(request["iwad_support"],declaration)
+        self.assertEqual(request["packages"][str(support)],declaration["packages"][0])
+
     def test_only_exact_preverified_preparation_query_is_admitted_once(self):
         packet,stage,control,receipt=self.setup_packet()
         proxy=prepare_subprocess_adapter(packet,stage,control,receipt)

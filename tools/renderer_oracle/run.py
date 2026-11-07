@@ -121,6 +121,62 @@ def loaded_packages(text, expected, *, verify_files=True):
     return rows
 
 
+def support_package_pins(declaration, iwad_pin, exe, *, verify_files=True, require_iwad_path=True):
+    """Exact prospective IWAD/resource binding, never an observed-file allow-list."""
+    if declaration is None:
+        return {}
+    require(isinstance(declaration, dict) and set(declaration) == {"iwad", "packages"},
+            "Malformed IWAD support declaration")
+    def valid_pin(row):
+        require(isinstance(row, dict) and set(row) == {"path", "sha256", "bytes"} and
+                isinstance(row["path"], str) and Path(row["path"]).is_absolute() and
+                ".." not in Path(row["path"]).parts and
+                isinstance(row["sha256"], str) and re.fullmatch(r"[0-9a-f]{64}", row["sha256"]) and
+                type(row["bytes"]) is int and row["bytes"] > 0, "Malformed support resource pin")
+    bound = declaration["iwad"]
+    valid_pin(bound)
+    require(all(bound[key] == iwad_pin[key] for key in ("sha256", "bytes")) and
+            (not require_iwad_path or bound["path"] == iwad_pin["path"]), "Support declaration binds another IWAD")
+    resources = declaration["packages"]
+    require(isinstance(resources, list) and resources, "Support declaration needs exact resources")
+    parent = Path(exe).resolve().parent
+    result, seen = {}, set()
+    for row in resources:
+        valid_pin(row)
+        path = Path(row["path"])
+        require(path.parent == parent and path.suffix.casefold() == ".wad" and
+                path.name.casefold() != Path(bound["path"]).name.casefold() and ":" not in path.name,
+                "Support resource must be a separate WAD directly beside the executable")
+        require(str(path).casefold() not in seen, "Duplicate support resource/alias")
+        seen.add(str(path).casefold())
+        if verify_files:
+            require(not any(p.is_symlink() or (hasattr(p, "is_junction") and p.is_junction())
+                            for p in (path, *path.parents)), "Support resource has a link/junction ancestor")
+            require(path.is_file() and pin(path) == row, "Support resource changed/missing")
+        result[str(path)] = row
+    return result
+
+
+def validate_support_request(request, iwad_pin, scene_pin):
+    """Reconcile declaration with retained inputs and exact preregistered package set."""
+    declaration = request.get("iwad_support")
+    if declaration is None:
+        require("iwad_support" not in request["reproduction"], "Support declaration missing from request")
+        require("iwad_support" not in request, "Null support declaration")
+    else:
+        require(declaration == request["reproduction"].get("iwad_support"), "Support profile/declaration differs")
+    exe = Path(request["executable"]["path"])
+    support = support_package_pins(declaration, iwad_pin, exe, verify_files=False, require_iwad_path=False)
+    packages = request["packages"]
+    expected = {str(exe.parent / name) for name in PACKAGES if str(exe.parent / name) in packages}
+    require(str(exe.parent / "vkdoom.pk3") in expected, "Missing engine package")
+    expected.update((iwad_pin["path"], scene_pin["path"], *support))
+    require(set(packages) == expected and all(packages[path] == row for path, row in support.items()),
+            "Declared support set differs from preregistered packages")
+    require(packages[iwad_pin["path"]] == iwad_pin and packages[scene_pin["path"]] == scene_pin,
+            "Retained IWAD/scene package identity differs")
+
+
 def console_settings(text, expected):
     """Require actual engine readbacks, including CVars outside frame settings."""
     result = {}
@@ -299,6 +355,8 @@ def capture(args):
                     "Engine package bytes changed after physical preregistration")
         for path in (out / "input" / iwad.name, out / "input" / "scene.pk3"):
             expected[str(path)] = pin(path)
+        support = getattr(args, "iwad_support", None)
+        expected.update(support_package_pins(support, iwad_pin, exe))
         version = subprocess.run([str(exe), "--version"], cwd=out, stdout=subprocess.PIPE,
                                  stderr=subprocess.PIPE, timeout=30, check=False)
         (out / "version.txt").write_bytes(version.stdout)
@@ -325,6 +383,8 @@ def capture(args):
         if native.get("generator") == "special_surface_lifecycle":
             profile["map_cameras"] = native["map_cameras"]
         prefix = _console_path(out / "native")
+        if support is not None:
+            profile["iwad_support"] = copy.deepcopy(support)
         substitutions = {"exe": str(exe), "iwad": str(out / "input" / iwad.name),
                          "pk3": str(out / "input" / "scene.pk3"), "config": str(out / "fixture.ini"),
                          "capture_script": str(out / "capture.cfg")}
@@ -371,6 +431,8 @@ def capture(args):
             preregister["diagnostics"] = diagnostics
             preregister["environment"].update({key: process_environment[key] for key in
                 ("CFX_TRACE_FILE", "CFX_RUN_ID", "CFX_RESOURCE_TRACE", "CFX_WITNESS_DIR")})
+        if support is not None:
+            preregister["iwad_support"] = copy.deepcopy(support)
         write_json(out / "request.json", preregister)
         start = time.monotonic()
         with (out / "stdout.log").open("xb") as stdout, (out / "stderr.log").open("xb") as stderr:
@@ -848,6 +910,9 @@ def _validate_run(path):
                       ("script_sha256", "capture.cfg"), ("iwad_sha256", request["iwad_artifact"])):
         require(name in artifacts and artifacts[name]["sha256"] == profile[key], "Input identity differs: " + key)
     require(request["prepared_manifest"] == artifacts["prepared.json"], "Prepared receipt identity differs")
+    validate_support_request(request,
+        {**artifacts[request["iwad_artifact"]], "path": str(Path(request["cwd"]) / request["iwad_artifact"])},
+        {**artifacts["input/scene.pk3"], "path": str(Path(request["cwd"]) / "input/scene.pk3")})
     prepared = read_json(root / "prepared.json")
     recipes = [item for item in prepared.get("scenes", []) if item.get("id") == scene["id"]]
     require(len(recipes) == 1 and {key: value for key, value in recipes[0].items() if key != "prepared_assets"} == scene,
