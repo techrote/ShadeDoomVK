@@ -1808,3 +1808,40 @@ negative qualification records. No physical launch is part of these controls.
   Full private evidence is retained. A stock-engine comparison and default-off
   warmup extent breadcrumb are discriminators, not accepted fault repairs.
   SDVK-008/009/014 physical claims remain held; no unchanged retry follows.
+
+## 7 November 2026 — tooling and special-surface software delivery verified
+
+- Guarded PR #172 merged qualified head `e6ac0cad0e197ad626b1bd2d49ab6ce6f6663474`
+  as master `ea2e172640f7c05a7f6c8c70bba89975ab5783a0`. Its nine normal
+  [CI jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/42357628391) and
+  [source check](https://github.com/techrote/ShadeDoomVK/actions/runs/42357628420)
+  passed; merged tree `774c0ccab472b0c7d94d2f44b4eea157f2b43f6d` equals the
+  reviewed head. The consolidated tooling and absorbed #185 are present on master.
+- Guarded PR #162 then merged qualified head
+  `8a0114825f7043576bb5a31b15cbd5e83f1b624d` as verified master
+  `d40475519170606e83dec20dc822ceb5a54312ee`. All nine normal
+  [CI jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746720),
+  including hosted software-Vulkan qualification, and
+  [source evidence](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746707)
+  passed. Merged tree `9f70041506a66f1bb29e6fcee2d7d63f83d34c85` equals that exact
+  reviewed head. Retained failures remain failed; historical packet revalidation
+  is not substituted for this current-head qualification.
+- Child #161's [bounded software matrix](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+  is **SOFTWARE COMPLETE / PHYSICAL HELD** and the child is closed. Parent #14
+  remains open; no blanket whole-campaign completion is awarded. Unequal
+  controlled planes sharing a lightmapped binding, including ambiguous
+  `FF_BOTHPLANES`, remain explicitly unsupported. Other native coverage limits
+  and all required physical cost/scaling/stability criteria are retained.
+- PR #186 at candidate checkpoint `345e3d63ba22f7c234f9cfec7ebf7ce4aa5e71e5`
+  combines the weapon card/model implementation with the
+  [ordinary-input gameplay smoke](INTEGRATED-GAMEPLAY-SMOKE.md). Sixty focused
+  CPU checks and the intercepted actual capture/preparer boundary pass. Actual
+  RecordStore capacity replay retains 128 critical record-frame IDs and nine
+  selected detail frames with maximum-sized checkpoint reservations within the
+  unchanged 16 MiB cap; the unsampled real-payload control
+  exhausts the store at frame 39. The clean Windows RelWithDebInfo build at that
+  checkpoint passes. Its first hosted CPU run exposed an older extracted-owner
+  fixture missing the new disabled gameplay predicate; the fixture now matches
+  the actual unsigned TArray count type and retains its ordinary/owner negatives.
+  Native gameplay capture and required final-head CI remain pending; #11 is open. No candidate
+  CPU result accepts gameplay, physical performance or a later milestone.

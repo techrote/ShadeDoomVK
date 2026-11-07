@@ -26,8 +26,11 @@ The [7 November owner correction](docs/shadedoomvk/SDVK-009-PHYSICAL-RESUMPTION-
 authorizes a fresh physical campaign with exact identities and retained failures.
 Instance-only readback does not establish renderer stability or performance.
 
-The [viewmodel increment](docs/shadedoomvk/SDVK-011-VIEWMODEL-LIGHTING.md) and
-special-surface lifecycle work are undergoing integrated qualification. The
+The [special-surface lifecycle increment](docs/shadedoomvk/SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+is merged within its bounded software matrix; SDVK-014's physical criteria remain
+held. The [viewmodel increment](docs/shadedoomvk/SDVK-011-VIEWMODEL-LIGHTING.md) and
+[ordinary gameplay smoke](docs/shadedoomvk/INTEGRATED-GAMEPLAY-SMOKE.md) are undergoing
+integrated qualification. The
 [corpus guide](tools/renderer_oracle/README.md) includes legal Freedoom preparation
 and playable launch instructions. Defaults and milestone acceptance follow the
 ledger; candidate features do not imply completion of later renderer gates.

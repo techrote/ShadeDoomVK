@@ -22,7 +22,7 @@ Its plan SHA-256 is `785d76ab4be21a5debd219a1d3cea7009a9bc98a7d5eb3d1321454f645e
 This establishes instance/device identity only. It does not establish renderer
 stability, speed, architecture acceptance or a passed physical milestone.
 
-Two independently reviewed diagnostics now have retained results. Generation 01
+The first two independently reviewed diagnostics have retained results. Generation 01
 rendered compositing but stopped on an external module reader's error 299 near
 process teardown. Its original exit status is unknown; it remains FAILED_STOP.
 The bounded reader repair admits only an already exiting, fully attested process
@@ -50,20 +50,38 @@ that 90 W is intended; no setting was changed by the agent. New prospective
 packets use that owner-configured state. The difference must remain explicit
 in comparisons and prevents a matched performance claim against the failed run.
 
-The requested unmodified stock VKDoom comparison is a prospective engine
-discriminator, not an unchanged failed-workload retry. Stock source is exactly
+The unmodified stock VKDoom comparison is an engine discriminator, not an
+unchanged failed-workload retry. Stock source is exactly
 the founding commit `09634479ab5bf9adf691074fffe85a006a398cd0`; a clean
 RelWithDebInfo build is available. Stock has no SDVK observer: console `wait`
 counts game tics, so its screenshot/exit/health comparison cannot stand in for
-matched frame timings or SDVK native-state acceptance. At this entry no stock
-GPU process has run. A new [warmup extent diagnostic](SDVK-009-SHADOW-FAULT-DISCRIMINATOR-20261107.md)
-also closes a concrete observation gap without claiming a TDR repair.
+matched frame timings or SDVK native-state acceptance. The default-off
+[warmup extent diagnostic](SDVK-009-SHADOW-FAULT-DISCRIMINATOR-20261107.md)
+closes an observation gap without claiming a TDR repair.
+
+The later stock extended-v4 attempt used the unchanged source above, executable
+SHA-256 `a804051991dd2c1f88e89c81a9c52c674b956be49f3daad6494250b19e95e68a`,
+the owner-configured 90 W state and the 1,025-authored-light scene with
+`gl_light_shadows=2`, `vk_rayquery=false`. It triggered another System nvlddmkm
+153 event, record 10268 at `2026-11-07T11:16:59.6658312Z`, 76.480883 seconds
+after creation. Its owned process was terminated with status `0xE0000001`; the
+attempt remains FAILED_STOP. No new WATCHDOG dump or Vulkan device-fault address
+rows were captured. Peak temperature was 61 C; the completion fence retained
+47 C / P8 / 1% and restored cache hashes, with no later new System fault event.
+
+This reproduces the same System event class on unmodified upstream without the
+PF changes. It does not prove the same Vulkan fault mechanism or its cause.
+Private assessment `upstream-comparison/20261107/stock-extended-v4-driver-event-assessment.json`
+and the 399-file `failure-freeze-stock-extended-04/manifest.json` retain that
+attempt separately from SDVK generation 02 and its kernel dump. There is no
+physical acceptance or unchanged retry; further GPU work is held for a reviewed
+discriminator decision.
 
 Serious GPU or OS faults stop an attempt, retain complete evidence, and require
 a bounded repair or discriminator before another identified attempt. The owner
 also authorizes a checkpointed system restart if a fault leaves lasting
 impairment; no restart has been needed so far. Unchanged faults are not retried
-blindly. All measurements remain pending until actual retained runs support them.
+blindly. Physical cost, scaling and stability acceptance remain pending.
 
 SDVK-009 physical acceptance, full SDVK-008 POM cost/quality and SDVK-014 physical
 bake/update criteria remain unaccepted. SDVK-012 and later dependencies receive
