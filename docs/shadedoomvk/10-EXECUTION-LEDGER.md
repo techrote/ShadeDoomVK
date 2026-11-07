@@ -1773,3 +1773,27 @@ negative qualification records. No physical launch is part of these controls.
   checks, current-head native software evidence and independent review remain.
 - Parent #14 stays open. This candidate awards no physical cost/scaling/stability
   acceptance and does not relabel any historical STOP or failed physical evidence.
+
+
+## 7 November 2026 - integrated playable renderer candidate
+
+- Refreshed live master/16 PRs. Guarded #171 merged after independent review,
+  focused CPU controls and ten green exact-head checks; verified master9cf86b92,
+  tree b8e156f7255596dea527c515720b4d223702d70c.
+- #172 consolidates eleven absorbed PRs; #184 is absorbed into substantive #162,
+  and optional CI prepass #167 is closed with evidence retained. Four coherent
+  integration PRs remain, including new bounded supervisor repair #185 and #186.
+- #162 preserves production material/mesh/decal/plane/UV repairs and historical
+  failures. It includes #172/#185 as ancestors for integrated qualification.
+  Parent #14 physical criteria and unsupported ambiguous bindings stay visible.
+- #185 repairs delayed registration proof admission and suspended containment;
+  native freshness/gate/heartbeat limits remain. Full native170 tests passed.
+- #186 adds explicit weapon-card lighting modes, shared light/shading sample,
+  camera-oriented basis, diagnosed fallbacks and live-player normal/PBR fixtures.
+  Local build and PF832 passed before final review fixes; final focused checks
+  passed. Exact integrated CI and native captures remain pending. #11 stays open,
+  with HUD models explicitly falling back to sector lighting.
+- Later direct owner authorization releases a new physical campaign, preserving
+  historical STOPs. Current-source instance-only readback passed with zero logical
+  devices/submissions; no physical milestone is accepted by this result. See
+  [resumption record](SDVK-009-PHYSICAL-RESUMPTION-20261107.md).
