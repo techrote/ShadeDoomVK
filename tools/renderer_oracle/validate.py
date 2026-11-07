@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "viewmodel", "surface", "surface-checkpoint"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "viewmodel", "surface", "surface-checkpoint", "gameplay", "gameplay-checkpoint"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -459,6 +459,21 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                     "Viewmodel probe sentinel/resource disagree")
             if resource["available"]:
                 require(resource["index"] == value["runtime_irradiance_index"], "Viewmodel probe uniform/resource differ")
+        elif kind == "gameplay":
+            from tools.renderer_oracle.gameplay_smoke import validate_gameplay
+            validate_gameplay(value)
+            require(record["count"] == 1, "Gameplay observations cannot be coalesced")
+        elif kind == "gameplay-checkpoint":
+            from tools.renderer_oracle.gameplay_smoke import CHECKPOINTS, MAP_A, MAP_B, WARMUP
+            fixed = value.get("phase") == "fixed" and frame in CHECKPOINTS and value.get("image") == f"native.gameplay-{frame}.png"
+            muzzle = value.get("phase") == "muzzle" and (
+                (value.get("map") == MAP_A and 40 < frame < 56 and value.get("image") == "native.gameplay-fire-a.png") or
+                (value.get("map") == MAP_B and 80 < frame < 96 and value.get("image") == "native.gameplay-fire-b.png"))
+            require(value.get("producer") == "completed-main-view-screenshot"
+                    and value.get("map") in (MAP_A, MAP_B)
+                    and value.get("main_views") == WARMUP + frame and type(value.get("main_views")) is int
+                    and (fixed or muzzle) and record["count"] == 1,
+                    "Invalid ordinary-gameplay checkpoint identity")
         elif kind == "surface":
             from tools.renderer_oracle.sdvk161_special_surfaces import validate_surface_record
             validate_surface_record(value)

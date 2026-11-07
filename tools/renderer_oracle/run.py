@@ -289,6 +289,11 @@ def capture(args):
     require(not native.get("manual_opt_in") or args.include_stress,
             "This bounded stress/probe recipe requires the explicit --include-stress selection")
     mode = args.mode
+    if native.get("generator") == "gameplay_smoke":
+        from tools.renderer_oracle.gameplay_smoke import FRAMES, WARMUP, validate_recipe
+        validate_recipe(scene)
+        require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP and not args.gpu,
+                "Gameplay smoke needs its exact correctness-only frame budget")
     if native.get("generator") == "probe_sampler_reset":
         from tools.renderer_oracle.sdvk153_probe_reset import FRAMES, WARMUP
         require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP,
@@ -408,6 +413,8 @@ def capture(args):
             require(mode == "state" and native.get("generator") == "special_surface_lifecycle",
                     "Special-surface driver requires its exact state recipe")
             argv.append("-sdvk161surfacedriver")
+        if native.get("generator") == "gameplay_smoke":
+            argv.append("-sdvkgameplaysmoke")
         if getattr(args, "collision_snapshot", False):
             require(mode == "state" and not args.gpu, "Collision snapshots are state diagnostics only")
             argv += ["-sdvkcollisionsnapshot", _console_path(out / "collision")]
@@ -455,6 +462,11 @@ def capture(args):
         require(raw["warmup_frames"] == warmup and raw["gpu_timing_requested"] is args.gpu,
                 "Actual observer warmup/GPU timing mode differs from preregistration")
         _scene_assertions(raw, scene)
+        if native.get("generator") == "gameplay_smoke":
+            from tools.renderer_oracle.gameplay_smoke import validate_records, validate_checkpoints, validate_input_log
+            validate_input_log(text)
+            result["gameplay_smoke"] = validate_records(raw, native)
+            result["gameplay_images"] = validate_checkpoints(out, raw)
         if native.get("generator") == "lightmap_transition":
             from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
             validate_transition_records(raw, text, native)
@@ -670,6 +682,10 @@ def _portal_actor_probe_assertions(records, spec):
 
 
 def observation_map(scene):
+    if scene["native"].get("generator") == "gameplay_smoke":
+        from tools.renderer_oracle.gameplay_smoke import validate_recipe
+        validate_recipe(scene)
+        return None
     # The special corpus owns a precise A/reload-A/B/reload-B schedule. Only
     # that independently validated recipe may replace the generic one-map gate.
     if scene["native"].get("generator") == "special_surface_lifecycle":
@@ -683,6 +699,14 @@ def _scene_assertions(raw, scene):
     frames = [r["data"] for r in raw["records"] if r["kind"] == "frame"]
     for frame_number, frame in ((r["frame"], r["data"]) for r in raw["records"] if r["kind"] == "frame"):
         camera = scene["native"]["camera"]
+        if scene["native"].get("generator") == "gameplay_smoke":
+            from tools.renderer_oracle.gameplay_smoke import validate_recipe
+            validate_recipe(scene)
+            # This one registered motion corpus proves its own bounded player
+            # deltas. All static recipes retain exact authored camera matching.
+            actual = frame.get("camera", {})
+            camera = dict(position=actual.get("position"), yaw=actual["angles"][0],
+                          pitch=actual["angles"][1], roll=actual["angles"][2], fov=90)
         if scene["native"].get("generator") == "special_surface_lifecycle":
             from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
             validate_recipe(scene)
@@ -946,6 +970,16 @@ def _validate_run(path):
     structural = validate.observation(raw, required_kinds=required, expected_map=observation_map(scene),
                                       expected_frames=request["reproduction"]["frames"], expected_extent=extent)
     _scene_assertions(raw, scene)
+    if scene["native"].get("generator") == "gameplay_smoke":
+        from tools.renderer_oracle.gameplay_smoke import FRAMES, WARMUP, validate_records, validate_checkpoints, validate_input_log, validate_checkpoint_artifacts
+        require(request["argv"].count("-sdvkgameplaysmoke") == 1 and data["mode"] == "state"
+                and raw["warmup_frames"] == WARMUP and raw["observed_frames"] == FRAMES
+                and raw["gpu_timing_requested"] is False, "Gameplay request differs from its exact input policy")
+        validate_input_log(stdout)
+        validate_checkpoint_artifacts(artifacts)
+        require(data.get("gameplay_smoke") == validate_records(raw, scene["native"])
+                and data.get("gameplay_images") == validate_checkpoints(root, raw),
+                "Retained gameplay result differs from actual state/images")
     if scene["native"].get("generator") == "probe_sampler_reset":
         from tools.renderer_oracle.sdvk153_probe_reset import validate_reset_records
         validate_reset_records(raw, stdout, scene["native"])
@@ -1083,6 +1117,8 @@ def compare_runs(left, right, *, allow_build_change=False):
     require(left_request["cwd"] != right_request["cwd"],
             "The same process capture was copied and supplied twice")
     require(a["mode"] == b["mode"] == "state", "Image/state comparison requires two correctness captures")
+    require(a.get("scene") != "gameplay-smoke" and b.get("scene") != "gameplay-smoke",
+            "Ordinary gameplay retains dynamic state/images; exact repeat admission is not registered")
     require(a["reproduction"] == b["reproduction"], "Reproduction profiles differ; not a controlled comparison")
     for field in ("backend", "device", "renderer", "vulkan"):
         require(a["build"].get(field) == b["build"].get(field), f"Actual {field} differs; same-device comparison is not valid")

@@ -139,7 +139,7 @@ class Controls(unittest.TestCase):
         return args, calls, result, prep, comparison, summary, preflight_mock
 
     def test_default_and_full_process_counts_exact_policy_and_fresh_outputs(self):
-        for full, count, scenes, summaries in ((False, 7, 2, 1), (True, 55, 20, 5)):
+        for full, count, scenes, summaries in ((False, 7, 2, 1), (True, 56, 20, 5)):
             with self.subTest(full=full), tempfile.TemporaryDirectory(prefix='sdvk-native-ci-unit-') as directory:
                 args, calls, result, prep, comparison, summary, _ = self.scenario(Path(directory), full=full)
                 self.assertEqual(result['status'], 'PASS')
@@ -154,7 +154,8 @@ class Controls(unittest.TestCase):
                 for call in calls:
                     self.assertEqual(call.image_policy, 'exact')
                     if call.mode == 'state':
-                        self.assertEqual(call.frames, 1)
+                        self.assertEqual(call.frames, 128 if call.scene == "gameplay-smoke" else 1)
+                        if call.scene == "gameplay-smoke": self.assertEqual(call.warmup, 32)
                     elif call.scene in native_ci.SDVK009_SCALE_TIMING_SCENES:
                         self.assertEqual(call.frames, 30)
                         self.assertEqual(call.warmup, 20)
@@ -164,6 +165,7 @@ class Controls(unittest.TestCase):
                 self.assertEqual(result['sdvk009_scale_timing_scenes'],
                                  list(native_ci.SDVK009_SCALE_TIMING_SCENES) if full else [])
                 if full:
+                    self.assertEqual(sum(call.scene == "gameplay-smoke" for call in calls), 1)
                     for scene in ("viewmodel-model-legacy", "viewmodel-model-normal",
                                   "viewmodel-model-pbr", "viewmodel-model-fallback"):
                         self.assertEqual(sum(call.scene == scene and call.mode == "state"

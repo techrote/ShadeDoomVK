@@ -516,10 +516,14 @@ it cannot substitute for #8's physical quality/cost programme.
 An independent retained `vulkaninfo --summary` precedes the smoke. The driver
 authenticates the unique CPU llvmpipe identity and raw driver version before
 launching its 16 bounded state captures. Those captures run before the inherited
-55-process `native_ci.py --full` campaign so authored fixture failures surface
+56-process `native_ci.py --full` campaign so authored fixture failures surface
 early. A failed preflight or smoke stops the job; only a passing smoke proceeds
 to every inherited state, image, feature and timing gate. This ordering adds no
 retry and removes no required gate.
+
+The full plan includes one `gameplay-smoke` process after the 20 static scene
+pairs and descriptive timing. This capture uses ordinary player inputs and
+semantic state/image gates; it has no exact dynamic RGB repeatability claim.
 
 The `renderer-software-vulkan` Actions artifact contains one lossless
 `renderer-software-vulkan.tar.xz` archive. Its 64 MiB xz dictionary compresses

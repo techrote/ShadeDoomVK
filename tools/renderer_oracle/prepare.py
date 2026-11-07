@@ -28,11 +28,11 @@ CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
               "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
-              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "special_surface_lifecycle", "sprite_mirror", "sprite_relief", "viewmodel"}
+              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "special_surface_lifecycle", "sprite_mirror", "sprite_relief", "viewmodel", "gameplay_smoke"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
-CHANNELS = {"context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief", "viewmodel"}
+CHANNELS = {"context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief", "viewmodel", "gameplay"}
 
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle import prepare_freeze_view_fixture as pf_view
@@ -155,6 +155,9 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             from tools.renderer_oracle import sdvk161_fixtures, sdvk161_special_surfaces
             sdvk161_fixtures.validate_recipe(scene)
             sdvk161_special_surfaces.validate_recipe(scene)
+        if native.get("generator") == "gameplay_smoke":
+            from tools.renderer_oracle.gameplay_smoke import validate_recipe
+            validate_recipe(scene)
         if native.get("generator") == "probe_owner_transition":
             transition = native.get("probe_owner_transition", {})
             owners = transition.get("owners")
@@ -850,6 +853,9 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
         return sdvk153_probe_reset.authored_members(scene, sys.modules[__name__])
     if generator == "lightmap_transition":
         return _lightmap_transition_members(scene)
+    if generator == "gameplay_smoke":
+        from tools.renderer_oracle import gameplay_smoke
+        return gameplay_smoke.authored_members(scene, sys.modules[__name__])
     if generator == "viewmodel":
         from tools.renderer_oracle import sdvk011_viewmodel
         return sdvk011_viewmodel.authored_members(scene, sys.modules[__name__])
