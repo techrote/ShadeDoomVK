@@ -1,16 +1,39 @@
 """CPU-only regression for the CFX-002 matched safe-run equivalence gate."""
 import contextlib
+import importlib.util
 import io
 import json
 from pathlib import Path
 import sys
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 
-from PIL import Image
 
-from tools import cfx_compare_safe
+class CPUImage:
+    """Fixed RGB input for the exit gate; image decoding is outside this test."""
+    size = (2, 2)
+
+    def __init__(self, path):
+        self.pixels = Path(path).read_bytes()
+
+    def convert(self, mode):
+        assert mode == "RGB"
+        return self
+
+    def tobytes(self):
+        return self.pixels
+
+
+# The historical comparison tool requires Pillow at execution time. The CPU
+# contract suite does not: isolate its image dependency while exercising its
+# actual manifest, mesh, pixel-metric and admission code, without a global stub.
+spec = importlib.util.spec_from_file_location(
+    "cfx_compare_safe_exit_fixture", Path(__file__).resolve().parents[2] / "cfx_compare_safe.py")
+cfx_compare_safe = importlib.util.module_from_spec(spec)
+with patch.dict(sys.modules, {"PIL": SimpleNamespace(Image=SimpleNamespace(open=CPUImage))}):
+    spec.loader.exec_module(cfx_compare_safe)
 
 
 class SafeCompareExitStatusTests(unittest.TestCase):
@@ -32,8 +55,8 @@ class SafeCompareExitStatusTests(unittest.TestCase):
                             "map": "MAP01", "actual_resolution": [2, 2]},
                     "status": status, "exit_status": exit_status,
                 }), encoding="utf-8")
-                picture = root / (name + ".png")
-                Image.new("RGB", (2, 2), (12, 34, 56)).save(picture)
+                picture = root / (name + ".rgb")
+                picture.write_bytes(bytes((12, 34, 56)) * 4)
                 argv.extend((f"--{name}-run", str(directory),
                              f"--{name}-image", str(picture)))
             output = root / "result.json"
