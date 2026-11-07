@@ -1616,3 +1616,125 @@ blocked. [Bounded checkpoint](SDVK-008-PHYSICAL-TOOLING-CHECKPOINT.md).
 - No native retry, extra CI dispatch, local renderer/device or physical run.
   Physical STOP ACTIVE; physical GPU cost, scaling and hardware stability
   HELD / NOT ACCEPTED; historical physical root cause UNDETERMINED. #14 stays open.
+### 18 October 2026 — SDVK-009 Windows supervisor qualification candidate
+
+- Kept the renderer candidate frozen at accepted `130d09ac4267d02359c7c2603ceced723ceac746`,
+  tree `50c749a848c35f04780140e4d06e9f4fdeb57ff6`; the independent supervisor has
+  a separate software identity. No pending SDVK-014 renderer source is imported.
+- Added no-launch packet preparation and a Windows diagnostic supervisor with
+  suspended process registration, creation-time ownership, immutable input pins,
+  durable STOP serialization, bounded telemetry/System-event readers, registry
+  and loaded-module observation, stage fences and independently repeated native
+  receipt validation. Historical private launchers are never executed.
+- Added synthetic failure controls and benign Windows CPU child integration
+  tests to the existing CPU gate and existing Windows RelWithDebInfo job. The
+  nine-job GitHub-hosted policy is preserved; physical tests do not run in CI.
+- Fixed Windows test portability: retain authenticated historical fixture bytes,
+  limit legacy MSVC warning treatment to exact fixture header scopes, and write
+  synthetic publication witnesses with explicit LF. Production renderer code,
+  thresholds and historical negative evidence are unchanged.
+- [The supervisor contract](SDVK-009-WINDOWS-SUPERVISOR.md) describes separate
+  packet authorization, the three-process diagnostic and the later campaign
+  boundary. Final software checks, independent review and actual physical
+  receipts remain required. This entry awards no diagnostic or performance PASS.
+- Issue #9 remains OPEN / NOT ACCEPTED. Physical STOP remains active until a
+  reviewed experiment is authorized; historical NVIDIA cause is UNDETERMINED.
+
+### 31 October 2026 — SDVK-009 supervisor PR #164 merge and no-launch source precursor
+
+- Fresh audit established `master@60273af8ceee64b23e338bd6ea95d1b615dc028f` and
+  exact PR #164 head `2b26172d2eb8e014a4f8aff58681fdedbe9230f6`. The eleven-file
+  supervisor repair was independently source-reviewed, with review record
+  [#5720509471](https://github.com/techrote/ShadeDoomVK/pull/164), including
+  bounded off-thread inventory/log audits, owner/source/packet/stage-bound
+  single-use generations, terminal native NTFS guards, atomic complete receipts,
+  checked mutable-config handle release and the exact-identity 50 ms native
+  exit-confirmation exception. No material release-blocking software defect
+  was demonstrated in the inspected head; actual host-specific protection and
+  physical fault attribution remain separate.
+- Required exact-head [CI #39107722480](https://github.com/techrote/ShadeDoomVK/actions/runs/39107722480)
+  **PASS (9/9)** and [source evidence #39107722465](https://github.com/techrote/ShadeDoomVK/actions/runs/39107722465)
+  **PASS**. Hosted Windows RelWithDebInfo native benign-CPU suite:
+  **129 tests run, one expected privilege skip**, with positive and negative
+  process/NTFS/heartbeat/evidence tests; renderer physical GPU not invoked
+  by supervisor validation. All other required matrix jobs PASS.
+- PR #164 marked ready and merged with unchanged expected head SHA.
+  Verified exact merge commit `2f7681e749f6e6a8560bb7b831857d356b99193d`
+  on `master`, parents base/head unchanged, tree
+  `790300c3f0cd995d1af85fd13414dd7b59b78a78` exactly equal to reviewed
+  PR head tree. **SUPERVISOR_SOFTWARE_ACCEPTED**, limited to reviewed software
+  source and positive native-CPU/hosted checks. The automatic merge-push CI
+  [#41158494086](https://github.com/techrote/ShadeDoomVK/actions/runs/41158494086)
+  and source evidence [#41158494017](https://github.com/techrote/ShadeDoomVK/actions/runs/41158494017)
+  were initiated; their final conclusions must be verified separately and are
+  **not claimed PASS by this ledger entry**.
+- Separately selected accepted renderer source remains
+  `130d09ac4267d02359c7c2603ceced723ceac746`, tree
+  `50c749a848c35f04780140e4d06e9f4fdeb57ff6`; no automatic
+  renderer advance to the supervisor merge. Published
+  [no-launch precursor JSON](evidence/SDVK-009-NO-LAUNCH-PRECURSOR-20261031.json)
+  with independently verified Git-backed sizes/SHA-256 for 15 supervisor
+  source/doc files and five frozen renderer oracle/recipe/PF files.
+  Source-only negative policy mutations **23/23 rejected**; this is not a
+  substitute for actual Windows host/packet negative testing.
+- [Private-host completion instructions](SDVK-009-NO-LAUNCH-DIAGNOSTIC-20261031.md)
+  explicitly require the fresh Windows build/EXE/PDB, Python/IWAD/fixtures,
+  actual GTX 1650 SUPER identity/driver/NVML state, loader/ICD/layers/registry,
+  OS boot/CIM check, System event epoch/bookmark and NTFS evidence. Three serial
+  640×480, 120-warmup, one state/RGB, 180-second, zero-retry stage commands
+  are **prospective templates**, not validated absolute argv. No actual
+  `prepare` or `validate` was possible without the host/private inputs.
+- Source-only publication status: **PACKET_INCOMPLETE_HOST_INPUTS**.
+  **PHYSICAL_HELD_NOT_ACCEPTED**; physical STOP ACTIVE; historical NVIDIA/CFX
+  fault root cause UNDETERMINED. No executable launch, Vulkan device, approval,
+  release, failed-packet retry, 41-process campaign or physical/performance/
+  architecture acceptance; original negative evidence remains immutable.
+  Issue #9 stays OPEN. PR #162's distinct renderer/ledger work is not merged
+  or modified by this qualification.
+
+## 31 October 2026 — local no-launch input correction candidate
+
+- The isolated correction checks full oracle-derived stage commands, exact typed
+  native-device inputs before validation/release, and registered native64
+  manifest/library/module/environment custody. It adds CPU-only positive and
+  adversarial controls and carries the reviewed PR #166 test failure receipts.
+- Private source reconciliation assigns each of all 20 public file pins to its
+  own frozen supervisor or renderer commit/tree. Static device registrations and
+  DWORD-zero implicit layers must not be misreported as absent or disabled.
+- This is unaccepted software candidate work. Neither frozen accepted source pin
+  is advanced. The real host packet remains PACKET_INCOMPLETE_HOST_INPUTS, not
+  ready for separate owner review. Native Vulkan properties remain unavailable.
+- Physical STOP ACTIVE; SDVK-009-PHYSICAL HELD / NOT ACCEPTED; issue #9 OPEN;
+  historical fault cause UNDETERMINED. No Vulkan, renderer, diagnostic, campaign,
+  physical approval or public evidence publication is authorized or performed.
+- See [scope and CPU controls](SDVK-009-NO-LAUNCH-INPUT-CORRECTION.md). Normal source
+  review/checks, a new accepted pin and separately authorized genuine host
+  attestation are required before a fresh packet can be reconsidered.
+
+## 31 October 2026 — conditional grant accounting source candidate
+
+- The v2 conditional review keeps the earlier owner instruction distinct from
+  later agent review, binds accepted source/CPU receipts and the exact packet,
+  and forbids a fabricated later human decision. The original draft resolution
+  remains non-executable and v1 human approvals keep their existing contract.
+- A once-created, owner/grant-bound ledger serializes sessions and durable
+  creation-attempt charges under OS locks, with retained local-NTFS directory
+  identity. Failed creation and post-charge death consume allowance. Completed
+  safety fences gate later stages; retained assessed predecessors gate repeats.
+  Caps are at most 24 total and three retries per test. The fixed three-test
+  diagnostic permits at most 12 attempts and never automatically retries.
+- CPU controls use benign Python children only and cover contention, caps,
+  publication/chain failures, replay/order/fence checks, native failed creation,
+  observer failure and death after charge. The first extended local suite
+  retained a strict-stop executable-path query error 31; three focused CPU
+  repetitions passed without expanding the accepted error exception. Its cause
+  remains unattributed. Unexpected CPU fixture failures can now retain full
+  private evidence before temporary cleanup; no failure is relabelled a pass.
+- Source acceptance remains subject to the candidate's normal required checks
+  and review. Physical STOP stays active, SDVK-009-PHYSICAL held and #9 open.
+  No campaign or hardware settings change follows from this source candidate.
+- Source review additionally requires write-through exclusive budget publication
+  before a charge returns. A second local CPU run overlapped another CPU suite
+  and correctly rejected its same-name unowned target; that negative and its
+  fixture are retained. Final qualification runs serially, and candidate STOP
+  diagnostics now retain PID/parent/name without inferring executable identity.

@@ -108,7 +108,7 @@ static void run(const std::string& mode) {
         bad=good; bad[0].page=2;
         require(validate(bad,16,0,2)=="outside-page","unknown-page-not-detected");
     } else if(mode=="bounded-stress") {
-        RectPacker p(32,32,1); unsigned warmItems=0; int warmPages=0;
+        RectPacker p(32,32,1); size_t warmItems=0; int warmPages=0;
         for(int cycle=0;cycle<128;++cycle) {
             p.Clear(); std::vector<Region> live;
             for(int i=0;i<64;++i) {

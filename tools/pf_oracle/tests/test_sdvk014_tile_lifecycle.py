@@ -14,7 +14,7 @@ import unittest
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT))
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import compile_legacy_fixture as compile_fixture
 from tools.pf_oracle.tests.sdvk156_source import RETAINED, retain_atlas_headers
 from tools.pf_oracle.tests.sdvk014_source import block,current
 HERE=Path(__file__).resolve().parent

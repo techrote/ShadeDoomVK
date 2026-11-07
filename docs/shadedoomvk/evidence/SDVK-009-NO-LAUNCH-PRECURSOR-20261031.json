@@ -1,0 +1,490 @@
+{
+  "schema": "sdvk009/source-pinned-no-launch-precursor/v1",
+  "frozen_date_utc": "2026-10-31",
+  "status": "PACKET_INCOMPLETE_HOST_INPUTS",
+  "software_status": "SUPERVISOR_SOFTWARE_ACCEPTED",
+  "physical_status": "PHYSICAL_HELD_NOT_ACCEPTED",
+  "physical_stop": "ACTIVE",
+  "original_nvidia_fault_root_cause": "UNDETERMINED",
+  "owner_approval": null,
+  "packet_prepared": false,
+  "packet_validated": false,
+  "launch_authorized": false,
+  "physical_gpu_evidence_collected": false,
+  "physical_gpu_qualified": false,
+  "performance_accepted": false,
+  "architecture_accepted": false,
+  "process_executions_by_this_preparation": 0,
+  "vulkan_instances_created_by_this_preparation": 0,
+  "automatic_retries": 0,
+  "supervisor": {
+    "commit": "2f7681e749f6e6a8560bb7b831857d356b99193d",
+    "tree": "790300c3f0cd995d1af85fd13414dd7b59b78a78",
+    "scope": "entire tracked tools/physical_supervisor/ and source contract doc",
+    "files": [
+      {
+        "path": "docs/shadedoomvk/SDVK-009-WINDOWS-SUPERVISOR.md",
+        "size": 9627,
+        "sha256": "2c9289f091827d32bb4d7a2147539329c6c7f952c1b5ac86a4b83e45d1b13260",
+        "git_blob_sha1": "b778d23232aa0050bec73666937f58d65e81d448"
+      },
+      {
+        "path": "tools/physical_supervisor/README.md",
+        "size": 17689,
+        "sha256": "1ca475ce541bbf0a73349f71a226479c6c1de68aecb753495d363e00a32ee6e0",
+        "git_blob_sha1": "c144ff6401f6397e17af4a05ac93c59cc0136e91"
+      },
+      {
+        "path": "tools/physical_supervisor/__init__.py",
+        "size": 128,
+        "sha256": "394784848c6b3d8e8a50eac1e3e6e618c71f5cae16502a78edbbb18ac0b96af3",
+        "git_blob_sha1": "e067a528728ed30f92065f9211695cb9ef6dcc39"
+      },
+      {
+        "path": "tools/physical_supervisor/__main__.py",
+        "size": 3104,
+        "sha256": "46d687b748bba5049e5bb9ddc30b7147d4f0a4dbd5c368e0d370ec436feab60b",
+        "git_blob_sha1": "aec98942f95409d5029a534e8c7147521251104b"
+      },
+      {
+        "path": "tools/physical_supervisor/collector.py",
+        "size": 19577,
+        "sha256": "8a03c830faf82b133174588dd199d2c84307ad6ca610c6655e3f773b7616ed78",
+        "git_blob_sha1": "dc10afb1aaf31a458b0c3874f3936291b13a72de"
+      },
+      {
+        "path": "tools/physical_supervisor/common.py",
+        "size": 27807,
+        "sha256": "5b4466e5eb94c8b385be77c3679aeb386606bd041d961a1f25610150f8b889fc",
+        "git_blob_sha1": "908a1c3d3652e0f083351dffb724efe8bd84ff48"
+      },
+      {
+        "path": "tools/physical_supervisor/integrity.py",
+        "size": 13765,
+        "sha256": "4ad94c8e7f886ea809b82a67e9433590afaddc67f8ae35c869ea6923fa79e248",
+        "git_blob_sha1": "96f07c045098ebcd36837041829aedd3786a2116"
+      },
+      {
+        "path": "tools/physical_supervisor/prepare.py",
+        "size": 7099,
+        "sha256": "eb7604da9029209c9b43fb22ecd745e2d9c091a7326e0f210a7d64aeaa89b5fc",
+        "git_blob_sha1": "2fab51a2a271e64c5d21026d0b6267f40224b472"
+      },
+      {
+        "path": "tools/physical_supervisor/readers.py",
+        "size": 15885,
+        "sha256": "298248bbcae3193693a8e33ecac46bbee335f17918882fd739323241bb37c98f",
+        "git_blob_sha1": "7577a9197cec4784d9ce0884a3db61db3ff2aa45"
+      },
+      {
+        "path": "tools/physical_supervisor/supervisor.py",
+        "size": 38393,
+        "sha256": "cf6b1a8dcbb2f507cf8f702bc019a4df3e7e4e55158ac63d209b00d78ccf998d",
+        "git_blob_sha1": "0a9f139c364bbd77e0fe0934cf816660e9176c86"
+      },
+      {
+        "path": "tools/physical_supervisor/test_integration.py",
+        "size": 21853,
+        "sha256": "d2b7960350970e3ed15ea3d299148d1be616ece66a50358a2b50bf6a4d136184",
+        "git_blob_sha1": "67bcd778c0f6870be0e309115a2effab8e575b3f"
+      },
+      {
+        "path": "tools/physical_supervisor/test_integrity.py",
+        "size": 40421,
+        "sha256": "09b41f70c44531bce310517487bdc3d048fc4101b40ae923ed0ecc9370a0b496",
+        "git_blob_sha1": "7a03194513ae41bfc3d11431149322b93fa8afd7"
+      },
+      {
+        "path": "tools/physical_supervisor/test_oracle_adapter.py",
+        "size": 9905,
+        "sha256": "ed27fb60518d4882906a75e1c3ecae5090c1f6d9d5fdccbcf1a1b24f20dfd49b",
+        "git_blob_sha1": "85f28783053c83c242b696265e7f02f17ca92c2e"
+      },
+      {
+        "path": "tools/physical_supervisor/test_supervisor.py",
+        "size": 38521,
+        "sha256": "ff9a181ef002d7a5b60131c4fe336723265a012cfd5f9dac657c959f8a6b07ed",
+        "git_blob_sha1": "af48d8921ab8d6af67324140459807f973fc90c6"
+      },
+      {
+        "path": "tools/physical_supervisor/windows.py",
+        "size": 28994,
+        "sha256": "e36279ba1b85ea6c6d5427f4010436db35f7c2bfbb62fd0c4d743c712c3b52d0",
+        "git_blob_sha1": "199f1f7f2108332a3cd591f1d7d3e3c498b9af99"
+      }
+    ]
+  },
+  "renderer": {
+    "commit": "130d09ac4267d02359c7c2603ceced723ceac746",
+    "tree": "50c749a848c35f04780140e4d06e9f4fdeb57ff6",
+    "selection": "separate accepted pre-supervisor build baseline; not latest/master auto-advance",
+    "scope": "five critical public recipe/oracle/PF files only, not a full renderer SHA-256 inventory",
+    "files": [
+      {
+        "path": "tools/renderer_oracle/run.py",
+        "size": 67702,
+        "sha256": "40a0a310dffdc5cfd0e2605733dd203e783d7d59497c8efff3071a1c1d4fd816",
+        "git_blob_sha1": "af7c6cbac6cb23da48f96506d42f74a995adf865"
+      },
+      {
+        "path": "tools/renderer_oracle/prepare.py",
+        "size": 83044,
+        "sha256": "f6009be7568c0aaeaca8cff46602c07906591958ecb6431b9978be0941c0d831",
+        "git_blob_sha1": "0e6f854a4f17ec09b138090576549317b51d5386"
+      },
+      {
+        "path": "tools/renderer_oracle/corpus.json",
+        "size": 569789,
+        "sha256": "a18ebc423f668f150e4bc1d0e3cce995fb1bbcc9c64f347804b1d776de83b17f",
+        "git_blob_sha1": "9e7df0b9d10952b47b8bb65f2191fdf3b634e8b2"
+      },
+      {
+        "path": "tools/renderer_oracle/sdvk009_publication.py",
+        "size": 71684,
+        "sha256": "11f1805dbcf009f6254adf5c6a4086143c0b26c697629d14fd595ac5d22986a4",
+        "git_blob_sha1": "85b9d28003148009de3bd93e6b505b27d9219826"
+      },
+      {
+        "path": "tools/pf_oracle/run_freeze_dense_runtime.py",
+        "size": 39461,
+        "sha256": "6bfd153fdcf75a18fde767fc1c074f3b83c2a8f58c9c8e636e8671d486c79332",
+        "git_blob_sha1": "5cff1b2ba7330d52edb0c2eb2f0fc204ba952f8e"
+      }
+    ]
+  },
+  "build": {
+    "state": "NOT_OBSERVED",
+    "toolchain": null,
+    "configuration": null,
+    "compiler_flags": null,
+    "executable": null,
+    "pdb": null,
+    "source_snapshot": null
+  },
+  "runtime": {
+    "state": "NOT_OBSERVED",
+    "python": null,
+    "oracle_full_closure": null,
+    "shaders": null,
+    "fixtures": null,
+    "libraries": null,
+    "iwad": null,
+    "generated_assets": null
+  },
+  "host": {
+    "state": "NOT_OBSERVED",
+    "windows_build_boot": null,
+    "nvidia_gpu_pci_uuid": null,
+    "driver_nvml_policy": null,
+    "vulkan_loader_icd_layers": null,
+    "registry": null,
+    "system_event_bookmark_epoch": null,
+    "ntfs_roots": null,
+    "environment": null
+  },
+  "diagnostic": {
+    "mode": "NO_LAUNCH_COMMAND_TEMPLATES_ONLY",
+    "stage_order": "SERIAL",
+    "stage_count": 3,
+    "stages": [
+      {
+        "name": "compositing",
+        "map": "SDVCMP",
+        "scene": "compositing",
+        "stage_index": 0,
+        "width": 640,
+        "height": 480,
+        "warmup_frames": 120,
+        "retained_state_rgb_frames": 1,
+        "deadline_seconds": 180,
+        "retries": 0,
+        "exact_argv_host_validated": false,
+        "argv_template": [
+          "{RENDERER_EXE}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{STAGE_OUT}/input/{IWAD_NAME}",
+          "-file",
+          "{STAGE_OUT}/input/scene.pk3",
+          "-config",
+          "{STAGE_OUT}/fixture.ini",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDVCMP",
+          "+exec",
+          "{STAGE_OUT}/capture.cfg",
+          "-savedir",
+          "{STAGE_OUT}/save",
+          "-sdvkobserve",
+          "{STAGE_OUT}/native",
+          "-sdvkobserveframes",
+          "1",
+          "-sdvkobservewarmup",
+          "120",
+          "-sdvkobservemode",
+          "state",
+          "-sdvkobservecache",
+          "{STAGE_OUT}/cache",
+          "-sdvkobservequit"
+        ],
+        "compare_with": null
+      },
+      {
+        "name": "shadow-boundary-1",
+        "map": "SDVSHDW",
+        "scene": "shadow-boundary",
+        "stage_index": 1,
+        "width": 640,
+        "height": 480,
+        "warmup_frames": 120,
+        "retained_state_rgb_frames": 1,
+        "deadline_seconds": 180,
+        "retries": 0,
+        "exact_argv_host_validated": false,
+        "argv_template": [
+          "{RENDERER_EXE}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{STAGE_OUT}/input/{IWAD_NAME}",
+          "-file",
+          "{STAGE_OUT}/input/scene.pk3",
+          "-config",
+          "{STAGE_OUT}/fixture.ini",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDVSHDW",
+          "+exec",
+          "{STAGE_OUT}/capture.cfg",
+          "-savedir",
+          "{STAGE_OUT}/save",
+          "-sdvkobserve",
+          "{STAGE_OUT}/native",
+          "-sdvkobserveframes",
+          "1",
+          "-sdvkobservewarmup",
+          "120",
+          "-sdvkobservemode",
+          "state",
+          "-sdvkobservecache",
+          "{STAGE_OUT}/cache",
+          "-sdvkobservequit"
+        ],
+        "compare_with": null
+      },
+      {
+        "name": "shadow-boundary-2",
+        "map": "SDVSHDW",
+        "scene": "shadow-boundary",
+        "stage_index": 2,
+        "width": 640,
+        "height": 480,
+        "warmup_frames": 120,
+        "retained_state_rgb_frames": 1,
+        "deadline_seconds": 180,
+        "retries": 0,
+        "exact_argv_host_validated": false,
+        "argv_template": [
+          "{RENDERER_EXE}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2002",
+          "-iwad",
+          "{STAGE_OUT}/input/{IWAD_NAME}",
+          "-file",
+          "{STAGE_OUT}/input/scene.pk3",
+          "-config",
+          "{STAGE_OUT}/fixture.ini",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDVSHDW",
+          "+exec",
+          "{STAGE_OUT}/capture.cfg",
+          "-savedir",
+          "{STAGE_OUT}/save",
+          "-sdvkobserve",
+          "{STAGE_OUT}/native",
+          "-sdvkobserveframes",
+          "1",
+          "-sdvkobservewarmup",
+          "120",
+          "-sdvkobservemode",
+          "state",
+          "-sdvkobservecache",
+          "{STAGE_OUT}/cache",
+          "-sdvkobservequit"
+        ],
+        "compare_with": "shadow-boundary-1"
+      }
+    ],
+    "output_is_not_actual_executed_packet": true
+  },
+  "accepted_evidence": {
+    "premerge_ci": "https://github.com/techrote/ShadeDoomVK/actions/runs/39107722480",
+    "premerge_source": "https://github.com/techrote/ShadeDoomVK/actions/runs/39107722465",
+    "native_cpu_tests": 129,
+    "expected_native_privilege_skip": 1,
+    "review_id": 5720509471,
+    "postmerge_ci": "https://github.com/techrote/ShadeDoomVK/actions/runs/41158494086",
+    "postmerge_source": "https://github.com/techrote/ShadeDoomVK/actions/runs/41158494017",
+    "postmerge_ci_claimed_pass": false
+  },
+  "local_host_only_read_only_interfaces": [
+    "python -B -m tools.physical_supervisor host-identity --out <FRESH_PRIVATE_HOST_JSON>",
+    "python -B -m tools.physical_supervisor event-baseline --out <FRESH_PRIVATE_EVENT_JSON>",
+    "python -B -m tools.physical_supervisor prepare --seed <PRIVATE_SEED_JSON> --packet <FRESH_PRIVATE_PACKET_JSON>",
+    "python -B -m tools.physical_supervisor validate --packet <PRIVATE_PACKET_JSON>"
+  ],
+  "prohibited_actions": [
+    "run",
+    "--version",
+    "--execute",
+    "physical Vulkan creation",
+    "41 process campaign",
+    "STOP clearing",
+    "approval/release/claim creation"
+  ],
+  "known_missing_host_inputs": [
+    "Complete separately clean renderer and supervisor Windows worktree readbacks (commit, tree, status, immutable source snapshots)",
+    "Fresh MSVC toolchain, generator/configuration/link flags and exact native build receipt",
+    "EXE, PDB, copied executable, runtime libraries and PK3 complete paths, sizes and SHA-256",
+    "Closed Python environment, oracle/pf-oracle/specs/shader/dependency file sets with complete SHA-256",
+    "Official isolated Doom2-compatible IWAD bytes/path/SHA-256 and generated scene/config/capture assets",
+    "Actual absolute validated stage commands and fresh output-root path",
+    "Native Windows OS/build/boot FILETIME, fresh CIM boot timestamp and agreement at reported precision",
+    "GTX 1650 SUPER PCI vendor/device/bus, UUID, driver and permitted NVML power/thermal/clock policy",
+    "Vulkan loader/ICD/layer binary/manifest closure and native64 HKLM/HKCU registration snapshots",
+    "System event channel epoch, complete RecordId continuity anchor, bookmark and fresh baseline",
+    "Local fixed NTFS immutable root, reparse/junction/ancestor and ambient environment policy verification",
+    "Rehash privately held historic failure archives, keep STOP markers and failed receipts immutable",
+    "Independent current-host operator review; packet-specific approval is explicitly absent"
+  ],
+  "precursor_negative_controls": [
+    {
+      "name": "changed_supervisor_sha256",
+      "rejected": true
+    },
+    {
+      "name": "changed_supervisor_file_size",
+      "rejected": true
+    },
+    {
+      "name": "changed_supervisor_tree",
+      "rejected": true
+    },
+    {
+      "name": "changed_renderer_sha256",
+      "rejected": true
+    },
+    {
+      "name": "dirty_mismatched_renderer_commit",
+      "rejected": true
+    },
+    {
+      "name": "replaced_fixture_claim",
+      "rejected": true
+    },
+    {
+      "name": "replaced_shader_claim",
+      "rejected": true
+    },
+    {
+      "name": "replaced_dependency_claim",
+      "rejected": true
+    },
+    {
+      "name": "incorrect_or_missing_host_identity",
+      "rejected": true
+    },
+    {
+      "name": "changed_boot_identity",
+      "rejected": true
+    },
+    {
+      "name": "stale_event_baseline",
+      "rejected": true
+    },
+    {
+      "name": "expired_packet_promotion",
+      "rejected": true
+    },
+    {
+      "name": "untrusted_path_embedded_command",
+      "rejected": true
+    },
+    {
+      "name": "wrong_stage_order",
+      "rejected": true
+    },
+    {
+      "name": "wrong_deadline",
+      "rejected": true
+    },
+    {
+      "name": "wrong_warmup",
+      "rejected": true
+    },
+    {
+      "name": "added_execute",
+      "rejected": true
+    },
+    {
+      "name": "added_version",
+      "rejected": true
+    },
+    {
+      "name": "fabricated_approval",
+      "rejected": true
+    },
+    {
+      "name": "STOP_cleared",
+      "rejected": true
+    },
+    {
+      "name": "replay_claim",
+      "rejected": true
+    },
+    {
+      "name": "fake_validation",
+      "rejected": true
+    },
+    {
+      "name": "unexpected_retry",
+      "rejected": true
+    }
+  ],
+  "safety_statement": "Source-only prospective command templates, not a complete packet. Neither source hash nor CI releases physical STOP. All private host data remains local.",
+  "precursor_negative_controls_summary": {
+    "rejected": 23,
+    "total": 23,
+    "scope": "only source/precursor metadata invariants; not native Windows packet or host tests",
+    "cpu_only": true
+  }
+}

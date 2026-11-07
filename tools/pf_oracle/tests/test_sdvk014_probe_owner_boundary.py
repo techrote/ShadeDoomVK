@@ -14,7 +14,8 @@ import unittest
 
 ROOT=Path(__file__).resolve().parents[3]
 sys.path.insert(0,str(ROOT))
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import (
+    compile_legacy_fixture as compile_fixture, extracted_legacy_scope)
 from tools.pf_oracle.tests.sdvk014_source import current
 
 HERE=Path(__file__).resolve().parent
@@ -44,7 +45,8 @@ def build(directory: Path, original: bool=False) -> Path:
     retained=json.loads(OLD.read_text())['functions']
     methods='\n'.join(retained[k]['content'] if original else current(k)
                       for k in ('probe_step','probe_full'))
-    (directory/'sdvk014_probe_methods.cpp').write_text(methods)
+    # Exact production int progress consumes bounded TArray fixture populations.
+    (directory/'sdvk014_probe_methods.cpp').write_text(extracted_legacy_scope(methods, (4267,)))
 
     source=(HERE/'sdvk014_probe_owner_fixture.cpp').read_text()
     if original:

@@ -13,7 +13,7 @@ import subprocess
 import tempfile
 import unittest
 
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import compile_legacy_fixture as compile_fixture
 from tools.pf_oracle.tests.sdvk014_source import block
 from tools.pf_oracle.tests.sdvk153_source import retained
 from tools.pf_oracle.tests.sdvk156_source import RETAINED as ATLAS_RETAINED, retain_atlas_headers
