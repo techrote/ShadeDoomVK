@@ -176,10 +176,11 @@ class SDVKVMPlayer : DoomPlayer
 }
 '''
     for frame, color in (("A", (108, 164, 204, 255)), ("B", (232, 188, 72, 255))):
-        # HUD graphics occupy the conventional 320x200 viewmodel coordinate
-        # domain, with authored offsets and asymmetric material direction cues.
+        # Idle weapon x is zero and GetSpriteRect negates the PNG left offset.
+        # Center this 96-wide HUD patch in the 320-wide weapon domain:112..208.
+        # Actor-style +48 would instead place half the patch left of the view.
         members[f"sprites/SDVU{frame}0.png"] = api._texture(
-            96, 96, color, (200, 86, 52, 255), offset=(48, -72))
+            96, 96, color, (200, 86, 52, 255), offset=(-112, -72))
     members["textures/SDVN.png"] = api.png_rgba(16, 16, bytes((207, 91, 220, 255)) * 256)
     material = (api._pbr("SDVUA0", "sprite") if spec["shader"] == 4 else
                 'material sprite SDVUA0\n{ normal "SDVN"\n specular "SDVSP"\n}\n')
