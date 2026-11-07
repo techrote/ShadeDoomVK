@@ -15,8 +15,16 @@ The integrated base includes #171 at master
 
 Both expected-head merges and post-merge trees were verified on 7 November 2026.
 #162's [bounded special-surface software scope](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
-is complete; parent #14 remains open with physical criteria held. PR #186's
+was qualified at merge, then reopened after the post-merge repeatability failure;
+its current software requalification and parent #14's physical criteria are held. PR #186's
 weapon/gameplay continuation remains a separately unaccepted integration candidate.
+
+PR #187 is a later optional CI packaging candidate and remains Draft: it conflicts
+with current master, must preserve #162's SDVK-161 call/evidence directory, and
+must correct the uploaded checksum pathname. Its proposed packaging improvement
+has no accepted source-matched performance result. Fourteen obsolete remote heads
+were removed with explicit expected-SHA leases after verifying their ancestry;
+the non-ancestor original #184 head and frozen physical sources were retained.
 
 ## Original backlog decisions
 

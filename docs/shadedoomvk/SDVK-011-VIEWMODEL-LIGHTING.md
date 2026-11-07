@@ -105,3 +105,26 @@ Doom-family IWAD and current build, using `+map SDV122 +gl_viewmodel_lighting 2`
 Leave off the capture script for ordinary player movement and firing. The normal
 software-Vulkan CI runs all four model scenes and their emitted-state/image
 contracts; its exact-head result remains required before model acceptance.
+
+## 7 November physical checkpoint
+
+At source `4be6eecf7d193f9e4b273019277059acccea562d`, ten guarded physical
+processes completed the legacy, enhanced normal and PBR card cells plus enhanced
+normal and PBR rigid-model cells. Each independent pair retained equal normalized
+static state and zero changed RGB pixels at 640x480. Native exits, module/health
+checks and completion fences passed. Root image review confirmed centered cards
+and visible models. The owner-configured GTX 1650 SUPER remained at 90 W; no
+hardware setting was changed. The retained campaign manifest is
+`524e9c999b149128d9e7a362e8a6a28fdadeb1e4480929fc9e63b1b4402eb4a5`.
+
+The first ordinary-input gameplay process also exited 0 and retained all 128
+frames, nine images and actual movement, turning, ammo use, muzzle light/reset
+and three fresh map owners. Its original attempt remains **FAILED_STOP**: the
+generic structural gate incorrectly required the four large draw families on
+every frame. The recipe-scoped admission repair is checked against those
+immutable captured records; a fresh repaired-source process remains required.
+No GPU fault was observed; the separate post-failure fence retained 30 C/P8,
+90 W and no new System fault events. This checkpoint supplies bounded physical
+correctness evidence, not whole-issue, dense-shadow, performance or stability
+acceptance. The remaining native cells and exact-head normal CI still govern
+integration, and #11 remains open.

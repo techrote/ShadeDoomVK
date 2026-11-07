@@ -27,8 +27,9 @@ authorizes a fresh physical campaign with exact identities and retained failures
 Instance-only readback does not establish renderer stability or performance.
 
 The [special-surface lifecycle increment](docs/shadedoomvk/SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
-is merged within its bounded software matrix; SDVK-014's physical criteria remain
-held. The [viewmodel increment](docs/shadedoomvk/SDVK-011-VIEWMODEL-LIGHTING.md) and
+is merged; a later master repeatability failure has reopened its software
+qualification, and SDVK-014's physical criteria remain held.
+The [viewmodel increment](docs/shadedoomvk/SDVK-011-VIEWMODEL-LIGHTING.md) and
 [ordinary gameplay smoke](docs/shadedoomvk/INTEGRATED-GAMEPLAY-SMOKE.md) are undergoing
 integrated qualification. The
 [corpus guide](tools/renderer_oracle/README.md) includes legal Freedoom preparation

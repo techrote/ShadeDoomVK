@@ -2,7 +2,8 @@
 
 ## Disposition and authority
 
-**SOFTWARE COMPLETE / PHYSICAL HELD — this bounded SDVK-161 increment only.**
+**SOFTWARE REQUALIFICATION HELD / PHYSICAL HELD.** The previously qualified
+bounded merge and its passing evidence remain retained.
 
 PR [#162](https://github.com/techrote/ShadeDoomVK/pull/162) merged on 7 November
 2026 at verified master `d40475519170606e83dec20dc822ceb5a54312ee`. Its tree
@@ -11,12 +12,22 @@ PR [#162](https://github.com/techrote/ShadeDoomVK/pull/162) merged on 7 November
 [CI jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746720),
 including hosted software Vulkan, and the separate
 [source-evidence check](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746707)
-passed on that exact head before the guarded merge. Child #161 is closed.
+passed on that exact head before the guarded merge. Child #161 was closed by
+that merge, then [reopened](https://github.com/techrote/ShadeDoomVK/issues/161#issuecomment-6707343023)
+after the new master run failed repeatability.
 The matrix below remains the acceptance boundary: ambiguous unequal-plane
 `FF_BOTHPLANES` lightmapped bindings are explicitly unsupported, and source/CPU
 controls do not become broader native 3D-floor or sector-stack-portal coverage.
 Parent #14 remains open; required physical bake/update cost, scaling and hardware
 stability are unaccepted. This is not whole-campaign software or physical closure.
+
+The post-merge [master run](https://github.com/techrote/ShadeDoomVK/actions/runs/42370716174)
+admitted both lifecycle captures individually and retained identical final RGB.
+Their 3,696 projected records differ only at frame 4: 84 versus 80 wall vertices
+and one additional empty 16-byte light upload. The cause remains undetermined;
+these fields are not normalized away. An isolated temporary wall-call diagnostic
+is being built to identify the actual side, material and render context. It is
+not an accepted repair or an extension of this matrix.
 
 This is the bounded software qualification child [#161](https://github.com/techrote/ShadeDoomVK/issues/161)
 of [SDVK-014 / #14](https://github.com/techrote/ShadeDoomVK/issues/14). It starts at

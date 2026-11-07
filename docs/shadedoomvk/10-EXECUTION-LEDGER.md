@@ -1845,3 +1845,29 @@ negative qualification records. No physical launch is part of these controls.
   the actual unsigned TArray count type and retains its ordinary/owner negatives.
   Native gameplay capture and required final-head CI remain pending; #11 is open. No candidate
   CPU result accepts gameplay, physical performance or a later milestone.
+
+## 7 November 2026 — physical weapon captures and current integration blockers
+
+- Source `4be6eecf7d193f9e4b273019277059acccea562d` passes the source/CPU gate
+  and all seven platform builds; hosted software-Vulkan qualification remains
+  pending. Ten bounded physical weapon processes complete five static cell pairs
+  with native exit 0, equal state/RGB and health fences. See the
+  [viewmodel checkpoint](SDVK-011-VIEWMODEL-LIGHTING.md#7-november-physical-checkpoint).
+- Its ordinary-input gameplay process exits 0 with 128 actual frames, nine
+  images and no dropped records, then fails generic per-frame channel coverage.
+  The [scoped repair](INTEGRATED-GAMEPLAY-SMOKE.md) keeps all critical snapshots
+  mandatory and derives only the nine heavy-detail frames from actual player
+  state. CPU replay does not relabel the retained failed physical attempt;
+  fresh source-matched execution and normal CI remain required.
+- New post-merge master CI fails the slow-audit supervisor fixture on an expired
+  pre-creation proof and SDVK-161 repeatability on one extra wall quad/empty
+  upload. The supervisor correctly withholds creation; its production freshness,
+  durability and STOP rules remain. The actual host delay is unattributed.
+  [Child #161 is reopened](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md); its previous
+  qualified merge stays present, with current software requalification held.
+  No unexplained relevant regression is waived to merge #186.
+- The controlled-plane source/facing repair and temporary wall-call discriminator
+  remain separate unmerged work. Shadow-off physical timing admission is also
+  being prepared. None accepts SDVK-008/009/014 physical criteria or releases
+  SDVK-012 dependencies. Historical failures and the private kernel dump remain
+  retained; no new serious GPU fault or restart occurred in these small runs.
