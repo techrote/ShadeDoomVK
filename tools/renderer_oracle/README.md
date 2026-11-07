@@ -516,7 +516,7 @@ it cannot substitute for #8's physical quality/cost programme.
 An independent retained `vulkaninfo --summary` precedes the smoke. The driver
 authenticates the unique CPU llvmpipe identity and raw driver version before
 launching its 16 bounded state captures. Those captures run before the inherited
-35-process `native_ci.py --full` campaign so authored fixture failures surface
+55-process `native_ci.py --full` campaign so authored fixture failures surface
 early. A failed preflight or smoke stops the job; only a passing smoke proceeds
 to every inherited state, image, feature and timing gate. This ordering adds no
 retry and removes no required gate.
