@@ -59,6 +59,7 @@ constexpr int PORTS_SKYVIEWPOINT = 1;
 constexpr int skyflatnum = 91;
 constexpr int EFF_PORTAL = 1, EFF_NONE = 0, STYLE_Normal = 0, Alpha_GEqual = 1;
 constexpr int SECF_LM_DYNAMIC = 1;
+constexpr int FF_BOTHPLANES = 0x200;
 constexpr float gl_mask_threshold = 0.5f;
 enum class LevelMeshDrawType { Opaque, Portal, Translucent };
 enum { ST_CEILING = 4, ST_FLOOR = 5 };
@@ -77,7 +78,7 @@ struct sector_t
     FSectorPortal* GetPortal(int) { return nullptr; }
     secplane_t GetSecPlane(bool isceiling) const { return sourcePlanes[isceiling]; }
 };
-struct F3DFloor { sector_t* model = nullptr; };
+struct F3DFloor { sector_t* model = nullptr; unsigned flags = 0; };
 struct seg_t { vertex_t* v1; };
 struct subsector_t
 {
@@ -85,7 +86,7 @@ struct subsector_t
     seg_t* firstline;
     int id;
     sector_t* sector;
-    TArray<int> LightmapTiles[2]{{-1, -1}, {-1, -1}};
+    TArray<int> LightmapTiles[2]{{-1, -1, -1}, {-1, -1, -1}};
     int Index() const { return id; }
 };
 struct FSection { TArray<subsector_t*> subsectors; };
@@ -250,7 +251,7 @@ public:
     void FreeTile(int);
     void ReleaseTiles(int);
     void MarkMutation(LevelMeshMutationDomain) {}
-    int GetSampleDimension(uint16_t dimension) { return dimension; }
+    uint16_t GetSampleDimension(uint16_t dimension) { return dimension; }
     int AddSurfaceToTile(const DoomSurfaceInfo&, const LevelMeshSurface&, uint16_t, uint8_t);
     void SetSubsectorLightmap(int);
     void AddToDrawList(TArray<int>& list, LevelMeshDrawType, int, int, int) { list.Push(1); }
@@ -267,8 +268,55 @@ public:
 static bool close(float left, float right) { return std::abs(left - right) < 0.0001f; }
 static bool fail(const char* message) { std::cerr << message << '\n'; return false; }
 
+static bool bothPlanes()
+{
+    sector_t sector, model;
+    model.id = 23;
+    model.sourcePlanes[0] = {{0,0,1},-32}; model.sourcePlanes[1] = {{0,0,-1},80};
+    F3DFloor rover{&model, FF_BOTHPLANES};
+    sector.e->XFloor.ffloors.Push(&rover);
+    vertex_t points[]{{0,0},{0,8},{8,8},{8,0}};
+    seg_t edges[]{{&points[0]},{&points[1]},{&points[2]},{&points[3]}};
+    subsector_t sub{4,edges,101,&sector};
+    FSection section; section.subsectors.Push(&sub);
+    FGameTexture texture;
+    TArray<HWFlat> list;
+    for (int axis=0;axis<2;axis++) for (int facing=0;facing<2;facing++)
+    {
+        HWFlat flat;
+        flat.sector=&sector; flat.controlsector=&rover; flat.section=&section; flat.texture=&texture;
+        flat.ceiling=bool(facing); flat.lightmapPlane=axis;
+        const float z=axis ? 80.0f : 32.0f, normal=facing ? -1.0f : 1.0f;
+        flat.plane.plane={{0,0,normal},-z*normal};
+        list.Push(flat);
+    }
+    TestLevel level; HWFlatDispatcher dispatcher{&level}; MeshBuilder state; DoomLevelMesh mesh;
+    try { mesh.CreateFlatSurface(dispatcher,state,list,LevelMeshDrawType::Opaque,false,0,{37,2},5); }
+    catch (const std::runtime_error&) { return fail("distinct-plane-publication-rejected"); }
+    if (mesh.Lightmap.Tiles.Size()!=4 || mesh.Lightmap.UsedTiles!=4) return fail("distinct-plane-tile-count");
+    for (int axis=0;axis<2;axis++) for (int facing=0;facing<2;facing++)
+    {
+        const int surface=axis*2+facing;
+        const auto& surf=mesh.Mesh.Surfaces[surface];
+        const auto& tile=mesh.Lightmap.Tiles[surf.LightmapTileIndex];
+        if (tile.Binding.ControlPlane!=unsigned(axis) || tile.Binding.Type!=unsigned(facing ? ST_CEILING : ST_FLOOR) ||
+            tile.UseCount!=1 || !tile.RuntimeBakeOnly) return fail("distinct-plane-binding-or-retained-policy");
+        if (sub.LightmapTiles[axis][1+facing]!=surf.LightmapTileIndex) return fail("opposite-facing-table-overwrite");
+        const float z=axis ? 80.0f : 32.0f, normal=facing ? -1.0f : 1.0f;
+        if (!close(tile.Plane.Z,normal) || !close(tile.Plane.W,z*normal)) return fail("distinct-plane-bake-height");
+        const auto& loc=surf.MeshLocation;
+        for (int e=loc.StartElementIndex;e<loc.StartElementIndex+loc.NumElements;e++)
+            if (mesh.Mesh.SurfaceIndexes[e/3]!=surface || !close(mesh.Mesh.Vertices[mesh.Mesh.Indexes[e]].z,z))
+                return fail("distinct-plane-submitted-geometry");
+    }
+    mesh.ReleaseTiles(mesh.Flats[0].FirstSurface);
+    if (mesh.Lightmap.UsedTiles!=0 || mesh.Lightmap.FreeTiles.Size()!=4) return fail("distinct-plane-retirement");
+    return true;
+}
+
 static bool run(const std::string& test)
 {
+    if (test=="both-planes-distinct") return bothPlanes();
     const bool rebuild = test == "control-top-rebuild" || test == "control-bottom-rebuild" || test == "inverted-rebuild";
     const bool inverted = test == "inverted-selected-plane" || test == "inverted-rebuild";
     const bool ceiling = test == "ceiling" || test == "3dfloor-bottom" || test == "control-bottom-rebuild";
@@ -306,7 +354,7 @@ static bool run(const std::string& test)
     if (ambiguous)
     {
         HWFlat secondFace = flat;
-        secondFace.lightmapPlane = 0;
+        secondFace.lightmapPlane = flat.lightmapPlane; // same full runtime identity must still reject unequal geometry
         secondFace.plane.plane.D = -32.0f;
         list.Push(secondFace);
     }
@@ -390,7 +438,7 @@ static bool run(const std::string& test)
             if (!sky && mesh.Lightmap.Tiles[surf.LightmapTileIndex].RuntimeBakeOnly != inverted)
                 return fail("retained-plane-interpretation");
             const int sourceAxis = control ? flat.lightmapPlane : int(ceiling);
-            if (info.Subsector->LightmapTiles[sourceAxis][control ? 1 : 0] != surf.LightmapTileIndex)
+            if (info.Subsector->LightmapTiles[sourceAxis][control ? 1 + int(ceiling) : 0] != surf.LightmapTileIndex)
                 return fail("source-plane-table-owner");
             if (rebuild && (!close(surf.Bounds.min.Z, height) || !close(surf.Bounds.max.Z, height) ||
                 !close(mesh.Lightmap.Tiles[surf.LightmapTileIndex].Plane.W, height * normalZ)))

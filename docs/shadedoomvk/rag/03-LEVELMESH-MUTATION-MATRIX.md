@@ -260,7 +260,15 @@ already selected/oriented plane; the separately retained source-plane axis
 publishes its current tile into the corresponding immediate receiver table.
 Controlled neighboring bake targets require equal selected planes; ordinary
 height groups keep their differing-plane seam/padding contributors. Unequal
-planes under one flat binding fail explicitly before mutation.
+planes under one complete flat binding fail explicitly before mutation.
+
+The [controlled-plane follow-on](../SDVK-014-CONTROLLED-PLANES.md) adds the selected
+model axis to controlled runtime bindings. Immediate source-axis tables reserve
+two facing slots per rover, and opposite lightmapped faces own separate vertex
+streams. They remain within the source plane's existing height/UV update span.
+Unlightmapped opposite faces keep the shared stream. These render-only identities
+do not change mutation callbacks or gameplay; general FF_FIX/Vavoom, copied-plane
+topology and recursive/inverted native coverage remain outside the CPU proof.
 
 Decal creation retains semantic type/side/control identity and resolves the
 current receiver at draw construction; it does not retain a recyclable numeric

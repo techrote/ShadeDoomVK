@@ -505,7 +505,7 @@ void HWFlat::SetFrom3DFloor(F3DFloor *rover, bool top, bool underside)
 
 	alpha = rover->alpha/255.0f;
 	renderstyle = rover->flags&FF_ADDITIVETRANS? STYLE_Add : STYLE_Translucent;
-	iboindex = plane.vindex;
+	iboindex = plane.vindex[ceiling ? 1 : 0];
 
 	controlsector = rover;
 }
@@ -551,10 +551,8 @@ void HWFlat::ProcessSector(HWFlatDispatcher *di, FRenderState& state, sector_t *
 		{
 			for (int plane = 0; plane < 2; ++plane)
 			{
-				unsigned int count = sector->e->XFloor.ffloors.Size() + 1;
-				for (unsigned int j = 0; j < count; j++)
+				for (int tile : sector->subsectors[i]->LightmapTiles[plane])
 				{
-					int tile = sector->subsectors[i]->LightmapTiles[plane].Size() > j ? sector->subsectors[i]->LightmapTiles[plane][j] : -1;
 					if (tile >= 0)
 					{
 						di->di->PushVisibleTile(tile);

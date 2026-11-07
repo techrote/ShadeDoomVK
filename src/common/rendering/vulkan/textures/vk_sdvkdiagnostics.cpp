@@ -54,7 +54,8 @@ std::string TileCensus(LevelMesh* mesh, size_t vulkanPages)
         result += Object().Int("tile", index).Int("page", tile.AtlasLocation.ArrayIndex)
             .Raw("receipt", Receipt(tile.AtlasLocation.Allocation))
             .Raw("binding", Object().Int("type", tile.Binding.Type).Int("type_index", tile.Binding.TypeIndex)
-                .Int("control_sector", tile.Binding.ControlSector == 0xffffffff ? -1 : int(tile.Binding.ControlSector)).Json())
+                .Int("control_sector", tile.Binding.ControlSector == 0xffffffff ? -1 : int(tile.Binding.ControlSector))
+                .Int("control_plane", tile.Binding.ControlPlane == 0xffffffff ? -1 : int(tile.Binding.ControlPlane)).Json())
             .Bool("valid", mesh->Lightmap.AtlasPacker && tile.HasValidAtlasRegion(*mesh->Lightmap.AtlasPacker,
                 mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount) && tile.AtlasLocation.ArrayIndex >= 0
                 && size_t(tile.AtlasLocation.ArrayIndex) < vulkanPages)
