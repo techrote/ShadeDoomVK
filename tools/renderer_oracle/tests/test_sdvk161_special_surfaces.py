@@ -1198,6 +1198,7 @@ class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
                 parent = raw["records"][value["source_parent_record_index"]]
                 self.assertEqual(parent["kind"], "pipeline")
                 self.assertEqual(parent["data"]["key"], raw["records"][value["record_index"]]["data"]["key"])
+                self.assertGreaterEqual(value["copied_mesh_children"], 1)
         self.assertEqual(raw, original)
 
     def test_overlay_policy_rejects_typed_style_and_invisible_solid_decal(self):

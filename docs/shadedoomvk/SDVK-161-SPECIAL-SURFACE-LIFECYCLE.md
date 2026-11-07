@@ -21,6 +21,15 @@ hardware stability HELD / NOT ACCEPTED. Historical physical root cause
 UNDETERMINED.** Software Vulkan supplies correctness evidence only. #14 stays
 open; this child does not accept the whole campaign or physical criteria.
 
+## 7 November 2026 owner correction
+
+The owner explicitly authorized a fresh source-matched physical GPU campaign on
+7 November 2026. Historical STOP decisions and failed physical packets below
+remain retained evidence. This software PR neither relabels them nor awards
+physical acceptance. Fresh campaign authorization, current build/content/host
+pins and new outcomes are separate from historical receipts; parent #14 stays
+open until its remaining criteria are met.
+
 ## Production ownership and bounded outcomes
 
 The authored `special-surface-lifecycle` scene contains two small maps generated
@@ -529,3 +538,13 @@ independent final review remain required before merge. No physical cost,
 scaling or stability acceptance is awarded by this software reconciliation.
 Parent #14 remains open for its remaining campaign criteria; any freshly
 authorized physical campaign uses separately pinned current source and evidence.
+
+
+The Windows all-fixtures local check additionally exposed strict MSVC `/W4 /WX`
+compile-adapter warnings and old CRLF checkout bytes in hash-pinned historical
+inputs. Canonical unchanged Git fixture bytes were restored locally. The wall
+writer adapter now makes only its known exact 1024 atlas-size-to-float arguments
+explicit; all six wall writer/snapshot/split tests pass with `/WX` and unchanged
+retained-source negatives. Production functions and original receipts are not
+edited. The complete local MSVC PF suite is not claimed passing; the normal
+required Linux full-CPU and Windows build/supervisor matrix remains the merge gate.

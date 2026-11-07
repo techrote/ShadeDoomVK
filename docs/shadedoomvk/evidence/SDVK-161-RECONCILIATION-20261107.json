@@ -3,20 +3,28 @@
     {
       "admission": "PASS",
       "captured_controls": 35,
-      "controls_sha256": "e64e82633266948f85fd1da2d117097276d2098de2fef45d8d10f43b0a54056c",
+      "controls_sha256": "bbf5997efac390649e1d3396b962ebfd5c7451b18fc1d53907926a940e2306ca",
       "input_sha256": "749bb8d7693f60fd356728ff277f317592f13502a555d6a237b5ff47e51a3938",
       "name": "lifecycle-1",
       "records": 3696,
-      "retained_bytes": 9520241
+      "retained_bytes": 9520241,
+      "complete_reflective_child_counts": {
+        "reflective-additive-blend": 2,
+        "reflective-depth-test": 2
+      }
     },
     {
       "admission": "PASS",
       "captured_controls": 35,
-      "controls_sha256": "194812d907f4921054771d75689fe71b20be41659baeef6d6a51f02a96be2674",
+      "controls_sha256": "ec4640c5ed31fe0cbe727ac8eaab6d4855452d70d10f8317c64cb4fcf982b695",
       "input_sha256": "478262e5d4b727196ce0747c8ec2a8de7eabd40528bf1b5b7db421d9c2264add",
       "name": "lifecycle-2",
       "records": 3696,
-      "retained_bytes": 9521897
+      "retained_bytes": 9521897,
+      "complete_reflective_child_counts": {
+        "reflective-additive-blend": 2,
+        "reflective-depth-test": 2
+      }
     }
   ],
   "historical_head": "ff300c6413b8aeb68ae3130c3824a6b970da4f57",
@@ -39,13 +47,13 @@
   "candidate_source_pins": [
     {
       "path": "tools/renderer_oracle/sdvk161_special_surfaces.py",
-      "bytes": 92517,
-      "sha256": "47a19c8ac54005a9012aac29a6882d4fad05a9824fd1825a212a4441cf3f9250"
+      "bytes": 93710,
+      "sha256": "b4aca043408759a15ca495c453a358621f4eea0d02cba2eb5e43e6a3a96909d9"
     },
     {
       "path": "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py",
-      "bytes": 85611,
-      "sha256": "119af34ed8733342b7d635ea439600dbde23880c6d049dbe4f8ad508afef626d"
+      "bytes": 85685,
+      "sha256": "f090cfd7d3394138dad5aae7a86b107b9c018e67ab2280115f2a2490719c76c8"
     },
     {
       "path": "tools/renderer_oracle/tests/fixtures/sdvk161-overlay-policy-pre-fix.json",
@@ -66,8 +74,35 @@
       "path": "tools/renderer_oracle/tests/test_sdvk158_repeatability.py",
       "bytes": 11410,
       "sha256": "54fd6735f3a9a33c92a9c07d022286046e6948ddb24d0a11fceaa65afbb8e814"
+    },
+    {
+      "path": "tools/pf_oracle/tests/test_sdvk161_receiver_writer.py",
+      "bytes": 18692,
+      "sha256": "9543bafdd5ed936e5686944c363f96f6287b23c474e9b94ae383c4c93edfe32c"
+    },
+    {
+      "path": "tools/pf_oracle/tests/test_sdvk161_split_uv.py",
+      "bytes": 8193,
+      "sha256": "74d415ea7d6cf2cbae4eedba40e81ab63144677af297abfce6ebefe7769d05d1"
     }
   ],
   "current_head_native_qualification": "PENDING",
-  "source_pin_representation": "Canonical staged Git blob bytes; Windows checkout line endings may differ"
+  "source_pin_representation": "Canonical staged Git blob bytes; Windows checkout line endings may differ",
+  "final_overlay_suite": {
+    "status": "PASS",
+    "tests": 60,
+    "scope": "complete SDVK161 Python suite after full-parent coherence correction"
+  },
+  "wall_writer_msvc_suite": {
+    "status": "PASS",
+    "tests": 6,
+    "scope": "explicit exact atlas-size float compile adapter, original production functions/receipts preserved"
+  },
+  "full_local_msvc_check": {
+    "status": "NOT_PASSING",
+    "retained_log": "build/integration-sdvk014-msvc-checks/pf-tests.log",
+    "observed_failures": 2,
+    "observed_errors": 12,
+    "diagnosis": "strict MSVC extracted-fixture diagnostics plus historical CRLF checkout bytes; canonical unchanged historical inputs and focused wall-writer compile adapter repaired; full Linux CPU and Windows native normal CI still required"
+  }
 }

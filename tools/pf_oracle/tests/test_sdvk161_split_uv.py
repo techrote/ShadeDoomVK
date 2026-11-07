@@ -13,7 +13,7 @@ import unittest
 
 from tools.pf_oracle.fixture_runner import compile_fixture
 from tools.pf_oracle.tests.sdvk014_source import ROOT, block
-from tools.pf_oracle.tests.test_sdvk161_receiver_writer import ADAPTER
+from tools.pf_oracle.tests.test_sdvk161_receiver_writer import ADAPTER, adapt_wall_writer_atlas_float
 
 RETAINED = ROOT / 'tools/pf_oracle/tests/fixtures/sdvk161-split-uv-pre-fix.json'
 RETAINED_SHA256 = 'edcd9f6db0565b7504e8e3e474b052366d9f9a3cc5a093f7a7ce7c93dbcfef0c'
@@ -115,7 +115,7 @@ struct Tile {
  int SampleDimension=32;bool UseXYAxis=false;FVector4 Plane{0,1,0,192};
  struct {FVector3 WorldOrigin,WorldU,WorldV;} InverseTransform;
 '''+ '\n'.join(tile_functions))
-    source=source.replace('@TOUV@',transform).replace('@WRITER@','\n'.join(functions))
+    source=source.replace('@TOUV@',transform).replace('@WRITER@',adapt_wall_writer_atlas_float('\n'.join(functions)))
     path=directory/'split.cpp';path.write_text(source)
     return compile_fixture(path, output_dir=directory, includes=[ROOT])
 

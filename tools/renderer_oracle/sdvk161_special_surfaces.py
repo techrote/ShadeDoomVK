@@ -1199,6 +1199,7 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
             wrong["data"]["alpha"] = opacity
         inserted = [wrong]
         parent_index = None
+        copied_mesh_children = 0
         if original["data"]["producer"] == "levelmesh-surface-range":
             value = original["data"]
             parent_index = next(i for i, record in enumerate(records)
@@ -1210,7 +1211,23 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
                                 and record["data"].get("context") == value["context"])
             parent = copy.deepcopy(records[parent_index])
             parent["data"]["key"] = copy.deepcopy(wrong["data"]["key"])
-            inserted.insert(0, parent)
+            inserted = [parent]
+            # A changed batch pipeline applies to every child in that batch.
+            # Copy the complete original child set, not an impossible lone
+            # triangle whose sibling would still carry the old parent key.
+            for record in records:
+                child = record.get("data", {})
+                if (record.get("kind") != "surface" or record.get("frame") != original["frame"]
+                        or child.get("producer") != "levelmesh-surface-range"
+                        or child.get("batch_first_index") != value["batch_first_index"]
+                        or child.get("batch_index_count") != value["batch_index_count"]
+                        or child.get("key") != value["key"] or child.get("context") != value["context"]):
+                    continue
+                copied = copy.deepcopy(record)
+                copied["data"]["key"].update(copy.deepcopy(fields))
+                inserted.append(copied)
+                copied_mesh_children += 1
+            require(copied_mesh_children > 0, "SDVK-161 overlay control lost its actual mesh batch")
         changed["records"][index + 1:index + 1] = inserted
         try:
             validate_transition_records(changed, stdout, native)
@@ -1218,6 +1235,7 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
             require(expected in str(error), "SDVK-161 overlay control rejected for an unintended reason: " + name)
             controls.append({"name": name, "status": "REJECTED", "reason": str(error),
                              "record_index": index, "source_parent_record_index": parent_index,
+                             "copied_mesh_children": copied_mesh_children,
                              "correct_neighbor_preserved": changed["records"][index] == original,
                              "after": {"key_fields": fields, "alpha": opacity},
                              "mutant_sha256": sha256(canonical(changed))})

@@ -133,6 +133,19 @@ int main() try {
 '''
 
 
+def adapt_wall_writer_atlas_float(writer):
+    """Make only the exact integral atlas-size -> float argument explicit.
+
+    The CPU service supplies 1024, an exactly representable float. Production
+    and retained source stay unchanged; this is the compile adapter needed by
+    MSVC /W4 /WX, not a renderer fix or a warning suppression.
+    """
+    argument = 'level.levelMesh->Lightmap.TextureSize)'
+    if writer.count(argument) not in (4, 5):
+        raise AssertionError('Unexpected production wall atlas-size call sites')
+    return writer.replace(argument, 'static_cast<float>(level.levelMesh->Lightmap.TextureSize))')
+
+
 class ReceiverWriterTests(unittest.TestCase):
     def test_actual_wall_vertex_writer_and_precise_snapshot_contract(self):
         vertex_source=(ROOT/'src/rendering/hwrenderer/scene/hw_walls_vertex.cpp').read_text()
@@ -141,7 +154,7 @@ class ReceiverWriterTests(unittest.TestCase):
         functions += [block(vertex_source,'int HWWall::'+name+'(') for name in ('CountVertices','CreateVertices')]
         tile_source=(ROOT/'src/common/rendering/hwrenderer/data/hw_lightmaptile.h').read_text()
         transform=block(tile_source,'FVector2 ToUV(const FVector3& vert, float textureSize) const')
-        source=ADAPTER.replace('@TOUV@',transform).replace('@WRITER@','\n'.join(functions))
+        source=ADAPTER.replace('@TOUV@',transform).replace('@WRITER@',adapt_wall_writer_atlas_float('\n'.join(functions)))
         with tempfile.TemporaryDirectory(prefix='sdvk161-writer-') as d:
             path=Path(d)/'writer.cpp';path.write_text(source)
             executable=compile_fixture(path,output_dir=d,includes=[ROOT])
@@ -175,7 +188,7 @@ class ReceiverWriterTests(unittest.TestCase):
 """+'\n'.join(block(diagnostics,signature) for signature in
                    ('void CaptureWrittenVertices(', 'void ApplyWrittenVertices(',
                     'SpecialSurfaceScope::SpecialSurfaceScope(', 'SpecialSurfaceScope::~SpecialSurfaceScope()'))+'\n}'
-        source=ADAPTER.replace('@TOUV@',transform).replace('@WRITER@','\n'.join(functions))
+        source=ADAPTER.replace('@TOUV@',transform).replace('@WRITER@',adapt_wall_writer_atlas_float('\n'.join(functions)))
         source=source.replace('#include <vector>','#include <vector>\n#include <thread>\n#include <exception>')
         source=source.replace('#include "src/rendering/hwrenderer/diagnostics/hw_specialsurfacecontract.h"',
                               '#include "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.h"')
