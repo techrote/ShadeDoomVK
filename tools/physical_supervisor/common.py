@@ -262,6 +262,7 @@ class Journal:
 
 
 INTEGRITY_POLICY={"timeout_seconds":10,"start_freshness_seconds":10,
+                  "resume_generation":"separate-single-use-after-registration",
                   "boundary_finish_freshness_seconds":.5,"gate_busy_seconds":1,
                   "heartbeat_period_seconds":.5,"heartbeat_freshness_seconds":2,
                   "owned_exit_settle_milliseconds":50,

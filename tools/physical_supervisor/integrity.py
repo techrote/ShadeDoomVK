@@ -22,6 +22,7 @@ TIMEOUT = 10
 BOUNDARY_FRESHNESS = .5
 GATE_BUSY_LIMIT = 1
 POLICY=INTEGRITY_POLICY
+ROLES=("collector","collector-resume","target","target-resume")
 
 
 def proof_deadline(proof):
@@ -57,7 +58,7 @@ def valid_proof(value, packet, stage, supervisor, *, request=None, boundary=Fals
             type(value["checks"]["closed_roots"]) is int and
             type(value["checks"]["generated_pins"]) is int and
             value["checks"]=={"closed_roots":len(packet["runtime_roots"]),"log_append_only":"PASS",
-                "generated_pins":len(stage.get("generated_pins",[])) if value["request"] is not None and value["request"].get("role")=="target" else 0},
+                "generated_pins":len(stage.get("generated_pins",[])) if value["request"] is not None and value["request"].get("role") in ("target","target-resume") else 0},
             "Integrity generation coverage/policy differs")
     require(all(type(value[key]) in (int,float) and math.isfinite(value[key]) for key in
                 ("started_monotonic","finished_monotonic")),"Invalid integrity timestamps")
@@ -68,9 +69,9 @@ def valid_proof(value, packet, stage, supervisor, *, request=None, boundary=Fals
     if value["request"] is not None:
         item=value["request"]
         require(set(item)=={"schema","packet_sha256","stage","supervisor","collector","role","source_preflight",
-                            "nonce","requested_monotonic"} and item["schema"]=="physical-supervisor/integrity-request-v1" and
+                            "nonce","requested_monotonic"} | ({"target_registration"} if item.get("role")=="target-resume" else set()) and item["schema"]=="physical-supervisor/integrity-request-v1" and
                 item["packet_sha256"]==packet["packet_sha256"] and item["stage"]==stage["name"] and
-                item["supervisor"]==supervisor and item["role"] in ("collector","target") and
+                item["supervisor"]==supervisor and item["role"] in ROLES and
                 isinstance(item["nonce"],str) and re.fullmatch(r"[0-9a-f]{32}",item["nonce"]) and
                 type(item["requested_monotonic"]) in (int,float) and math.isfinite(item["requested_monotonic"]) and
                 0 <= item["requested_monotonic"] <= value["started_monotonic"],"Integrity request binding differs")
@@ -81,6 +82,19 @@ def valid_proof(value, packet, stage, supervisor, *, request=None, boundary=Fals
                 value["started_monotonic"] >= request["requested_monotonic"] and
                 0 <= now-value["finished_monotonic"] < BOUNDARY_FRESHNESS,
                 "Boundary integrity generation missing/stale/reused")
+
+
+def valid_creation_proof(value, packet, stage, supervisor, attempt):
+    """Authenticate past creation at its call attempt, not at later registration.
+
+    The suspended child still needs an independently fresh resume generation.
+    Current integrity age, native ownership and terminal roots remain checked.
+    """
+    valid_proof(value,packet,stage,supervisor)
+    require(type(attempt) in (int,float) and math.isfinite(attempt) and
+            value["request"] is not None and value["request"]["role"]=="target" and
+            value["finished_monotonic"]<=attempt<proof_deadline(value) and attempt<=time.monotonic(),
+            "Target native creation attempt is outside its integrity generation")
 
 
 class IntegrityWatch:
@@ -98,7 +112,7 @@ class IntegrityWatch:
         verify_roots(self.packet,self.expectations)
         self.scanner.check(self.logs)
         generated=0
-        if self.audit_request is not None and self.audit_request["role"]=="target":
+        if self.audit_request is not None and self.audit_request["role"] in ("target","target-resume"):
             for row in self.stage["generated_pins"]:verify_pin(row)
             generated=len(self.stage["generated_pins"])
         return {"closed_roots":len(self.expectations),"log_append_only":"PASS","generated_pins":generated}
@@ -107,7 +121,7 @@ class IntegrityWatch:
         try:
             while not self.done.is_set():
                 request=None
-                role=next((role for role in ("collector","target") if
+                role=next((role for role in ROLES if
                            (self.control/f"integrity-{role}-request.json").exists() and role not in self.processed),None)
                 path=self.control/f"integrity-{role}-request.json"
                 if role is not None:
@@ -121,7 +135,7 @@ class IntegrityWatch:
                     require(0 <= time.monotonic()-request["requested_monotonic"] <= TIMEOUT,"Stale integrity request")
                     # Authenticate the actual requesting collector against its
                     # retained supervisor identity before issuing its proof.
-                    if role=="target":
+                    if role!="collector":
                         require(request["collector"]==read_json(self.control/"collector-identity.json"),
                                 "Integrity request is not the registered collector")
                         from .windows import Process
@@ -132,6 +146,21 @@ class IntegrityWatch:
                                 request["collector"]["parent_creation_ticks"]==self.supervisor["creation_ticks"],
                                 "Integrity request collector parent differs")
                     else:require(request["collector"] is None,"Precollector request has unexpected owner")
+                    if role=="target-resume":
+                        registration=request["target_registration"]
+                        require(Path(registration["path"])==self.control/"target-request.json",
+                                "Resume generation target registration path differs")
+                        verify_pin(registration)
+                        target=read_json(registration["path"])
+                        require(target["collector"]==request["collector"] and target["state"]=="SUSPENDED" and
+                                target["packet_sha256"]==self.packet["packet_sha256"] and target["stage"]==self.stage["name"],
+                                "Resume generation target registration differs")
+                        process=Process.open(target["target"]["pid"])
+                        try:process.verify(target["target"])
+                        finally:process.close()
+                        require(target["target"]["parent_pid"]==request["collector"]["pid"] and
+                                target["target"]["parent_creation_ticks"]==request["collector"]["creation_ticks"],
+                                "Resume generation target parent differs")
                     require(request["source_preflight"]==pin(self.control/"source-preflight.json"),
                             "Integrity request source proof differs")
                     self.processed.add(role)
@@ -188,19 +217,21 @@ class IntegrityWatch:
             self.journal.append("integrity-generation",{"receipt":receipt,"generation":value})
 
 
-def boundary_request(packet,stage,control,guard,roots):
+def boundary_request(packet,stage,control,guard,roots,*,role="target"):
     from .windows import Process
     owner=Process.open(__import__("os").getpid())
     try:identity=owner.identity()
     finally:owner.close()
+    require(role in ("target","target-resume"),"Invalid target boundary role")
     roots.check();guard.check()
     request={"schema":"physical-supervisor/integrity-request-v1","packet_sha256":packet["packet_sha256"],
              "stage":stage["name"],"supervisor":guard.expected,"collector":identity,
-             "role":"target","source_preflight":pin(control/"source-preflight.json"),
+             "role":role,"source_preflight":pin(control/"source-preflight.json"),
              "nonce":uuid.uuid4().hex,"requested_monotonic":time.monotonic()}
-    exclusive(control/"integrity-target-request.json",request)
+    if role=="target-resume":request["target_registration"]=pin(control/"target-request.json")
+    exclusive(control/f"integrity-{role}-request.json",request)
     until=time.monotonic()+TIMEOUT
-    path=control/"integrity-target-proof.json"
+    path=control/f"integrity-{role}-proof.json"
     while not path.exists():
         guard.check();roots.check()
         require(time.monotonic()<until,"Boundary integrity generation timed out")
@@ -215,18 +246,19 @@ def boundary_request(packet,stage,control,guard,roots):
     return value,request
 
 
-def collector_boundary(packet,stage,control,supervisor,pump):
+def collector_boundary(packet,stage,control,supervisor,pump,*,collector=None):
+    role="collector" if collector is None else "collector-resume"
     request={"schema":"physical-supervisor/integrity-request-v1","packet_sha256":packet["packet_sha256"],
-             "stage":stage["name"],"supervisor":supervisor,"collector":None,"role":"collector",
+             "stage":stage["name"],"supervisor":supervisor,"collector":collector,"role":role,
              "source_preflight":pin(control/"source-preflight.json"),
              "nonce":uuid.uuid4().hex,"requested_monotonic":time.monotonic()}
-    exclusive(control/"integrity-collector-request.json",request)
+    exclusive(control/f"integrity-{role}-request.json",request)
     until=time.monotonic()+TIMEOUT
-    while not (control/"integrity-collector-proof.json").exists():
+    while not (control/f"integrity-{role}-proof.json").exists():
         pump()
         require(time.monotonic()<until,"Collector boundary generation timed out")
         time.sleep(.02)
-    evidence=read_json(control/"integrity-collector-proof.json")
+    evidence=read_json(control/f"integrity-{role}-proof.json")
     require(evidence["request"]==request,"Collector boundary request replaced")
     require(Path(evidence["receipt"]["path"]).parent==control,"Collector boundary proof path differs")
     verify_pin(evidence["receipt"])

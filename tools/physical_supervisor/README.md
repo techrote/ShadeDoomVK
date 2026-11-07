@@ -156,14 +156,20 @@ The worker never publishes heartbeats or controls a process. A dead worker,
 failure, queue overflow, ten-second audit timeout or successful generation older
 than ten seconds from its start stops the experiment without a retry.
 
-Before collector and target creation, a new one-use request binds a nonce,
+Before each collector/target creation and each native resume, a distinct one-use request binds a nonce,
 source-preflight pin and the exact known owner. Its audit must start after the
 request and finish within ten seconds of it; the target audit independently
 rehashes every generated input while the collector's immutable locks are held.
-Creation, target acknowledgement and resume require that generation
-to have completed less than 0.5 seconds earlier. The same proof must remain valid
-through final native creation/resume checks; an expired proof stops rather than
-requesting another attempt. Heartbeats retain their 0.5-second schedule and strict
+Each native call requires its own generation to have completed less than 0.5
+seconds earlier. Registration validates the creation proof at its recorded native
+call attempt; it authenticates and retains the target handle before later admission
+checks, so a failed proof cannot strand a suspended orphan. Durable identity and
+acknowledgement work precedes the separate resume request. A target resume proof
+also pins the exact target registration. An expired native-boundary proof still
+stops without a retry. The packet explicitly declares this separate-resume policy;
+old packets cannot silently gain it. A suspended target must request resume within
+two seconds; its audit remains bounded by ten seconds, and actual renderer execution
+retains its independent deadline from the recorded resume call. Heartbeats retain their 0.5-second schedule and strict
 two-second parent guard. Both processes poll the shared gate without blocking
 their health/deadline checks; one second of gate contention is a STOP.
 

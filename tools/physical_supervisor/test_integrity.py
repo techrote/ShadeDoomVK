@@ -17,13 +17,37 @@ import unittest
 from unittest.mock import patch
 
 from .common import Gate, Journal, Stop, exclusive, pin, read_json, root_expectations, verify_roots, digest, open_read, normalized
-from .integrity import IntegrityWatch, valid_proof, POLICY
+from .integrity import IntegrityWatch, valid_proof, valid_creation_proof, proof_deadline, POLICY
 from . import test_integration as fixture
 from . import test_supervisor as cpu_fixture
 from .windows import RootGuard
 
 
 class ProofTests(unittest.TestCase):
+    def test_failure_retention_supports_deferred_python310_results(self):
+        from types import SimpleNamespace
+        owner=object();other=object();empty=SimpleNamespace(failures=[],errors=[])
+        for pending,published,expected in (([(owner,None)],[],False), ([(other,ValueError())],[],False),
+                ([(owner,ValueError())],[],True), ([],[(owner,"traceback")],True)):
+            with self.subTest(expected=expected,pending=pending):
+                outcome=SimpleNamespace(errors=pending,result=SimpleNamespace(failures=published,errors=[]))
+                self.assertEqual(fixture.unexpected_fixture_failure(outcome,owner),expected)
+        self.assertFalse(fixture.unexpected_fixture_failure(None,owner))
+
+    def test_past_native_creation_does_not_authorize_a_stale_resume(self):
+        now=time.monotonic();packet={"packet_sha256":"a"*64,"runtime_roots":[],"integrity_policy":POLICY}
+        stage={"name":"cpu"};owner={"pid":1};collector={"pid":2}
+        request={"schema":"physical-supervisor/integrity-request-v1","packet_sha256":"a"*64,"stage":"cpu",
+            "supervisor":owner,"collector":collector,"role":"target","source_preflight":{},"nonce":"a"*32,
+            "requested_monotonic":now-1}
+        value={"schema":"physical-supervisor/integrity-generation-v1","packet_sha256":"a"*64,"stage":"cpu",
+            "supervisor":owner,"status":"PASS","started_monotonic":now-.9,"finished_monotonic":now-.8,
+            "request":request,"generation":0,"checks":{"closed_roots":0,"log_append_only":"PASS","generated_pins":0},
+            "policy":POLICY,"utc":"synthetic CPU clock"}
+        valid_creation_proof(value,packet,stage,owner,now-.7)
+        with self.assertRaises(Stop):valid_proof(value,packet,stage,owner,request=request,boundary=True)
+        for attempt in (now-.81,proof_deadline(value),now+1,True,float("nan")):
+            with self.subTest(attempt=attempt),self.assertRaises(Stop):valid_creation_proof(value,packet,stage,owner,attempt)
     def test_final_receipt_is_invisible_until_complete_flush(self):
         with tempfile.TemporaryDirectory() as directory:
             final=Path(directory)/"receipt.json";entered=threading.Event();release=threading.Event();errors=[]
@@ -458,6 +482,42 @@ class LivenessIntegrationTests(unittest.TestCase):
         proof=read_json(self.root/"control/00-compositing/integrity-target-proof.json")
         self.assertEqual(proof["request"]["role"],"target")
         self.assertTrue((self.root/"control/00-compositing/target-ack.json").exists())
+
+    def test_delayed_registration_uses_a_fresh_resume_generation(self):
+        from . import supervisor
+        original=supervisor._registration;delayed=[]
+        def registration(packet,stage,control,collector,identity,journal,before_ack=lambda:None):
+            def delay():
+                before_ack()
+                if not delayed:
+                    delayed.append(1);time.sleep(.55)
+            return original(packet,stage,control,collector,identity,journal,delay)
+        with patch.object(supervisor,"_registration",side_effect=registration):result=self.run_engine()
+        self.assertEqual(result["status"],"COLLECTED_PENDING_ACCEPTANCE",result)
+        control=self.root/"control/00-compositing"
+        created=read_json(control/"target-request.json")
+        resume=read_json(control/"integrity-target-resume-proof.json")
+        value=read_json(resume["receipt"]["path"])
+        self.assertNotEqual(value["generation"],created["integrity_generation"]["generation"])
+        self.assertEqual(value["request"]["target_registration"],pin(control/"target-request.json"))
+        self.assertLess(read_json(control/"target-resumed.json")["resume_native_call_attempt_monotonic"]-value["finished_monotonic"],.5)
+        self.assertGreater(value["finished_monotonic"]-created["integrity_generation"]["finished_monotonic"],.5)
+
+    def test_invalid_creation_proof_contains_authenticated_suspended_child(self):
+        from . import supervisor
+        original=supervisor.read_json
+        def invalid(path):
+            value=original(path)
+            if Path(path).name=="target-request.json":
+                value["create_native_call_attempt_monotonic"]=value["integrity_generation"]["finished_monotonic"]-.01
+            return value
+        with patch.object(supervisor,"read_json",side_effect=invalid):result=self.run_engine()
+        self.assertEqual(result["status"],"FAILED_STOP",result);self.assertEqual(self.spawn_count(),1)
+        rows=[read_json(path)["value"] for path in (self.root/"control/journal").glob("*-termination.json")]
+        self.assertTrue(any(row["role"]=="target" and row["terminated"] for row in rows))
+        final=[read_json(path)["value"] for path in (self.root/"control/journal").glob("*-final-job-inventory.json")]
+        self.assertEqual(final[0]["remaining_pids"],[])
+        self.assertFalse((self.root/"control/00-compositing/target-resumed.json").exists())
 
     def test_slow_successful_deep_checks_do_not_suspend_control_heartbeat(self):
         self.realistic_packet()
