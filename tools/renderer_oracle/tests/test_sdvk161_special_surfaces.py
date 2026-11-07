@@ -375,7 +375,9 @@ def full_raw():
             bound, shader = material(name, filtering)
             bound["resource"]["index"] = 300 + ordinal * 16
             shader["UseLevelMesh"] = 1
-            key = {"shader": shader}
+            key = {"shader": shader, "render_style": {"blend_op": 1, "source_alpha": 2,
+                   "destination_alpha": 3, "flags": 0}, "DepthTest": 1,
+                   "DepthWrite": int(cls not in ("translucent-wall", "reflective-floor")), "ColorMask": 15}
             first = ordinal * 6
             if name != "SDVW":
                 raw["records"].append({"kind": "pipeline", "frame": frame, "count": 1, "data": {
@@ -423,7 +425,9 @@ def full_raw():
             bound["resource"]["index"] = 500
             shader["UseLevelMesh"] = 0
             decal.update(producer="immediate-special-surface", **{"class": "decal"},
-                         material=bound, texture_index=500, key={"shader": shader}, indexed=False, draw_count=4, index_count=4)
+                         material=bound, texture_index=500, key={"shader": shader,
+                         "render_style": {"blend_op": 1, "source_alpha": 2, "destination_alpha": 3, "flags": 2},
+                         "DepthTest": 1, "DepthWrite": 0, "ColorMask": 15}, indexed=False, draw_count=4, index_count=4)
             decal["probe"]["authored_scope"] = "current immediate authored uniform selector"
             raw["records"].append({"kind": "surface", "frame": frame, "count": 1, "data": decal})
             for cls, side in (("horizon", 2), ("mirror", 6)):
@@ -1143,12 +1147,77 @@ class SubmittedSpecialSurfaceTests(unittest.TestCase):
 
 
 class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
-    def test_real_control_code_rejects_twenty_eight_copies_without_mutating_admitted_source(self):
+    def test_retained_old_method_admits_wrong_overlay_beside_a_correct_neighbor(self):
+        import hashlib
+        import json
+        from pathlib import Path
+        fixture = json.loads((Path(__file__).parent / "fixtures/sdvk161-overlay-policy-pre-fix.json").read_text())
+        self.assertEqual(fixture["source_sha256"], "c70dc13238126b2a539b172a49cdb199bef95acba3e2c86579cdeb8e88cfde2e")
+        self.assertEqual(hashlib.sha256(fixture["source"].encode()).hexdigest(), fixture["source_sha256"])
+        self.assertEqual(fixture["commit"], "ff300c6413b8aeb68ae3130c3824a6b970da4f57")
+        namespace = dict(vars(gate))
+        exec(compile(fixture["source"], fixture["path"] + "@ff300c", "exec"), namespace)
+        for name, fields, opacity, reason in (
+                ("S161GL", {"render_style": {"blend_op": 1, "source_alpha": 1, "destination_alpha": 0, "flags": 0}}, None, "glass authored blend"),
+                ("S161RF", {"render_style": {"blend_op": 1, "source_alpha": 2, "destination_alpha": 1, "flags": 0}}, None, "reflective-floor authored blend"),
+                ("S161DCL", {"render_style": {"blend_op": 1, "source_alpha": 2, "destination_alpha": 3, "flags": 0}}, None, "decal authored blend"),
+                ("S161GL", {"DepthWrite": 1}, None, "glass authored blend"),
+                ("S161RF", {"DepthTest": 0}, None, "reflective-floor authored blend"),
+                ("S161DCL", {"ColorMask": 0}, None, "decal authored blend"),
+                ("S161DCL", {}, 0, "solid decal opacity")):
+            raw = full_raw()
+            correct = surface(raw, name)
+            wrong = copy.deepcopy(correct)
+            wrong["key"].update(fields)
+            if opacity is not None:
+                wrong["alpha"] = opacity
+            if correct["producer"] == "levelmesh-surface-range":
+                parent = next(copy.deepcopy(row) for row in raw["records"]
+                              if row["kind"] == "pipeline" and row["frame"] == 8
+                              and row["data"]["key"] == correct["key"]
+                              and row["data"]["first_index"] == correct["batch_first_index"])
+                parent["data"]["key"] = copy.deepcopy(wrong["key"])
+                raw["records"].append(parent)
+            raw["records"].append({"kind": "surface", "frame": 8, "count": 1, "data": wrong})
+            with self.subTest(name=name, fields=fields, opacity=opacity):
+                with patch.object(gate, "_require_a_surfaces", namespace["_require_a_surfaces"]):
+                    self.assertEqual(gate.validate_transition_records(raw, stdout(), native_recipe())["status"], "PASS")
+                with self.assertRaisesRegex(EvidenceError, reason):
+                    gate.validate_transition_records(raw, stdout(), native_recipe())
+
+    def test_authored_overlay_controls_preserve_correct_neighbor_and_mesh_parent(self):
+        raw = full_raw()
+        original = copy.deepcopy(raw)
+        controls = {row["name"]: row for row in gate.captured_negatives(raw, stdout(), native_recipe())["controls"]}
+        for name in ("glass-source-replacement", "reflective-additive-blend", "solid-decal-style-flags",
+                     "glass-depth-write", "reflective-depth-test", "solid-decal-color-mask", "solid-decal-zero-opacity"):
+            value = controls[name]
+            self.assertTrue(value["correct_neighbor_preserved"])
+            self.assertIn("opacity differs" if "opacity" in name else "blend/depth/color state differs", value["reason"])
+            if name.startswith("reflective"):
+                parent = raw["records"][value["source_parent_record_index"]]
+                self.assertEqual(parent["kind"], "pipeline")
+                self.assertEqual(parent["data"]["key"], raw["records"][value["record_index"]]["data"]["key"])
+        self.assertEqual(raw, original)
+
+    def test_overlay_policy_rejects_typed_style_and_invisible_solid_decal(self):
+        for field, replacement in (("blend_op", True), ("source_alpha", 2.0), ("flags", False)):
+            raw = full_raw()
+            surface(raw, "S161GL")["key"]["render_style"][field] = replacement
+            with self.subTest(field=field), self.assertRaisesRegex(EvidenceError, "glass authored blend"):
+                gate.validate_transition_records(raw, stdout(), native_recipe())
+        for alpha in (0, 0.5, True, float("nan"), float("inf"), "1"):
+            raw = full_raw()
+            surface(raw, "S161DCL")["alpha"] = alpha
+            with self.subTest(alpha=alpha), self.assertRaisesRegex(EvidenceError, "solid decal opacity"):
+                gate.validate_transition_records(raw, stdout(), native_recipe())
+
+    def test_real_control_code_rejects_thirty_five_copies_without_mutating_admitted_source(self):
         raw = full_raw()
         original = copy.deepcopy(raw)
         result = gate.captured_negatives(raw, stdout(), native_recipe())
         self.assertEqual(result["status"], "PASS")
-        self.assertEqual(len(result["controls"]), 28)
+        self.assertEqual(len(result["controls"]), 35)
         self.assertTrue(all(control["status"] == "REJECTED" and control["reason"]
                             and len(control["mutant_sha256"]) == 64 for control in result["controls"]))
         self.assertEqual(raw, original)
@@ -1216,7 +1285,7 @@ class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
         original = copy.deepcopy(raw)
         baseline = gate.captured_negatives(full_raw(), stdout(), native_recipe())
         result = gate.captured_negatives(raw, stdout(), native_recipe())
-        self.assertEqual(len(result["controls"]), 28)
+        self.assertEqual(len(result["controls"]), 35)
         self.assertEqual({item["name"] for item in result["controls"]},
                          {item["name"] for item in baseline["controls"]})
         self.assertTrue(all(item["status"] == "REJECTED" for item in result["controls"]))
@@ -1250,7 +1319,7 @@ class CapturedSpecialSurfaceNegativeTests(unittest.TestCase):
             self.assertEqual((target["producer"], target["context"]["type"], target["context"]["depth"]),
                              ("levelmesh-surface-range", "main", 0))
             self.assertEqual(target["owner"]["side"], -1 if cls == "three-d-floor-ceiling" else 34)
-        self.assertEqual(len(result["controls"]), 28)
+        self.assertEqual(len(result["controls"]), 35)
 
     def test_captured_controls_cannot_promote_an_invalid_source(self):
         raw = full_raw()

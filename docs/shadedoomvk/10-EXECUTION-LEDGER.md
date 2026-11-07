@@ -1756,3 +1756,20 @@ probe-worker skips). The existing required Windows CI builds that unchanged
 worker and exercises its CPU lifetime control. A new adapter test fixture error
 and a compiler-environment setup failure were corrected and remain retained as
 negative qualification records. No physical launch is part of these controls.
+
+
+## 7 November 2026 — SDVK-014 special-surface integration candidate
+
+- Reconciled substantive PR #162 with accepted current master and preserved all
+  prior production repairs, failed-attempt receipts and both ledger histories.
+- Closed the existing final authored blend/opacity admission finding without
+  changing production styles, fixture assets, limits, UV precision or RGB policy.
+  The current gate requires 35 intended-reason captured controls, with good
+  submitted neighbors and original mesh-parent batches retained.
+- Absorbed #184's retained lightmap-resource epoch rollback guard and repaired
+  the existing repeatability test to expect its earlier lifecycle rejection.
+- Immutable ff300c hosted captures independently pass the stricter gate as CPU
+  revalidation; this is not qualification of the reconciled head. Final required
+  checks, current-head native software evidence and independent review remain.
+- Parent #14 stays open. This candidate awards no physical cost/scaling/stability
+  acceptance and does not relabel any historical STOP or failed physical evidence.

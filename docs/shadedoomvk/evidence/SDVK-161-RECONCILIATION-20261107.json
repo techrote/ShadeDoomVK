@@ -1,0 +1,73 @@
+{
+  "captures": [
+    {
+      "admission": "PASS",
+      "captured_controls": 35,
+      "controls_sha256": "e64e82633266948f85fd1da2d117097276d2098de2fef45d8d10f43b0a54056c",
+      "input_sha256": "749bb8d7693f60fd356728ff277f317592f13502a555d6a237b5ff47e51a3938",
+      "name": "lifecycle-1",
+      "records": 3696,
+      "retained_bytes": 9520241
+    },
+    {
+      "admission": "PASS",
+      "captured_controls": 35,
+      "controls_sha256": "194812d907f4921054771d75689fe71b20be41659baeef6d6a51f02a96be2674",
+      "input_sha256": "478262e5d4b727196ce0747c8ec2a8de7eabd40528bf1b5b7db421d9c2264add",
+      "name": "lifecycle-2",
+      "records": 3696,
+      "retained_bytes": 9521897
+    }
+  ],
+  "historical_head": "ff300c6413b8aeb68ae3130c3824a6b970da4f57",
+  "historical_workflow": 39094461177,
+  "native_execution": false,
+  "schema": "sdvk161-overlay-reconciliation/v1",
+  "scope": "Fresh CPU revalidation of immutable historical native packets; not current-head native qualification",
+  "reconciled_master": "9cf86b92dac3ae784eea0554d24ca18a43a3120c",
+  "focused_tests": {
+    "command": "python -m unittest tools.renderer_oracle.tests.test_sdvk161_special_surfaces tools.renderer_oracle.tests.test_sdvk158_repeatability tools.renderer_oracle.tests.test_sdvk158_lightmap_transition -q",
+    "status": "PASS",
+    "tests": 74,
+    "later_retained_method_regression": "PASS separately; full suite pending"
+  },
+  "historical_archive": {
+    "path": "renderer-software-vulkan.tar.xz",
+    "artifact_id": 12127757907,
+    "sha256": "64353e58d47f9b40d9462edfad10a5288885f4d41468e908289080d91eca2646"
+  },
+  "candidate_source_pins": [
+    {
+      "path": "tools/renderer_oracle/sdvk161_special_surfaces.py",
+      "bytes": 92517,
+      "sha256": "47a19c8ac54005a9012aac29a6882d4fad05a9824fd1825a212a4441cf3f9250"
+    },
+    {
+      "path": "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py",
+      "bytes": 85611,
+      "sha256": "119af34ed8733342b7d635ea439600dbde23880c6d049dbe4f8ad508afef626d"
+    },
+    {
+      "path": "tools/renderer_oracle/tests/fixtures/sdvk161-overlay-policy-pre-fix.json",
+      "bytes": 10105,
+      "sha256": "9aab9226442c1300a61af743b4f94a946454a21d6fd9645b54a68559fba2419d"
+    },
+    {
+      "path": "tools/renderer_oracle/sdvk158_lightmap_transition.py",
+      "bytes": 12895,
+      "sha256": "2b0d006bd6edb0e0d3b21dbe63918e19aa7e393ccf3ab72c0e44026fb3e758c5"
+    },
+    {
+      "path": "tools/renderer_oracle/tests/test_sdvk158_lightmap_transition.py",
+      "bytes": 9616,
+      "sha256": "0d38345c93f8910e53a92d8d806ab9d35ad3e03b54bb38df2a1b20ccc216b47e"
+    },
+    {
+      "path": "tools/renderer_oracle/tests/test_sdvk158_repeatability.py",
+      "bytes": 11410,
+      "sha256": "54fd6735f3a9a33c92a9c07d022286046e6948ddb24d0a11fceaa65afbb8e814"
+    }
+  ],
+  "current_head_native_qualification": "PENDING",
+  "source_pin_representation": "Canonical staged Git blob bytes; Windows checkout line endings may differ"
+}

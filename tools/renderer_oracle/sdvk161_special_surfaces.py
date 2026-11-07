@@ -520,6 +520,20 @@ def _validate_submitted_surfaces(raw: dict, native: dict, resources: dict[int, d
 
 
 
+def _authored_overlay(value: dict, *, flags: int, label: str) -> None:
+    # This is the authored SDVK-161 cell, not a general renderer blend policy.
+    # Alpha alone does not establish blending: STYLE_Source disables it while
+    # retaining the same material, owner and nominal vertex alpha.
+    key = value["key"]
+    style = key.get("render_style", {})
+    expected = {"blend_op": 1, "source_alpha": 2, "destination_alpha": 3, "flags": flags}
+    require(all(type(style.get(name)) is int and style[name] == wanted
+                for name, wanted in expected.items())
+            and all(type(key.get(name)) is int and key[name] == wanted
+                    for name, wanted in {"DepthTest": 1, "DepthWrite": 0, "ColorMask": 15}.items()),
+            f"SDVK-161 {label} authored blend/depth/color state differs")
+
+
 def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
     ordinary_materials = {0: "S161NO", 1: "S161NO", 3: "S161PH", 4: "S161WP",
                           5: "S161PN", 7: "S161HO", 8: "S161NO", 9: "S161GL", 10: "S161GL"}
@@ -565,6 +579,9 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
                          or value["producer"] == "levelmesh-surface-range")]
     decals = [(value, tile) for value, tile in draws if value.get("class") == "decal"]
     for value, tile in decals:
+        _authored_overlay(value, flags=2, label="decal")
+        require(type(value.get("alpha")) in (int, float) and math.isfinite(value["alpha"])
+                and value["alpha"] == 1, "SDVK-161 solid decal opacity differs")
         require(value.get("material", {}).get("name") == "S161DCL"
                 and value["producer"] == "immediate-special-surface"
                 and all(value["owner"].get(key) == expected for key, expected in
@@ -579,6 +596,8 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
             f"SDVK-161 frame {frame} lacks an actual main-view decal inheriting its current receiver tile")
     glass = [(value, tile) for value, tile in draws
              if value.get("material", {}).get("name") == "S161GL"]
+    for value, _ in glass:
+        _authored_overlay(value, flags=0, label="glass")
     require(glass and all(value["owner"]["sector"] == 0 and value["owner"]["side"] in (9, 10)
                          and value["owner"]["type"] == 1 and value["owner"]["control_sector"] == -1
                          and value["producer"] == "immediate-special-surface"
@@ -587,6 +606,7 @@ def _require_a_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
     reflective = [(value, tile) for value, tile in draws
                   if value.get("class") == "reflective-floor"]
     for value, tile in reflective:
+        _authored_overlay(value, flags=0, label="reflective-floor")
         require(value.get("material", {}).get("name") == "S161RF"
                 and value["owner"]["sector"] == 0 and value["owner"]["type"] == 5
                 and value["owner"]["side"] == -1 and value["owner"]["control_sector"] == -1
@@ -1056,6 +1076,8 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
                           "control_sector": -1, "portal_group": 0})
     reflective = target("S161RF", 8, surface_class="reflective-floor",
                         owner={"type": 5, "side": -1, "sector": 0, "control_sector": -1})
+    glass = target("S161GL", 8, surface_class="translucent-wall",
+                   producer="immediate-special-surface", owner={"type": 1, "sector": 0, "control_sector": -1})
     ordinary_upper = target("S161PN", 56, surface_class="wall", producer="levelmesh-surface-range",
                             context={"type": "main", "producer": "root", "depth": 0, "portal_group": 2},
                             owner={"type": 2, "side": 34, "type_index": 34, "sector": 1, "control_sector": -1, "portal_group": 2})
@@ -1148,6 +1170,59 @@ def captured_negatives(raw: dict, stdout: str, native: dict) -> dict:
                              "mutant_sha256": sha256(canonical(changed))})
         else:
             raise EvidenceError("SDVK-161 captured negative accepted a wrong reflective plane: " + name)
+    # Preserve the good submitted neighbor, including every original parent.
+    # Mesh mutants receive a matching copied parent so a pipeline join failure
+    # cannot masquerade as rejection of wrong authored blend semantics.
+    for name, index, fields, opacity, expected in (
+            ("glass-source-replacement", glass,
+             {"render_style": {"blend_op": 1, "source_alpha": 1, "destination_alpha": 0, "flags": 0}}, None,
+             "glass authored blend/depth/color state differs"),
+            ("reflective-additive-blend", reflective,
+             {"render_style": {"blend_op": 1, "source_alpha": 2, "destination_alpha": 1, "flags": 0}}, None,
+             "reflective-floor authored blend/depth/color state differs"),
+            ("solid-decal-style-flags", decal,
+             {"render_style": {"blend_op": 1, "source_alpha": 2, "destination_alpha": 3, "flags": 0}}, None,
+             "decal authored blend/depth/color state differs"),
+            ("glass-depth-write", glass, {"DepthWrite": 1}, None,
+             "glass authored blend/depth/color state differs"),
+            ("reflective-depth-test", reflective, {"DepthTest": 0}, None,
+             "reflective-floor authored blend/depth/color state differs"),
+            ("solid-decal-color-mask", decal, {"ColorMask": 0}, None,
+             "decal authored blend/depth/color state differs"),
+            ("solid-decal-zero-opacity", decal, {}, 0,
+             "solid decal opacity differs")):
+        changed = copy.deepcopy(raw)
+        original = records[index]
+        wrong = copy.deepcopy(original)
+        wrong["data"]["key"].update(copy.deepcopy(fields))
+        if opacity is not None:
+            wrong["data"]["alpha"] = opacity
+        inserted = [wrong]
+        parent_index = None
+        if original["data"]["producer"] == "levelmesh-surface-range":
+            value = original["data"]
+            parent_index = next(i for i, record in enumerate(records)
+                                if record.get("kind") == "pipeline" and record.get("frame") == original["frame"]
+                                and record["data"].get("producer") == "levelmesh-indexed-range"
+                                and record["data"].get("first_index") == value["batch_first_index"]
+                                and record["data"].get("draw_count") == value["batch_index_count"]
+                                and record["data"].get("key") == value["key"]
+                                and record["data"].get("context") == value["context"])
+            parent = copy.deepcopy(records[parent_index])
+            parent["data"]["key"] = copy.deepcopy(wrong["data"]["key"])
+            inserted.insert(0, parent)
+        changed["records"][index + 1:index + 1] = inserted
+        try:
+            validate_transition_records(changed, stdout, native)
+        except EvidenceError as error:
+            require(expected in str(error), "SDVK-161 overlay control rejected for an unintended reason: " + name)
+            controls.append({"name": name, "status": "REJECTED", "reason": str(error),
+                             "record_index": index, "source_parent_record_index": parent_index,
+                             "correct_neighbor_preserved": changed["records"][index] == original,
+                             "after": {"key_fields": fields, "alpha": opacity},
+                             "mutant_sha256": sha256(canonical(changed))})
+        else:
+            raise EvidenceError("SDVK-161 captured negative accepted a wrong authored overlay: " + name)
     changed = copy.deepcopy(raw)
     first_owner = next(record["data"]["levelmesh"]["owner"] for record in records
                        if record.get("kind") == "resource" and record.get("frame") == 1)

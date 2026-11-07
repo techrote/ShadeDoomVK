@@ -2,7 +2,7 @@
 
 ## Disposition and authority
 
-**Implementation candidate; head 6ed NOT ACCEPTED. Integrated repairs require fresh exact-head qualification.**
+**Reconciled software candidate; fresh exact-head qualification and final review pending.**
 
 This is the bounded software qualification child [#161](https://github.com/techrote/ShadeDoomVK/issues/161)
 of [SDVK-014 / #14](https://github.com/techrote/ShadeDoomVK/issues/14). It starts at
@@ -318,7 +318,7 @@ controls. Mutations target wrong production participation/classification,
 material shader, allocation receipt, control owner, selected plane, portal
 identity, probe epoch, lifecycle map, missing completion, same-page stale UV and
 actual horizon plane/material. Each must fail for its intended invariant.
-The twenty-eight captured controls also corrupt an ordinary upper slot, lower owner
+The thirty-five captured controls also corrupt an ordinary upper slot, lower owner
 and upper height. Coherent wrong-material controls borrow complete current
 same-frame material and texture-index payloads for the A ordinary wall, decal,
 reflective floor and horizon contents; a correct neighboring row cannot excuse
@@ -486,3 +486,46 @@ for the same authored workload, not observed new-head usage; actual new rows mus
 still fit the 16 KiB per-record cap and the complete capture must pass every limit.
 The shared 4096-vertex writer budget is unchanged. Both source-bound receipts
 are pinned separately in the review record.
+
+
+## 7 November 2026 integration reconciliation
+
+The branch is reconciled with accepted `master@9cf86b92dac3ae784eea0554d24ca18a43a3120c`,
+including #171 support-resource handling. Both sides of the execution-ledger merge
+are retained. All original failed-attempt receipts above remain unchanged.
+
+The final open blend/opacity finding is closed in the candidate source. Every
+submitted authored glass, reflective-floor and solid-decal row must have integer
+STYLEOP_Add / source-alpha / inverse-source-alpha factors (1/2/3), depth test 1,
+depth write 0 and color mask 15. Glass/reflection flags are 0; the solid decal
+uses the inherited STYLE_Normal flags 2 and finite numeric alpha exactly 1.
+The separate RF horizon-contents path retains its actual source-replacement
+style and depth-test behavior. This is a fixture-specific admission contract;
+no production blending or global style policy is changed.
+
+Seven additional copied-capture controls bring the current total to 35. Good
+neighbors and their original submitted parent batches remain present; mesh
+mutants receive a matching copied parent so a failed pipeline join cannot hide
+the authored-state defect. The exact ff300c `_require_a_surfaces` method is kept
+as a source-hashed fixture: its complete lifecycle gate admits all seven wrong
+overlays while the corrected gate rejects each for its intended reason.
+
+Both immutable native captures from normal ff300c CI `39094461177` pass CPU
+revalidation with the stricter 35-control gate. Each retained 3,696 records;
+retained-byte counts were 9,520,241 and 9,521,897 under the unchanged limits.
+This is historical-packet revalidation, **not current-head native qualification**.
+[The reconciliation receipt](evidence/SDVK-161-RECONCILIATION-20261107.json)
+keeps historical input hashes distinct from candidate source pins.
+
+PR #184's monotonic lightmap-resource-epoch guard is absorbed here because it
+protects the retained-reload contract consumed by this matrix. A one-frame epoch
+jump followed by rollback now rejects during lifecycle admission; its old
+repeatability test expects that earlier intended failure rather than requiring
+the invalid packet to reach the comparator. The existing real-epoch monotonic
+positive and deliberate post-reload rollback negatives remain required.
+
+Normal exact-head CPU/source/platform/software-Vulkan qualification and an
+independent final review remain required before merge. No physical cost,
+scaling or stability acceptance is awarded by this software reconciliation.
+Parent #14 remains open for its remaining campaign criteria; any freshly
+authorized physical campaign uses separately pinned current source and evidence.

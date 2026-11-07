@@ -397,3 +397,14 @@ PF oracle outputs. The [review receipt](../evidence/SDVK-161-ACCEPTANCE-METHOD-R
 separately pins this current full check, the earlier pre-owner proof and the
 formatting-only failed preflight. These local CPU results do not supply hosted
 native observations. Fresh exact-head source/platform/native CI remains pending.
+
+
+### SDVK-161 final authored overlay admission
+
+`sdvk161_special_surfaces._authored_overlay` checks the fixture's actual glass,
+reflective-floor and solid-decal render-style factors/flags and depth/color state;
+solid decals additionally require finite numeric alpha 1. Horizon contents are
+separate and preserve their production path. The 35 captured controls preserve
+good neighbors and actual parent joins. Historical ff300c native revalidation is
+separate from current-head native qualification; original failure receipts are
+unchanged. See `SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md` and its reconciliation receipt.
