@@ -183,6 +183,13 @@ rejects remote and unsupported filesystems. See Microsoft's
 Exact registry and process ownership readbacks remain in each serialized launch
 boundary. Completed JSON is flushed and atomically published without overwriting
 an existing receipt, so coordination readers cannot observe a partial writer.
+Only transient control-loop heartbeats omit the disk-cache `fsync`: their buffered
+write is flushed and closed before the same atomic no-overwrite publication.
+An `fsync` can otherwise delay visibility until the timestamp is already stale.
+Integrity generations, source proofs, journals, STOP records, native-call receipts
+and attempt ledgers retain their existing disk flushes. Heartbeats still come
+only from the live control loop; missing, partial or two-second-old publication
+cannot renew protection, and no background timer hides a blocked control loop.
 On Windows, transient JSON and hash readers request only `GENERIC_READ` and share
 read, write and delete access. This lets them coexist with a publication metadata
 handle holding `DELETE` access; a deterministic native control covers that sharing

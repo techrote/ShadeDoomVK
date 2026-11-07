@@ -14,13 +14,81 @@ import tempfile
 import threading
 import time
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
-from .common import Gate, Journal, Stop, exclusive, pin, read_json, root_expectations, verify_roots, digest, open_read, normalized
+from .common import Gate, Journal, Stop, exclusive, publish_heartbeat, pin, read_json, root_expectations, verify_roots, digest, open_read, normalized, canonical
 from .integrity import IntegrityWatch, valid_proof, valid_creation_proof, proof_deadline, POLICY
 from . import test_integration as fixture
 from . import test_supervisor as cpu_fixture
 from .windows import RootGuard
+
+
+class HeartbeatPublicationTests(unittest.TestCase):
+    def guard(self, directory):
+        from .collector import ParentGuard
+        control=Path(directory);control.mkdir()
+        packet={"packet_sha256":"a"*64,"runtime_roots":[],"integrity_policy":POLICY}
+        stage={"name":"cpu"};owner={"pid":1,"creation_ticks":2}
+        proof={"schema":"physical-supervisor/integrity-generation-v1","packet_sha256":packet["packet_sha256"],
+            "stage":"cpu","supervisor":owner,"generation":0,"started_monotonic":99.5,
+            "finished_monotonic":99.75,"utc":"synthetic CPU clock","request":None,"status":"PASS",
+            "checks":{"closed_roots":0,"log_append_only":"PASS","generated_pins":0},"policy":POLICY}
+        exclusive(control/"integrity-000000.json",proof)
+        guard=object.__new__(ParentGuard)
+        guard.packet,guard.stage,guard.expected,guard.control=packet,stage,owner,control
+        guard.parent=SimpleNamespace(poll=lambda:None)
+        heartbeat={"packet_sha256":packet["packet_sha256"],"supervisor":owner,"monotonic":100.,
+            "utc":"synthetic CPU clock","integrity_generation":pin(control/"integrity-000000.json")}
+        return guard,control/"heartbeat-000000.json",heartbeat
+
+    def test_delayed_disk_flush_stales_old_transport_but_not_control_heartbeat(self):
+        with tempfile.TemporaryDirectory() as directory:
+            old,path,value=self.guard(Path(directory)/"old")
+            current,current_path,current_value=self.guard(Path(directory)/"current")
+            clock=[100.]
+            def slow_flush(_):clock[0]+=2.05
+            with patch("time.monotonic",side_effect=lambda:clock[0]),patch("os.fsync",side_effect=slow_flush) as flush:
+                # Reproduce the old transport at the real collector guard. A
+                # timestamp taken before a disk flush can be stale on arrival.
+                exclusive(path,value)
+                with self.assertRaisesRegex(Stop,"heartbeat/observers stalled"):old.check()
+                self.assertEqual(flush.call_count,1)
+                clock[0]=100.;flush.reset_mock()
+                publish_heartbeat(current_path,current_value)
+                current.check();flush.assert_not_called()
+                # Omitting persistence cannot hide a genuinely stalled loop.
+                clock[0]+=2.05
+                with self.assertRaisesRegex(Stop,"heartbeat/observers stalled"):current.check()
+
+    def test_pending_heartbeat_is_not_visible_and_final_cannot_be_replaced(self):
+        from . import common
+        with tempfile.TemporaryDirectory() as directory:
+            guard,path,value=self.guard(Path(directory)/"control")
+            operation="rename" if os.name=="nt" else "link"
+            original=getattr(common.os,operation);observed=[]
+            def publish(pending,final):
+                self.assertEqual(Path(pending).read_bytes(),canonical(value))
+                self.assertFalse(path.exists())
+                with self.assertRaisesRegex(Stop,"heartbeat missing"):guard.check()
+                observed.append(True)
+                return original(pending,final)
+            with patch("time.monotonic",return_value=100.),patch.object(common.os,operation,side_effect=publish):
+                publish_heartbeat(path,value);guard.check()
+            self.assertEqual(observed,[True])
+            with self.assertRaises(FileExistsError):publish_heartbeat(path,{"replacement":True})
+            self.assertEqual(read_json(path),value)
+
+    def test_receipts_and_journals_still_flush_to_disk(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);original=os.fsync
+            with patch("os.fsync",wraps=original) as flush:
+                exclusive(root/"proof.json",{"proof":"CPU control"})
+                ordinary=flush.call_count;self.assertGreater(ordinary,0)
+                exclusive(root/"stop.json",{"stop":"CPU control"},durable=True)
+                durable=flush.call_count;self.assertGreater(durable,ordinary)
+                Journal(root/"journal").append("cpu-control",{"complete":True})
+                self.assertGreater(flush.call_count,durable)
 
 
 class ProofTests(unittest.TestCase):
@@ -588,8 +656,13 @@ class LivenessIntegrationTests(unittest.TestCase):
             time.sleep(2.05)
             return original(instance)
         self.fault("none","import time;from pathlib import Path;Path('marker.txt').write_text('CPU benign success');time.sleep(2.2)")
-        with patch.object(IntegrityWatch,"audit",new=slow):result=self.run_engine()
+        with patch.object(IntegrityWatch,"audit",new=slow),patch(
+                "tools.physical_supervisor.supervisor.publish_heartbeat",wraps=publish_heartbeat) as published:
+            result=self.run_engine()
         self.assertEqual(result["status"],"COLLECTED_PENDING_ACCEPTANCE",result)
+        actual=list((self.root/"control").glob("*/heartbeat-*.json"))
+        self.assertGreater(len(actual),3)
+        self.assertEqual({Path(call.args[0]) for call in published.call_args_list},set(actual))
         rows=self.heartbeats()
         self.assertLess(max(b["monotonic"]-a["monotonic"] for a,b in zip(rows,rows[1:])),2)
 

@@ -10,7 +10,7 @@ import re
 import threading
 import time
 
-from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry, root_expectations
+from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, publish_heartbeat, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry, root_expectations
 from .readers import BoundedReaders, NativeEvents, continuity, gpu_reader, telemetry,bounded_host_identity,check_host_identity
 from .windows import FileLock, Job, Process, RootGuard, platform_check, reject_unowned_renderer
 from .integrity import IntegrityWatch, valid_proof, valid_creation_proof, collector_boundary, proof_deadline, GATE_BUSY_LIMIT, TIMEOUT
@@ -426,7 +426,7 @@ def execute(packet, approval, output, *, readers=None):
                     stamp=time.monotonic()
                     if collector_active and collector.poll() is None:
                         require(0<=stamp-heartbeat_stamp<2,"Supervisor control heartbeat budget expired before publication")
-                    exclusive(control / f"heartbeat-{heartbeat_index:06d}.json", {"packet_sha256": packet_sha,
+                    publish_heartbeat(control / f"heartbeat-{heartbeat_index:06d}.json", {"packet_sha256": packet_sha,
                         "supervisor": supervisor_identity, "monotonic": stamp, "utc": utc(),"integrity_generation":receipt})
                     heartbeat_stamp=stamp
                     heartbeat_index += 1

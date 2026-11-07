@@ -203,12 +203,28 @@ def exclusive(path, value, *, raw=False, durable=False):
     readable final coordination file. Windows rename refuses existing targets;
     POSIX uses hard-link publication because rename there would overwrite.
     """
+    _exclusive(path, value, raw=raw, durable=durable, flush_to_disk=True)
+
+
+def publish_heartbeat(path, value):
+    """Publish complete transient liveness bytes without a disk-cache flush.
+
+    Only the live control loop calls this publisher. Buffered writes are flushed
+    and closed before atomic visibility; a slow fsync must not make an otherwise
+    healthy loop publish an already stale timestamp. Process/boot identity and
+    the unchanged age limit reject recovered heartbeats after a crash. Integrity
+    generations and all other receipts retain exclusive()'s disk flush.
+    """
+    _exclusive(path, value, raw=False, durable=False, flush_to_disk=False)
+
+
+def _exclusive(path, value, *, raw, durable, flush_to_disk):
     path = Path(path)
     pending=path.with_name(".pending-"+uuid.uuid4().hex)
     with pending.open("xb") as stream:
         stream.write(value if raw else canonical(value))
         stream.flush()
-        os.fsync(stream.fileno())
+        if flush_to_disk:os.fsync(stream.fileno())
     if os.name=="nt":
         if durable:
             import ctypes
