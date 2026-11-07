@@ -200,10 +200,11 @@ class AuthoredSceneTests(unittest.TestCase):
         bounds would hide malformed A input from the generic authoring gate.
         """
         transition = scene["native"].get("probe_owner_transition")
-        special = scene["native"].get("generator") == "special_surface_lifecycle"
+        controlled = scene["native"].get("generator") == "controlled_plane_lifecycle"
+        special = scene["native"].get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle")
         gameplay = scene["native"].get("generator") == "gameplay_smoke"
         if special:
-            self.assertEqual(scene["id"], "special-surface-lifecycle")
+            self.assertEqual(scene["id"], "controlled-plane-lifecycle" if controlled else "special-surface-lifecycle")
             self.assertEqual(scene["native"]["special_surface_schedule"][0], {
                 "after_main_views": 32, "phase": "invalidate-a-retained-start", "command": "invalidatelightmap"})
             self.assertEqual(metadata["initial_retained_work"]["retained_frames"], [1, 8])
@@ -287,7 +288,7 @@ class AuthoredSceneTests(unittest.TestCase):
             view = math.radians(expected["yaw"])
             behind = ((player["x"] - camera["x"]) * math.cos(view)
                       + (player["y"] - camera["y"]) * math.sin(view))
-            if special and map_name == "SDV161B":
+            if special and not controlled and map_name == "SDV161B":
                 from fractions import Fraction
                 self.assertEqual(expected["position"], [1060, -176, 64])
                 self.assertEqual([player["x"], player["y"]], [-240, 0])
@@ -319,7 +320,21 @@ class AuthoredSceneTests(unittest.TestCase):
             else:
                 self.assertLess(behind, 0)
             self.assertEqual((owner if special else metadata)["player_start_world"], [player["x"], player["y"]])
-            if special:
+            if controlled:
+                self.assertEqual(owner.get("counts"), {kind: len(rows) for kind, rows in records.items()})
+                self.assertEqual(len(records["vertex"]), 8)
+                self.assertEqual(len(records["linedef"]), 8)
+                vertices = records["vertex"]
+                rings = [list(range(4)), list(range(4, 8))]
+                actual = [sum(vertices[a]["x"] * vertices[b]["y"] - vertices[b]["x"] * vertices[a]["y"]
+                              for a, b in zip(ring, ring[1:] + ring[:1]))/2 for ring in rings]
+                self.assertEqual(areas, actual)
+                self.assertEqual(actual, [-196608.0, -4096.0])
+                self.assertEqual(records["sector"][0]["id"], 161)
+                self.assertEqual([records["linedef"][4][f"arg{i}"] for i in range(4)], [161, 5, 0, 255])
+                self.assertEqual([records["sector"][1][key] for key in ("heightfloor", "heightceiling")],
+                                 [32, 48] if map_name == "SDV161A" else [96, 112])
+            elif special:
                 # This narrow two-map corpus has several clockwise exterior
                 # loops and one counterclockwise inset. Recompute every area
                 # from the serialized vertices instead of exempting winding.
@@ -396,7 +411,7 @@ class AuthoredSceneTests(unittest.TestCase):
                         self.assertLessEqual(image["width"], 256)
                         self.assertLessEqual(image["height"], 256)
                         self.assertEqual(len(pixels), image["width"] * image["height"] * 4)
-                        if scene["id"] == "special-surface-lifecycle" and Path(path).stem.startswith("S161"):
+                        if scene["id"] in ("special-surface-lifecycle", "controlled-plane-lifecycle") and Path(path).stem.startswith("S161"):
                             self.assertIn(Path(path).stem, {"S161PH", "S161PN", "S161WP", "S161HO", "S161NO",
                                                            "S161GL", "S161RF", "S161DCL", "S161B4", "S161T4", "S161S4",
                                                            "S161B5", "S161T5", "S161S5"})

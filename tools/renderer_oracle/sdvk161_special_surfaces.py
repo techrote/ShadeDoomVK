@@ -334,8 +334,15 @@ def _surface_lightmap(value: dict, resource: dict, tiles: dict[int, dict]) -> tu
     owner = value["owner"]
     binding = current["binding"]
     type_index = owner["type_index"]
-    require(binding == {"type": owner["type"], "type_index": type_index,
-                        "control_sector": owner["control_sector"]},
+    expected_binding = {"type": owner["type"], "type_index": type_index,
+                        "control_sector": owner["control_sector"]}
+    # Historical normal-only captures predate the additional runtime source
+    # field. When emitted it must match the supported normal source axis;
+    # BOTH-plane captures use their separate mandatory four-face contract.
+    if "control_plane" in binding:
+        expected_binding["control_plane"] = (0 if owner["type"] == 4 else 1) \
+            if owner["control_sector"] != -1 and owner["type"] in (4, 5) else 0xFFFFFFFF
+    require(binding == expected_binding,
             "SDVK-161 tile belongs to another side/sector/control namespace")
     return (tile, lightmap["page"], *receipt)
 

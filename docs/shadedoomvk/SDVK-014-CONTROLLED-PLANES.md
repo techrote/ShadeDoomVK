@@ -66,7 +66,7 @@ runtime owners, dirty flags and normal bake/copy path remain unchanged.
 
 ## Focused evidence and limits
 
-[The CPU receipt](evidence/SDVK-014-CONTROLLED-PLANES-CPU.json) pins the production
+[The parent CPU receipt](evidence/SDVK-014-CONTROLLED-PLANES-CPU.json) pins e3's production
 working bytes, **43 passing focused tests** (18.903 seconds), retained failed
 fixture-compilation attempts and **six passing real translation-unit compiles**.
 The latter reuse generated build headers with isolated current source headers;
@@ -88,3 +88,7 @@ General sloped/inverted/recursive 3D-floor native coverage, dynamic copied-plane
 topology, FF_FIX/Vavoom content semantics and the inherited
 `OnMidTex3DHeightChanged` no-op remain unclaimed. Self-sourced vertex range
 coverage is a CPU storage check, not acceptance of those content families.
+
+The separate [paused native-authoring checkpoint](SDVK-014-NATIVE-AUTHORING-PAUSED.md)
+retains a new, unqualified BOTH-plane corpus draft. Its CPU evidence does not
+extend this accepted/native matrix or supply a fresh linked-build claim.

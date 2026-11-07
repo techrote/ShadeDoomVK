@@ -34,12 +34,6 @@ class FlatSurfaceOwnershipTests(unittest.TestCase):
         root = Path(cls.directory.name)
         doom = (ROOT / "src/rendering/hwrenderer/doom_levelmesh.cpp").read_text()
         cls.function = block(doom, SIGNATURE)
-        # MSVC diagnoses the inherited unconditional first-entry break as an
-        # unreachable range increment. Keep the exact producer and full /WX;
-        # scope that one diagnostic to this extracted definition only (MSVC
-        # emits C4702 after function analysis, ignoring a loop-line suppress).
-        cls.function = ("#ifdef _MSC_VER\n#pragma warning(push)\n#pragma warning(disable: 4702)\n#endif\n" +
-            cls.function + "\n#ifdef _MSC_VER\n#pragma warning(pop)\n#endif\n")
         cls.flats = (ROOT / "src/rendering/hwrenderer/scene/hw_flats.cpp").read_text()
         template = (Path(__file__).with_name("sdvk014_flat_surface_fixture.cpp")).read_text()
         tile = (ROOT / "src/common/rendering/hwrenderer/data/hw_lightmaptile.h").read_text()

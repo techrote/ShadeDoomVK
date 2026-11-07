@@ -2017,21 +2017,13 @@ void DoomLevelMesh::CreateFlatSurface(HWFlatDispatcher& disp, MeshBuilder& state
 		int pipelineID = 0;
 		const SurfaceUniforms* uniforms = nullptr;
 		const FMaterialState* material = nullptr;
-		bool foundDraw = false;
-		for (auto& it : state.mSortedLists)
-		{
-			const MeshApplyState& applyState = it.first;
-
-			pipelineID = screen->GetLevelMeshPipelineID(applyState.applyData, applyState.surfaceUniforms, applyState.material);
-			textureMatrix = applyState.textureMatrix;
-			uniforms = &applyState.surfaceUniforms;
-			material = &applyState.material;
-			foundDraw = true;
-			break;
-		}
-
-		if (!foundDraw)
+		if (state.mSortedLists.empty())
 			continue;
+		const MeshApplyState& applyState = state.mSortedLists.begin()->first;
+		pipelineID = screen->GetLevelMeshPipelineID(applyState.applyData, applyState.surfaceUniforms, applyState.material);
+		textureMatrix = applyState.textureMatrix;
+		uniforms = &applyState.surfaceUniforms;
+		material = &applyState.material;
 
 		int numVertices = 0;
 		int numIndexes = 0;
