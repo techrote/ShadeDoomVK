@@ -18431,7 +18431,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py"
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -18739,7 +18740,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py"
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -19048,7 +19050,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py"
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -19359,7 +19362,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py"
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -19667,7 +19671,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py"
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -19978,7 +19983,8 @@
         "status": "native_qualification_pending"
       },
       "negative_fixtures": [
-        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py"
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -20876,7 +20882,8 @@
       },
       "negative_fixtures": [
         "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
-        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -21191,7 +21198,8 @@
       },
       "negative_fixtures": [
         "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
-        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -21508,7 +21516,8 @@
       },
       "negative_fixtures": [
         "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
-        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -21821,7 +21830,8 @@
       },
       "negative_fixtures": [
         "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
-        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
@@ -22161,7 +22171,8 @@
         "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
         "tools/renderer_oracle/tests/gameplay_input_fixture.cpp",
         "tools/renderer_oracle/tests/test_gameplay_smoke.py",
-        "tools/renderer_oracle/tests/gameplay_resource_fixture.cpp"
+        "tools/renderer_oracle/tests/gameplay_resource_fixture.cpp",
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
       ],
       "required_state_channels": [
         "context",
