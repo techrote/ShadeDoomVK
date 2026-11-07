@@ -11,8 +11,9 @@ historical failures and unresolved 1025-light shadow fault remain unchanged.
 
 `lights-one-shadow-off` and `lights-many-shadow-off` are explicit variants of
 the original one- and 64-light scenes. Only their identity/descriptive metadata,
-shadow switch and zero-shadow assertions differ. Their generated PK3/map/light/
-material/image bytes match their originals. Filtering, geometry, authored light
+shadow switch and zero-shadow assertions differ. Their map/light/material/image
+member bytes match their originals; MAPINFO differs only in its display title,
+so each new archive has a distinct pinned hash. Filtering, geometry, authored light
 eligibility/counts, camera, ordinary engine clock and all other renderer settings
 are preserved. The existing shadow-enabled recipes are not rewritten or relabeled.
 The disabled variants keep explicit zero-shadow frame assertions and, like the

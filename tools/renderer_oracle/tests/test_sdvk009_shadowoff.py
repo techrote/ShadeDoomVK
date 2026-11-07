@@ -5,7 +5,7 @@ from tools.renderer_oracle import prepare, sdvk009_shadowoff as scaling
 
 
 class ShadowoffRecipeTests(unittest.TestCase):
-    def test_sparse_variants_preserve_actual_scene_archive_and_all_other_quality(self):
+    def test_sparse_variants_preserve_actual_scene_payloads_and_all_other_quality(self):
         catalog = prepare.load_catalog()
         prepare.validate_catalog(catalog)
         scenes = {scene["id"]: scene for scene in catalog["scenes"]}
@@ -16,8 +16,13 @@ class ShadowoffRecipeTests(unittest.TestCase):
                 self.assertEqual(variant, scaling.shadowoff_variant(original))
                 self.assertNotIn("shadow", variant["required_state_channels"])
                 before, after = prepare.scene_assets(original), prepare.scene_assets(variant)
-                self.assertEqual(before[0], after[0])
-                self.assertEqual(before[1], after[1])
+                self.assertEqual(set(before[1]), set(after[1]))
+                changed = {name for name in before[1] if before[1][name] != after[1][name]}
+                self.assertEqual(changed, {"MAPINFO"})
+                self.assertEqual(before[1]["MAPINFO"].replace(
+                    ('"SDVK ' + original_id + '"').encode(), ('"SDVK ' + variant["id"] + '"').encode()), after[1]["MAPINFO"])
+                for name in before[1]:
+                    if name != "MAPINFO": self.assertEqual(before[1][name], after[1][name], name)
                 self.assertEqual(prepare.configuration(original).replace(b"gl_light_shadows=2", b"gl_light_shadows=0"),
                                  prepare.configuration(variant))
                 self.assertEqual(prepare.capture_script(original).replace(b"gl_light_shadows 2", b"gl_light_shadows 0"),

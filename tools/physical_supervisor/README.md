@@ -433,7 +433,8 @@ then three independent timing processes per workload. All use 1904x1001,
 timing retains 120. The first timing creation requires all eight validated
 state packets, equal selected/upload workloads and four exact state/RGB pairs.
 Every timing process requires complete single `scene.immediate` GPU samples.
-The two sparse variants preserve original scene PK3 bytes and explicitly disable
-shadows; the original shadow-enabled and 1025-light recipes remain unchanged.
+The two sparse variants preserve map/material/image member bytes; MAPINFO's
+display title carries each new identity and its archive has a distinct pinned
+hash. They explicitly disable shadows; the originals and 1025-light recipe remain unchanged.
 No full campaign or SDVK-009 acceptance follows. See the
 [bounded protocol](../../docs/shadedoomvk/SDVK-009-SHADOWOFF-SCALING.md).

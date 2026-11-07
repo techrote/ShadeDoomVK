@@ -27,7 +27,8 @@ def shadowoff_variant(original):
 
     Lighting geometry, light eligibility/counts, materials, sampling, camera,
     ordinary clock and all other settings remain the original one/64 workload.
-    Generated scene PK3 bytes are consequently identical to the original.
+    Every map/material/image member is byte-identical; MAPINFO's display title
+    carries the new scene identity, so the archive has a distinct pinned hash.
     """
     require(original["id"] in ("lights-one", "lights-many"), "Unknown sparse shadow-off source")
     result = copy.deepcopy(original)

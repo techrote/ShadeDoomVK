@@ -85,9 +85,12 @@ class ShadowoffAdmissionTests(fixtures.TempCase):
         packet, _ = self.prepared()
         run = frozen_oracle(packet["oracle_source_root"])
         real_scene = run.prepared_scene
+        # Complete the read-only Git/source regeneration before prohibiting
+        # Popen. The guard below then covers only pure admission, not Git.
+        verified = {scene: real_scene(packet["prepared"], scene) for scene in scaling.SCENES}
         for key, value in (("gl_light_shadows", 2), ("vk_rayquery", True), ("gl_texture_filter", 4)):
             def altered(*args):
-                root, manifest, recipe = real_scene(*args)
+                root, manifest, recipe = verified[args[1]]
                 recipe = copy.deepcopy(recipe)
                 recipe["native"]["settings"][key] = value
                 return root, manifest, recipe
