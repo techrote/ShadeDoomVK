@@ -95,7 +95,7 @@ def markdown(result: dict) -> str:
     for row in result["actual_processes"]:
         duration = row["duration_seconds"]
         minutes = "not run" if duration is None else f"{duration / 60:.2f} min"
-        lines.append(f"| \`{row['name']}\` | {row['status']} | {minutes} |")
+        lines.append(f"| `{row['name']}` | {row['status']} | {minutes} |")
     lines += [
         "",
         f"Qualification: **{result['qualification_status']}**. Total capture-step time: "
