@@ -1,6 +1,6 @@
 # Lighting and shadow truth table
 
-## Current downstream software authority â€” 14 October 2026
+## Current downstream software authority — 14 October 2026
 
 The [SDVK-009 gate split](../SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) permits #11/#14
 to consume the existing software-qualified lighting contracts and accepted SDVK-010
@@ -34,11 +34,11 @@ Primary files:
 
 `FDynLightInfo` carries position/color, spot direction/angles, radius, linearity, strength, soft-shadow radius, shadow index and flags. Light arrays distinguish normal, subtractive and additive classes.
 
-Historical PF-017 profiling did not retain a representation change. On a dense PF-016 fixture, 49,473 logical consumer records repeated only 217 packed states, but a frame-local hash plus shader indirection increased representative production S:Setup3.615â†’8.432ms across five pairs. A later source-owned packing-revision/temporal-write prototype reported setupâˆ’6.83% and mappedwritesâˆ’13.83%, with incomplete source-ID/lifetime acceptance. Both were restored; those research results are not current benefits. The final integrated candidate then regressed setup+10.79% and CPU whole-frame+2.42% over five complete pairs, with candidate state/counter diagnostics unmeasured after a baseline instrumentation defect stopped launches. Accepted PR #74 / `844462c3a4ed5f7037ade1b49d1a28f578077213` completes PF-017 as a no-go with complete restoration. The contiguous accepted upload and shader range semantics remain authoritative. See [final acceptance](../PF-017-FINAL-ACCEPTANCE.md); [profiling](../PF-017-PROFILING-NOTES.md) and [reuse research](../PF-017-REUSE-RESEARCH.md) retain their historical evidence/limitations.
+Historical PF-017 profiling did not retain a representation change. On a dense PF-016 fixture, 49,473 logical consumer records repeated only 217 packed states, but a frame-local hash plus shader indirection increased representative production S:Setup3.615→8.432ms across five pairs. A later source-owned packing-revision/temporal-write prototype reported setup−6.83% and mappedwrites−13.83%, with incomplete source-ID/lifetime acceptance. Both were restored; those research results are not current benefits. The final integrated candidate then regressed setup+10.79% and CPU whole-frame+2.42% over five complete pairs, with candidate state/counter diagnostics unmeasured after a baseline instrumentation defect stopped launches. Accepted PR #74 / `844462c3a4ed5f7037ade1b49d1a28f578077213` completes PF-017 as a no-go with complete restoration. The contiguous accepted upload and shader range semantics remain authoritative. See [final acceptance](../PF-017-FINAL-ACCEPTANCE.md); [profiling](../PF-017-PROFILING-NOTES.md) and [reuse research](../PF-017-REUSE-RESEARCH.md) retain their historical evidence/limitations.
 
 ## Actor/sprite lighting modes
 
-### CPU aggregate sprite light â€” active compatibility path
+### CPU aggregate sprite light — active compatibility path
 
 `HWDrawInfo::GetDynSpriteLight` walks a section light list and accumulates RGB contribution. It handles portal-relative positions, spotlights, attenuation, optional actor visibility trace and shadow-map test.
 
@@ -46,7 +46,7 @@ PF-011 records this as an intentionally distinct compatibility path. It floors i
 
 PF-015 keeps that math unchanged but hardens the optional static actor/light visibility result: actor movement, the PF-004 LevelMesh `Query` epoch, stable portal-group context and per-light update state all participate in reuse validity.
 
-### GPU/per-pixel light list â€” active
+### GPU/per-pixel light list — active
 
 `HWDrawInfo::GetDynSpriteLightList` owns one candidate eligibility/portal-relative/radius/visibility/packing pipeline. PF-016 replaces sorted per-query membership with `HWGenerationSet<FDynamicLight*>`, preserving first-encounter order. The baseline candidate source remains `BSPWalkCircle`; a local section source is used only after an actual baseline/local selected identity/order/class/group comparison and proof that the circle touches one section in one group. Successful qualification is cached by position, render radius, section and portal group. Any key change re-enters baseline qualification; ambiguous, boundary and cross-group cases stay on BSP.
 
@@ -72,23 +72,23 @@ PF-015 extends `sun_trace_cache_t` with the PF-004 `Query` epoch and stable port
 
 ## World occlusion
 
-### CPU LevelMesh trace â€” active
+### CPU LevelMesh trace — active
 
 Actor/static-light visibility can call `level.levelMesh->Trace(...)`. PF-015 keys reuse to the LevelMesh `Query` mutation epoch rather than assuming actor/light movement is the only visibility-changing input.
 
-### Vulkan ray query â€” active when supported/enabled
+### Vulkan ray query — active when supported/enabled
 
 Shaders can use acceleration structures and `rayQueryEXT`; a shader-side CPU-tree-style fallback exists when ray query is unavailable.
 
 This represents world/LevelMesh geometry, not automatically alpha-tested sprite silhouette geometry. PF-015 does not change capability routing or the non-ray fallback.
 
-## Dynamic 1D shadow map â€” active
+## Dynamic 1D shadow map — active
 
 `ShadowMap` stores per-light 1D depth rows in a 1024x1024 texture. PF-015 preserves exactly 1024 rows.
 
 When the active shadowmapped eligible set is <=1024, selection and row order remain inherited linked-list order. Only overflow invokes `HWSelectShadowCandidates`: squared distance to the interpolated central main render viewpoint is the primary relevance metric, followed by deterministic position/light-semantic tie fields. This removes linked-list traversal accident from non-equivalent overflow selection while preserving the entire below-cap workload.
 
-Exact full-key ties are selector-semantic equivalents; stable ordering is retained inside that equivalence class. Shadow-map generation occurs once before stereo eye iteration, so the central pre-eye viewpointâ€”not a left/right eye offsetâ€”is the relevance origin.
+Exact full-key ties are selector-semantic equivalents; stable ordering is retained inside that equivalence class. Shadow-map generation occurs once before stereo eye iteration, so the central pre-eye viewpoint—not a left/right eye offset—is the relevance origin.
 
 `stat shadowmap` reports processed, eligible candidate, selected and dropped-overflow counts.
 
@@ -153,7 +153,7 @@ These are renderer compatibility units, not lumens/lux/candela. PF-011 deliberat
 
 See `docs/shadedoomvk/PF-015-SHADOW-VISIBILITY-CONTRACT.md` for the executable PF-015 selection/cache contract.
 
-## PF-017 integrated physical no-go â€” 2026-10-03
+## PF-017 integrated physical no-go — 2026-10-03
 
 PR #74 restores the original light path after five integrated-source GTX 1650 SUPER pairs regress setup (+10.79%) and whole-frame (+2.42%). Five exact images do not override performance failure. Candidate counter/state diagnostics stopped on an added baseline metadata-hook defect; no candidate physical correctness acceptance is claimed. No reuse, hash/indirection, material index or default-resource sharing is retained. Accepted repaired master semantics and CFX lifetimes are unchanged. See [final report](../PF-017-FINAL-ACCEPTANCE.md).
 
@@ -207,6 +207,6 @@ geometry shadows one card. Emitted draw/proxy/probe state plus predeclared nativ
 prove the bounded effect; the CPU observer does not manufacture per-fragment visibility.
 The [combined gate](../SDVK-010-INTEGRATION-ACCEPTANCE.md) retains exact repeat images/state.
 
-## SDVK-011 viewmodel candidate
+## SDVK-011 candidate
 
-`gl_viewmodel_lighting` defaults to inherited mode 0. Mode 1 keeps sector colour/calibration without local/environment contributions. Mode 2 uses one eight-unit camera-forward sample for light gathering, attenuation, BRDF view and world-occlusion rays. `hw_weapon.cpp` owns this render-only policy; HUD geometry/gameplay are unchanged. `stat viewmodel` and emitted Vulkan `viewmodel` records report mode, fallback, sample and resource identity. See [the bounded contract](../SDVK-011-VIEWMODEL-LIGHTING.md).
+Legacy remains default. Enhanced cards share one camera-forward sample for light selection, shading and world rays. HUD geometry/gameplay are unchanged. stat viewmodel and emitted records report mode, fallback, sample and resource identity. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.

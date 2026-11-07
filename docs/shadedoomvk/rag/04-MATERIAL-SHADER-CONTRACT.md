@@ -101,11 +101,11 @@ Sprite precache material identity is the same `scaleflags` contract as live mate
 PF-013 changes only the GGX distribution's numerically unstable denominator representation. For positive roughness the new form is algebraically equivalent:
 
 ```text
-1 + NdotHÃ‚Â² * (aÃ‚Â² - 1)
-Ã¢â€°Â¡ (1 - NdotHÃ‚Â²) + NdotHÃ‚Â² * aÃ‚Â²
+1 + NdotH² * (a² - 1)
+≡ (1 - NdotH²) + NdotH² * a²
 ```
 
-where the shader's `a = roughnessÃ‚Â²`. The right-hand form avoids catastrophic cancellation near `NdotH=1` and very small roughness. At exactly zero lobe width the finite sampled-BRDF fallback is `0`, avoiding the inherited `0/0`; no roughness remap, minimum aesthetic roughness, light scale or PF-011 compatibility constant is introduced.
+where the shader's `a = roughness²`. The right-hand form avoids catastrophic cancellation near `NdotH=1` and very small roughness. At exactly zero lobe width the finite sampled-BRDF fallback is `0`, avoiding the inherited `0/0`; no roughness remap, minimum aesthetic roughness, light scale or PF-011 compatibility constant is introduced.
 
 ## Sampling/color-space direction
 
@@ -263,10 +263,6 @@ collection is pending; the old campaign remains failed and physical work stopped
 
 Actor PBR cards retain SDVK-005 semantic normal/metallic/roughness/AO filters and SDVK-007 final-quad normal orientation. A source-level authored actor probe ordinal is selected *before* `VkRenderState::ApplySurfaceUniforms`, then converted through the unchanged PF-113 irradiance/prefilter bindless pair. Actual emitted-draw state captures ordinal, runtime pair, publication epoch and normal/PBR shader identities. Absent authored probes and incomplete published pairs remain zero-radiance IBL; direct/sunlight/shadow response is independent. No POM, BRDF adjustment, alternate cubemap or fake GI. The `sun-probes` dielectric/metallic material witness needs native qualification; linked portals and actual occluded sun response are not yet accepted. [Contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
 
-## SDVK-011 viewmodel candidate
-
-See [viewmodel lighting](../SDVK-011-VIEWMODEL-LIGHTING.md). Two appended surface uniforms select an explicit camera-oriented card basis and one world lighting sample. Default/world draws retain existing positions; shader-key ABI, material order and sampling are unchanged. HUD relief is disabled; unsupported projection/material cases have diagnosed fallback. Native qualification and review remain required.
-
 ## SDVK-011 candidate
 
-Two appended SDVK-011 surface uniforms select an explicit camera-oriented HUD-card basis and one world lighting sample. Other draws retain original positions; material order/sampling and shader-key ABI are unchanged. Unsupported projection/material cases have diagnosed fallback. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.
+Two appended surface uniforms select a camera-oriented HUD card basis and one world lighting sample. Other draws retain original positions; material order, sampling and shader-key ABI are unchanged. Unsupported projection/material cases have diagnosed fallback. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.
