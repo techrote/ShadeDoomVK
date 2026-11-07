@@ -47,6 +47,23 @@ dynamic state or image comparison. Existing static camera and exact comparison
 gates remain unchanged. There is no new physical-performance, POM, static-lightmap
 bake, general GI or arbitrary-mod compatibility claim.
 
+All 128 frame, player, resource and emitted viewmodel snapshots remain retained.
+The four large per-draw families (`material`, `probe`, `pipeline`, `shadow`) are
+retained only for the seven fixed checkpoints and first actual muzzle view in
+each map. Selection is latched before that frame's first draw from ordinary
+player extralight; it never changes input or extends a firing phase. Each player
+snapshot declares its selection, and admission derives the same exact nine
+frames from actual player state. Their material/probe/pipeline/shadow records
+and first-muzzle PNG joins are mandatory. Other recipes retain full diagnostics.
+The 16 MiB record-store limit remains unchanged. A CPU replay fixture preserves
+all 223 payload rows from the retained real legacy capture, demonstrates the
+prior 128-frame overflow, and checks the selected policy with additional
+maximum-size gameplay and checkpoint records reserved at their full cadence. This is a capacity
+regression test; it does not qualify a native gameplay run or performance.
+The retained payload exhausts the old policy at frame 39. The selected replay
+uses 9,890,888 bytes against the unchanged 16,777,216-byte limit, including those
+maximum-size reservations, and verifies the stored frame IDs after serialization.
+
 Prepare without executing a renderer:
 
 ```text

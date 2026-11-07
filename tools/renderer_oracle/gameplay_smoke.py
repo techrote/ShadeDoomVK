@@ -25,6 +25,7 @@ WEAPON = {"requested_mode": 2, "effective_mode": 2, "fallback_reason": 0,
           "material": "SDVUA0", "shader": 4, "probe_required": True,
           "dynamic_lights_required": True}
 PBR_SEMANTICS = ["albedo", "normal", "metallic", "roughness", "ambient-occlusion"]
+DETAIL_KINDS = frozenset(("material", "probe", "pipeline", "shadow"))
 
 
 def validate_input_log(text):
@@ -39,7 +40,8 @@ def validate_recipe(scene):
             and native.get("map") == MAP_A and native.get("gameplay_smoke") == {
                 "contract": "ordinary-gameplay/v1", "frames": FRAMES, "warmup": WARMUP,
                 "maps": [MAP_A, MAP_B, MAP_A], "checkpoints": list(CHECKPOINTS),
-                "muzzle_images": ["native.gameplay-fire-a.png", "native.gameplay-fire-b.png"]},
+                "muzzle_images": ["native.gameplay-fire-a.png", "native.gameplay-fire-b.png"],
+                "detail_policy": "seven-fixed-and-first-actual-muzzle-per-map"},
             "Unknown ordinary-gameplay recipe")
     settings = native.get("settings", {})
     require(settings.get("cl_capfps") is True and settings.get("vid_maxfps") == 0
@@ -105,8 +107,24 @@ def validate_gameplay(value):
     integer(value.get("extra_light"), "actual weapon light", maximum=20)
     require(value.get("weapon") == "SDVKVMWeapon" and type(value.get("cheats")) is int and value["cheats"] == 0,
             "Gameplay weapon/cheat policy differs")
-    for key in ("forward", "right", "attack", "pending_input"):
+    for key in ("forward", "right", "attack", "pending_input", "detail_selected"):
         require(type(value.get(key)) is bool, "Gameplay input state absent: " + key)
+
+
+def muzzle_frames(gameplay):
+    selected = {}
+    for map_name, after, before in ((MAP_A, 40, 56), (MAP_B, 80, 96)):
+        frames = [frame for frame, value in gameplay.items() if after < frame < before
+                  and value["map"] == map_name and value["extra_light"] > 0]
+        require(frames, "Gameplay lacks an actual muzzle frame in " + map_name)
+        selected[map_name] = min(frames)
+    return selected
+
+
+def detail_frames(raw):
+    gameplay = {row["frame"]: row["data"] for row in raw["records"] if row["kind"] == "gameplay"}
+    require(set(gameplay) == set(range(1, FRAMES+1)), "Gameplay lacks full player coverage for detail selection")
+    return set(CHECKPOINTS) | set(muzzle_frames(gameplay).values())
 
 
 def validate_records(raw, native):
@@ -123,22 +141,30 @@ def validate_records(raw, native):
         elif row["kind"] == "resource": resources[row["frame"]] = row["data"]
     require(set(frames) == set(gameplay) == set(resources) == set(range(1, FRAMES+1)),
             "Gameplay lacks actual frame/player/resource coverage")
+    detailed = detail_frames(raw)
+    require(len(detailed) == 9 and all(value["detail_selected"] is (frame in detailed)
+            for frame, value in gameplay.items()), "Gameplay detail selection differs from its seven checkpoints and first actual muzzle frames")
+    require(all(row["frame"] in detailed for row in raw["records"] if row["kind"] in DETAIL_KINDS),
+            "Gameplay retained a detailed draw family outside its declared nine frames")
     for frame, value in gameplay.items():
         require(value["map"] == frames[frame]["map"], "Gameplay player/frame map differs")
         camera = frames[frame]["camera"]
         require(math.dist(camera["position"], value["position"]) < 56,
                 "Gameplay camera is not the ordinary player camera")
         selected = [row for row in raw["records"] if row["frame"] == frame]
+        if frame in detailed:
+            require(DETAIL_KINDS <= {row["kind"] for row in selected}, "Gameplay detail frame lacks actual material/probe/pipeline/shadow records")
         draws = [row["data"] for row in selected if row["kind"] == "viewmodel"
                  and row["data"].get("material") in ("SDVUA0", "SDVUB0")]
         require(draws, "Gameplay weapon was not actually drawn")
         actual_camera = dict(position=camera["position"], yaw=camera["angles"][0], pitch=camera["angles"][1])
         for draw in draws:
             from .run import _material_semantics_match
-            bound = [row["data"] for row in selected if row["kind"] == "material"
-                     and row["data"].get("name") == draw["material"]]
-            require(bound and all(_material_semantics_match(value, PBR_SEMANTICS) for value in bound),
-                    "Actual ready/firing weapon lacks authored normal/PBR material layers")
+            if frame in detailed:
+                bound = [row["data"] for row in selected if row["kind"] == "material"
+                         and row["data"].get("name") == draw["material"]]
+                require(bound and all(_material_semantics_match(value, PBR_SEMANTICS) for value in bound),
+                        "Actual ready/firing weapon lacks authored normal/PBR material layers")
             # Map entry can legitimately have no published environment yet.
             # Checkpoints must prove the new owner's current published pair.
             spec = {**WEAPON, "material": draw["material"], "probe_required": frame in CHECKPOINTS or value["extra_light"] > 0}
@@ -177,6 +203,7 @@ def validate_records(raw, native):
             "Actual muzzle light was not observed or did not reset")
     return {"status": "PASS", "movement": True, "turn": True, "ammo_depletion_both_maps": True,
             "fresh_levelmesh_owners": owners, "muzzle_light_reset": True,
+            "detailed_frames": sorted(detailed),
             "dynamic_exact_rgb_repeatability": False}
 
 
@@ -188,6 +215,7 @@ def validate_checkpoints(directory, raw):
     muzzle = [row for row in rows if row["data"].get("phase") == "muzzle"]
     maps = {row["frame"]: row["data"]["map"] for row in raw["records"] if row["kind"] == "frame"}
     games = {row["frame"]: row["data"] for row in raw["records"] if row["kind"] == "gameplay"}
+    first_muzzle = muzzle_frames(games)
     require(len(rows) == 9 and [row["frame"] for row in fixed] == list(CHECKPOINTS)
             and [row["data"].get("map") for row in muzzle] == [MAP_A, MAP_B], "Gameplay checkpoint sequence differs")
     expected = checkpoint_names()
@@ -203,6 +231,8 @@ def validate_checkpoints(directory, raw):
                 "Gameplay checkpoint was not emitted from its completed view")
         if value.get("phase") == "muzzle":
             game = games[row["frame"]]
+            require(row["frame"] == first_muzzle[value["map"]] and game["detail_selected"],
+                    "Muzzle image is not the first actual detailed firing frame")
             baseline = 8 if value["map"] == MAP_A else 80
             require((40 < row["frame"] < 56 if value["map"] == MAP_A else 80 < row["frame"] < 96)
                     and game["extra_light"] > 0 and game["ammo"] < games[baseline]["ammo"]

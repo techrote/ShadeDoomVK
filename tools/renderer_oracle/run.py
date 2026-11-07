@@ -738,7 +738,13 @@ def _scene_assertions(raw, scene):
                 "Shadow capacity boundary was not exercised")
     if raw["mode"] == "state":
         assertions = scene["native"].get("state_assertions", {})
+        detailed = None
+        if scene["native"].get("generator") == "gameplay_smoke":
+            from tools.renderer_oracle.gameplay_smoke import detail_frames
+            detailed = detail_frames(raw)
         for frame in range(1, raw["observed_frames"] + 1):
+            if detailed is not None and frame not in detailed:
+                continue  # Only the registered gameplay's four large draw families are sampled.
             records = [record for record in raw["records"] if record["frame"] == frame]
             if "viewmodel" in assertions:
                 try:

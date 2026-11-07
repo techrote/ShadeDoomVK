@@ -22083,7 +22083,8 @@
           "exact executable/IWAD/settings and actually loaded package identities",
           "actual entry/rebuilt map start camera matches recipe; intervening camera/player snapshots follow ordinary input",
           "all required state channels observed or explicit unavailable status",
-          "one bounded ordinary-tic capture joins actual movement, turning, ammo consumption, muzzle draws and fresh resource owners with nine pinned completed-view images; no exact dynamic repeat comparison"
+          "one bounded ordinary-tic capture joins actual movement, turning, ammo consumption, muzzle draws and fresh resource owners with nine pinned completed-view images; no exact dynamic repeat comparison",
+          "all128 frame/player/resource/viewmodel snapshots; material/probe/pipeline/shadow detail only at seven fixed and first actual muzzle checkpoints in each map"
         ],
         "screenshot": {
           "filename": "{prefix}.png",
@@ -22164,7 +22165,8 @@
           "muzzle_images": [
             "native.gameplay-fire-a.png",
             "native.gameplay-fire-b.png"
-          ]
+          ],
+          "detail_policy": "seven-fixed-and-first-actual-muzzle-per-map"
         }
       },
       "negative_fixtures": [
@@ -22172,7 +22174,9 @@
         "tools/renderer_oracle/tests/gameplay_input_fixture.cpp",
         "tools/renderer_oracle/tests/test_gameplay_smoke.py",
         "tools/renderer_oracle/tests/gameplay_resource_fixture.cpp",
-        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py"
+        "tools/renderer_oracle/tests/test_sdvk011_hud_layout.py",
+        "tools/renderer_oracle/tests/gameplay_budget_fixture.cpp",
+        "tools/renderer_oracle/tests/fixtures/viewmodel-legacy-record-payload.tsv.gz"
       ],
       "required_state_channels": [
         "context",

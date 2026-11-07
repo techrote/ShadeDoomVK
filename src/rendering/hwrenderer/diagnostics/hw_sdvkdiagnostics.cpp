@@ -120,6 +120,8 @@ struct Observer
     bool SpecialSurfaceInput = false;
     bool GameplayInput = false;
     bool GameplayFireA = false, GameplayFireB = false;
+    bool GameplayDetail = false;
+    int GameplayMuzzle = 0;
     const char* GameplayPendingMap = nullptr;
     uint64_t GameplayPreviousOwner = 0;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
@@ -271,6 +273,29 @@ constexpr GameplayPhase GameplayPhases[] = {
 bool GameplayCheckpoint(uint64_t frame)
 {
     return frame == 8 || frame == 24 || frame == 40 || frame == 56 || frame == 80 || frame == 96 || frame == 120;
+}
+void SelectGameplayDetail(Observer& observer)
+{
+    observer.GameplayDetail = false;
+    observer.GameplayMuzzle = 0;
+    if (!observer.GameplayInput) return;
+    const uint64_t frame = observer.Frame.load(std::memory_order_relaxed);
+    observer.GameplayDetail = GameplayCheckpoint(frame);
+    AActor* actor = players[consoleplayer].camera;
+    if (!actor || !actor->player || actor->player->extralight <= 0) return;
+    if (!observer.GameplayFireA && level.MapName.Compare("SDVGPA") == 0 && frame > 40 && frame < 56)
+        observer.GameplayMuzzle = 1;
+    if (!observer.GameplayFireB && level.MapName.Compare("SDVGPB") == 0 && frame > 80 && frame < 96)
+        observer.GameplayMuzzle = 2;
+    observer.GameplayDetail = observer.GameplayDetail || observer.GameplayMuzzle != 0;
+}
+bool GameplayRecordSelected(const Observer& observer, const char* kind)
+{
+    // Only this opt-in smoke samples the four large per-draw payload families.
+    // Frame/player/resource/viewmodel and smaller observations remain complete.
+    return !observer.GameplayInput || observer.GameplayDetail || !kind ||
+        (std::strcmp(kind, "material") && std::strcmp(kind, "probe") &&
+         std::strcmp(kind, "pipeline") && std::strcmp(kind, "shadow"));
 }
 bool GameplayButtonsIdle()
 {
@@ -749,7 +774,7 @@ void ProbeBuilderLifecycle(const char* event, uint64_t ownerRevision, int probeC
 void Emit(const char* kind, const std::string& object, bool deduplicate)
 {
     const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
-    if (Enabled() && frame) Get().Records.Add(kind, frame, object, deduplicate);
+    if (Enabled() && frame && GameplayRecordSelected(Get(), kind)) Get().Records.Add(kind, frame, object, deduplicate);
 }
 
 bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
@@ -798,6 +823,9 @@ void BeginFrame()
         if (observer.Seen <= observer.Warmup) { observer.Frame.store(0, std::memory_order_relaxed); return; }
         Require(observer.Collected < observer.Requested, "SDVK completion hook did not close the requested frame interval");
         observer.Frame.store(uint64_t(observer.Collected) + 1, std::memory_order_relaxed);
+        // Latch before any retained draw. Ordinary tics do not run inside the
+        // main view; the same passive muzzle selection owns its completed PNG.
+        SelectGameplayDetail(observer);
         if (observer.StateMode && V_IsHardwareRenderer())
         {
             observer.Lights.clear();
@@ -905,6 +933,7 @@ void EndFrame()
                 .Raw("position", Vector(actor->Pos())).Num("yaw", actor->Angles.Yaw.Degrees()).Int("gametic", gametic)
                 .Str("weapon", actor->player->ReadyWeapon->GetClass()->TypeName.GetChars()).Int("ammo", ammo->IntVar(NAME_Amount))
                 .Int("extra_light", actor->player->extralight).Int("cheats", actor->player->cheats)
+                .Bool("detail_selected", observer.GameplayDetail)
                 .Bool("forward", buttonMap.ButtonDown(Button_Forward)).Bool("right", buttonMap.ButtonDown(Button_Right))
                 .Bool("attack", buttonMap.ButtonDown(Button_Attack)).Bool("pending_input", bool(sdvk_gameplay_pending)).Json());
         }
@@ -964,8 +993,8 @@ void FramePresented()
                 };
                 if (GameplayCheckpoint(frame)) checkpoint(".gameplay-" + std::to_string(frame) + ".png", "fixed");
                 AActor* actor = players[consoleplayer].camera;
-                const bool a = level.MapName.Compare("SDVGPA") == 0 && frame > 40 && frame < 56;
-                const bool b = level.MapName.Compare("SDVGPB") == 0 && frame > 80 && frame < 96;
+                const bool a = observer.GameplayMuzzle == 1;
+                const bool b = observer.GameplayMuzzle == 2;
                 if (actor && actor->player && actor->player->extralight > 0 &&
                     ((a && !observer.GameplayFireA) || (b && !observer.GameplayFireB)))
                 {
@@ -985,6 +1014,8 @@ void FramePresented()
         DriveLightmapTransitionInput(observer);
         DriveSpecialSurfaceInput(observer);
         DriveGameplayInput(observer);
+        observer.GameplayDetail = false;
+        observer.GameplayMuzzle = 0;
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;
