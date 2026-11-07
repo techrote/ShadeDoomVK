@@ -294,7 +294,9 @@
             "timing",
             "sprite-basis",
             "sprite-relief",
-            "viewmodel"
+            "viewmodel",
+            "surface",
+            "surface-checkpoint"
           ]
         },
         "frame": {

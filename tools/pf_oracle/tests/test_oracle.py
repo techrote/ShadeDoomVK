@@ -148,6 +148,40 @@ class OracleTests(unittest.TestCase):
         with self.assertRaises(oracle.OracleError):
             oracle.evaluate_manifest(root, self.manifest([duplicate, dict(duplicate)]))
 
+    def test_source_paths_are_canonical_and_repository_relative(self):
+        root = self.make_repo({"repo/src/valid.cpp": "expected marker\r\n",
+                               "outside.cpp": "expected marker\n"}) / "repo"
+
+        def manifest(path):
+            return self.manifest([{
+                "id": "source-custody", "category": "test", "kind": "invariant",
+                "owner": "PF-X", "paths": [path], "required": ["expected marker"]
+            }])
+
+        self.assertEqual(oracle.evaluate_manifest(root, manifest("src/valid.cpp"))
+                         ["summary"]["unexpected"], 0)
+        for path in ("../outside.cpp", str(root.parent / "outside.cpp"),
+                     "./src/valid.cpp", "src/../src/valid.cpp",
+                     "src//valid.cpp", "src\\valid.cpp", "src/valid.cpp/",
+                     "C:\\outside.cpp"):
+            with self.subTest(path=path), self.assertRaises(oracle.OracleError):
+                oracle.evaluate_manifest(root, manifest(path))
+
+    def test_source_paths_reject_symlink_aliases_and_directories(self):
+        root = self.make_repo({"repo/src/valid.cpp": "expected marker\n",
+                               "outside.cpp": "expected marker\n"}) / "repo"
+        try:
+            (root / "alias.cpp").symlink_to(root / "src" / "valid.cpp")
+            (root / "aliasdir").symlink_to(root / "src", target_is_directory=True)
+            (root / "external.cpp").symlink_to(root.parent / "outside.cpp")
+        except (OSError, NotImplementedError) as error:
+            self.skipTest(f"Host cannot create symlinks: {error}")
+        for path in ("alias.cpp", "aliasdir/valid.cpp", "external.cpp"):
+            with self.subTest(path=path), self.assertRaisesRegex(oracle.OracleError, "symlink"):
+                oracle._read_source(root, path)
+        with self.assertRaises(oracle.OracleError):
+            oracle._read_source(root, "src")
+
     def test_canonical_json_ignores_object_key_input_order(self):
         a = {"b": 2, "a": {"y": 2, "x": 1}}
         b = json.loads('{"a":{"x":1,"y":2},"b":2}')

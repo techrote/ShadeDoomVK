@@ -42,6 +42,8 @@
 #include "hw_walldispatcher.h"
 #include "hw_dynlightdata.h"
 #include "a_dynlight.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <optional>
 
 //==========================================================================
 //
@@ -51,6 +53,28 @@
 
 void HWDecal::DrawDecal(HWDrawInfo *di, FRenderState &state)
 {
+	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedSurface;
+	if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+	{
+		SdvkDiagnostics::SpecialSurfaceMetadata value;
+		value.Class = "decal";
+		value.Type = sdvkType;
+		value.Side = sdvkSide;
+		value.Sector = sdvkSector;
+		value.ControlSector = sdvkControlSector;
+		value.PortalGroup = di->Level->sectors[sdvkSector >= 0 ? sdvkSector : frontsector->Index()].PortalGroup;
+		value.Tile = sdvkTile;
+		value.VertexLightmapPage = sdvkPage;
+		value.VertexFirst = int(vertindex);
+		value.VertexCount = 4;
+		SdvkDiagnostics::ApplyWrittenVertices(value);
+		value.Plane[0] = Normal.X;
+		value.Plane[1] = Normal.Z;
+		value.Plane[2] = Normal.Y;
+		value.Plane[3] = (Normal.X * dv[0].x + Normal.Z * dv[0].y + Normal.Y * dv[0].z);
+		value.HasPlane = true;
+		observedSurface.emplace(value);
+	}
 	PalEntry DecalColor;
 	// alpha color only has an effect when using an alpha texture.
 	if (decal->RenderStyle.Flags & (STYLEF_RedIsAlpha | STYLEF_ColorIsFixed))
@@ -394,6 +418,16 @@ void HWWall::ProcessDecal(HWDrawInfo* di, FRenderState& state, DBaseDecal *decal
 	HWDecal *gldecal = di->AddDecal(type == RENDERWALL_MIRRORSURFACE);
 	gldecal->texture = texture;
 	gldecal->decal = decal;
+	if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+	{
+		gldecal->sdvkSide = side->Index();
+		gldecal->sdvkSector = side->sector->Index();
+		gldecal->sdvkType = LevelMeshInfo.Type != ST_NONE ? LevelMeshInfo.Type : ST_MIDDLESIDE;
+		gldecal->sdvkControlSector = LevelMeshInfo.ControlSector ? LevelMeshInfo.ControlSector->Index() : -1;
+		gldecal->sdvkTile = -1;
+		gldecal->sdvkPage = -1;
+	}
+
 
 	if (decal->RenderFlags & RF_FULLBRIGHT)
 	{
@@ -429,11 +463,22 @@ void HWWall::ProcessDecal(HWDrawInfo* di, FRenderState& state, DBaseDecal *decal
 	{
 		LightmapTile* tile = &di->Level->levelMesh->GetLightmapTile(lightmaptile);
 		float lightmapindex = (float)tile->AtlasLocation.ArrayIndex;
+		if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+		{
+			gldecal->sdvkTile = lightmaptile;
+			gldecal->sdvkPage = int(lightmapindex);
+		}
+
 
 		for (i = 0; i < 4; i++)
 		{
 			FVector2 lightmapuv = tile->ToUV(FVector3(dv[i].x, dv[i].y, dv[i].z), di->Level->levelMesh->Lightmap.TextureSize);
 			verts.first[i].Set(dv[i].x, dv[i].z, dv[i].y, dv[i].u, dv[i].v, lightmapuv.X, lightmapuv.Y, lightmapindex);
+		}
+		if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+		{
+			SdvkDiagnostics::CaptureWrittenVertices(di->Level->levelMesh, int(gldecal->vertindex), 4,
+				lightmaptile, verts.first);
 		}
 	}
 	else
@@ -445,7 +490,7 @@ void HWWall::ProcessDecal(HWDrawInfo* di, FRenderState& state, DBaseDecal *decal
 	}
 }
 
-void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dynlightindex) const
+void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dynlightindex, int lightmaptile) const
 {
 	line_t * line = seg->linedef;
 	side_t * side = seg->sidedef;
@@ -647,6 +692,16 @@ void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dy
 	HWDecal *gldecal = di->AddDecal(type == RENDERWALL_MIRRORSURFACE);
 	gldecal->texture = texture;
 	gldecal->decal = decal;
+	if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+	{
+		gldecal->sdvkSide = side->Index();
+		gldecal->sdvkSector = side->sector->Index();
+		gldecal->sdvkType = lightmapType;
+		gldecal->sdvkControlSector = lightmapControlSector ? lightmapControlSector->Index() : -1;
+		gldecal->sdvkTile = -1;
+		gldecal->sdvkPage = -1;
+	}
+
 
 	if (decal->RenderFlags & RF_FULLBRIGHT)
 	{
@@ -682,11 +737,22 @@ void HWDecalCreateInfo::ProcessDecal(HWDrawInfo* di, FRenderState& state, int dy
 	{
 		LightmapTile* tile = &di->Level->levelMesh->GetLightmapTile(lightmaptile);
 		float lightmapindex = (float)tile->AtlasLocation.ArrayIndex;
+		if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+		{
+			gldecal->sdvkTile = lightmaptile;
+			gldecal->sdvkPage = int(lightmapindex);
+		}
+
 
 		for (i = 0; i < 4; i++)
 		{
 			FVector2 lightmapuv = tile->ToUV(FVector3(dv[i].x, dv[i].y, dv[i].z), di->Level->levelMesh->Lightmap.TextureSize);
 			verts.first[i].Set(dv[i].x, dv[i].z, dv[i].y, dv[i].u, dv[i].v, lightmapuv.X, lightmapuv.Y, lightmapindex);
+		}
+		if (SdvkDiagnostics::SpecialSurfaceFrameSelected())
+		{
+			SdvkDiagnostics::CaptureWrittenVertices(di->Level->levelMesh, int(gldecal->vertindex), 4,
+				lightmaptile, verts.first);
 		}
 	}
 	else
@@ -738,7 +804,8 @@ void HWWall::ProcessDecals(HWWallDispatcher* di, FRenderState& state)
 					info.Colormap = Colormap;
 					info.texture = texture;
 					info.lightlist = lightlist;
-					info.lightmaptile = lightmaptile;
+					info.lightmapType = LevelMeshInfo.Type;
+					info.lightmapControlSector = LevelMeshInfo.ControlSector;
 					info.lightlevel = lightlevel;
 					info.rellight = rellight;
 					di->AddDecal(info);

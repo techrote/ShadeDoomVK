@@ -1294,6 +1294,11 @@ void D_DoomLoop ()
 			{
 				TryRunTics (); // will run at least one tic
 			}
+            // The exact SDVK-161 driver owns only its queued map transition.
+            // Let ordinary tics finish it before the next observed main view;
+            // never force a ticker, map call, clock value or renderer outcome.
+            if (SdvkDiagnostics::Enabled() && SdvkDiagnostics::SpecialSurfaceMapTransitionPending())
+                continue;
 			// Update display, next frame, with current state.
 			I_StartTic ();
 			D_ProcessEvents();

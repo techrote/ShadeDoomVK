@@ -97,6 +97,23 @@ The device limit accounts for combined-sampler + sampled-image limits, update-af
 
 Global emergency descriptor flushing remains prohibited because LevelMesh/material consumers can retain raw indices.
 
+### SDVK-161 material reset consumer refresh
+
+The normal filter/precache reset retires material descriptor variants through
+`VkDescriptorSetManager::ResetHWTextureSets`. It must also invalidate both cached
+LevelMesh consumers: raster `SurfaceUniforms` material/height indices and tracer
+`SurfaceInfo::TextureIndex`. `VulkanRenderDevice::InvalidateMaterialBindings`
+targets the logical `levelMesh` selected by `SetLevelMesh`; the Vulkan mirror can
+still name the previous map until `BeginFrame` and is not the owner authority.
+`LevelMesh::InvalidateMaterialBindings` schedules only live Uniforms and Surface
+allocator spans. Free/capacity holes can contain retired material pointers and
+must not be uploaded. The normal uploader resolves the new material/height
+indices after replacement samplers are current and before draw/lightmapper work.
+This reset does not recreate geometry, atlas allocations or probe descriptor
+pairs. The first [SDVK-161 hosted failure](../evidence/SDVK-161-FIRST-NATIVE-FAILURE.json)
+retains the retired-index counterexample; production-method CPU tests also pin
+both consumer paths, holes, repeated resets and the logical owner distinction.
+
 ## LevelMesh identity
 
 `LevelMesh` owns CPU-side arrays for vertices, surfaces, uniforms/material state, light uniforms/lists, lights, dynamic-light data, indices, collision nodes and probe nodes. Allocation structs use raw integer offsets/ranges. `DoomLevelMesh` separately records source Doom-side associations for sides/flats/subsectors/tiles.

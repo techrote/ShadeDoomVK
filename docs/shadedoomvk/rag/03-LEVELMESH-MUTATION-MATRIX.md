@@ -250,3 +250,20 @@ receipts; ordinary mesh surface/tile indexes remain owner-managed logical
 references, not standalone durable receipts. See the
 [complete audit and tests](../SDVK-156-ATLAS-INCARNATION.md). Native repeated/multi-page
 qualification and #14 completion remain separate. Physical STOP remains ACTIVE.
+
+## SDVK-161 controlled-plane and decal receiver ownership
+
+The [special-surface lifecycle increment](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+keeps the existing mutation callbacks and range upload machinery. Flat fan
+triangles retain their own subsector surface index. Geometry uses HWFlat's
+already selected/oriented plane; the separately retained source-plane axis
+publishes its current tile into the corresponding immediate receiver table.
+Controlled neighboring bake targets require equal selected planes; ordinary
+height groups keep their differing-plane seam/padding contributors. Unequal
+planes under one flat binding fail explicitly before mutation.
+
+Decal creation retains semantic type/side/control identity and resolves the
+current receiver at draw construction; it does not retain a recyclable numeric
+tile. Wall portal geometry has no receiving allocation. Non-sky flat portal
+receiver behavior is preserved. The inherited OnMidTex3DHeightChanged no-op is
+still unclaimed. See the increment for CPU versus native coverage and acceptance.

@@ -329,3 +329,14 @@ before launch, and must agree with capture/request/profile/independent validatio
 A corrected oracle has its own clean commit/tree and checkout; updating it never
 advances the frozen renderer or its build receipt. See `run.support_package_pins`,
 `run.validate_support_request` and the Windows supervisor source checks.
+
+PR #185 separates native creation and resume generations. A valid creation can
+be older than the half-second native boundary limit by the time durable target
+registration completes. Verify its recorded creation attempt, authenticate the
+target early enough to retain containment ownership, then request a distinct fresh
+resume generation bound to that registration. Reusing the creation generation
+for resume or rejecting it before authenticating the suspended child can strand
+an orphan and contaminate later CPU tests. Native freshness, terminal namespace
+guards, STOP, gate and heartbeat limits remain strict. Prospective packets must
+explicitly declare the separate-resume policy; existing source/STOP pins do not
+advance automatically.

@@ -13,7 +13,7 @@ import time
 from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry, root_expectations
 from .readers import BoundedReaders, NativeEvents, continuity, gpu_reader, telemetry,bounded_host_identity,check_host_identity
 from .windows import FileLock, Job, Process, RootGuard, platform_check, reject_unowned_renderer
-from .integrity import IntegrityWatch, valid_proof, collector_boundary, proof_deadline, GATE_BUSY_LIMIT
+from .integrity import IntegrityWatch, valid_proof, valid_creation_proof, collector_boundary, proof_deadline, GATE_BUSY_LIMIT, TIMEOUT
 
 GRACE_SECONDS = 15  # Tests shorten only the synthetic CPU clock; CLI policy is fixed.
 
@@ -232,16 +232,6 @@ def _registration(packet, stage, control, collector, collector_identity, journal
     require(request["argv"] == stage["expected_argv"] and normalized(request["cwd"]) == normalized(stage["capture"]["out"]),
             "Registered argv/cwd differs")
     require(request["generated_pins"] == stage["generated_pins"], "Generated assets changed")
-    proof=request["integrity_generation"]
-    sealed=read_json(control/"integrity-target-proof.json")
-    require(Path(sealed["receipt"]["path"])==control/f"integrity-{proof['generation']:06d}.json",
-            "Registered generation receipt path differs")
-    verify_pin(sealed["receipt"])
-    require(proof==read_json(sealed["receipt"]["path"]) and proof["request"]==sealed["request"] and
-            proof["request"]==read_json(control/"integrity-target-request.json") and proof["request"]["role"]=="target",
-            "Registered target generation differs from sealed worker proof")
-    valid_proof(proof,packet,stage,read_json(control/"supervisor-identity.json"),request=proof["request"],boundary=True)
-    require(proof["request"]["collector"]==collector_identity,"Target generation collector differs")
     target = Process.open(request["target"]["pid"])
     authenticated=False
     try:
@@ -252,9 +242,22 @@ def _registration(packet, stage, control, collector, collector_identity, journal
                 identity["path"] == normalized(packet["renderer"]) and identity["sha256"] == packet["renderer_sha256"],
                 "Target ownership differs")
         authenticated=True
+        # Once full native ownership is established, every later admission
+        # failure must retain this held handle for authenticated containment.
+        # An expired proof cannot strand a suspended child as an orphan.
+        proof=request["integrity_generation"]
+        sealed=read_json(control/"integrity-target-proof.json")
+        require(Path(sealed["receipt"]["path"])==control/f"integrity-{proof['generation']:06d}.json",
+                "Registered generation receipt path differs")
+        verify_pin(sealed["receipt"])
+        require(proof==read_json(sealed["receipt"]["path"]) and proof["request"]==sealed["request"] and
+                proof["request"]==read_json(control/"integrity-target-request.json") and proof["request"]["role"]=="target",
+                "Registered target generation differs from sealed worker proof")
+        valid_creation_proof(proof,packet,stage,read_json(control/"supervisor-identity.json"),request["create_native_call_attempt_monotonic"])
+        require(proof["request"]["collector"]==collector_identity,"Target generation collector differs")
         journal.append("target-registered", request)
         before_ack()
-        valid_proof(proof,packet,stage,read_json(control/"supervisor-identity.json"),request=proof["request"],boundary=True)
+        valid_creation_proof(proof,packet,stage,read_json(control/"supervisor-identity.json"),request["create_native_call_attempt_monotonic"])
         exclusive(control / "target-ack.json", {"request_sha256": digest(path), "packet_sha256": packet["packet_sha256"]})
         return target, identity
     except BaseException as error:
@@ -287,6 +290,21 @@ def resume_receipt(control,identity):
             type(attempt) in (int,float) and math.isfinite(attempt) and 0<=attempt<=time.monotonic(),
             "Target resume receipt identity/time differs")
     return value
+
+
+def pending_resume(packet,stage,control,collector_identity,registered_at,started):
+    """Bound suspended preparation separately from actual renderer execution."""
+    now=time.monotonic()
+    path=control/"integrity-target-resume-request.json"
+    require(path.exists() or now-registered_at<=2,"Target resume request stalled/missing")
+    if path.exists():
+        request=read_json(path)
+        stamp=request["requested_monotonic"]
+        require(request["packet_sha256"]==packet["packet_sha256"] and request["stage"]==stage["name"] and
+                request["role"]=="target-resume" and request["collector"]==collector_identity and
+                type(stamp) in (int,float) and math.isfinite(stamp) and
+                started<=stamp<=registered_at+2 and 0<=now-stamp<=TIMEOUT,
+                "Target resume generation request stalled/invalid")
 
 
 def terminate_owned(owned, journal):
@@ -455,6 +473,11 @@ def execute(packet, approval, output, *, readers=None):
                     require(collector_identity["path"] == normalized(packet["python"]), "Collector executable changed")
                     next_heartbeat = 0
                     heartbeat()
+                # Never spend a creation proof on post-create identity or
+                # durable publication work and then reuse it for ResumeThread.
+                spawn_proof,spawn_request=collector_boundary(packet,stage,control,supervisor_identity,pump,
+                    collector=collector_identity)
+                with gate:
                     watch.check()
                     gate.check()
                     roots.check()
@@ -487,7 +510,7 @@ def execute(packet, approval, output, *, readers=None):
                             resumed=resume_receipt(control,target_identity) if target is not None else None
                             settle_deadline=min(heartbeat_stamp+2,gate_entered+GATE_BUSY_LIMIT,
                                                 started+stage["deadline_seconds"]+30,
-                                                target_registered_at+stage["deadline_seconds"]) if resumed else None
+                                                resumed["resume_native_call_attempt_monotonic"]+stage["deadline_seconds"]) if resumed else None
                             observations=reject_unowned_renderer(packet["renderer"], [target_identity] if target_identity else [],
                                 owned=[target] if resumed else [],settle_deadline=settle_deadline)
                             if observations:journal.append("owned-exit-observation",{"stage":stage["name"],"observations":observations})
@@ -501,13 +524,15 @@ def execute(packet, approval, output, *, readers=None):
                         if gate_busy is None:gate_busy=time.monotonic()
                         require(time.monotonic()-gate_busy < GATE_BUSY_LIMIT,"Shared gate critical section stalled")
                     code = collector.poll()
-                    if target is not None and modules is None and packet.get("module_policy") and resume_receipt(control,target_identity):
+                    resumed=resume_receipt(control,target_identity) if target is not None else None
+                    if target is not None and modules is None and packet.get("module_policy") and resumed:
                         modules=ModuleWatch(packet,target,target_identity,journal,watch,
-                            target_deadline=target_registered_at+stage["deadline_seconds"]);modules.start()
+                            target_deadline=resumed["resume_native_call_attempt_monotonic"]+stage["deadline_seconds"]);modules.start()
                     if target is not None and target.poll() is None:
-                        require(time.monotonic() - target_registered_at <= stage["deadline_seconds"], "Independent renderer deadline exceeded")
-                        require((control / "target-resumed.json").exists() or time.monotonic() - target_registered_at <= 2,
-                                "Target resume receipt stalled/missing")
+                        if resumed:
+                            require(time.monotonic()-resumed["resume_native_call_attempt_monotonic"]<=stage["deadline_seconds"],
+                                    "Independent renderer deadline exceeded")
+                        else:pending_resume(packet,stage,control,collector_identity,target_registered_at,started)
                     require(time.monotonic() - started <= stage["deadline_seconds"] + 30,
                             "Collector deadline/hang (includes bounded preparation/finalization)")
                     if target is None:

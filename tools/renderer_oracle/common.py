@@ -66,10 +66,13 @@ def canonical(value):
 
 def write_json(path, value):
     """Write a fresh artifact; never silently replace an earlier attempt."""
+    # Validate and encode before reserving an immutable attempt filename.
+    # A rejected payload must not leave an empty receipt or evidence directory.
+    payload = canonical(value)
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("xb") as stream:
-        stream.write(canonical(value))
+        stream.write(payload)
 
 
 def sha256(raw):

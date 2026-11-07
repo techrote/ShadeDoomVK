@@ -183,6 +183,7 @@ void VkDescriptorSetManager::ResetHWTextureSets()
 {
 	for (auto mat : Materials)
 		mat->DeleteDescriptors();
+	fb->InvalidateMaterialBindings();
 
 	for (FSWColormap* colormap : Colormaps)
 	{

@@ -36,10 +36,23 @@ def _load_json(path: Path) -> Any:
 
 
 def _read_source(repo_root: Path, relpath: str) -> str:
-    path = repo_root / relpath
+    # A source invariant must not be satisfied by an external or aliased file.
+    parts = relpath.split("/")
+    if (not relpath or "\\" in relpath or ":" in relpath or
+            any(part in ("", ".", "..") for part in parts) or Path(relpath).is_absolute()):
+        raise OracleError(f"source path must be canonical and repository-relative: {relpath}")
+    root = repo_root.resolve(strict=True)
+    path = root
+    for part in parts:
+        path = path / part
+        if path.is_symlink():
+            raise OracleError(f"source path may not alias through a symlink: {relpath}")
     try:
+        resolved = path.resolve(strict=True)
+        if not resolved.is_relative_to(root) or not resolved.is_file():
+            raise OracleError(f"source path is not a regular file inside the repository: {relpath}")
         # Normalize line endings so the oracle is identical on all CI hosts.
-        return path.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
+        return resolved.read_text(encoding="utf-8").replace("\r\n", "\n").replace("\r", "\n")
     except OSError as exc:
         raise OracleError(f"cannot read source path {relpath}: {exc}") from exc
 

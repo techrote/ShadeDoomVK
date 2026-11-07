@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "viewmodel"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "viewmodel", "surface", "surface-checkpoint"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -459,6 +459,16 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                     "Viewmodel probe sentinel/resource disagree")
             if resource["available"]:
                 require(resource["index"] == value["runtime_irradiance_index"], "Viewmodel probe uniform/resource differ")
+        elif kind == "surface":
+            from tools.renderer_oracle.sdvk161_special_surfaces import validate_surface_record
+            validate_surface_record(value)
+        elif kind == "surface-checkpoint":
+            require(value.get("producer") == "completed-main-view-screenshot"
+                    and value.get("map") in ("SDV161A", "SDV161B")
+                    and value.get("image") == f"native.surface-{frame}.png"
+                    and type(value.get("main_views")) is int and value["main_views"] == 32 + frame
+                    and frame in range(8, 97, 8) and record["count"] == 1,
+                    "Invalid special-surface completed-view checkpoint identity")
         elif kind == "probe":
             require(value.get("mode") == "uniform-environment-pair", "Unknown probe identity domain")
             integer(value.get("authored_index"), "authored probe index", minimum=-1)
@@ -710,6 +720,12 @@ fallbacks remain compared.
         resource = value.get("probe_resource") if value.get("contract") == "sdvk-011-viewmodel/v1" else value.get("resource")
         if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
             result["runtime_irradiance_index"] = resource_ordinal(resource)
+        material = value.get("material")
+        if (value.get("producer") in ("levelmesh-surface-range", "immediate-special-surface")
+                and isinstance(material, dict) and material.get("resource", {}).get("available") is True):
+            # Keep the actual submitted texture index tied to exactly the same
+            # descriptor bijection as its nested bound material identity.
+            result["texture_index"] = resource_ordinal(material["resource"])
         if (value.get("caster") == "world-geometry" and "decision" in value
                 and isinstance(value.get("row"), int) and not isinstance(value.get("row"), bool)):
             result["row"] = shadow_row_ordinal(frame, value["row"])

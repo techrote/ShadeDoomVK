@@ -36,8 +36,15 @@ def fetch_package(platform, output):
     if not archive.exists():
         archive.write_bytes(data)
     # Extraction is permitted only after the exact known archive is authenticated.
-    subprocess.run(["tar", "-xf", str(archive.resolve()), "-C", str(output.resolve())], check=True)
+    # A cached prefix is not authenticated by the archive hash. Remove it before
+    # extracting so obsolete files and pre-existing links cannot contaminate
+    # the new dependency tree or redirect extraction outside the output root.
     prefix = output / "zmusic"
+    if prefix.is_symlink() or (prefix.exists() and not prefix.is_dir()):
+        prefix.unlink()
+    elif prefix.is_dir():
+        shutil.rmtree(prefix)
+    subprocess.run(["tar", "-xf", str(archive.resolve()), "-C", str(output.resolve())], check=True)
     # These exact upstream archives omit the versioned filenames required by
     # their ELF SONAME / Mach-O install names. Copies preserve authenticated
     # bytes and also work when inspecting packages on Windows without symlinks.

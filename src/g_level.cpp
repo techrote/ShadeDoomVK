@@ -32,6 +32,7 @@
 **
 */
 
+#include "hwrenderer/diagnostics/hw_sdvkdiagnostics.h"
 #include <assert.h>
 #include <atomic>
 
@@ -532,6 +533,7 @@ void G_DoNewGame (void)
 	}
 	G_InitNew (d_mapname.GetChars(), false);
 	gameaction = ga_nothing;
+    if (SdvkDiagnostics::Enabled()) SdvkDiagnostics::SpecialSurfaceMapTransitionCompleted();
 }
 
 //==========================================================================
