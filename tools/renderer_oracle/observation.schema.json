@@ -293,7 +293,8 @@
             "pipeline",
             "timing",
             "sprite-basis",
-            "sprite-relief"
+            "sprite-relief",
+            "viewmodel"
           ]
         },
         "frame": {

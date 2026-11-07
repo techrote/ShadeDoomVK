@@ -26,7 +26,8 @@ except ImportError:
 
 SCENES = ("compositing", "lights-zero", "lights-one", "lights-many",
           "lights-dense-overlap", "lights-dense-dispersed",
-          "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror")
+          "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror",
+          "viewmodel-legacy", "viewmodel-sector", "viewmodel-enhanced", "viewmodel-pbr", "viewmodel-fallback", "viewmodel-wide")
 SDVK009_SCALE_TIMING_SCENES = ("lights-zero", "lights-many", "lights-dense-overlap", "lights-dense-dispersed")
 FEATURES = ("shaderSampledImageArrayNonUniformIndexing",
             "descriptorBindingSampledImageUpdateAfterBind", "descriptorBindingPartiallyBound",

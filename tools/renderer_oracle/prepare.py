@@ -28,11 +28,11 @@ CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
               "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
-              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "sprite_mirror", "sprite_relief"}
+              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "sprite_mirror", "sprite_relief", "viewmodel"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
-CHANNELS = {"context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief"}
+CHANNELS = {"context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "sprite-basis", "sprite-relief", "viewmodel"}
 
 sys.path.insert(0, str(ROOT))
 from tools.pf_oracle import prepare_freeze_view_fixture as pf_view
@@ -220,8 +220,13 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
             if any(type(value) is not int or value < 0 for value in bounds.values()) or bounds.get("minimum", 0) > bounds.get("maximum", 2**63 - 1):
                 raise ValueError(f"Scene {name} has invalid frame assertion bounds")
         state_assertions = native.get("state_assertions", {})
-        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion", "actor_probe_portal", "probe_owner_transition"}:
+        if not isinstance(state_assertions, dict) or not set(state_assertions) <= {"root_types", "materials", "material_semantics", "material_custom_layers", "material_height_layers", "material_layer_sampling", "material_layer_count", "line_mirror", "published_probes_minimum", "sun_intensity", "sprite_basis", "sprite_relief", "actor_probe", "actor_sun_occlusion", "actor_probe_portal", "probe_owner_transition", "viewmodel"}:
             raise ValueError(f"Scene {name} has unsupported state assertions")
+        if native.get("generator") == "viewmodel":
+            from tools.renderer_oracle.sdvk011_viewmodel import validate_spec
+            validate_spec(state_assertions.get("viewmodel"))
+            if native["settings"].get("r_drawplayersprites") is not True or "viewmodel" not in scene["required_state_channels"]:
+                raise ValueError("Viewmodel fixtures must retain live player weapon drawing")
         probe_owner_assertion = state_assertions.get("probe_owner_transition")
         if probe_owner_assertion is not None:
             owners = probe_owner_assertion.get("owners") if isinstance(probe_owner_assertion, dict) else None
@@ -841,6 +846,9 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
         return sdvk153_probe_reset.authored_members(scene, sys.modules[__name__])
     if generator == "lightmap_transition":
         return _lightmap_transition_members(scene)
+    if generator == "viewmodel":
+        from tools.renderer_oracle import sdvk011_viewmodel
+        return sdvk011_viewmodel.authored_members(scene, sys.modules[__name__])
     members = _base_members()
     is_sun = generator in ("sun_probes", "sun_actor_occlusion")
     model = _Map(floor=32 if is_sun else 0,

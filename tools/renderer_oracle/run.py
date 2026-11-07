@@ -667,7 +667,7 @@ def _scene_assertions(raw, scene):
         for key, expected in expected_settings.items():
             if key in frame["settings"]:
                 require(frame["settings"][key] == expected, "Actual frame setting differs: " + key)
-        require(_numeric_vector_matches([frame["camera"].get("fov")], [90]), "Actual camera FOV differs from the fixture")
+        require(_numeric_vector_matches([frame["camera"].get("fov")], [camera.get("fov", 90)]), "Actual camera FOV differs from the fixture")
         for counter, bounds in scene["native"].get("frame_assertions", {}).items():
             actual = integer(frame.get(counter), "Required frame counter " + counter)
             require(actual >= bounds.get("minimum", 0) and actual <= bounds.get("maximum", actual),
@@ -683,6 +683,12 @@ def _scene_assertions(raw, scene):
         assertions = scene["native"].get("state_assertions", {})
         for frame in range(1, raw["observed_frames"] + 1):
             records = [record for record in raw["records"] if record["frame"] == frame]
+            if "viewmodel" in assertions:
+                try:
+                    from .sdvk011_viewmodel import validate_frame
+                except ImportError:
+                    from sdvk011_viewmodel import validate_frame
+                validate_frame(records, assertions["viewmodel"], camera)
             roots = {record["data"]["context"]["root_type"] for record in records if record["kind"] == "context"}
             materials = {record["data"].get("name") for record in records if record["kind"] == "material"}
             require(set(assertions.get("root_types", [])).issubset(roots), "Required view producer was not observed")

@@ -235,6 +235,13 @@ class AuthoredSceneTests(unittest.TestCase):
                 self.assertLess(line["v2"], len(records["vertex"]))
                 self.assertLess(line["sidefront"], len(records["sidedef"]))
             cameras = [t for t in records["thing"] if t["type"] == 32200]
+            if scene["native"]["generator"] == "viewmodel":
+                self.assertEqual(cameras, [], "Live viewmodel fixture must use the player camera")
+                players = [t for t in records["thing"] if t["type"] == 1]
+                self.assertEqual(len(players), 1)
+                self.assertEqual([players[0]["x"], players[0]["y"]], scene["native"]["camera"]["position"][:2])
+                self.assertTrue(owner["live_player_camera"])
+                continue
             self.assertEqual(len(cameras), 1)
             camera = cameras[0]
             expected = scene["native"]["camera"]
@@ -635,11 +642,11 @@ class AuthoredSceneTests(unittest.TestCase):
             commands = raw.decode().strip().split("; ")
             self.assertIn("unbindall", commands)
             self.assertIn("vid_setsize 640 480", commands)
-            self.assertIn("fov 90", commands)
+            self.assertIn("fov " + str(scene["native"]["camera"].get("fov", 90)), commands)
             self.assertIn("screenshot_type png", commands)
             self.assertIn(b"screenshot_type=png\n", prepare.configuration(scene))
             self.assertEqual(scene["native"]["settings"]["screenshot_type"], "png")
-            self.assertEqual(scene["native"]["settings"]["r_drawplayersprites"], False)
+            self.assertEqual(scene["native"]["settings"]["r_drawplayersprites"], scene["native"]["generator"] == "viewmodel")
             self.assertEqual(scene["native"]["settings"]["screenblocks"], 12)
             self.assertEqual(scene["native"]["settings"]["crosshair"], 0)
             blocked = [c for c in commands if c.split()[0] in ("quit", "screenshot", "wait", "freeze")]

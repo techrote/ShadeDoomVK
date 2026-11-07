@@ -86,7 +86,7 @@ class Controls(unittest.TestCase):
         return args, calls, result, prep, comparison, summary, preflight_mock
 
     def test_default_and_full_process_counts_exact_policy_and_fresh_outputs(self):
-        for full, count, scenes, summaries in ((False, 7, 2, 1), (True, 35, 10, 5)):
+        for full, count, scenes, summaries in ((False, 7, 2, 1), (True, 47, 16, 5)):
             with self.subTest(full=full), tempfile.TemporaryDirectory(prefix='sdvk-native-ci-unit-') as directory:
                 args, calls, result, prep, comparison, summary, _ = self.scenario(Path(directory), full=full)
                 self.assertEqual(result['status'], 'PASS')

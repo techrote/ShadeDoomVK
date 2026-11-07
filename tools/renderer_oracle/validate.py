@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "viewmodel"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -447,6 +447,18 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             _sprite_basis(value)
         elif kind == "sprite-relief":
             _sprite_relief(value)
+        elif kind == "viewmodel":
+            try:
+                from .sdvk011_viewmodel import validate_draw
+            except ImportError:
+                from sdvk011_viewmodel import validate_draw
+            validate_draw(value)
+            resource = value.get("probe_resource")
+            _resource(resource, "viewmodel probe resource identity")
+            require(resource["available"] is (value["runtime_irradiance_index"] > 0),
+                    "Viewmodel probe sentinel/resource disagree")
+            if resource["available"]:
+                require(resource["index"] == value["runtime_irradiance_index"], "Viewmodel probe uniform/resource differ")
         elif kind == "probe":
             require(value.get("mode") == "uniform-environment-pair", "Unknown probe identity domain")
             integer(value.get("authored_index"), "authored probe index", minimum=-1)
@@ -695,7 +707,7 @@ fallbacks remain compared.
         result = {key: project(item, frame) for key, item in value.items()}
         if value.get("available") is True and all(key in value for key in ("index", "generation", "epoch", "span")):
             result["index"] = resource_ordinal(value)
-        resource = value.get("resource")
+        resource = value.get("probe_resource") if value.get("contract") == "sdvk-011-viewmodel/v1" else value.get("resource")
         if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
             result["runtime_irradiance_index"] = resource_ordinal(resource)
         if (value.get("caster") == "world-geometry" and "decision" in value
