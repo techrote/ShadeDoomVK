@@ -107,7 +107,17 @@ jobs:
 
     - name: Qualify Windows native supervisor with benign CPU children only
       if: runner.os == 'Windows' && matrix.config.build_type == 'RelWithDebInfo'
+      env:
+        SDVK_CPU_FAILURE_EVIDENCE_ROOT: ${{ runner.temp }}/sdvk-supervisor-cpu-failures
       run: python -B -m unittest discover -s tools/physical_supervisor -t . -v
+
+    - name: Retain unexpected native CPU fixture failures
+      if: failure() && runner.os == 'Windows' && matrix.config.build_type == 'RelWithDebInfo'
+      uses: actions/upload-artifact@v4
+      with:
+        name: supervisor-cpu-failures
+        path: ${{ runner.temp }}/sdvk-supervisor-cpu-failures
+        if-no-files-found: ignore
 
     - name: Install Dependencies
       shell: bash

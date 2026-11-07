@@ -69,6 +69,7 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
             nonlocal mutable_release_monotonic
             gate.check();guard.check();roots.check();verify_registry(packet)
             valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
+            if proof_request["role"]=="target-resume":verify_pin(proof_request["target_registration"])
             if mutable_lock is not None and mutable_lock.handle:
                 mutable_lock.verify()
                 valid_proof(proof,packet,stage,guard.expected,request=proof_request,boundary=True)
@@ -125,6 +126,10 @@ def gated_target(packet, stage, control, argv, cwd, stdout, stderr, *, env=None)
         ack = read_json(control / "target-ack.json")
         require(ack == {"request_sha256": digest(control / "target-request.json"), "packet_sha256": packet["packet_sha256"]},
                 "Parent registration acknowledgement mismatch")
+        # Registration, identity hashing and durable receipts may outlive the
+        # creation generation. A suspended child cannot execute; authenticate
+        # a separate single-use generation immediately before native resume.
+        proof,proof_request=boundary_request(packet,stage,control,guard,roots,role="target-resume")
         until = time.monotonic() + stage["deadline_seconds"]
         # All generated assets were authenticated/locked before the generation
         # request. Only the exact live mutable config needs a final byte check.
