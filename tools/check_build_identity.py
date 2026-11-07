@@ -11,6 +11,21 @@ import tempfile
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def validate_identity_output(stdout, *, commit, state, description, constants):
+    """Require the six current GetBuildIdentity fields, in their emitted order."""
+    expected_lines = [
+        constants["SDVK_PROJECT_NAME"] + " " + constants["SDVK_VERSIONSTR"],
+        "Commit: " + commit,
+        "Working tree: " + state,
+        "Git description: " + description,
+        "VKDoom lineage: nashmuhandes/VkDoom@" + constants["SDVK_FOUNDING_COMMIT"],
+        "PF-020 freeze: " + constants["SDVK_PF_FREEZE_COMMIT"],
+    ]
+    expected_output = "\n".join(expected_lines) + "\n"
+    if stdout != expected_output:
+        raise ValueError("six-field build identity is incomplete, changed or out of order")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--build-dir", type=Path, default=Path("build"))
@@ -31,6 +46,13 @@ def main():
     else:
         executables = [runtime / "vkdoom", runtime / "vktool"]
     expected = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
+    description = subprocess.check_output(
+        ["git", "describe", "--tags", "--always", "--dirty=-m"], cwd=ROOT, text=True).strip()
+    observed_state = "modified" if subprocess.check_output(
+        ["git", "status", "--porcelain", "--untracked-files=normal"],
+        cwd=ROOT, text=True).strip() else "clean"
+    if args.expected_state and args.expected_state != observed_state:
+        raise SystemExit(f"Unexpected source working-tree state: {observed_state}")
     header = (ROOT / "src/version.h").read_text(encoding="utf-8")
     constants = dict(re.findall(r'^#define (SDVK_\w+) "([^"]+)"', header, re.MULTILINE))
     environment = os.environ.copy()
@@ -43,15 +65,11 @@ def main():
                                     env=environment, capture_output=True, text=True, timeout=version_timeout)
             if result.returncode:
                 raise SystemExit(f"{executable} failed ({result.returncode}): {result.stderr}")
-            lines = result.stdout.splitlines()
-            expected_lines = [constants["SDVK_PROJECT_NAME"] + " " + constants["SDVK_VERSIONSTR"],
-                              "Commit: " + expected,
-                              "VKDoom lineage: nashmuhandes/VkDoom@" + constants["SDVK_FOUNDING_COMMIT"],
-                              "PF-020 freeze: " + constants["SDVK_PF_FREEZE_COMMIT"]]
-            if not all(line in lines for line in expected_lines) or len(lines) != 6:
-                raise SystemExit(f"Unexpected identity from {executable}: {result.stdout!r}")
-            if args.expected_state and "Working tree: " + args.expected_state not in lines:
-                raise SystemExit(f"Unexpected working-tree state: {result.stdout!r}")
+            try:
+                validate_identity_output(result.stdout, commit=expected, state=observed_state,
+                                         description=description, constants=constants)
+            except ValueError as error:
+                raise SystemExit(f"Unexpected identity from {executable}: {error}; {result.stdout!r}") from error
             print(f"PASS {executable}\n{result.stdout}", end="")
 
 

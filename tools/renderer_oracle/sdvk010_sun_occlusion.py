@@ -109,6 +109,8 @@ def validate_emitted_frame(records, spec):
                 selection.get("authored_index") == spec["authored_probe_index"] and
                 selection.get("policy") == "spatial-nearest",
                 "Actual actor draw selected wrong authored probe")
+        require(type(selection.get("actor_tid")) is int and selection["actor_tid"] == tid,
+                "Actor probe selection and packed sunlight belong to different source actors")
         require(selection.get("source_portal_group") == selection.get("render_portal_group") ==
                 sun.get("source_portal_group") == sun.get("render_portal_group"),
                 "Matched scene has ambiguous portal/group provenance")

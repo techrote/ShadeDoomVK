@@ -408,3 +408,18 @@ separate and preserve their production path. The 35 captured controls preserve
 good neighbors and actual parent joins. Historical ff300c native revalidation is
 separate from current-head native qualification; original failure receipts are
 unchanged. See `SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md` and its reconciliation receipt.
+## Consolidated evidence admission corrections
+
+The [November tooling integration](../BACKLOG-INTEGRATION-20261107.md) preserves
+the existing producer and qualification boundaries. `benchmark.summarize`
+requires a complete successful timing interval before descriptive statistics;
+`adapters.adapt` requires producer collection shapes before channel-presence
+indexing; `images.compare_rgb` requires bounded integer dimensions. These checks
+supplement, rather than replace, complete `run.validate_run` admission.
+
+`native_ci.device_evidence` compares the full and summary driver/API identities,
+including dotted/packed Vulkan version consistency. `sdvk010_sun_occlusion`
+joins actor probe and packed sunlight source TIDs at the existing emitted draw.
+JSON encoding completes before `common.write_json` reserves a fresh receipt.
+No producer field, native workload, image tolerance or physical acceptance rule
+changes as a result.

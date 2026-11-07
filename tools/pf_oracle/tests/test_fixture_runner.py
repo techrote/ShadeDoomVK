@@ -132,5 +132,59 @@ class FixtureRunnerTests(unittest.TestCase):
             )
 
 
+    def test_stale_executable_does_not_mask_compiler_noop(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "fixture.cpp"
+            source.write_text("int main() { return 0; }", encoding="utf-8")
+            output = root / "build"
+            output.mkdir()
+            executable = output / ("fixture.exe" if sys.platform == "win32" else "fixture")
+            executable.write_bytes(b"stale executable from an earlier build")
+            with patch.object(runner.subprocess, "run",
+                              return_value=subprocess.CompletedProcess([], 0)) as run:
+                with self.assertRaisesRegex(RuntimeError, "without an executable"):
+                    runner.compile_fixture(source, output_dir=output, compiler="g++")
+            run.assert_called_once()
+            self.assertFalse(executable.exists())
+
+    def test_reused_output_accepts_only_new_compiler_artifact(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "fixture.cpp"
+            source.write_text("int main() { return 0; }", encoding="utf-8")
+            output = root / "build"
+            output.mkdir()
+            executable = output / ("fixture.exe" if sys.platform == "win32" else "fixture")
+            executable.write_bytes(b"old")
+            def produce(command, **kwargs):
+                self.assertFalse(executable.exists())
+                Path(command[command.index("-o") + 1]).write_bytes(b"fresh")
+                return subprocess.CompletedProcess(command, 0)
+            with patch.object(runner.subprocess, "run", side_effect=produce):
+                self.assertEqual(runner.compile_fixture(source, output_dir=output,
+                                                       compiler="g++"), executable)
+            self.assertEqual(executable.read_bytes(), b"fresh")
+
+    @unittest.skipIf(sys.platform == "win32", "Windows symlink creation may require privileges")
+    def test_symlink_output_does_not_qualify_as_fresh_executable(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source = root / "fixture.cpp"
+            source.write_text("int main() { return 0; }", encoding="utf-8")
+            output = root / "build"
+            output.mkdir()
+            executable = output / "fixture"
+            target = root / "other-build"
+            target.write_bytes(b"unrelated executable")
+            def produce(command, **kwargs):
+                executable.symlink_to(target)
+                return subprocess.CompletedProcess(command, 0)
+            with patch.object(runner.subprocess, "run", side_effect=produce):
+                with self.assertRaisesRegex(RuntimeError, "without an executable"):
+                    runner.compile_fixture(source, output_dir=output, compiler="g++")
+            self.assertEqual(target.read_bytes(), b"unrelated executable")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -44,6 +44,21 @@ def fields(text, name):
         r"(?m)^[ \t]*" + re.escape(name) + r"[ \t]*=[ \t]*([^\r\n]+)$", text)]
 
 
+
+def version_identity(value, name):
+    """Parse vulkaninfo dotted versions, checking optional full-report packed form."""
+    match = re.fullmatch(r'([0-9]+)\.([0-9]+)\.([0-9]+)(?: \(([0-9]+)\))?', value)
+    require(match is not None, 'Malformed Vulkan version property: ' + name)
+    major, minor, patch = (int(item) for item in match.group(1, 2, 3))
+    require(major < 1024 and minor < 1024 and patch < 4096,
+            'Vulkan version component out of range: ' + name)
+    packed = match.group(4)
+    expected_packed = (major << 22) | (minor << 12) | patch
+    require(packed is None or int(packed) == expected_packed,
+            'Vulkan packed version disagrees with dotted version: ' + name)
+    return (major, minor, patch)
+
+
 def device_evidence(summary, full):
     """Require one actual CPU llvmpipe device and every required feature bit."""
     for text in (summary, full):
@@ -59,6 +74,17 @@ def device_evidence(summary, full):
         identity[name] = values[0]
     require(identity["deviceName"].startswith("llvmpipe (") and
             fields(full, "deviceName") == [identity["deviceName"]], "llvmpipe device identities differ")
+    # Full vulkaninfo appends the packed integer to dotted API/driver versions
+    # while --summary prints dotted spelling only. Validate both representations
+    # before comparing semantic versions; driverInfo remains exact text identity.
+    for name in ("driverInfo", "apiVersion", "driverVersion"):
+        values = fields(full, name)
+        require(values, "Missing Vulkan property in full report: " + name)
+        expected = (version_identity(identity[name], name) if name != "driverInfo"
+                    else identity[name])
+        require(all((version_identity(value, name) if name != "driverInfo" else value)
+                    == expected for value in values),
+                "Vulkan property differs between summary and full: " + name)
     for name in FEATURES:
         values = fields(full, name)
         require(values and all(value == "true" for value in values), "Required Vulkan feature unavailable: " + name)
