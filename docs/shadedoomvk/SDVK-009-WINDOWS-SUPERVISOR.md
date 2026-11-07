@@ -148,12 +148,33 @@ healthy heartbeats on behalf of a stalled control loop.
 
 The packet must explicitly declare the new integrity policy. Deep audits have a
 ten-second bound and generations may be at most ten seconds old from their start.
-Creation and resume additionally consume a newly requested, one-use generation:
+Each creation and each resume consumes a distinct newly requested, one-use generation:
 its finish must be less than half a second old, and the request/start deadlines
 must remain unexpired at the native call attempt. The recorded monotonic attempt
 is an observation immediately before the native call, not a kernel start time or
 an external execution attestation. Existing packets cannot silently acquire the
 new policy.
+
+Durable post-create identity/registration work does not reuse the creation proof
+for resume. Registration verifies that proof at the recorded native creation
+attempt, while current ownership, root guards and bounded integrity age remain
+mandatory. It authenticates the suspended target before later admission checks
+and retains that handle for containment if admission fails. The separate target
+resume generation pins the exact registration receipt. Suspended preparation is
+bounded independently: request within two seconds, audit within ten; the existing
+renderer execution deadline starts at the recorded native resume attempt. The
+half-second native freshness, one-second gate and two-second parent heartbeat
+limits are unchanged. The prospective packet policy explicitly records this
+separation; historical packets and STOP records remain unchanged.
+
+PR #185 retains the source-matched hosted failure in run `42355835438`: a target
+was created at monotonic `330.250` from a generation finished at `330.015`,
+then later registration rejected that valid creation as stale before authenticating
+the suspended target. Killing its collector stranded the target and contaminated
+later CPU fixtures. Native regression controls now cover delayed registration
+with a fresh resume proof and failed creation admission with authenticated target
+containment. Unexpected fixtures are retained in normal Windows CI, including
+Python 3.10's deferred unittest error-publication path.
 
 The request binds the packet, stage, supervisor creation identity, source proof,
 role and nonce; target requests additionally bind the actual registered collector.

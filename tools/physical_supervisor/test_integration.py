@@ -77,6 +77,16 @@ def synthetic_source_checks(packet):
             for argv,expected in source_check_requests(packet)]
 
 
+def unexpected_fixture_failure(outcome, test):
+    # Python 3.10 defers copying _Outcome.errors into TestResult until after
+    # tearDown. Newer unittest versions publish to TestResult immediately.
+    pending = getattr(outcome, "errors", ()) or ()
+    result = getattr(outcome, "result", None)
+    published = (*getattr(result, "failures", ()), *getattr(result, "errors", ()))
+    return any((owner is test or getattr(owner, "test_case", None) is test) and error is not None
+               for owner, error in (*pending, *published))
+
+
 @unittest.skipUnless(os.name == "nt", "Native Windows supervisor/collector integration")
 class EngineIntegrationTests(unittest.TestCase):
     def setUp(self):
@@ -137,8 +147,20 @@ class EngineIntegrationTests(unittest.TestCase):
         self.doCleanups()
         evidence_root = os.environ.get("SDVK_CPU_FAILURE_EVIDENCE_ROOT")
         outcome = getattr(self, "_outcome", None)
-        result = getattr(outcome, "result", None)
-        failed = result is not None and any(test is self for test, _ in (*result.failures, *result.errors))
+        failed = unexpected_fixture_failure(outcome, self)
+        if failed:
+            # A durable latch can hide the original collector/observer fault in
+            # execute()'s returned error. Preserve its bounded causes in the CI
+            # log as well as the opt-in complete synthetic fixture artifact.
+            causes = {}
+            paths = [*sorted((self.root / "stop").glob("STOP-*.json")),
+                     *sorted((self.root / "control").glob("*/stage-failed.json"))]
+            for path in paths[:12]:
+                try:
+                    causes[str(path.relative_to(self.root))] = read_json(path)
+                except (OSError, ValueError) as error:
+                    causes[str(path.relative_to(self.root))] = {"unreadable": str(error)}
+            print("Unexpected native CPU fixture causes: " + json.dumps(causes, sort_keys=True), flush=True)
         if evidence_root and failed:
             # Only explicitly synthetic CPU fixtures live in this directory.
             # Copy before TemporaryDirectory cleanup; keep failed receipts,
