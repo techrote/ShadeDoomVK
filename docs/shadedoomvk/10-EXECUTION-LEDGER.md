@@ -1758,7 +1758,7 @@ and a compiler-environment setup failure were corrected and remain retained as
 negative qualification records. No physical launch is part of these controls.
 
 
-## 7 November 2026 — SDVK-014 special-surface integration candidate
+## 7 November 2026 â€” SDVK-014 special-surface integration candidate
 
 - Reconciled substantive PR #162 with accepted current master and preserved all
   prior production repairs, failed-attempt receipts and both ledger histories.
