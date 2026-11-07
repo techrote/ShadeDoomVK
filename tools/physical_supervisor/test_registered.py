@@ -20,6 +20,9 @@ from .test_integration import synthetic_source_checks
 class RegisteredWorkloadTests(fixtures.TempCase):
     # Reuse only the host/registry/build CPU seed.
     def seed_and_registration(self, scenes=("viewmodel-legacy", "viewmodel-model-normal"), *, purpose="sdvk011-viewmodel"):
+        # Match run.capture's canonical executable/output paths on hosted TEMP
+        # parents such as RUNNER~1, before deriving their exact argv.
+        self.root = self.root.resolve(strict=True)
         seed = fixtures.PacketAndApprovalTests.packet(self)
         (Path(seed["renderer"]).parent / "vkdoom.pk3").write_bytes(b"SYNTHETIC engine package, NEVER LOADED")
         source = Path(__file__).resolve().parents[2]
