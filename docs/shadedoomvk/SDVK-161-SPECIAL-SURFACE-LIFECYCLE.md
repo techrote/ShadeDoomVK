@@ -25,9 +25,18 @@ The post-merge [master run](https://github.com/techrote/ShadeDoomVK/actions/runs
 admitted both lifecycle captures individually and retained identical final RGB.
 Their 3,696 projected records differ only at frame 4: 84 versus 80 wall vertices
 and one additional empty 16-byte light upload. The cause remains undetermined;
-these fields are not normalized away. An isolated temporary wall-call diagnostic
-is being built to identify the actual side, material and render context. It is
-not an accepted repair or an extension of this matrix.
+these fields are not normalized away. The isolated temporary wall-call diagnostic
+at `fe33c089a9254d2f92da637e3aebf725b41474f8` completed one physical trace: all
+96 wall-vertex sums matched actual submissions and the extra-quad condition did
+not recur. It retained a separate 352-pixel, maximum-one-channel reload difference
+on a 3D-floor underside and remains FAILED_STOP. No GPU fault was observed.
+Cold versus warmed texture mask classification is a candidate input discrepancy,
+not a proven pixel cause; no production opacity patch was applied.
+
+The owner explicitly deferred these repeatability observations for the
+weapon/gameplay delivery and requested a pause afterwards. They remain recorded,
+not normalized into a pass; no further trace is authorized by that delivery
+decision. See the [clean workstream checkpoints](PROGRAMME-PAUSE-20261107.md).
 
 This is the bounded software qualification child [#161](https://github.com/techrote/ShadeDoomVK/issues/161)
 of [SDVK-014 / #14](https://github.com/techrote/ShadeDoomVK/issues/14). It starts at
@@ -41,7 +50,7 @@ page initialization/copy transitions, current descriptors/probes, actual mesh
 submissions, dirty/completion accounting and independent-attempt admission remain
 binding. The required #150/#153/#158 native lanes remain in normal CI.
 
-**Physical STOP ACTIVE. Physical GPU bake/update cost, representative scaling and
+**Historical physical STOPs retained. Physical GPU bake/update cost, representative scaling and
 hardware stability HELD / NOT ACCEPTED. Historical physical root cause
 UNDETERMINED.** Software Vulkan supplies correctness evidence only. #14 stays
 open; this child does not accept the whole campaign or physical criteria.

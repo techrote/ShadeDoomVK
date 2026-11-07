@@ -31,7 +31,11 @@ is merged; a later master repeatability failure has reopened its software
 qualification, and SDVK-014's physical criteria remain held.
 The [viewmodel increment](docs/shadedoomvk/SDVK-011-VIEWMODEL-LIGHTING.md) and
 [ordinary gameplay smoke](docs/shadedoomvk/INTEGRATED-GAMEPLAY-SMOKE.md) are undergoing
-integrated qualification. The
+final integration qualification after ten successful static physical weapon
+captures and a successful movement/firing/map-transition smoke. The owner has
+directed a [programme pause](docs/shadedoomvk/PROGRAMME-PAUSE-20261107.md) after
+this bounded delivery; the special-surface repeatability investigation is deferred.
+The
 [corpus guide](tools/renderer_oracle/README.md) includes legal Freedoom preparation
 and playable launch instructions. Defaults and milestone acceptance follow the
 ledger; candidate features do not imply completion of later renderer gates.

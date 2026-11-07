@@ -1865,9 +1865,44 @@ negative qualification records. No physical launch is part of these controls.
   durability and STOP rules remain. The actual host delay is unattributed.
   [Child #161 is reopened](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md); its previous
   qualified merge stays present, with current software requalification held.
-  No unexplained relevant regression is waived to merge #186.
+  This was the integration hold at that checkpoint; the later owner scope
+  decision below defers the independent special-surface repeatability work.
 - The controlled-plane source/facing repair and temporary wall-call discriminator
   remain separate unmerged work. Shadow-off physical timing admission is also
   being prepared. None accepts SDVK-008/009/014 physical criteria or releases
   SDVK-012 dependencies. Historical failures and the private kernel dump remain
   retained; no new serious GPU fault or restart occurred in these small runs.
+
+## 7 November 2026 — gameplay initially validated; owner-directed delivery and pause
+
+- Fresh frozen source `8ce112bb6aaf6e7068e2715170afda7a2960ca8a` was built
+  and executed once in physical generation 07. Native exit 0, all 128 critical
+  views, nine image joins, actual movement/turn/firing and A/B/A owners pass.
+  There are 8,105 retained records, 12,251,041 bytes and zero dropped records.
+  No new System GPU fault or lasting impairment was observed. This is bounded
+  initial gameplay correctness, not performance or whole-milestone acceptance.
+  [Source/build/content/manifest identities](evidence/SDVK-011-GAMEPLAY-PHYSICAL-20261107.json)
+  and [reproducible launch instructions](INTEGRATED-GAMEPLAY-SMOKE.md) are retained.
+  The earlier failed process remains FAILED_STOP.
+- Required CI at `8ce112bb` exposed a CPU fixture short/long-path alias mismatch.
+  `a774ecbf1980f4c0dbeb1299d3d915e79c2fe650` canonicalizes that fixture before
+  strict proof checks and deliberately exercises the old mismatch. Production
+  renderer, freshness, durable STOP and process-containment rules are unchanged.
+  Its first Windows RWD CI passed 197 controls but stopped the independent
+  deadline fixture before creation when a proof age reached 2.672 seconds,
+  exceeding its 0.5-second boundary. The failed journal is retained; target execution never
+  started and this is not accepted as target-deadline coverage. Green normal
+  checks at the final reviewed head are still required before merge.
+- The owner's final scope decision prioritizes integrating and initially
+  validating #186, then stopping. The extra hosted wall quad and small physical
+  reload pixel difference are explicitly deferred, with #161 open and its
+  evidence unchanged. Required checks, comparisons and image tolerances are
+  unchanged. This decision does not accept SDVK-014 or waive later dependencies.
+- All other workstreams have reached clean pause points. Controlled-plane
+  production candidate `e3e328c9` and authored native draft `fc79a715` remain
+  local/unmerged; diagnostic `fe33c089` remains frozen. The shadow-off/POM partial
+  campaign is clean at `3086b738`, with no new full build or GPU launch. Optional
+  #187 remains Draft with explicit conflicts/admission issues. The
+  [programme pause handoff](PROGRAMME-PAUSE-20261107.md) records exact commits,
+  evidence and remaining limits. #8/#9/#11/#14 remain open; no programme
+  completion, architecture decision or physical cost acceptance is manufactured.

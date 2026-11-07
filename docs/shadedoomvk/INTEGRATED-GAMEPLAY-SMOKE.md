@@ -1,7 +1,8 @@
 # Ordinary-input integrated gameplay smoke
 
-Status: implementation/preparation candidate; no native gameplay result is
-claimed until the reviewed source is built and executed. The corpus combines
+Status: initial physical gameplay correctness passed on the frozen source
+identified below; normal exact-head CI and guarded integration remain required.
+The corpus combines
 the existing authored live-player PBR room, classic and PBR world sprites,
 normal/PBR weapon materials, colored local lights, actor environment probes,
 sunlight and a line mirror with actual movement, firing and map/resource rebuilds.
@@ -102,3 +103,25 @@ separate unresolved workload.
 For ordinary interactive use, load the generated scene PK3 and `+map SDVGPA
 +gl_viewmodel_lighting 2` without observer/input-driver flags or capture script.
 Use normal bindings to move and fire. The automatic driver is inert by default.
+
+## Initial physical validation and pause
+
+The fresh generation-07 process at source
+`8ce112bb6aaf6e7068e2715170afda7a2960ca8a` exited 0. All 128 critical
+frame/player/resource/viewmodel snapshots and nine required images passed their
+native admission. The actual detail frames were 8/24/40/41/56/80/81/96/120;
+12,251,041 retained bytes and 8,105 records fit the unchanged limits, with zero
+dropped records. Movement reached x=57.62, turning reached yaw=-8.7891 degrees,
+Clip dropped 40 to 39 on both maps, and muzzle light returned to zero. Current
+LevelMesh owners were 3/5/7 across A/B/A. All 104 ready and 24 firing weapon
+draws used the enhanced PBR path. Image joins included the two actual firing
+views rather than synthetic poses.
+
+The [evidence summary](evidence/SDVK-011-GAMEPLAY-PHYSICAL-20261107.json) keeps
+the successful fresh attempt distinct from the earlier structural-gate STOP.
+This single ordinary-tic capture has no exact cross-process dynamic comparison
+or GPU timing claim. LevelMesh rendering and shadows were off; no static bake,
+HUD POM or dense-shadow stability is qualified. The owner directed delivery of
+this initially validated gameplay increment and then a
+[documented pause](PROGRAMME-PAUSE-20261107.md), with the separate special-surface
+repeatability work deferred.

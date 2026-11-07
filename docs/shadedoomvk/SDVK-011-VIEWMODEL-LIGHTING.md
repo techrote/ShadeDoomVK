@@ -1,7 +1,9 @@
 # SDVK-011 viewmodel lighting software increment
 
-Status: implementation candidate; native qualification, independent review and
-exact-head CI are required before acceptance. Issue #11 remains open.
+Status: bounded software increment with initial physical correctness evidence.
+Guarded integration requires independent review and green exact-head normal CI.
+Issue #11 remains open for its remaining acceptance criteria; the whole renderer
+programme is not complete. See the [delivery/pause boundary](PROGRAMME-PAUSE-20261107.md).
 
 `gl_viewmodel_lighting` selects an archived, render-only policy:
 
@@ -83,8 +85,9 @@ scenes cover legacy PBR, mirrored normal/specular, enhanced PBR and static Warp2
 skin fallback. The box must submit its real 36 model vertices; an ordinary card
 cannot satisfy the model cell. CPU fixtures execute the inherited production
 matrix implementation for camera rotation/translation, mirrored nonuniform scale
-and a deliberately wrong normal transform. Native qualification remains pending;
-this bounded rigid-model corpus does not claim all skeletal/animated formats.
+and a deliberately wrong normal transform. The normal and PBR rigid-model cells
+have the bounded physical evidence below; this corpus does not claim all
+skeletal/animated formats. Remaining cells require their normal CI qualification.
 
 
 Local preflight: the complete Windows RelWithDebInfo executable/resource build
@@ -122,9 +125,29 @@ frames, nine images and actual movement, turning, ammo use, muzzle light/reset
 and three fresh map owners. Its original attempt remains **FAILED_STOP**: the
 generic structural gate incorrectly required the four large draw families on
 every frame. The recipe-scoped admission repair is checked against those
-immutable captured records; a fresh repaired-source process remains required.
+immutable captured records. A fresh repaired-source process subsequently passed,
+as recorded below; the original failed attempt is unchanged.
 No GPU fault was observed; the separate post-failure fence retained 30 C/P8,
 90 W and no new System fault events. This checkpoint supplies bounded physical
 correctness evidence, not whole-issue, dense-shadow, performance or stability
 acceptance. The remaining native cells and exact-head normal CI still govern
 integration, and #11 remains open.
+
+## Fresh ordinary-gameplay result
+
+Source `8ce112bb6aaf6e7068e2715170afda7a2960ca8a` was frozen, independently
+built and run once in generation 07. The native process exited 0 and all
+structural, gameplay, material/probe/viewmodel and nine-image gates passed.
+Actual movement, turning, ammo depletion, muzzle-light reset and A/B/A resource
+ownership were retained across all 128 views, with no dropped records. Peak
+temperature was 33 C, the final owned job was empty, and the completion fence
+observed no new System fault event. This is initial integrated gameplay
+correctness, with shadows and LevelMesh rendering off; it does not measure GPU
+cost or establish broad stability, POM or baked-lightmap acceptance.
+
+The [machine-readable evidence summary](evidence/SDVK-011-GAMEPLAY-PHYSICAL-20261107.json)
+pins source, executable, content and retained private manifests. Later `a774ecbf`
+changes only the native CPU test fixture's canonical path handling; it is not a
+new physical executable or run. Final documentation changes likewise do not
+relabel this source-matched evidence. The owner requested integration and initial
+validation of this increment followed by a programme pause.
