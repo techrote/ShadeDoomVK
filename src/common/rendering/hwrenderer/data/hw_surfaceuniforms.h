@@ -68,7 +68,7 @@ struct SurfaceUniforms
 	FVector4 uSpriteReliefBounds = {};  // ul, vt, ur, vb (before TextureMatrix)
 	// SDVK-011 shader-world lighting sample; W enables enhanced HUD lighting.
 	FVector4 uViewmodelSample = {};
-	FVector4 uViewmodelMode = {}; // requested, effective, fallback, HUD draw marker
+	FVector4 uViewmodelMode = {}; // requested, effective, fallback, HUD marker (1 card, 2 model)
 };
 
 struct SurfaceLightUniforms

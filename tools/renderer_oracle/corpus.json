@@ -20562,6 +20562,1274 @@
         "src/playsim/p_mobj.cpp"
       ],
       "title": "Special-surface/material lifecycle and semantic ownership"
+    },
+    {
+      "classes": [
+        "semantic_materials",
+        "probes_sun",
+        "lights_occlusion",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk011_viewmodel.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_pf113_probe_sampling_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_lighting_compat_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "viewmodel-contract",
+        "pbr-probe",
+        "lighting-compat"
+      ],
+      "id": "viewmodel-model-legacy",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2011",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV120",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": null,
+          "camera_height": 41,
+          "position": [
+            0,
+            0,
+            41
+          ],
+          "yaw": 0,
+          "pitch": 0,
+          "roll": 0,
+          "fov": 90,
+          "policy": "ordinary live SDVKVMPlayer; no fixed camera or synthetic viewmodel draw"
+        },
+        "capture_script": "scenes/viewmodel-model-legacy/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/viewmodel-model-legacy/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites true",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "gl_viewmodel_lighting",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "walls": {
+            "minimum": 1
+          },
+          "flats": {
+            "minimum": 1
+          },
+          "sprites": {
+            "minimum": 1
+          }
+        },
+        "generator": "viewmodel",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": true,
+        "map": "SDV120",
+        "map_guard": {
+          "equals": "SDV120",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Preparation is not weapon rendering or native qualification.",
+          "Static live-player weapon state and an integrated normal/PBR world/probe/sun/mirror room; moving, firing, HUD models, and arbitrary mods need separate execution evidence.",
+          "Physical GPU performance and stability are not accepted by hosted software Vulkan."
+        ],
+        "pk3": "scenes/viewmodel-model-legacy/scene.pk3",
+        "recommended_warmup_frames": 240,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2011,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": true,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": true,
+          "r_drawplayersprites": true,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false,
+          "gl_viewmodel_lighting": 0,
+          "gl_mirrors": true,
+          "gl_portals": true,
+          "r_mirror_recursions": 2
+        },
+        "state_assertions": {
+          "materials": [
+            "SDVUA0",
+            "SDVOA0"
+          ],
+          "material_semantics": {
+            "SDVUA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "viewmodel": {
+            "requested_mode": 0,
+            "effective_mode": 0,
+            "fallback_reason": 0,
+            "material": "SDVW",
+            "shader": 4,
+            "probe_required": false,
+            "dynamic_lights_required": false,
+            "model_geometry": true
+          },
+          "published_probes_minimum": 1
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "probe",
+        "resource",
+        "pipeline",
+        "viewmodel"
+      ],
+      "source_refs": [
+        "tools/renderer_oracle/sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "src/rendering/hwrenderer/scene/hw_weapon.cpp",
+        "src/rendering/hwrenderer/scene/hw_viewmodel_policy.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "src/rendering/hwrenderer/hw_models.cpp",
+        "src/r_data/models.cpp",
+        "src/common/models/models_obj.cpp",
+        "wadsrc/static/shaders/scene/material_normalmap.glsl"
+      ],
+      "title": "Live HUD model legacy lighting"
+    },
+    {
+      "classes": [
+        "semantic_materials",
+        "probes_sun",
+        "lights_occlusion",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk011_viewmodel.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_pf113_probe_sampling_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_lighting_compat_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "viewmodel-contract",
+        "pbr-probe",
+        "lighting-compat"
+      ],
+      "id": "viewmodel-model-normal",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2011",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV121",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": null,
+          "camera_height": 41,
+          "position": [
+            0,
+            0,
+            41
+          ],
+          "yaw": 0,
+          "pitch": 0,
+          "roll": 0,
+          "fov": 90,
+          "policy": "ordinary live SDVKVMPlayer; no fixed camera or synthetic viewmodel draw"
+        },
+        "capture_script": "scenes/viewmodel-model-normal/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/viewmodel-model-normal/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites true",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "gl_viewmodel_lighting",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "walls": {
+            "minimum": 1
+          },
+          "flats": {
+            "minimum": 1
+          },
+          "sprites": {
+            "minimum": 1
+          }
+        },
+        "generator": "viewmodel",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": true,
+        "map": "SDV121",
+        "map_guard": {
+          "equals": "SDV121",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Preparation is not weapon rendering or native qualification.",
+          "Static live-player weapon state and an integrated normal/PBR world/probe/sun/mirror room; moving, firing, HUD models, and arbitrary mods need separate execution evidence.",
+          "Physical GPU performance and stability are not accepted by hosted software Vulkan."
+        ],
+        "pk3": "scenes/viewmodel-model-normal/scene.pk3",
+        "recommended_warmup_frames": 240,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2011,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": true,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": true,
+          "r_drawplayersprites": true,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false,
+          "gl_viewmodel_lighting": 2,
+          "gl_mirrors": true,
+          "gl_portals": true,
+          "r_mirror_recursions": 2
+        },
+        "state_assertions": {
+          "materials": [
+            "SDVUA0",
+            "SDVOA0"
+          ],
+          "material_semantics": {
+            "SDVUA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "viewmodel": {
+            "requested_mode": 2,
+            "effective_mode": 2,
+            "fallback_reason": 0,
+            "material": "SDVW",
+            "shader": 3,
+            "probe_required": false,
+            "dynamic_lights_required": true,
+            "model_geometry": true
+          },
+          "published_probes_minimum": 1
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "probe",
+        "resource",
+        "pipeline",
+        "viewmodel"
+      ],
+      "source_refs": [
+        "tools/renderer_oracle/sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "src/rendering/hwrenderer/scene/hw_weapon.cpp",
+        "src/rendering/hwrenderer/scene/hw_viewmodel_policy.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "src/rendering/hwrenderer/hw_models.cpp",
+        "src/r_data/models.cpp",
+        "src/common/models/models_obj.cpp",
+        "wadsrc/static/shaders/scene/material_normalmap.glsl"
+      ],
+      "title": "Live HUD model normal lighting"
+    },
+    {
+      "classes": [
+        "semantic_materials",
+        "probes_sun",
+        "lights_occlusion",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk011_viewmodel.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_pf113_probe_sampling_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_lighting_compat_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "viewmodel-contract",
+        "pbr-probe",
+        "lighting-compat"
+      ],
+      "id": "viewmodel-model-pbr",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2011",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV122",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": null,
+          "camera_height": 41,
+          "position": [
+            0,
+            0,
+            41
+          ],
+          "yaw": 0,
+          "pitch": 0,
+          "roll": 0,
+          "fov": 90,
+          "policy": "ordinary live SDVKVMPlayer; no fixed camera or synthetic viewmodel draw"
+        },
+        "capture_script": "scenes/viewmodel-model-pbr/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/viewmodel-model-pbr/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites true",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "gl_viewmodel_lighting",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "walls": {
+            "minimum": 1
+          },
+          "flats": {
+            "minimum": 1
+          },
+          "sprites": {
+            "minimum": 1
+          }
+        },
+        "generator": "viewmodel",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": true,
+        "map": "SDV122",
+        "map_guard": {
+          "equals": "SDV122",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Preparation is not weapon rendering or native qualification.",
+          "Static live-player weapon state and an integrated normal/PBR world/probe/sun/mirror room; moving, firing, HUD models, and arbitrary mods need separate execution evidence.",
+          "Physical GPU performance and stability are not accepted by hosted software Vulkan."
+        ],
+        "pk3": "scenes/viewmodel-model-pbr/scene.pk3",
+        "recommended_warmup_frames": 240,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2011,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": true,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": true,
+          "r_drawplayersprites": true,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false,
+          "gl_viewmodel_lighting": 2,
+          "gl_mirrors": true,
+          "gl_portals": true,
+          "r_mirror_recursions": 2
+        },
+        "state_assertions": {
+          "materials": [
+            "SDVUA0",
+            "SDVOA0"
+          ],
+          "material_semantics": {
+            "SDVUA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "viewmodel": {
+            "requested_mode": 2,
+            "effective_mode": 2,
+            "fallback_reason": 0,
+            "material": "SDVW",
+            "shader": 4,
+            "probe_required": true,
+            "dynamic_lights_required": true,
+            "model_geometry": true
+          },
+          "published_probes_minimum": 1
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "probe",
+        "resource",
+        "pipeline",
+        "viewmodel"
+      ],
+      "source_refs": [
+        "tools/renderer_oracle/sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "src/rendering/hwrenderer/scene/hw_weapon.cpp",
+        "src/rendering/hwrenderer/scene/hw_viewmodel_policy.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "src/rendering/hwrenderer/hw_models.cpp",
+        "src/r_data/models.cpp",
+        "src/common/models/models_obj.cpp",
+        "wadsrc/static/shaders/scene/material_normalmap.glsl"
+      ],
+      "title": "Live HUD model pbr lighting"
+    },
+    {
+      "classes": [
+        "semantic_materials",
+        "probes_sun",
+        "lights_occlusion",
+        "portals_views"
+      ],
+      "comparison": {
+        "image": {
+          "cross_device_policy": "state_assertions_required; no portable exact-pixel promise",
+          "default": "exact_rgb",
+          "ignore_alpha": true,
+          "same_device_driver_profile_required": true,
+          "tolerant_rgb": {
+            "max_absolute_error": 2,
+            "maximum_changed_pixel_fraction": 0.01,
+            "mean_absolute_error": 0.25,
+            "preregistration_required": true
+          }
+        },
+        "state_policy": "exact_semantic_values_with_documented_run_local_identity_normalization",
+        "state_required": true
+      },
+      "cpu_commands": [
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/renderer_oracle/tests",
+          "-p",
+          "test_sdvk011_viewmodel.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_pf113_probe_sampling_contract.py",
+          "-v"
+        ],
+        [
+          "{python}",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tools/pf_oracle/tests",
+          "-p",
+          "test_lighting_compat_contract.py",
+          "-v"
+        ]
+      ],
+      "cpu_contracts": [
+        "viewmodel-contract",
+        "pbr-probe",
+        "lighting-compat"
+      ],
+      "id": "viewmodel-model-fallback",
+      "native": {
+        "argv": [
+          "{exe}",
+          "-stdout",
+          "-noautoload",
+          "-noautoexec",
+          "-nosound",
+          "-nojoy",
+          "-rngseed",
+          "2011",
+          "-iwad",
+          "{iwad}",
+          "-file",
+          "{pk3}",
+          "-config",
+          "{config}",
+          "-width",
+          "640",
+          "-height",
+          "480",
+          "-window",
+          "+map",
+          "SDV123",
+          "+exec",
+          "{capture_script}"
+        ],
+        "camera": {
+          "actor_tid": null,
+          "camera_height": 41,
+          "position": [
+            0,
+            0,
+            41
+          ],
+          "yaw": 0,
+          "pitch": 0,
+          "roll": 0,
+          "fov": 90,
+          "policy": "ordinary live SDVKVMPlayer; no fixed camera or synthetic viewmodel draw"
+        },
+        "capture_script": "scenes/viewmodel-model-fallback/capture.cfg",
+        "clock": {
+          "actual_tic_fraction_and_camera_required": true,
+          "fixed_tic_timing_forbidden": true,
+          "state": "static_after_initialization",
+          "timing": "ordinary_engine_clock"
+        },
+        "config": "scenes/viewmodel-model-fallback/fixture.ini",
+        "console_commands": [
+          "unbindall",
+          "fov 90",
+          "r_drawplayersprites true",
+          "screenblocks 12",
+          "crosshair 0",
+          "vid_setsize 640 480"
+        ],
+        "console_queries": [
+          "cl_capfps",
+          "crosshair",
+          "gl_bloom",
+          "gl_customshader",
+          "gl_fxaa",
+          "gl_lens",
+          "gl_levelmesh",
+          "gl_light_shadows",
+          "gl_light_sprites",
+          "gl_lightprobe",
+          "gl_lights",
+          "gl_mirrors",
+          "gl_multisample",
+          "gl_portals",
+          "gl_spritelight",
+          "gl_ssao",
+          "gl_texture_filter",
+          "gl_texture_filter_anisotropic",
+          "gl_tonemap",
+          "gl_ubershaders",
+          "gl_viewmodel_lighting",
+          "lm_ao",
+          "lm_bounce",
+          "lm_dynlights",
+          "lm_softshadows",
+          "lm_sunlight",
+          "r_drawplayersprites",
+          "r_mirror_recursions",
+          "screenblocks",
+          "screenshot_type",
+          "use_joystick",
+          "use_mouse",
+          "vid_brightness",
+          "vid_contrast",
+          "vid_fullscreen",
+          "vid_gamma",
+          "vid_maxfps",
+          "vid_rendermode",
+          "vid_vsync",
+          "vk_rayquery"
+        ],
+        "driver": "sdvk",
+        "executed": false,
+        "extent": [
+          640,
+          480
+        ],
+        "frame_assertions": {
+          "walls": {
+            "minimum": 1
+          },
+          "flats": {
+            "minimum": 1
+          },
+          "sprites": {
+            "minimum": 1
+          }
+        },
+        "generator": "viewmodel",
+        "generic_capture_supported": true,
+        "iwad": {
+          "copied_into_pk3": false,
+          "kind": "externally_supplied_doom2_compatible",
+          "pin_actual_sha256_before_run": true,
+          "requirements": [
+            "isolated supplied IWAD directory with no sibling auto-loaded WADs",
+            "complete actual engine loaded-package inventory",
+            "Doom2-compatible game definition required; alternative IWAD compatibility remains pending native validation",
+            "all referenced scene textures/sprites are generated; no Doom2 IWAD pixel identity assumed"
+          ],
+          "sha256": null
+        },
+        "manual_opt_in": true,
+        "map": "SDV123",
+        "map_guard": {
+          "equals": "SDV123",
+          "field": "observed map name"
+        },
+        "pending_coverage": [
+          "Preparation is not weapon rendering or native qualification.",
+          "Static live-player weapon state and an integrated normal/PBR world/probe/sun/mirror room; moving, firing, HUD models, and arbitrary mods need separate execution evidence.",
+          "Physical GPU performance and stability are not accepted by hosted software Vulkan."
+        ],
+        "pk3": "scenes/viewmodel-model-fallback/scene.pk3",
+        "recommended_warmup_frames": 240,
+        "required_native_evidence": [
+          "native map/content compilation",
+          "exact executable/IWAD/settings and actually loaded package identities",
+          "actual map and camera match recipe",
+          "all required state channels observed or explicit unavailable status",
+          "two independent clean-state captures and registered image/state comparison"
+        ],
+        "screenshot": {
+          "filename": "{prefix}.png",
+          "policy": "renderer screenshot plus state receipt; preparation is not rendered evidence",
+          "producer": "-sdvkobservequit after the complete requested frame budget"
+        },
+        "seed": 2011,
+        "settings": {
+          "cl_capfps": false,
+          "crosshair": 0,
+          "gl_bloom": false,
+          "gl_customshader": true,
+          "gl_fxaa": 0,
+          "gl_lens": false,
+          "gl_levelmesh": false,
+          "gl_light_shadows": 0,
+          "gl_light_sprites": true,
+          "gl_lightprobe": true,
+          "gl_lights": true,
+          "gl_multisample": 0,
+          "gl_spritelight": 2,
+          "gl_ssao": 0,
+          "gl_texture_filter": 0,
+          "gl_texture_filter_anisotropic": 1,
+          "gl_tonemap": 0,
+          "gl_ubershaders": false,
+          "lm_ao": false,
+          "lm_bounce": false,
+          "lm_dynlights": false,
+          "lm_softshadows": false,
+          "lm_sunlight": true,
+          "r_drawplayersprites": true,
+          "screenblocks": 12,
+          "screenshot_type": "png",
+          "use_joystick": false,
+          "use_mouse": false,
+          "vid_brightness": 0,
+          "vid_contrast": 1,
+          "vid_fullscreen": false,
+          "vid_gamma": 1,
+          "vid_maxfps": 0,
+          "vid_rendermode": 4,
+          "vid_vsync": false,
+          "vk_rayquery": false,
+          "gl_viewmodel_lighting": 2,
+          "gl_mirrors": true,
+          "gl_portals": true,
+          "r_mirror_recursions": 2
+        },
+        "state_assertions": {
+          "materials": [
+            "SDVUA0",
+            "SDVOA0"
+          ],
+          "material_semantics": {
+            "SDVUA0": [
+              "albedo",
+              "normal",
+              "metallic",
+              "roughness",
+              "ambient-occlusion"
+            ]
+          },
+          "viewmodel": {
+            "requested_mode": 2,
+            "effective_mode": 1,
+            "fallback_reason": 4,
+            "material": "SDVW",
+            "shader": 2,
+            "probe_required": false,
+            "dynamic_lights_required": false,
+            "model_geometry": true
+          },
+          "published_probes_minimum": 1
+        },
+        "status": "native_qualification_pending"
+      },
+      "negative_fixtures": [
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "tools/pf_oracle/tests/test_viewmodel_model_contract.py"
+      ],
+      "required_state_channels": [
+        "context",
+        "material",
+        "probe",
+        "resource",
+        "pipeline",
+        "viewmodel"
+      ],
+      "source_refs": [
+        "tools/renderer_oracle/sdvk011_viewmodel.py",
+        "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
+        "src/rendering/hwrenderer/scene/hw_weapon.cpp",
+        "src/rendering/hwrenderer/scene/hw_viewmodel_policy.h",
+        "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp",
+        "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
+        "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
+        "wadsrc/static/zscript/actors/player/player.zs",
+        "src/rendering/hwrenderer/hw_models.cpp",
+        "src/r_data/models.cpp",
+        "src/common/models/models_obj.cpp",
+        "wadsrc/static/shaders/scene/material_normalmap.glsl"
+      ],
+      "title": "HUD model unsupported warped skin sector fallback"
     }
   ],
   "schema": "sdvk-renderer-corpus/v1",

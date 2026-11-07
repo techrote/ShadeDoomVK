@@ -11,8 +11,8 @@ int main()
     assert(Resolve(2, true, false, false, false).mode == Enhanced);
     assert(Resolve(2, false, false, false, false).fallback == PerPixelDisabled);
     assert(Resolve(2, true, true, false, false).fallback == PortalAmbiguous);
-    assert(Resolve(2, true, false, true, false).mode == Sector);
-    assert(Resolve(2, true, false, true, false).fallback == HudModel);
+    assert(Resolve(2, true, false, true, false).mode == Enhanced);
+    assert(Resolve(2, true, false, true, false).fallback == None);
     assert(Resolve(2, true, false, false, true).mode == Legacy);
     assert(Resolve(3, true, false, false, false).fallback == InvalidMode);
     assert(Resolve(-1, true, false, false, false).mode == Legacy);

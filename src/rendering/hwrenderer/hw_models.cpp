@@ -43,6 +43,11 @@
 #include "hwrenderer/scene/hw_portal.h"
 #include "hw_models.h"
 #include "hwrenderer/scene/hw_drawcontext.h"
+#include "hwrenderer/scene/hw_weapon.h"
+#include "hwrenderer/scene/hw_viewmodel_policy.h"
+#include "v_video.h"
+#include "d_main.h"
+#include <cmath>
 
 CVAR(Bool, gl_light_models, true, CVAR_ARCHIVE)
 EXTERN_CVAR(Bool, gl_texture);
@@ -108,6 +113,9 @@ void FHWModelRenderer::BeginDrawHUDModel(FRenderStyle style, const VSMatrix &obj
 
 	VSMatrix normalModelMatrix;
 	normalModelMatrix.computeNormalMatrix(objectToWorldMatrix);
+	worldNormalValid = true;
+	for (int i = 0; i < 16; ++i)
+		worldNormalValid = worldNormalValid && std::isfinite(normalModelMatrix.get()[i]);
 	state.SetModelMatrix(objectToWorldMatrix, normalModelMatrix);
 }
 
@@ -146,7 +154,26 @@ void FHWModelRenderer::SetMaterial(FGameTexture *skin, bool clampNoFilter, FTran
 	lastAct = act;
 	lastShader = shader;
 
-	state.SetLightIndex(modellightindex);
+	int lightindex = modellightindex;
+	if (viewmodel && viewmodel->viewmodelMode == HWViewmodel::Enhanced)
+	{
+		// RenderHUDModel already uses inverse(view) * authored model transforms.
+		// Keep its world normal matrix and derivative material TBN; only the
+		// lighting sample is shared with cards. Admit each actual skin separately.
+		const bool supported = worldNormalValid && V_IsTrueColor() && (shader == 0 || shader == 3 || shader == 4);
+		const int mode = supported ? HWViewmodel::Enhanced : HWViewmodel::Sector;
+		const int fallback = supported ? HWViewmodel::None : HWViewmodel::HudModel;
+		state.SetViewmodelLighting(supported ? viewmodel->viewmodelSample : FVector3{},
+			viewmodel->viewmodelRequested, mode, fallback, true);
+		state.SetLightProbeIndex(supported ? viewmodel->viewmodelProbe : -1);
+		state.SetShadeVertex(false);
+		state.SetLightNoNormals(false);
+		state.SetUseSpriteCenter(supported);
+		if (supported) state.SetActorCenter(viewmodel->viewmodelSample.X, viewmodel->viewmodelSample.Y, viewmodel->viewmodelSample.Z);
+		else lightindex = -1;
+		HWViewmodel::RecordMode(mode, fallback);
+	}
+	state.SetLightIndex(lightindex);
 }
 
 void FHWModelRenderer::DrawArrays(int start, int count)

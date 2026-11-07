@@ -465,6 +465,15 @@ struct FSdvkDiagnosticAccess
 			const auto& tangent = state->mSurfaceUniforms.uSpriteTangent;
 			const auto& normal = state->mSurfaceUniforms.uSpriteNormal;
 			const int probe = state->mSurfaceUniforms.uLightProbeIndex;
+			const bool model = vm.W > 1.5f;
+			std::string normalMatrix = "[";
+			if (model)
+				for (int i = 0; i < 16; ++i)
+				{
+					if (i) normalMatrix += ',';
+					normalMatrix += Number(state->mMatrices.NormalModelMatrix.get()[i]);
+				}
+			normalMatrix += ']';
 			SdvkDiagnostics::Emit("viewmodel", Object().Raw("context", context)
 				.Str("contract", "sdvk-011-viewmodel/v1").Str("material", name)
 				.Int("requested_mode", int(vm.X)).Int("effective_mode", int(vm.Y)).Int("fallback_reason", int(vm.Z))
@@ -473,6 +482,8 @@ struct FSdvkDiagnosticAccess
 				.Raw("tangent", '[' + Number(tangent.X) + ',' + Number(tangent.Y) + ',' + Number(tangent.Z) + ']')
 				.Raw("normal", '[' + Number(normal.X) + ',' + Number(normal.Y) + ',' + Number(normal.Z) + ']')
 				.Num("handedness", tangent.W).Bool("explicit_basis", normal.W > 0.5f)
+				.Bool("model_geometry", model).Raw("normal_model_matrix", normalMatrix)
+				.Str("basis_source", model ? "model-world-normal-matrix-and-derivative-tbn" : "final-hud-quad")
 				.Bool("relief_enabled", state->mSurfaceUniforms.uSpriteReliefParams.W > 0.5f)
 				.Int("authored_probe", state->mLightProbeIndex).Int("runtime_irradiance_index", probe)
 				.Int("probe_epoch", fb->GetTextureManager()->GetLightProbeEpoch().Generation)

@@ -266,3 +266,16 @@ Actor PBR cards retain SDVK-005 semantic normal/metallic/roughness/AO filters an
 ## SDVK-011 candidate
 
 Two appended surface uniforms select a camera-oriented HUD card basis and one world lighting sample. Other draws retain original positions; material order, sampling and shader-key ABI are unchanged. Unsupported projection/material cases have diagnosed fallback. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.
+
+
+### SDVK-011 HUD-model enhanced candidate
+
+HUD models already use `RenderHUDModel`'s inverse(view) * authored object matrix
+and `FHWModelRenderer::BeginDrawHUDModel`'s inverse-transpose normal matrix. The
+model vertex shader and derivative normal-map TBN retain those world coordinates.
+Only the shared lighting anchor uses `uViewmodelSample`; model geometry, normal
+mapping, UVs and animation remain on their inherited path. `SetMaterial` admits
+each actual model skin in enhanced mode, with explicit sector fallback for
+unsupported material/normal-transform state and restoration for later supported
+surfaces. See `SDVK-011-VIEWMODEL-LIGHTING.md`; source/CPU qualification is distinct
+from the pending bounded native OBJ-model matrix.

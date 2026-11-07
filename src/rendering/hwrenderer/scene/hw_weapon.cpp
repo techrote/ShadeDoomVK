@@ -62,6 +62,11 @@ CVARD(Int, gl_viewmodel_lighting, 0, CVAR_ARCHIVE,
 	"Viewmodel lighting: 0 legacy, 1 sector, 2 enhanced world sample (stat viewmodel diagnostics)");
 
 static int LastViewmodelMode = 0, LastViewmodelFallback = 0;
+void HWViewmodel::RecordMode(int mode, int fallback)
+{
+	LastViewmodelMode = mode;
+	LastViewmodelFallback = fallback;
+}
 ADD_STAT(viewmodel)
 {
 	static const char* modes[] = {"legacy", "sector", "enhanced"};
@@ -119,9 +124,8 @@ void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 	SdvkDiagnostics::ClearSpriteBasis();
 	SdvkDiagnostics::ClearActorProbeSelection();
 	SdvkDiagnostics::ClearActorSun();
-	state.SetViewmodelLighting(huds->viewmodelSample, huds->viewmodelRequested, huds->viewmodelMode, huds->viewmodelFallback);
-	LastViewmodelMode = huds->viewmodelMode;
-	LastViewmodelFallback = huds->viewmodelFallback;
+	state.SetViewmodelLighting(huds->viewmodelSample, huds->viewmodelRequested, huds->viewmodelMode, huds->viewmodelFallback, huds->mframe != nullptr);
+	HWViewmodel::RecordMode(huds->viewmodelMode, huds->viewmodelFallback);
 	if (huds->viewmodelMode != HWViewmodel::Legacy) state.SetLightProbeIndex(huds->viewmodelProbe);
 	if (huds->RenderStyle.BlendOp == STYLEOP_Shadow)
 	{
@@ -152,13 +156,19 @@ void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 	if (huds->mframe)
 	{
 		state.SetDynLight(0.0, 0.0, 0.0);
-		state.SetShadeVertex(gl_spritelight == 1);
+		state.SetShadeVertex(!enhanced && gl_spritelight == 1);
 		state.AlphaFunc(Alpha_GEqual, 0);
 
-		FHWModelRenderer renderer(this, state, huds->lightindex);
+		FHWModelRenderer renderer(this, state, huds->lightindex, huds);
 		RenderHUDModel(&renderer, huds->weapon, huds->translation, huds->rotation + FVector3(huds->mx / 4., (huds->my - WEAPONTOP) / -4., 0), huds->pivot, huds->mframe, Viewpoint.TicFrac);
 		state.SetFlatVertexBuffer();
 		state.SetShadeVertex(false);
+		if (enhanced)
+		{
+			state.SetUseSpriteCenter(false);
+			state.SetLightNoNormals(false);
+			state.SetLightIndex(-1);
+		}
 	}
 	else
 	{
@@ -976,9 +986,11 @@ void HWDrawInfo::PreparePlayerSprites3D(sector_t * viewsector, area_t in_area, F
 		hudsprite.dynrgb[0] = hudsprite.dynrgb[1] = hudsprite.dynrgb[2] = 0;
 		hudsprite.lightindex = -1;
 		// set the lighting parameters
-		if (hudsprite.viewmodelMode != HWViewmodel::Sector && hudsprite.RenderStyle.BlendOp != STYLEOP_Shadow && Level->HasDynamicLights && !isFullbrightScene() && gl_light_sprites)
+		if (hudsprite.viewmodelMode != HWViewmodel::Sector && hudsprite.RenderStyle.BlendOp != STYLEOP_Shadow && (Level->HasDynamicLights || hudsprite.viewmodelMode == HWViewmodel::Enhanced) && !isFullbrightScene() && gl_light_sprites)
 		{
-			GetDynSpriteLightList(playermo, nullptr, nullptr, lightdata, true);
+			if (hudsprite.viewmodelMode == HWViewmodel::Enhanced)
+				GetDynSpriteLightList(playermo, hudsprite.viewmodelSample.X, hudsprite.viewmodelSample.Z, hudsprite.viewmodelSample.Y, nullptr, lightdata, false);
+			else GetDynSpriteLightList(playermo, nullptr, nullptr, lightdata, true);
 			hudsprite.lightindex = state.UploadLights(lightdata);
 		}
 

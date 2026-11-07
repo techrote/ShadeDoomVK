@@ -294,10 +294,10 @@ public:
 		mSurfaceUniforms.uVertexNormal = { norm.X, norm.Y, norm.Z, 0.f };
 	}
 
-	void SetViewmodelLighting(FVector3 sample, int requested, int effective, int fallback)
+	void SetViewmodelLighting(FVector3 sample, int requested, int effective, int fallback, bool model = false)
 	{
 		mSurfaceUniforms.uViewmodelSample = {sample.X, sample.Y, sample.Z, effective == 2 ? 1.f : 0.f};
-		mSurfaceUniforms.uViewmodelMode = {float(requested), float(effective), float(fallback), 1.f};
+		mSurfaceUniforms.uViewmodelMode = {float(requested), float(effective), float(fallback), model ? 2.f : 1.f};
 	}
 	void ClearViewmodelLighting()
 	{

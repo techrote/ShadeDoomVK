@@ -25,7 +25,49 @@ def draw():
             "uniform_scope": "emitted-vulkan-draw-after-apply-surface-uniforms"}
 
 
+def model_draw():
+    value = draw()
+    value.update(material="SDVW", shader=4, model_geometry=True, explicit_basis=False,
+                 tangent=[0, 0, 0], normal=[0, 0, 0], handedness=0, draw_count=36,
+                 normal_model_matrix=[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+                 basis_source="model-world-normal-matrix-and-derivative-tbn",
+                 pipeline={"shader": {"VertexFormat": 2, "ShadeVertex": 0, "LightNoNormals": 0,
+                                      "UseSpriteCenter": 1, "UseLevelMesh": 0}})
+    return value
+
+
 class ViewmodelTests(unittest.TestCase):
+    def test_model_world_normal_matrix_and_derivative_policy(self):
+        target.validate_draw(model_draw())
+        for key, bad in (("explicit_basis", True), ("normal_model_matrix", [0]*16),
+                         ("normal_model_matrix", [float("nan")]*16),
+                         ("normal_model_matrix", ["1"]*16), ("basis_source", "camera-space-guess")):
+            value = model_draw(); value[key] = bad
+            with self.subTest(key=key), self.assertRaises(common.EvidenceError): target.validate_draw(value)
+
+    def test_model_frame_requires_the_actual_loader_draw_and_anchor_pipeline(self):
+        scene = next(s for s in prepare.load_catalog()["scenes"] if s["id"] == "viewmodel-model-pbr")
+        spec, camera = scene["native"]["state_assertions"]["viewmodel"], scene["native"]["camera"]
+        target.validate_frame([row("viewmodel", model_draw())], spec, camera)
+        for mutation in ("quad", "vertices", "vertex-shading", "sample-origin"):
+            value = model_draw()
+            if mutation == "quad": value = draw(); value.update(material="SDVW", shader=4)
+            elif mutation == "vertices": value["draw_count"] = 4
+            elif mutation == "vertex-shading": value["pipeline"]["shader"]["ShadeVertex"] = 1
+            else: value["pipeline"]["shader"]["UseSpriteCenter"] = 0
+            with self.subTest(mutation=mutation), self.assertRaises(common.EvidenceError):
+                target.validate_frame([row("viewmodel", value)], spec, camera)
+
+    def test_original_model_assets_use_existing_loader_and_normal_weapon_states(self):
+        catalog = prepare.load_catalog()
+        for scene in (s for s in catalog["scenes"] if s["id"].startswith("viewmodel-model-")):
+            _, members, metadata = prepare.scene_assets(scene)
+            self.assertEqual(members["models/sdvkvm.obj"].count(b"\nf "), 6)
+            self.assertIn(b'Model 0 "sdvkvm.obj"', members["MODELDEF"])
+            self.assertIn(b'Skin 0 "SDVW"', members["MODELDEF"])
+            self.assertIn(b'FrameIndex SDVU A 0 0', members["MODELDEF"])
+            self.assertEqual(metadata["weapon_material"], "SDVW")
+
     def test_modes_fallbacks_and_projection_uniform_reset(self):
         target.validate_draw(draw())
         for requested, mode, fallback in ((0, 0, 0), (1, 1, 0), (2, 0, 2),
@@ -77,7 +119,7 @@ class ViewmodelTests(unittest.TestCase):
     def test_live_player_assets_and_all_mode_recipes_are_deterministic(self):
         catalog = prepare.load_catalog(); prepare.validate_catalog(catalog)
         scenes = [s for s in catalog["scenes"] if s["native"]["generator"] == "viewmodel"]
-        self.assertEqual(len(scenes), 6)
+        self.assertEqual(len(scenes), 10)
         for scene in scenes:
             first = prepare.scene_assets(scene); second = prepare.scene_assets(scene)
             self.assertEqual(first, second)

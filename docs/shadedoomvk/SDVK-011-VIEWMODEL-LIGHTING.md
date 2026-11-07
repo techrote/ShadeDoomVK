@@ -26,8 +26,9 @@ drawing, and clears viewmodel uniforms afterwards. World draws retain their
 original lighting positions when the appended selector is zero. The frozen
 shader-key ABI and existing surface-uniform offsets are unchanged.
 
-HUD models currently use explicit sector fallback in mode 2; their model-space
-tangent transform still needs separate qualification. Disabled per-pixel sprite
+HUD models have a bounded enhanced candidate using their inherited object-to-world
+and inverse-transpose normal matrices; per-skin and native qualification is
+required before that extension is accepted. Disabled per-pixel sprite
 lighting, ambiguous linked-portal ownership, palette mode, custom/warped materials
 and special render styles use explicit legacy fallback. Ordinary built-in default,
 normal/specular and PBR cards are supported. POM/height displacement is disabled
@@ -51,3 +52,56 @@ existing system configuration. Historical STOPs and failed packets remain
 retained; neither this implementation nor hosted llvmpipe evidence supplies
 physical acceptance. Required gameplay verification and any remaining unsupported
 projection paths must remain visible in #11.
+
+
+## Bounded HUD-model continuation (candidate)
+
+The inherited `RenderHUDModel` already starts from inverse(view), then composes
+MODELDEF scale/offset/FOV, bob, pivot and authored model rotations. Its actual
+world vertex positions and inverse-transpose `NormalModelMatrix` feed the normal
+shader and derivative material TBN. The continuation retains those geometry,
+culling, skin, bone and interpolation paths; it does not invent a camera-space
+normal transform or assign the card's constant tangent to a curved model.
+
+Enhanced model light eligibility, attenuation, probes and traced sunlight use the
+same eight-unit camera anchor as cards. Fragment lighting replaces the legacy
+vertex-light selector only in mode 2; the fake model contrast light is absent in
+that mode. Mode 0 keeps the old query, fake-light option, model transforms and
+vertex shading unchanged. Mode 1 retains explicit sector lighting.
+
+Each actual model skin is admitted after its production material is bound.
+Built-in true-colour default, normal/specular and PBR skins participate; unsupported
+warped/custom/palette skins or a nonfinite model normal matrix receive diagnosed
+sector fallback 4. A later supported skin restores its own enhanced state, so one
+surface cannot leak its fallback into another. Sample, probe and dynamic-light
+selectors are cleared in fallback and after the HUD draw. No POM is enabled.
+
+Emitted model records retain the actual normal matrix and final model vertex
+format/pipeline, rather than claiming a single per-model TBN. The generated
+original OBJ box uses ordinary MODELDEF and weapon states. Four prospective native
+scenes cover legacy PBR, mirrored normal/specular, enhanced PBR and static Warp2
+skin fallback. The box must submit its real 36 model vertices; an ordinary card
+cannot satisfy the model cell. CPU fixtures execute the inherited production
+matrix implementation for camera rotation/translation, mirrored nonuniform scale
+and a deliberately wrong normal transform. Native qualification remains pending;
+this bounded rigid-model corpus does not claim all skeletal/animated formats.
+
+
+Local preflight: the complete Windows RelWithDebInfo executable/resource build
+passes. Six compiled policy/matrix/actual-skin-method tests, nine viewmodel
+recipe/observation tests and all 27 corpus tests pass. The skin-method replay
+executes the extracted production `SetMaterial` across PBR → unsupported Warp2 →
+normal → custom → PBR, plus invalid-matrix/palette and unchanged legacy/world
+controls. These CPU services do not pretend to execute a native model draw.
+
+To prepare the live model room without launching a renderer:
+
+```text
+python tools/renderer_oracle/prepare.py --out build/viewmodel-model --scene viewmodel-model-pbr
+```
+
+The generated `scenes/viewmodel-model-pbr/scene.pk3` can be loaded with a legal
+Doom-family IWAD and current build, using `+map SDV122 +gl_viewmodel_lighting 2`.
+Leave off the capture script for ordinary player movement and firing. The normal
+software-Vulkan CI runs all four model scenes and their emitted-state/image
+contracts; its exact-head result remains required before model acceptance.
