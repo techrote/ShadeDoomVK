@@ -17,6 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Validate CI timing report
+      run: python3 -m unittest discover -s tools/ci -p 'test_*.py' -v
+
     - name: Run CPU contracts and deterministic oracle
       run: python3 tools/check.py --output build/pf-oracle
 
@@ -158,49 +161,85 @@ jobs:
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
         python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
 
-    - name: Qualify SDVK-010 actors and SDVK-009 publication on hosted software Vulkan
+    # Preserve serial fail-stop publication and actor acceptance. Separate GitHub
+    # steps expose the real per-suite timings without changing capture counts.
+    - name: Select hosted llvmpipe and authenticate publication content
+      if: matrix.config.native_renderer
+      shell: bash
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_publication_icds[@]}" -eq 1
+        {
+          printf 'VK_DRIVER_FILES=%s\\n' "$sdvk_publication_icds"
+          printf 'VK_ICD_FILENAMES=%s\\n' "$sdvk_publication_icds"
+          printf 'SDL_VIDEODRIVER=x11\\n'
+        } >> "$GITHUB_ENV"
+        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+
+    - name: Qualify SDVK-010 actors on hosted software Vulkan
       if: matrix.config.native_renderer
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: |
         set -euo pipefail
-        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
-        test "${#sdvk_publication_icds[@]}" -eq 1
-        export VK_DRIVER_FILES="${sdvk_publication_icds[0]}"
-        export VK_ICD_FILENAMES="${sdvk_publication_icds[0]}"
-        export SDL_VIDEODRIVER=x11
-        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
-        # The combined actor acceptance gate runs here once, on the same normal
-        # software-Vulkan job/build and authenticated content as SDVK-009.
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk010_acceptance \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk010 \
           --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-150 adds one focused same-process A->B correctness gate to this
-        # existing normal GitHub-hosted build. It is not a duplicate full matrix or benchmark.
+
+    - name: Qualify SDVK-150 probe ownership on hosted software Vulkan
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk150_probe_owner \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk150 \
           --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-153: live sampler-reset correctness/control on this same build.
+
+    - name: Qualify SDVK-153 sampler reset on hosted software Vulkan
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk153_probe_reset \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk153 \
           --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-158: retained-v5 multi-page invalidate/reload correctness on this same build.
+
+    - name: Qualify SDVK-158 lightmap transition on hosted software Vulkan
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk158_lightmap_transition \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk158 \
           --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-009 publication witnesses on hosted software Vulkan
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
         PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_publication qualify \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
@@ -208,18 +247,35 @@ jobs:
           --out build/renderer-sdvk009-publication \
           --expected-commit "$GITHUB_SHA"
 
+    - name: Report individual hosted publication capture timings
+      if: always() && matrix.config.native_renderer
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ -f build/renderer-sdvk009-publication/qualification.json ]]; then
+          python3 tools/ci/renderer_ci_timings.py build/renderer-sdvk009-publication \
+            --out build/renderer-ci-timings/report.json \
+            --summary "$GITHUB_STEP_SUMMARY"
+        fi
+
     - name: Package complete software Vulkan evidence losslessly
       if: always() && matrix.config.native_renderer
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158; do
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-ci-timings; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi
         done
         if [[ "${#sdvk_evidence_dirs[@]}" -gt 0 ]]; then
-          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
+          # Retain the .tar.xz artifact contract, using fast, multithreaded,
+          # lossless XZ rather than a high-compression serial CPU bottleneck.
+          XZ_OPT='-1 -T0' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
+          xz -t build/renderer-software-vulkan.tar.xz
+          tar -tJf build/renderer-software-vulkan.tar.xz >/dev/null
+          sha256sum build/renderer-software-vulkan.tar.xz > build/renderer-software-vulkan.tar.xz.sha256
+          sha256sum -c build/renderer-software-vulkan.tar.xz.sha256
         fi
 
     - name: Upload complete software Vulkan evidence
@@ -227,7 +283,9 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: renderer-software-vulkan
-        path: build/renderer-software-vulkan.tar.xz
+        path: |
+          build/renderer-software-vulkan.tar.xz
+          build/renderer-software-vulkan.tar.xz.sha256
         compression-level: 0
         retention-days: 30
 
