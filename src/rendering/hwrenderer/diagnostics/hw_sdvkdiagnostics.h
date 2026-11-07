@@ -30,6 +30,7 @@ inline bool GpuTimingRequested() { return GpuFlag.load(std::memory_order_relaxed
 // Explicit SDVK-161 fixture requests twelve bounded submitted-work snapshots;
 // frame/resource/lifecycle evidence still covers every retained frame.
 bool SpecialSurfaceEnabled();
+bool GameplaySmokeEnabled();
 bool SpecialSurfaceFrameSelected();
 // Active SDVK-161 input only: ordinary ticks complete its own queued map before
 // the next presented/observed view. Completion comes from G_DoNewGame itself.

@@ -15,6 +15,10 @@ def main(argv=None):
     prepare = sub.add_parser("prepare")
     prepare.add_argument("--seed", required=True, type=Path)
     prepare.add_argument("--packet", required=True, type=Path)
+    registered = sub.add_parser("prepare-registered")
+    registered.add_argument("--seed", required=True, type=Path)
+    registered.add_argument("--registration", required=True, type=Path)
+    registered.add_argument("--packet", required=True, type=Path)
     baseline = sub.add_parser("event-baseline")
     baseline.add_argument("--out", required=True, type=Path)
     host=sub.add_parser("host-identity")
@@ -46,6 +50,11 @@ def main(argv=None):
             packet = diagnostic_packet(read_json(args.seed))
             exclusive(args.packet, packet)
             print(json.dumps({"status": "PREPARED_NO_LAUNCH", "packet_sha256": validate_packet(packet)}))
+        elif args.command == "prepare-registered":
+            from .prepare import registered_packet
+            packet = registered_packet(read_json(args.seed), args.registration)
+            exclusive(args.packet, packet)
+            print(json.dumps({"status": "PREPARED_NO_LAUNCH_PARTIAL_COLLECTION_ONLY", "packet_sha256": validate_packet(packet)}))
         elif args.command == "validate":
             print(json.dumps({"status": "VALIDATED_NO_LAUNCH", "packet_sha256": validate_packet(read_json(args.packet))}))
         else:

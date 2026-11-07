@@ -3,6 +3,7 @@
 // Vulkan device, command submission, screenshot or native evidence is created.
 #include <atomic>
 #include <chrono>
+#include <cstring>
 #include <iostream>
 #include <map>
 #include <set>
@@ -12,7 +13,12 @@
 #include "hw_sdvkdiagnosticcore.h"
 
 using namespace SdvkObservation;
-struct Name { const char* GetChars() const { return "INTERVAL"; } };
+[[noreturn]] static void UnexpectedGameplayService();
+struct Name
+{
+    const char* GetChars() const { return "INTERVAL"; }
+    int Compare(const char*) const { UnexpectedGameplayService(); }
+};
 struct FDynamicLight
 {
     FDynamicLight* next = nullptr;
@@ -53,6 +59,37 @@ static VulkanRenderDevice* screen = &Device;
 struct Angle { double Degrees() const { return 0; } };
 struct Angles { Angle Yaw, Pitch, Roll; };
 struct Position { double X = 0, Y = 0, Z = 0; };
+// Keep the actual observer's gameplay branches type-checked. This interval
+// fixture never enables gameplay; any accidental engine service access fails
+// rather than fabricating a weapon, input or screenshot observation.
+static int GameplayServiceCalls = 0;
+[[noreturn]] static void UnexpectedGameplayService()
+{
+    ++GameplayServiceCalls;
+    throw std::logic_error("CPU interval fixture cannot run gameplay services");
+}
+struct FName { explicit FName(const char*) {} };
+static constexpr int NAME_Amount = 0;
+struct PlayerState { AActor* ReadyWeapon = nullptr; int extralight = 0, cheats = 0; };
+struct ActorClass { Name TypeName; };
+class AActor
+{
+public:
+    PlayerState* player = nullptr;
+    struct Angles Angles;
+    Position Pos() const { UnexpectedGameplayService(); }
+    AActor* FindInventory(FName) { UnexpectedGameplayService(); }
+    ActorClass* GetClass() const { UnexpectedGameplayService(); }
+    int IntVar(int) const { UnexpectedGameplayService(); }
+};
+static struct { AActor* camera = nullptr; } players[1];
+static constexpr int consoleplayer = 0;
+enum { Button_Forward, Button_Right, Button_Attack };
+static struct
+{
+    bool ButtonDown(int) const { UnexpectedGameplayService(); }
+} buttonMap;
+static bool sdvk_gameplay_pending = false;
 struct Viewpoint
 {
     Position Pos;
@@ -110,6 +147,10 @@ void WitnessObserverFrame(const char*, const Observer&) {}
 void DriveSamplerResetInput(const Observer&) {}
 void DriveLightmapTransitionInput(const Observer&) {}
 void DriveSpecialSurfaceInput(const Observer&) {}
+void DriveGameplayInput(Observer& observer)
+{
+    Require(!observer.GameplayInput, "CPU interval fixture must keep gameplay input disabled");
+}
 }
 #include "observer_dump.inc"
 
@@ -180,6 +221,7 @@ int main(int argc, char** argv)
             scenario == "snapshot-failure", "Unknown CPU fixture scenario");
         auto& observer = Get();
         observer.Initialized = true;
+        observer.GameplayInput = false;
         observer.StateMode = scenario != "timing";
         observer.ProbeBuilderTrace = observer.StateMode;
         observer.GpuRequested = true;
@@ -225,6 +267,8 @@ int main(int argc, char** argv)
             .Int("main_draw_payloads", MainDraws).Int("canvas_draw_payloads", CanvasDraws)
             .Int("late_draw_payloads", LateDraws)
             .Int("lifecycle_events_after_close", observer.ProbeBuilderEvents.size())
+            .Bool("gameplay_input_enabled", observer.GameplayInput)
+            .Int("gameplay_service_calls", GameplayServiceCalls)
             .Bool("enabled_after_presentation", SdvkDiagnostics::Enabled())
             .Bool("state_after_presentation", SdvkDiagnostics::StateEnabled())
             .Bool("gpu_after_presentation", SdvkDiagnostics::GpuTimingRequested()).Json() << '\n';

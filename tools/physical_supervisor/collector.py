@@ -278,8 +278,12 @@ def run_oracle(packet, stage, control,receipt_pin):
     original_subprocess = run.subprocess
     preparation=run.preparation_module()
     original_prepare_subprocess=preparation.subprocess
-    preparation.subprocess=prepare_subprocess_adapter(packet,stage,control,receipt_pin)
     original_write = run.write_json
+    from .registered import before_capture
+    registered_gate = before_capture(packet, stage, run)
+    if registered_gate is not None:
+        exclusive(control / "registered-reference-gate.json", registered_gate)
+    preparation.subprocess=prepare_subprocess_adapter(packet,stage,control,receipt_pin)
     def labelled_write(path, value):
         if Path(path).name in ("run.json", "request.json"):
             value = {**value, "version_provenance": "DECLARED_NOT_EXECUTED",
@@ -298,7 +302,9 @@ def run_oracle(packet, stage, control,receipt_pin):
             return subprocess.CompletedProcess(argv, 0, stdout=version, stderr=b"")
         calls += 1
         require(calls == 1, "Collector attempted additional renderer/subprocess; no retry")
-        require(kwargs.get("timeout") == 180 and kwargs.get("check") is False, "Oracle launch policy changed")
+        timeout = stage["capture"]["timeout"] if packet.get("kind") == "registered-workload" else 180
+        require(kwargs.get("timeout") == timeout and kwargs.get("check") is False,
+                "Oracle launch policy changed")
         require(kwargs.get("stdout") is not None and kwargs.get("stderr") is not None, "Missing raw output handles")
         return gated_target(packet, stage, control, list(argv), kwargs["cwd"], kwargs["stdout"], kwargs["stderr"], env=kwargs.get("env"))
     # Keep both shadows module-local. The sole preparation Git fact was checked
@@ -318,6 +324,8 @@ def run_oracle(packet, stage, control,receipt_pin):
         for key, expected in packet["native_device"].items():
             require(vulkan.get(key) == expected, "Native device identity differs: " + key)
         run.validate_run(Path(stage["capture"]["out"]))
+        from .registered import after_capture
+        workload_validation = after_capture(packet, stage, run)
         require(read_json(Path(stage["capture"]["out"]) / "request.json").get("iwad_support") ==
                 packet.get("iwad_support"), "Collected support declaration differs from packet")
         comparison = None
@@ -326,6 +334,7 @@ def run_oracle(packet, stage, control,receipt_pin):
             require(comparison["status"] == "PASS", "Exact state/RGB comparison failed")
         return {"status": "COLLECTED_PENDING_ACCEPTANCE", "run": pin(Path(stage["capture"]["out"]) / "run.json"),
                 "native": pin(Path(stage["capture"]["out"]) / "native.renderer.json"), "comparison": comparison,
+                "registered_workload_validation": workload_validation,
                 "version_provenance": "DECLARED_NOT_EXECUTED; actual native build checked independently"}
     finally:
         run.subprocess = original_subprocess

@@ -2,12 +2,12 @@
 #ifndef SIMPLE3D
 	vec3 lightContribution(DynLightInfo light, vec3 normal)
 	{
-		float lightdistance = distance(light.pos.xyz, pixelpos.xyz);
+		float lightdistance = distance(light.pos.xyz, SDVK_LIGHTING_POSITION);
 		
 		if (light.radius < lightdistance)
 			return vec3(0.0); // Early out lights touching surface but not this fragment
 		
-		vec3 lightdir = normalize(light.pos.xyz - pixelpos.xyz);
+		vec3 lightdir = normalize(light.pos.xyz - SDVK_LIGHTING_POSITION);
 		
 		float dotprod;
 		

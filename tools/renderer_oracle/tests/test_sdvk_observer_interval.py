@@ -36,7 +36,8 @@ def build(directory: Path, *, original: bool = False):
     source = SOURCE.read_text()
     state = definition(source, "struct Observer\n") + ";\n"
     state += "\n".join(definition(source, signature) for signature in (
-        "Observer& Get()", "void Require(", "template<class V> std::string Vector("))
+        "Observer& Get()", "void Require(", "template<class V> std::string Vector(",
+        "bool GameplayCheckpoint(", "void SelectGameplayDetail(", "bool GameplayRecordSelected("))
     (directory / "observer_state.inc").write_text("namespace {\n" + state + "\n}\n")
     (directory / "observer_dump.inc").write_text(
         "namespace {\n" + definition(source, "void Dump(bool complete)") + "\n}\n")
@@ -80,6 +81,8 @@ class ObserverIntervalTests(unittest.TestCase):
                                 text=True, capture_output=True, timeout=15)
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         summary = json.loads(result.stdout)
+        self.assertFalse(summary["gameplay_input_enabled"])
+        self.assertEqual(summary["gameplay_service_calls"], 0)
         envelope = json.loads(prefix.with_suffix(".renderer.json").read_text())
         return summary, envelope
 

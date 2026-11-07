@@ -1,0 +1,830 @@
+{
+  "description": "Unmodified material rows from the first real viewmodel capture, retained as CPU admission inputs only. The original packet failed fixture admission and is not relabeled.",
+  "source_renderer_commit": "6fd11a38ab0172cbc77178a43d420975376d52d8",
+  "source_capture": "generation-03/viewmodel-physical-01/captures/viewmodel-legacy-1/native.renderer.json",
+  "source_sha256": "d0bbfead2fa95f6ff9d76e5918f27ffdcd0a1f600f3402a7cf6991ff6d8a19b8",
+  "records": [
+    {
+      "kind": "material",
+      "frame": 1,
+      "count": 1,
+      "data": {
+        "context": {
+          "available": true,
+          "semantic_key": "SDV110:main:-1:0:0:root:0:[0,0,41]:[270,0,0]",
+          "producer": "root",
+          "map": "SDV110",
+          "type": "main",
+          "root_type": "main",
+          "epoch": 271,
+          "identity": 1,
+          "parent_identity": 0,
+          "depth": 0,
+          "face": -1,
+          "eye": 0,
+          "portal_group": 0,
+          "line_mirror": false,
+          "plane_mirror": false,
+          "mirrored": false,
+          "history_eligible": true,
+          "postprocess_eligible": true,
+          "visual_time": {
+            "scope": "main-owner",
+            "advances_main_clock": true,
+            "delta_seconds": 0.001328099999227561,
+            "accumulated_seconds": 0.779788400000325,
+            "generation": 2,
+            "main_frame": 241,
+            "delta_valid": true,
+            "interpolation_valid": true,
+            "clamped": false,
+            "discontinuity": "none"
+          },
+          "position": [
+            0,
+            0,
+            41
+          ],
+          "angles": [
+            270,
+            0,
+            0
+          ],
+          "angle_space": "hardware-view",
+          "fraction": 0.648677005269845,
+          "gametic": 38
+        },
+        "semantic_key": "SDVW",
+        "name": "SDVW",
+        "scale_flags": 0,
+        "shader": 4,
+        "translation": 0,
+        "resolved_clamp": 0,
+        "palette_mode": false,
+        "red_is_alpha": false,
+        "global_shader": {
+          "number": 0,
+          "type": 3,
+          "scope_name": "global"
+        },
+        "resource": {
+          "available": true,
+          "index": 267,
+          "generation": 1,
+          "epoch": 2,
+          "span": 8
+        },
+        "height_texture_index": -1,
+        "layers": [
+          {
+            "binding": 0,
+            "semantic": "albedo",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8372,
+              "width": 64,
+              "height": 64
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 1,
+            "semantic": "normal",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8368,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 2,
+            "semantic": "metallic",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8367,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 3,
+            "semantic": "roughness",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8369,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 4,
+            "semantic": "ambient-occlusion",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8365,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 5,
+            "semantic": "brightmap-emissive",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          },
+          {
+            "binding": 6,
+            "semantic": "detail",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          },
+          {
+            "binding": 7,
+            "semantic": "glow",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 0,
+              "address_v": 0,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "material",
+      "frame": 1,
+      "count": 1,
+      "data": {
+        "context": {
+          "available": true,
+          "semantic_key": "SDV110:main:-1:0:1:Mirror:0:[511.89999999999998,0,41]:[450,0,0]",
+          "producer": "Mirror",
+          "map": "SDV110",
+          "type": "portal",
+          "root_type": "main",
+          "epoch": 271,
+          "identity": 2,
+          "parent_identity": 1,
+          "depth": 1,
+          "face": -1,
+          "eye": 0,
+          "portal_group": 0,
+          "line_mirror": true,
+          "plane_mirror": false,
+          "mirrored": true,
+          "history_eligible": false,
+          "postprocess_eligible": false,
+          "visual_time": {
+            "scope": "main-portal",
+            "advances_main_clock": false,
+            "delta_seconds": 0.001328099999227561,
+            "accumulated_seconds": 0.779788400000325,
+            "generation": 2,
+            "main_frame": 241,
+            "delta_valid": true,
+            "interpolation_valid": true,
+            "clamped": false,
+            "discontinuity": "none"
+          },
+          "position": [
+            511.9,
+            0,
+            41
+          ],
+          "angles": [
+            450,
+            0,
+            0
+          ],
+          "angle_space": "hardware-view",
+          "fraction": 0.648677005269845,
+          "gametic": 38
+        },
+        "semantic_key": "SDVOA0",
+        "name": "SDVOA0",
+        "scale_flags": 1,
+        "shader": 4,
+        "translation": 0,
+        "resolved_clamp": 3,
+        "palette_mode": false,
+        "red_is_alpha": false,
+        "global_shader": {
+          "number": 0,
+          "type": 3,
+          "scope_name": "global"
+        },
+        "resource": {
+          "available": true,
+          "index": 285,
+          "generation": 1,
+          "epoch": 2,
+          "span": 8
+        },
+        "height_texture_index": -1,
+        "layers": [
+          {
+            "binding": 0,
+            "semantic": "albedo",
+            "custom_index": -1,
+            "scale_flags": 1,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8362,
+              "width": 64,
+              "height": 64
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 1,
+            "semantic": "normal",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8368,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 2,
+            "semantic": "metallic",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8367,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 3,
+            "semantic": "roughness",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8369,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 4,
+            "semantic": "ambient-occlusion",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8365,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 5,
+            "semantic": "brightmap-emissive",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          },
+          {
+            "binding": 6,
+            "semantic": "detail",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          },
+          {
+            "binding": 7,
+            "semantic": "glow",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "material",
+      "frame": 1,
+      "count": 1,
+      "data": {
+        "context": {
+          "available": false,
+          "reason": "draw is outside an observed HWDrawInfo scene"
+        },
+        "semantic_key": "SDVUA0",
+        "name": "SDVUA0",
+        "scale_flags": 1,
+        "shader": 3,
+        "translation": 0,
+        "resolved_clamp": 4,
+        "palette_mode": false,
+        "red_is_alpha": false,
+        "global_shader": {
+          "number": 0,
+          "type": 3,
+          "scope_name": "global"
+        },
+        "resource": {
+          "available": true,
+          "index": 297,
+          "generation": 1,
+          "epoch": 2,
+          "span": 6
+        },
+        "height_texture_index": -1,
+        "layers": [
+          {
+            "binding": 0,
+            "semantic": "albedo",
+            "custom_index": -1,
+            "scale_flags": 1,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8363,
+              "width": 96,
+              "height": 96
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 1,
+            "semantic": "normal",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8368,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 2,
+            "semantic": "legacy-specular",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 8371,
+              "width": 16,
+              "height": 16
+            },
+            "role": "authored-layer"
+          },
+          {
+            "binding": 3,
+            "semantic": "brightmap-emissive",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          },
+          {
+            "binding": 4,
+            "semantic": "detail",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          },
+          {
+            "binding": 5,
+            "semantic": "glow",
+            "custom_index": -1,
+            "scale_flags": 0,
+            "layer_clamp_flags": -1,
+            "requested_sampling": -1,
+            "sampler": {
+              "available": true,
+              "min_filter": 0,
+              "mag_filter": 0,
+              "mipmap_mode": 0,
+              "address_u": 2,
+              "address_v": 2,
+              "address_w": 0,
+              "lod_bias": 0,
+              "min_lod": 0,
+              "max_lod": 0.25,
+              "anisotropy": false,
+              "max_anisotropy": 1,
+              "basis": "immutable arguments of the successfully created selected Vulkan sampler"
+            },
+            "source": {
+              "lump": 0,
+              "width": 1,
+              "height": 1
+            },
+            "role": "fallback-placeholder"
+          }
+        ]
+      }
+    }
+  ]
+}

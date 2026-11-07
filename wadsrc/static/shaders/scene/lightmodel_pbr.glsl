@@ -50,10 +50,10 @@ vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
 
 vec3 ProcessLight(const DynLightInfo light, vec3 albedo, float metallic, float roughness, const vec3 N, const vec3 V, const vec3 F0)
 {
-	vec3 L = normalize(light.pos.xyz - pixelpos.xyz);
+	vec3 L = normalize(light.pos.xyz - SDVK_LIGHTING_POSITION);
 	vec3 H = normalize(V + L);
 
-	float attenuation = distanceAttenuation(distance(light.pos.xyz, pixelpos.xyz), light.radius, light.strength, light.linearity);
+	float attenuation = distanceAttenuation(distance(light.pos.xyz, SDVK_LIGHTING_POSITION), light.radius, light.strength, light.linearity);
 	if ((light.flags & LIGHTINFO_SPOT) != 0)
 	{
 		attenuation *= spotLightAttenuation(light.pos.xyz, light.spotDir.xyz, light.spotInnerAngle, light.spotOuterAngle);
@@ -125,7 +125,7 @@ vec3 ProcessMaterialLight(Material material, vec3 ambientLight, float sunlightAt
 	float ao = material.AO;
 
 	vec3 N = material.Normal;
-	vec3 V = normalize(uCameraPos.xyz - pixelpos.xyz);
+	vec3 V = normalize(uCameraPos.xyz - SDVK_LIGHTING_POSITION);
 
 	vec3 F0 = mix(vec3(0.04), albedo, metallic);
 

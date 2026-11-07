@@ -458,6 +458,40 @@ struct FSdvkDiagnosticAccess
         const std::string name = material && material->Source() ? material->Source()->GetName().GetChars() : "";
         const auto pipeline = Pipeline(state->mPipelineKey);
         const auto spriteSurface = SdvkDiagnostics::CurrentSpriteBasisJson();
+		const auto& vm = state->mSurfaceUniforms.uViewmodelMode;
+		if (vm.W > 0.5f)
+		{
+			const auto& sample = state->mSurfaceUniforms.uViewmodelSample;
+			const auto& tangent = state->mSurfaceUniforms.uSpriteTangent;
+			const auto& normal = state->mSurfaceUniforms.uSpriteNormal;
+			const int probe = state->mSurfaceUniforms.uLightProbeIndex;
+			const bool model = vm.W > 1.5f;
+			std::string normalMatrix = "[";
+			if (model)
+				for (int i = 0; i < 16; ++i)
+				{
+					if (i) normalMatrix += ',';
+					normalMatrix += Number(state->mMatrices.NormalModelMatrix.get()[i]);
+				}
+			normalMatrix += ']';
+			SdvkDiagnostics::Emit("viewmodel", Object().Raw("context", context)
+				.Str("contract", "sdvk-011-viewmodel/v1").Str("material", name)
+				.Int("requested_mode", int(vm.X)).Int("effective_mode", int(vm.Y)).Int("fallback_reason", int(vm.Z))
+				.Bool("world_sample_enabled", sample.W > 0.5f)
+				.Raw("sample", '[' + Number(sample.X) + ',' + Number(sample.Y) + ',' + Number(sample.Z) + ']')
+				.Raw("tangent", '[' + Number(tangent.X) + ',' + Number(tangent.Y) + ',' + Number(tangent.Z) + ']')
+				.Raw("normal", '[' + Number(normal.X) + ',' + Number(normal.Y) + ',' + Number(normal.Z) + ']')
+				.Num("handedness", tangent.W).Bool("explicit_basis", normal.W > 0.5f)
+				.Bool("model_geometry", model).Raw("normal_model_matrix", normalMatrix)
+				.Str("basis_source", model ? "model-world-normal-matrix-and-derivative-tbn" : "final-hud-quad")
+				.Bool("relief_enabled", state->mSurfaceUniforms.uSpriteReliefParams.W > 0.5f)
+				.Int("authored_probe", state->mLightProbeIndex).Int("runtime_irradiance_index", probe)
+				.Int("probe_epoch", fb->GetTextureManager()->GetLightProbeEpoch().Generation)
+				.Raw("probe_resource", probe ? Identity(fb->GetDescriptorSetManager()->GetBindlessIdentity(probe)) : Unavailable("zero is the no-probe sentinel"))
+				.Int("shader", material ? material->GetShaderIndex() : -1).Int("light_index", state->mPushConstants.uLightIndex)
+				.Bool("indexed", indexed).Int("draw_count", count).Raw("pipeline", pipeline)
+				.Str("uniform_scope", "emitted-vulkan-draw-after-apply-surface-uniforms").Json(), true);
+		}
         if (!spriteSurface.empty())
         {
             // Emitted draw's uploaded SurfaceUniforms, rather than merely
@@ -614,9 +648,9 @@ void VulkanResources(VulkanRenderDevice* device)
             meshState.Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
                 .Int("geometry", epochs.Geometry).Int("surface", epochs.Surface).Int("lights", epochs.Lights).Int("query", epochs.Query)
                 .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets);
-            // Process-local construction IDs are the SDVK-161 lifetime witness.
+            // Process-local construction IDs witness the explicit lifecycle recipes.
             // Ordinary corpus records retain their existing comparison shape.
-            if (SpecialSurfaceEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner());
+            if (SpecialSurfaceEnabled() || GameplaySmokeEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner());
             result.Raw("levelmesh", meshState.Json())
                 .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size(),
                     device->GetFrameTileUpdates(), device->GetFrameTileCompletions()));

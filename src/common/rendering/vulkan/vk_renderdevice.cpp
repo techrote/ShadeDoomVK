@@ -721,6 +721,19 @@ void VulkanRenderDevice::BeginFrame()
 	mRenderState->BeginFrame();
 	mDescriptorSetManager->BeginFrame();
 	mLightmapper->BeginFrame();
+	if (CfxTrace::Enabled())
+	{
+		// Retain warmup extents after allocation, before shadow/world draws. The
+		// startup Resolution line precedes deferred vid_setsize and cannot name
+		// the viewport or framebuffer selected for a later failing world frame.
+		char detail[384];
+		std::snprintf(detail, sizeof(detail), "client=%dx%d framebuffer=%dx%d screen_viewport=%dx%d scene_viewport=%dx%d screen_buffers=%dx%d scene_buffers=%dx%d shadow_mode=%d ray_query=%d",
+			GetClientWidth(), GetClientHeight(), GetWidth(), GetHeight(),
+			mScreenViewport.width, mScreenViewport.height, mSceneViewport.width, mSceneViewport.height,
+			mScreenBuffers->GetWidth(), mScreenBuffers->GetHeight(), mScreenBuffers->GetSceneWidth(), mScreenBuffers->GetSceneHeight(),
+			(int)gl_light_shadows, IsRayQueryEnabled() ? 1 : 0);
+		CfxTrace::Mark("frame-extents", detail);
+	}
 }
 
 void VulkanRenderDevice::Draw2D()

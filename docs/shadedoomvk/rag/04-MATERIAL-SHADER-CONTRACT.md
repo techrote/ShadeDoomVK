@@ -262,3 +262,20 @@ collection is pending; the old campaign remains failed and physical work stopped
 ## SDVK-010 actor/environment PBR candidate
 
 Actor PBR cards retain SDVK-005 semantic normal/metallic/roughness/AO filters and SDVK-007 final-quad normal orientation. A source-level authored actor probe ordinal is selected *before* `VkRenderState::ApplySurfaceUniforms`, then converted through the unchanged PF-113 irradiance/prefilter bindless pair. Actual emitted-draw state captures ordinal, runtime pair, publication epoch and normal/PBR shader identities. Absent authored probes and incomplete published pairs remain zero-radiance IBL; direct/sunlight/shadow response is independent. No POM, BRDF adjustment, alternate cubemap or fake GI. The `sun-probes` dielectric/metallic material witness needs native qualification; linked portals and actual occluded sun response are not yet accepted. [Contract](../SDVK-010-ACTOR-ENVIRONMENT-CONTRACT.md).
+
+## SDVK-011 candidate
+
+Two appended surface uniforms select a camera-oriented HUD card basis and one world lighting sample. Other draws retain original positions; material order, sampling and shader-key ABI are unchanged. Unsupported projection/material cases have diagnosed fallback. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.
+
+
+### SDVK-011 HUD-model enhanced candidate
+
+HUD models already use `RenderHUDModel`'s inverse(view) * authored object matrix
+and `FHWModelRenderer::BeginDrawHUDModel`'s inverse-transpose normal matrix. The
+model vertex shader and derivative normal-map TBN retain those world coordinates.
+Only the shared lighting anchor uses `uViewmodelSample`; model geometry, normal
+mapping, UVs and animation remain on their inherited path. `SetMaterial` admits
+each actual model skin in enhanced mode, with explicit sector fallback for
+unsupported material/normal-transform state and restoration for later supported
+surfaces. See `SDVK-011-VIEWMODEL-LIGHTING.md`; source/CPU qualification is distinct
+from the pending bounded native OBJ-model matrix.

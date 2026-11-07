@@ -33,6 +33,7 @@
 class HWSprite;
 struct HWDrawInfo;
 class FRenderState;
+struct HUDSprite;
 
 
 class FHWModelRenderer : public FModelRenderer
@@ -45,8 +46,11 @@ class FHWModelRenderer : public FModelRenderer
 
 	AActor * lastAct = nullptr;
 	int lastShader = 0;
+	const HUDSprite* viewmodel = nullptr;
+	bool worldNormalValid = true;
 public:
-	FHWModelRenderer(HWDrawInfo *d, FRenderState &st, int mli) : modellightindex(mli), di(d), state(st)
+	FHWModelRenderer(HWDrawInfo *d, FRenderState &st, int mli, const HUDSprite* vm = nullptr)
+		: modellightindex(mli), di(d), state(st), viewmodel(vm)
 	{}
 	ModelRendererType GetType() const override { return GLModelRendererType; }
 	void BeginDrawModel(FRenderStyle style, int smf_flags, const VSMatrix &objectToWorldMatrix, bool mirrored) override;

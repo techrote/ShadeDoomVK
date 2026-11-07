@@ -2,7 +2,32 @@
 
 ## Disposition and authority
 
-**Reconciled software candidate; fresh exact-head qualification and final review pending.**
+**SOFTWARE REQUALIFICATION HELD / PHYSICAL HELD.** The previously qualified
+bounded merge and its passing evidence remain retained.
+
+PR [#162](https://github.com/techrote/ShadeDoomVK/pull/162) merged on 7 November
+2026 at verified master `d40475519170606e83dec20dc822ceb5a54312ee`. Its tree
+`9f70041506a66f1bb29e6fcee2d7d63f83d34c85` equals reviewed head
+`8a0114825f7043576bb5a31b15cbd5e83f1b624d`. All nine normal
+[CI jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746720),
+including hosted software Vulkan, and the separate
+[source-evidence check](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746707)
+passed on that exact head before the guarded merge. Child #161 was closed by
+that merge, then [reopened](https://github.com/techrote/ShadeDoomVK/issues/161#issuecomment-6707343023)
+after the new master run failed repeatability.
+The matrix below remains the acceptance boundary: ambiguous unequal-plane
+`FF_BOTHPLANES` lightmapped bindings are explicitly unsupported, and source/CPU
+controls do not become broader native 3D-floor or sector-stack-portal coverage.
+Parent #14 remains open; required physical bake/update cost, scaling and hardware
+stability are unaccepted. This is not whole-campaign software or physical closure.
+
+The post-merge [master run](https://github.com/techrote/ShadeDoomVK/actions/runs/42370716174)
+admitted both lifecycle captures individually and retained identical final RGB.
+Their 3,696 projected records differ only at frame 4: 84 versus 80 wall vertices
+and one additional empty 16-byte light upload. The cause remains undetermined;
+these fields are not normalized away. An isolated temporary wall-call diagnostic
+is being built to identify the actual side, material and render context. It is
+not an accepted repair or an extension of this matrix.
 
 This is the bounded software qualification child [#161](https://github.com/techrote/ShadeDoomVK/issues/161)
 of [SDVK-014 / #14](https://github.com/techrote/ShadeDoomVK/issues/14). It starts at
@@ -533,8 +558,9 @@ repeatability test expects that earlier intended failure rather than requiring
 the invalid packet to reach the comparator. The existing real-epoch monotonic
 positive and deliberate post-reload rollback negatives remain required.
 
-Normal exact-head CPU/source/platform/software-Vulkan qualification and an
-independent final review remain required before merge. No physical cost,
+At that reconciliation checkpoint, normal exact-head CPU/source/platform/software-Vulkan
+qualification and independent final review were still required. The verified
+qualification and merge are recorded in the disposition above. No physical cost,
 scaling or stability acceptance is awarded by this software reconciliation.
 Parent #14 remains open for its remaining campaign criteria; any freshly
 authorized physical campaign uses separately pinned current source and evidence.
@@ -547,7 +573,7 @@ writer adapter now makes only its known exact 1024 atlas-size-to-float arguments
 explicit; all six wall writer/snapshot/split tests pass with `/WX` and unchanged
 retained-source negatives. Production functions and original receipts are not
 edited. The complete local MSVC PF suite is not claimed passing; the normal
-required Linux full-CPU and Windows build/supervisor matrix remains the merge gate.
+required Linux full-CPU and Windows build/supervisor matrix supplied the merge gate.
 
 
 ### Stacked integration qualification
@@ -557,5 +583,6 @@ The prospective #172 consolidated tooling head
 `e014cceda3da29a82231d4dba0eb7d072faeee93` are merged as ancestors so normal
 exact-head CI qualifies their combined content with this renderer increment.
 Only append-only observability documentation conflicted; both sections remain.
-Those upstream PRs require their own guarded master integration before #162 can
-merge. No earlier CI result is relabeled as qualification of this combined head.
+The upstream tooling was subsequently guarded into master by #172 before #162's
+own guarded merge. No earlier CI result is relabeled as qualification of the
+final reviewed head; its ten passing required checks are linked above.

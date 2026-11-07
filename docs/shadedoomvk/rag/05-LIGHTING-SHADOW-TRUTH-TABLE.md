@@ -206,3 +206,7 @@ unchanged. `sun-actor-occlusion` holds actor material/probe identity constant wh
 geometry shadows one card. Emitted draw/proxy/probe state plus predeclared native RGB patches
 prove the bounded effect; the CPU observer does not manufacture per-fragment visibility.
 The [combined gate](../SDVK-010-INTEGRATION-ACCEPTANCE.md) retains exact repeat images/state.
+
+## SDVK-011 candidate
+
+Legacy remains default. Enhanced cards share one camera-forward sample for light selection, shading and world rays. HUD geometry/gameplay are unchanged. stat viewmodel and emitted records report mode, fallback, sample and resource identity. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.

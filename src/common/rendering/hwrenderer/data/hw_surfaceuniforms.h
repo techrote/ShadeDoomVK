@@ -66,6 +66,9 @@ struct SurfaceUniforms
 	// Only authored height and a valid SDVK-007 basis can activate shading.
 	FVector4 uSpriteReliefParams = {};  // scale, quality, 0, candidate-enable
 	FVector4 uSpriteReliefBounds = {};  // ul, vt, ur, vb (before TextureMatrix)
+	// SDVK-011 shader-world lighting sample; W enables enhanced HUD lighting.
+	FVector4 uViewmodelSample = {};
+	FVector4 uViewmodelMode = {}; // requested, effective, fallback, HUD marker (1 card, 2 model)
 };
 
 struct SurfaceLightUniforms

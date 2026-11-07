@@ -1,0 +1,26 @@
+{
+  "scope": "CPU regression replay of an immutable native capture; not successor-source execution or physical/performance acceptance",
+  "source_commit": "4be6eecf7d193f9e4b273019277059acccea562d",
+  "original_attempt_status": "FAILED_STOP",
+  "original_failure": "Frame 1 is missing a required observation channel",
+  "native_process_exit": 0,
+  "native_json_sha256": "c0ea2fa0cceb3c4a51d4ac4b110b4c9649afeb6eaf900d647265428a88148468",
+  "native_json_bytes": 12588445,
+  "gzip_sha256": "5d98725a517c8e754c467aaad2243ea052c0b4577c41f66b8e20de149bcc337e",
+  "frames": 128,
+  "records": 8105,
+  "retained_bytes": 12252105,
+  "detail_frames": [
+    8,
+    24,
+    40,
+    41,
+    56,
+    80,
+    81,
+    96,
+    120
+  ],
+  "physical_packet_sha256": "ea82886bc9b6612abad249a4e2f9efd6d05b25d8f43e05a4d4a9ef381d917540",
+  "private_evidence_path": "C:\\ShadeDoomVK\\physical-evidence\\resumption-20261107\\generation-05\\gameplay-motion-01\\captures\\integrated-gameplay-smoke-1\\native.renderer.json"
+}
