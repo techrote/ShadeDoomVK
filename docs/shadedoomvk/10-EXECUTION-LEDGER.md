@@ -1782,7 +1782,8 @@ negative qualification records. No physical launch is part of these controls.
   tree b8e156f7255596dea527c515720b4d223702d70c.
 - #172 consolidates eleven absorbed PRs; #184 is absorbed into substantive #162,
   and optional CI prepass #167 is closed with evidence retained. Four coherent
-  integration PRs remain, including new bounded supervisor repair #185 and #186.
+  integration PRs remain at that checkpoint, including #185 and #186. #185 was
+  subsequently absorbed unchanged into #172 and closed, leaving three.
 - #162 preserves production material/mesh/decal/plane/UV repairs and historical
   failures. It includes #172/#185 as ancestors for integrated qualification.
   Parent #14 physical criteria and unsupported ambiguous bindings stay visible.
@@ -1791,9 +1792,19 @@ negative qualification records. No physical launch is part of these controls.
 - #186 adds explicit weapon-card lighting modes, shared light/shading sample,
   camera-oriented basis, diagnosed fallbacks and live-player normal/PBR fixtures.
   Local build and PF832 passed before final review fixes; final focused checks
-  passed. Exact integrated CI and native captures remain pending. #11 stays open,
-  with HUD models explicitly falling back to sector lighting.
+  passed. The bounded HUD-model continuation now retains actual model/normal
+  transforms and admits supported skins individually; unsupported skins and
+  invalid normal matrices use diagnosed sector fallback. Four original OBJ
+  weapon cells join the six live-player card cells. A singular-matrix control
+  prevents NaN normals in that fallback. Exact integrated CI and native captures
+  remain pending; #11 stays open. The first combined CI failure exposed a stale
+  suite-count assertion after adding the four model scenes, not a native result.
 - Later direct owner authorization releases a new physical campaign, preserving
   historical STOPs. Current-source instance-only readback passed with zero logical
   devices/submissions; no physical milestone is accepted by this result. See
   [resumption record](SDVK-009-PHYSICAL-RESUMPTION-20261107.md).
+- Generation 02 completed compositing, then stopped on a live NVIDIA 0x141
+  engine timeout in the first 1,025-light shadow process. The repeat did not run.
+  Full private evidence is retained. A stock-engine comparison and default-off
+  warmup extent breadcrumb are discriminators, not accepted fault repairs.
+  SDVK-008/009/014 physical claims remain held; no unchanged retry follows.
