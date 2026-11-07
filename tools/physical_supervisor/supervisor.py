@@ -355,7 +355,9 @@ def validate_stage(packet, stage, control, target_identity):
     if stage.get("compare_with"):
         comparison = run.compare_runs(Path(stage["compare_with"]), out)
         require(comparison["status"] == "PASS", "Independent exact state/RGB comparison failed")
-    return {"validation": "PASS", "comparison": comparison}
+    from .registered import after_capture
+    workload_validation = after_capture(packet, stage, run)
+    return {"validation": "PASS", "comparison": comparison, "registered_workload_validation": workload_validation}
 
 
 def execute(packet, approval, output, *, readers=None):

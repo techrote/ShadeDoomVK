@@ -386,7 +386,8 @@ def validate_packet(packet, *, check_files=True):
     require(packet["schema"] == "physical-supervisor/packet-v1", "Unsupported packet")
     require(canonical(packet["integrity_policy"])==canonical(INTEGRITY_POLICY),"Missing/changed prospective integrity policy")
     require(re.fullmatch(r"[A-Za-z0-9_-]{8,100}", packet["experiment_id"]), "Invalid experiment ID")
-    require(packet["kind"] == "diagnostic", "Campaign launch is not qualified by this diagnostic supervisor version")
+    require(packet["kind"] in ("diagnostic", "registered-workload"),
+            "Full campaign launch is not qualified by this supervisor version")
     require(re.fullmatch(r"[0-9a-f]{40}", packet["source"]["commit"]) and
             re.fullmatch(r"[0-9a-f]{40}", packet["source"]["tree"]), "Missing source identity")
     require(packet["automatic_retries"] == 0, "Retries prohibited")
@@ -456,11 +457,12 @@ def validate_packet(packet, *, check_files=True):
         require([s["name"] for s in packet["stages"]] == ["compositing", "shadow-boundary-1", "shadow-boundary-2"],
                 "Diagnostic must have three fixed stages in order")
     else:
-        require(len(packet["stages"]) == 41, "Full campaign must have 41 processes")
+        require("conditional_grant" in packet, "Registered workloads require the exact conditional budget")
     expected_scenes = ("compositing", "shadow-boundary", "shadow-boundary")
     output_paths = []
     for index, stage in enumerate(packet["stages"]):
-        require(stage["deadline_seconds"] == 180, "Physical diagnostic deadline must be 180 seconds")
+        if packet["kind"] == "diagnostic":
+            require(stage["deadline_seconds"] == 180, "Physical diagnostic deadline must be 180 seconds")
         require(stage["mode"] == "oracle", "Physical CLI only accepts the frozen oracle adapter")
         require(stage["expected_argv"] and normalized(stage["expected_argv"][0]) == normalized(packet["renderer"]), "Stage executable mismatch")
         require(stage["generated_pins"] and stage["required_outputs"], "Missing stage evidence pins")
@@ -470,8 +472,8 @@ def validate_packet(packet, *, check_files=True):
         original = [row for row in stage["generated_pins"] if Path(row["path"]) == Path(stage["capture"]["out"]) / "input/fixture.ini"]
         require(len(original) == 1 and all(original[0][key] == mutable[key] for key in ("sha256", "size")),
                 "Immutable input config must pin the original mutable-config bytes")
-        require(stage["capture"]["warmup"] == 120 and stage["capture"]["timeout"] == 180, "Workload/deadline changed")
         if packet["kind"] == "diagnostic":
+            require(stage["capture"]["warmup"] == 120 and stage["capture"]["timeout"] == 180, "Workload/deadline changed")
             require(stage["capture"]["mode"] == "state" and stage["capture"]["frames"] == 1 and
                     stage["capture"]["extent"] == "640x480", "Diagnostic workload changed")
             capture = stage["capture"]
@@ -486,14 +488,20 @@ def validate_packet(packet, *, check_files=True):
             for capture_key, packet_key in (("exe", "renderer"), ("iwad", "iwad"), ("prepared", "prepared")):
                 require(normalized(capture[capture_key]) == normalized(packet[packet_key]), "Capture input identity changed")
             require(Path(capture["out"]).is_absolute(), "Capture output must be absolute")
-            output_paths.append(str(Path(capture["out"]).resolve()))
             if index == 2:
                 require(stage.get("compare_with") == packet["stages"][1]["capture"]["out"], "Shadow pair comparison missing/changed")
             else:
                 require("compare_with" not in stage, "Unexpected diagnostic comparison")
         require(all(not Path(path).is_absolute() and ".." not in Path(path).parts for path in stage["required_outputs"]),
                 "Required artifact escapes stage output")
-    require(len(set(output_paths)) == 3, "Diagnostic outputs overlap/retry an earlier process")
+        require(Path(stage["capture"]["out"]).is_absolute(), "Capture output must be absolute")
+        output_paths.append(str(Path(stage["capture"]["out"]).resolve()))
+    require(len(set(output_paths)) == len(packet["stages"]), "Stage outputs overlap/retry an earlier process")
+    if packet["kind"] == "registered-workload":
+        from .registered import validate
+        validate(packet, check_files=check_files)
+        from .conditional_grant import authority
+        authority(packet)
     baseline = packet["event_baseline"]
     require(baseline["channel"] == "System" and baseline["last_id"] >= baseline["oldest_id"] > 0,
             "Invalid System event baseline")
@@ -509,7 +517,8 @@ def validate_packet(packet, *, check_files=True):
         verify_source(packet)
         from .vulkan_inventory import verify_manifest_closure
         verify_manifest_closure(packet)
-        verify_stage_commands(packet)
+        if packet["kind"] == "diagnostic":
+            verify_stage_commands(packet)  # registered.validate derives its complete stage dictionaries above
     if "iwad_support" in packet:
         verify_iwad_support(packet, check_files=check_files)
     return hashlib.sha256(canonical(packet)).hexdigest()
@@ -548,23 +557,11 @@ def verify_stage_commands(packet):
             "config": str(out / "fixture.ini"),
             "capture_script": str(out / "capture.cfg"),
         }
-        argv = run.apply_extent(
-            [part.format(**substitutions) for part in native["argv"]], [640, 480]
-        )
+        extent = [640, 480] if packet.get("kind", "diagnostic") == "diagnostic" else [int(v) for v in capture["extent"].split("x")]
+        argv = run.apply_extent([part.format(**substitutions) for part in native["argv"]], extent)
         run.validate_bootstrap_argv(native, argv)
-        argv += [
-            "-savedir", str(out / "save"),
-            "-sdvkobserve", run._console_path(out / "native"),
-            "-sdvkobserveframes", str(capture["frames"]),
-            "-sdvkobservewarmup", str(capture["warmup"]),
-            "-sdvkobservemode", capture["mode"],
-        ]
-        if capture["gpu"]:
-            argv.append("-sdvkobservegpu")
-        argv += [
-            "-sdvkobservecache", run._console_path(out / "cache"),
-            "-sdvkobservequit",
-        ]
+        from .prepare import observer_argv
+        argv += observer_argv(run, native, out, capture)
         require(stage["expected_argv"] == argv,
                 "Stage command differs from the frozen scene/observer recipe")
 

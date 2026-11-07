@@ -186,6 +186,32 @@ class ConditionalEngineTests(unittest.TestCase):
         self.assertNotIn("decided_utc", release)
         self.assertNotIn("phrase", release)
 
+    def test_native_registered_stage_names_share_containment_and_exact_budget(self):
+        from .registered import PROFILE, SCHEMA
+        # Full real-recipe registration admission is covered in test_registered.
+        # This explicitly synthetic oracle isolates native execution/accounting:
+        # both targets remain benign copied Python, never renderer evidence.
+        self.stages[:] = self.stages[:2]
+        for index, stage in enumerate(self.stages):
+            stage["name"] = f"registered-cpu-{index}"
+            stage["capture"]["mode"] = "state"
+            stage["capture"]["timeout"] = 180
+        self.packet["kind"] = "registered-workload"
+        registration = self.root / "synthetic-native-registration.json"
+        exclusive(registration, {"schema": SCHEMA, "profile": PROFILE, "scope": "PARTIAL_COLLECTION_ONLY",
+            "purpose": "sdvk011-viewmodel", "captures": [{"name": s["name"]} for s in self.stages]})
+        self.packet["workload_registration"] = pin(registration)
+        self.packet["files"].append(pin(registration))
+        grant = {**fixture(self.root), "tests": [s["name"] for s in self.stages],
+            "max_renderer_launches": 2, "max_retries_per_test": 0,
+            "registered_workload": {"profile": PROFILE, "registration": pin(registration)}}
+        with patch(__name__ + ".fixture", return_value=grant):
+            result, rows = self.run_conditional()
+        self.assertEqual(result["status"], "COLLECTED_PENDING_ACCEPTANCE", result)
+        self.assertEqual([r["value"]["test"] for r in rows if r["kind"] == "charge"], grant["tests"])
+        self.assertEqual(sum(r["kind"] == "stage-complete" for r in rows), 2)
+        self.assertEqual(rows[-1]["kind"], "finish")
+
     def test_native_failed_creation_consumes_one_and_stops(self):
         result, rows = self.run_conditional(create_failure=True)
         self.assertEqual(result["status"], "FAILED_STOP", result)

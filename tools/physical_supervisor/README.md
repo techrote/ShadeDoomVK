@@ -363,3 +363,64 @@ previous complete coverage, full retained-object attestation and bounded
 positive-exit discriminator. A truncated path, changed identity, live/unknown
 object, zero/unknown error code, missing prior coverage or exhausted caller budget still stops. No path
 read is retried and no running target termination authority changes.
+
+### Registered partial capture schedules
+
+`prepare-registered --seed SEED --registration REGISTRATION --packet PACKET`
+adds the separate `registered-workload` kind. Ordinary `prepare` retains the
+three fixed diagnostic stages and their 120/1 frame, 640x480, 180-second contract.
+`kind: campaign` remains rejected; no full 41-process campaign is enabled.
+
+The immutable registration uses schema
+`physical-supervisor/registered-workload-v1`, profile `REGISTERED_WORKLOAD` and
+scope `PARTIAL_COLLECTION_ONLY`. Its purpose is `sdvk011-viewmodel`,
+`sdvk014-lifecycle`, `sdvk009-fault-discriminator`, `sdvk008-partial-reference` or
+`sdvk008-partial-reference-and-cost`. It binds renderer/oracle commit and tree,
+build receipt, renderer/IWAD/prepared-manifest pins and one fresh output root.
+Each ordered capture declares only `name`, `scene`, `recipe_sha256`, `mode`,
+`frames`, `warmup`, `extent` (two integers), `deadline_seconds`, and
+`compare_with` (an earlier state stage name or null). Recipe hashes use the
+frozen oracle's canonical JSON representation. All commands, copied-input pins,
+observer flags, required outputs and comparison paths are derived again from
+the verified prepared recipes; registration cannot supply arbitrary argv.
+Viewmodel/lifecycle captures are state-only. Per-stage limits retain the oracle
+bounds of 4096 retained frames, 100000 warmup frames and 1920x1080, with an
+explicit 1–600 second native deadline. Existing generator-specific frame and
+material assertions still execute before target creation in `run.capture`.
+Fault discriminators are also state-only and permit exactly one stage per
+packet, preserving a fresh unique campaign-wide CFX trace file for each creation.
+That purpose alone permits optional boolean `collision_snapshot`; when true it
+derives the existing `-sdvkcollisionsnapshot` option and requires
+`collision-1.bin`. This records production CPU collision state and makes no
+claim to capture submitted GPU bytes. Recipe-declared probe-owner, sampler-reset,
+lightmap-transition and special-surface driver flags retain the exact order used
+by the frozen capture adapter.
+
+Initialize a fresh conditional ledger whose grant additionally contains
+`registered_workload = {"profile": "REGISTERED_WORKLOAD", "registration":
+<packet-style pin>}`. Its `tests` must equal the registration's ordered names,
+`max_renderer_launches` must equal their count, and `max_retries_per_test` must
+be zero. The grant, registration and inputs must be in packet custody. This is
+the sole profile permitting a dynamic stage list or a 26-creation partial POM
+budget. The original conditional diagnostic limits remain unchanged. Every
+creation attempt is charged durably, failed creates are never refunded, and
+each earlier stage must complete its independent validation and late-event
+fence before the next charge. The existing v2 review binds exact packet and
+grant bytes, truthful earlier owner authority and the reviewed supervisor source.
+
+POM registrations additionally pin `pom_plan`, the existing prospective
+`sdvk008-current-source-plan/v1`. Its genuine `vulkaninfo --summary`, owner
+instruction, generation, legal-content license and missing full gates stay
+mandatory and pinned. The admitted schedules are exactly the driver's 16
+reference captures or 26 reference-and-partial-cost captures. Before the first
+timing target is created, the owned collector reuses the oracle's repeat,
+continuity, controlled OFF/ON image and projected-direction gates. Every gate
+must PASS; inconclusive direction/image evidence cannot admit timing. The gate
+receipt is retained as `registered-reference-gate.json`. Collector and independent
+supervisor validations also retain the POM native backend/device, prepared OFF/ON
+package continuity, emitted relief-work witness, raw timing integrity and
+host/loader/environment continuity checks. The same 30-second
+collector preparation bound, native job/handle ownership, module observation,
+telemetry, System events, heartbeat, RootGuard, deadlines and durable STOP apply.
+Partial collection remains pending issue acceptance; it cannot accept POM
+quality modes, missing full gates, hardware stability or any milestone by itself.
