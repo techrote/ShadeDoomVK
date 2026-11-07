@@ -1,0 +1,88 @@
+# Physical campaign resumption - 7 November 2026
+
+The owner explicitly corrected the earlier execution restriction in this session:
+
+> YOU ARE AUTHORIZED TO USE THE AVAILABLE PHYSICAL GPU.
+
+The correction authorizes a fresh current-source campaign, bounded rendering,
+measurement and profiling in the existing owner-configured system state. It
+requires exact source/build/content/host identities, preserved fault detection,
+and retained attempts. Historical STOPs remain evidence; no old failure is
+relabeled PASS. No voltage, BIOS, firmware or driver installation changes follow.
+
+The new private generation pins twelve historical STOP files and the direct
+owner instruction. Renderer source starts at master `9cf86b92dac3ae784eea0554d24ca18a43a3120c`,
+tree `b8e156f7255596dea527c515720b4d223702d70c`. The clean Windows build identifies
+that source. New supervisor source is separately identified and qualified.
+
+An independently reviewed, once-only instance probe completed with no logical
+device or queue submission: GTX 1650 SUPER, vendor 4318/device 8583, driver raw
+2585198592 (616.92), Vulkan API raw 4211039, and 56 observed module pins.
+Its plan SHA-256 is `785d76ab4be21a5debd219a1d3cea7009a9bc98a7d5eb3d1321454f645e910f5`.
+This establishes instance/device identity only. It does not establish renderer
+stability, speed, architecture acceptance or a passed physical milestone.
+
+The first two independently reviewed diagnostics have retained results. Generation 01
+rendered compositing but stopped on an external module reader's error 299 near
+process teardown. Its original exit status is unknown; it remains FAILED_STOP.
+The bounded reader repair admits only an already exiting, fully attested process
+with prior complete module coverage. Its 174-test native CPU suite passed with
+one expected privilege skip.
+
+Generation 02 used observer `307fc30517fd0c03a3c193bdb171fffd675ae97c`,
+the unchanged renderer/build/content above and a new three-creation, zero-retry
+grant. Compositing exited 0 and passed its completion fence. The first 1,025-light
+shadow process then triggered nvlddmkm event 153 and a live WATCHDOG dump with
+code 0x141 (VIDEO_ENGINE_TIMEOUT_DETECTED). The independent repeat was never
+launched. The attempt remains FAILED_STOP; no completed shadow state/image or
+timing acceptance exists. Peak observed temperature was 55 C. Type-4 Vulkan
+address rows identify unknown instruction pointers and do not establish a root
+cause. Full private failure evidence and the 7.8 GB kernel dump are retained;
+kernel memory must not be published with ordinary renderer artifacts.
+
+The generation-02 packet SHA-256 is
+`bf39ae6e1c6bbdb39f9916822fef40e3de6c373520def2b1acfa317c86145490`;
+the failed-attempt manifest SHA-256 is
+`2def23ed1cce57afb7cd53ada046b44ad97bd2c5d851814a827f3e1bce0b6fd9`.
+The OS did not reboot and the GPU returned to idle. A later readback reports
+90 W instead of the failed packet's 100 W limit. The owner subsequently confirmed
+that 90 W is intended; no setting was changed by the agent. New prospective
+packets use that owner-configured state. The difference must remain explicit
+in comparisons and prevents a matched performance claim against the failed run.
+
+The unmodified stock VKDoom comparison is an engine discriminator, not an
+unchanged failed-workload retry. Stock source is exactly
+the founding commit `09634479ab5bf9adf691074fffe85a006a398cd0`; a clean
+RelWithDebInfo build is available. Stock has no SDVK observer: console `wait`
+counts game tics, so its screenshot/exit/health comparison cannot stand in for
+matched frame timings or SDVK native-state acceptance. The default-off
+[warmup extent diagnostic](SDVK-009-SHADOW-FAULT-DISCRIMINATOR-20261107.md)
+closes an observation gap without claiming a TDR repair.
+
+The later stock extended-v4 attempt used the unchanged source above, executable
+SHA-256 `a804051991dd2c1f88e89c81a9c52c674b956be49f3daad6494250b19e95e68a`,
+the owner-configured 90 W state and the 1,025-authored-light scene with
+`gl_light_shadows=2`, `vk_rayquery=false`. It triggered another System nvlddmkm
+153 event, record 10268 at `2026-11-07T11:16:59.6658312Z`, 76.480883 seconds
+after creation. Its owned process was terminated with status `0xE0000001`; the
+attempt remains FAILED_STOP. No new WATCHDOG dump or Vulkan device-fault address
+rows were captured. Peak temperature was 61 C; the completion fence retained
+47 C / P8 / 1% and restored cache hashes, with no later new System fault event.
+
+This reproduces the same System event class on unmodified upstream without the
+PF changes. It does not prove the same Vulkan fault mechanism or its cause.
+Private assessment `upstream-comparison/20261107/stock-extended-v4-driver-event-assessment.json`
+and the 399-file `failure-freeze-stock-extended-04/manifest.json` retain that
+attempt separately from SDVK generation 02 and its kernel dump. There is no
+physical acceptance or unchanged retry; further GPU work is held for a reviewed
+discriminator decision.
+
+Serious GPU or OS faults stop an attempt, retain complete evidence, and require
+a bounded repair or discriminator before another identified attempt. The owner
+also authorizes a checkpointed system restart if a fault leaves lasting
+impairment; no restart has been needed so far. Unchanged faults are not retried
+blindly. Physical cost, scaling and stability acceptance remain pending.
+
+SDVK-009 physical acceptance, full SDVK-008 POM cost/quality and SDVK-014 physical
+bake/update criteria remain unaccepted. SDVK-012 and later dependencies receive
+no exemption from this resumption authorization.

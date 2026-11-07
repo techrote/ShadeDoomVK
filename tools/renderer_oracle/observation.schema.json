@@ -294,8 +294,11 @@
             "timing",
             "sprite-basis",
             "sprite-relief",
+            "viewmodel",
             "surface",
-            "surface-checkpoint"
+            "surface-checkpoint",
+            "gameplay",
+            "gameplay-checkpoint"
           ]
         },
         "frame": {

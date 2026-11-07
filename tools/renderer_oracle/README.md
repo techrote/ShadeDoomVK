@@ -516,10 +516,14 @@ it cannot substitute for #8's physical quality/cost programme.
 An independent retained `vulkaninfo --summary` precedes the smoke. The driver
 authenticates the unique CPU llvmpipe identity and raw driver version before
 launching its 16 bounded state captures. Those captures run before the inherited
-35-process `native_ci.py --full` campaign so authored fixture failures surface
+56-process `native_ci.py --full` campaign so authored fixture failures surface
 early. A failed preflight or smoke stops the job; only a passing smoke proceeds
 to every inherited state, image, feature and timing gate. This ordering adds no
 retry and removes no required gate.
+
+The full plan includes one `gameplay-smoke` process after the 20 static scene
+pairs and descriptive timing. This capture uses ordinary player inputs and
+semantic state/image gates; it has no exact dynamic RGB repeatability claim.
 
 The `renderer-software-vulkan` Actions artifact contains one lossless
 `renderer-software-vulkan.tar.xz` archive. Its 64 MiB xz dictionary compresses
@@ -532,3 +536,43 @@ Original runner packets are left
 intact; artifact retention remains 30 days. Extract after downloading the
 artifact with `tar -xJf renderer-software-vulkan.tar.xz` into a fresh directory
 to recover the original packet trees and verify their retained checksums.
+
+## Live-player viewmodel and integrated room
+
+The `viewmodel` generator deliberately keeps the real player camera and visible
+weapon. Six scenes exercise legacy, sector, enhanced normal/specular, enhanced
+PBR, per-pixel-disabled fallback, and a rotated 110-degree-FOV view. The room
+combines authored world textures, a PBR world sprite, two colored lights, a
+published probe, sunlight input and a real line mirror. Its custom weapon uses
+ordinary ready, selection and firing states. All generated pixels are authored;
+the separately supplied Doom2-compatible IWAD may be legal Freedoom content.
+
+Prepare the playable PBR room without starting a renderer:
+
+```text
+python tools/renderer_oracle/prepare.py --out build/playable-viewmodel --scene viewmodel-pbr
+```
+
+For interactive play, use ordinary bindings and the generated PK3 with your
+built executable and legal IWAD. For example, on a configured Linux runtime:
+
+```sh
+./build/vkdoom -noautoload -noautoexec -iwad /path/to/freedoom2.wad \
+  -file build/playable-viewmodel/scenes/viewmodel-pbr/scene.pk3 \
+  +gl_viewmodel_lighting 2 +gl_spritelight 2 +gl_customshader true \
+  +gl_lightprobe true +gl_lights true +gl_mirrors true +gl_portals true +map SDV113
+```
+
+Move, turn, approach the world sprite and mirror, and fire the authored weapon.
+Switch `gl_viewmodel_lighting` between `0`, `1` and `2`; disable `gl_spritelight`
+to exercise the explicit compatibility fallback. Re-enter `map SDV113` to check
+a fresh map/resource transition. These are reproducible interactive steps, not
+a claim that this manual path has already been executed or qualified.
+
+Normal `native_ci.py --full` adds two fresh software-Vulkan state/image captures
+per scene. It checks an actual emitted weapon draw, requested/effective/fallback
+modes, projection basis, camera-forward eight-unit sample, normal/PBR shader,
+current probe descriptor incarnation and uploaded local-light range. Exact state
+and RGB comparison remain required. The fixture snapshot is stationary; firing,
+movement, arbitrary weapon mods, HUD models and physical GPU cost/stability are
+not awarded acceptance by its static software captures.

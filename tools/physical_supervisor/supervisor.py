@@ -10,7 +10,7 @@ import re
 import threading
 import time
 
-from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry, root_expectations
+from .common import Gate, Journal, Stop, approve, canonical, digest, exclusive, publish_heartbeat, future, normalized, pin, read_json, require, utc, validate_packet, verify_pin, verify_roots, verify_source, linklike, sealed_environment, verify_registry, root_expectations
 from .readers import BoundedReaders, NativeEvents, continuity, gpu_reader, telemetry,bounded_host_identity,check_host_identity
 from .windows import FileLock, Job, Process, RootGuard, platform_check, reject_unowned_renderer
 from .integrity import IntegrityWatch, valid_proof, valid_creation_proof, collector_boundary, proof_deadline, GATE_BUSY_LIMIT, TIMEOUT
@@ -155,9 +155,16 @@ class ModuleWatch:
             return {"state":"EXITED"}
         try:paths=self.target.modules(self.identity)
         except BaseException as error:
+            # DLL teardown can race enumeration or an individual path read.
+            # Never forgive a live/unknown target or incomplete prior sample.
+            # The native helper retains the error and only accepts positive
+            # same-held-object exit confirmation within the existing 50 ms bound.
+            required={normalized(path) for path in self.policy["required_paths"]}
+            prior_coverage=self.samples>0 and bool(required) and required<=set(self.observed)
             if self.target.exited_owned(self.identity,error=error,operation="actual-module-authentication",
-                                        settle_deadline=settle_deadline):
-                return {"state":"EXITED","exit_observations":self.target.take_exit_observations()}
+                                        settle_deadline=settle_deadline,module_teardown=prior_coverage):
+                return {"state":"EXITED","prior_required_module_coverage":prior_coverage,
+                        "exit_observations":self.target.take_exit_observations()}
             raise
         self.inflight_paths=list(paths);self.inflight_additions=[]
         additions=[]
@@ -348,7 +355,9 @@ def validate_stage(packet, stage, control, target_identity):
     if stage.get("compare_with"):
         comparison = run.compare_runs(Path(stage["compare_with"]), out)
         require(comparison["status"] == "PASS", "Independent exact state/RGB comparison failed")
-    return {"validation": "PASS", "comparison": comparison}
+    from .registered import after_capture
+    workload_validation = after_capture(packet, stage, run)
+    return {"validation": "PASS", "comparison": comparison, "registered_workload_validation": workload_validation}
 
 
 def execute(packet, approval, output, *, readers=None):
@@ -419,7 +428,7 @@ def execute(packet, approval, output, *, readers=None):
                     stamp=time.monotonic()
                     if collector_active and collector.poll() is None:
                         require(0<=stamp-heartbeat_stamp<2,"Supervisor control heartbeat budget expired before publication")
-                    exclusive(control / f"heartbeat-{heartbeat_index:06d}.json", {"packet_sha256": packet_sha,
+                    publish_heartbeat(control / f"heartbeat-{heartbeat_index:06d}.json", {"packet_sha256": packet_sha,
                         "supervisor": supervisor_identity, "monotonic": stamp, "utc": utc(),"integrity_generation":receipt})
                     heartbeat_stamp=stamp
                     heartbeat_index += 1

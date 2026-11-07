@@ -225,6 +225,7 @@ public:
 		mSurfaceUniforms.uHeightTextureIndex = -1;
 		ClearSpriteTangentBasis();
 		ClearSpriteRelief();
+		ClearViewmodelLighting();
 		mLightProbeIndex = 0;
 		mSpecialEffect = EFF_NONE;
 		mLightIndex = -1;
@@ -291,6 +292,17 @@ public:
 	void SetNormal(FVector3 norm)
 	{
 		mSurfaceUniforms.uVertexNormal = { norm.X, norm.Y, norm.Z, 0.f };
+	}
+
+	void SetViewmodelLighting(FVector3 sample, int requested, int effective, int fallback, bool model = false)
+	{
+		mSurfaceUniforms.uViewmodelSample = {sample.X, sample.Y, sample.Z, effective == 2 ? 1.f : 0.f};
+		mSurfaceUniforms.uViewmodelMode = {float(requested), float(effective), float(fallback), model ? 2.f : 1.f};
+	}
+	void ClearViewmodelLighting()
+	{
+		mSurfaceUniforms.uViewmodelSample = {};
+		mSurfaceUniforms.uViewmodelMode = {};
 	}
 
 	void SetWireframe(int mode)

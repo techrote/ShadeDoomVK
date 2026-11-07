@@ -26,7 +26,9 @@ except ImportError:
 
 SCENES = ("compositing", "lights-zero", "lights-one", "lights-many",
           "lights-dense-overlap", "lights-dense-dispersed",
-          "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror")
+          "shadow-boundary", "material-stress", "sun-probes", "sprite-mirror",
+          "viewmodel-legacy", "viewmodel-sector", "viewmodel-enhanced", "viewmodel-pbr", "viewmodel-fallback", "viewmodel-wide",
+          "viewmodel-model-legacy", "viewmodel-model-normal", "viewmodel-model-pbr", "viewmodel-model-fallback")
 SDVK009_SCALE_TIMING_SCENES = ("lights-zero", "lights-many", "lights-dense-overlap", "lights-dense-dispersed")
 FEATURES = ("shaderSampledImageArrayNonUniformIndexing",
             "descriptorBindingSampledImageUpdateAfterBind", "descriptorBindingPartiallyBound",
@@ -214,13 +216,14 @@ def qualify(args):
               "sdvk009_scale_timing_scenes": [scene for scene in SDVK009_SCALE_TIMING_SCENES if scene in scenes],
               "sdvk009_scale_timing_processes_per_scene": 3, "sdvk009_scale_timing_frames_per_process": 30,
               "automatic_retries": 0,
+               "ordinary_gameplay_smoke_processes": 1 if args.full else 0,
               "image_policy": "exact-rgb8", "steps": steps, "physical_gpu_qualified": False,
               "performance_accepted": False, "scope": "Same-build software Vulkan state/images and descriptive timing only"}
     try:
         steps.append(attempt(out, "preflight", lambda: preflight(args, out)))
         if steps[-1]["status"] == "PASS":
             prepared = out / "prepared"
-            selected = list(dict.fromkeys(scenes + ["lights-one"]))
+            selected = list(dict.fromkeys(scenes + ["lights-one"] + (["gameplay-smoke"] if args.full else [])))
             steps.append(attempt(out, "prepare", lambda: prepare.prepare(prepared, selected), ("prepared_only",)))
             if steps[-1]["status"] == "PASS":
                 def capture(scene, mode, destination, *, frames=None, warmup=None):
@@ -251,6 +254,12 @@ def qualify(args):
                                              ("COLLECTED",)))
                     steps.append(attempt(out, scene + "-timing-summary",
                                          lambda p=scale_paths, s=scene: scale_baseline(out, s, p)))
+                if args.full:
+                    from tools.renderer_oracle.gameplay_smoke import FRAMES, WARMUP
+                    # Ordinary tic/input progression has semantic and completed-
+                    # view image gates. It is not an exact dynamic RGB repeat.
+                    steps.append(attempt(out, "gameplay-smoke", lambda: capture("gameplay-smoke", "state",
+                        out/"gameplay-smoke", frames=FRAMES, warmup=WARMUP), ("COLLECTED",)))
         result["status"] = "PASS" if steps and all(step["status"] == "PASS" for step in steps) else "FAIL"
     finally:
         result["finished_utc"] = run.utc()
@@ -265,7 +274,7 @@ def main(argv=None):
     parser.add_argument("--iwad-license", type=Path, help="Copyright/license to retain; defaults to matching installed Freedoom copyright")
     selection = parser.add_mutually_exclusive_group()
     selection.add_argument("--scene", action="append", choices=SCENES, help="Repeat for authored scenes; default: compositing and lights-one")
-    selection.add_argument("--full", action="store_true", help="All ten authored scenes, including SDVK-009 dense-light stress; excludes retained PF recipes")
+    selection.add_argument("--full", action="store_true", help="All static scenes plus one ordinary-input gameplay smoke; excludes retained PF recipes")
     args = parser.parse_args(argv)
     try:
         result = qualify(args)

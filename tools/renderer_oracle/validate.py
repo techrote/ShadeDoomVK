@@ -15,7 +15,7 @@ try:
 except ImportError:
     from common import EvidenceError, canonical, finite, integer, number, require, sha256
 
-KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "surface", "surface-checkpoint"}
+KINDS = {"frame", "context", "material", "light-query", "probe", "probe-builder", "shadow", "resource", "pipeline", "timing", "sprite-basis", "sprite-relief", "viewmodel", "surface", "surface-checkpoint", "gameplay", "gameplay-checkpoint"}
 VISUAL_TIME_SCOPES = {"main-owner", "main-sibling", "main-portal", "non-main-fallback", "main-view-owner"}
 CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture", "portal"}
 ROOT_CONTEXT_TYPES = {"main", "camera-texture", "light-probe", "save-picture"}
@@ -306,15 +306,17 @@ def _sprite_relief(value):
             "Relief sample upper bound disagrees with shader cap")
     _context(value.get("context"))
 
-def observation(data, *, required_kinds=(), expected_map=None, expected_frames=None, expected_extent=None):
+def observation(data, *, required_kinds=(), expected_map=None, expected_frames=None, expected_extent=None,
+                gameplay_recipe=None):
     try:
         return _observation(data, required_kinds=required_kinds, expected_map=expected_map,
-                            expected_frames=expected_frames, expected_extent=expected_extent)
+                            expected_frames=expected_frames, expected_extent=expected_extent,
+                            gameplay_recipe=gameplay_recipe)
     except (KeyError, TypeError, AttributeError, IndexError) as error:
         raise EvidenceError("Malformed native observation field: " + str(error)) from error
 
 
-def _observation(data, *, required_kinds, expected_map, expected_frames, expected_extent):
+def _observation(data, *, required_kinds, expected_map, expected_frames, expected_extent, gameplay_recipe):
     require(isinstance(data, dict) and data.get("schema") == "sdvk-renderer-observation/v1", "Unknown native observation schema")
     finite(data)
     require(data.get("status") == "COLLECTED_PENDING_VALIDATION" and data.get("error") == "",
@@ -447,6 +449,33 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             _sprite_basis(value)
         elif kind == "sprite-relief":
             _sprite_relief(value)
+        elif kind == "viewmodel":
+            try:
+                from .sdvk011_viewmodel import validate_draw
+            except ImportError:
+                from sdvk011_viewmodel import validate_draw
+            validate_draw(value)
+            resource = value.get("probe_resource")
+            _resource(resource, "viewmodel probe resource identity")
+            require(resource["available"] is (value["runtime_irradiance_index"] > 0),
+                    "Viewmodel probe sentinel/resource disagree")
+            if resource["available"]:
+                require(resource["index"] == value["runtime_irradiance_index"], "Viewmodel probe uniform/resource differ")
+        elif kind == "gameplay":
+            from tools.renderer_oracle.gameplay_smoke import validate_gameplay
+            validate_gameplay(value)
+            require(record["count"] == 1, "Gameplay observations cannot be coalesced")
+        elif kind == "gameplay-checkpoint":
+            from tools.renderer_oracle.gameplay_smoke import CHECKPOINTS, MAP_A, MAP_B, WARMUP
+            fixed = value.get("phase") == "fixed" and frame in CHECKPOINTS and value.get("image") == f"native.gameplay-{frame}.png"
+            muzzle = value.get("phase") == "muzzle" and (
+                (value.get("map") == MAP_A and 40 < frame < 56 and value.get("image") == "native.gameplay-fire-a.png") or
+                (value.get("map") == MAP_B and 80 < frame < 96 and value.get("image") == "native.gameplay-fire-b.png"))
+            require(value.get("producer") == "completed-main-view-screenshot"
+                    and value.get("map") in (MAP_A, MAP_B)
+                    and value.get("main_views") == WARMUP + frame and type(value.get("main_views")) is int
+                    and (fixed or muzzle) and record["count"] == 1,
+                    "Invalid ordinary-gameplay checkpoint identity")
         elif kind == "surface":
             from tools.renderer_oracle.sdvk161_special_surfaces import validate_surface_record
             validate_surface_record(value)
@@ -599,11 +628,21 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
         if context and context.get("available"):
             require(contexts.get((record["frame"], context["epoch"], context["identity"])) == context,
                     "Draw/query references an unobserved or inconsistent context")
-    require(set(required_kinds).issubset(KINDS), "Required observation kind is unknown")
-    require(set(required_kinds).issubset(kinds), "Required observation channels missing: " + ", ".join(sorted(set(required_kinds) - kinds)))
+    required_kinds = set(required_kinds)
+    detailed, sampled_kinds = None, set()
+    if gameplay_recipe is not None:
+        from tools.renderer_oracle.gameplay_smoke import observation_detail_frames, DETAIL_KINDS
+        detailed = observation_detail_frames(data, gameplay_recipe)
+        sampled_kinds = DETAIL_KINDS
+        # The bounded detail policy never samples the actual player, ownership,
+        # frame or submitted weapon state, even if a caller omits a channel.
+        required_kinds |= {"frame", "gameplay", "resource", "viewmodel"} | DETAIL_KINDS
+    require(required_kinds.issubset(KINDS), "Required observation kind is unknown")
+    require(required_kinds.issubset(kinds), "Required observation channels missing: " + ", ".join(sorted(required_kinds - kinds)))
     for frame in range(1, count + 1):
-        require(set(required_kinds).issubset(frame_kinds[frame]), f"Frame {frame} is missing a required observation channel")
-        if "material" in required_kinds:
+        frame_required = required_kinds if detailed is None or frame in detailed else required_kinds - sampled_kinds
+        require(frame_required.issubset(frame_kinds[frame]), f"Frame {frame} is missing a required observation channel")
+        if "material" in frame_required:
             require(frame in material_frames, f"Frame {frame} has no actual material binding")
     gpu_groups = sum(r["count"] for r in records if r["kind"] == "timing" and r["data"].get("clock") == "gpu")
     require(integer(availability["gpu_timing"].get("groups"), "resolved GPU groups") == gpu_groups
@@ -705,7 +744,7 @@ fallbacks remain compared.
         result = {key: project(item, frame) for key, item in value.items()}
         if value.get("available") is True and all(key in value for key in ("index", "generation", "epoch", "span")):
             result["index"] = resource_ordinal(value)
-        resource = value.get("resource")
+        resource = value.get("probe_resource") if value.get("contract") == "sdvk-011-viewmodel/v1" else value.get("resource")
         if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
             result["runtime_irradiance_index"] = resource_ordinal(resource)
         material = value.get("material")

@@ -31,6 +31,11 @@ SDVK010_SUN_BEFORE = '\t\t// The far-away sunlight proxy bypasses local-light sh
 
 def restored_shader(candidate: str) -> str:
     """Reverse exact PF113 sampling and separately owned SDVK010 sun deltas only."""
+    # SDVK-011 substitutes only the three direct/view lighting positions.
+    # Reversing this exact token leaves the original whole-shader guard intact.
+    if candidate.count('SDVK_LIGHTING_POSITION') != 3:
+        raise AssertionError("SDVK-011 lighting-position delta differs")
+    candidate = candidate.replace('SDVK_LIGHTING_POSITION', 'pixelpos.xyz')
     if candidate.count(SDVK010_SUN_AFTER) != 1:
         raise AssertionError("SDVK-010 traced-sun route differs from its exact owned delta")
     candidate = candidate.replace(SDVK010_SUN_AFTER, SDVK010_SUN_BEFORE, 1)

@@ -64,7 +64,7 @@ class MeshOwnerTests(unittest.TestCase):
         actual=block(source,'void VulkanResources(')
         self.assertIn('Int("owner", level.levelMesh->GetResourceOwner())',actual)
         self.assertIn('Int("epoch", level.levelMesh->GetResourceEpoch().Generation)',actual)
-        self.assertIn('if (SpecialSurfaceEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner())',actual)
+        self.assertIn('if (SpecialSurfaceEnabled() || GameplaySmokeEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner())',actual)
 
     def test_actual_resource_emission_preserves_ordinary_bytes_and_scopes_lifetime_to_161(self):
         result=subprocess.run([str(self.binary),'serialization'],check=True,capture_output=True,text=True,timeout=10)

@@ -17,9 +17,28 @@ ShadeDoomVK's project version is `0.1.0-dev`. Build and startup diagnostics iden
 
 ## Current implementation gate
 
-**PF-001 through PF-020 and SDVK-001 are accepted.** PF-020 was merged and verified on `master` at `e185e60b04fe37ec84a18c5a85eec6722b541b71` on 5 October 2026; [its release receipt](docs/shadedoomvk/PF-020-RELEASE-ACCEPTANCE.json) records the evidence and limits. SDVK-001's project/build foundation was merged and verified at `7f34f15827f3cc98685d1af303d212ed5edc2b47` on 7 October 2026, with all eight PR and all eight post-merge jobs passing. [Foundation acceptance](docs/shadedoomvk/SDVK-001-RELEASE-ACCEPTANCE.json) pins that evidence. **SDVK-002 and SDVK-003 are unblocked**; [the execution ledger](docs/shadedoomvk/10-EXECUTION-LEDGER.md) records programme transitions.
+PF-001 through PF-020 are accepted. Substantial material, sprite, lighting, probe
+and lightmap implementation is integrated; the [execution ledger](docs/shadedoomvk/10-EXECUTION-LEDGER.md)
+records exact accepted commits. SDVK-009-SW permits SDVK-011/014 software work;
+physical acceptance and later dependency releases remain separately tracked.
 
-The advanced material, sprite relief and shadow goals above are the founding feature programme. PF acceptance establishes the hardened baseline and does not imply those later features are implemented.
+The [7 November owner correction](docs/shadedoomvk/SDVK-009-PHYSICAL-RESUMPTION-20261107.md)
+authorizes a fresh physical campaign with exact identities and retained failures.
+Instance-only readback does not establish renderer stability or performance.
+
+The [special-surface lifecycle increment](docs/shadedoomvk/SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+is merged; a later master repeatability failure has reopened its software
+qualification, and SDVK-014's physical criteria remain held.
+The [viewmodel increment](docs/shadedoomvk/SDVK-011-VIEWMODEL-LIGHTING.md) and
+[ordinary gameplay smoke](docs/shadedoomvk/INTEGRATED-GAMEPLAY-SMOKE.md) are undergoing
+final integration qualification after ten successful static physical weapon
+captures and a successful movement/firing/map-transition smoke. The owner has
+directed a [programme pause](docs/shadedoomvk/PROGRAMME-PAUSE-20261107.md) after
+this bounded delivery; the special-surface repeatability investigation is deferred.
+The
+[corpus guide](tools/renderer_oracle/README.md) includes legal Freedoom preparation
+and playable launch instructions. Defaults and milestone acceptance follow the
+ledger; candidate features do not imply completion of later renderer gates.
 
 ## Canonical programme
 

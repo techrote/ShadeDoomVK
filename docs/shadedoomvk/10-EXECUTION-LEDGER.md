@@ -1773,3 +1773,136 @@ negative qualification records. No physical launch is part of these controls.
   checks, current-head native software evidence and independent review remain.
 - Parent #14 stays open. This candidate awards no physical cost/scaling/stability
   acceptance and does not relabel any historical STOP or failed physical evidence.
+
+
+## 7 November 2026 - integrated playable renderer candidate
+
+- Refreshed live master/16 PRs. Guarded #171 merged after independent review,
+  focused CPU controls and ten green exact-head checks; verified master9cf86b92,
+  tree b8e156f7255596dea527c515720b4d223702d70c.
+- #172 consolidates eleven absorbed PRs; #184 is absorbed into substantive #162,
+  and optional CI prepass #167 is closed with evidence retained. Four coherent
+  integration PRs remain at that checkpoint, including #185 and #186. #185 was
+  subsequently absorbed unchanged into #172 and closed, leaving three.
+- #162 preserves production material/mesh/decal/plane/UV repairs and historical
+  failures. It includes #172/#185 as ancestors for integrated qualification.
+  Parent #14 physical criteria and unsupported ambiguous bindings stay visible.
+- #185 repairs delayed registration proof admission and suspended containment;
+  native freshness/gate/heartbeat limits remain. Full native170 tests passed.
+- #186 adds explicit weapon-card lighting modes, shared light/shading sample,
+  camera-oriented basis, diagnosed fallbacks and live-player normal/PBR fixtures.
+  Local build and PF832 passed before final review fixes; final focused checks
+  passed. The bounded HUD-model continuation now retains actual model/normal
+  transforms and admits supported skins individually; unsupported skins and
+  invalid normal matrices use diagnosed sector fallback. Four original OBJ
+  weapon cells join the six live-player card cells. A singular-matrix control
+  prevents NaN normals in that fallback. Exact integrated CI and native captures
+  remain pending; #11 stays open. The first combined CI failure exposed a stale
+  suite-count assertion after adding the four model scenes, not a native result.
+- Later direct owner authorization releases a new physical campaign, preserving
+  historical STOPs. Current-source instance-only readback passed with zero logical
+  devices/submissions; no physical milestone is accepted by this result. See
+  [resumption record](SDVK-009-PHYSICAL-RESUMPTION-20261107.md).
+- Generation 02 completed compositing, then stopped on a live NVIDIA 0x141
+  engine timeout in the first 1,025-light shadow process. The repeat did not run.
+  Full private evidence is retained. A stock-engine comparison and default-off
+  warmup extent breadcrumb are discriminators, not accepted fault repairs.
+  SDVK-008/009/014 physical claims remain held; no unchanged retry follows.
+
+## 7 November 2026 — tooling and special-surface software delivery verified
+
+- Guarded PR #172 merged qualified head `e6ac0cad0e197ad626b1bd2d49ab6ce6f6663474`
+  as master `ea2e172640f7c05a7f6c8c70bba89975ab5783a0`. Its nine normal
+  [CI jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/42357628391) and
+  [source check](https://github.com/techrote/ShadeDoomVK/actions/runs/42357628420)
+  passed; merged tree `774c0ccab472b0c7d94d2f44b4eea157f2b43f6d` equals the
+  reviewed head. The consolidated tooling and absorbed #185 are present on master.
+- Guarded PR #162 then merged qualified head
+  `8a0114825f7043576bb5a31b15cbd5e83f1b624d` as verified master
+  `d40475519170606e83dec20dc822ceb5a54312ee`. All nine normal
+  [CI jobs](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746720),
+  including hosted software-Vulkan qualification, and
+  [source evidence](https://github.com/techrote/ShadeDoomVK/actions/runs/42356746707)
+  passed. Merged tree `9f70041506a66f1bb29e6fcee2d7d63f83d34c85` equals that exact
+  reviewed head. Retained failures remain failed; historical packet revalidation
+  is not substituted for this current-head qualification.
+- Child #161's [bounded software matrix](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md)
+  is **SOFTWARE COMPLETE / PHYSICAL HELD** and the child is closed. Parent #14
+  remains open; no blanket whole-campaign completion is awarded. Unequal
+  controlled planes sharing a lightmapped binding, including ambiguous
+  `FF_BOTHPLANES`, remain explicitly unsupported. Other native coverage limits
+  and all required physical cost/scaling/stability criteria are retained.
+- PR #186 at candidate checkpoint `345e3d63ba22f7c234f9cfec7ebf7ce4aa5e71e5`
+  combines the weapon card/model implementation with the
+  [ordinary-input gameplay smoke](INTEGRATED-GAMEPLAY-SMOKE.md). Sixty focused
+  CPU checks and the intercepted actual capture/preparer boundary pass. Actual
+  RecordStore capacity replay retains 128 critical record-frame IDs and nine
+  selected detail frames with maximum-sized checkpoint reservations within the
+  unchanged 16 MiB cap; the unsampled real-payload control
+  exhausts the store at frame 39. The clean Windows RelWithDebInfo build at that
+  checkpoint passes. Its first hosted CPU run exposed an older extracted-owner
+  fixture missing the new disabled gameplay predicate; the fixture now matches
+  the actual unsigned TArray count type and retains its ordinary/owner negatives.
+  Native gameplay capture and required final-head CI remain pending; #11 is open. No candidate
+  CPU result accepts gameplay, physical performance or a later milestone.
+
+## 7 November 2026 — physical weapon captures and current integration blockers
+
+- Source `4be6eecf7d193f9e4b273019277059acccea562d` passes the source/CPU gate
+  and all seven platform builds; hosted software-Vulkan qualification remains
+  pending. Ten bounded physical weapon processes complete five static cell pairs
+  with native exit 0, equal state/RGB and health fences. See the
+  [viewmodel checkpoint](SDVK-011-VIEWMODEL-LIGHTING.md#7-november-physical-checkpoint).
+- Its ordinary-input gameplay process exits 0 with 128 actual frames, nine
+  images and no dropped records, then fails generic per-frame channel coverage.
+  The [scoped repair](INTEGRATED-GAMEPLAY-SMOKE.md) keeps all critical snapshots
+  mandatory and derives only the nine heavy-detail frames from actual player
+  state. CPU replay does not relabel the retained failed physical attempt;
+  fresh source-matched execution and normal CI remain required.
+- New post-merge master CI fails the slow-audit supervisor fixture on an expired
+  pre-creation proof and SDVK-161 repeatability on one extra wall quad/empty
+  upload. The supervisor correctly withholds creation; its production freshness,
+  durability and STOP rules remain. The actual host delay is unattributed.
+  [Child #161 is reopened](SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md); its previous
+  qualified merge stays present, with current software requalification held.
+  This was the integration hold at that checkpoint; the later owner scope
+  decision below defers the independent special-surface repeatability work.
+- The controlled-plane source/facing repair and temporary wall-call discriminator
+  remain separate unmerged work. Shadow-off physical timing admission is also
+  being prepared. None accepts SDVK-008/009/014 physical criteria or releases
+  SDVK-012 dependencies. Historical failures and the private kernel dump remain
+  retained; no new serious GPU fault or restart occurred in these small runs.
+
+## 7 November 2026 — gameplay initially validated; owner-directed delivery and pause
+
+- Fresh frozen source `8ce112bb6aaf6e7068e2715170afda7a2960ca8a` was built
+  and executed once in physical generation 07. Native exit 0, all 128 critical
+  views, nine image joins, actual movement/turn/firing and A/B/A owners pass.
+  There are 8,105 retained records, 12,251,041 bytes and zero dropped records.
+  No new System GPU fault or lasting impairment was observed. This is bounded
+  initial gameplay correctness, not performance or whole-milestone acceptance.
+  [Source/build/content/manifest identities](evidence/SDVK-011-GAMEPLAY-PHYSICAL-20261107.json)
+  and [reproducible launch instructions](INTEGRATED-GAMEPLAY-SMOKE.md) are retained.
+  The earlier failed process remains FAILED_STOP.
+- Required CI at `8ce112bb` exposed a CPU fixture short/long-path alias mismatch.
+  `a774ecbf1980f4c0dbeb1299d3d915e79c2fe650` canonicalizes that fixture before
+  strict proof checks and deliberately exercises the old mismatch. Production
+  renderer, freshness, durable STOP and process-containment rules are unchanged.
+  Its first Windows RWD CI passed 197 controls but stopped the independent
+  deadline fixture before creation when a proof age reached 2.672 seconds,
+  exceeding its 0.5-second boundary. The failed journal is retained; target execution never
+  started and this is not accepted as target-deadline coverage. Green normal
+  checks at the final reviewed head are still required before merge.
+- The owner's final scope decision prioritizes integrating and initially
+  validating #186, then stopping. The extra hosted wall quad and small physical
+  reload pixel difference are explicitly deferred, with #161 open and its
+  evidence unchanged. Required checks, comparisons and image tolerances are
+  unchanged. This decision does not accept SDVK-014 or waive later dependencies.
+- All other workstreams have reached clean pause points. Controlled-plane
+  production candidate `e3e328c9` and authored native draft `fc79a715` remain
+  local/unmerged; diagnostic `fe33c089` remains frozen. The shadow-off/POM partial
+  campaign is clean at `3086b738`, with no new full build or GPU launch. Optional
+  #187 remains Draft with explicit conflicts/admission issues. The
+  [programme pause handoff](PROGRAMME-PAUSE-20261107.md) records exact commits,
+  evidence and remaining limits. #8/#9/#11/#14 remain open; no programme
+  completion, architecture decision or physical cost acceptance is manufactured.

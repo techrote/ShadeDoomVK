@@ -14,8 +14,8 @@
 [[noreturn]] void I_FatalError(const char* error){throw std::runtime_error(error);}
 #include "mesh_owner_sequence.inc"
 struct Array {
- size_t Count=0;void Clear(){Count=0;}void Resize(size_t count){Count=count;}
- size_t Size()const{return Count;}template<class T>void Push(T){++Count;}
+ unsigned int Count=0;void Clear(){Count=0;}void Resize(unsigned int count){Count=count;}
+ unsigned int Size()const{return Count;}template<class T>void Push(T){++Count;}
 };
 struct RectPacker {RectPacker(int,int,int){}};
 struct LevelMeshPortal{};struct FDynLightInfo{int Value;};
@@ -42,6 +42,8 @@ private:
 // Actual resource builder consumes only these explicit lifecycle services here.
 static bool Special=false;
 static bool SpecialSurfaceEnabled(){return Special;}
+// This legacy fixture keeps gameplay disabled; its producer has separate tests.
+static bool GameplaySmokeEnabled(){return false;}
 static std::string LightmapLifecycle(LevelMesh*,size_t,int,int){return "{}";}
 struct ResourceTextures {std::vector<int> Lightmaps{0};};
 struct ResourceDevice {int GetFrameTileUpdates(){return 0;}int GetFrameTileCompletions(){return 0;}};

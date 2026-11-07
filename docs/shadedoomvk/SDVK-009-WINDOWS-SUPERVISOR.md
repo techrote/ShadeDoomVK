@@ -176,6 +176,18 @@ with a fresh resume proof and failed creation admission with authenticated targe
 containment. Unexpected fixtures are retained in normal Windows CI, including
 Python 3.10's deferred unittest error-publication path.
 
+The first newly owner-authorized current-source physical compositing attempt
+produced a native state/image and collection marker, then stopped on a module
+enumeration error 299. Its failed packet, STOP and consumed attempt remain
+immutable; the original target exit code was not retained and must not be inferred
+as zero. A source-qualified successor records the exact native operation/error and
+permits one bounded exit observation only after prior complete required-module
+coverage and full same-object attestation. A live target, unknown identity,
+incomplete module coverage, other operation/error or changed module hash remains
+fail-closed. A confirmed nonzero exit is retained and still rejected by collector
+admission. No enumeration retry, physical acceptance or historical relabelling
+follows from this discriminator.
+
 The request binds the packet, stage, supervisor creation identity, source proof,
 role and nonce; target requests additionally bind the actual registered collector.
 The worker independently hashes generated target inputs. Retained byte locks and

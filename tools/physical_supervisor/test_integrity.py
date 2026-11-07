@@ -14,13 +14,102 @@ import tempfile
 import threading
 import time
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
-from .common import Gate, Journal, Stop, exclusive, pin, read_json, root_expectations, verify_roots, digest, open_read, normalized
+from .common import Gate, Journal, Stop, exclusive, publish_heartbeat, pin, read_json, root_expectations, verify_roots, digest, open_read, normalized, canonical
 from .integrity import IntegrityWatch, valid_proof, valid_creation_proof, proof_deadline, POLICY
 from . import test_integration as fixture
 from . import test_supervisor as cpu_fixture
 from .windows import RootGuard
+
+
+class HeartbeatPublicationTests(unittest.TestCase):
+    def guard(self, directory):
+        from .collector import ParentGuard
+        control=Path(directory);control.mkdir()
+        # execute() passes canonical control paths. Windows TEMP can contain an
+        # 8.3 parent spelling while pin() records the resolved long pathname.
+        control=control.resolve(strict=True)
+        packet={"packet_sha256":"a"*64,"runtime_roots":[],"integrity_policy":POLICY}
+        stage={"name":"cpu"};owner={"pid":1,"creation_ticks":2}
+        proof={"schema":"physical-supervisor/integrity-generation-v1","packet_sha256":packet["packet_sha256"],
+            "stage":"cpu","supervisor":owner,"generation":0,"started_monotonic":99.5,
+            "finished_monotonic":99.75,"utc":"synthetic CPU clock","request":None,"status":"PASS",
+            "checks":{"closed_roots":0,"log_append_only":"PASS","generated_pins":0},"policy":POLICY}
+        exclusive(control/"integrity-000000.json",proof)
+        guard=object.__new__(ParentGuard)
+        guard.packet,guard.stage,guard.expected,guard.control=packet,stage,owner,control
+        guard.parent=SimpleNamespace(poll=lambda:None)
+        heartbeat={"packet_sha256":packet["packet_sha256"],"supervisor":owner,"monotonic":100.,
+            "utc":"synthetic CPU clock","integrity_generation":pin(control/"integrity-000000.json")}
+        return guard,control/"heartbeat-000000.json",heartbeat
+
+    def test_delayed_disk_flush_stales_old_transport_but_not_control_heartbeat(self):
+        with tempfile.TemporaryDirectory() as directory:
+            old,path,value=self.guard(Path(directory)/"old")
+            current,current_path,current_value=self.guard(Path(directory)/"current")
+            clock=[100.]
+            def slow_flush(_):clock[0]+=2.05
+            with patch("time.monotonic",side_effect=lambda:clock[0]),patch("os.fsync",side_effect=slow_flush) as flush:
+                # Reproduce the old transport at the real collector guard. A
+                # timestamp taken before a disk flush can be stale on arrival.
+                exclusive(path,value)
+                with self.assertRaisesRegex(Stop,"heartbeat/observers stalled"):old.check()
+                self.assertEqual(flush.call_count,1)
+                clock[0]=100.;flush.reset_mock()
+                publish_heartbeat(current_path,current_value)
+                current.check();flush.assert_not_called()
+                # Omitting persistence cannot hide a genuinely stalled loop.
+                clock[0]+=2.05
+                with self.assertRaisesRegex(Stop,"heartbeat/observers stalled"):current.check()
+
+    def test_pending_heartbeat_is_not_visible_and_final_cannot_be_replaced(self):
+        from . import common
+        with tempfile.TemporaryDirectory() as directory:
+            guard,path,value=self.guard(Path(directory)/"control")
+            operation="rename" if os.name=="nt" else "link"
+            original=getattr(common.os,operation);observed=[]
+            def publish(pending,final):
+                self.assertEqual(Path(pending).read_bytes(),canonical(value))
+                self.assertFalse(path.exists())
+                with self.assertRaisesRegex(Stop,"heartbeat missing"):guard.check()
+                observed.append(True)
+                return original(pending,final)
+            with patch("time.monotonic",return_value=100.),patch.object(common.os,operation,side_effect=publish):
+                publish_heartbeat(path,value);guard.check()
+            self.assertEqual(observed,[True])
+            with self.assertRaises(FileExistsError):publish_heartbeat(path,{"replacement":True})
+            self.assertEqual(read_json(path),value)
+
+    def test_receipts_and_journals_still_flush_to_disk(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);original=os.fsync
+            with patch("os.fsync",wraps=original) as flush:
+                exclusive(root/"proof.json",{"proof":"CPU control"})
+                ordinary=flush.call_count;self.assertGreater(ordinary,0)
+                exclusive(root/"stop.json",{"stop":"CPU control"},durable=True)
+                durable=flush.call_count;self.assertGreater(durable,ordinary)
+                Journal(root/"journal").append("cpu-control",{"complete":True})
+                self.assertGreater(flush.call_count,durable)
+
+    def test_equivalent_fixture_spelling_keeps_wrong_parent_and_owner_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/"spelling").mkdir()
+            guard,path,value=self.guard(root/"spelling"/".."/"control")
+            self.assertEqual(guard.control,path.parent.resolve(strict=True))
+            with patch("time.monotonic",return_value=100.):
+                publish_heartbeat(path,value);guard.check()
+                other=root/"other";other.mkdir()
+                proof=read_json(value["integrity_generation"]["path"])
+                exclusive(other/"integrity-000000.json",proof)
+                changed={**value,"integrity_generation":pin(other/"integrity-000000.json")}
+                publish_heartbeat(path.with_name("heartbeat-000001.json"),changed)
+                with self.assertRaisesRegex(Stop,"integrity proof path differs"):guard.check()
+                changed={**value,"supervisor":{**value["supervisor"],"creation_ticks":3}}
+                publish_heartbeat(path.with_name("heartbeat-000002.json"),changed)
+                with self.assertRaisesRegex(Stop,"heartbeat identity changed"):guard.check()
 
 
 class ProofTests(unittest.TestCase):
@@ -91,10 +180,63 @@ class ProofTests(unittest.TestCase):
 
 class WorkerTests(unittest.TestCase):
     def worker(self,root):
-        control=root/"control";control.mkdir()
+        control=root/"control";control.mkdir();control=control.resolve(strict=True)
         packet={"packet_sha256":"a"*64,"runtime_roots":[],"files":[],"integrity_policy":POLICY}
         scanner=type("CPUScanner",(),{"check":lambda self,paths:None})()
         return IntegrityWatch(packet,{"name":"cpu","generated_pins":[]},control,{"pid":1,"creation_ticks":2},[],scanner,[],Journal(root/"journal"))
+
+    def test_durable_main_pump_delay_still_rejects_stale_boundary_without_native_creation(self):
+        from .integrity import collector_boundary
+        from .windows import Process
+        for delay in (0, .8):
+            with self.subTest(journal_flush_delay=delay), tempfile.TemporaryDirectory() as directory:
+                parent=Path(directory);(parent/"spelling").mkdir()
+                spelled=parent/"spelling"/".."
+                worker=self.worker(spelled);control=worker.control
+                # Deliberately preserve a noncanonical spelling on every host,
+                # including hosts whose default TEMP has no Windows8.3 alias.
+                self.assertNotEqual(spelled/"control",(parent/"control").resolve(strict=True))
+                exclusive(control/"source-preflight.json",{"scope":"constructed CPU boundary only"})
+                # Isolate the actual queue-drain -> durable Journal.append path.
+                # The queued proof is constructed; no audit/process thread runs.
+                worker.thread=SimpleNamespace(is_alive=lambda:True)
+                durable=worker.journal.append;fsync=os.fsync;flushes=[]
+                def append(kind,value):
+                    def delayed(fd):
+                        flushes.append(time.monotonic())
+                        if delay:time.sleep(delay)
+                        return fsync(fd)
+                    with patch("os.fsync",side_effect=delayed):return durable(kind,value)
+                worker.journal.append=append
+                def pump():
+                    request=read_json(control/"integrity-collector-request.json")
+                    value={"schema":"physical-supervisor/integrity-generation-v1",
+                        "packet_sha256":worker.packet["packet_sha256"],"stage":worker.stage["name"],
+                        "supervisor":worker.supervisor,"generation":0,
+                        "started_monotonic":request["requested_monotonic"],"finished_monotonic":time.monotonic(),
+                        "utc":"constructed CPU proof","request":request,"status":"PASS",
+                        "checks":{"closed_roots":0,"log_append_only":"PASS","generated_pins":0},"policy":POLICY}
+                    path=control/"integrity-000000.json";exclusive(path,value);receipt=pin(path)
+                    exclusive(control/"integrity-collector-proof.json",{"receipt":receipt,"request":request})
+                    self.assertLess(time.monotonic()-value["finished_monotonic"],.5)
+                    worker.latest=(value,receipt);worker.messages.put_nowait((value,receipt))
+                    worker.check()
+                    publish_heartbeat(control/"heartbeat-000000.json",{
+                        "packet_sha256":worker.packet["packet_sha256"],"supervisor":worker.supervisor,
+                        "monotonic":time.monotonic(),"utc":"constructed CPU heartbeat","integrity_generation":receipt})
+                with patch.object(Process,"spawn",side_effect=AssertionError("No native CPU target permitted")) as spawn, \
+                     patch("subprocess.Popen",side_effect=AssertionError("No child process permitted")) as popen:
+                    if delay:
+                        with self.assertRaisesRegex(Stop,"Boundary integrity generation missing/stale/reused"):
+                            collector_boundary(worker.packet,worker.stage,control,worker.supervisor,pump)
+                    else:
+                        proof,_=collector_boundary(worker.packet,worker.stage,control,worker.supervisor,pump)
+                        self.assertEqual(proof,worker.latest[0])
+                    spawn.assert_not_called();popen.assert_not_called()
+                self.assertTrue(flushes)
+                self.assertEqual(Journal.audit(worker.journal.root),worker.journal.previous)
+                self.assertTrue((control/"heartbeat-000000.json").exists())
+                self.assertEqual(POLICY["boundary_finish_freshness_seconds"],.5)
 
     def test_queue_overflow_is_terminal_and_retains_failure(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -277,6 +419,159 @@ class NativeReceiptReadTests(unittest.TestCase):
 @unittest.skipUnless(os.name=="nt","Native same-object exit transition controls")
 class NativeExitRaceTests(cpu_fixture.TempCase):
     spawn=cpu_fixture.NativeWindowsTests.spawn
+
+    def observed_module_control(self,exit_code=0):
+        from .supervisor import ModuleWatch
+        ready=self.root/"ready";release=self.root/"release"
+        script=("from pathlib import Path;import time;Path("+repr(str(ready))+ ").write_text('CPU ready')\n"
+                "while not Path("+repr(str(release))+").exists():time.sleep(.001)\nraise SystemExit("+str(exit_code)+")")
+        child,identity=self.spawn(script);child.resume(identity)
+        until=time.monotonic()+5
+        while not ready.exists() and time.monotonic()<until:time.sleep(.005)
+        self.assertTrue(ready.exists())
+        paths=child.modules(identity)
+        packet={"module_policy":{"required_paths":[identity["path"]],"optional_paths":[]},"files":[pin(path) for path in paths]}
+        health=type("Health",(),{"fail":lambda self,error:None})()
+        watcher=ModuleWatch(packet,child,identity,Journal(self.root/"journal"),health)
+        self.addCleanup(lambda:[lock.close() for lock in watcher.locks])
+        self.assertEqual(watcher.sample()["state"],"OBSERVED")
+        return child,watcher,release
+
+    def test_exact_module299_after_prior_coverage_confirms_same_native_exit(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def teardown(*args):release.write_text("exit");windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=teardown) as enum,patch.object(windows,"terminate") as kill:
+            value=watcher.sample();enum.assert_called_once();kill.assert_not_called()
+        self.assertEqual(value["state"],"EXITED");self.assertTrue(value["prior_required_module_coverage"])
+        row=value["exit_observations"][0]
+        self.assertEqual(row["original_error_evidence"]["operation"],"EnumProcessModulesEx")
+        self.assertEqual(row["original_error_evidence"]["winerror"],299)
+        self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],0)
+        self.assertIn(row["requested_wait_milliseconds"],(0,50));self.assertEqual(child.poll(),0)
+
+    def test_exact_module299_on_live_process_still_stops_without_retry(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def denied(*args):windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=denied) as enum,patch.object(windows,"terminate") as kill:
+            with self.assertRaises(Stop) as caught:watcher.sample()
+            enum.assert_called_once();kill.assert_not_called()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["native_wait_result"],258);self.assertEqual(row["requested_wait_milliseconds"],50)
+        self.assertEqual(row["classification"],"NOT_CLASSIFIED_EXITED");self.assertIsNone(child.poll())
+        release.write_text("exit")
+
+    def test_module299_without_complete_required_coverage_cannot_settle(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        missing=self.root/"unobserved-required.dll";missing.write_bytes(b"CPU placeholder, never loaded")
+        watcher.policy["required_paths"].append(str(missing))
+        def denied(*args):windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_module299_confirmed_exit_retains_nonzero_native_code(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control(exit_code=17)
+        def teardown(*args):release.write_text("exit");windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=teardown):value=watcher.sample()
+        row=value["exit_observations"][0]
+        self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],17)
+        self.assertEqual(child.poll(),17)  # Collector admission independently requires native return code zero.
+
+    def test_zero_module_path_after_prior_coverage_confirms_native_exit_with_exact_error(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control(exit_code=17)
+        def teardown(*args):release.write_text("exit");windows.c.set_last_error(6);return 0
+        with patch.object(windows,"module_path",side_effect=teardown) as read,patch.object(windows,"terminate") as kill:
+            value=watcher.sample();read.assert_called_once();kill.assert_not_called()
+        self.assertEqual(value["state"],"EXITED");self.assertTrue(value["prior_required_module_coverage"])
+        row=value["exit_observations"][0];native=row["original_error_evidence"]
+        self.assertEqual(native["operation"],"GetModuleFileNameExW");self.assertEqual(native["winerror"],6)
+        self.assertEqual(native["returned_characters"],0);self.assertEqual(native["buffer_characters"],32768)
+        self.assertEqual(native["pid"],child.pid);self.assertGreater(native["module_handle"],0)
+        self.assertGreater(native["observed_monotonic"],0)
+        self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],17)
+        self.assertEqual(child.poll(),17)  # A normal collector still rejects this nonzero code.
+
+    def test_zero_module_path_on_live_object_stops_without_retry_or_termination(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def denied(*args):windows.c.set_last_error(299);return 0
+        with patch.object(windows,"module_path",side_effect=denied) as read,patch.object(windows,"terminate") as kill:
+            with self.assertRaises(Stop) as caught:watcher.sample()
+            read.assert_called_once();kill.assert_not_called()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],299)
+        self.assertEqual(row["requested_wait_milliseconds"],50);self.assertEqual(row["native_wait_result"],258)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_without_prior_required_coverage_cannot_settle(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        missing=self.root/"unobserved.dll";missing.write_bytes(b"CPU placeholder, never loaded")
+        watcher.policy["required_paths"].append(str(missing))
+        def denied(*args):windows.c.set_last_error(6);return 0
+        with patch.object(windows,"module_path",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_clears_stale_error_and_rejects_missing_native_code(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        windows.c.set_last_error(299)
+        with patch.object(windows,"module_path",return_value=0):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],0)
+        self.assertEqual(row["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_with_unreviewed_native_code_cannot_settle(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def denied(*args):windows.c.set_last_error(31);return 0
+        with patch.object(windows,"module_path",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["original_error_evidence"]["winerror"],31)
+        self.assertEqual(row["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_truncated_module_path_is_not_a_zero_read_exit_discriminator(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        with patch.object(windows,"module_path",return_value=32767) as read:
+            with self.assertRaisesRegex(Stop,"path truncated") as caught:watcher.sample()
+            read.assert_called_once()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_needs_existing_deadline_budget(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control();watcher.target_deadline=time.monotonic()+.01
+        def denied(*args):windows.c.set_last_error(6);return 0
+        with patch.object(windows,"module_path",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_zero_module_path_requires_exact_pid_count_and_original_attestation(self):
+        child,identity=self.spawn("pass");child.resume(identity)
+        until=time.monotonic()+5
+        while child.poll() is None and time.monotonic()<until:time.sleep(.01)
+        self.assertEqual(child.poll(),0)
+        original={"operation":"GetModuleFileNameExW","winerror":6,"pid":child.pid,"returned_characters":0}
+        for change in ({"pid":child.pid+1},{"returned_characters":1},{"returned_characters":False},{"winerror":None}):
+            error=Stop("Controlled native path failure");error.evidence={**original,**change}
+            self.assertFalse(child.exited_owned(identity,error=error,operation="actual-module-authentication",module_teardown=True,cleanup=True))
+        error=Stop("Controlled native path failure");error.evidence=original
+        child.verified_identity={**identity,"sha256":"f"*64}
+        self.assertFalse(child.exited_owned(identity,error=error,operation="actual-module-authentication",module_teardown=True,cleanup=True))
 
     @staticmethod
     def image_error(code=5,operation="QueryFullProcessImageNameW"):
@@ -520,14 +815,29 @@ class LivenessIntegrationTests(unittest.TestCase):
         self.assertFalse((self.root/"control/00-compositing/target-resumed.json").exists())
 
     def test_slow_successful_deep_checks_do_not_suspend_control_heartbeat(self):
-        self.realistic_packet()
+        # Keep this control focused on off-thread deep-audit/heartbeat behavior.
+        # The adjacent realistic_closed_topology test retains three stages,
+        # eight roots and 1,359 pins. Combining both stresses also demanded
+        # unrelated durable-I/O/scheduling progress inside every .5s boundary.
+        self.stages[:]=self.stages[:1]
+        self.assertEqual(len(self.packet["runtime_roots"]),3)
         original=IntegrityWatch.audit
         def slow(instance):
             time.sleep(2.05)
             return original(instance)
         self.fault("none","import time;from pathlib import Path;Path('marker.txt').write_text('CPU benign success');time.sleep(2.2)")
-        with patch.object(IntegrityWatch,"audit",new=slow):result=self.run_engine()
+        with patch.object(IntegrityWatch,"audit",new=slow),patch(
+                "tools.physical_supervisor.supervisor.publish_heartbeat",wraps=publish_heartbeat) as published:
+            result=self.run_engine()
         self.assertEqual(result["status"],"COLLECTED_PENDING_ACCEPTANCE",result)
+        self.assertEqual(self.spawn_count(),1)
+        self.assertTrue((self.root/"control/00-compositing/target-resumed.json").exists())
+        self.assertEqual(read_json(self.root/"control/00-compositing/target-exit.json")["returncode"],0)
+        actual=list((self.root/"control").glob("*/heartbeat-*.json"))
+        self.assertGreater(len(actual),3)
+        self.assertEqual({Path(call.args[0]).resolve(strict=True) for call in published.call_args_list},
+                         {path.resolve(strict=True) for path in actual})
+        self.assertEqual(len(published.call_args_list),len(actual))
         rows=self.heartbeats()
         self.assertLess(max(b["monotonic"]-a["monotonic"] for a,b in zip(rows,rows[1:])),2)
 

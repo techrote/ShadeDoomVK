@@ -423,3 +423,33 @@ joins actor probe and packed sunlight source TIDs at the existing emitted draw.
 JSON encoding completes before `common.write_json` reserves a fresh receipt.
 No producer field, native workload, image tolerance or physical acceptance rule
 changes as a result.
+<!-- Prospective physical capture admission, implementation push 2026-11-07. -->
+
+`tools/physical_supervisor/registered.py` adds a separate `REGISTERED_WORKLOAD`
+profile for sealed partial POM, viewmodel/model-material and lightmap lifecycle
+capture schedules. `prepare.oracle_stage` derives commands and generated-input
+pins from the pinned oracle recipe; `registered.validate` rederives the complete
+stage dictionary. Registration binds renderer/oracle source, build/content and
+prepared-manifest identities, ordered names, observer frames/extents/modes and
+native deadlines. It supplies no arbitrary command or callback. The existing
+fixed diagnostic stays unchanged and the full campaign kind stays held.
+
+`conditional_grant.stages` permits dynamic stage names only for a grant bound to
+the same sealed registration. Its creation cap equals the schedule length and
+retries are zero; all existing durable charges, completed-stage fences and STOP
+history remain mandatory. POM uses the existing current-source partial-plan
+authority and genuine Vulkan summary. `registered.before_capture` requires the
+existing repeat/continuity/OFF-ON/direction reference gates before the first
+timing creation. Captures still use `collector.run_oracle` and the existing
+native supervisor, without changing gameplay or interpreting partial data as
+milestone acceptance. New reviewed packets/source qualification remain required;
+historical failed generations cannot be rewritten or relabelled.
+
+The separate `sdvk009-fault-discriminator` purpose permits one state capture per
+packet, optionally requesting the existing CPU collision snapshot. Its typed
+boolean derives the snapshot argv and expected artifact; it neither reads GPU
+memory nor substitutes for submitted-buffer evidence. This keeps campaign-wide
+CFX paths unique to one process. Recipe-declared lifecycle flags are derived in
+the same order as `run.capture`, including probe-owner/reset and special-surface
+drivers. Both collector and supervisor retain the existing POM per-process
+backend/device, relief-work, raw timing and environment-continuity checks.

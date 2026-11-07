@@ -12,6 +12,11 @@
 #include "v_video.h"
 #include "d_main.h"
 #include "d_event.h"
+#include "d_player.h"
+#include "d_buttons.h"
+#include "doomstat.h"
+#include "g_game.h"
+#include "c_buttons.h"
 #include "g_levellocals.h"
 #include "portal.h"
 #include "a_dynlight.h"
@@ -46,6 +51,7 @@ EXTERN_CVAR(Bool, screenshot_quiet)
 EXTERN_CVAR(Int, con_notifylines)
 EXTERN_CVAR(Bool, vk_rayquery)
 EXTERN_CVAR(Bool, cl_capfps)
+CVAR(Bool, sdvk_gameplay_pending, false, 0)
 EXTERN_CVAR(Int, vid_maxfps)
 EXTERN_CVAR(Bool, vid_vsync)
 EXTERN_CVAR(Bool, lm_dynlights)
@@ -112,6 +118,12 @@ struct Observer
     // queue ordinary console invalidate/reload commands and never inspect state.
     bool LightmapTransitionInput = false;
     bool SpecialSurfaceInput = false;
+    bool GameplayInput = false;
+    bool GameplayFireA = false, GameplayFireB = false;
+    bool GameplayDetail = false;
+    int GameplayMuzzle = 0;
+    const char* GameplayPendingMap = nullptr;
+    uint64_t GameplayPreviousOwner = 0;
     unsigned Requested = 1, Warmup = 35, Seen = 0, Collected = 0;
     unsigned WitnessPresented = 0;
     uint64_t GpuGroups = 0;
@@ -249,6 +261,86 @@ void DriveSpecialSurfaceInput(const Observer& observer)
     }
 }
 
+struct GameplayPhase { unsigned Frame; const char* Map; const char* Command; const char* NextMap; };
+constexpr GameplayPhase GameplayPhases[] = {
+    {8, "SDVGPA", "+forward; wait 6; -forward; sdvk_gameplay_pending false", nullptr},
+    {24, "SDVGPA", "+right; wait 4; -right; sdvk_gameplay_pending false", nullptr},
+    {40, "SDVGPA", "+attack; wait 8; -attack; sdvk_gameplay_pending false", nullptr},
+    {56, "SDVGPA", "map SDVGPB", "SDVGPB"},
+    {80, "SDVGPB", "+attack; wait 8; -attack; sdvk_gameplay_pending false", nullptr},
+    {96, "SDVGPB", "map SDVGPA", "SDVGPA"}
+};
+bool GameplayCheckpoint(uint64_t frame)
+{
+    return frame == 8 || frame == 24 || frame == 40 || frame == 56 || frame == 80 || frame == 96 || frame == 120;
+}
+void SelectGameplayDetail(Observer& observer)
+{
+    observer.GameplayDetail = false;
+    observer.GameplayMuzzle = 0;
+    if (!observer.GameplayInput) return;
+    const uint64_t frame = observer.Frame.load(std::memory_order_relaxed);
+    observer.GameplayDetail = GameplayCheckpoint(frame);
+    AActor* actor = players[consoleplayer].camera;
+    if (!actor || !actor->player || actor->player->extralight <= 0) return;
+    if (!observer.GameplayFireA && level.MapName.Compare("SDVGPA") == 0 && frame > 40 && frame < 56)
+        observer.GameplayMuzzle = 1;
+    if (!observer.GameplayFireB && level.MapName.Compare("SDVGPB") == 0 && frame > 80 && frame < 96)
+        observer.GameplayMuzzle = 2;
+    observer.GameplayDetail = observer.GameplayDetail || observer.GameplayMuzzle != 0;
+}
+bool GameplayRecordSelected(const Observer& observer, const char* kind)
+{
+    // Only this opt-in smoke samples the four large per-draw payload families.
+    // Frame/player/resource/viewmodel and smaller observations remain complete.
+    return !observer.GameplayInput || observer.GameplayDetail || !kind ||
+        (std::strcmp(kind, "material") && std::strcmp(kind, "probe") &&
+         std::strcmp(kind, "pipeline") && std::strcmp(kind, "shadow"));
+}
+bool GameplayButtonsIdle()
+{
+    return !buttonMap.ButtonDown(Button_Forward) && !buttonMap.ButtonDown(Button_Right) && !buttonMap.ButtonDown(Button_Attack);
+}
+void DriveGameplayInput(Observer& observer)
+{
+    if (!observer.GameplayInput) return;
+    if (!bool(cl_capfps) || int(vid_maxfps) != 0 || bool(vid_vsync) || singletics || r_NoInterpolate ||
+        netgame || multiplayer || demoplayback || demorecording)
+    {
+        SdvkDiagnostics::Fail("Gameplay smoke requires ordinary single-player tic/wait policy");
+        return;
+    }
+    if (observer.GameplayPendingMap && gameaction == ga_nothing && gamestate == GS_LEVEL &&
+        level.MapName.Compare(observer.GameplayPendingMap) == 0)
+    {
+        if (!level.levelMesh || level.levelMesh->GetResourceOwner() == observer.GameplayPreviousOwner)
+        {
+            SdvkDiagnostics::Fail("Gameplay map completed without a fresh current mesh");
+            return;
+        }
+        observer.GameplayPendingMap = nullptr;
+    }
+    const auto frame = observer.Frame.load(std::memory_order_relaxed);
+    for (const auto& phase : GameplayPhases)
+    {
+        if (frame != phase.Frame) continue;
+        if (observer.GameplayPendingMap || bool(sdvk_gameplay_pending) || !GameplayButtonsIdle() ||
+            gameaction != ga_nothing || gamestate != GS_LEVEL || level.MapName.Compare(phase.Map) != 0 || !level.levelMesh)
+        {
+            SdvkDiagnostics::Fail("Gameplay phase reached with pending input/map or foreign lifecycle");
+            return;
+        }
+        if (phase.NextMap)
+        {
+            observer.GameplayPreviousOwner = level.levelMesh->GetResourceOwner();
+            observer.GameplayPendingMap = phase.NextMap;
+        }
+        else sdvk_gameplay_pending = true;
+        AddCommandString(phase.Command);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK_GAMEPLAY_INPUT frame=%u map=%s command=%s\n", phase.Frame, phase.Map, phase.Command);
+    }
+}
+
 // The publication witness must identify actual observer warmup frames, not
 // infer them from a process-global frame count that also includes startup.
 // This records only existing state and performs no renderer/device operation.
@@ -331,6 +423,7 @@ void Initialize()
         observer.SamplerResetInput = Args->CheckParm("-sdvk153samplerresetdriver") != 0;
         observer.LightmapTransitionInput = Args->CheckParm("-sdvk158lightmapdriver") != 0;
         observer.SpecialSurfaceInput = Args->CheckParm("-sdvk161surfacedriver") != 0;
+        observer.GameplayInput = Args->CheckParm("-sdvkgameplaysmoke") != 0;
         Require(!observer.ProbeBuilderTrace || observer.StateMode,
             "Probe-owner lifecycle trace is state-only");
         Require(!observer.SamplerResetInput || observer.StateMode,
@@ -339,7 +432,10 @@ void Initialize()
             "SDVK-158 lightmap transition input driver is state-only");
         Require(!observer.SpecialSurfaceInput || (observer.StateMode && !observer.GpuRequested && observer.Warmup == 32 && observer.Requested == 96),
             "SDVK-161 special-surface input needs its exact correctness-only frame budget");
-        Require(int(observer.SamplerResetInput) + int(observer.LightmapTransitionInput) + int(observer.SpecialSurfaceInput) <= 1,
+        Require(!observer.GameplayInput || (observer.StateMode && !observer.GpuRequested && observer.Warmup == 32 && observer.Requested == 128 &&
+                level.MapName.Compare("SDVGPA") == 0 && !bool(sdvk_gameplay_pending)),
+            "Gameplay smoke needs its exact registered initial map and correctness frame budget");
+        Require(int(observer.SamplerResetInput) + int(observer.LightmapTransitionInput) + int(observer.SpecialSurfaceInput) + int(observer.GameplayInput) <= 1,
             "Only one SDVK outcome-blind input driver may be active");
         Object build;
         build.Str("commit", GetGitHash()).Str("working_tree", WorkingTree()).Str("description", GetGitDescription())
@@ -678,10 +774,11 @@ void ProbeBuilderLifecycle(const char* event, uint64_t ownerRevision, int probeC
 void Emit(const char* kind, const std::string& object, bool deduplicate)
 {
     const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
-    if (Enabled() && frame) Get().Records.Add(kind, frame, object, deduplicate);
+    if (Enabled() && frame && GameplayRecordSelected(Get(), kind)) Get().Records.Add(kind, frame, object, deduplicate);
 }
 
 bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
+bool GameplaySmokeEnabled() { return Enabled() && Get().GameplayInput; }
 
 bool SpecialSurfaceFrameSelected()
 {
@@ -726,6 +823,9 @@ void BeginFrame()
         if (observer.Seen <= observer.Warmup) { observer.Frame.store(0, std::memory_order_relaxed); return; }
         Require(observer.Collected < observer.Requested, "SDVK completion hook did not close the requested frame interval");
         observer.Frame.store(uint64_t(observer.Collected) + 1, std::memory_order_relaxed);
+        // Latch before any retained draw. Ordinary tics do not run inside the
+        // main view; the same passive muzzle selection owns its completed PNG.
+        SelectGameplayDetail(observer);
         if (observer.StateMode && V_IsHardwareRenderer())
         {
             observer.Lights.clear();
@@ -822,6 +922,21 @@ void EndFrame()
             observer.ProbeBuilderEvents.clear();
         }
         if (screen->IsVulkan()) VulkanResources(static_cast<VulkanRenderDevice*>(screen));
+        if (observer.GameplayInput)
+        {
+            AActor* actor = players[consoleplayer].camera;
+            Require(actor && actor->player && actor->player->ReadyWeapon, "Gameplay smoke has no actual player weapon");
+            AActor* ammo = actor->FindInventory(FName("Clip"));
+            Require(ammo != nullptr, "Gameplay smoke has no actual Clip inventory");
+            Emit("gameplay", Object().Str("contract", "ordinary-gameplay/v1")
+                .Str("producer", "actual-player-inventory-after-main-view").Str("map", level.MapName.GetChars())
+                .Raw("position", Vector(actor->Pos())).Num("yaw", actor->Angles.Yaw.Degrees()).Int("gametic", gametic)
+                .Str("weapon", actor->player->ReadyWeapon->GetClass()->TypeName.GetChars()).Int("ammo", ammo->IntVar(NAME_Amount))
+                .Int("extra_light", actor->player->extralight).Int("cheats", actor->player->cheats)
+                .Bool("detail_selected", observer.GameplayDetail)
+                .Bool("forward", buttonMap.ButtonDown(Button_Forward)).Bool("right", buttonMap.ButtonDown(Button_Right))
+                .Bool("attack", buttonMap.ButtonDown(Button_Attack)).Bool("pending_input", bool(sdvk_gameplay_pending)).Json());
+        }
     }
     catch (const std::exception& error) { Fail(error.what()); }
     // Per-draw state belongs to RenderView, including its final owner snapshot.
@@ -862,12 +977,45 @@ void FramePresented()
             }
             catch (const std::exception& error) { Fail(error.what()); }
         }
+        if (observer.GameplayInput)
+        {
+            try
+            {
+                const auto checkpoint = [&](const std::string& suffix, const char* phase)
+                {
+                    const auto path = std::filesystem::u8path(observer.Prefix + suffix);
+                    Require(!std::filesystem::exists(path) && bool(screenshot_quiet) && int(con_notifylines) == 0 &&
+                        std::string(static_cast<const char*>(screenshot_type)) == "png", "Gameplay checkpoint needs fresh quiet PNG output");
+                    M_ScreenShot((observer.Prefix + suffix).c_str());
+                    Require(std::filesystem::is_regular_file(path) && std::filesystem::file_size(path) > 0, "Gameplay checkpoint image missing");
+                    Emit("gameplay-checkpoint", Object().Str("producer", "completed-main-view-screenshot").Str("phase", phase)
+                        .Str("map", level.MapName.GetChars()).Str("image", path.filename().generic_u8string()).Int("main_views", observer.Seen).Json());
+                };
+                if (GameplayCheckpoint(frame)) checkpoint(".gameplay-" + std::to_string(frame) + ".png", "fixed");
+                AActor* actor = players[consoleplayer].camera;
+                const bool a = observer.GameplayMuzzle == 1;
+                const bool b = observer.GameplayMuzzle == 2;
+                if (actor && actor->player && actor->player->extralight > 0 &&
+                    ((a && !observer.GameplayFireA) || (b && !observer.GameplayFireB)))
+                {
+                    // Passive first-observed muzzle view; this never prolongs
+                    // attack or changes input timing to obtain an image.
+                    checkpoint(a ? ".gameplay-fire-a.png" : ".gameplay-fire-b.png", "muzzle");
+                    if (a) observer.GameplayFireA = true;
+                    else observer.GameplayFireB = true;
+                }
+            }
+            catch (const std::exception& error) { Fail(error.what()); }
+        }
         // Queue fixture input only once per newly presented main view. The
         // command runs through the ordinary console CVAR path before a later
         // view; retained frame state independently verifies its real effect.
         DriveSamplerResetInput(observer);
         DriveLightmapTransitionInput(observer);
         DriveSpecialSurfaceInput(observer);
+        DriveGameplayInput(observer);
+        observer.GameplayDetail = false;
+        observer.GameplayMuzzle = 0;
         observer.WitnessPresented = observer.Seen;
     }
     if (observer.Collected < observer.Requested && observer.Records.Failure().empty()) return;

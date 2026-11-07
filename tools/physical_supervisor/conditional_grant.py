@@ -21,11 +21,34 @@ def digest(value):
     return hashlib.sha256(canonical(value)).hexdigest()
 
 
+def stages(grant):
+    """Dynamic stages exist only behind a sealed REGISTERED_WORKLOAD grant."""
+    if "registered_workload" not in grant:
+        return STAGES
+    from .registered import PROFILE, SCHEMA, PURPOSES
+    binding = grant["registered_workload"]
+    require(set(binding) == {"profile", "registration"} and binding["profile"] == PROFILE,
+            "Invalid registered grant profile")
+    verify_pin(binding["registration"])
+    document = read_json(binding["registration"]["path"])
+    require(document["schema"] == SCHEMA and document["profile"] == PROFILE and
+            document["scope"] == "PARTIAL_COLLECTION_ONLY" and document["purpose"] in PURPOSES,
+            "Grant is not a registered partial collection")
+    names = [row["name"] for row in document["captures"]]
+    require(names and len(names) == len(set(names)) and names == grant["tests"],
+            "Grant stage order/count differs from registration")
+    return names
+
+
 def check_budget(grant, charges, test, packet_sha256, *, reviewed_retry=False):
     require(grant["schema"] == "sdvk009-conditional-renderer-grant/v1", "Unsupported conditional grant")
     cap, retries = grant["max_renderer_launches"], grant["max_retries_per_test"]
-    require(type(cap) is int and 0 < cap <= 24 and type(retries) is int and 0 <= retries <= 3,
-            "Invalid or expanded user budget")
+    if "registered_workload" in grant:
+        require(type(cap) is int and cap == len(stages(grant)) and type(retries) is int and retries == 0,
+                "Registered creation budget must equal its schedule with zero retries")
+    else:
+        require(type(cap) is int and 0 < cap <= 24 and type(retries) is int and 0 <= retries <= 3,
+                "Invalid or expanded user budget")
     require(grant["user_instruction_verbatim"].strip() and grant["user_addendum_verbatim"].strip(),
             "Actual conditional instruction and retry addendum are required")
     require(isinstance(grant["tests"], list) and grant["tests"] and
@@ -80,7 +103,13 @@ def authority(packet):
     verify_pin(row)
     require(row in packet["files"], "Conditional grant is absent from packet custody")
     grant = read_json(row["path"])
-    require(grant["tests"] == STAGES, "Conditional execution supports only the fixed diagnostic tests")
+    if packet.get("kind", "diagnostic") == "registered-workload":
+        from .registered import PROFILE
+        require(grant.get("registered_workload") == {"profile": PROFILE, "registration": packet["workload_registration"]}
+                and stages(grant) == [s["name"] for s in packet["stages"]], "Registered grant binds a different workload")
+    else:
+        require("registered_workload" not in grant and grant["tests"] == STAGES,
+                "Conditional diagnostic execution supports only the fixed tests")
     require(re.fullmatch(r"[A-Za-z0-9_-]{8,100}", grant["grant_id"]) and
             isinstance(grant["owner"], str) and grant["owner"].strip(), "Missing grant/owner identity")
     root = Path(grant["ledger_root"])
@@ -89,7 +118,7 @@ def authority(packet):
         if part.exists():
             require(not linklike(part), "Budget ledger path is a link/junction")
     require(read_json(root / "grant.json") == grant, "Ledger belongs to a different grant")
-    check_budget(grant, [], STAGES[0], "0" * 64)
+    check_budget(grant, [], stages(grant)[0], "0" * 64)
     future(grant["expires_utc"])
     return grant
 
@@ -193,8 +222,9 @@ class Ledger:
         session = self.session(packet_sha)
         require(session["stop_root"] == stop_root, "Budget session STOP root changed")
         stage_charges = [r for r in self.charges() if r["packet_sha256"] == packet_sha]
-        require([r["test"] for r in stage_charges] == STAGES[:len(stage_charges)] and
-                len(stage_charges) < len(STAGES) and test == STAGES[len(stage_charges)], "Budget stage order/replay")
+        ordered = stages(self.grant)
+        require([r["test"] for r in stage_charges] == ordered[:len(stage_charges)] and
+                len(stage_charges) < len(ordered) and test == ordered[len(stage_charges)], "Budget stage order/replay")
         # Earlier stages must pass their independent observer and late-event
         # fence before another process can even be charged.
         for charge in stage_charges:
@@ -222,9 +252,9 @@ class Ledger:
         require(result["status"] == status, "Budget outcome differs from retained result")
         if status == "COLLECTED_PENDING_ACCEPTANCE":
             charges = [r for r in self.charges() if r["packet_sha256"] == packet_sha]
-            require([r["test"] for r in charges] == STAGES and all(any(
+            require([r["test"] for r in charges] == stages(self.grant) and all(any(
                 r["kind"] == "stage-complete" and r["value"]["charge_sha256"] == digest(charge)
-                for r in self.rows) for charge in charges), "Success requires all three charged, fenced stages")
+                for r in self.rows) for charge in charges), "Success requires every registered charged, fenced stage")
         self.append("finish", {"packet_sha256": packet_sha, "status": status, "result": result_pin})
 
 
@@ -232,9 +262,10 @@ def validate_conditional_review(packet, approval, packet_sha):
     require(approval["schema"] == "physical-supervisor/conditional-approval-v2", "Wrong conditional approval")
     require(approval["packet_sha256"] == packet_sha and approval["experiment_id"] == packet["experiment_id"],
             "Conditional approval belongs to another experiment")
-    require(packet["kind"] == "diagnostic" and packet["automatic_retries"] == 0 and
-            [s["name"] for s in packet["stages"]] == STAGES, "Conditional workload expansion")
+    require(packet["kind"] in ("diagnostic", "registered-workload") and packet["automatic_retries"] == 0,
+            "Conditional workload expansion")
     grant = authority(packet)
+    require([s["name"] for s in packet["stages"]] == stages(grant), "Conditional stage order/count differs")
     review = approval["plan_review"]
     require(review["schema"] == "sdvk009-conditional-plan-review/v2" and
             review["grant_sha256"] == digest(grant) and review["packet_sha256"] == packet_sha,
