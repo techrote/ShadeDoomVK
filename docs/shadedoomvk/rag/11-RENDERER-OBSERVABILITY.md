@@ -271,3 +271,19 @@ sector fields stay outside the frozen PF-009 snapshot. The native sunlight oracl
 state to the exact paired probe allocation and preregistered image ROIs. The combined driver
 `tools/renderer_oracle/sdvk010_acceptance.py` runs two fresh captures per scene with captured-record
 falsification and exact repeat comparisons, fail-stop on every dependency, in normal software CI.
+
+## Consolidated evidence admission corrections
+
+The [November tooling integration](../BACKLOG-INTEGRATION-20261107.md) preserves
+the existing producer and qualification boundaries. `benchmark.summarize`
+requires a complete successful timing interval before descriptive statistics;
+`adapters.adapt` requires producer collection shapes before channel-presence
+indexing; `images.compare_rgb` requires bounded integer dimensions. These checks
+supplement, rather than replace, complete `run.validate_run` admission.
+
+`native_ci.device_evidence` compares the full and summary driver/API identities,
+including dotted/packed Vulkan version consistency. `sdvk010_sun_occlusion`
+joins actor probe and packed sunlight source TIDs at the existing emitted draw.
+JSON encoding completes before `common.write_json` reserves a fresh receipt.
+No producer field, native workload, image tolerance or physical acceptance rule
+changes as a result.

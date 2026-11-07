@@ -35,7 +35,7 @@ def emitted_rows():
                 "published_irradiance": 1, "published_prefilter": 1,
                 "resource": {"available": True, "index": 259, "generation": 1, "epoch": 3, "span": 2},
                 "actor_selection": {"available": True, "selected": True, "policy": "spatial-nearest",
-                    "authored_index": 0, "actor_position": [xy[0], xy[1], 32],
+                    "authored_index": 0, "actor_tid": tid, "actor_position": [xy[0], xy[1], 32],
                     "source_portal_group": 0, "render_portal_group": 0},
                 "actor_sunlight": {
                     "available": True, "contract": "sdvk-010-actor-sun-world-v1",
@@ -128,6 +128,8 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
             (4, ["data", "resource", "span"], 1),
             (4, ["data", "runtime_irradiance_index"], 260),
             (4, ["data", "actor_selection", "policy"], "sector-target"),
+            (4, ["data", "actor_selection", "actor_tid"], 2020),
+            (4, ["data", "actor_selection", "actor_tid"], None),
             (2, ["data", "mode"], "disabled"),
             (0, ["data", "sun", "intensity"], 0),
             (0, ["data", "sun", "direction"], [0, 0, 1]),
@@ -147,6 +149,23 @@ class SDVK010SunOcclusionTests(unittest.TestCase):
             bad.pop(removed)
             with self.subTest(missing=removed), self.assertRaises(EvidenceError):
                 sun.validate_emitted_frame(bad, SPEC)
+
+    def test_actor_ids_cannot_be_swapped_between_probe_and_packed_sun(self):
+        records = emitted_rows()
+        self.assertEqual(sun.validate_emitted_frame(records, SPEC)["status"], "PASS")
+        # Preserve both sets of internally valid actor IDs while exchanging
+        # ownership between the independent probe and sunlight emitters.
+        swapped = copy.deepcopy(records)
+        for actor in swapped[-2:]:
+            selection = actor["data"]["actor_selection"]
+            selection["actor_tid"] = (SPEC["occluded_tid"] if selection["actor_tid"] == SPEC["sunlit_tid"]
+                                      else SPEC["sunlit_tid"])
+        with self.assertRaisesRegex(EvidenceError, "different source actors"):
+            sun.validate_emitted_frame(swapped, SPEC)
+        missing = copy.deepcopy(records)
+        del missing[-1]["data"]["actor_selection"]["actor_tid"]
+        with self.assertRaisesRegex(EvidenceError, "different source actors"):
+            sun.validate_emitted_frame(missing, SPEC)
 
     def test_projected_native_image_order_and_integrity_negative_controls(self):
         self.assertEqual(sun.validate_projected_image((640,480), pbr_image(),SPEC)["status"], "PASS")

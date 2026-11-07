@@ -58,6 +58,10 @@ def validate_policy(policy):
 
 def compare_rgb(left, right, extent, policy):
     validate_policy(policy)
+    require(isinstance(extent, (tuple, list)) and len(extent) == 2
+            and all(type(dimension) is int and 0 < dimension <= limit
+                    for dimension, limit in zip(extent, (1920, 1080))),
+            "Invalid RGB extent; width/height must be positive bounded integers")
     require(len(left) == len(right) == extent[0] * extent[1] * 3 and len(left) > 0, "RGB extents differ")
     maximum = total = changed = 0
     for at in range(0, len(left), 3):
