@@ -139,6 +139,19 @@ class EngineIntegrationTests(unittest.TestCase):
         outcome = getattr(self, "_outcome", None)
         result = getattr(outcome, "result", None)
         failed = result is not None and any(test is self for test, _ in (*result.failures, *result.errors))
+        if failed:
+            # A durable latch can hide the original collector/observer fault in
+            # execute()'s returned error. Preserve its bounded causes in the CI
+            # log as well as the opt-in complete synthetic fixture artifact.
+            causes = {}
+            paths = [*sorted((self.root / "stop").glob("STOP-*.json")),
+                     *sorted((self.root / "control").glob("*/stage-failed.json"))]
+            for path in paths[:12]:
+                try:
+                    causes[str(path.relative_to(self.root))] = read_json(path)
+                except (OSError, ValueError) as error:
+                    causes[str(path.relative_to(self.root))] = {"unreadable": str(error)}
+            print("Unexpected native CPU fixture causes: " + json.dumps(causes, sort_keys=True), flush=True)
         if evidence_root and failed:
             # Only explicitly synthetic CPU fixtures live in this directory.
             # Copy before TemporaryDirectory cleanup; keep failed receipts,
