@@ -28,6 +28,9 @@ class HeartbeatPublicationTests(unittest.TestCase):
     def guard(self, directory):
         from .collector import ParentGuard
         control=Path(directory);control.mkdir()
+        # execute() passes canonical control paths. Windows TEMP can contain an
+        # 8.3 parent spelling while pin() records the resolved long pathname.
+        control=control.resolve(strict=True)
         packet={"packet_sha256":"a"*64,"runtime_roots":[],"integrity_policy":POLICY}
         stage={"name":"cpu"};owner={"pid":1,"creation_ticks":2}
         proof={"schema":"physical-supervisor/integrity-generation-v1","packet_sha256":packet["packet_sha256"],
@@ -89,6 +92,24 @@ class HeartbeatPublicationTests(unittest.TestCase):
                 durable=flush.call_count;self.assertGreater(durable,ordinary)
                 Journal(root/"journal").append("cpu-control",{"complete":True})
                 self.assertGreater(flush.call_count,durable)
+
+    def test_equivalent_fixture_spelling_keeps_wrong_parent_and_owner_rejected(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            (root/"spelling").mkdir()
+            guard,path,value=self.guard(root/"spelling"/".."/"control")
+            self.assertEqual(guard.control,path.parent.resolve(strict=True))
+            with patch("time.monotonic",return_value=100.):
+                publish_heartbeat(path,value);guard.check()
+                other=root/"other";other.mkdir()
+                proof=read_json(value["integrity_generation"]["path"])
+                exclusive(other/"integrity-000000.json",proof)
+                changed={**value,"integrity_generation":pin(other/"integrity-000000.json")}
+                publish_heartbeat(path.with_name("heartbeat-000001.json"),changed)
+                with self.assertRaisesRegex(Stop,"integrity proof path differs"):guard.check()
+                changed={**value,"supervisor":{**value["supervisor"],"creation_ticks":3}}
+                publish_heartbeat(path.with_name("heartbeat-000002.json"),changed)
+                with self.assertRaisesRegex(Stop,"heartbeat identity changed"):guard.check()
 
 
 class ProofTests(unittest.TestCase):
@@ -662,7 +683,9 @@ class LivenessIntegrationTests(unittest.TestCase):
         self.assertEqual(result["status"],"COLLECTED_PENDING_ACCEPTANCE",result)
         actual=list((self.root/"control").glob("*/heartbeat-*.json"))
         self.assertGreater(len(actual),3)
-        self.assertEqual({Path(call.args[0]) for call in published.call_args_list},set(actual))
+        self.assertEqual({Path(call.args[0]).resolve(strict=True) for call in published.call_args_list},
+                         {path.resolve(strict=True) for path in actual})
+        self.assertEqual(len(published.call_args_list),len(actual))
         rows=self.heartbeats()
         self.assertLess(max(b["monotonic"]-a["monotonic"] for a,b in zip(rows,rows[1:])),2)
 
