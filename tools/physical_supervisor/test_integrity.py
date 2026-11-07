@@ -278,6 +278,68 @@ class NativeReceiptReadTests(unittest.TestCase):
 class NativeExitRaceTests(cpu_fixture.TempCase):
     spawn=cpu_fixture.NativeWindowsTests.spawn
 
+    def observed_module_control(self,exit_code=0):
+        from .supervisor import ModuleWatch
+        ready=self.root/"ready";release=self.root/"release"
+        script=("from pathlib import Path;import time;Path("+repr(str(ready))+ ").write_text('CPU ready')\n"
+                "while not Path("+repr(str(release))+").exists():time.sleep(.001)\nraise SystemExit("+str(exit_code)+")")
+        child,identity=self.spawn(script);child.resume(identity)
+        until=time.monotonic()+5
+        while not ready.exists() and time.monotonic()<until:time.sleep(.005)
+        self.assertTrue(ready.exists())
+        paths=child.modules(identity)
+        packet={"module_policy":{"required_paths":[identity["path"]],"optional_paths":[]},"files":[pin(path) for path in paths]}
+        health=type("Health",(),{"fail":lambda self,error:None})()
+        watcher=ModuleWatch(packet,child,identity,Journal(self.root/"journal"),health)
+        self.addCleanup(lambda:[lock.close() for lock in watcher.locks])
+        self.assertEqual(watcher.sample()["state"],"OBSERVED")
+        return child,watcher,release
+
+    def test_exact_module299_after_prior_coverage_confirms_same_native_exit(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def teardown(*args):release.write_text("exit");windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=teardown) as enum,patch.object(windows,"terminate") as kill:
+            value=watcher.sample();enum.assert_called_once();kill.assert_not_called()
+        self.assertEqual(value["state"],"EXITED");self.assertTrue(value["prior_required_module_coverage"])
+        row=value["exit_observations"][0]
+        self.assertEqual(row["original_error_evidence"]["operation"],"EnumProcessModulesEx")
+        self.assertEqual(row["original_error_evidence"]["winerror"],299)
+        self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],0)
+        self.assertIn(row["requested_wait_milliseconds"],(0,50));self.assertEqual(child.poll(),0)
+
+    def test_exact_module299_on_live_process_still_stops_without_retry(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        def denied(*args):windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=denied) as enum,patch.object(windows,"terminate") as kill:
+            with self.assertRaises(Stop) as caught:watcher.sample()
+            enum.assert_called_once();kill.assert_not_called()
+        row=caught.exception.evidence["exit_observation"]
+        self.assertEqual(row["native_wait_result"],258);self.assertEqual(row["requested_wait_milliseconds"],50)
+        self.assertEqual(row["classification"],"NOT_CLASSIFIED_EXITED");self.assertIsNone(child.poll())
+        release.write_text("exit")
+
+    def test_module299_without_complete_required_coverage_cannot_settle(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control()
+        missing=self.root/"unobserved-required.dll";missing.write_bytes(b"CPU placeholder, never loaded")
+        watcher.policy["required_paths"].append(str(missing))
+        def denied(*args):windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=denied):
+            with self.assertRaises(Stop) as caught:watcher.sample()
+        self.assertEqual(caught.exception.evidence["exit_observation"]["requested_wait_milliseconds"],0)
+        self.assertIsNone(child.poll());release.write_text("exit")
+
+    def test_module299_confirmed_exit_retains_nonzero_native_code(self):
+        from . import windows
+        child,watcher,release=self.observed_module_control(exit_code=17)
+        def teardown(*args):release.write_text("exit");windows.c.set_last_error(299);return False
+        with patch.object(windows,"enum_modules",side_effect=teardown):value=watcher.sample()
+        row=value["exit_observations"][0]
+        self.assertEqual(row["post_wait_exit_code"] if "post_wait_exit_code" in row else row["pre_wait_exit_code"],17)
+        self.assertEqual(child.poll(),17)  # Collector admission independently requires native return code zero.
+
     @staticmethod
     def image_error(code=5,operation="QueryFullProcessImageNameW"):
         error=Stop("Synthetic native image-query failure")

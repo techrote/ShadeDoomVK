@@ -394,11 +394,12 @@ class Process:
             except queue.Empty:return result
 
     def exited_owned(self, expected, *, error=None, operation="already-exited", settle_deadline=None,
-                     authorized_by=None, cleanup=False):
+                     authorized_by=None, cleanup=False, module_teardown=False):
         """One bounded observation per reviewed failed-authentication call.
 
-        Only actual image-query ERROR_ACCESS_DENIED 5 can receive a 50ms settle
-        observation, and only after an exact prior full attestation of this same
+        Actual image-query ERROR_ACCESS_DENIED 5, or the separately admitted
+        module-reader ERROR_PARTIAL_COPY 299 after prior required module coverage,
+        can receive one 50 ms settle observation after full attestation of this same
         object. It never retries a path query, masks known identity mismatches,
         extends caller deadlines or authorizes termination of a live object.
         """
@@ -427,6 +428,9 @@ class Process:
             return value
         native=(isinstance(original,dict) and original.get("operation")=="QueryFullProcessImageNameW" and
                 original.get("winerror")==5)
+        if module_teardown is True and operation=="actual-module-authentication":
+            native=native or (isinstance(original,dict) and original.get("operation")=="EnumProcessModulesEx" and
+                original.get("winerror")==299 and original.get("pid")==expected["pid"])
         owner=self if authorized_by is None else authorized_by
         try:
             before=self.poll();row["pre_wait_exit_code"]=before
@@ -476,7 +480,12 @@ class Process:
         self.verify(expected)
         handles=(w.HMODULE*4096)()
         needed=w.DWORD()
-        checked(enum_modules(self.handle,handles,c.sizeof(handles),c.byref(needed),3),"Enumerate actual owned target modules")
+        if not enum_modules(self.handle,handles,c.sizeof(handles),c.byref(needed),3):
+            code=c.get_last_error()
+            error=Stop("Enumerate actual owned target modules: "+str(c.WinError(code)))
+            error.evidence={"operation":"EnumProcessModulesEx","winerror":code,"pid":self.pid,
+                            "observed_monotonic":time.monotonic()}
+            raise error
         require(needed.value <= c.sizeof(handles) and needed.value % c.sizeof(w.HMODULE)==0,"Module inventory truncated/invalid")
         paths=[]
         for handle in handles[:needed.value//c.sizeof(w.HMODULE)]:

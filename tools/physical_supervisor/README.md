@@ -334,3 +334,14 @@ use the same benign target basename and deliberately reject one another as
 unowned candidates. Optional `SDVK_CPU_FAILURE_EVIDENCE_ROOT` retains unexpected
 failing integration fixtures before temporary cleanup. Candidate STOP receipts
 retain PID, parent PID and name as observations, never executable attribution.
+
+Module enumeration can race DLL teardown. A prospective packet may additionally
+declare the exact `EnumProcessModulesEx`/`ERROR_PARTIAL_COPY` 299 exit discriminator.
+It requires an earlier successful sample covering every nonempty required module
+set, the same fully attested retained native object, and positive exit confirmation
+within the existing 50 ms bound. It never retries enumeration or forgives a live,
+unidentified, incompletely observed or hash-mismatched process. Raw native error,
+PID/creation identity, wait result and exit code remain in the exit observation;
+the collector still requires exit code zero. Historical failed packets stay failed.
+Microsoft documents [module-list changes during enumeration](https://learn.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-enumprocessmodulesex)
+as a possible failure cause; that alone cannot establish normal exit.

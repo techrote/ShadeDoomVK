@@ -340,3 +340,12 @@ an orphan and contaminate later CPU tests. Native freshness, terminal namespace
 guards, STOP, gate and heartbeat limits remain strict. Prospective packets must
 explicitly declare the separate-resume policy; existing source/STOP pins do not
 advance automatically.
+
+`EnumProcessModulesEx` can fail while DLLs unload. Do not blindly ignore error299
+or turn arbitrary module/hash failures into exit success. The current prospective
+module-reader discriminator requires prior complete nonempty required-module
+observation, exact native operation/error, full retained PID/creation/path/hash
+attestation and positive same-object exit within the existing50ms bound. It retains
+the original error and exit code; the collector independently rejects nonzero exit.
+The original stopped physical compositing attempt remains failed with its original
+exit code unknown.
