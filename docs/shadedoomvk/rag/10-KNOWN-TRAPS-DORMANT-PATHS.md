@@ -320,3 +320,12 @@ retains that distinction, charges durably before native renderer creation and
 shares total/per-test accounting across fresh successor packets. Failed creates
 consume the allowance; unresolved or unassessed predecessors block repeats.
 No automatic retry, STOP reset, campaign or physical acceptance follows.
+
+An IWAD-selected support WAD can be present in the closed runtime inventory yet
+missing from the capture oracle's expected loaded set. Do not globally admit
+runtime WADs or learn an allow-list from a failed stdout log. The prospective
+`iwad_support` declaration binds exact IWAD and support-WAD bytes, is checked
+before launch, and must agree with capture/request/profile/independent validation.
+A corrected oracle has its own clean commit/tree and checkout; updating it never
+advances the frozen renderer or its build receipt. See `run.support_package_pins`,
+`run.validate_support_request` and the Windows supervisor source checks.

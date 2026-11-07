@@ -316,6 +316,8 @@ def validate_stage(packet, stage, control, target_identity):
     run = frozen_oracle(packet["oracle_source_root"])
     out = Path(stage["capture"]["out"])
     result = run.validate_run(out)
+    require(read_json(out / "request.json").get("iwad_support") == packet.get("iwad_support"),
+            "Independent support declaration differs from packet")
     for name in ("target-resumed.json", "target-exit.json"):
         receipt = read_json(control / name)
         require(receipt["identity"] == target_identity, "Target lifecycle identity changed")
