@@ -753,6 +753,7 @@ void Emit(const char* kind, const std::string& object, bool deduplicate)
 }
 
 bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
+bool GameplaySmokeEnabled() { return Enabled() && Get().GameplayInput; }
 
 bool SpecialSurfaceFrameSelected()
 {

@@ -44,6 +44,11 @@ def observer_argv(run, native, out, capture):
         if native.get(field):
             require(capture["mode"] == "state", "Lifecycle driver is state-only")
             argv.append(flag)
+    if native.get("generator") == "gameplay_smoke":
+        require(capture["mode"] == "state" and not capture["gpu"] and
+                capture["frames"] == 128 and capture["warmup"] == 32,
+                "Gameplay input driver needs its exact correctness-only frame budget")
+        argv.append("-sdvkgameplaysmoke")
     if capture.get("collision_snapshot", False):
         require(capture["mode"] == "state" and not capture["gpu"], "CPU collision snapshot is state-only")
         argv += ["-sdvkcollisionsnapshot", run._console_path(out / "collision")]
@@ -58,6 +63,18 @@ def oracle_stage(packet, run, spec, base, *, recipe=None):
     if "recipe_sha256" in spec:
         require(run.sha256(run.canonical(recipe)) == spec["recipe_sha256"], "Registered recipe differs")
     native = recipe["native"]
+    gameplay_outputs = []
+    if native.get("generator") == "gameplay_smoke":
+        from .registered import KIND, definition
+        from tools.renderer_oracle.gameplay_smoke import validate_recipe, checkpoint_names
+        validate_recipe(recipe)
+        require(packet.get("kind") == KIND, "Gameplay smoke requires the registered profile")
+        registration = definition(packet)
+        require(registration["purpose"] == "sdvk011-viewmodel" and len(registration["captures"]) == 1
+                and spec["mode"] == "state" and spec["frames"] == 128 and spec["warmup"] == 32
+                and spec["extent"] == [640, 480] and spec.get("compare_with") is None,
+                "Gameplay smoke requires one exact registered viewmodel capture without dynamic comparison")
+        gameplay_outputs = sorted(checkpoint_names())
     out = base / name
     substitutions = {"exe": packet["renderer"], "iwad": str(out / "input" / Path(packet["iwad"]).name),
                      "pk3": str(out / "input/scene.pk3"), "config": str(out / "fixture.ini"),
@@ -89,6 +106,7 @@ def oracle_stage(packet, run, spec, base, *, recipe=None):
         stage["compare_with"] = str(base / spec["compare_with"])
     if capture.get("collision_snapshot", False):
         stage["required_outputs"].append("collision-1.bin")
+    stage["required_outputs"] += gameplay_outputs
     return stage
 
 

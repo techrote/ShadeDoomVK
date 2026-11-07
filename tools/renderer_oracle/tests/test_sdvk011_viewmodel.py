@@ -1,5 +1,6 @@
 """CPU controls for live-player viewmodel recipes and emitted uniform policy."""
 import copy
+import json
 from pathlib import Path
 import sys
 import unittest
@@ -37,6 +38,29 @@ def model_draw():
 
 
 class ViewmodelTests(unittest.TestCase):
+    def test_genuine_captured_material_rows_match_exact_producer_semantics(self):
+        from tools.renderer_oracle.run import _material_semantics_match
+        from tools.renderer_oracle.gameplay_smoke import PBR_SEMANTICS
+        fixture = json.loads(Path(__file__).with_name("fixtures").joinpath("viewmodel-material-capture.json").read_text())
+        captured = {row["data"]["name"]: row["data"] for row in fixture["records"]}
+        legacy = ["albedo", "normal", "legacy-specular"]
+        self.assertTrue(_material_semantics_match(captured["SDVUA0"], legacy))
+        self.assertFalse(_material_semantics_match(captured["SDVUA0"], ["albedo", "normal", "specular"]))
+        for name in ("SDVW", "SDVOA0"):
+            self.assertTrue(_material_semantics_match(captured[name], PBR_SEMANTICS))
+            self.assertFalse(_material_semantics_match(captured[name], ["albedo", "normal", "roughness", "metallic", "ambient-occlusion"]))
+        scenes = [s for s in prepare.load_catalog()["scenes"] if s["native"]["generator"] == "viewmodel"]
+        self.assertEqual(len(scenes), 10)
+        for scene in scenes:
+            spec = scene["native"]["state_assertions"]
+            material = spec["viewmodel"]["material"]
+            # FMaterial selects warped shader2 before adding normal/PBR layers;
+            # its explicit fallback must qualify the albedo actually bound.
+            expected = (["albedo"] if spec["viewmodel"]["shader"] == 2 else
+                        PBR_SEMANTICS if spec["viewmodel"]["shader"] == 4 else legacy)
+            self.assertEqual(spec["materials"], [material, "SDVOA0"])
+            self.assertEqual(spec["material_semantics"], {material: expected})
+
     def test_model_world_normal_matrix_and_derivative_policy(self):
         target.validate_draw(model_draw())
         for key, bad in (("explicit_basis", True), ("normal_model_matrix", [0]*16),

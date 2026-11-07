@@ -167,8 +167,10 @@ def validate_records(raw, native):
             "Ordinary weapon attack did not consume actual ammo in both maps")
     require(samples[8]["ammo"] == samples[80]["ammo"] == samples[120]["ammo"],
             "Ordinary new-map inventory was not rebuilt")
-    owners = [resources[frame]["levelmesh"]["owner"] for frame in (8, 80, 120)]
-    require(all(type(owner) is int and owner > 0 for owner in owners) and len(set(owners)) == 3,
+    owners = [resources[frame].get("levelmesh", {}).get("owner") for frame in (8, 80, 120)]
+    require(all(type(owner) is int and owner > 0 for owner in owners),
+            "Gameplay resource producer lacks actual LevelMesh ownership")
+    require(len(set(owners)) == 3,
             "Ordinary map/resource transitions reused an old LevelMesh owner")
     require(all(any(value["extra_light"] > 0 and value["map"] == map_name for value in gameplay.values()) for map_name in (MAP_A, MAP_B))
             and all(samples[frame]["extra_light"] == 0 for frame in CHECKPOINTS),

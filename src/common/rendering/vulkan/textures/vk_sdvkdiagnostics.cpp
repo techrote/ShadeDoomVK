@@ -648,9 +648,9 @@ void VulkanResources(VulkanRenderDevice* device)
             meshState.Int("epoch", level.levelMesh->GetResourceEpoch().Generation)
                 .Int("geometry", epochs.Geometry).Int("surface", epochs.Surface).Int("lights", epochs.Lights).Int("query", epochs.Query)
                 .Int("portals", epochs.Portals).Int("lightmap_probe", epochs.LightmapProbe).Int("resets", epochs.Resets);
-            // Process-local construction IDs are the SDVK-161 lifetime witness.
+            // Process-local construction IDs witness the explicit lifecycle recipes.
             // Ordinary corpus records retain their existing comparison shape.
-            if (SpecialSurfaceEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner());
+            if (SpecialSurfaceEnabled() || GameplaySmokeEnabled()) meshState.Int("owner", level.levelMesh->GetResourceOwner());
             result.Raw("levelmesh", meshState.Json())
                 .Raw("lightmap_state", LightmapLifecycle(level.levelMesh, textures->Lightmaps.size(),
                     device->GetFrameTileUpdates(), device->GetFrameTileCompletions()));

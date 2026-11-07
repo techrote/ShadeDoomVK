@@ -18415,7 +18415,7 @@
             "SDVUA0": [
               "albedo",
               "normal",
-              "specular"
+              "legacy-specular"
             ]
           },
           "viewmodel": {
@@ -18723,7 +18723,7 @@
             "SDVUA0": [
               "albedo",
               "normal",
-              "specular"
+              "legacy-specular"
             ]
           },
           "viewmodel": {
@@ -19031,7 +19031,7 @@
             "SDVUA0": [
               "albedo",
               "normal",
-              "specular"
+              "legacy-specular"
             ]
           },
           "viewmodel": {
@@ -19651,7 +19651,7 @@
             "SDVUA0": [
               "albedo",
               "normal",
-              "specular"
+              "legacy-specular"
             ]
           },
           "viewmodel": {
@@ -20848,11 +20848,11 @@
         },
         "state_assertions": {
           "materials": [
-            "SDVUA0",
+            "SDVW",
             "SDVOA0"
           ],
           "material_semantics": {
-            "SDVUA0": [
+            "SDVW": [
               "albedo",
               "normal",
               "metallic",
@@ -21165,16 +21165,14 @@
         },
         "state_assertions": {
           "materials": [
-            "SDVUA0",
+            "SDVW",
             "SDVOA0"
           ],
           "material_semantics": {
-            "SDVUA0": [
+            "SDVW": [
               "albedo",
               "normal",
-              "metallic",
-              "roughness",
-              "ambient-occlusion"
+              "legacy-specular"
             ]
           },
           "viewmodel": {
@@ -21482,11 +21480,11 @@
         },
         "state_assertions": {
           "materials": [
-            "SDVUA0",
+            "SDVW",
             "SDVOA0"
           ],
           "material_semantics": {
-            "SDVUA0": [
+            "SDVW": [
               "albedo",
               "normal",
               "metallic",
@@ -21799,16 +21797,12 @@
         },
         "state_assertions": {
           "materials": [
-            "SDVUA0",
+            "SDVW",
             "SDVOA0"
           ],
           "material_semantics": {
-            "SDVUA0": [
-              "albedo",
-              "normal",
-              "metallic",
-              "roughness",
-              "ambient-occlusion"
+            "SDVW": [
+              "albedo"
             ]
           },
           "viewmodel": {
@@ -22077,9 +22071,9 @@
         "required_native_evidence": [
           "native map/content compilation",
           "exact executable/IWAD/settings and actually loaded package identities",
-          "actual map and camera match recipe",
+          "actual entry/rebuilt map start camera matches recipe; intervening camera/player snapshots follow ordinary input",
           "all required state channels observed or explicit unavailable status",
-          "two independent clean-state captures and registered image/state comparison"
+          "one bounded ordinary-tic capture joins actual movement, turning, ammo consumption, muzzle draws and fresh resource owners with nine pinned completed-view images; no exact dynamic repeat comparison"
         ],
         "screenshot": {
           "filename": "{prefix}.png",
@@ -22165,7 +22159,9 @@
       },
       "negative_fixtures": [
         "tools/renderer_oracle/tests/test_sdvk011_viewmodel.py",
-        "tools/renderer_oracle/tests/gameplay_input_fixture.cpp"
+        "tools/renderer_oracle/tests/gameplay_input_fixture.cpp",
+        "tools/renderer_oracle/tests/test_gameplay_smoke.py",
+        "tools/renderer_oracle/tests/gameplay_resource_fixture.cpp"
       ],
       "required_state_channels": [
         "context",
@@ -22185,6 +22181,9 @@
         "wadsrc/static/shaders/scene/lightmodel_pbr.glsl",
         "wadsrc/static/shaders/scene/lightmodel_specular.glsl",
         "wadsrc/static/zscript/actors/player/player.zs",
+        "tools/renderer_oracle/gameplay_smoke.py",
+        "tools/renderer_oracle/tests/test_gameplay_smoke.py",
+        "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp",
         "tools/renderer_oracle/gameplay_smoke.py",
         "tools/renderer_oracle/tests/test_gameplay_smoke.py",
         "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp"

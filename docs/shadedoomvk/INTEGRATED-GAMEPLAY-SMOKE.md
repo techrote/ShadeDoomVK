@@ -63,9 +63,13 @@ python tools/renderer_oracle/run.py validate build/gameplay-run
 First qualification belongs on the hosted isolated software-Vulkan lane. Its
 full plan now has 56 processes: 40 static state captures, 15 descriptive timing
 processes and this one gameplay capture. The 20 static pair comparisons remain.
-The physical supervisor's existing fixed-three workload does not admit this new
-driver, frame budget or argv; a separate reviewed registration and authorization
-are required before any physical campaign. Historical STOPs remain retained.
+The physical supervisor's fixed-three workload remains unchanged. Its optional
+registered workload profile admits this recipe only as one `sdvk011-viewmodel`
+state process at 640×480 with 32 warmup and 128 retained frames, no GPU timing or
+pair comparison, and all nine required checkpoint images. The actual capture
+argv is rederived before the native gate. A sealed registration, independent
+packet review and explicit authorization are required before physical execution.
+Historical STOPs remain retained.
 
 For ordinary interactive use, load the generated scene PK3 and `+map SDVGPA
 +gl_viewmodel_lighting 2` without observer/input-driver flags or capture script.

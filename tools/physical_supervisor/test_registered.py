@@ -47,7 +47,7 @@ class RegisteredWorkloadTests(fixtures.TempCase):
         captures = []
         for index, scene in enumerate(scenes):
             _, _, recipe = run.prepared_scene(prepared, scene)
-            for attempt in ((1,) if purpose == "sdvk009-fault-discriminator" else (1, 2)):
+            for attempt in ((1,) if purpose == "sdvk009-fault-discriminator" or scene == "gameplay-smoke" else (1, 2)):
                 captures.append({"name": f"scene-{index}-{attempt}", "scene": scene,
                     "recipe_sha256": run.sha256(run.canonical(recipe)), "mode": "state", "frames": 1,
                     "warmup": 240, "extent": [640, 480], "deadline_seconds": 180,
@@ -56,6 +56,8 @@ class RegisteredWorkloadTests(fixtures.TempCase):
                     captures[-1]["collision_snapshot"] = True
                 if purpose == "sdvk014-lifecycle":
                     captures[-1].update(frames=96, warmup=32)
+                if scene == "gameplay-smoke":
+                    captures[-1].update(frames=128, warmup=32)
         document = {"schema": SCHEMA, "profile": PROFILE, "purpose": purpose,
             "scope": "PARTIAL_COLLECTION_ONLY", "renderer_source": seed["source"], "oracle_source": seed["source"],
             "build_receipt": seed["build_receipt"], "renderer": pin(seed["renderer"]), "iwad": pin(iwad),
@@ -148,6 +150,32 @@ class RegisteredWorkloadTests(fixtures.TempCase):
         self.assertIn("-sdvk161surfacedriver", packet["stages"][0]["expected_argv"])
         self.assertEqual(packet["stages"][0]["capture"]["frames"], 96)
         self.assert_real_capture_boundary(packet, packet["stages"][0])
+
+    def test_gameplay_preparer_matches_actual_capture_boundary_and_exact_one_process_policy(self):
+        from .prepare import oracle_stage
+        from tools.renderer_oracle.gameplay_smoke import checkpoint_names
+        packet, _ = self.prepare_actual(("gameplay-smoke",))
+        self.assertEqual(len(packet["stages"]), 1)
+        stage = packet["stages"][0]
+        self.assertEqual(stage["expected_argv"].count("-sdvkgameplaysmoke"), 1)
+        self.assertEqual((stage["capture"]["frames"], stage["capture"]["warmup"]), (128, 32))
+        self.assertTrue(checkpoint_names() <= set(stage["required_outputs"]))
+        self.assertNotIn("compare_with", stage)
+        self.assert_real_capture_boundary(packet, stage)
+        document = definition(packet)
+        run = frozen_oracle(packet["oracle_source_root"])
+        for edit in ({"frames": 127}, {"warmup": 33}, {"mode": "timing"},
+                     {"extent": [320, 240]}, {"compare_with": "unregistered-repeat"}):
+            spec = {**document["captures"][0], **edit}
+            with self.subTest(edit=edit), self.assertRaises(Stop):
+                oracle_stage(packet, run, spec, Path(document["output_root"]))
+        for purpose in ("sdvk014-lifecycle", "sdvk009-fault-discriminator"):
+            changed = copy.deepcopy(packet); amended = copy.deepcopy(document)
+            amended["purpose"] = purpose
+            path = self.root / (purpose+"-gameplay.json")
+            exclusive(path, amended); changed["workload_registration"] = pin(path); changed["files"].append(pin(path))
+            with self.subTest(purpose=purpose), self.assertRaises(Stop):
+                oracle_stage(changed, run, document["captures"][0], Path(document["output_root"]))
 
     def test_wrong_command_order_recipe_output_and_frame_controls_are_rejected(self):
         packet, _ = self.prepare_actual()

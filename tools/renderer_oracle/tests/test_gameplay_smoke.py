@@ -1,5 +1,6 @@
 """CPU-only preparation/admission controls; constructed rows are not play evidence."""
 import copy
+import json
 import math
 from pathlib import Path
 import subprocess
@@ -44,6 +45,38 @@ def constructed_records():
 
 
 class GameplaySmokeTests(unittest.TestCase):
+    def test_actual_resource_producer_emits_lifecycle_owner_for_gameplay_and_preserves_static_shape(self):
+        diagnostics = (ROOT/"src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp").read_text()
+        resources = block((ROOT/"src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp").read_text(),
+                          "void VulkanResources(")
+        with tempfile.TemporaryDirectory(prefix="sdvk-gameplay-resources-") as directory:
+            directory = Path(directory)
+            (directory/"gameplay_resource_flags.inc").write_text('\n'.join(
+                block(diagnostics, signature) for signature in ("bool SpecialSurfaceEnabled()", "bool GameplaySmokeEnabled()")))
+            (directory/"gameplay_resource_mesh.inc").write_text(block(resources, "if (level.levelMesh)"))
+            executable = compile_fixture(Path(__file__).with_name("gameplay_resource_fixture.cpp"),
+                output_dir=directory, includes=[directory, ROOT/"src/rendering/hwrenderer/diagnostics"])
+            def emitted(mode, owner):
+                result = subprocess.run([str(executable), mode, str(owner)], capture_output=True, text=True, timeout=10)
+                self.assertEqual(result.returncode, 0, result.stdout+result.stderr)
+                return json.loads(result.stdout)
+            actual = {owner: emitted("gameplay", owner) for owner in (100, 101, 102)}
+            self.assertEqual(actual[100], emitted("special", 100))
+            for mode in ("ordinary", "disabled"):
+                static = emitted(mode, 100)
+                self.assertNotIn("owner", static["levelmesh"])
+                self.assertEqual(static, {**actual[100], "levelmesh": {
+                    key: value for key, value in actual[100]["levelmesh"].items() if key != "owner"}})
+            raw = constructed_records()
+            for row in raw["records"]:
+                if row["kind"] == "resource":
+                    row["data"] = actual[100 if row["frame"] <= 56 else 101 if row["frame"] <= 96 else 102]
+            self.assertEqual(smoke.validate_records(raw, recipe()["native"])["fresh_levelmesh_owners"], [100, 101, 102])
+            for row in raw["records"]:
+                if row["kind"] == "resource" and row["frame"] == 80: row["data"] = emitted("ordinary", 100)
+            with self.assertRaisesRegex(ValueError, "producer lacks actual LevelMesh ownership"):
+                smoke.validate_records(raw, recipe()["native"])
+
     def test_authored_room_fire_materials_maps_and_ordinary_commands_are_deterministic(self):
         catalog = prepare.load_catalog(); prepare.validate_catalog(catalog)
         scene = recipe()
