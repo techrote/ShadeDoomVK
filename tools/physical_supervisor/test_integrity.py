@@ -185,6 +185,54 @@ class WorkerTests(unittest.TestCase):
         scanner=type("CPUScanner",(),{"check":lambda self,paths:None})()
         return IntegrityWatch(packet,{"name":"cpu","generated_pins":[]},control,{"pid":1,"creation_ticks":2},[],scanner,[],Journal(root/"journal"))
 
+    def test_durable_main_pump_delay_still_rejects_stale_boundary_without_native_creation(self):
+        from .integrity import collector_boundary
+        from .windows import Process
+        for delay in (0, .8):
+            with self.subTest(journal_flush_delay=delay), tempfile.TemporaryDirectory() as directory:
+                worker=self.worker(Path(directory));control=worker.control
+                exclusive(control/"source-preflight.json",{"scope":"constructed CPU boundary only"})
+                # Isolate the actual queue-drain -> durable Journal.append path.
+                # The queued proof is constructed; no audit/process thread runs.
+                worker.thread=SimpleNamespace(is_alive=lambda:True)
+                durable=worker.journal.append;fsync=os.fsync;flushes=[]
+                def append(kind,value):
+                    def delayed(fd):
+                        flushes.append(time.monotonic())
+                        if delay:time.sleep(delay)
+                        return fsync(fd)
+                    with patch("os.fsync",side_effect=delayed):return durable(kind,value)
+                worker.journal.append=append
+                def pump():
+                    request=read_json(control/"integrity-collector-request.json")
+                    value={"schema":"physical-supervisor/integrity-generation-v1",
+                        "packet_sha256":worker.packet["packet_sha256"],"stage":worker.stage["name"],
+                        "supervisor":worker.supervisor,"generation":0,
+                        "started_monotonic":request["requested_monotonic"],"finished_monotonic":time.monotonic(),
+                        "utc":"constructed CPU proof","request":request,"status":"PASS",
+                        "checks":{"closed_roots":0,"log_append_only":"PASS","generated_pins":0},"policy":POLICY}
+                    path=control/"integrity-000000.json";exclusive(path,value);receipt=pin(path)
+                    exclusive(control/"integrity-collector-proof.json",{"receipt":receipt,"request":request})
+                    self.assertLess(time.monotonic()-value["finished_monotonic"],.5)
+                    worker.latest=(value,receipt);worker.messages.put_nowait((value,receipt))
+                    worker.check()
+                    publish_heartbeat(control/"heartbeat-000000.json",{
+                        "packet_sha256":worker.packet["packet_sha256"],"supervisor":worker.supervisor,
+                        "monotonic":time.monotonic(),"utc":"constructed CPU heartbeat","integrity_generation":receipt})
+                with patch.object(Process,"spawn",side_effect=AssertionError("No native CPU target permitted")) as spawn, \
+                     patch("subprocess.Popen",side_effect=AssertionError("No child process permitted")) as popen:
+                    if delay:
+                        with self.assertRaisesRegex(Stop,"Boundary integrity generation missing/stale/reused"):
+                            collector_boundary(worker.packet,worker.stage,control,worker.supervisor,pump)
+                    else:
+                        proof,_=collector_boundary(worker.packet,worker.stage,control,worker.supervisor,pump)
+                        self.assertEqual(proof,worker.latest[0])
+                    spawn.assert_not_called();popen.assert_not_called()
+                self.assertTrue(flushes)
+                self.assertEqual(Journal.audit(worker.journal.root),worker.journal.previous)
+                self.assertTrue((control/"heartbeat-000000.json").exists())
+                self.assertEqual(POLICY["boundary_finish_freshness_seconds"],.5)
+
     def test_queue_overflow_is_terminal_and_retains_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             worker=self.worker(Path(directory));worker.messages=queue.Queue(maxsize=1)
@@ -762,7 +810,12 @@ class LivenessIntegrationTests(unittest.TestCase):
         self.assertFalse((self.root/"control/00-compositing/target-resumed.json").exists())
 
     def test_slow_successful_deep_checks_do_not_suspend_control_heartbeat(self):
-        self.realistic_packet()
+        # Keep this control focused on off-thread deep-audit/heartbeat behavior.
+        # The adjacent realistic_closed_topology test retains three stages,
+        # eight roots and 1,359 pins. Combining both stresses also demanded
+        # unrelated durable-I/O/scheduling progress inside every .5s boundary.
+        self.stages[:]=self.stages[:1]
+        self.assertEqual(len(self.packet["runtime_roots"]),3)
         original=IntegrityWatch.audit
         def slow(instance):
             time.sleep(2.05)
@@ -772,6 +825,9 @@ class LivenessIntegrationTests(unittest.TestCase):
                 "tools.physical_supervisor.supervisor.publish_heartbeat",wraps=publish_heartbeat) as published:
             result=self.run_engine()
         self.assertEqual(result["status"],"COLLECTED_PENDING_ACCEPTANCE",result)
+        self.assertEqual(self.spawn_count(),1)
+        self.assertTrue((self.root/"control/00-compositing/target-resumed.json").exists())
+        self.assertEqual(read_json(self.root/"control/00-compositing/target-exit.json")["returncode"],0)
         actual=list((self.root/"control").glob("*/heartbeat-*.json"))
         self.assertGreater(len(actual),3)
         self.assertEqual({Path(call.args[0]).resolve(strict=True) for call in published.call_args_list},
