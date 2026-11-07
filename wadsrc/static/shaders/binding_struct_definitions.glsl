@@ -126,6 +126,8 @@ struct SurfaceUniforms
 	vec4 uSpriteNormal;
 	vec4 uSpriteReliefParams;
 	vec4 uSpriteReliefBounds;
+	vec4 uViewmodelSample;
+	vec4 uViewmodelMode;
 };
 
 struct SurfaceLightUniforms

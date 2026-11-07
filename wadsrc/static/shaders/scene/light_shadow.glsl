@@ -114,7 +114,7 @@ float sampleShadowmapPCF(vec3 planePoint, float v)
 
 float shadowmapAttenuation(vec3 lightpos, float shadowIndex)
 {
-	vec3 planePoint = pixelpos.xyz - lightpos.xyz;
+	vec3 planePoint = SDVK_LIGHTING_POSITION - lightpos.xyz;
 	planePoint += 0.01; // nudge light position slightly as Doom maps tend to have their lights perfectly aligned with planes
 
 	if (dot(planePoint.xz, planePoint.xz) < 1.0)

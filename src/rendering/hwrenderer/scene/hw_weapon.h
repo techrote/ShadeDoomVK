@@ -1,6 +1,7 @@
 #pragma once
 
 #include "vectors.h"
+#include "hw_sprite_tangent.h"
 
 class DPSprite;
 class player_t;
@@ -58,6 +59,10 @@ struct HUDSprite
 	FVector3 rotation, translation, pivot;
 
 	int lightindex;
+	int viewmodelRequested = 0, viewmodelMode = 0, viewmodelFallback = 0;
+	int viewmodelProbe = -1;
+	FVector3 viewmodelSample = {};
+	HWSpriteTangentBasis viewmodelBasis = {};
 
 	void SetBright(bool isbelow);
 	bool GetWeaponRenderStyle(DPSprite *psp, AActor *playermo, sector_t *viewsector, WeaponLighting &light);

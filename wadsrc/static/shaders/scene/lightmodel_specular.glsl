@@ -1,6 +1,6 @@
 vec2 lightAttenuation(DynLightInfo light, vec3 normal, vec3 viewdir, float glossiness, float specularLevel)
 {
-	float lightdistance = distance(light.pos.xyz, pixelpos.xyz);
+	float lightdistance = distance(light.pos.xyz, SDVK_LIGHTING_POSITION);
 	if (light.radius < lightdistance)
 		return vec2(0.0); // Early out lights touching surface but not this fragment
 
@@ -11,7 +11,7 @@ vec2 lightAttenuation(DynLightInfo light, vec3 normal, vec3 viewdir, float gloss
 		attenuation *= spotLightAttenuation(light.pos.xyz, light.spotDir.xyz, light.spotInnerAngle, light.spotOuterAngle);
 	}
 
-	vec3 lightdir = normalize(light.pos.xyz - pixelpos.xyz);
+	vec3 lightdir = normalize(light.pos.xyz - SDVK_LIGHTING_POSITION);
 
 	if ((light.flags & LIGHTINFO_ATTENUATED) != 0)
 	{
@@ -42,7 +42,7 @@ vec3 ProcessMaterialLight(Material material, vec3 color, float sunlightAttenuati
 	vec4 specular = vec4(0.0, 0.0, 0.0, 1.0);
 
 	vec3 normal = material.Normal;
-	vec3 viewdir = normalize(uCameraPos.xyz - pixelpos.xyz);
+	vec3 viewdir = normalize(uCameraPos.xyz - SDVK_LIGHTING_POSITION);
 
 	if (sunlightAttenuation > 0.0)
 	{

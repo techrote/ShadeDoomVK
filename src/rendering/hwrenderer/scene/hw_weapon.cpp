@@ -29,6 +29,7 @@
 #include "r_utility.h"
 #include "v_video.h"
 #include "doomstat.h"
+#include "d_main.h"
 #include "d_player.h"
 #include "g_levellocals.h"
 #include "models.h"
@@ -45,6 +46,10 @@
 #include "hwrenderer/scene/hw_drawstructs.h"
 #include "flatvertices.h"
 #include "hw_renderstate.h"
+#include "stats.h"
+#include "hw_viewmodel_policy.h"
+#include "hw_actor_probe_selection.h"
+#include "../diagnostics/hw_sdvkdiagnostics.h"
 
 #include "vm.h"
 
@@ -52,6 +57,53 @@ EXTERN_CVAR(Float, transsouls)
 EXTERN_CVAR(Int, gl_fuzztype)
 EXTERN_CVAR(Bool, r_drawplayersprites)
 EXTERN_CVAR(Bool, r_deathcamera)
+
+CVARD(Int, gl_viewmodel_lighting, 0, CVAR_ARCHIVE,
+	"Viewmodel lighting: 0 legacy, 1 sector, 2 enhanced world sample (stat viewmodel diagnostics)");
+
+static int LastViewmodelMode = 0, LastViewmodelFallback = 0;
+ADD_STAT(viewmodel)
+{
+	static const char* modes[] = {"legacy", "sector", "enhanced"};
+	static const char* reasons[] = {"none", "invalid-mode", "per-pixel-disabled", "portal-ambiguous", "hud-model", "unsupported-material-or-style", "invalid-card-basis"};
+	FString result;
+	result.Format("requested=%d last-draw=%s fallback=%s (HUD projection; relief disabled)",
+		int(gl_viewmodel_lighting), modes[LastViewmodelMode], reasons[LastViewmodelFallback]);
+	return result;
+}
+
+static void PrepareViewmodelLighting(HWDrawInfo* di, HUDSprite& huds)
+{
+	huds.viewmodelRequested = gl_viewmodel_lighting;
+	bool supportedMaterial = true;
+	if (huds.viewmodelRequested == HWViewmodel::Enhanced && !huds.mframe)
+	{
+		const auto lump = sprites[huds.weapon->GetSprite()].GetSpriteFrame(huds.weapon->GetFrame(), 0, nullAngle, nullptr);
+		const auto texture = lump.isValid() ? TexMan.GetGameTexture(lump, false) : nullptr;
+		const int shader = texture ? texture->GetShaderIndex() : -1;
+		supportedMaterial = V_IsTrueColor() && (shader == 0 || shader == 3 || shader == 4);
+	}
+	const auto policy = HWViewmodel::Resolve(huds.viewmodelRequested, get_gl_spritelight() > 0,
+		di->Level->Displacements.size > 1, huds.mframe != nullptr,
+		huds.RenderStyle.BlendOp != STYLEOP_Add || huds.OverrideShader != -1 || !supportedMaterial);
+	huds.viewmodelMode = policy.mode;
+	huds.viewmodelFallback = policy.fallback;
+	if (policy.mode != HWViewmodel::Enhanced) return;
+	const auto& vp = di->Viewpoint;
+	// One sample for candidate eligibility, attenuation, BRDF and world traces.
+	// A short camera-forward offset gives a finite view vector without making
+	// the HUD card itself occludable world geometry.
+	const double cy = vp.Angles.Yaw.Cos(), sy = vp.Angles.Yaw.Sin();
+	const double cp = vp.Angles.Pitch.Cos(), sp = vp.Angles.Pitch.Sin();
+	huds.viewmodelSample = {float(vp.Pos.X + 8 * cy * cp), float(vp.Pos.Z - 8 * sp), float(vp.Pos.Y + 8 * sy * cp)};
+	const auto& probes = di->Level->lightProbes;
+	const auto selected = HWActorProbeSelection::Resolve(huds.viewmodelSample.X, huds.viewmodelSample.Z, huds.viewmodelSample.Y,
+		probes.Size(), [&](std::size_t i) {
+			const auto& p = probes[static_cast<unsigned>(i)];
+			return HWActorProbeSelection::Candidate{p.position.X, p.position.Y, p.position.Z, p.index};
+		}, huds.owner->Sector ? huds.owner->Sector->lightProbe.index : -1, false);
+	huds.viewmodelProbe = selected.authoredIndex;
+}
 
 
 //==========================================================================
@@ -62,6 +114,15 @@ EXTERN_CVAR(Bool, r_deathcamera)
 
 void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 {
+	state.ClearSpriteTangentBasis();
+	state.ClearSpriteRelief();
+	SdvkDiagnostics::ClearSpriteBasis();
+	SdvkDiagnostics::ClearActorProbeSelection();
+	SdvkDiagnostics::ClearActorSun();
+	state.SetViewmodelLighting(huds->viewmodelSample, huds->viewmodelRequested, huds->viewmodelMode, huds->viewmodelFallback);
+	LastViewmodelMode = huds->viewmodelMode;
+	LastViewmodelFallback = huds->viewmodelFallback;
+	if (huds->viewmodelMode != HWViewmodel::Legacy) state.SetLightProbeIndex(huds->viewmodelProbe);
 	if (huds->RenderStyle.BlendOp == STYLEOP_Shadow)
 	{
 		state.SetColor(0.2f, 0.2f, 0.2f, 0.33f, huds->cm.Desaturation);
@@ -85,6 +146,8 @@ void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 	state.EnableBrightmap(!(huds->RenderStyle.Flags & STYLEF_ColorIsFixed));
 
 	int gl_spritelight = get_gl_spritelight();
+	if (huds->viewmodelMode == HWViewmodel::Sector) gl_spritelight = 0;
+	const bool enhanced = huds->viewmodelMode == HWViewmodel::Enhanced;
 
 	if (huds->mframe)
 	{
@@ -101,10 +164,11 @@ void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 	{
 		if(gl_spritelight != 0)
 		{
-			state.SetShadeVertex(true);
-			state.SetLightNoNormals(true);
+			state.SetShadeVertex(!enhanced);
+			state.SetLightNoNormals(!enhanced);
 			state.SetUseSpriteCenter(true);
 			state.SetActorCenter(huds->owner->X(), huds->owner->Center(), huds->owner->Y());
+			if (enhanced) state.SetActorCenter(huds->viewmodelSample.X, huds->viewmodelSample.Y, huds->viewmodelSample.Z);
 			state.SetLightIndex(huds->lightindex);
 			state.SetDynLight(0.0, 0.0, 0.0);
 		}
@@ -118,6 +182,12 @@ void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 		FTranslationID trans = huds->weapon->GetTranslation();
 		if ((huds->weapon->Flags & PSPF_PLAYERTRANSLATED)) trans = huds->owner->Translation;
 		state.SetMaterial(huds->texture, UF_Sprite, CTF_Expand, CLAMP_XY_NOMIP, trans, huds->OverrideShader);
+		if (enhanced && huds->viewmodelBasis.valid)
+		{
+			const auto& b = huds->viewmodelBasis;
+			state.SetSpriteTangentBasis({b.tangent.X, b.tangent.Y, b.tangent.Z}, {b.normal.X, b.normal.Y, b.normal.Z}, b.handedness);
+			state.SetNormal(b.normal.X, b.normal.Y, b.normal.Z);
+		}
 		state.Draw(DT_TriangleStrip, huds->mx, 4);
 		state.SetShadeVertex(false);
 		state.SetLightNoNormals(false);
@@ -131,6 +201,11 @@ void HWDrawInfo::DrawPSprite(HUDSprite *huds, FRenderState &state)
 	state.SetAddColor(0);
 	state.SetDynLight(0, 0, 0);
 	state.EnableBrightmap(false);
+	state.ClearSpriteTangentBasis();
+	state.ClearSpriteRelief();
+	state.ClearViewmodelLighting();
+	if (enhanced) state.SetNormal(0, 0, 0);
+	if (huds->viewmodelMode != HWViewmodel::Legacy) state.SetLightProbeIndex(-1);
 }
 
 //==========================================================================
@@ -682,6 +757,33 @@ bool HUDSprite::GetWeaponRect(HWDrawInfo *di, FRenderState& state, DPSprite *psp
 	verts.first[1].Set(Vert.v[1].X, Vert.v[1].Y, 0, u1, v2);
 	verts.first[2].Set(Vert.v[2].X, Vert.v[2].Y, 0, u2, v1);
 	verts.first[3].Set(Vert.v[3].X, Vert.v[3].Y, 0, u2, v2);
+	if (viewmodelMode == HWViewmodel::Enhanced)
+	{
+		const auto& a = di->Viewpoint.Angles;
+		const float cy = float(a.Yaw.Cos()), sy = float(a.Yaw.Sin());
+		const float cp = float(a.Pitch.Cos()), sp = float(a.Pitch.Sin());
+		const FVector3 unrolledRight(-sy, 0, cy), unrolledUp(cy * sp, cp, sy * sp);
+		const float cr = float(a.Roll.Cos()), sr = float(a.Roll.Sin());
+		const FVector3 right = unrolledRight * cr - unrolledUp * sr;
+		const FVector3 up = unrolledRight * sr + unrolledUp * cr;
+		float quad[4][3];
+		const int order[4] = {0, 2, 1, 3}; // sprite-basis quad order
+		for (int i = 0; i < 4; ++i)
+		{
+			const auto p = right * Vert.v[order[i]].X - up * Vert.v[order[i]].Y;
+			quad[i][0] = p.X; quad[i][1] = p.Y; quad[i][2] = p.Z;
+		}
+		viewmodelBasis = ResolveHWSpriteTangentBasis(quad, u1, u2, v1, v2);
+		if (!viewmodelBasis.valid)
+		{
+			// Mod-authored Coord[] may leave a drawable second triangle after
+			// collapsing the first. Never shade it with a stale world normal.
+			viewmodelMode = HWViewmodel::Sector;
+			viewmodelFallback = HWViewmodel::InvalidBasis;
+			viewmodelSample = {};
+			viewmodelProbe = -1;
+		}
+	}
 
 	texture = tex;
 	return true;
@@ -756,10 +858,11 @@ void HWDrawInfo::PreparePlayerSprites2D(sector_t * viewsector, area_t in_area, F
 
 		FVector2 spos = BobWeapon2D(weap, psp, vp.TicFrac);
 
+		PrepareViewmodelLighting(this, hudsprite);
 		hudsprite.dynrgb[0] = hudsprite.dynrgb[1] = hudsprite.dynrgb[2] = 0;
 		hudsprite.lightindex = -1;
 		// set the lighting parameters
-		if (hudsprite.RenderStyle.BlendOp != STYLEOP_Shadow && Level->HasDynamicLights && !isFullbrightScene() && gl_light_sprites)
+		if (hudsprite.viewmodelMode != HWViewmodel::Sector && hudsprite.RenderStyle.BlendOp != STYLEOP_Shadow && (Level->HasDynamicLights || hudsprite.viewmodelMode == HWViewmodel::Enhanced) && !isFullbrightScene() && gl_light_sprites)
 		{
 			if(get_gl_spritelight() == 0)
 			{
@@ -767,7 +870,9 @@ void HWDrawInfo::PreparePlayerSprites2D(sector_t * viewsector, area_t in_area, F
 			}
 			else
 			{
-				GetDynSpriteLightList(playermo, nullptr, nullptr, lightdata, true);
+				if (hudsprite.viewmodelMode == HWViewmodel::Enhanced)
+					GetDynSpriteLightList(playermo, hudsprite.viewmodelSample.X, hudsprite.viewmodelSample.Z, hudsprite.viewmodelSample.Y, nullptr, lightdata, false);
+				else GetDynSpriteLightList(playermo, nullptr, nullptr, lightdata, true);
 				hudsprite.lightindex = state.UploadLights(lightdata);
 			}
 		}
@@ -866,11 +971,12 @@ void HWDrawInfo::PreparePlayerSprites3D(sector_t * viewsector, area_t in_area, F
 		//FVector2 spos = BobWeapon3D(weap, psp, hudsprite.translation, hudsprite.rotation, hudsprite.pivot, vp.TicFrac);
 
 		FVector2 spos = BobWeapon3D(weap, psp, hudsprite.translation, hudsprite.rotation, hudsprite.pivot, vp.TicFrac);
+		PrepareViewmodelLighting(this, hudsprite);
 
 		hudsprite.dynrgb[0] = hudsprite.dynrgb[1] = hudsprite.dynrgb[2] = 0;
 		hudsprite.lightindex = -1;
 		// set the lighting parameters
-		if (hudsprite.RenderStyle.BlendOp != STYLEOP_Shadow && Level->HasDynamicLights && !isFullbrightScene() && gl_light_sprites)
+		if (hudsprite.viewmodelMode != HWViewmodel::Sector && hudsprite.RenderStyle.BlendOp != STYLEOP_Shadow && Level->HasDynamicLights && !isFullbrightScene() && gl_light_sprites)
 		{
 			GetDynSpriteLightList(playermo, nullptr, nullptr, lightdata, true);
 			hudsprite.lightindex = state.UploadLights(lightdata);
