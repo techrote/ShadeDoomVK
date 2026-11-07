@@ -2,6 +2,12 @@
 
 Status: **required later evidence; not executed by the non-physical-GPU phase**.
 
+The prospective [bounded shadow-off scaling profile](SDVK-009-SHADOWOFF-SCALING.md)
+collects a separate four-workload partial stratum through the native supervisor.
+It uses explicit sparse shadow-off variants and preserves the full acceptance
+criteria below. Its reduced matrix remains descriptive pending later reviewed
+architecture disposition; fresh source/build/owner/packet review is required.
+
 ## Decision being tested
 
 The off-GPU phase leaves one production-correct candidate: the unchanged PF many-light architecture plus SDVK-009's correctness-only upload boundary repair and state diagnostics. Physical testing decides whether that architecture remains adequate under matched sparse→dense workloads. No tiled/clustered prototype is permitted into this campaign unless a later repository revision first passes the same off-GPU semantic gates and receives a new preregistered variant section.

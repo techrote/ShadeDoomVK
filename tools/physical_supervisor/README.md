@@ -374,7 +374,7 @@ three fixed diagnostic stages and their 120/1 frame, 640x480, 180-second contrac
 The immutable registration uses schema
 `physical-supervisor/registered-workload-v1`, profile `REGISTERED_WORKLOAD` and
 scope `PARTIAL_COLLECTION_ONLY`. Its purpose is `sdvk011-viewmodel`,
-`sdvk014-lifecycle`, `sdvk009-fault-discriminator`, `sdvk008-partial-reference` or
+`sdvk014-lifecycle`, `sdvk009-fault-discriminator`, `sdvk009-shadowoff-scaling`, `sdvk008-partial-reference` or
 `sdvk008-partial-reference-and-cost`. It binds renderer/oracle commit and tree,
 build receipt, renderer/IWAD/prepared-manifest pins and one fresh output root.
 Each ordered capture declares only `name`, `scene`, `recipe_sha256`, `mode`,
@@ -424,3 +424,16 @@ collector preparation bound, native job/handle ownership, module observation,
 telemetry, System events, heartbeat, RootGuard, deadlines and durable STOP apply.
 Partial collection remains pending issue acceptance; it cannot accept POM
 quality modes, missing full gates, hardware stability or any milestone by itself.
+
+`sdvk009-shadowoff-scaling` admits only the exact twenty-stage schedule derived
+by `tools.renderer_oracle.sdvk009_shadowoff.capture_specs`: two state/image
+captures for each of four shadow-off one/64/dispersed-256/overlap-256 workloads,
+then three independent timing processes per workload. All use 1904x1001,
+120 rendered warmup frames and a 180-second deadline; state retains one frame,
+timing retains 120. The first timing creation requires all eight validated
+state packets, equal selected/upload workloads and four exact state/RGB pairs.
+Every timing process requires complete single `scene.immediate` GPU samples.
+The two sparse variants preserve original scene PK3 bytes and explicitly disable
+shadows; the original shadow-enabled and 1025-light recipes remain unchanged.
+No full campaign or SDVK-009 acceptance follows. See the
+[bounded protocol](../../docs/shadedoomvk/SDVK-009-SHADOWOFF-SCALING.md).

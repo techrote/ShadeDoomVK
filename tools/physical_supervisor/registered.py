@@ -15,7 +15,7 @@ KIND = "registered-workload"
 PROFILE = "REGISTERED_WORKLOAD"
 SCHEMA = "physical-supervisor/registered-workload-v1"
 PURPOSES = {"sdvk008-partial-reference", "sdvk008-partial-reference-and-cost",
-            "sdvk011-viewmodel", "sdvk014-lifecycle", "sdvk009-fault-discriminator"}
+            "sdvk011-viewmodel", "sdvk014-lifecycle", "sdvk009-fault-discriminator", "sdvk009-shadowoff-scaling"}
 
 
 def definition(packet):
@@ -68,9 +68,13 @@ def definition(packet):
             previous = rows[names.index(spec["compare_with"])]
             require(all(spec[key] == previous[key] for key in ("scene", "mode", "frames", "warmup", "extent")),
                     "Repeat comparison must retain the same recipe workload")
-        if not pom:
+        if not pom and document["purpose"] != "sdvk009-shadowoff-scaling":
             require(spec["mode"] == "state", "Viewmodel/lifecycle registration is correctness-only")
         names.append(spec["name"])
+    if document["purpose"] == "sdvk009-shadowoff-scaling":
+        driver = importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff")
+        hashes = {row["scene"]: row["recipe_sha256"] for row in rows}
+        require(rows == driver.capture_specs(hashes), "Shadow-off scaling requires its exact twenty-stage schedule")
     return document
 
 
@@ -104,6 +108,8 @@ def validate(packet, *, check_files):
         require(packet["stages"] == derive_stages(packet, document, run), "Registered stage differs from derived recipe")
         if document["purpose"].startswith("sdvk008-"):
             validate_pom(packet, document, run)
+        elif document["purpose"] == "sdvk009-shadowoff-scaling":
+            importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff").validate_recipes(packet, run)
     return document
 
 
@@ -157,11 +163,13 @@ def validate_pom(packet, document, run):
 
 
 def after_capture(packet, stage, run):
-    """Retain existing POM per-process controls as well as generic capture integrity."""
+    """Retain typed per-process controls beyond generic capture integrity."""
     if packet.get("kind") != KIND:
         return None
     verify_pin(packet["workload_registration"])
     document = read_json(packet["workload_registration"]["path"])
+    if document["purpose"] == "sdvk009-shadowoff-scaling":
+        return importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff").validate_capture(packet, stage, run)
     if not document["purpose"].startswith("sdvk008-"):
         return None
     driver = importlib.import_module("tools.renderer_oracle.sdvk008_physical")
@@ -186,7 +194,7 @@ def after_capture(packet, stage, run):
 
 
 def before_capture(packet, stage, run):
-    """First timing creation is conditional on the original partial image gates.
+    """First timing creation is conditional on its typed correctness/image gates.
 
     Called in the owned collector before capture/target registration. Its same
     30-second preparation bound and parent heartbeat/fault observers still apply.
@@ -195,6 +203,11 @@ def before_capture(packet, stage, run):
     if packet.get("kind") != KIND or stage["capture"]["mode"] != "timing":
         return None
     document = definition(packet)
+    if document["purpose"] == "sdvk009-shadowoff-scaling":
+        timing = [s for s in packet["stages"] if s["capture"]["mode"] == "timing"]
+        if stage["name"] == timing[0]["name"]:
+            return importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff").reference_gate(packet, run)
+        return None  # existing ledger requires every prior timing stage/fence
     require(document["purpose"] == "sdvk008-partial-reference-and-cost", "Unregistered timing scope")
     timing = [s for s in packet["stages"] if s["capture"]["mode"] == "timing"]
     if stage["name"] != timing[0]["name"]:
