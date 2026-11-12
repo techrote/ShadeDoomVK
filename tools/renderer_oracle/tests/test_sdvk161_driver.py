@@ -11,7 +11,7 @@ from tools.pf_oracle.tests.sdvk014_source import ROOT, block
 from tools.renderer_oracle.sdvk161_special_surfaces import SCHEDULE
 
 
-def build_driver(directory):
+def build_driver(directory, *, newgame_override=None):
     source = (ROOT / "src/rendering/hwrenderer/diagnostics/hw_sdvkdiagnostics.cpp").read_text()
     game = (ROOT / "src/g_game.cpp").read_text()
     level = (ROOT / "src/g_level.cpp").read_text()
@@ -25,7 +25,8 @@ def build_driver(directory):
     (directory / "map_transition_actions.inc").write_text("enum Action {" + ",".join(actions) + "};\nAction gameaction=ga_nothing;\n")
     (directory / "map_transition_ticker.inc").write_text(ticker)
     (directory / "map_transition_defer.inc").write_text(block(level, "void G_DeferedInitNew (const char *mapname, int newskill)"))
-    (directory / "map_transition_newgame.inc").write_text(block(level, "void G_DoNewGame (void)"))
+    newgame = block(level, "void G_DoNewGame (void)")
+    (directory / "map_transition_newgame.inc").write_text(newgame if newgame_override is None else newgame_override)
     (directory / "map_transition_input.inc").write_text(
         block(source, "struct LightmapTransitionPhase") + ";\n" +
         "constexpr LightmapTransitionPhase SpecialSurfacePhases[] =" + phases + "};\n" +
@@ -72,6 +73,25 @@ class SpecialSurfaceDriverTests(unittest.TestCase):
     def test_actual_action_loop_also_completes_multiple_tics_before_display(self):
         rows = self.run_fixture("multi-tic")
         self.assertEqual(sum(row.startswith("SDVK161_INPUT_COMPLETE ") for row in rows), 1)
+
+    def test_actual_new_game_stops_classic_input_before_initializing_the_map(self):
+        self.assertIn("PASS classic cleanup precedes new-game/map initialization",
+                      self.run_fixture("classic-cleanup"))
+
+    def test_missing_or_late_classic_cleanup_fails_the_actual_initialization_guard(self):
+        newgame = block((ROOT / "src/g_level.cpp").read_text(), "void G_DoNewGame (void)")
+        stop = "G_StopClassicInputPlayback();"
+        self.assertEqual(newgame.count(stop), 1)
+        missing = newgame.replace(stop, "", 1)
+        self.assertEqual(missing.count("G_NewInit ();"), 1)
+        late = missing.replace("G_NewInit ();", "G_NewInit ();\n\t" + stop, 1)
+        for name, altered in (("missing", missing), ("late", late)):
+            with self.subTest(name=name), tempfile.TemporaryDirectory(prefix="sdvk161-cleanup-") as directory:
+                binary = build_driver(Path(directory), newgame_override=altered)
+                result = subprocess.run([str(binary), "classic-cleanup"], capture_output=True,
+                                        text=True, timeout=10)
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("classic input reached new-game initialization", result.stderr)
 
     def test_pending_or_wrong_completion_fails_closed_in_bounded_input_driver(self):
         self.assertIn("PASS cancellation/other-action/missing-callback/bounded-wait/missing-owner/same-owner/wrong-map/duplicate",

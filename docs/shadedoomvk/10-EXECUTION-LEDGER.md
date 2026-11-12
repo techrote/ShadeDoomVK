@@ -1906,3 +1906,35 @@ negative qualification records. No physical launch is part of these controls.
   [programme pause handoff](PROGRAMME-PAUSE-20261107.md) records exact commits,
   evidence and remaining limits. #8/#9/#11/#14 remain open; no programme
   completion, architecture decision or physical cost acceptance is manufactured.
+
+## 12 November 2026 — explicit classic-input adapter candidate
+
+Owning scope and acceptance: [issue #188](https://github.com/techrote/ShadeDoomVK/issues/188).
+
+The owner selected current-rules input import after a real version-109 speedrun
+LMP was rejected by the inherited native FORM-only reader. The isolated
+`feature/classic109-input-import-20261112` candidate adds explicit
+`-playclassicinput` / `playclassicinput`, complete bounded preflight, current
+game-tic command mapping and visible non-sync warnings. Normal `-playdemo`, native
+recording, current physics/compatibility/RNG policy are retained. No forced route,
+state correction, inventory grant or vanilla simulation backend is introduced.
+[The contract](CLASSIC-INPUT-IMPORT.md) records supported headers, rejected special
+commands and source provenance. Five focused CPU tests pass, including the
+compiled decoder and an extracted old-fails/new-passes classic-to-native-timedemo
+transition control. The importer closes the old stream before setting a new
+native benchmark's timing flags. CPU decoder/mapping/truncation tests pass;
+full build, independent review, native positive/negative and native-FORM regression
+qualification remain required. No renderer milestone or physical acceptance is
+awarded by this candidate.
+
+The first source-matched `1ad7965` native import consumed all 225 commands but
+failed its startup-setting restoration check: actual console `skill` remained
+3 after a pre-import value of 1. The initial check's C++ name `gameskill` was not
+a valid console query and does not qualify restoration. Both attempts remain
+retained. The generic CVar backup excludes `CVAR_LATCH`, so the repair adds an
+importer-private snapshot for the two modified latched startup settings,
+`skill` and `deathmatch`; native FORM behavior remains unchanged. A read-only
+pending-latch query allows rejection before consuming an already queued user
+request. Six focused CPU tests pass, including actual generic-backup/restore
+source exercised with latched/current/pending/native-inactive controls. New
+source-matched native restoration and transition checks remain required.

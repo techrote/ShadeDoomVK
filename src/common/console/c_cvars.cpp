@@ -1431,6 +1431,13 @@ void C_ForgetCVars (void)
 	CVarBackups.Clear();
 }
 
+bool C_HasPendingLatchedChange(const FBaseCVar* variable)
+{
+	for (const auto& pending : LatchedValues)
+		if (pending.Variable == variable) return true;
+	return false;
+}
+
 FBaseCVar *FindCVar (const char *var_name, FBaseCVar **prev)
 {
 	if (var_name == nullptr)

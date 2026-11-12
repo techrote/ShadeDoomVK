@@ -55,7 +55,9 @@ enum
 	PPS_NOBLOCKINGCHECK		= 2,
 };
 
-void G_DeferedPlayDemo (const char* demo);
+void G_DeferedPlayDemo (const char* demo, bool classicInput = false);
+bool G_IsClassicInputPlayback();
+void G_StopClassicInputPlayback();
 
 // Can be called by the startup code or M_Responder,
 // calls P_SetupLevel or W_EnterWorld.

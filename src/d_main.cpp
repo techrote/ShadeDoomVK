@@ -3602,11 +3602,17 @@ static int D_InitGame(const FIWADInfo* iwad_info, std::vector<std::string>& allw
 			G_LoadGame(file.GetChars());
 		}
 
-		v = Args->CheckValue("-playdemo");
+		const auto classicInputFile = Args->CheckValue("-playclassicinput");
+		if (classicInputFile && (Args->CheckParm("-playdemo") || Args->CheckParm("-timedemo") ||
+			Args->CheckParm("-record") || Args->CheckParm("-loadgame")))
+		{
+			I_FatalError("-playclassicinput cannot be combined with native demo recording/playback, timedemo or a savegame");
+		}
+		v = classicInputFile ? classicInputFile : Args->CheckValue("-playdemo");
 		if (v != NULL)
 		{
 			singledemo = true;				// quit after one demo
-			G_DeferedPlayDemo (v);
+			G_DeferedPlayDemo (v, classicInputFile != nullptr);
 		}
 		else
 		{
