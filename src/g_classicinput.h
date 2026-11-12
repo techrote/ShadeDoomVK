@@ -15,6 +15,24 @@ struct Header
     size_t tics = 0;
 };
 
+// Native demo CVar backup deliberately omits latched CVars. These two imported
+// startup settings need their own ownership, without altering the latch queue.
+struct StartupValues
+{
+    bool captured = false;
+    int skill = 0, deathmatch = 0;
+    void Capture(int currentSkill, int currentDeathmatch)
+    {
+        skill = currentSkill; deathmatch = currentDeathmatch; captured = true;
+    }
+    template<class RestoreValues> void Restore(RestoreValues restore)
+    {
+        if (!captured) return;
+        captured = false;
+        restore(skill, deathmatch);
+    }
+};
+
 struct Tic
 {
     int16_t forward = 0, side = 0, yaw = 0;

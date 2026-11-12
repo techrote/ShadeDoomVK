@@ -176,6 +176,17 @@ bool 			demorecording;
 bool 			demoplayback;
 static bool classicInputRequested = false, classicInputActive = false;
 static size_t classicInputRemaining = 0, classicInputTotal = 0;
+static ClassicInput::StartupValues classicInputStartupValues;
+
+static void RestoreClassicInputStartupValues()
+{
+	classicInputStartupValues.Restore([](int skill, int mode)
+	{
+		UCVarValue value;
+		value.Int = skill; gameskill->ForceSet(value, CVAR_Int);
+		value.Int = mode; deathmatch->ForceSet(value, CVAR_Int);
+	});
+}
 
 bool G_IsClassicInputPlayback() { return classicInputActive && demoplayback; }
 void G_StopClassicInputPlayback()
@@ -3037,6 +3048,8 @@ void G_DoPlayDemo (void)
 		std::string error;
 		if (gameinfo.gametype != GAME_Doom || netgame || multiplayer || demorecording || demoplayback)
 			error = "Classic input import requires Doom-family single-player without another active demo";
+		else if (C_HasPendingLatchedChange(gameskill.get()) || C_HasPendingLatchedChange(deathmatch.get()))
+			error = "Apply pending skill/deathmatch changes before importing classic input; pending requests were not modified";
 		else if (!ClassicInput::Parse(demobuffer, demoSize, !!(gameinfo.flags & GI_MAPxx), header, error) && error.empty())
 			error = "Invalid classic input stream";
 		if (!error.empty())
@@ -3056,31 +3069,33 @@ void G_DoPlayDemo (void)
 			return;
 		}
 		C_BackupCVars();
-		UCVarValue value;
-		value.Int = int(header.skill); gameskill->ForceSet(value, CVAR_Int);
-		value.Int = 0; deathmatch->ForceSet(value, CVAR_Int);
-		value.Int = (int(dmflags) & ~(DF_MONSTERS_RESPAWN | DF_FAST_MONSTERS | DF_NO_MONSTERS)) |
-			(header.respawn ? DF_MONSTERS_RESPAWN : 0) | (header.fast ? DF_FAST_MONSTERS : 0) |
-			(header.noMonsters ? DF_NO_MONSTERS : 0);
-		dmflags->ForceSet(value, CVAR_Int);
-		for (int i = 0; i < MAXPLAYERS; ++i) playeringame[i] = i == 0;
-		consoleplayer = 0;
-		netgame = multiplayer = false;
-		Printf(PRINT_HIGH, "CLASSIC INPUT IMPORT: version 109, %llu tics, %s, skill=%u respawn=%d fast=%d nomonsters=%d\n",
-			static_cast<unsigned long long>(header.tics), mapname.GetChars(), header.skill,
-			header.respawn, header.fast, header.noMonsters);
-		Printf(PRINT_HIGH, "CURRENT ShadeDoomVK game rules and RNG policy. NOT faithful vanilla/Crispy/DSDA playback; speedrun sync is NOT supported.\n");
-		// Use ordinary current-game initialization, including its existing RNG policy.
-		// No classic compatibility preset, physics patch, seed or state correction is applied.
-		precache = false;
-		demonew = true;
+		classicInputStartupValues.Capture(int(gameskill), int(deathmatch));
 		try
 		{
+			UCVarValue value;
+			value.Int = int(header.skill); gameskill->ForceSet(value, CVAR_Int);
+			value.Int = 0; deathmatch->ForceSet(value, CVAR_Int);
+			value.Int = (int(dmflags) & ~(DF_MONSTERS_RESPAWN | DF_FAST_MONSTERS | DF_NO_MONSTERS)) |
+				(header.respawn ? DF_MONSTERS_RESPAWN : 0) | (header.fast ? DF_FAST_MONSTERS : 0) |
+				(header.noMonsters ? DF_NO_MONSTERS : 0);
+			dmflags->ForceSet(value, CVAR_Int);
+			for (int i = 0; i < MAXPLAYERS; ++i) playeringame[i] = i == 0;
+			consoleplayer = 0;
+			netgame = multiplayer = false;
+			Printf(PRINT_HIGH, "CLASSIC INPUT IMPORT: version 109, %llu tics, %s, skill=%u respawn=%d fast=%d nomonsters=%d\n",
+				static_cast<unsigned long long>(header.tics), mapname.GetChars(), header.skill,
+				header.respawn, header.fast, header.noMonsters);
+			Printf(PRINT_HIGH, "CURRENT ShadeDoomVK game rules and RNG policy. NOT faithful vanilla/Crispy/DSDA playback; speedrun sync is NOT supported.\n");
+			// Use ordinary current-game initialization, including its existing RNG policy.
+			// No classic compatibility preset, physics patch, seed or state correction is applied.
+			precache = false;
+			demonew = true;
 			G_InitNew(mapname.GetChars(), false);
 		}
 		catch (...)
 		{
 			C_RestoreCVars();
+			RestoreClassicInputStartupValues();
 			M_Free(demobuffer);
 			demo_p = demobuffer = nullptr;
 			demonew = false;
@@ -3199,6 +3214,7 @@ bool G_CheckDemoStatus (void)
 			endtime = I_GetTime () - starttime;
 
 		C_RestoreCVars ();		// [RH] Restore cvars demo might have changed
+		RestoreClassicInputStartupValues(); // No-op for native FORM playback.
 		M_Free (demobuffer);
 		demobuffer = NULL;
 

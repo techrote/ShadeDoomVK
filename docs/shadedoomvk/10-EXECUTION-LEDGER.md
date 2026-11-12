@@ -1926,3 +1926,15 @@ native benchmark's timing flags. CPU decoder/mapping/truncation tests pass;
 full build, independent review, native positive/negative and native-FORM regression
 qualification remain required. No renderer milestone or physical acceptance is
 awarded by this candidate.
+
+The first source-matched `1ad7965` native import consumed all 225 commands but
+failed its startup-setting restoration check: actual console `skill` remained
+3 after a pre-import value of 1. The initial check's C++ name `gameskill` was not
+a valid console query and does not qualify restoration. Both attempts remain
+retained. The generic CVar backup excludes `CVAR_LATCH`, so the repair adds an
+importer-private snapshot for the two modified latched startup settings,
+`skill` and `deathmatch`; native FORM behavior remains unchanged. A read-only
+pending-latch query allows rejection before consuming an already queued user
+request. Six focused CPU tests pass, including actual generic-backup/restore
+source exercised with latched/current/pending/native-inactive controls. New
+source-matched native restoration and transition checks remain required.

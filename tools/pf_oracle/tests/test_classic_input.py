@@ -86,6 +86,107 @@ int main() {
             fixture.write_text(harness, encoding='utf-8')
             run_fixture(fixture, root=ROOT)
 
+    def test_latched_startup_restore_uses_actual_generic_backup_and_preserves_queue(self):
+        import tempfile
+        cvars = (ROOT / 'src/common/console/c_cvars.cpp').read_text(encoding='utf-8')
+        game = (ROOT / 'src/g_game.cpp').read_text(encoding='utf-8')
+        def function(source, signature):
+            return signature + '\n{' + source.split(signature + '\n{', 1)[1].split('\n}\n', 1)[0] + '\n}\n'
+        harness = r"""
+#include "g_classicinput.h"
+#include <cassert>
+#include <cstdint>
+#include <string>
+#include <vector>
+enum { CVAR_SERVERINFO = 1<<2, CVAR_LATCH = 1<<4, CVAR_DEMOSAVE = 1<<6, CVAR_Int, CVAR_String };
+struct UCVarValue { int Int = 0; const char* String = nullptr; };
+struct FString {
+    std::string text;
+    FString& operator=(const char* s) { text = s; return *this; }
+    const char* GetChars() const { return text.c_str(); }
+};
+struct FBaseCVar {
+    const char* Name; uint32_t Flags; int Current; mutable std::string formatted;
+    const char* GetName() const { return Name; }
+    UCVarValue GetGenericRep(int) const { formatted = std::to_string(Current); UCVarValue v; v.String = formatted.c_str(); return v; }
+    void ForceSet(UCVarValue v, int) { Current = v.Int; }
+};
+struct Ref { FBaseCVar* variable; FBaseCVar* operator->() { return variable; } };
+struct FCVarBackup { FString Name, String; };
+struct Backups : std::vector<FCVarBackup> {
+    unsigned int Size() const { return static_cast<unsigned int>(size()); }
+    void Clear() { clear(); }
+    void Push(const FCVarBackup& v) { push_back(v); }
+} CVarBackups;
+struct CVarMap {
+    struct Pair { FBaseCVar* Value; };
+    std::vector<Pair> values;
+    struct Iterator {
+        CVarMap& map; size_t index = 0;
+        explicit Iterator(CVarMap& m) : map(m) {}
+        bool NextPair(Pair*& pair) { if(index == map.values.size()) return false; pair = &map.values[index++]; return true; }
+    };
+} cvarMap;
+struct Latched { FBaseCVar* Variable; int Value; };
+std::vector<Latched> LatchedValues;
+void cvar_set(const char* name, const char* value) {
+    for (auto& pair : cvarMap.values) if (std::string(pair.Value->Name) == name) pair.Value->Current = std::stoi(value);
+}
+ClassicInput::StartupValues classicInputStartupValues;
+FBaseCVar skillVar{"skill", CVAR_SERVERINFO|CVAR_LATCH, 1, ""};
+FBaseCVar deathmatchVar{"deathmatch", CVAR_SERVERINFO|CVAR_LATCH, 2, ""};
+FBaseCVar dmflagsVar{"dmflags", CVAR_SERVERINFO, 7, ""};
+Ref gameskill{&skillVar}, deathmatch{&deathmatchVar};
+void C_ForgetCVars();
+"""
+        for sig in ('void C_BackupCVars (void)', 'void C_RestoreCVars (void)', 'void C_ForgetCVars (void)',
+                    'bool C_HasPendingLatchedChange(const FBaseCVar* variable)'):
+            harness += function(cvars, sig)
+        harness += function(game, 'static void RestoreClassicInputStartupValues()')
+        harness += r"""
+void Reset() {
+    skillVar.Current = 1; deathmatchVar.Current = 2; dmflagsVar.Current = 7;
+    CVarBackups.clear(); LatchedValues.clear(); classicInputStartupValues = {};
+    cvarMap.values = {{&skillVar},{&deathmatchVar},{&dmflagsVar}};
+}
+void ApplyInputHeader() { skillVar.Current = 3; deathmatchVar.Current = 0; dmflagsVar.Current = 0; }
+int main() {
+    // Exact existing generic backup omits both latched vars: original failure/native behavior.
+    Reset(); C_BackupCVars(); assert(CVarBackups.size() == 1);
+    ApplyInputHeader(); C_RestoreCVars(); RestoreClassicInputStartupValues();
+    assert(skillVar.Current == 3 && deathmatchVar.Current == 0 && dmflagsVar.Current == 7);
+    // Importer privately owns only the two latched startup values.
+    Reset(); C_BackupCVars(); classicInputStartupValues.Capture(skillVar.Current, deathmatchVar.Current);
+    ApplyInputHeader(); C_RestoreCVars();
+    assert(skillVar.Current == 3 && deathmatchVar.Current == 0);
+    RestoreClassicInputStartupValues();
+    assert(skillVar.Current == 1 && deathmatchVar.Current == 2 && dmflagsVar.Current == 7);
+    assert(!classicInputStartupValues.captured);
+    // Already queued user intent is detected read-only, so preflight can reject without consuming it.
+    Reset(); LatchedValues.push_back({&skillVar,4});
+    assert(C_HasPendingLatchedChange(&skillVar));
+    assert(!C_HasPendingLatchedChange(&deathmatchVar));
+    assert(LatchedValues.size() == 1 && LatchedValues[0].Value == 4 && skillVar.Current == 1);
+    // New user requests during import survive ForceSet restoration for the next normal new game.
+    Reset(); C_BackupCVars(); classicInputStartupValues.Capture(skillVar.Current, deathmatchVar.Current);
+    ApplyInputHeader(); LatchedValues = {{&skillVar,4},{&deathmatchVar,1}};
+    C_RestoreCVars(); RestoreClassicInputStartupValues();
+    assert(skillVar.Current == 1 && deathmatchVar.Current == 2 && LatchedValues.size() == 2);
+    assert(LatchedValues[0].Value == 4 && LatchedValues[1].Value == 1);
+    for (const auto& request : LatchedValues) { UCVarValue value; value.Int = request.Value; request.Variable->ForceSet(value,CVAR_Int); }
+    LatchedValues.clear(); RestoreClassicInputStartupValues();
+    assert(skillVar.Current == 4 && deathmatchVar.Current == 1);
+}
+"""
+        with tempfile.TemporaryDirectory(prefix='classic-cvar-latch-control-') as directory:
+            fixture = Path(directory) / 'latch.cpp'
+            fixture.write_text(harness, encoding='utf-8')
+            run_fixture(fixture, includes=('src',), root=ROOT)
+        imported = game.split('if (importClassic)', 1)[1].split('\n\tC_BackupCVars ();', 1)[0]
+        self.assertLess(imported.index('C_HasPendingLatchedChange'), imported.index('C_BackupCVars();'))
+        self.assertLess(imported.index('classicInputStartupValues.Capture'), imported.index('ForceSet'))
+        self.assertIn('RestoreClassicInputStartupValues();', imported.split('catch (...)',1)[1])
+
     def test_explicit_interface_and_visible_warning(self):
         main = (ROOT / 'src/d_main.cpp').read_text(encoding='utf-8')
         self.assertIn('Args->CheckValue("-playclassicinput")', main)

@@ -28,8 +28,17 @@ and pause/save special commands are rejected descriptively. An imported file
 cannot issue a savegame or arbitrary native demo command.
 
 The recorded skill and respawn/fast/no-monsters flags select ordinary current
-game setup and are restored through the existing CVar-backup mechanism at end,
-abort, new-game/load or switch to another demo. Other current rules, compatibility
+game setup. Generic demo backup restores the non-latched game flags. Because
+that inherited backup deliberately excludes latched CVars, the importer privately
+captures/restores its original `skill` and `deathmatch` values at end, abort,
+new-game/load, switch to another demo or initialization error. This does not
+change the native FORM path's inherited restoration behavior.
+
+If `skill` or `deathmatch` already has a pending latched user change, import is
+rejected before modifying the level or CVars, with the pending request untouched.
+New latched user requests made during import stay queued: immediate restoration
+uses `ForceSet`, which does not consume that queue. A later ordinary new game
+can apply those requests normally. Other current rules, compatibility
 settings, actor scripts, physics and RNG policy remain intact. Matching content
 must be supplied by the user; the LMP does not authenticate an IWAD/PWAD or patch.
 The importer does not supply an old RNG, secretly enable a compatibility preset,

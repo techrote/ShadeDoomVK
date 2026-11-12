@@ -718,6 +718,10 @@ void C_RestoreCVars (void);
 
 void C_ForgetCVars (void);
 
+// Read-only query: callers can refuse a temporary override without consuming
+// an already pending user request for a subsequent game.
+bool C_HasPendingLatchedChange(const FBaseCVar* variable);
+
 
 #if defined(_MSC_VER)
 #pragma section(SECTION_VREG,read)
