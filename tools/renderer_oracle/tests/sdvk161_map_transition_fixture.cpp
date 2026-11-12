@@ -21,6 +21,8 @@ static bool cl_capfps=true,vid_vsync=false;
 static int vid_maxfps=0;
 static std::string Failure;
 static bool InstallMesh=true,AdvanceOwner=true;
+static bool ClassicInputActive=false;
+static unsigned ClassicStopCalls=0;
 static const char* OverrideMap=nullptr;
 constexpr int PRINT_HIGH=1,PRINT_NONOTIFY=2;
 template<class... Args>void Printf(int,const char* format,Args... args){std::printf(format,args...);}
@@ -36,8 +38,10 @@ static int d_skill=-1,gameskill=0,consoleplayer=0,playeringame[1]={},gamestate=0
 static Name newdemoname,newdemomap,savegamefile,savedescription,shotfile;
 constexpr int GS_CUTSCENE=1,GS_INTRO=2;
 void CheckWarpTransMap(Name&,bool){}
-void G_NewInit(){}
+void G_StopClassicInputPlayback(){++ClassicStopCalls;ClassicInputActive=false;}
+void G_NewInit(){Require(!ClassicInputActive,"classic input reached new-game initialization");}
 void G_InitNew(const char* map,bool){
+ Require(!ClassicInputActive,"classic input reached map initialization");
  level.MapName=OverrideMap?OverrideMap:map;
  if(AdvanceOwner)++Current.Owner;
  level.levelMesh=InstallMesh?&Current:nullptr;
@@ -65,14 +69,21 @@ void OrdinaryTicker(){
 #include "map_transition_ticker.inc"
 }
 static bool M_IsAnimated(){return false;}
-static bool ActualTicWait(bool vid_dontdowait,bool cl_capfps=true,bool r_NoInterpolate=true){
+struct TicWaitInputs {
  bool pauseext=false,vid_vsync=false,AppActive=true,vid_lowerinbackground=false;
+ bool cl_capfps=true;
  int vid_maxfps=0;
+ bool Evaluate(bool vid_dontdowait,bool r_NoInterpolate){
 #include "map_transition_wait.inc"
- return doWait;
+  return doWait;
+ }
+};
+static bool ActualTicWait(bool vid_dontdowait,bool capped=true,bool r_NoInterpolate=true){
+ TicWaitInputs inputs;inputs.cl_capfps=capped;
+ return inputs.Evaluate(vid_dontdowait,r_NoInterpolate);
 }
 static void Check(bool value,const char* reason){if(!value)throw std::runtime_error(reason);}
-static void Clear(){Failure.clear();PendingSpecialSurfaceMapInput()={};gameaction=ga_nothing;level.levelMesh=&Current;level.MapName="SDV161A";InstallMesh=AdvanceOwner=true;OverrideMap=nullptr;cl_capfps=true;vid_maxfps=0;vid_vsync=false;}
+static void Clear(){Failure.clear();PendingSpecialSurfaceMapInput()={};gameaction=ga_nothing;level.levelMesh=&Current;level.MapName="SDV161A";InstallMesh=AdvanceOwner=true;OverrideMap=nullptr;cl_capfps=true;vid_maxfps=0;vid_vsync=false;ClassicInputActive=false;ClassicStopCalls=0;}
 static void Queue(unsigned ordinal=56){ObserverValue.SpecialSurfaceInput=true;ObserverValue.Seen=ordinal;ObserverValue.Collected=ordinal-32;DriveSpecialSurfaceInput(ObserverValue);}
 int main(int argc,char** argv){try{
  std::string mode=argc>1?argv[1]:"schedule";
@@ -93,6 +104,12 @@ int main(int argc,char** argv){try{
     SdvkDiagnostics::SpecialSurfaceMapTransitionCompleted(); // no duplicate receipt
    }
   }
+ }else if(mode=="classic-cleanup"){
+  Clear();Queue();ClassicInputActive=true;
+  OrdinaryTicker();Check(ClassicInputActive&&ClassicStopCalls==0,"classic input stopped before deferred new-game completion");
+  OrdinaryTicker();Check(!ClassicInputActive&&ClassicStopCalls==1,"new-game completion did not stop classic input exactly once");
+  Check(!SdvkDiagnostics::SpecialSurfaceMapTransitionPending()&&Failure.empty(),"classic cleanup blocked map completion");
+  std::cout<<"PASS classic cleanup precedes new-game/map initialization\n";
  }else if(mode=="multi-tic"){
   Queue();OrdinaryTicker();OrdinaryTicker();
   Check(!SdvkDiagnostics::SpecialSurfaceMapTransitionPending() && Failure.empty(),"same-loop two-tic completion failed");
