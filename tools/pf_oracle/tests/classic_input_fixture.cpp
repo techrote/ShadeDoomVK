@@ -18,6 +18,13 @@ static bool Parse(const std::vector<uint8_t>& data, ClassicInput::Header& h, boo
 }
 int main(int argc, char** argv)
 {
+    struct Item { Item* Inventory; } ownedLast{nullptr}, ownedFirst{&ownedLast}, foreign{nullptr}, owner{&ownedFirst};
+    assert(ClassicInput::OwnsInventory(&owner, &ownedFirst));
+    assert(ClassicInput::OwnsInventory(&owner, &ownedLast));
+    assert(!ClassicInput::OwnsInventory(&owner, &foreign));
+    assert(!ClassicInput::OwnsInventory(&owner, &owner));
+    assert(!ClassicInput::OwnsInventory(&owner, static_cast<Item*>(nullptr)));
+    assert(!ClassicInput::OwnsInventory(static_cast<Item*>(nullptr), &ownedFirst));
     ClassicInput::Header header;
     const auto good = Demo();
     assert(Parse(good, header) && header.skill == 3 && header.map == 1 && header.tics == 2);
@@ -84,5 +91,5 @@ int main(int argc, char** argv)
         for (size_t i = 0; i < header.tics; ++i) assert(ClassicInput::DecodeTic(actual.data()+13+4*i, 4, tic, error));
         std::cout << "Actual lv01-529 input: 225 tics decoded; no simulation or sync claim\n";
     }
-    std::cout << "Classic input decoder: sign/range/button/weapon/header/truncation checks PASS\n";
+    std::cout << "Classic input decoder: sign/range/button/weapon/owned-inventory/header/truncation checks PASS\n";
 }

@@ -22,6 +22,14 @@ struct Tic
     int weapon = -1; // Original zero-based Doom weapon group, 7 = chainsaw.
 };
 
+template<class Actor> inline bool OwnsInventory(const Actor* owner, const Actor* requested)
+{
+    if (!owner || !requested) return false;
+    for (const Actor* item = owner->Inventory; item; item = item->Inventory)
+        if (item == requested) return true;
+    return false;
+}
+
 inline int SignedByte(uint8_t value)
 {
     return value < 128 ? int(value) : int(value) - 256;

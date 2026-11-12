@@ -32,7 +32,7 @@ class ClassicInputTests(unittest.TestCase):
         self.assertIn('ClassicInput::Parse', start)
         self.assertIn('P_CheckMapData', start)
         self.assertIn('mo->FindInventory("Chainsaw")', game)
-        self.assertIn('if (selected) mo->UseInventory(selected);', game)
+        self.assertIn('if (ClassicInput::OwnsInventory(mo, selected)) mo->UseInventory(selected);', game)
         hud = (ROOT / 'src/g_statusbar/shared_sbar.cpp').read_text(encoding='utf-8')
         self.assertIn('Classic Doom INPUT imported under CURRENT game rules', hud)
         self.assertIn('Original vanilla/Crispy/DSDA demo sync is NOT supported.', hud)

@@ -2576,14 +2576,18 @@ void G_ReadDemoTiccmd (ticcmd_t *cmd, int player)
 			auto mo = players[player].mo;
 			AActor* selected = nullptr;
 			if (input.weapon == 7) selected = mo->FindInventory("Chainsaw");
-			else IFVIRTUALPTRNAME(mo, NAME_PlayerPawn, PickWeapon)
+			else
 			{
-				// Interpret the classic weapon group through current owned-slot selection.
-				VMValue params[] = { mo, input.weapon + 1, !(dmflags2 & DF2_DONTCHECKAMMO) };
-				VMReturn result((void**)&selected);
-				VMCall(func, params, 3, &result, 1);
+				IFVIRTUALPTRNAME(mo, NAME_PlayerPawn, PickWeapon)
+				{
+					// Interpret the classic group through current owned-slot selection.
+					VMValue params[] = { mo, input.weapon + 1, !(dmflags2 & DF2_DONTCHECKAMMO) };
+					VMReturn result((void**)&selected);
+					VMCall(func, params, 3, &result, 1);
+				}
 			}
-			if (selected) mo->UseInventory(selected);
+			// Match Net_DoCommand's owned-list admission, including overridden slot pickers.
+			if (ClassicInput::OwnsInventory(mo, selected)) mo->UseInventory(selected);
 		}
 		return;
 	}
