@@ -1,0 +1,185 @@
+version "4.10"
+
+// Original local add-on. No replacement player/weapon classes or engine edits.
+class SDVKLocalFlashlightBeam : SpotLight
+{
+    Default
+    {
+        Args 255, 240, 216, 180;
+        DynamicLight.SpotInnerAngle 12;
+        DynamicLight.SpotOuterAngle 28;
+        +DYNAMICLIGHT.NOSHADOWMAP
+    }
+    States { Spawn: TNT1 A -1; Stop; }
+}
+
+class SDVKLocalFlashlightBeamNoActors : SDVKLocalFlashlightBeam
+{
+    Default { +DYNAMICLIGHT.DONTLIGHTACTORS }
+}
+
+class SDVKLocalFlashlightHandler : EventHandler
+{
+    const MAX_BEAMS = 5;
+    bool Enabled[MAXPLAYERS];
+    bool ActorMode[MAXPLAYERS];
+    SDVKLocalFlashlightBeam Beams[MAXPLAYERS * MAX_BEAMS];
+
+    double ReadSetting(Name name, int p, double fallback, double low, double high)
+    {
+        let option = CVar.GetCVar(name, players[p]);
+        if (option == null) return fallback;
+        double value = option.GetFloat();
+        if (value != value) return fallback; // NaN; infinities clamp below.
+        return clamp(value, low, high);
+    }
+
+    void DropBeam(int p, int k)
+    {
+        int slot = p * MAX_BEAMS + k;
+        if (Beams[slot] != null)
+        {
+            Beams[slot].Destroy();
+            Beams[slot] = null;
+        }
+    }
+
+    void DropAll(int p)
+    {
+        for (int k = 0; k < MAX_BEAMS; ++k) DropBeam(p, k);
+    }
+
+    void ClearPlayer(int p)
+    {
+        if (p < 0 || p >= MAXPLAYERS) return;
+        DropAll(p);
+        Enabled[p] = false;
+    }
+
+    override void WorldLoaded(WorldEvent e)
+    {
+        // Only new maps. Save restoration retains serialized handler/light state.
+        for (int p = 0; p < MAXPLAYERS; ++p) ClearPlayer(p);
+    }
+    override void WorldUnloaded(WorldEvent e)
+    {
+        for (int p = 0; p < MAXPLAYERS; ++p) ClearPlayer(p);
+    }
+    override void PlayerDied(PlayerEvent e) { ClearPlayer(e.PlayerNumber); }
+    override void PlayerDisconnected(PlayerEvent e) { ClearPlayer(e.PlayerNumber); }
+    override void PlayerSpawned(PlayerEvent e) { ClearPlayer(e.PlayerNumber); }
+
+    override void NetworkProcess(ConsoleEvent e)
+    {
+        bool toggle = e.Name == "SDVKFlashlightToggle";
+        bool turnOn = e.Name == "SDVKFlashlightOn";
+        bool turnOff = e.Name == "SDVKFlashlightOff";
+        bool status = e.Name == "SDVKFlashlightStatus";
+        if (!toggle && !turnOn && !turnOff && !status) return;
+        int p = e.Player;
+        if (p < 0 || p >= MAXPLAYERS || !playeringame[p] || players[p].mo == null) return;
+        if (players[p].playerstate != PST_LIVE) { ClearPlayer(p); return; }
+        if (!status)
+        {
+            if (toggle) Enabled[p] = !Enabled[p];
+            else Enabled[p] = turnOn;
+            if (!Enabled[p]) DropAll(p);
+            Console.Printf("Flashlight %s", Enabled[p] ? "ON" : "OFF");
+            return;
+        }
+        let pawn = players[p].mo;
+        int count = 0;
+        for (int k = 0; k < MAX_BEAMS; ++k) if (Beams[p*MAX_BEAMS+k] != null) ++count;
+        Console.Printf("SDVK_FLASHLIGHT player=%d enabled=%d active=%d eye=(%.3f,%.3f,%.3f) yaw=%.3f pitch=%.3f",
+            p, int(Enabled[p]), int(count > 0), pawn.Pos.X, pawn.Pos.Y,
+            players[p].viewz, pawn.Angle, pawn.Pitch);
+        Console.Printf("SDVK_FLASHLIGHT_CONFIG power=%.3f horizontal=%.3f vertical=%.3f range=%.3f lightactors=%d beams=%d",
+            ReadSetting('sdvk_fl_power',p,100,0,100),
+            ReadSetting('sdvk_fl_horizontal',p,56,28,84),
+            ReadSetting('sdvk_fl_vertical',p,56,28,84),
+            ReadSetting('sdvk_fl_range',p,360,128,768),
+            int(ReadSetting('sdvk_fl_lightactors',p,1,0,1) >= .5), count);
+        Console.Printf("SDVK_FLASHLIGHT_MOUNT x=%.3f y=%.3f z=%.3f yaw=%.3f pitch=%.3f",
+            ReadSetting('sdvk_fl_offset_x',p,0,-16,16), ReadSetting('sdvk_fl_offset_y',p,0,-16,16), ReadSetting('sdvk_fl_offset_z',p,0,-16,16), ReadSetting('sdvk_fl_aim_yaw',p,0,-30,30), ReadSetting('sdvk_fl_aim_pitch',p,0,-30,30));
+        for (int k = 0; k < MAX_BEAMS; ++k)
+        {
+            let beam = Beams[p*MAX_BEAMS+k];
+            if (beam != null)
+                Console.Printf("SDVK_FLASHLIGHT_BEAM owner=%d index=%d pos=(%.3f,%.3f,%.3f) yaw=%.3f pitch=%.3f rgb=(%d,%d,%d) radiusarg=%d inner=%.3f outer=%.3f noactors=%d",
+                    p,k,beam.Pos.X,beam.Pos.Y,beam.Pos.Z,beam.Angle,beam.Pitch,
+                    beam.Args[0],beam.Args[1],beam.Args[2],beam.Args[3],
+                    beam.SpotInnerAngle,beam.SpotOuterAngle,
+                    int(beam is "SDVKLocalFlashlightBeamNoActors"));
+        }
+    }
+
+    override void WorldTick()
+    {
+        for (int p = 0; p < MAXPLAYERS; ++p)
+        {
+            if (!Enabled[p]) continue;
+            let pawn = players[p].mo;
+            if (!playeringame[p] || pawn == null || players[p].playerstate != PST_LIVE)
+            { ClearPlayer(p); continue; }
+            if (players[p].camera != pawn) { DropAll(p); continue; }
+
+            double power = ReadSetting('sdvk_fl_power',p,100,0,100) / 100;
+            double horizontal = ReadSetting('sdvk_fl_horizontal',p,56,28,84) / 2;
+            double vertical = ReadSetting('sdvk_fl_vertical',p,56,28,84) / 2;
+            double reach = ReadSetting('sdvk_fl_range',p,360,128,768);
+            bool actors = ReadSetting('sdvk_fl_lightactors',p,1,0,1) >= .5;
+            if (ActorMode[p] != actors) { DropAll(p); ActorMode[p] = actors; }
+            if (power <= 0) { DropAll(p); continue; }
+
+            int count = 1;
+            if (abs(horizontal - vertical) >= .001)
+                count = max(horizontal,vertical) / min(horizontal,vertical) <= 2 ? 3 : MAX_BEAMS;
+            double minor = min(horizontal,vertical);
+            double difference = abs(horizontal-vertical);
+            double fore = ReadSetting('sdvk_fl_offset_x',p,0,-16,16);
+            double side = ReadSetting('sdvk_fl_offset_y',p,0,-16,16);
+            double height = ReadSetting('sdvk_fl_offset_z',p,0,-16,16);
+            double yaw = pawn.Angle - ReadSetting('sdvk_fl_aim_yaw',p,0,-30,30);
+            double pitch = clamp(pawn.Pitch - ReadSetting('sdvk_fl_aim_pitch',p,0,-30,30), -90.0, 90.0);
+            Vector3 eye = (pawn.Pos.X,pawn.Pos.Y,players[p].viewz);
+            Vector3 origin = eye + (fore*cos(pawn.Angle)+side*sin(pawn.Angle),
+                                    fore*sin(pawn.Angle)-side*cos(pawn.Angle),height);
+            // Keep the emitter clear of the enhanced weapon's 8-unit sample.
+            Vector3 viewForward = (cos(pawn.Pitch)*cos(pawn.Angle),cos(pawn.Pitch)*sin(pawn.Angle),-sin(pawn.Pitch));
+            Vector3 weaponSample = eye + viewForward*8;
+            if ((origin-weaponSample).Length() < 1) origin = weaponSample-viewForward;
+            Vector3 forward = (cos(pitch)*cos(yaw),cos(pitch)*sin(yaw),-sin(pitch));
+            Vector3 right = (sin(yaw),-cos(yaw),0);
+            Vector3 up = (sin(pitch)*cos(yaw),sin(pitch)*sin(yaw),cos(pitch));
+            for (int k = 0; k < MAX_BEAMS; ++k)
+            {
+                if (k >= count) { DropBeam(p,k); continue; }
+                int slot = p*MAX_BEAMS+k;
+                if (Beams[slot] == null)
+                {
+                    if (actors)
+                        Beams[slot] = SDVKLocalFlashlightBeam(Actor.Spawn("SDVKLocalFlashlightBeam",origin,NO_REPLACE));
+                    else
+                        Beams[slot] = SDVKLocalFlashlightBeam(Actor.Spawn("SDVKLocalFlashlightBeamNoActors",origin,NO_REPLACE));
+                }
+                let beam = Beams[slot];
+                if (beam == null) continue;
+                double halfCount = (count-1) / 2.0;
+                double offset = count == 1 ? 0 : (k-halfCount)*difference/halfCount;
+                Vector3 axis = horizontal > vertical ? right : up;
+                Vector3 direction = forward*cos(offset)+axis*sin(offset);
+                beam.SetOrigin(origin,true);
+                beam.A_SetAngle(atan2(direction.Y,direction.X),SPF_INTERPOLATE);
+                beam.A_SetPitch(-atan2(direction.Z,direction.XY.Length()),SPF_INTERPOLATE);
+                // Power and reach are numerically separate. Divide aggregate color
+                // across up to five overlapping lobes, not an exact ellipse.
+                beam.Args[0] = int(255*power/count);
+                beam.Args[1] = int(240*power/count);
+                beam.Args[2] = int(216*power/count);
+                beam.Args[3] = int(reach/2);
+                beam.SpotOuterAngle = minor;
+                beam.SpotInnerAngle = minor * (12.0/28.0);
+            }
+        }
+    }
+}

@@ -76,6 +76,8 @@ Important source-audit corrections include:
 
 Follow [Building and running ShadeDoomVK](docs/BUILDING.md) for Windows/Linux commands, dependencies, CPU checks and executable provenance verification. Use a fresh build directory under `build/`; keep historical qualification builds intact.
 
+For the optional flashlight, normal/PBR materials and side-by-side gallery, see [Doom II and DBP50 material showcase](docs/shadedoomvk/DOOM2-SHOWCASE.md).
+
 From a configured C++ developer environment:
 
 ```text

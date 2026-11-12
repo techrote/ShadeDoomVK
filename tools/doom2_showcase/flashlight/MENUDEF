@@ -1,0 +1,35 @@
+OptionMenu "SDVKFlashlightOptions"
+{
+    Title "Local Flashlight"
+    Command "Toggle flashlight (L)", "netevent SDVKFlashlightToggle"
+    Slider "Power (%)", "sdvk_fl_power", 0, 100, 5, 0
+    Slider "Horizontal spread (degrees)", "sdvk_fl_horizontal", 28, 84, 2, 0
+    Slider "Vertical spread (degrees)", "sdvk_fl_vertical", 28, 84, 2, 0
+    Slider "Reach (map units)", "sdvk_fl_range", 128, 768, 32, 0
+    Option "Flashlight on weapon and actors", "sdvk_fl_lightactors", "OnOff"
+    StaticText "OFF keeps world surfaces lit, but excludes actor sprites/models."
+    StaticText "Different H/V spreads use 3 or 5 overlapping soft cones."
+    StaticText "No occlusion shadows or volumetric beam."
+    StaticText " "
+    Submenu "Position and aim", "SDVKFlashlightMount"
+    Command "Reset flashlight settings", "sdvk_fl_power 100; sdvk_fl_horizontal 56; sdvk_fl_vertical 56; sdvk_fl_range 360; sdvk_fl_lightactors true; sdvk_fl_offset_x 0; sdvk_fl_offset_y 0; sdvk_fl_offset_z 0; sdvk_fl_aim_yaw 0; sdvk_fl_aim_pitch 0"
+}
+
+AddOptionMenu "OptionsMenu"
+{
+    Submenu "Local Flashlight", "SDVKFlashlightOptions"
+}
+
+
+OptionMenu "SDVKFlashlightMount"
+{
+    Title "Flashlight Position and Aim"
+    Slider "X offset (forward / back)", "sdvk_fl_offset_x", -16, 16, 1, 0
+    Slider "Y offset (right / left)", "sdvk_fl_offset_y", -16, 16, 1, 0
+    Slider "Z offset (up / down)", "sdvk_fl_offset_z", -16, 16, 1, 0
+    Slider "Yaw (right / left, degrees)", "sdvk_fl_aim_yaw", -30, 30, 2, 0
+    Slider "Pitch (up / down, degrees)", "sdvk_fl_aim_pitch", -30, 30, 2, 0
+    StaticText "Positive moves forward, right or up."
+    StaticText "X/Y follow your heading; Z adjusts height."
+    Command "Reset position and aim", "sdvk_fl_offset_x 0; sdvk_fl_offset_y 0; sdvk_fl_offset_z 0; sdvk_fl_aim_yaw 0; sdvk_fl_aim_pitch 0"
+}
