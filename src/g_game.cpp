@@ -3153,6 +3153,7 @@ void G_DoPlayDemo (void)
 //
 void G_TimeDemo (const char* name)
 {
+	G_StopClassicInputPlayback();
 	classicInputRequested = false;
 	nodrawers = !!Args->CheckParm ("-nodraw");
 	noblit = !!Args->CheckParm ("-noblit");

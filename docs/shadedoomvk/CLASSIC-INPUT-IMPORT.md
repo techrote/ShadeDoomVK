@@ -1,5 +1,7 @@
 # Explicit classic Doom input import
 
+Scope and remaining acceptance: [issue #188](https://github.com/techrote/ShadeDoomVK/issues/188).
+
 This bounded importer plays the **input commands** in a single-player Doom
 version-109 short-tic LMP through current ShadeDoomVK game rules. It is not a
 vanilla, Crispy or DSDA simulation backend. Original movement trajectories,

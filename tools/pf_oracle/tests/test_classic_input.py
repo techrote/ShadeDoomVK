@@ -22,6 +22,70 @@ class ClassicInputTests(unittest.TestCase):
         # These exact native-protocol bodies are retained from accepted master90415699e.
         self.assertEqual([hashlib.sha256(part.encode()).hexdigest() for part in parts], ['9af2e0eb48335bbb47b0c0ff42c246574ea0009ffe610fc2fe4278a9197c34ed', '2d7fa86a52929e3de14b0f6c9ad621835cf075240d32a9cfb458a914ae7cadf3', '2759c20de3085f94f65076e0592f4fcb14d64f0de7b6e3fd1844fafd77e7ef1d'])
 
+    def test_classic_to_native_timedemo_cleanup_precedes_new_flags(self):
+        import tempfile
+        game = (ROOT / 'src/g_game.cpp').read_text(encoding='utf-8')
+        cleanup = game.split('void G_StopClassicInputPlayback()\n{', 1)[1].split('\n}\n', 1)[0]
+        current = game.split('void G_TimeDemo (const char* name)\n{', 1)[1].split('\n}\n', 1)[0]
+        # Exact pre-fix function body from 88a1eb351, retained as a failing control.
+        legacy = '\n\tclassicInputRequested = false;\n\tnodrawers = !!Args->CheckParm ("-nodraw");\n\tnoblit = !!Args->CheckParm ("-noblit");\n\ttimingdemo = true;\n\tsingletics = true;\n\n\tdefdemoname = name;\n\tgameaction = (gameaction == ga_loadgame) ? ga_loadgameplaydemo : ga_playdemo;'
+        self.assertEqual(hashlib.sha256(legacy.encode()).hexdigest(), 'e63337f8f63cc8f0bcc7bd1c5bbaae8af64bbadf80f01bacd9f9ae1dfc0dc439')
+        harness = r"""
+#include <cassert>
+#include <stdexcept>
+#include <string>
+bool classicInputActive, demoplayback, timingdemo, singletics, nodrawers, noblit, classicInputRequested;
+enum Action { ga_nothing, ga_loadgame, ga_loadgameplaydemo, ga_playdemo };
+Action gameaction;
+unsigned cleanups;
+std::string defdemoname;
+struct Arguments { bool CheckParm(const char*) { return false; } } arguments;
+Arguments* Args = &arguments;
+bool G_CheckDemoStatus() {
+    ++cleanups;
+    // The native cleanup's existing timedemo branch fatally reports a benchmark.
+    if (timingdemo) throw std::runtime_error("timed old imported stream");
+    classicInputActive = demoplayback = timingdemo = singletics = false;
+    gameaction = ga_nothing;
+    return false;
+}
+"""
+        harness += 'void G_StopClassicInputPlayback() {\n' + cleanup + '\n}\n'
+        harness += 'void LegacyTimeDemo(const char* name) {\n' + legacy + '\n}\n'
+        harness += 'void G_TimeDemo(const char* name) {\n' + current + '\n}\n'
+        harness += r"""
+void Reset(bool active) {
+    classicInputActive = demoplayback = active;
+    timingdemo = singletics = nodrawers = noblit = false;
+    classicInputRequested = true;
+    gameaction = ga_nothing; cleanups = 0; defdemoname.clear();
+}
+int main() {
+    Reset(true);
+    LegacyTimeDemo("native.lmp");
+    bool failed = false;
+    try { G_StopClassicInputPlayback(); } catch (const std::runtime_error&) { failed = true; }
+    assert(failed && cleanups == 1);
+    Reset(true);
+    G_TimeDemo("native.lmp");
+    assert(cleanups == 1 && !classicInputActive && !demoplayback);
+    assert(timingdemo && singletics && !classicInputRequested && defdemoname == "native.lmp");
+    assert(gameaction == ga_playdemo);
+    G_StopClassicInputPlayback();
+    assert(cleanups == 1 && timingdemo && singletics);
+    Reset(false);
+    G_TimeDemo("normal.lmp");
+    assert(cleanups == 0 && timingdemo && singletics && gameaction == ga_playdemo);
+    Reset(true); gameaction = ga_loadgame;
+    G_TimeDemo("with-save.lmp");
+    assert(cleanups == 1 && timingdemo && singletics && gameaction == ga_loadgameplaydemo);
+}
+"""
+        with tempfile.TemporaryDirectory(prefix='classic-timedemo-control-') as directory:
+            fixture = Path(directory) / 'transition.cpp'
+            fixture.write_text(harness, encoding='utf-8')
+            run_fixture(fixture, root=ROOT)
+
     def test_explicit_interface_and_visible_warning(self):
         main = (ROOT / 'src/d_main.cpp').read_text(encoding='utf-8')
         self.assertIn('Args->CheckValue("-playclassicinput")', main)

@@ -1909,6 +1909,8 @@ negative qualification records. No physical launch is part of these controls.
 
 ## 12 November 2026 — explicit classic-input adapter candidate
 
+Owning scope and acceptance: [issue #188](https://github.com/techrote/ShadeDoomVK/issues/188).
+
 The owner selected current-rules input import after a real version-109 speedrun
 LMP was rejected by the inherited native FORM-only reader. The isolated
 `feature/classic109-input-import-20261112` candidate adds explicit
@@ -1917,7 +1919,10 @@ game-tic command mapping and visible non-sync warnings. Normal `-playdemo`, nati
 recording, current physics/compatibility/RNG policy are retained. No forced route,
 state correction, inventory grant or vanilla simulation backend is introduced.
 [The contract](CLASSIC-INPUT-IMPORT.md) records supported headers, rejected special
-commands and source provenance. Focused CPU decoder/mapping/truncation tests pass;
+commands and source provenance. Five focused CPU tests pass, including the
+compiled decoder and an extracted old-fails/new-passes classic-to-native-timedemo
+transition control. The importer closes the old stream before setting a new
+native benchmark's timing flags. CPU decoder/mapping/truncation tests pass;
 full build, independent review, native positive/negative and native-FORM regression
 qualification remain required. No renderer milestone or physical acceptance is
 awarded by this candidate.
