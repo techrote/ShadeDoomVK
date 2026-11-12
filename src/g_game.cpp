@@ -91,6 +91,7 @@
 #include "screenjob.h"
 #include "i_interface.h"
 #include "fs_findfile.h"
+#include "g_classicinput.h"
 
 
 static FRandom pr_dmspawn ("DMSpawn");
@@ -173,6 +174,20 @@ FString			newdemomap;
 FString			demoname;
 bool 			demorecording;
 bool 			demoplayback;
+static bool classicInputRequested = false, classicInputActive = false;
+static size_t classicInputRemaining = 0, classicInputTotal = 0;
+
+bool G_IsClassicInputPlayback() { return classicInputActive && demoplayback; }
+void G_StopClassicInputPlayback()
+{
+	if (!classicInputActive) return;
+	const auto action = gameaction;
+	// This format owns the buffer and CVar backup until common demo cleanup.
+	// Explicit new-game/load/play commands may already have reset demoplayback.
+	demoplayback = true;
+	G_CheckDemoStatus();
+	gameaction = action;
+}
 bool			demonew;				// [RH] Only used around G_InitNew for demos
 int				demover;
 uint8_t*			demobuffer;
@@ -2026,6 +2041,7 @@ void FinishLoadingCVars();
 
 void G_DoLoadGame ()
 {
+	G_StopClassicInputPlayback();
 	SetupLoadingCVars();
 	bool hidecon;
 
@@ -2531,6 +2547,46 @@ void G_DoSaveGame (bool okForQuicksave, bool forceQuicksave, FString filename, c
 
 void G_ReadDemoTiccmd (ticcmd_t *cmd, int player)
 {
+	if (classicInputActive)
+	{
+		cmd->ucmd = {};
+		if (!classicInputRemaining)
+		{
+			G_CheckDemoStatus();
+			return;
+		}
+		ClassicInput::Tic input;
+		std::string error;
+		// Entire stream was validated before initialization; keep the reader bounded too.
+		if (player != 0 || demo_p > zdembodyend || size_t(zdembodyend - demo_p) < 4 ||
+			!ClassicInput::DecodeTic(demo_p, size_t(zdembodyend - demo_p), input, error))
+		{
+			G_CheckDemoStatus();
+			I_Error("Classic input playback stopped: %s", error.empty() ? "invalid player or stream boundary" : error.c_str());
+			return;
+		}
+		demo_p += 4;
+		--classicInputRemaining;
+		cmd->ucmd.forwardmove = input.forward;
+		cmd->ucmd.sidemove = input.side;
+		cmd->ucmd.yaw = input.yaw;
+		cmd->ucmd.buttons = input.buttons;
+		if (input.weapon >= 0 && players[player].mo && players[player].playerstate == PST_LIVE && !paused)
+		{
+			auto mo = players[player].mo;
+			AActor* selected = nullptr;
+			if (input.weapon == 7) selected = mo->FindInventory("Chainsaw");
+			else IFVIRTUALPTRNAME(mo, NAME_PlayerPawn, PickWeapon)
+			{
+				// Interpret the classic weapon group through current owned-slot selection.
+				VMValue params[] = { mo, input.weapon + 1, !(dmflags2 & DF2_DONTCHECKAMMO) };
+				VMReturn result((void**)&selected);
+				VMCall(func, params, 3, &result, 1);
+			}
+			if (selected) mo->UseInventory(selected);
+		}
+		return;
+	}
 	int id = DEM_BAD;
 
 	while (id != DEM_USERCMD && id != DEM_EMPTYUSERCMD)
@@ -2726,8 +2782,10 @@ void G_BeginRecording (const char *startmap)
 
 FString defdemoname;
 
-void G_DeferedPlayDemo (const char *name)
+void G_DeferedPlayDemo (const char *name, bool classicInput)
 {
+	G_StopClassicInputPlayback();
+	classicInputRequested = classicInput;
 	defdemoname = name;
 	gameaction = (gameaction == ga_loadgame) ? ga_loadgameplaydemo : ga_playdemo;
 }
@@ -2749,6 +2807,22 @@ UNSAFE_CCMD (playdemo)
 		G_DeferedPlayDemo (argv[1]);
 		singledemo = true;
 	}
+}
+
+UNSAFE_CCMD(playclassicinput)
+{
+	if (netgame || multiplayer || demorecording || demoplayback)
+	{
+		Printf("Classic input import requires a single-player session without an active demo.\n");
+		return;
+	}
+	if (argv.argc() != 2)
+	{
+		Printf("Usage: playclassicinput <version-109.lmp> (CURRENT rules; original sync NOT supported)\n");
+		return;
+	}
+	G_DeferedPlayDemo(argv[1], true);
+	singledemo = true;
 }
 
 UNSAFE_CCMD (timedemo)
@@ -2915,8 +2989,12 @@ bool G_ProcessIFFDemo (FString &mapname)
 
 void G_DoPlayDemo (void)
 {
+	G_StopClassicInputPlayback();
 	FString mapname;
 	int demolump;
+	size_t demoSize = 0;
+	const bool importClassic = classicInputRequested;
+	classicInputRequested = false;
 
 	gameaction = ga_nothing;
 
@@ -2925,6 +3003,7 @@ void G_DoPlayDemo (void)
 	if (demolump >= 0)
 	{
 		int demolen = fileSystem.FileLength (demolump);
+		demoSize = size_t(demolen);
 		demobuffer = (uint8_t *)M_Malloc(demolen);
 		fileSystem.ReadFile (demolump, demobuffer);
 	}
@@ -2938,6 +3017,7 @@ void G_DoPlayDemo (void)
 			I_Error("Unable to open demo '%s'", defdemoname.GetChars());
 		}
 		auto len = fr.GetLength();
+		demoSize = size_t(len);
 		demobuffer = (uint8_t*)M_Malloc(len);
 		if (fr.Read(demobuffer, len) != len)
 		{
@@ -2947,10 +3027,78 @@ void G_DoPlayDemo (void)
 	demo_p = demobuffer;
 
 	if (singledemo) Printf ("Playing demo %s\n", defdemoname.GetChars());
+	if (importClassic)
+	{
+		ClassicInput::Header header;
+		std::string error;
+		if (gameinfo.gametype != GAME_Doom || netgame || multiplayer || demorecording || demoplayback)
+			error = "Classic input import requires Doom-family single-player without another active demo";
+		else if (!ClassicInput::Parse(demobuffer, demoSize, !!(gameinfo.flags & GI_MAPxx), header, error) && error.empty())
+			error = "Invalid classic input stream";
+		if (!error.empty())
+		{
+			M_Free(demobuffer);
+			demo_p = demobuffer = nullptr;
+			I_Error("Cannot import classic input: %s", error.c_str());
+			return;
+		}
+		if (gameinfo.flags & GI_MAPxx) mapname.Format("MAP%02u", header.map);
+		else mapname.Format("E%uM%u", header.episode, header.map);
+		if (!P_CheckMapData(mapname.GetChars()))
+		{
+			M_Free(demobuffer);
+			demo_p = demobuffer = nullptr;
+			I_Error("Classic input map %s does not exist in current content", mapname.GetChars());
+			return;
+		}
+		C_BackupCVars();
+		UCVarValue value;
+		value.Int = int(header.skill); gameskill->ForceSet(value, CVAR_Int);
+		value.Int = 0; deathmatch->ForceSet(value, CVAR_Int);
+		value.Int = (int(dmflags) & ~(DF_MONSTERS_RESPAWN | DF_FAST_MONSTERS | DF_NO_MONSTERS)) |
+			(header.respawn ? DF_MONSTERS_RESPAWN : 0) | (header.fast ? DF_FAST_MONSTERS : 0) |
+			(header.noMonsters ? DF_NO_MONSTERS : 0);
+		dmflags->ForceSet(value, CVAR_Int);
+		for (int i = 0; i < MAXPLAYERS; ++i) playeringame[i] = i == 0;
+		consoleplayer = 0;
+		netgame = multiplayer = false;
+		Printf(PRINT_HIGH, "CLASSIC INPUT IMPORT: version 109, %llu tics, %s, skill=%u respawn=%d fast=%d nomonsters=%d\n",
+			static_cast<unsigned long long>(header.tics), mapname.GetChars(), header.skill,
+			header.respawn, header.fast, header.noMonsters);
+		Printf(PRINT_HIGH, "CURRENT ShadeDoomVK game rules and RNG policy. NOT faithful vanilla/Crispy/DSDA playback; speedrun sync is NOT supported.\n");
+		// Use ordinary current-game initialization, including its existing RNG policy.
+		// No classic compatibility preset, physics patch, seed or state correction is applied.
+		precache = false;
+		demonew = true;
+		try
+		{
+			G_InitNew(mapname.GetChars(), false);
+		}
+		catch (...)
+		{
+			C_RestoreCVars();
+			M_Free(demobuffer);
+			demo_p = demobuffer = nullptr;
+			demonew = false;
+			precache = true;
+			throw;
+		}
+		demonew = false;
+		precache = true;
+		usergame = false;
+		demoplayback = classicInputActive = true;
+		demover = 109;
+		classicInputRemaining = classicInputTotal = header.tics;
+		demo_p = demobuffer + 13;
+		zdembodyend = demobuffer + demoSize - 1;
+		C_HideConsole();
+		playedtitlemusic = false;
+		return;
+	}
 
 	C_BackupCVars ();		// [RH] Save cvars that might be affected by demo
 
-	if (ReadInt32 (&demo_p) != FORM_ID)
+	if (demoSize < 4 || ReadInt32 (&demo_p) != FORM_ID)
 	{
 		const char *eek = "Cannot play non-" GAMENAME " demos.\n";
 
@@ -3001,6 +3149,7 @@ void G_DoPlayDemo (void)
 //
 void G_TimeDemo (const char* name)
 {
+	classicInputRequested = false;
 	nodrawers = !!Args->CheckParm ("-nodraw");
 	noblit = !!Args->CheckParm ("-noblit");
 	timingdemo = true;
@@ -3032,6 +3181,14 @@ bool G_CheckDemoStatus (void)
 	{
 		extern int starttime;
 		int endtime = 0;
+		if (classicInputActive)
+		{
+			Printf("Classic input playback ended: %llu/%llu tics consumed; original demo sync NOT verified.\n",
+				static_cast<unsigned long long>(classicInputTotal - classicInputRemaining),
+				static_cast<unsigned long long>(classicInputTotal));
+			classicInputActive = false;
+			classicInputRemaining = classicInputTotal = 0;
+		}
 
 		if (timingdemo)
 			endtime = I_GetTime () - starttime;

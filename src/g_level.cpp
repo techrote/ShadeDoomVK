@@ -525,6 +525,7 @@ void G_NewInit ()
 
 void G_DoNewGame (void)
 {
+	G_StopClassicInputPlayback();
 	G_NewInit ();
 	playeringame[consoleplayer] = 1;
 	if (d_skill != -1)

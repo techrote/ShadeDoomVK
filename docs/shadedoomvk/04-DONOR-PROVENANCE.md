@@ -179,3 +179,18 @@ inherited dormant Z-min/max/light-tile implementation and accepted PF/SDVK
 history. A small host-only ordered-index model is repository-authored evidence
 for representation/storage reasoning only. No provenance/license delta is
 introduced by this phase.
+
+## Explicit classic-109 input importer — 12 November 2026
+
+The opt-in input adapter is conceptually reimplemented from the documented
+classic byte format, with no source copied/cherry-picked. References are
+`id-Software/DOOM@a77dfb96cb91780ca334d0d4cfd86957558007e0` and
+`chocolate-doom/chocolate-doom@a2dfd51fcc00d272dc8a17a97ccd6683333ff4ea`,
+their `g_game.c` demo header/tic readers. Those external complete repositories
+are not imported or asserted as ShadeDoomVK ancestors; the equivalent bounded
+classic reader was absent from accepted recipient `90415699ecd642f56d6180ac8aa1d92d2033bfea`.
+Existing GPL notices are retained; no external assets, gameplay implementation
+or dependencies are added. Current native FORM protocol and current simulation
+remain inherited. [Contract and limitations](CLASSIC-INPUT-IMPORT.md) distinguish
+input-format support from original-demo synchronization; CPU tests exercise
+the actual new decoder and retain exact native-protocol source bodies.
