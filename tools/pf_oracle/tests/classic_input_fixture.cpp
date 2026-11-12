@@ -16,6 +16,14 @@ static bool Parse(const std::vector<uint8_t>& data, ClassicInput::Header& h, boo
     assert(ok || !error.empty());
     return ok;
 }
+struct ProxyItem;
+struct MutableInventoryLink
+{
+    ProxyItem* pointer;
+    // The engine's GC TObjPtr intentionally exposes a mutable read conversion.
+    operator ProxyItem*() { return pointer; }
+};
+struct ProxyItem { MutableInventoryLink Inventory; };
 int main(int argc, char** argv)
 {
     struct Item { Item* Inventory; } ownedLast{nullptr}, ownedFirst{&ownedLast}, foreign{nullptr}, owner{&ownedFirst};
@@ -25,6 +33,10 @@ int main(int argc, char** argv)
     assert(!ClassicInput::OwnsInventory(&owner, &owner));
     assert(!ClassicInput::OwnsInventory(&owner, static_cast<Item*>(nullptr)));
     assert(!ClassicInput::OwnsInventory(static_cast<Item*>(nullptr), &ownedFirst));
+    ProxyItem proxyLast{{nullptr}}, proxyFirst{{&proxyLast}}, proxyForeign{{nullptr}}, proxyOwner{{&proxyFirst}};
+    assert(ClassicInput::OwnsInventory(&proxyOwner, &proxyFirst));
+    assert(ClassicInput::OwnsInventory(&proxyOwner, &proxyLast));
+    assert(!ClassicInput::OwnsInventory(&proxyOwner, &proxyForeign));
     ClassicInput::Header header;
     const auto good = Demo();
     assert(Parse(good, header) && header.skill == 3 && header.map == 1 && header.tics == 2);
