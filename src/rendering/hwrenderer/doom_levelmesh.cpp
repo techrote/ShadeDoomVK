@@ -2915,7 +2915,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 
 	FString fullpath = GetMapFilename(doomMap);
 	if (fullpath.Len() == 0)
-		return;
+		I_Error("Could not resolve map WAD file for LIGHTMAP output");
 
 	Printf("Saving LIGHTMAP lump into %s\n", fullpath.GetChars());
 
@@ -3017,18 +3017,14 @@ FString DoomLevelMesh::GetMapFilename(FLevelLocals& doomMap)
 	FString fmt;
 	fmt.Format("maps/%s.wad", mapname);
 	int lump_wad = fileSystem.CheckNumForFullName(fmt.GetChars());
-	if (lump_wad == -1)
-	{
-		I_Error("Could not find map lump");
-		return {};
-	}
+	// P_OpenMapData can prefer a later classic WAD or maps/*.map with the
+	// same map name. The selected map must be this exact nested WAD entry.
+	if (lump_wad == -1 || lump_wad != doomMap.lumpnum)
+		I_Error("Loaded map '%s' is not the maps/%s.wad entry required for LIGHTMAP output", mapname, mapname);
 
 	int wadnum = fileSystem.GetFileContainer(lump_wad);
 	if (wadnum == -1)
-	{
 		I_Error("Could not find map folder");
-		return {};
-	}
 
 	FString filename = fileSystem.GetFileFullName(lump_wad);
 	FString folder = fileSystem.GetResourceFileFullName(wadnum);
