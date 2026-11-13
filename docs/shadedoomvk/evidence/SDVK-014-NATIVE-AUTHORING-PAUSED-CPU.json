@@ -1,0 +1,84 @@
+{
+  "schema": "sdvk014-paused-native-authoring-cpu/v1",
+  "status": "DRAFT_CPU_ONLY_NATIVE_NOT_QUALIFIED_DEFERRED_BY_OWNER",
+  "source_parent": "e3e328c9a9e9cee9d930fc684819469bf02bc80d",
+  "working_files": [
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\src\\rendering\\hwrenderer\\doom_levelmesh.cpp",
+      "size": 97443,
+      "sha256": "34b5a44c66245d45c3e68275784eecd56c6d670504bb3b1508293650c9d37336"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\pf_oracle\\tests\\test_sdvk014_flat_surface_ownership.py",
+      "size": 13030,
+      "sha256": "6381fd65a5e2485b9aef43134c3837a328e79a0e8d2a344e87188d7ec9ad747f"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\corpus.json",
+      "size": 635206,
+      "sha256": "07ddf133f6498a47eee936351fb39a93fd9c9efc8dcf8d0431df0b0b3e36f7ef"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\prepare.py",
+      "size": 85474,
+      "sha256": "116a0a6bd5de49829c1abf4cf0ada4e7b151b2fb66df91b167d791b1d6085b0c"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\run.py",
+      "size": 77728,
+      "sha256": "176955c1417177d61c0fc976fe82f60a2b8c3c27ec0c7915a65ec5c316d0025c"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\sdvk161_special_surfaces.py",
+      "size": 95620,
+      "sha256": "44e49f2c7cb2db2f6bba8303b6942013707a0fbb78f9063071e2eefa4dcbbbee"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\sdvk014_controlled_planes.py",
+      "size": 23355,
+      "sha256": "434c04b95e4100aef61fb3cd593c6ea2763d319a9c4ab2299dbbf5a447068959"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\tests\\test_sdvk014_controlled_planes.py",
+      "size": 10343,
+      "sha256": "e23e6d8796e3bb3e03b6fab10da7ba2b3023b1a70a9d08e411d7026e6d080e8c"
+    },
+    {
+      "path": "C:\\ShadeDoomVK\\worktrees\\sdvk014-controlled-native-20261107\\tools\\renderer_oracle\\tests\\test_corpus.py",
+      "size": 56355,
+      "sha256": "12b50ee66129924b0cea50d01b1af249a0896b4519b0e915282a32aa263eccce"
+    }
+  ],
+  "focused": {
+    "tests": 110,
+    "seconds": 38.931,
+    "status": "PASS",
+    "log": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\resumption-20261107\\controlled-native-focused-03.log",
+      "size": 25139,
+      "sha256": "cd475305548557b6906dc443eb4da26ba0acc885bdf9441fb1a50477cfee2e20"
+    }
+  },
+  "earlier_authoring_corpus": {
+    "tests": 33,
+    "seconds": 33.359,
+    "status": "PASS",
+    "log": {
+      "path": "C:\\ShadeDoomVK\\physical-evidence\\resumption-20261107\\controlled-native-focused-02.log",
+      "size": 6722,
+      "sha256": "e9d459598352b1a0ee622be283223d62b53ce59ec4349bfc47f6a21634b84583"
+    }
+  },
+  "retained_initial_fixture_regex_failure": {
+    "path": "C:\\ShadeDoomVK\\physical-evidence\\resumption-20261107\\controlled-native-focused-01.log",
+    "size": 2771,
+    "sha256": "7c875cdf255104fa7bba4abd531586114c9f3bf7f411a88f4f9ccd63ce7ea1f8"
+  },
+  "full_linked_build": "NOT_RUN",
+  "normal_CI": "NOT_RUN",
+  "independent_new_native_layer_review": "PENDING",
+  "native_renderer_executions": 0,
+  "physical_gpu_executions": 0,
+  "milestone_accepted": false,
+  "next": "Owner explicitly deferred this scope; preserve clean checkpoint and stop"
+}

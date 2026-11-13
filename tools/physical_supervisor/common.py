@@ -592,14 +592,16 @@ def source_check_requests(packet):
                     "Separated source checkout/ancestor is a link/junction")
     requests = []
     for root, source in roots:
-        # Preparation retains the renderer-era manifest and asks whether that
-        # renderer commit exists in the oracle checkout. Both roots prove that
-        # same existence fact, while HEAD/tree/clean checks use their own pins.
+        # Both roots prove the renderer commit exists. Preparation can also
+        # have been authored by the separately frozen oracle checkout.
         for arguments, expected in ((["rev-parse", "HEAD", "HEAD^{tree}"],
                                      [source["commit"], source["tree"]]),
                                     (["status", "--porcelain", "--untracked-files=all"], []),
                                     (["cat-file", "-e", packet["source"]["commit"] + "^{commit}"], [])):
             requests.append(([packet["git"], "--no-optional-locks", "-C", root, *arguments], expected))
+    if separated and packet["oracle_source"]["commit"] != packet["source"]["commit"]:
+        requests.append(([packet["git"], "--no-optional-locks", "-C", packet["oracle_source_root"],
+                          "cat-file", "-e", packet["oracle_source"]["commit"] + "^{commit}"], []))
     return requests
 
 

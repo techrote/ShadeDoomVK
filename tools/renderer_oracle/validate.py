@@ -748,7 +748,7 @@ fallbacks remain compared.
         if isinstance(resource, dict) and resource.get("available") is True and "runtime_irradiance_index" in value:
             result["runtime_irradiance_index"] = resource_ordinal(resource)
         material = value.get("material")
-        if (value.get("producer") in ("levelmesh-surface-range", "immediate-special-surface")
+        if (value.get("producer") in ("levelmesh-surface-range", "immediate-special-surface", "immediate-controlled-flat-range")
                 and isinstance(material, dict) and material.get("resource", {}).get("available") is True):
             # Keep the actual submitted texture index tied to exactly the same
             # descriptor bijection as its nested bound material identity.

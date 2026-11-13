@@ -6,6 +6,7 @@
 
 struct HWDrawInfo;
 struct FFlatVertex;
+struct F3DFloor;
 class LevelMesh;
 struct HWSpriteRenderSurfaceState;
 struct HWSpriteTangentBasis;
@@ -82,6 +83,8 @@ struct SpecialSurfaceMetadata
     double Plane[4] = {};
     bool HasPlane = false;
     bool FirstDrawOnly = false;
+    const F3DFloor* IndexedFlatRover = nullptr;
+    int SourcePlane = -1, FirstIndex = -1, IndexCount = 0;
     SdvkSurfaceObservation::WrittenVertices WrittenUV;
     const char* UvScope = "no receiving atlas UV validation is available for this producer";
 };

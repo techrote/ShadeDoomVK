@@ -2,6 +2,12 @@
 
 Status: **required later evidence; not executed by the non-physical-GPU phase**.
 
+The prospective [bounded shadow-off scaling profile](SDVK-009-SHADOWOFF-SCALING.md)
+collects a separate four-workload partial stratum through the native supervisor.
+It uses explicit sparse shadow-off variants and preserves the full acceptance
+criteria below. Its reduced matrix remains descriptive pending later reviewed
+architecture disposition; fresh source/build/owner/packet review is required.
+
 ## Decision being tested
 
 The off-GPU phase leaves one production-correct candidate: the unchanged PF many-light architecture plus SDVK-009's correctness-only upload boundary repair and state diagnostics. Physical testing decides whether that architecture remains adequate under matched sparse→dense workloads. No tiled/clustered prototype is permitted into this campaign unless a later repository revision first passes the same off-GPU semantic gates and receives a new preregistered variant section.
@@ -33,7 +39,7 @@ Use the generated renderer-oracle scenes with their exact fixed cameras and scen
 
 The accepted corpus reference extent remains **640x480**. First run the full ten-scene paired state/image corpus at that authored extent on the exact physical build so portals, materials, sprites, probes and shadows remain covered. PF-016 retained model evidence remains authoritative; do not add an unpinned third-party model during measurement.
 
-The architecture timing campaign uses **1904x1001**, matching the representative PF-016/PF-017 physical extent closely enough to preserve historical continuity and avoiding a GPU-scaling decision based only on the CI-friendly 640x480 reference. `tools/renderer_oracle/run.py capture --extent 1904x1001` records the override in the reproduction profile, rewrites only the prepared `-width`/`-height` launch values and validates the actual observed extent. Before timing, collect and exact-compare two 1904x1001 state/image captures for `lights-many`, `lights-dense-dispersed` and `lights-dense-overlap`; those high-resolution state packets are the timing-workload selected/upload-count authority.
+The architecture timing campaign uses **1904x1001**, matching the representative PF-016/PF-017 physical extent closely enough to preserve historical continuity and avoiding a GPU-scaling decision based only on the CI-friendly 640x480 reference. `tools/renderer_oracle/run.py capture --extent 1904x1001` records the override in the reproduction profile, rewrites the prepared `-width`/`-height` launch values and the authored window resize, and validates the actual observed extent. Before timing, collect and exact-compare two 1904x1001 state/image captures for `lights-many`, `lights-dense-dispersed` and `lights-dense-overlap`; those high-resolution state packets are the timing-workload selected/upload-count authority.
 
 For the dense timing scenes, keep shadows disabled exactly as authored so light-list/shader scaling is not confounded by shadow-map selection. Do not lower light count, resolution, precision, material quality or effects selectively between runs.
 

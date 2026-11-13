@@ -73,6 +73,21 @@ class SyntheticRunReceiptTests(unittest.TestCase):
         with self.assertRaises(common.EvidenceError):
             run.validated_extent(legacy_override, native, argv)
 
+    def test_extent_override_updates_only_the_authored_resize(self):
+        scene = next(s for s in prepare.load_catalog()["scenes"] if s["id"] == "lights-one-shadow-off")
+        raw = prepare.capture_script(scene)
+        reference = scene["native"]["extent"]
+        self.assertIn(b"vid_setsize 640 480", raw)
+        self.assertIs(run.capture_script_at_extent(raw, reference, reference), raw)
+        self.assertEqual(run.capture_script_at_extent(raw, reference, [1904, 1001]),
+                         raw.replace(b"vid_setsize 640 480", b"vid_setsize 1904 1001"))
+        no_resize = b"fov 90; screenblocks 12\n"
+        self.assertIs(run.capture_script_at_extent(no_resize, reference, [1904, 1001]), no_resize)
+        for script in (raw.replace(b"640 480", b"800 600"),
+                       raw.rstrip(b"\n") + b"; vid_setsize 640 480\n"):
+            with self.assertRaisesRegex(common.EvidenceError, "reference extent"):
+                run.capture_script_at_extent(script, reference, [1904, 1001])
+
     def test_material_semantic_custom_layers_require_explicit_assertion(self):
         authored = [
             {"binding": i, "semantic": semantic, "role": "authored-layer",

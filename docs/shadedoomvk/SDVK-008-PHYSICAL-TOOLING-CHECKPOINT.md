@@ -401,3 +401,42 @@ required. Physical launches remain stopped, and this repair launches no renderer
 Validation passes 48 focused marker/driver tests and all 162 renderer-oracle
 tests in 54.261 seconds with MSVC 14.44.35207, including all 25 unchanged PK3
 identities and the compiled canonical camera checks.
+
+## Prospective current-source partial campaign — 7 November 2026
+
+The later direct owner correction authorizes fresh physical work with explicit
+new source/build/content/host identities and retained historical failures. The
+optional `sdvk008_physical.py --current-source-plan FILE
+--current-source-plan-sha256 SHA` path supports this without changing the
+historical frozen-source default or software-only llvmpipe restrictions.
+
+The sealed plan binds separate clean renderer and oracle commit/tree identities,
+the owner correction and prospective generation, every retained historical STOP,
+exact executable/IWAD/engine packages, IWAD license, genuine Vulkan summary,
+device name, eight current reference recipe hashes and fixed protocol values.
+Generation/source, raw input and recipe mismatches fail before native capture.
+Physical supervisor containment, telemetry/events, terminal fault handling and
+independent launch review remain separate mandatory execution responsibilities.
+
+`partial-reference` requires `--correctness-only`: default-OFF, heightless,
+single-medium direction/effect and alpha-background controls, each recipe twice
+at 640x480 (16 processes, 120 warmup plus one retained frame). It runs no timing.
+`partial-reference-and-cost` additionally repeats S0/SM state twice at 1904x1001,
+then measures only that matched medium single-card pair in the original filtered
+counterbalanced orders S0/SM, SM/S0, S0/SM. Its six independent timing processes
+retain exactly 120 warmup plus 120 consecutive timing frames, for 26 processes
+total. Timing starts only after every selected image witness passes. Captures
+never retry; each has a preregistered timeout of at most 600 seconds.
+
+All original percentile, 5% OFF variability, strict max(0.05 ms, 2x OFF MAD),
+same-sign repetition and raw per-frame GPU coverage rules remain. Report CPU
+RenderView and `scene.immediate` separately; never sum nested groups. The latter
+must occur exactly once in each of all 120 retained frames of all six processes
+or GPU scene cost remains inconclusive.
+
+Both modes explicitly retain missing full-acceptance gates, uncollected pairs
+and uncollected timing variants. They award no accepted relief mode, physical
+qualification, default or performance acceptance. The original eleven-variant
+full campaign still refuses missing advanced correctness fixtures. Issue #8's
+closed GitHub state does not supply the absent technical acceptance evidence;
+#12 remains dependency-blocked. This source addition itself executes no GPU.

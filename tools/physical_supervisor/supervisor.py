@@ -374,6 +374,7 @@ def execute(packet, approval, output, *, readers=None):
     gate = Gate(packet["stop_root"], packet_sha)
     locks, collector, target, job, watch,modules,integrity,roots = [], None, None, None, None,None,None,None
     collector_identity = target_identity = None
+    reference_locks = []
     status, error = "FAILED_STOP", "Incomplete supervisor"
     conditional_started = False
     claim = gate.root / ("claim-" + packet_sha + ".json")
@@ -402,9 +403,24 @@ def execute(packet, approval, output, *, readers=None):
         job = Job()
         watch.start()
         scanner = LogScanner()
+        from .registered import (KIND, SHADOWOFF_PURPOSE, shadowoff_reference_receipt,
+                                 shadowoff_reference_stage)
+        shadowoff_states = None
+        if packet["kind"] == KIND:
+            registration = packet["workload_registration"]
+            verify_pin(registration)
+            if read_json(registration["path"])["purpose"] == SHADOWOFF_PURPOSE:
+                shadowoff_states = []
         for index, stage in enumerate(packet["stages"]):
             control = output / f"{index:02d}-{stage['name']}"
             control.mkdir(exist_ok=False)
+            reference_pin = None
+            if shadowoff_states is not None and index == 8:
+                reference_path = control / "shadowoff-fenced-references.json"
+                exclusive(reference_path, shadowoff_reference_receipt(packet, stage, shadowoff_states))
+                reference_pin = pin(reference_path)
+                reference_locks.append(FileLock(reference_pin))
+                journal.append("shadowoff-fenced-references", reference_pin)
             self_process = Process.open(os.getpid())
             try:
                 supervisor_identity = self_process.identity()
@@ -454,7 +470,7 @@ def execute(packet, approval, output, *, readers=None):
                 journal.append("source-preflight",{"receipt":source_proof_pin,"checks":checks})
                 code = ("import sys;sys.path.insert(0," + repr(tooling_root) + ");"
                         "from tools.physical_supervisor.collector import main;"
-                        "raise SystemExit(main(" + repr(str(output / "packet.json")) + "," + str(index) + "," + repr(str(control)) + ","+repr(source_proof_pin)+"))")
+                        "raise SystemExit(main(" + repr(str(output / "packet.json")) + "," + str(index) + "," + repr(str(control)) + ","+repr(source_proof_pin) + "," + repr(reference_pin) + "))")
                 argv = [packet["python"], "-I", "-B", "-c", code]
                 watch.check()
                 def pump():
@@ -562,6 +578,16 @@ def execute(packet, approval, output, *, readers=None):
                             verify_pin(row)
                         for relative in stage["required_outputs"]:
                             require((Path(stage["capture"]["out"]) / relative).is_file(), "Missing required native evidence")
+                        if shadowoff_states is not None:
+                            # Bind later comparisons and timing summaries to
+                            # the exact bytes independently validated here.
+                            if stage["capture"]["mode"] == "state":
+                                reference = shadowoff_reference_stage(stage, result)
+                                artifacts = reference["files"]
+                            else:
+                                artifacts = (result["run"], result["native"])
+                            for artifact in artifacts:
+                                reference_locks.append(FileLock(artifact))
                         independent = validate_stage(packet, stage, control, target_identity)
                         journal.append("independent-stage-validation", independent)
                         journal.append("collector-exit", {"identity": collector_identity, "returncode": code, "result": result})
@@ -595,6 +621,12 @@ def execute(packet, approval, output, *, readers=None):
                     journal.append("stage-artifacts", {"root": stage["capture"]["out"], "files": inventory(stage["capture"]["out"])})
                     from .conditional_grant import complete_stage
                     complete_stage(packet, stage)
+                if shadowoff_states is not None and stage["capture"]["mode"] == "state":
+                    require(independent["validation"] == "PASS",
+                            "Shadow-off state was not independently validated")
+                    reference["workload"] = independent["registered_workload_validation"]["workload"]
+                    reference["comparison"] = independent["comparison"]
+                    shadowoff_states.append(reference)
                 integrity.finish();last_integrity=integrity;integrity=None
                 watch = Watch(packet, fence_baseline, journal, watch.readers)
                 watch.start()
@@ -684,7 +716,7 @@ def execute(packet, approval, output, *, readers=None):
         for process in (target, collector):
             if process:
                 process.close()
-        for lock in locks:
+        for lock in locks + reference_locks:
             lock.close()
         if roots:roots.close()
         journal.append("final", {"status": status, "error": error, "physical_gpu_qualified": False,

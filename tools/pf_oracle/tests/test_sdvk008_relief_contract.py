@@ -78,11 +78,28 @@ class SpriteReliefOffGpuTests(unittest.TestCase):
         self.assertIn("uNpotEmulation.y != 0.0",h)
         self.assertIn("TextureMatrix[0][0] <= 0.0",h)
         self.assertIn("bool reliefApplied = false",m)
-        self.assertIn("vec4(reliefTexel.rgb, baseTexel.a)",m)
+        self.assertIn("material.Base.rgb = reliefTexel.rgb",m)
         self.assertIn("if (reliefTexel.a > uAlphaThreshold)",m)
         self.assertIn("material.Normal = ApplyNormalMap(texCoord.st)",m)
         self.assertIn("material.Metallic = texture(metallictexture, texCoord.st)",m)
         self.assertIn("material.Specular = texture(speculartexture, texCoord.st)",m)
+
+    def test_relief_albedo_uses_original_gradients_and_alpha(self):
+        material = source("wadsrc/static/shaders/scene/material.glsl")
+        relief = source("wadsrc/static/shaders/scene/material_relief.glsl")
+        texel = source("wadsrc/static/shaders/scene/material_gettexel.glsl")
+        branch = material.index("if (reliefApplied)")
+        self.assertLess(material.index("material.Base = getTexel(texCoord.st)"), branch)
+        for derivative in ("dFdx(texCoord.st)", "dFdy(texCoord.st)"):
+            self.assertLess(material.index(derivative), branch)
+        active = material[branch:material.index("material.Normal", branch)]
+        self.assertIn("ProcessBaseTexel(textureGrad(tex, relieved, uvDx, uvDy), relieved)", active)
+        self.assertNotIn("getTexel(", active)
+        self.assertNotIn("material.Base =", active)
+        self.assertNotIn("material.Base.a", active)
+        self.assertNotIn("dFdx(", relief)
+        self.assertNotIn("dFdy(", relief)
+        self.assertIn("return ProcessBaseTexel(texture(tex, st), st);", texel)
 
     def test_bounded_shader_math_and_no_geometry_or_depth_write(self):
         s=source("wadsrc/static/shaders/scene/material_relief.glsl")
