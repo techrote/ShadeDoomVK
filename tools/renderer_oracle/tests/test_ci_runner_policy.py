@@ -17,15 +17,24 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
                 self.assertNotIn("self-hosted", text.lower())
 
     def test_software_vulkan_lane_is_github_hosted_ubuntu_2404(self):
+        """All three components of the split renderer lane stay hosted."""
+        import re
+
         text = (ROOT / ".github" / "workflows" / "continuous_integration.yml").read_text()
-        marker = "- name: Linux software Vulkan"
-        start = text.index(marker)
-        block = text[start:text.index("\n\n    steps:", start)]
-        self.assertIn("os: ubuntu-24.04", block)
-        self.assertIn("native_renderer: true", block)
+        jobs = list(re.finditer(r"(?m)^  ([A-Za-z_][\\w-]*):\\s*$", text))
+        blocks = {match.group(1): text[match.end():jobs[index + 1].start()
+                  if index + 1 < len(jobs) else len(text)]
+                  for index, match in enumerate(jobs)}
+        for name in ("vulkan_build", "vulkan_qualification", "vulkan_evidence"):
+            self.assertIn(name, blocks)
+            self.assertIn("runs-on: ubuntu-24.04", blocks[name])
+        self.assertIn("suite: [corpus, publication]", blocks["vulkan_qualification"])
+        self.assertIn("needs: vulkan_build", blocks["vulkan_qualification"])
+        self.assertIn("needs: [vulkan_build, vulkan_qualification]", blocks["vulkan_evidence"])
+        self.assertIn("sdvk009_publication qualify", blocks["vulkan_qualification"])
+        self.assertIn("name: Linux software Vulkan | RelWithDebInfo", blocks["vulkan_evidence"])
         self.assertNotIn("SDVK_REQUESTED_RUNNER", text)
         self.assertNotIn("sdvk009-avrea-ci.py", text)
-        self.assertIn("sdvk009_publication qualify", text)
 
     def test_shared_native_guard_requires_github_hosted(self):
         text = (ROOT / "tools" / "renderer_oracle" / "sdvk010_sun_native.py").read_text()
