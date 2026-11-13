@@ -46,6 +46,46 @@ class RealOracleAdapterTests(TempCase):
         # Match production execute(), including Windows TEMP short-name aliases.
         self.root=self.root.resolve(strict=True)
         root=Path(__file__).resolve().parents[2]
+        git=shutil.which("git")
+        split = {}
+        if split_source:
+            # Keep the current real oracle files, but create fresh Git history.
+            # Hosted pull request checkouts may contain only their merge commit.
+            def git_at(cwd, *args):
+                return subprocess.check_output([git, "-C", str(cwd), *args], text=True).strip()
+
+            renderer = self.root / "renderer-source"
+            renderer.mkdir()
+            git_at(renderer, "init", "-q")
+            git_at(renderer, "-c", "user.name=CPU fixture", "-c", "user.email=cpu@example.invalid",
+                   "commit", "-q", "--allow-empty", "-m", "Synthetic renderer identity")
+            renderer_commit, renderer_tree = git_at(renderer, "rev-parse", "HEAD", "HEAD^{tree}").splitlines()
+            oracle = self.root / "oracle-source"
+            git_at(renderer, "clone", "-q", str(renderer), str(oracle))
+            # Copy the actual oracle source inventory and module dependencies
+            # without importing unrelated engine files or ignored outputs.
+            preparation = frozen_oracle(root).preparation_module()
+            catalog = preparation.load_catalog()
+            inputs = set(preparation._source_inventory(catalog, root))
+            for contract in catalog["cpu_contracts"].values():
+                inputs.add(contract["test_path"])
+                if "retained_fixture" in contract:
+                    inputs.add(contract["retained_fixture"])
+            for directory in ("tools/renderer_oracle", "tools/pf_oracle"):
+                inputs.update(path.relative_to(root).as_posix() for path in (root / directory).rglob("*.py"))
+            for name in sorted(inputs):
+                path = oracle / name
+                path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copyfile(root / name, path)
+            git_at(oracle, "-c", "core.autocrlf=false", "add", "-f", ".")
+            git_at(oracle, "-c", "user.name=CPU fixture", "-c", "user.email=cpu@example.invalid",
+                   "commit", "-q", "-m", "Frozen real oracle source")
+            oracle_commit, oracle_tree = git_at(oracle, "rev-parse", "HEAD", "HEAD^{tree}").splitlines()
+            split = {"renderer_source_root": str(renderer),
+                     "oracle_source": {"commit": oracle_commit, "tree": oracle_tree}}
+            source = {"commit": renderer_commit, "tree": renderer_tree}
+            root = oracle
+
         run=frozen_oracle(root)
         # Linux Python3.10 can lazily run uname for real platform metadata.
         # Warm its shared stdlib caches before the strict zero-process trap.
@@ -54,32 +94,15 @@ class RealOracleAdapterTests(TempCase):
         scene = "lights-one-shadow-off" if split_source else "compositing"
         manifest=run.preparation_module().prepare(prepared,[scene])
         commit=manifest["source_identity"]["git_commit"]
-        git=shutil.which("git")
-        tree=subprocess.run([git,"rev-parse","HEAD^{tree}"],cwd=root,capture_output=True,check=True,text=True).stdout.strip()
+        if split_source:
+            self.assertEqual(commit, split["oracle_source"]["commit"])
+        else:
+            tree=subprocess.check_output([git,"rev-parse","HEAD^{tree}"],cwd=root,text=True).strip()
+            source = {"commit": commit, "tree": tree}
         runtime=self.root/"runtime";runtime.mkdir()
         exe=runtime/"SYNTHETIC_NEVER_EXECUTED.exe";exe.write_bytes(b"not an executable; no renderer launches")
         (runtime/"vkdoom.pk3").write_bytes(b"synthetic engine package; never loaded")
         iwad=self.root/"synthetic.wad";iwad.write_bytes(b"synthetic IWAD; never loaded")
-        source = {"commit": commit, "tree": tree}
-        split = {}
-        if split_source:
-            # Both identities are real Git objects. The parent verification
-            # runs before the collector's strict no-process trap.
-            renderer = self.root / "renderer-source"
-            # Use the actual ancestor object without materializing another
-            # full source tree or adding Git metadata to the frozen checkout.
-            subprocess.run([git, "clone", "-q", "--shared", "--no-checkout",
-                            str(root), str(renderer)], check=True)
-            # The parent only needs a real clean checkout for identity checks.
-            subprocess.run([git, "-C", str(renderer), "config", "core.sparseCheckout", "true"], check=True)
-            sparse = renderer / ".git" / "info" / "sparse-checkout"
-            sparse.write_text("/AGENTS.md\n", encoding="utf-8")
-            subprocess.run([git, "-C", str(renderer), "checkout", "-q", "--detach", commit + "^"], check=True)
-            renderer_commit, renderer_tree = subprocess.check_output(
-                [git, "-C", str(renderer), "rev-parse", "HEAD", "HEAD^{tree}"], text=True
-            ).splitlines()
-            split = {"renderer_source_root": str(renderer), "oracle_source": source}
-            source = {"commit": renderer_commit, "tree": renderer_tree}
         gate=self.gate()
         expiry=(dt.datetime.now(dt.timezone.utc)+dt.timedelta(hours=1)).isoformat()
         packet={"source":source,"oracle_source_root":str(root),"git":git,**split,
