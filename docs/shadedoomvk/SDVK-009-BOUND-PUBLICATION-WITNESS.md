@@ -139,6 +139,15 @@ not establish byte equality.
 | 3 | Shadow-boundary witness 1 | On; CPU snapshot and complete publication/readback evidence |
 | 4 | Shadow-boundary witness 2 | On; independent fresh process and evidence directory |
 
+The original serial API retains this launch order. A separate Owner-requested
+[distributed orchestration candidate](CI-PUBLICATION-PARALLELISATION.md)
+preregisters the same four workloads, runs controls serially on one hosted
+runner and the two witnesses on separate runners, and defers dependent
+comparisons to fail-closed authenticated assembly. Independent siblings may
+already be running when another fails. This bounded temporal policy change
+requires Owner review before merge; it does not relax any capture or acceptance
+invariant below and does not authorize physical execution.
+
 Every process uses 640x480, 120 warmup frames, one retained state/RGB frame and
 the unchanged authored settings. There are no timing samples or automatic
 retries. The GitHub-hosted software-only process execution ceiling is 3600 seconds.

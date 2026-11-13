@@ -1,0 +1,404 @@
+"""CPU adversarial controls for distributed publication qualification.
+
+Native captures are explicitly synthetic: the native process and full native
+receipt admission are mocked. Registration, workload binding, evidence hashes,
+restoration, comparison policy, witness falsification and failure handling run
+their real implementations. No executable, Vulkan device or download is used.
+"""
+from argparse import Namespace
+from contextlib import ExitStack, redirect_stdout
+import copy
+import io
+import json
+import os
+from pathlib import Path
+import shutil
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+import uuid
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from test_evidence import png
+from test_sdvk009_publication import synthetic_packet
+from test_validation import observation
+from tools.renderer_oracle import sdvk009_distributed as distributed
+from tools.renderer_oracle.common import EvidenceError, canonical, pin, read_json, sha256
+
+
+COMMIT = "a" * 40
+
+
+def rewrite(path, value):
+    path.write_bytes(canonical(value))
+
+
+def reseal(path, value):
+    rewrite(path, value)
+    Path(str(path) + ".sha256").write_text(sha256(path.read_bytes()) + "  " + path.name + "\n")
+
+
+def refresh_inventory(root):
+    manifest = read_json(root / "manifest.json")
+    manifest["files"] = distributed.inventory(root, exclude=("manifest.json", "manifest.json.sha256"))
+    reseal(root / "manifest.json", manifest)
+
+
+class DistributedControls(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix="sdvk009-distributed-synthetic-")
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        self.stack = ExitStack()
+        self.addCleanup(self.stack.close)
+        self.stack.enter_context(redirect_stdout(io.StringIO()))
+        self.environment = {"GITHUB_ACTIONS": "true", "GITHUB_RUN_ID": "12345", "GITHUB_RUN_ATTEMPT": "1",
+                            "GITHUB_SHA": COMMIT, "RUNNER_ENVIRONMENT": "github-hosted", "RUNNER_NAME": "build"}
+        self.stack.enter_context(patch.dict(os.environ, self.environment, clear=True))
+        self.stack.enter_context(patch.object(distributed, "source_identity", return_value={"commit": COMMIT, "tree": "b" * 40}))
+        self.stack.enter_context(patch.object(distributed, "host_identity", side_effect=lambda:
+            {"boot_id": str(uuid.uuid5(uuid.NAMESPACE_URL, os.environ["RUNNER_NAME"]))}))
+        self.stack.enter_context(patch.object(distributed.publication, "hosted_software_guard", return_value={"synthetic_only": True}))
+        self.stack.enter_context(patch.object(distributed.native_ci, "preflight", side_effect=self.preflight))
+        self.stack.enter_context(patch.object(distributed, "matching_content", side_effect=self.content))
+        self.stack.enter_context(patch.object(distributed.run, "capture", side_effect=self.capture))
+        self.stack.enter_context(patch.object(distributed.run, "validate_run", side_effect=self.validate_synthetic))
+        self.runtime = self.root / "runtime"
+        self.runtime.mkdir()
+        self.exe = self.runtime / "synthetic-engine"
+        self.iwad = self.root / "synthetic.wad"
+        self.license = self.root / "COPYING.txt"
+        self.archive = self.root / "runtime.tar.gz"
+        for path, data in ((self.exe, b"SYNTHETIC engine never executed"),
+                           (self.runtime / "vkdoom.pk3", b"SYNTHETIC engine pk3"),
+                           (self.iwad, b"SYNTHETIC IWAD never rendered"),
+                           (self.license, b"SYNTHETIC license"), (self.archive, b"SYNTHETIC runtime archive")):
+            path.write_bytes(data)
+        self.calls = []
+        self.fail_at = None
+        self.interrupt_at = None
+
+    def args(self, **kwargs):
+        return Namespace(exe=self.exe, iwad=self.iwad, iwad_license=self.license, runtime_archive=self.archive,
+                         expected_commit=COMMIT, **kwargs)
+
+    def content(self, iwad, prepared):
+        return {"iwad": {"bytes": distributed.publication.IWAD_BYTES, "sha256": distributed.publication.IWAD_SHA256},
+                "historical_manifest": distributed.file_identity(distributed.publication.HISTORICAL_MANIFEST),
+                "inputs": {scene + "/" + name: pin(prepared / "scenes" / scene / name, relative_to=prepared)
+                           for scene in ("compositing", "shadow-boundary")
+                           for name in ("scene.pk3", "fixture.ini", "capture.cfg")}}
+
+    def register(self, probe=False):
+        self.plan_path = self.root / "renderer-sdvk009-plan/preregistration.json"
+        result = distributed.register(self.args(out=self.plan_path.parent, compatibility_probe=probe))
+        self.assertEqual(result["status"], "REGISTERED")
+        return result
+
+    @staticmethod
+    def preflight(args, out):
+        provenance = out / "provenance"
+        provenance.mkdir()
+        (provenance / "host.json").write_bytes(b'{"synthetic_only":true}\n')
+        return {"status": "PASS", "provenance": pin(provenance / "host.json", relative_to=out)}
+
+    def capture(self, args):
+        self.calls.append(args)
+        self.assertTrue((args.out.parent.parent / "worker-registration.json").is_file())
+        self.assertTrue((args.out.parent.parent / "launches" / (args.out.name + ".json")).is_file())
+        args.out.mkdir(parents=True, exist_ok=False)
+        (args.out / "stdout.log").write_text("SYNTHETIC native boundary; no engine executed\n")
+        if len(self.calls) == self.interrupt_at:
+            raise KeyboardInterrupt()
+        if len(self.calls) == self.fail_at:
+            raise EvidenceError("SYNTHETIC native process failure")
+        shutil.copyfile(args.prepared / "prepared.json", args.out / "prepared.json")
+        profile = {"scene": args.scene, "extent": [640, 480], "warmup_frames": args.warmup, "frames": args.frames,
+                   "image_policy": {"metric": "exact-rgb8"}, "gpu_timestamps_requested": False,
+                   "iwad_sha256": distributed.publication.IWAD_SHA256, "clock": "static_after_initialization"}
+        request = {"cwd": str(args.out), "reproduction": profile, "mode": "state", "timeout_seconds": args.timeout,
+                   "automatic_retries": 0, "environment": {}, "argv": []}
+        if args.publication_witness:
+            request["diagnostics"] = {"run_id": "sdvk009-publication-" + uuid.uuid4().hex}
+            profile["collision_snapshot"] = "production-cpu-state; no submitted-GPU-byte claim"
+            synthetic_packet(args.out)
+        rewrite(args.out / "request.json", request)
+        (args.out / "native.png").write_bytes(png(bytes(640 * 480 * 3), width=640, height=480))
+        build = {"commit": COMMIT, "working_tree": "clean", "backend": "vulkan", "renderer": "SYNTHETIC Vulkan",
+                 "device": "SYNTHETIC llvmpipe", "vulkan": {"driver": "SYNTHETIC Mesa", "driverVersion": 1},
+                 "application_cache": {"available": True, "path": str(args.out / "cache")}}
+        data = {"status": "COLLECTED", "build": build, "reproduction": profile, "mode": "state", "scene": args.scene,
+                "executable": pin(self.exe), "elapsed_seconds": 0.001,
+                "loaded_packages": [{**pin(self.runtime / "vkdoom.pk3"), "lumps": 1}]}
+        rewrite(args.out / "run.json", data)
+        return data
+
+    @staticmethod
+    def validate_synthetic(root):
+        root = Path(root)
+        if root.name == "run.json":
+            root = root.parent
+        return root, read_json(root / "run.json"), observation(), {}
+
+    def run_worker(self, name):
+        with patch.dict(os.environ, {"RUNNER_NAME": "hosted-" + name}):
+            return distributed.worker(self.args(plan=self.plan_path, worker=name,
+                out=self.root / ("renderer-sdvk009-worker-" + name)))
+
+    def run_workers(self):
+        return [self.run_worker(name) for name in distributed.WORKERS]
+
+    def assemble(self):
+        return distributed.assemble(Namespace(plan=self.plan_path, workers=self.root,
+            out=self.root / "renderer-sdvk009-publication", expected_commit=COMMIT))
+
+    def test_original_four_captures_and_complete_restored_consumer_packet(self):
+        plan = self.register()
+        original_plan_bytes = self.plan_path.read_bytes()
+        self.assertEqual([(row["name"], row["scene"], row["publication_witness"]) for row in plan["captures"]],
+                         list(distributed.publication.PLAN))
+        self.assertEqual([value["status"] for value in self.run_workers()], ["PASS"] * 3)
+        self.assertEqual(len(self.calls), 4)
+        self.assertTrue(all((call.warmup, call.frames, call.timeout, call.gpu, call.image_policy) ==
+                            (120, 1, 3600, False, "exact") for call in self.calls))
+        source_files = {name: value for name, value in distributed.inventory(self.root).items()
+                        if name.startswith(("renderer-sdvk009-worker-", "renderer-sdvk009-plan/"))}
+        result = self.assemble()
+        self.assertEqual(result["status"], "PASS", result.get("error"))
+        self.assertTrue(result["qualification_awarded"])
+        final = self.root / "renderer-sdvk009-publication"
+        self.assertEqual((final / "preregistration.json").read_bytes(), original_plan_bytes)
+        for name, _, _ in distributed.publication.PLAN:
+            self.assertTrue((final / "captures" / name / "run.json").is_file())
+            self.assertTrue((final / "steps" / (name + ".json")).is_file())
+        for name in ("shadow-witness-1", "shadow-witness-2"):
+            controls = read_json(final / (name + "-negative-controls.json"))
+            self.assertEqual(len(controls["controls"]), 9)
+            self.assertTrue(all(control["status"] == "PASS" for control in controls["controls"]))
+            self.assertEqual(read_json(final / (name + "-control-comparison.json"))["status"], "PASS")
+        self.assertEqual(read_json(final / "witness-repeat-comparison.json")["status"], "PASS")
+        relocations = read_json(final / "relocation.json")["files"]
+        self.assertEqual(set(relocations), set(source_files))
+        for source, destination in relocations.items():
+            self.assertEqual(distributed.file_identity(self.root / destination["destination"]), source_files[source])
+            self.assertFalse((self.root / source).exists())
+        self.assertFalse(result["physical_gpu_qualified"])
+        self.assertFalse(result["performance_accepted"])
+
+    def test_probe_can_never_award_publication_qualification(self):
+        self.register(probe=True)
+        self.assertEqual([value["status"] for value in self.run_workers()], ["PASS"] * 3)
+        self.assertEqual(len(self.calls), 3)
+        self.assertTrue(all((call.scene, call.warmup, call.frames, call.timeout, call.publication_witness) ==
+                            ("compositing", 120, 1, 180, False) for call in self.calls))
+        result = self.assemble()
+        self.assertEqual(result["status"], "PROBE_PASS", result.get("error"))
+        self.assertFalse(result["qualification_awarded"])
+        self.assertEqual(result["kind"], distributed.PROBE_KIND)
+
+    def test_immutable_registration_rejects_shortened_reordered_or_reassigned_work(self):
+        self.register()
+        original = read_json(self.plan_path)
+        mutations = [lambda value: value["captures"].reverse(),
+                     lambda value: value["captures"].pop(),
+                     lambda value: value["captures"][2].update(warmup_frames=119),
+                     lambda value: value["captures"][2].update(timeout_seconds=600),
+                     lambda value: value["captures"][2].update(worker="controls"),
+                     lambda value: value["captures"][2].update(image_policy={"metric": "tolerant"}),
+                     lambda value: value["captures"][2].update(authorization_id=value["captures"][3]["authorization_id"]),
+                     lambda value: value["matching_content"]["inputs"].pop("compositing/scene.pk3"),
+                     lambda value: value.update(automatic_retries=1)]
+        for mutation in mutations:
+            changed = copy.deepcopy(original)
+            mutation(changed)
+            reseal(self.plan_path, changed)
+            with self.assertRaises((EvidenceError, KeyError)):
+                distributed.load_plan(self.plan_path, COMMIT)
+        reseal(self.plan_path, original)
+        self.plan_path.write_bytes(self.plan_path.read_bytes() + b" ")
+        with self.assertRaisesRegex(EvidenceError, "SHA-256"):
+            distributed.load_plan(self.plan_path, COMMIT)
+        self.assertEqual(self.calls, [])
+
+    def test_failed_control_suppresses_local_later_launch_but_siblings_remain_authorized(self):
+        self.register()
+        self.fail_at = 1
+        results = self.run_workers()
+        self.assertEqual([value["status"] for value in results], ["FAIL", "PASS", "PASS"])
+        self.assertEqual([call.out.name for call in self.calls],
+                         ["compositing-control", "shadow-witness-1", "shadow-witness-2"])
+        self.assertTrue((self.root / "renderer-sdvk009-worker-controls/captures/compositing-control/stdout.log").is_file())
+        self.assertEqual(self.assemble()["status"], "FAIL")
+
+    def test_cancellation_preserves_partial_failure_and_cannot_be_resumed(self):
+        self.register()
+        self.interrupt_at = 1
+        result = self.run_worker("controls")
+        self.assertEqual(result["status"], "CANCELLED")
+        root = self.root / "renderer-sdvk009-worker-controls"
+        self.assertEqual(read_json(root / "manifest.json")["status"], "CANCELLED")
+        self.assertTrue((root / "captures/compositing-control/stdout.log").is_file())
+        with self.assertRaises(FileExistsError):
+            self.run_worker("controls")
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.assemble()["status"], "FAIL")
+
+    def test_runtime_or_source_change_prevents_any_native_launch(self):
+        self.register()
+        self.archive.write_bytes(b"REPLACED runtime even if compiled commit text matches")
+        result = self.run_worker("controls")
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("runtime/archive", result["error"])
+        self.assertEqual(self.calls, [])
+
+    def test_missing_worker_artifact_or_manifest_never_passes(self):
+        self.register(probe=True)
+        self.run_workers()
+        (self.root / "renderer-sdvk009-worker-witness-2/manifest.json").unlink()
+        result = self.assemble()
+        self.assertEqual(result["status"], "FAIL")
+        self.assertTrue((self.root / "renderer-sdvk009-worker-controls").is_dir())
+
+    def test_raw_file_corruption_rejected_before_any_relocation(self):
+        self.register(probe=True)
+        self.run_workers()
+        path = self.root / "renderer-sdvk009-worker-witness-1/captures/compatibility-witness-1/native.png"
+        path.write_bytes(path.read_bytes() + b"CORRUPTED")
+        result = self.assemble()
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("missing, added or altered", result["error"])
+        self.assertTrue(path.is_file())
+
+    def test_rehashed_wrong_device_still_rejected_by_cross_runner_identity(self):
+        self.register(probe=True)
+        self.run_workers()
+        worker = self.root / "renderer-sdvk009-worker-witness-1"
+        capture = worker / "captures/compatibility-witness-1"
+        data = read_json(capture / "run.json")
+        data["build"]["vulkan"]["driverVersion"] = 2
+        rewrite(capture / "run.json", data)
+        result = read_json(worker / "worker.json")
+        row = read_json(self.plan_path)["captures"][1]
+        result["captures"][0]["admission"] = distributed.admit_capture(capture, row,
+            read_json(self.plan_path), distributed.file_identity(self.plan_path.parent / "prepared/prepared.json"))
+        step_path = worker / "steps/compatibility-witness-1.json"
+        step = read_json(step_path)
+        step["result"] = data
+        rewrite(step_path, step)
+        result["steps"][1]["receipt"] = pin(step_path, relative_to=worker)
+        rewrite(worker / "worker.json", result)
+        refresh_inventory(worker)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "FAIL")
+        self.assertIn("Vulkan identity differs", outcome["error"])
+
+    def test_rehashed_cross_wired_request_is_not_an_independent_execution(self):
+        self.register(probe=True)
+        self.run_workers()
+        worker = self.root / "renderer-sdvk009-worker-witness-2"
+        request = worker / "captures/compatibility-witness-2/request.json"
+        source = self.root / "renderer-sdvk009-worker-witness-1/captures/compatibility-witness-1/request.json"
+        shutil.copyfile(source, request)
+        refresh_inventory(worker)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "FAIL")
+        self.assertIn("another capture/worker", outcome["error"])
+
+    def test_successful_process_receipt_must_bind_the_actual_retained_capture(self):
+        self.register(probe=True)
+        self.run_workers()
+        worker = self.root / "renderer-sdvk009-worker-witness-2"
+        step_path = worker / "steps/compatibility-witness-2.json"
+        step = read_json(step_path)
+        step["result"]["elapsed_seconds"] = 99
+        rewrite(step_path, step)
+        result = read_json(worker / "worker.json")
+        result["steps"][1]["receipt"] = pin(step_path, relative_to=worker)
+        rewrite(worker / "worker.json", result)
+        refresh_inventory(worker)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "FAIL")
+        self.assertIn("does not describe", outcome["error"])
+
+    def test_distinct_boot_policy_rejects_one_host_relabelled_as_siblings(self):
+        self.register(probe=True)
+        self.run_workers()
+        worker = self.root / "renderer-sdvk009-worker-witness-2"
+        sibling = read_json(self.root / "renderer-sdvk009-worker-witness-1/worker.json")
+        for name in ("worker.json", "worker-start.json", "worker-registration.json"):
+            value = read_json(worker / name)
+            value["host_identity"] = sibling["host_identity"]
+            rewrite(worker / name, value)
+        refresh_inventory(worker)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "FAIL")
+        self.assertIn("independent hosted runners", outcome["error"])
+
+    def test_shared_runner_name_does_not_erase_distinct_boot_identities(self):
+        self.register(probe=True)
+        self.run_workers()
+        for worker_name in distributed.WORKERS:
+            worker = self.root / ("renderer-sdvk009-worker-" + worker_name)
+            for name in ("worker.json", "worker-start.json", "worker-registration.json"):
+                value = read_json(worker / name)
+                value["hosted_run"]["RUNNER_NAME"] = "Non-unique hosted runner name"
+                rewrite(worker / name, value)
+            refresh_inventory(worker)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "PROBE_PASS", outcome.get("error"))
+
+    def test_missing_or_malformed_kernel_boot_identity_is_rejected(self):
+        for value in ({}, {"boot_id": None}, {"boot_id": "unknown"}, {"boot_id": "a" * 32},
+                      {"boot_id": "a" * 8 + "-" + "b" * 27}, {"boot_id": str(uuid.uuid4()), "extra": True}):
+            with self.subTest(value=value), self.assertRaisesRegex(EvidenceError, "boot identity"):
+                distributed.validate_host_identity(value)
+
+    def test_changed_exact_rgb_fails_after_restoration_and_retains_complete_evidence(self):
+        self.register(probe=True)
+        self.run_workers()
+        worker = self.root / "renderer-sdvk009-worker-witness-2"
+        image = worker / "captures/compatibility-witness-2/native.png"
+        image.write_bytes(png(b"\xff" + bytes(640 * 480 * 3 - 1), width=640, height=480))
+        refresh_inventory(worker)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "FAIL")
+        self.assertIn("exact comparison", outcome["error"])
+        final = self.root / "renderer-sdvk009-publication"
+        self.assertTrue((final / "captures/compatibility-witness-2/native.png").is_file())
+        self.assertTrue(read_json(final / "relocation.json")["files"])
+        self.assertFalse(outcome["qualification_awarded"])
+
+    def test_worker_has_no_automatic_retry_and_rejects_second_execution(self):
+        self.register(probe=True)
+        self.assertEqual(self.run_worker("controls")["status"], "PASS")
+        with self.assertRaises(FileExistsError):
+            self.run_worker("controls")
+        self.assertEqual(len(self.calls), 1)
+
+    def test_mismatched_hosted_attempt_fails_before_provenance_or_native(self):
+        self.register(probe=True)
+        with patch.dict(os.environ, {"GITHUB_RUN_ATTEMPT": "2"}):
+            result = self.run_worker("controls")
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("another hosted run", result["error"])
+        self.assertEqual(self.calls, [])
+
+    def test_symlink_and_unexpected_capture_rejected_even_with_successful_job(self):
+        self.register(probe=True)
+        self.run_workers()
+        root = self.root / "renderer-sdvk009-worker-controls"
+        (root / "captures/unregistered-duplicate").mkdir()
+        refresh_inventory(root)
+        outcome = self.assemble()
+        self.assertEqual(outcome["status"], "FAIL")
+        self.assertIn("Unexpected capture", outcome["error"])
+        with tempfile.TemporaryDirectory() as temporary:
+            link_root = Path(temporary)
+            (link_root / "link").symlink_to(self.exe)
+            with self.assertRaisesRegex(EvidenceError, "Nonregular"):
+                distributed.inventory(link_root)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)
