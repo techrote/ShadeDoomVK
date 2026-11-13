@@ -21,7 +21,7 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         import re
 
         text = (ROOT / ".github" / "workflows" / "continuous_integration.yml").read_text()
-        jobs = list(re.finditer(r"(?m)^  ([A-Za-z_][\\w-]*):\\s*$", text))
+        jobs = list(re.finditer(r"(?m)^  ([A-Za-z_][\w-]*):\s*$", text))
         blocks = {match.group(1): text[match.end():jobs[index + 1].start()
                   if index + 1 < len(jobs) else len(text)]
                   for index, match in enumerate(jobs)}
