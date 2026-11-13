@@ -123,6 +123,8 @@ def state_raw(scene):
 
 class ShadowoffEvidenceTests(fixtures.TempCase):
     def inputs(self):
+        # Production resolves capture and control roots. Windows TEMP may use an 8.3 alias.
+        self.root = self.root.resolve(strict=True)
         specs = scaling.capture_specs({scene: "a" * 64 for scene in scaling.SCENES})
         stages = [dict(name=s["name"], capture={**s, "out": str(self.root / s["name"])}) for s in specs]
         source = {"commit": "b" * 40}
