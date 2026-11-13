@@ -1,0 +1,5 @@
+addkeysection "Local Flashlight" "SDVKLocalFlashlight"
+addmenukey "Toggle flashlight" "netevent SDVKFlashlightToggle"
+addmenukey "Flashlight options" "openmenu SDVKFlashlightOptions"
+defaultbind L "netevent SDVKFlashlightToggle"
+defaultbind O "openmenu SDVKFlashlightOptions"
