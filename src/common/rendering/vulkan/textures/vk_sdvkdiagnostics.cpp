@@ -14,6 +14,7 @@
 #include "hw_cvars.h"
 #include "hw_levelmesh.h"
 #include "hwrenderer/doom_levelmesh.h"
+#include "hwrenderer/hw_vertexbuilder.h"
 #include "diagnostics/hw_specialsurfacecontract.h"
 #include <cstring>
 
@@ -54,7 +55,8 @@ std::string TileCensus(LevelMesh* mesh, size_t vulkanPages)
         result += Object().Int("tile", index).Int("page", tile.AtlasLocation.ArrayIndex)
             .Raw("receipt", Receipt(tile.AtlasLocation.Allocation))
             .Raw("binding", Object().Int("type", tile.Binding.Type).Int("type_index", tile.Binding.TypeIndex)
-                .Int("control_sector", tile.Binding.ControlSector == 0xffffffff ? -1 : int(tile.Binding.ControlSector)).Json())
+                .Int("control_sector", tile.Binding.ControlSector == 0xffffffff ? -1 : int(tile.Binding.ControlSector))
+                .Int("control_plane", tile.Binding.ControlPlane == 0xffffffff ? -1 : int(tile.Binding.ControlPlane)).Json())
             .Bool("valid", mesh->Lightmap.AtlasPacker && tile.HasValidAtlasRegion(*mesh->Lightmap.AtlasPacker,
                 mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount) && tile.AtlasLocation.ArrayIndex >= 0
                 && size_t(tile.AtlasLocation.ArrayIndex) < vulkanPages)
@@ -393,11 +395,106 @@ struct FSdvkDiagnosticAccess
         }
     }
 
+    static void ImmediateControlledFlat(VkRenderState* state, const SdvkDiagnostics::SpecialSurfaceMetadata& source,
+        int count, bool indexed, int firstIndex)
+    {
+        using namespace SdvkObservation;
+        const auto& buffer = state->mRSBuffers->Flatbuffer;
+        if (!indexed || state->mVertexBuffer || state->mIndexBuffer || state->mVertexOffsets[0] || state->mVertexOffsets[1]
+            || !buffer.IndexBuffer || !buffer.Vertices || firstIndex != source.FirstIndex || count != source.IndexCount
+            || firstIndex % 3 || count % 3 || !SdvkSurfaceObservation::Contains(sector_indexes.Size(), firstIndex, count))
+            throw std::runtime_error("Controlled flat draw does not use its current sector index range");
+
+        auto mesh = level.levelMesh;
+        if (!mesh || !mesh->Lightmap.AtlasPacker)
+            throw std::runtime_error("Controlled flat draw has no current atlas owner");
+        auto textures = state->fb->GetTextureManager();
+        const auto context = SdvkDiagnostics::CurrentContextJson();
+        const auto pipeline = Pipeline(state->mPipelineKey);
+        const auto material = Material(state->fb, state->mMaterial, state->mSurfaceUniforms, context);
+        const auto probe = SurfaceProbe(state->fb, state->mSurfaceUniforms, state->mLightProbeIndex, false);
+        SdvkDiagnostics::Emit("pipeline", Object().Raw("context", context).Raw("key", pipeline)
+            .Str("producer", "immediate-controlled-flat").Bool("indexed", true)
+            .Int("first_index", firstIndex).Int("draw_count", count)
+            .Str("basis", "actual bound immediate sector index batch").Json(), true);
+        const int batchEnd = firstIndex + count;
+
+        auto owner = [&](int index, int& subsector, int& tileIndex)
+        {
+            const unsigned vertex = sector_indexes[index];
+            if (vertex >= buffer.ShadowDataSize || !ResolveControlledFlatVertex(vertex, source.SourcePlane,
+                source.Type == ST_CEILING, source.IndexedFlatRover, source.Sector, subsector, tileIndex)
+                || size_t(tileIndex) >= mesh->Lightmap.Tiles.Size())
+                throw std::runtime_error("Controlled flat index escapes the selected rover/source/facing stream");
+        };
+
+        // One real draw may cover several subsectors. Emit contiguous ranges
+        // of its actual indexes so each reported range has exactly one tile.
+        for (int cursor = firstIndex; cursor < batchEnd;)
+        {
+            int subsector, tileIndex;
+            owner(cursor, subsector, tileIndex);
+            const auto& tile = mesh->Lightmap.Tiles[tileIndex];
+            const int page = tile.AtlasLocation.ArrayIndex;
+            bool currentUV = tile.HasValidAtlasRegion(*mesh->Lightmap.AtlasPacker,
+                mesh->Lightmap.TextureSize, mesh->Lightmap.TextureCount);
+            bool mapping = true;
+            float zMin = buffer.Vertices[sector_indexes[cursor]].z, zMax = zMin;
+            int end = cursor;
+            while (end < batchEnd)
+            {
+                int nextSubsector, nextTile;
+                owner(end, nextSubsector, nextTile);
+                if (nextSubsector != subsector || nextTile != tileIndex) break;
+                for (int corner = end; corner < end + 3; ++corner)
+                {
+                    owner(corner, nextSubsector, nextTile);
+                    const auto& vertex = buffer.Vertices[sector_indexes[corner]];
+                    mapping = mapping && nextSubsector == subsector && nextTile == tileIndex
+                        && std::abs(source.Plane[0] * vertex.x + source.Plane[1] * vertex.y
+                            + source.Plane[2] * vertex.z - source.Plane[3]) < 0.01;
+                    currentUV = currentUV && vertex.lindex == float(page)
+                        && SdvkSurfaceObservation::CurrentVertexUV(tile, mesh->Lightmap.TextureSize, vertex);
+                    zMin = std::min(zMin, vertex.z);
+                    zMax = std::max(zMax, vertex.z);
+                }
+                end += 3;
+            }
+            SdvkDiagnostics::Emit("surface", Object().Raw("context", context)
+                .Str("producer", "immediate-controlled-flat-range").Str("class", source.Class).Raw("key", pipeline)
+                .Bool("indexed", true).Int("batch_first_index", firstIndex).Int("batch_index_count", count)
+                .Int("first_index", cursor).Int("index_count", end - cursor).Int("draw_count", end - cursor)
+                .Int("surface_index", -1).Int("uniform_index", -1)
+                .Int("texture_index", state->mSurfaceUniforms.uTextureIndex)
+                .Int("mesh_owner", mesh->GetResourceOwner()).Int("mesh_epoch", mesh->GetResourceEpoch().Generation)
+                .Num("alpha", state->mSurfaceUniforms.uVertexColor.W).Raw("material", material)
+                .Raw("owner", Object().Int("type", source.Type).Int("type_index", subsector).Int("side", -1)
+                    .Int("sector", source.Sector).Int("control_sector", source.ControlSector)
+                    .Int("portal_group", source.PortalGroup).Json())
+                .Raw("lightmap", SurfaceLightmap(mesh, tileIndex, page,
+                    textures->GetLightmapEpoch().Generation, textures->Lightmaps.size()))
+                .Raw("geometry", Object().Bool("triangle_mapping_valid", mapping).Raw("plane", PlaneJson(source.Plane))
+                    .Bool("current_uv_valid", currentUV).Num("current_uv_tolerance", SdvkSurfaceObservation::CurrentUvTolerance)
+                    .Num("vertex_z_min", zMin).Num("vertex_z_max", zMax)
+                    .Str("uv_scope", "actual mapped immediate vertex page and UVs for the submitted sector indices").Json())
+                .Raw("probe", probe)
+                .Str("scope", "actual Vulkan indexed draw joined to the current CPU sector index and mapped vertex data").Json(), true);
+            cursor = end;
+        }
+    }
+
     static void ImmediateSpecialSurface(VkRenderState* state, int count, bool indexed, int firstIndex)
     {
         using namespace SdvkObservation;
         const auto& source = SdvkDiagnostics::CurrentSpecialSurfaceMetadata();
         if (!source.Class || !source.HasPlane) return;
+        if (source.IndexedFlatRover)
+        {
+            if (!state->mPipelineKey.ShaderKey.NoFragmentShader && !state->mPipelineKey.ShaderKey.AlphaTestOnly
+                && state->mPipelineKey.ColorMask)
+                ImmediateControlledFlat(state, source, count, indexed, firstIndex);
+            return;
+        }
         const auto context = SdvkDiagnostics::CurrentContextJson();
         auto mesh = level.levelMesh;
         auto textures = state->fb->GetTextureManager();

@@ -48,6 +48,8 @@
 #include "hw_renderstate.h"
 #include "texturemanager.h"
 #include "hw_flatdispatcher.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <optional>
 
 EXTERN_CVAR(Bool, lm_dynlights);
 
@@ -216,7 +218,30 @@ void HWFlat::DrawSubsectors(HWFlatDispatcher *di, FRenderState &state)
 		SetupLights(di, state, section->lighthead, lightdata, sector->PortalGroup);
 	}
 	state.SetLightIndex(dynlightindex);
-	state.DrawIndexed(DT_Triangles, iboindex + section->vertexindex, section->vertexcount);
+	const int firstIndex = iboindex + section->vertexindex;
+	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedFlat;
+	if (di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected() && controlsector
+		&& (controlsector->flags & FF_BOTHPLANES) && level.lightmaps)
+	{
+		SdvkDiagnostics::SpecialSurfaceMetadata value;
+		value.Class = ceiling ? "three-d-floor-ceiling" : "three-d-floor-floor";
+		value.Type = ceiling ? ST_CEILING : ST_FLOOR;
+		value.Sector = sector->Index();
+		value.ControlSector = controlsector->model->Index();
+		value.PortalGroup = sector->PortalGroup;
+		value.IndexedFlatRover = controlsector;
+		value.SourcePlane = lightmapPlane;
+		value.FirstIndex = firstIndex;
+		value.IndexCount = section->vertexcount;
+		const auto normal = plane.plane.Normal();
+		value.Plane[0] = normal.X;
+		value.Plane[1] = normal.Y;
+		value.Plane[2] = normal.Z;
+		value.Plane[3] = -plane.plane.fD();
+		value.HasPlane = true;
+		observedFlat.emplace(value);
+	}
+	state.DrawIndexed(DT_Triangles, firstIndex, section->vertexcount);
 	flatvertices += section->vertexcount;
 	flatprimitives++;
 }
@@ -505,7 +530,7 @@ void HWFlat::SetFrom3DFloor(F3DFloor *rover, bool top, bool underside)
 
 	alpha = rover->alpha/255.0f;
 	renderstyle = rover->flags&FF_ADDITIVETRANS? STYLE_Add : STYLE_Translucent;
-	iboindex = plane.vindex;
+	iboindex = plane.vindex[ceiling ? 1 : 0];
 
 	controlsector = rover;
 }
@@ -551,10 +576,8 @@ void HWFlat::ProcessSector(HWFlatDispatcher *di, FRenderState& state, sector_t *
 		{
 			for (int plane = 0; plane < 2; ++plane)
 			{
-				unsigned int count = sector->e->XFloor.ffloors.Size() + 1;
-				for (unsigned int j = 0; j < count; j++)
+				for (int tile : sector->subsectors[i]->LightmapTiles[plane])
 				{
-					int tile = sector->subsectors[i]->LightmapTiles[plane].Size() > j ? sector->subsectors[i]->LightmapTiles[plane][j] : -1;
 					if (tile >= 0)
 					{
 						di->di->PushVisibleTile(tile);

@@ -120,7 +120,7 @@ void P_Add3DFloor(sector_t* sec, sector_t* sec2, line_t* master, int flags, int 
 	ffloor->top.copied = ffloor->bottom.copied = false;
 	ffloor->top.model = ffloor->bottom.model = ffloor->model = sec2;
 	ffloor->target = sec;
-	ffloor->top.vindex = ffloor->bottom.vindex = -1;
+	ffloor->top.vindex[0] = ffloor->top.vindex[1] = ffloor->bottom.vindex[0] = ffloor->bottom.vindex[1] = -1;
 
 	if (!(flags&FF_THINFLOOR))
 	{
@@ -170,7 +170,7 @@ void P_Add3DFloor(sector_t* sec, sector_t* sec2, line_t* master, int flags, int 
 	ffloor->flags  = flags;
 	ffloor->master = master;
 	ffloor->alpha  = clamp(alpha, 0, 255);
-	ffloor->top.vindex = ffloor->bottom.vindex = -1;
+	ffloor->top.vindex[0] = ffloor->top.vindex[1] = ffloor->bottom.vindex[0] = ffloor->bottom.vindex[1] = -1;
 
 	// The engine cannot handle sloped translucent floors. Sorry
 	if (ffloor->top.plane->isSlope() || ffloor->bottom.plane->isSlope())

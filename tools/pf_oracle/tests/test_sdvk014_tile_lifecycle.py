@@ -74,7 +74,7 @@ class TileLifecycleTests(unittest.TestCase):
         cls.temp.cleanup()
 
     def test_current_ownership_serialization_and_mutation_controls(self):
-        for case in CASES:
+        for case in (*CASES, 'runtime-only-save'):
             with self.subTest(case=case):
                 p=subprocess.run([str(self.current),case],text=True,capture_output=True,timeout=15)
                 self.assertEqual(p.returncode,0,p.stdout+p.stderr)

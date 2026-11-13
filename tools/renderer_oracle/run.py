@@ -304,9 +304,9 @@ def capture(args):
         from tools.renderer_oracle.sdvk158_lightmap_transition import FRAMES, WARMUP
         require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP,
                 "Lightmap transition gate needs its exact correctness-only frame budget")
-    if native.get("generator") == "special_surface_lifecycle":
-        from tools.renderer_oracle.sdvk161_special_surfaces import FRAMES, WARMUP, validate_recipe
-        validate_recipe(scene)
+    if native.get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+        contract = preparation_module().special_surface_module(scene)
+        FRAMES, WARMUP = contract.FRAMES, contract.WARMUP
         require(mode == "state" and args.frames == FRAMES and args.warmup == WARMUP and not args.gpu,
                 "Special-surface gate needs its exact correctness-only frame budget")
     extent = capture_extent(args, native, mode)
@@ -385,7 +385,7 @@ def capture(args):
                    "gpu_timestamps_requested": args.gpu,
                    "probe_owner_trace": bool(native.get("probe_owner_trace", False)),
                    "image_policy": image_policy(scene, args.image_policy)}
-        if native.get("generator") == "special_surface_lifecycle":
+        if native.get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
             profile["map_cameras"] = native["map_cameras"]
         prefix = _console_path(out / "native")
         if support is not None:
@@ -410,7 +410,7 @@ def capture(args):
             require(mode == "state", "Lightmap transition driver is state-only")
             argv.append("-sdvk158lightmapdriver")
         if native.get("special_surface_schedule"):
-            require(mode == "state" and native.get("generator") == "special_surface_lifecycle",
+            require(mode == "state" and native.get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"),
                     "Special-surface driver requires its exact state recipe")
             argv.append("-sdvk161surfacedriver")
         if native.get("generator") == "gameplay_smoke":
@@ -471,10 +471,10 @@ def capture(args):
         if native.get("generator") == "lightmap_transition":
             from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
             validate_transition_records(raw, text, native)
-        if native.get("generator") == "special_surface_lifecycle":
-            from tools.renderer_oracle.sdvk161_special_surfaces import validate_transition_records as validate_special_surface_records, validate_checkpoint_images
-            validate_special_surface_records(raw, text, native)
-            validate_checkpoint_images(out, raw)
+        if native.get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+            contract = preparation_module().special_surface_module(scene)
+            contract.validate_transition_records(raw, text, native)
+            contract.validate_checkpoint_images(out, raw)
         if diagnostics is not None:
             publication_module().validate_capture_diagnostics(out, preregister)
         if mode == "state":
@@ -689,9 +689,8 @@ def observation_map(scene):
         return None
     # The special corpus owns a precise A/reload-A/B/reload-B schedule. Only
     # that independently validated recipe may replace the generic one-map gate.
-    if scene["native"].get("generator") == "special_surface_lifecycle":
-        from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
-        validate_recipe(scene)
+    if scene["native"].get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+        preparation_module().special_surface_module(scene)
         return None
     return scene["native"]["map"]
 
@@ -708,9 +707,8 @@ def _scene_assertions(raw, scene):
             actual = frame.get("camera", {})
             camera = dict(position=actual.get("position"), yaw=actual["angles"][0],
                           pitch=actual["angles"][1], roll=actual["angles"][2], fov=90)
-        if scene["native"].get("generator") == "special_surface_lifecycle":
-            from tools.renderer_oracle.sdvk161_special_surfaces import validate_recipe
-            validate_recipe(scene)
+        if scene["native"].get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+            preparation_module().special_surface_module(scene)
             camera = scene["native"]["map_cameras"].get(frame.get("map"))
             require(camera is not None, "SDVK-161 frame has no authored map camera")
         require(_numeric_vector_matches(frame.get("camera", {}).get("position"), camera["position"]), "Actual camera position differs from the fixture")
@@ -719,9 +717,9 @@ def _scene_assertions(raw, scene):
         if scene["native"].get("generator") == "probe_sampler_reset":
             from tools.renderer_oracle.sdvk153_probe_reset import settings_for_frame
             expected_settings = settings_for_frame(scene["native"], frame_number)
-        if scene["native"].get("generator") == "special_surface_lifecycle":
-            from tools.renderer_oracle.sdvk161_special_surfaces import settings_for_frame
-            expected_settings = settings_for_frame(scene["native"], frame_number)
+        if scene["native"].get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+            contract = preparation_module().special_surface_module(scene)
+            expected_settings = contract.settings_for_frame(scene["native"], frame_number)
         for key, expected in expected_settings.items():
             if key in frame["settings"]:
                 require(frame["settings"][key] == expected, "Actual frame setting differs: " + key)
@@ -933,7 +931,7 @@ def _validate_run(path):
     require(data["scene"] == profile["scene"] == scene["id"], "Scene identities disagree")
     for key in ("seed", "camera", "settings"):
         require(profile[key] == scene["native"][key], "Preregistered recipe value differs: " + key)
-    if scene["native"].get("generator") == "special_surface_lifecycle":
+    if scene["native"].get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
         require(profile.get("map_cameras") == scene["native"]["map_cameras"],
                 "Preregistered map cameras differ from the SDVK-161 recipe")
     extent = validated_extent(profile, scene["native"], request["argv"])
@@ -997,13 +995,15 @@ def _validate_run(path):
     if scene["native"].get("generator") == "lightmap_transition":
         from tools.renderer_oracle.sdvk158_lightmap_transition import validate_transition_records
         validate_transition_records(raw, stdout, scene["native"])
-    if scene["native"].get("generator") == "special_surface_lifecycle":
-        from tools.renderer_oracle.sdvk161_special_surfaces import FRAMES, WARMUP, validate_transition_records as validate_special_surface_records, validate_checkpoint_images, validate_checkpoint_artifacts
+    if scene["native"].get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+        contract = preparation_module().special_surface_module(scene)
+        FRAMES, WARMUP = contract.FRAMES, contract.WARMUP
         require(request["argv"].count("-sdvk161surfacedriver") == 1 and data["mode"] == "state"
                 and raw["warmup_frames"] == WARMUP and raw["observed_frames"] == FRAMES
                 and raw["gpu_timing_requested"] is False,
                 "Special-surface request differs from its exact driver/frame policy")
-        validate_special_surface_records(raw, stdout, scene["native"])
+        contract.validate_transition_records(raw, stdout, scene["native"])
+        from tools.renderer_oracle.sdvk161_special_surfaces import validate_checkpoint_artifacts, validate_checkpoint_images
         validate_checkpoint_artifacts(artifacts)
         validate_checkpoint_images(root, raw)
     if "diagnostics" in request:
@@ -1102,7 +1102,7 @@ def _sdvk161_repeatability_projection(records, scene):
     mesh epochs, atlas receipt identities, maps, phases and all other fields stay.
     """
     result = copy.deepcopy(records)
-    if scene != "special-surface-lifecycle":
+    if scene not in ("special-surface-lifecycle", "controlled-plane-lifecycle"):
         return result
     owners = {}
     for record in result:
@@ -1140,7 +1140,7 @@ def compare_runs(left, right, *, allow_build_change=False):
     # Simulation pacing is still ordinary,
     # so tic/fraction labels are not transition identities. Reuse only the
     # established clock-label projection; frame/phase/resource state stays exact.
-    fixed_view_lightmap = (a["scene"] in ("lightmap-retained-transition", "special-surface-lifecycle")
+    fixed_view_lightmap = (a["scene"] in ("lightmap-retained-transition", "special-surface-lifecycle", "controlled-plane-lifecycle")
         and a["reproduction"]["clock"] == "ordinary_engine_clock_with_fixed_presented-view_input_schedule")
     static = a["reproduction"]["clock"] == "static_after_initialization" or fixed_view_lightmap
     x = _sdvk150_repeatability_projection(
@@ -1156,7 +1156,7 @@ def compare_runs(left, right, *, allow_build_change=False):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     if a["scene"] == "probe-owner-transition":
         normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
-    if a["scene"] == "special-surface-lifecycle":
+    if a["scene"] in ("special-surface-lifecycle", "controlled-plane-lifecycle"):
         normalization += "; SDVK-161 actual mesh-instance labels normalized bijectively; instance birth order, resource/draw aliasing, local mesh epochs, atlas receipts and phase order remain exact"
     if fixed_view_lightmap:
         owner = "SDVK-158" if a["scene"] == "lightmap-retained-transition" else "SDVK-161"

@@ -2999,7 +2999,7 @@ void MapLoader::InitLightmapTiles(MapData* map)
 		allSurfaces += 4 + Level->sides[i].sector->e->XFloor.ffloors.Size();
 
 	for (unsigned int i = 0; i < Level->subsectors.Size(); i++)
-		allSurfaces += 2 + Level->subsectors[i].sector->e->XFloor.ffloors.Size() * 2;
+		allSurfaces += 2 + Level->subsectors[i].sector->e->XFloor.ffloors.Size() * 4;
 
 	Level->LightmapTiles.Resize(allSurfaces);
 	for (int& value : Level->LightmapTiles)
@@ -3016,7 +3016,8 @@ void MapLoader::InitLightmapTiles(MapData* map)
 	for (unsigned int i = 0; i < Level->subsectors.Size(); i++)
 	{
 		auto& subsector = Level->subsectors[i];
-		unsigned int count = 1 + subsector.sector->e->XFloor.ffloors.Size();
+		// Each model source plane can be rendered with either facing.
+		unsigned int count = 1 + subsector.sector->e->XFloor.ffloors.Size() * 2;
 		subsector.LightmapTiles[0] = TArrayView<int>(&Level->LightmapTiles[offset], count);
 		subsector.LightmapTiles[1] = TArrayView<int>(&Level->LightmapTiles[offset + count], count);
 		offset += count * 2;
@@ -3203,6 +3204,8 @@ bool MapLoader::LoadLightmap(MapData* map)
 		binding.Type = entry.type;
 		binding.TypeIndex = entry.typeIndex;
 		binding.ControlSector = entry.controlSector;
+		if (entry.controlSector != 0xffffffff && (entry.type == ST_CEILING || entry.type == ST_FLOOR))
+			binding.ControlPlane = entry.type == ST_CEILING ? sector_t::floor : sector_t::ceiling;
 
 		auto it = levelTiles.find(binding);
 		if (it == levelTiles.end())

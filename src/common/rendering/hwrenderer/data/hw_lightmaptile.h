@@ -16,11 +16,15 @@ struct LightmapTileBinding
 	uint32_t Type = 0;
 	uint32_t TypeIndex = 0;
 	uint32_t ControlSector = 0xffffffff;
+	// Runtime source axis of a controlled flat, independent of emitted facing.
+	// Retained v5 has no such field; admission derives only its legacy axis.
+	uint32_t ControlPlane = 0xffffffff;
 
 	bool operator<(const LightmapTileBinding& other) const
 	{
 		if (TypeIndex != other.TypeIndex) return TypeIndex < other.TypeIndex;
 		if (ControlSector != other.ControlSector) return ControlSector < other.ControlSector;
+		if (ControlPlane != other.ControlPlane) return ControlPlane < other.ControlPlane;
 		return Type < other.Type;
 	}
 };
