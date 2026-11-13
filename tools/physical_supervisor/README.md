@@ -432,6 +432,9 @@ then three independent timing processes per workload. All use 1904x1001,
 120 rendered warmup frames and a 180-second deadline; state retains one frame,
 timing retains 120. The first timing creation requires all eight validated
 state packets, equal selected/upload workloads and four exact state/RGB pairs.
+The supervisor passes a pinned aggregate of the independently validated,
+late-event-fenced state receipts. The first timing collector verifies the
+aggregate and locked reference bytes without decoding or comparing RGB again.
 Every timing process requires complete single `scene.immediate` GPU samples.
 The two sparse variants preserve map/material/image member bytes; MAPINFO's
 display title carries each new identity and its archive has a distinct pinned

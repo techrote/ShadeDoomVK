@@ -167,18 +167,3 @@ def validate_capture(packet, stage, run):
                 if s["capture"]["mode"] == "timing" and s["capture"]["scene"] == scene], minimum_samples=FRAMES)
                 for scene in SCENES}
     return receipt
-
-
-def reference_gate(packet, run):
-    workloads = {}
-    for index, scene in enumerate(SCENES):
-        left, right = packet["stages"][index * 2:index * 2 + 2]
-        first = validate_capture(packet, left, run)["workload"]
-        second = validate_capture(packet, right, run)["workload"]
-        require(first == second, "Shadow-off paired selected/upload workload differs")
-        require(run.compare_runs(Path(left["capture"]["out"]), Path(right["capture"]["out"]))["status"] == "PASS",
-                "Shadow-off paired state/RGB comparison failed")
-        workloads[scene] = first
-    return {"schema": "sdvk009-shadowoff-reference-gate/v1", "status": "PASS",
-            "scope": "PARTIAL_SCALING_COLLECTION_ONLY", "physical_gpu_qualified": False,
-            "performance_accepted": False, "state_workloads": workloads}

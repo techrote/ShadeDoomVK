@@ -48,9 +48,17 @@ build receipt, runtime/IWAD/legal content, prepared manifest and fresh output
 root remain pinned by the existing registration. Historical STOPs are retained;
 no old approval or failure is reused as this generation's outcome.
 
-Before the first timing creation, all eight state packets are revalidated.
+Before the first timing creation, the supervisor joins all eight state
+receipts after their independent capture validation and late-event fences.
 Every pair must pass exact image/state comparison and equal light census,
-selected/upload counts and resource pressure. Actual authored/active light counts
+selected/upload counts and resource pressure. The supervisor locks each
+reference run manifest, native observation and PNG before independent
+validation. It passes the first
+timing collector an immutable receipt bound to the packet, registration,
+state stage identities, artifact pins and exact comparison results.
+The collector verifies that receipt and all reference bytes without repeating
+image decoding or the exact RGB comparison inside its 30-second preparation
+window. Actual authored/active light counts
 must match 1/64/256/256; shadow work and upload failures must be zero. Existing
 descriptor/allocation bounds, native ownership, registry/module observation,
 heartbeat, event/thermal policy, deadlines and post-exit fences remain mandatory.

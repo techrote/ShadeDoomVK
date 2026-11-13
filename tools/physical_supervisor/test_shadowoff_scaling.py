@@ -9,7 +9,8 @@ from unittest.mock import Mock, patch
 from .common import Stop, exclusive, pin, read_json
 from .conditional_grant import authority, initialize_ledger
 from .prepare import frozen_oracle, registered_packet
-from .registered import after_capture, before_capture, definition, validate
+from .registered import (after_capture, before_capture, definition, validate,
+                         shadowoff_reference_stage, shadowoff_reference_receipt)
 from . import test_registered as registered_fixtures
 from . import test_supervisor as fixtures
 from tools.renderer_oracle import sdvk009_shadowoff as scaling
@@ -124,7 +125,7 @@ class ShadowoffEvidenceTests(fixtures.TempCase):
                      vulkan=dict(available=True, device_type=2, vendor_id=4318, device_id=8583))
         result = dict(build=build, executable={"sha256": "c" * 64}, reproduction={"iwad_sha256": "d" * 64},
                       loaded_packages=[dict(path="vkdoom.pk3", sha256="e" * 64, bytes=1, lumps=1)])
-        packet = dict(kind="registered-workload", source=source,
+        packet = dict(kind="registered-workload", source=source, packet_sha256="f" * 64,
                       native_device={"device_type": 2, "vendor_id": 4318, "device_id": 8583}, stages=stages)
         registration = self.root / "CPU-evidence-registration.json"
         exclusive(registration, {"purpose": scaling.PURPOSE, "captures": specs})
@@ -149,24 +150,90 @@ class ShadowoffEvidenceTests(fixtures.TempCase):
             compare_runs=Mock(return_value={"status": "PASS"}), summarize_runs=Mock(return_value={"status": "DESCRIPTIVE"}))
         return packet, run, raws
 
-    def test_before_timing_requires_all_eight_exact_paired_state_gates(self):
+    def fenced_states(self, packet, raws):
+        states = []
+        for index, stage in enumerate(packet["stages"][:8]):
+            path = Path(stage["capture"]["out"])
+            native = path / "native.renderer.json"
+            image = path / "native.png"
+            exclusive(native, raws[str(path)])
+            # No image decoding occurs at this boundary. The independent parent
+            # comparison already checked decoded RGB before the stage fence.
+            exclusive(image, b"CPU-only artifact", raw=True)
+            run_path = path / "run.json"
+            manifest = read_json(run_path)
+            manifest["artifacts"] = {
+                item.name: {"path": item.name, "bytes": item.stat().st_size, "sha256": pin(item)["sha256"]}
+                for item in (native, image)
+            }
+            run_path.write_text(json.dumps(manifest), encoding="utf-8")
+            collected = {"run": pin(run_path), "native": pin(native)}
+            comparison = None
+            if index % 2:
+                comparison = {"status": "PASS", "state_equal": True, "explicit_build_change": False,
+                    "image": {"passed": True, "policy": {"metric": "exact-rgb8"},
+                              "extent": scaling.EXTENT, "changed_pixels": 0}}
+                for key, row in (("left", states[-1]["files"][0]), ("right", collected["run"])):
+                    comparison[key] = {"path": row["path"], "bytes": row["size"], "sha256": row["sha256"]}
+            reference = shadowoff_reference_stage(stage, collected)
+            reference.update(comparison=comparison,
+                             workload=scaling.state_workload(raws[str(path)], stage["capture"]["scene"]))
+            states.append(reference)
+        return states
+
+    def test_before_timing_reuses_all_eight_exact_paired_state_gates(self):
         packet, run, raws = self.inputs()
-        with patch("tools.physical_supervisor.registered.definition", return_value={"purpose": scaling.PURPOSE}), \
-             patch.object(subprocess, "Popen", side_effect=AssertionError("No renderer in state gate")) as child:
-            receipt = before_capture(packet, packet["stages"][8], run)
-            self.assertEqual(set(receipt["state_workloads"]), set(scaling.SCENES))
-            self.assertFalse(receipt["physical_gpu_qualified"])
-            self.assertEqual(run.compare_runs.call_count, 4)
-            for status in ("FAIL", "INCONCLUSIVE"):
-                run.compare_runs.return_value = {"status": status}
-                with self.subTest(status=status), self.assertRaises(ValueError):
-                    before_capture(packet, packet["stages"][8], run)
-            run.compare_runs.return_value = {"status": "PASS"}
-            raw = raws[packet["stages"][1]["capture"]["out"]]
-            raw["records"][1]["data"]["light_uploads"]["records_used"] += 1
-            with self.assertRaisesRegex(ValueError, "workload differs"):
-                before_capture(packet, packet["stages"][8], run)
+        states = self.fenced_states(packet, raws)
+        timing = packet["stages"][8]
+        path = self.root / "shadowoff-fenced-references.json"
+        receipt = shadowoff_reference_receipt(packet, timing, states)
+        exclusive(path, receipt)
+        with (
+            patch("tools.physical_supervisor.registered.definition", return_value={"purpose": scaling.PURPOSE}),
+            patch.object(subprocess, "Popen", side_effect=AssertionError("No renderer in state gate")) as child,
+        ):
+            result = before_capture(packet, timing, run, control=self.root, reference_pin=pin(path))
+            self.assertEqual(result, receipt)
+            self.assertEqual(set(result["state_workloads"]), set(scaling.SCENES))
+            self.assertFalse(result["physical_gpu_qualified"])
+            run.compare_runs.assert_not_called()
             child.assert_not_called()
+
+    def test_first_timing_rejects_missing_or_changed_state_custody(self):
+        packet, run, raws = self.inputs()
+        states = self.fenced_states(packet, raws)
+        timing = packet["stages"][8]
+        for defect in ("missing", "misordered", "state-failed", "image-policy", "workload", "foreign-run"):
+            changed = copy.deepcopy(states)
+            if defect == "missing": changed.pop()
+            elif defect == "misordered": changed.reverse()
+            elif defect == "state-failed": changed[1]["comparison"]["state_equal"] = False
+            elif defect == "image-policy": changed[1]["comparison"]["image"]["policy"]["metric"] = "rgb8-absolute"
+            elif defect == "workload": changed[1]["workload"]["light_uploads"]["records_used"] += 1
+            else: changed[1]["comparison"]["right"]["sha256"] = "1" * 64
+            with self.subTest(defect=defect), self.assertRaises(Stop):
+                shadowoff_reference_receipt(packet, timing, changed)
+        path = self.root / "shadowoff-fenced-references.json"
+        receipt = shadowoff_reference_receipt(packet, timing, states)
+        exclusive(path, receipt)
+        bound = pin(path)
+        with patch("tools.physical_supervisor.registered.definition", return_value={"purpose": scaling.PURPOSE}):
+            with self.assertRaisesRegex(Stop, "Missing parent-fenced"):
+                before_capture(packet, timing, run, control=self.root)
+            changed = dict(receipt, packet_sha256="0" * 64)
+            path.write_text(json.dumps(changed), encoding="utf-8")
+            with self.assertRaisesRegex(Stop, "Pinned file changed"):
+                before_capture(packet, timing, run, control=self.root, reference_pin=bound)
+            with self.assertRaisesRegex(Stop, "binding differs"):
+                before_capture(packet, timing, run, control=self.root, reference_pin=pin(path))
+            path.write_text(json.dumps(receipt), encoding="utf-8")
+            for row in states[-1]["files"]:
+                asset = Path(row["path"])
+                original = asset.read_bytes()
+                asset.write_bytes(original + b"changed")
+                with self.subTest(asset=asset.name), self.assertRaisesRegex(Stop, "Pinned file changed"):
+                    before_capture(packet, timing, run, control=self.root, reference_pin=pin(path))
+                asset.write_bytes(original)
 
     def test_state_failure_counts_and_physical_identity_cannot_pass(self):
         packet, run, raws = self.inputs()

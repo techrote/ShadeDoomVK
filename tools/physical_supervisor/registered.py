@@ -14,8 +14,10 @@ from .common import normalized, pin, read_json, require, verify_pin
 KIND = "registered-workload"
 PROFILE = "REGISTERED_WORKLOAD"
 SCHEMA = "physical-supervisor/registered-workload-v1"
+SHADOWOFF_PURPOSE = "sdvk009-shadowoff-scaling"
+SHADOWOFF_REFERENCE_FILES = ("run.json", "native.renderer.json", "native.png")
 PURPOSES = {"sdvk008-partial-reference", "sdvk008-partial-reference-and-cost",
-            "sdvk011-viewmodel", "sdvk014-lifecycle", "sdvk009-fault-discriminator", "sdvk009-shadowoff-scaling"}
+            "sdvk011-viewmodel", "sdvk014-lifecycle", "sdvk009-fault-discriminator", SHADOWOFF_PURPOSE}
 
 
 def definition(packet):
@@ -68,10 +70,10 @@ def definition(packet):
             previous = rows[names.index(spec["compare_with"])]
             require(all(spec[key] == previous[key] for key in ("scene", "mode", "frames", "warmup", "extent")),
                     "Repeat comparison must retain the same recipe workload")
-        if not pom and document["purpose"] != "sdvk009-shadowoff-scaling":
+        if not pom and document["purpose"] != SHADOWOFF_PURPOSE:
             require(spec["mode"] == "state", "Viewmodel/lifecycle registration is correctness-only")
         names.append(spec["name"])
-    if document["purpose"] == "sdvk009-shadowoff-scaling":
+    if document["purpose"] == SHADOWOFF_PURPOSE:
         driver = importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff")
         hashes = {row["scene"]: row["recipe_sha256"] for row in rows}
         require(rows == driver.capture_specs(hashes), "Shadow-off scaling requires its exact twenty-stage schedule")
@@ -108,7 +110,7 @@ def validate(packet, *, check_files):
         require(packet["stages"] == derive_stages(packet, document, run), "Registered stage differs from derived recipe")
         if document["purpose"].startswith("sdvk008-"):
             validate_pom(packet, document, run)
-        elif document["purpose"] == "sdvk009-shadowoff-scaling":
+        elif document["purpose"] == SHADOWOFF_PURPOSE:
             importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff").validate_recipes(packet, run)
     return document
 
@@ -168,7 +170,7 @@ def after_capture(packet, stage, run):
         return None
     verify_pin(packet["workload_registration"])
     document = read_json(packet["workload_registration"]["path"])
-    if document["purpose"] == "sdvk009-shadowoff-scaling":
+    if document["purpose"] == SHADOWOFF_PURPOSE:
         return importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff").validate_capture(packet, stage, run)
     if not document["purpose"].startswith("sdvk008-"):
         return None
@@ -193,7 +195,76 @@ def after_capture(packet, stage, run):
     return receipt
 
 
-def before_capture(packet, stage, run):
+def shadowoff_reference_stage(stage, collected):
+    """Resolve the exact collector-recorded artifacts for the parent's locks."""
+    out = Path(stage["capture"]["out"])
+    run_pin = collected["run"]
+    require(Path(run_pin["path"]) == out / "run.json", "Shadow-off state run path differs")
+    verify_pin(run_pin)
+    manifest = read_json(run_pin["path"])
+    pins = [run_pin]
+    for name in SHADOWOFF_REFERENCE_FILES[1:]:
+        row = manifest["artifacts"][name]
+        require(row["path"] == name, "Shadow-off state artifact path differs")
+        pins.append({"path": str(out / name), "size": row["bytes"], "sha256": row["sha256"]})
+    require(pins[1] == collected["native"], "Shadow-off native artifact custody differs")
+    return {"name": stage["name"], "files": pins}
+
+
+def shadowoff_reference_receipt(packet, stage, states):
+    """Join exactly eight parent-fenced states without decoding their images again."""
+    from tools.renderer_oracle.sdvk009_shadowoff import SCENES, EXTENT
+
+    expected = packet["stages"][:8]
+    require(len(states) == 8 and stage == packet["stages"][8],
+            "Shadow-off timing lacks all eight fenced references")
+    workloads = {}
+    for index, scene in enumerate(SCENES):
+        first, second = states[index * 2:index * 2 + 2]
+        require(first["workload"] == second["workload"],
+                "Shadow-off paired selected/upload workload differs")
+        comparison = second["comparison"]
+        require(first["comparison"] is None and comparison and comparison["status"] == "PASS"
+                and comparison["state_equal"] is True and comparison["explicit_build_change"] is False,
+                "Shadow-off paired state/RGB comparison failed")
+        image = comparison["image"]
+        require(image["passed"] is True and image["policy"] == {"metric": "exact-rgb8"}
+                and image["extent"] == EXTENT and image["changed_pixels"] == 0,
+                "Shadow-off pair lacks exact RGB evidence")
+        for label, state, spec in zip(("left", "right"), (first, second), expected[index * 2:index * 2 + 2]):
+            require(state["name"] == spec["name"] and spec["capture"]["mode"] == "state"
+                    and spec["capture"]["scene"] == scene, "Shadow-off reference stage identity differs")
+            out = Path(spec["capture"]["out"])
+            require([Path(row["path"]) for row in state["files"]] ==
+                    [out / name for name in SHADOWOFF_REFERENCE_FILES],
+                    "Shadow-off state evidence path differs")
+            run_pin = state["files"][0]
+            require(comparison[label] == {"path": run_pin["path"], "bytes": run_pin["size"],
+                                           "sha256": run_pin["sha256"]},
+                    "Shadow-off comparison was bound to different state runs")
+        workloads[scene] = first["workload"]
+    return {"schema": "sdvk009-shadowoff-reference-gate/v2", "status": "PASS",
+            "packet_sha256": packet["packet_sha256"], "timing_stage": stage["name"],
+            "registration": packet["workload_registration"], "references": states,
+            "scope": "PARTIAL_SCALING_COLLECTION_ONLY", "physical_gpu_qualified": False,
+            "performance_accepted": False, "state_workloads": workloads}
+
+
+def verify_shadowoff_reference(packet, stage, control, reference_pin):
+    require(reference_pin is not None and control is not None
+            and Path(reference_pin["path"]) == control / "shadowoff-fenced-references.json",
+            "Missing parent-fenced shadow-off reference receipt")
+    verify_pin(reference_pin)
+    receipt = read_json(reference_pin["path"])
+    require(receipt == shadowoff_reference_receipt(packet, stage, receipt["references"]),
+            "Shadow-off reference receipt binding differs")
+    for state in receipt["references"]:
+        for artifact in state["files"]:
+            verify_pin(artifact)
+    return receipt
+
+
+def before_capture(packet, stage, run, *, control=None, reference_pin=None):
     """First timing creation is conditional on its typed correctness/image gates.
 
     Called in the owned collector before capture/target registration. Its same
@@ -203,10 +274,10 @@ def before_capture(packet, stage, run):
     if packet.get("kind") != KIND or stage["capture"]["mode"] != "timing":
         return None
     document = definition(packet)
-    if document["purpose"] == "sdvk009-shadowoff-scaling":
+    if document["purpose"] == SHADOWOFF_PURPOSE:
         timing = [s for s in packet["stages"] if s["capture"]["mode"] == "timing"]
         if stage["name"] == timing[0]["name"]:
-            return importlib.import_module("tools.renderer_oracle.sdvk009_shadowoff").reference_gate(packet, run)
+            return verify_shadowoff_reference(packet, stage, control, reference_pin)
         return None  # existing ledger requires every prior timing stage/fence
     require(document["purpose"] == "sdvk008-partial-reference-and-cost", "Unregistered timing scope")
     timing = [s for s in packet["stages"] if s["capture"]["mode"] == "timing"]

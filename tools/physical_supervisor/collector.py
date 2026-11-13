@@ -262,7 +262,7 @@ def prepare_subprocess_adapter(packet,stage,control,receipt_pin):
         Popen=denied,call=denied,check_call=denied,check_output=denied,getoutput=denied,getstatusoutput=denied)
 
 
-def run_oracle(packet, stage, control,receipt_pin):
+def run_oracle(packet, stage, control, receipt_pin, reference_pin=None):
     verify_oracle_python_pins(packet)
     # Do not let current tooling source shadow the frozen oracle package.
     for name in list(sys.modules):
@@ -280,7 +280,7 @@ def run_oracle(packet, stage, control,receipt_pin):
     original_prepare_subprocess=preparation.subprocess
     original_write = run.write_json
     from .registered import before_capture
-    registered_gate = before_capture(packet, stage, run)
+    registered_gate = before_capture(packet, stage, run, control=control, reference_pin=reference_pin)
     if registered_gate is not None:
         exclusive(control / "registered-reference-gate.json", registered_gate)
     preparation.subprocess=prepare_subprocess_adapter(packet,stage,control,receipt_pin)
@@ -342,7 +342,7 @@ def run_oracle(packet, stage, control,receipt_pin):
         run.write_json = original_write
 
 
-def main(packet_path, stage_index, control_path,receipt_pin):
+def main(packet_path, stage_index, control_path, receipt_pin, reference_pin=None):
     packet = read_json(packet_path)
     supplied_sha = packet.pop("packet_sha256")
     require(hashlib.sha256(canonical(packet)).hexdigest() == supplied_sha, "Collector packet changed")
@@ -353,7 +353,7 @@ def main(packet_path, stage_index, control_path,receipt_pin):
     try:
         with gate:
             gate.check()
-        result = run_oracle(packet, stage, control,receipt_pin)
+        result = run_oracle(packet, stage, control, receipt_pin, reference_pin)
         with gate:
             gate.check()
             exclusive(control / "stage-result.json", {"packet_sha256": supplied_sha, "stage": stage["name"],
