@@ -20,6 +20,8 @@ class LightmapCommandletTests(unittest.TestCase):
                 "void LightmapDeleteCmdlet::OnCommand(",
             )
         ]
+        mesh = (ROOT / "src/rendering/hwrenderer/doom_levelmesh.cpp").read_text()
+        methods.append(block(mesh, "FString DoomLevelMesh::GetMapFilename("))
         with tempfile.TemporaryDirectory() as temp:
             directory = Path(temp)
             (directory / "commandlet_methods.inc").write_text("\n".join(methods))

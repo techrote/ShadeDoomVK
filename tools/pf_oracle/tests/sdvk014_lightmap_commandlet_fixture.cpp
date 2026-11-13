@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cstdio>
 #include <cstdint>
 #include <functional>
 #include <stdexcept>
@@ -13,6 +14,13 @@ struct FString
 	int CompareNoCase(const FString& text) const { return value.compare(text.value); }
 	bool IsEmpty() const { return value.empty(); }
 	const char* GetChars() const { return value.c_str(); }
+	void Format(const char* format, const char* text)
+	{
+		char buffer[64];
+		std::snprintf(buffer, sizeof(buffer), format, text);
+		value = buffer;
+	}
+	FString operator+(const FString& other) const { return (value + other.value).c_str(); }
 };
 
 struct FArgs
@@ -54,6 +62,7 @@ struct DoomLevelMesh
 	}
 	void SaveLightmapLump(FLevelLocals&) { ++saves; }
 	void DeleteLightmapLump(FLevelLocals&) { ++deletes; }
+	static FString GetMapFilename(FLevelLocals&);
 };
 
 struct FLevelLocals
@@ -61,6 +70,7 @@ struct FLevelLocals
 	FString MapName;
 	DoomLevelMesh* levelMesh = nullptr;
 	bool lightmaps = true;
+	int lumpnum = -1;
 };
 
 struct BakeScreen
@@ -77,6 +87,14 @@ struct BakeScreen
 	}
 	void Update() { if (cancelled) throw std::runtime_error("cancelled"); }
 };
+
+static struct
+{
+	int CheckNumForFullName(const char* name) const { return std::string(name) == "maps/map01.wad" ? 17 : -1; }
+	int GetFileContainer(int lump) const { return lump == 17 ? 3 : -1; }
+	const char* GetFileFullName(int) const { return "maps/map01.wad"; }
+	const char* GetResourceFileFullName(int) const { return "editable/"; }
+} fileSystem;
 
 static FLevelLocals level;
 static BakeScreen renderer;
@@ -171,4 +189,11 @@ int main()
 	Reset(0);
 	renderer.vulkan = false;
 	ExpectFailure([&] { build.OnCommand({nullptr}); }, "requires the Vulkan");
+
+	// The normal directory path remains unchanged. A higher-priority map
+	// supplied by another WAD can have the same map name but a different lump.
+	level.lumpnum = 17;
+	assert(DoomLevelMesh::GetMapFilename(level).Compare("editable/maps/map01.wad") == 0);
+	level.lumpnum = 23;
+	ExpectFailure([&] { (void)DoomLevelMesh::GetMapFilename(level); }, "not the maps/");
 }
