@@ -63,11 +63,16 @@ def witness():
                                {"kind": "surface", "frame": frame, "count": 1, "data": value}]
             if kind == (5 if frame <= 48 else 4):
                 immediate = copy.deepcopy(value)
-                immediate.update(producer="immediate-special-surface", indexed=False, draw_count=4, index_count=4)
+                immediate.update(producer="immediate-controlled-flat-range")
                 immediate["key"]["shader"]["UseLevelMesh"] = 0
                 immediate["context"].update(type="portal", producer="Mirror", depth=1, identity=2, parent_identity=1, line_mirror=True)
                 immediate["probe"]["authored_scope"] = "current immediate authored uniform selector"
-                raw["records"].append({"kind": "surface", "frame": frame, "count": 1, "data": immediate})
+                raw["records"] += [
+                    {"kind": "pipeline", "frame": frame, "count": 1,
+                     "data": {"producer": "immediate-controlled-flat", "first_index": first, "draw_count": 6,
+                              "key": copy.deepcopy(immediate["key"]), "context": copy.deepcopy(immediate["context"])}},
+                    {"kind": "surface", "frame": frame, "count": 1, "data": immediate},
+                ]
     return raw
 
 
@@ -126,7 +131,7 @@ class ControlledPlaneNativeTests(unittest.TestCase):
     def test_old_source_alias_and_opposite_facing_uv_are_rejected(self):
         for mutation, message in (
             (lambda raw: controlled(raw)["lightmap"].update(tile=3, receipt=copy.deepcopy(old.resource(raw, 8)["lightmap_state"]["tile_receipts"][3]["receipt"])), "model-source/facing"),
-            (lambda raw: controlled(raw, producer="immediate-special-surface")["geometry"].update(current_uv_valid=False), "UV"),
+            (lambda raw: controlled(raw, producer="immediate-controlled-flat-range")["geometry"].update(current_uv_valid=False), "UV"),
             (lambda raw: controlled(raw)["geometry"].update(plane=[0, 0, 1, 48]), "selected/flipped"),
             (lambda raw: controlled(raw)["lightmap"]["receipt"].update(incarnation=999), "retired allocation"),
             (lambda raw: controlled(raw)["owner"].update(control_sector=0), "owner/facing"),
@@ -136,8 +141,18 @@ class ControlledPlaneNativeTests(unittest.TestCase):
                 raw = witness(); mutation(raw)
                 with self.assertRaisesRegex(EvidenceError, message): self.validate(raw)
 
+    def test_indexed_immediate_requires_bound_range_and_parent(self):
+        for fields, message in (({"indexed": False}, "pipeline does not match"),
+                                ({"first_index": 999}, "index range escapes"),
+                                ({"first_index": 999, "batch_first_index": 999}, "same-frame indexed parent")):
+            with self.subTest(fields=fields):
+                raw = witness()
+                controlled(raw, producer="immediate-controlled-flat-range").update(fields)
+                with self.assertRaisesRegex(EvidenceError, message):
+                    self.validate(raw)
+
     def test_missing_actual_immediate_face_and_census_plane_are_rejected(self):
-        raw = witness(); missing = controlled(raw, producer="immediate-special-surface")
+        raw = witness(); missing = controlled(raw, producer="immediate-controlled-flat-range")
         raw["records"] = [r for r in raw["records"] if r.get("data") is not missing]
         with self.assertRaisesRegex(EvidenceError, "mirrored source/facing"): self.validate(raw)
         raw = witness(); old.resource(raw, 8)["lightmap_state"]["tile_receipts"][0]["binding"].pop("control_plane")
@@ -151,6 +166,15 @@ class ControlledPlaneNativeTests(unittest.TestCase):
         tile["binding"]["control_plane"] = 0
         with self.assertRaisesRegex(EvidenceError, "control namespace"):
             gate.legacy._surface_lightmap(value, resource, gate.legacy._tile_census(resource))
+
+    def test_legacy_ordinary_receipt_accepts_signed_observer_sentinel(self):
+        raw = old.full_raw()
+        value = old.surface(raw, "S161PH", frame=8)
+        resource = old.resource(raw, 8)
+        tile = next(t for t in resource["lightmap_state"]["tile_receipts"] if t["tile"] == value["lightmap"]["tile"])
+        self.assertEqual(tile["binding"]["control_sector"], -1)
+        tile["binding"]["control_plane"] = -1
+        gate.legacy._surface_lightmap(value, resource, gate.legacy._tile_census(resource))
 
     def test_native_copy_controls_preserve_original_and_reject_intended_faults(self):
         raw = witness(); before = copy.deepcopy(raw)

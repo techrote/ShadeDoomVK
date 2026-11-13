@@ -75,5 +75,9 @@ void UpdateVBOLightmap(FRenderState& renderstate, sector_t* sector);
 void UpdateVBOLightmap(FRenderState& renderstate, TArray<sector_t>& sectors);
 void CreateVBO(FRenderState& renderstate, TArray<sector_t>& sectors);
 
+// Diagnostic lookup of the actual indexed flat stream's owner at a vertex.
+bool ResolveControlledFlatVertex(unsigned vertex, int plane, bool ceiling,
+	const F3DFloor* rover, int sectorIndex, int& subsector, int& tile);
+
 extern TArray<FFlatVertex> sector_vertices;
 extern TArray<uint32_t> sector_indexes;

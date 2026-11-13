@@ -48,6 +48,8 @@
 #include "hw_renderstate.h"
 #include "texturemanager.h"
 #include "hw_flatdispatcher.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <optional>
 
 EXTERN_CVAR(Bool, lm_dynlights);
 
@@ -216,7 +218,30 @@ void HWFlat::DrawSubsectors(HWFlatDispatcher *di, FRenderState &state)
 		SetupLights(di, state, section->lighthead, lightdata, sector->PortalGroup);
 	}
 	state.SetLightIndex(dynlightindex);
-	state.DrawIndexed(DT_Triangles, iboindex + section->vertexindex, section->vertexcount);
+	const int firstIndex = iboindex + section->vertexindex;
+	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedFlat;
+	if (di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected() && controlsector
+		&& (controlsector->flags & FF_BOTHPLANES) && level.lightmaps)
+	{
+		SdvkDiagnostics::SpecialSurfaceMetadata value;
+		value.Class = ceiling ? "three-d-floor-ceiling" : "three-d-floor-floor";
+		value.Type = ceiling ? ST_CEILING : ST_FLOOR;
+		value.Sector = sector->Index();
+		value.ControlSector = controlsector->model->Index();
+		value.PortalGroup = sector->PortalGroup;
+		value.IndexedFlatRover = controlsector;
+		value.SourcePlane = lightmapPlane;
+		value.FirstIndex = firstIndex;
+		value.IndexCount = section->vertexcount;
+		const auto normal = plane.plane.Normal();
+		value.Plane[0] = normal.X;
+		value.Plane[1] = normal.Y;
+		value.Plane[2] = normal.Z;
+		value.Plane[3] = -plane.plane.fD();
+		value.HasPlane = true;
+		observedFlat.emplace(value);
+	}
+	state.DrawIndexed(DT_Triangles, firstIndex, section->vertexcount);
 	flatvertices += section->vertexcount;
 	flatprimitives++;
 }

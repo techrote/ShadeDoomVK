@@ -341,7 +341,7 @@ def _surface_lightmap(value: dict, resource: dict, tiles: dict[int, dict]) -> tu
     # BOTH-plane captures use their separate mandatory four-face contract.
     if "control_plane" in binding:
         expected_binding["control_plane"] = (0 if owner["type"] == 4 else 1) \
-            if owner["control_sector"] != -1 and owner["type"] in (4, 5) else 0xFFFFFFFF
+            if owner["control_sector"] != -1 and owner["type"] in (4, 5) else -1
     require(binding == expected_binding,
             "SDVK-161 tile belongs to another side/sector/control namespace")
     return (tile, lightmap["page"], *receipt)
@@ -812,7 +812,7 @@ def _require_b_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
 def validate_surface_record(value: dict) -> None:
     """Recipe-independent shape/identity checks for the generic observation gate."""
     require(isinstance(value, dict) and value.get("producer") in
-            ("levelmesh-surface-range", "immediate-special-surface"),
+            ("levelmesh-surface-range", "immediate-special-surface", "immediate-controlled-flat-range"),
             "Unknown submitted surface producer")
     require(isinstance(value.get("context"), dict) and value["context"].get("available") is True,
             "Submitted surface context is unavailable")
@@ -868,9 +868,16 @@ def validate_surface_record(value: dict) -> None:
         require(lightmap.get("tile") == lightmap.get("page") == -1 and lightmap["valid"] is False
                 and lightmap.get("receipt") == {"owner": 0, "incarnation": 0, "slot": 0},
                 "Ineligible surface retains an atlas tile/page")
-    if value["producer"] == "levelmesh-surface-range":
-        require(value.get("indexed") is True and shader.get("UseLevelMesh") == 1,
-                "Submitted LevelMesh surface has an immediate/unindexed pipeline")
+    if value["producer"] in ("levelmesh-surface-range", "immediate-controlled-flat-range"):
+        mesh = value["producer"] == "levelmesh-surface-range"
+        require(value.get("indexed") is True and shader.get("UseLevelMesh") == int(mesh),
+                "Submitted LevelMesh surface has an immediate/unindexed pipeline" if mesh
+                else "Submitted indexed surface pipeline does not match its producer")
+        if not mesh:
+            require(value.get("class") in ("three-d-floor-floor", "three-d-floor-ceiling")
+                    and owner["type"] in (4, 5) and owner["side"] == -1 and owner["control_sector"] >= 0
+                    and lightmap["eligible"] is True,
+                    "Immediate indexed producer does not describe a controlled flat receiver")
         first = _integer(value.get("first_index"), "surface first index")
         count = _integer(value.get("index_count"), "surface index count", 3)
         batch_first = _integer(value.get("batch_first_index"), "surface batch first index")

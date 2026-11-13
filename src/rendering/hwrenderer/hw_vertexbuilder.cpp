@@ -457,6 +457,27 @@ static void UpdatePlaneVertices(FRenderState& renderstate, sector_t* sec, int pl
 //
 //==========================================================================
 
+bool ResolveControlledFlatVertex(unsigned vertex, int plane, bool ceiling,
+	const F3DFloor* rover, int sectorIndex, int& subsector, int& tile)
+{
+	if (vertex >= sector_origins.Size() || plane < 0 || plane > 1 || !rover)
+		return false;
+	const auto& origin = sector_origins[vertex];
+	if (!origin.sub || origin.plane != plane || origin.lightmapSlot <= 0
+		|| origin.sub->sector->Index() != sectorIndex)
+		return false;
+	const unsigned slot = origin.lightmapSlot;
+	const unsigned roverIndex = (slot - 1) / 2;
+	const auto& rovers = origin.sub->sector->e->XFloor.ffloors;
+	const auto& tiles = origin.sub->LightmapTiles[plane];
+	if ((slot - 1) % 2 != unsigned(ceiling) || roverIndex >= rovers.Size()
+		|| rovers[roverIndex] != rover || slot >= tiles.Size() || tiles[slot] < 0)
+		return false;
+	subsector = origin.sub->Index();
+	tile = tiles[slot];
+	return true;
+}
+
 static void UpdatePlaneLightmap(FRenderState& renderstate, sector_t* sec, int plane)
 {
 	int startvt = sec->vboindex[plane];

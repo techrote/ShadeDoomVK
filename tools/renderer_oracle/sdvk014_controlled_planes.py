@@ -152,7 +152,7 @@ def _submitted(raw, resources, native):
     require(len(set(atlas_owners.values())) == 4, "Reload reused a controlled atlas allocation owner")
     for row in raw["records"]:
         frame, value = row.get("frame"), row.get("data", {})
-        if row.get("kind") == "pipeline" and value.get("producer") == "levelmesh-indexed-range":
+        if row.get("kind") == "pipeline" and value.get("producer") in ("levelmesh-indexed-range", "immediate-controlled-flat"):
             parents.setdefault(frame, []).append(value)
         if row.get("kind") != "surface": continue
         require(frame in selected and type(row.get("count")) is int and row["count"] > 0,
@@ -168,6 +168,13 @@ def _submitted(raw, resources, native):
             require(any(parent.get("first_index") == value["batch_first_index"] and parent.get("draw_count") == value["batch_index_count"]
                         and parent.get("key") == value["key"] and parent.get("context") == context for parent in parents.get(frame, [])),
                     "Controlled geometry has no actual same-frame indexed parent draw")
+        if value["producer"] == "immediate-controlled-flat-range":
+            require(any(parent.get("producer") == "immediate-controlled-flat"
+                        and parent.get("first_index") == value["batch_first_index"]
+                        and parent.get("draw_count") == value["batch_index_count"]
+                        and parent.get("key") == value["key"] and parent.get("context") == context
+                        for parent in parents.get(frame, [])),
+                    "Controlled immediate flat has no actual same-frame indexed parent draw")
         controlled = value["class"] in ("three-d-floor-floor", "three-d-floor-ceiling")
         axis = None
         if controlled:
@@ -208,7 +215,7 @@ def _submitted(raw, resources, native):
                 and v["context"].get("type") == "main" and v["context"].get("producer") == "root" and v["context"].get("depth") == 0}
         require(main == {(0, 4), (0, 5), (1, 4), (1, 5)}, f"Frame{frame} lacks actual four-face main submission")
         facing = 5 if frame <= 48 else 4
-        immediate = {(axis, v["owner"]["type"]) for v, axis, _ in values if v["producer"] == "immediate-special-surface"
+        immediate = {(axis, v["owner"]["type"]) for v, axis, _ in values if v["producer"] == "immediate-controlled-flat-range"
                      and v["context"].get("type") == "portal" and v["context"].get("producer") == "Mirror"
                      and v["context"].get("line_mirror") is True and v["context"].get("depth") == 1}
         require(immediate == {(0, facing), (1, facing)}, f"Frame{frame} lacks actual mirrored source/facing UV submissions")
@@ -268,11 +275,11 @@ def captured_negatives(raw, stdout, native):
         return next(r["data"] for r in data["records"] if r["kind"] == "surface" and r["frame"] == 8
                     and r["data"].get("class") == "three-d-floor-floor"
                     and r["data"].get("material", {}).get("name") == NAMES[0]
-                    and (not immediate or r["data"].get("producer") == "immediate-special-surface"))
+                    and (not immediate or r["data"].get("producer") == "immediate-controlled-flat-range"))
     def missing_mirror(data):
         data["records"] = [r for r in data["records"] if not (r["kind"] == "surface" and r["frame"] == 8
             and r["data"].get("class", "").startswith("three-d-floor-")
-            and r["data"].get("producer") == "immediate-special-surface")]
+            and r["data"].get("producer") == "immediate-controlled-flat-range")]
     controls = (
         ("wrong-source-plane", lambda d: first(d)["geometry"].update(plane=[0, 0, 1, 48]), "selected/flipped"),
         ("overwritten-immediate-uv", lambda d: first(d, True)["geometry"].update(current_uv_valid=False), "UV"),

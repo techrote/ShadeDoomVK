@@ -219,6 +219,14 @@ jobs:
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --out build/renderer-sdvk161 \
           --expected-commit "$(git rev-parse HEAD)"
+        # SDVK-014: independent BOTH-plane source/facing correctness on the
+        # same hosted software build. The accepted SDVK-161 recipe stays intact.
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk014_controlled_planes \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk014-controlled \
+          --expected-commit "$(git rev-parse HEAD)"
         PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_publication qualify \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
@@ -231,7 +239,7 @@ jobs:
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161; do
+        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi
