@@ -2909,7 +2909,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 
 	FString fullpath = GetMapFilename(doomMap);
 	if (fullpath.Len() == 0)
-		return;
+		I_Error("Could not resolve map WAD file for LIGHTMAP output");
 
 	Printf("Saving LIGHTMAP lump into %s\n", fullpath.GetChars());
 

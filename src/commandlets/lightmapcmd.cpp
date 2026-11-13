@@ -1,11 +1,40 @@
 
 #include "lightmapcmd.h"
-#include "g_levellocals.h"
 #include "d_event.h"
+#include "engineerrors.h"
+#include "g_level.h"
+#include "g_levellocals.h"
+#include "p_setup.h"
 #include "v_video.h"
 
-void G_SetMap(const char* mapname, int mode);
 void D_SingleTick();
+
+namespace
+{
+DoomLevelMesh& LoadLightmapCommandMap(const FArgs& args)
+{
+	const char* first = args.NumArgs() > 0 ? args.GetArg(0) : nullptr;
+	FString mapname = first && first[0] != '-' ? first : "map01";
+	if (mapname.Compare("*") == 0)
+		mapname = level.MapName;
+
+	if (mapname.IsEmpty() || !P_CheckMapData(mapname.GetChars()))
+		I_Error("Could not find lightmap command map '%s'", mapname.GetChars());
+
+	G_DeferedInitNew(mapname.GetChars());
+	for (int i = 0; i < 100 && gameaction != ga_nothing; i++)
+		D_SingleTick();
+
+	// A failed or redirected map command must not write to another map's WAD.
+	if (gameaction != ga_nothing || level.MapName.CompareNoCase(mapname) != 0)
+		I_Error("Could not finish loading lightmap command map '%s' (current map is '%s')",
+			mapname.GetChars(), level.MapName.GetChars());
+	if (!level.levelMesh)
+		I_Error("Map '%s' has no level mesh", mapname.GetChars());
+
+	return *level.levelMesh;
+}
+}
 
 LightmapCmdletGroup::LightmapCmdletGroup()
 {
@@ -28,71 +57,53 @@ void LightmapBuildCmdlet::OnCommand(FArgs args)
 {
 	RunInGame([&]() {
 
-		FString mapname;
-		if (args.NumArgs() > 0 && args.GetArg(0)[0] != '-')
-			mapname = args.GetArg(0);
-		else
-			mapname = "map01";
+		if (!screen->IsVulkan())
+			I_Error("Building lightmaps requires the Vulkan renderer");
 
-		G_SetMap(mapname.GetChars(), 0);
-		for (int i = 0; i < 100; i++)
-		{
-			D_SingleTick();
-			if (gameaction == ga_nothing)
-				break;
-		}
-
-		if (!level.levelMesh)
-		{
-			Printf("No level mesh. Perhaps your level has no lightmap loaded?\n");
-			return;
-		}
-
+		auto& mesh = LoadLightmapCommandMap(args);
 		if (!level.lightmaps)
-		{
-			Printf("Lightmap is not enabled in this level.\n");
-		}
-
-		if (level.levelMesh)
-			level.levelMesh->BeginFrame(level);
-
-		Printf("Baking lightmaps. Please wait...\n");
-
-		uint32_t atlasPixelCount = level.levelMesh->AtlasPixelCount();
-		auto stats = level.levelMesh->GatherTilePixelStats();
+			I_Error("Lightmapping is not enabled in map '%s'", level.MapName.GetChars());
+		mesh.BeginFrame(level);
+		const auto atlasPixelCount = mesh.AtlasPixelCount();
+		const auto stats = mesh.GatherTilePixelStats();
 
 		Printf("Tiles: %u (%u out of date)\n", stats.tiles.total, stats.tiles.dirty);
 		Printf("Tile pixel area to update: %u\n", stats.pixels.dirty);
 		Printf("Tile pixel area: %u\nAtlas pixel area: %u\n", stats.pixels.total, atlasPixelCount);
-		Printf("Atlas efficiency: %.4f%%\n", float(stats.pixels.total) / float(atlasPixelCount) * 100.0f);
-
-		Printf("Baking lightmap. Please wait...\n");
+		if (atlasPixelCount > 0)
+			Printf("Atlas efficiency: %.4f%%\n", float(stats.pixels.total) / float(atlasPixelCount) * 100.0f);
+		Printf("Baking lightmaps. Please wait...\n");
 
 		TArray<LightmapTile*> tiles;
-
-		while (stats.tiles.dirty > 0)
+		auto dirty = stats.tiles.dirty;
+		while (dirty > 0)
 		{
 			tiles.Clear();
-			for (auto& e : level.levelMesh->Lightmap.Tiles)
+			for (auto& tile : mesh.Lightmap.Tiles)
 			{
-				if (e.HasLiveAtlasAllocation(*level.levelMesh->Lightmap.AtlasPacker) && e.NeedsInitialBake)
+				if (tile.HasLiveAtlasAllocation(*mesh.Lightmap.AtlasPacker) && tile.NeedsInitialBake)
 				{
-					tiles.Push(&e);
+					tiles.Push(&tile);
 					if (tiles.Size() == 1001)
 						break;
 				}
 			}
 
 			if (tiles.Size() == 0)
-				break;
+				I_Error("No live lightmap tiles found for %u unfinished bakes", dirty);
 
 			screen->BeginFrame();
 			screen->UpdateLightmaps(tiles);
 			screen->Update();
+
+			const auto remaining = mesh.GatherTilePixelStats().tiles.dirty;
+			if (remaining >= dirty)
+				I_Error("Lightmap bake made no progress in map '%s' (%u unfinished tiles)",
+					level.MapName.GetChars(), remaining);
+			dirty = remaining;
 		}
 
-		Printf("Finished baking map.\n");
-		level.levelMesh->SaveLightmapLump(level);
+		mesh.SaveLightmapLump(level);
 
 		Printf("Lightmap build complete.\n");
 	});
@@ -116,33 +127,7 @@ void LightmapDeleteCmdlet::OnCommand(FArgs args)
 	// Pretty lame that we have to load the map here, but cba to figure out how to deal with map loading outside the engine...
 
 	RunInGame([&]() {
-		FString mapname;
-		if (args.NumArgs() > 0 && args.GetArg(0)[0] != '-')
-			mapname = args.GetArg(0);
-		else
-			mapname = "map01";
-
-		G_SetMap(mapname.GetChars(), 0);
-		for (int i = 0; i < 100; i++)
-		{
-			D_SingleTick();
-			if (gameaction == ga_nothing)
-				break;
-		}
-
-		if (!level.levelMesh)
-		{
-			Printf("No level mesh. Perhaps your level has no lightmap loaded?\n");
-			return;
-		}
-
-		if (!level.lightmaps)
-		{
-			Printf("Lightmap is not enabled in this level.\n");
-		}
-
-		level.levelMesh->DeleteLightmapLump(level);
-		
+		LoadLightmapCommandMap(args).DeleteLightmapLump(level);
 	});
 }
 
