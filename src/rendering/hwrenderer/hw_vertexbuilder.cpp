@@ -328,6 +328,27 @@ static int CreateIndexedVertices(int h, sector_t* sec, const secplane_t& plane, 
 	}
 
 	// and finally all attached 3D floors
+	auto create3DFloor = [&](sector_t* fsec, F3DFloor* ffloor, int ffloorIndex)
+	{
+		if (!(ffloor->flags & FF_RENDERPLANES)) return;
+		const bool dotop = ffloor->top.model == sec && ffloor->top.isceiling == h;
+		const bool dobottom = ffloor->bottom.model == sec && ffloor->bottom.isceiling == h;
+		const bool inverted = !!(ffloor->flags & FF_INVERTPLANES);
+		const bool both = !!(ffloor->flags & FF_BOTHPLANES);
+		int ndx = -1;
+		for (int facing = 0; facing < 2; facing++)
+		{
+			const bool topface = dotop && (facing ? inverted || both : !inverted);
+			const bool bottomface = dobottom && (facing ? !inverted : inverted || both);
+			if (!topface && !bottomface) continue;
+			// Opposite faces sample different bakes, even when their geometry
+			// coincides. Keep the existing shared stream without lightmaps.
+			if (ndx < 0 || sec->Level->lightmaps)
+				ndx = CreateIndexedSectorVertices(fsec, plane, false, verts[fsec->Index()], h, 1 + ffloorIndex * 2 + facing);
+			if (topface) ffloor->top.vindex[facing] = ndx;
+			if (bottomface) ffloor->bottom.vindex[facing] = ndx;
+		}
+	};
 	TArray<sector_t*>& xf = sec->e->XFloor.attached;
 	for (unsigned g = 0; g < xf.Size(); g++)
 	{
@@ -335,18 +356,17 @@ static int CreateIndexedVertices(int h, sector_t* sec, const secplane_t& plane, 
 		int ffloorIndex;
 		F3DFloor* ffloor = Find3DFloor(fsec, sec, ffloorIndex);
 
-		if (ffloor != NULL && ffloor->flags & FF_RENDERPLANES)
-		{
-			bool dotop = (ffloor->top.model == sec) && (ffloor->top.isceiling == h);
-			bool dobottom = (ffloor->bottom.model == sec) && (ffloor->bottom.isceiling == h);
-
-			if (dotop || dobottom)
-			{
-				auto ndx = CreateIndexedSectorVertices(fsec, plane, false, verts[fsec->Index()], h, ffloorIndex + 1);
-				if (dotop) ffloor->top.vindex = ndx;
-				if (dobottom) ffloor->bottom.vindex = ndx;
-			}
-		}
+		if (ffloor != NULL && (fsec != sec || !sec->Level->lightmaps))
+			create3DFloor(fsec, ffloor, ffloorIndex);
+	}
+	// FF_FIX/Vavoom can source a controlled face from its receiving sector.
+	// Lightmapped faces still need their own facing/rover tile origins. Append
+	// them inside this source plane's range so height updates include them.
+	if (sec->Level->lightmaps)
+	{
+		const auto& ffloors = sec->e->XFloor.ffloors;
+		for (unsigned i = 0; i < ffloors.Size(); i++)
+			create3DFloor(sec, ffloors[i], int(i));
 	}
 	sec->vbocount[h] = vbo_shadowdata.Size() - sec->vboindex[h];
 	return sec->iboindex[h];
@@ -398,13 +418,13 @@ static void CreateIndexedFlatVertices(TArray<sector_t>& sectors)
 	{
 		for (auto ff : sec.e->XFloor.ffloors)
 		{
-			if (ff->top.model == &sec)
+			if (!sec.Level->lightmaps && ff->top.model == &sec)
 			{
-				ff->top.vindex = sec.iboindex[ff->top.isceiling];
+				ff->top.vindex[0] = ff->top.vindex[1] = sec.iboindex[ff->top.isceiling];
 			}
-			if (ff->bottom.model == &sec)
+			if (!sec.Level->lightmaps && ff->bottom.model == &sec)
 			{
-				ff->bottom.vindex = sec.iboindex[ff->top.isceiling];
+				ff->bottom.vindex[0] = ff->bottom.vindex[1] = sec.iboindex[ff->top.isceiling];
 			}
 		}
 	}
@@ -436,6 +456,27 @@ static void UpdatePlaneVertices(FRenderState& renderstate, sector_t* sec, int pl
 //
 //
 //==========================================================================
+
+bool ResolveControlledFlatVertex(unsigned vertex, int plane, bool ceiling,
+	const F3DFloor* rover, int sectorIndex, int& subsector, int& tile)
+{
+	if (vertex >= sector_origins.Size() || plane < 0 || plane > 1 || !rover)
+		return false;
+	const auto& origin = sector_origins[vertex];
+	if (!origin.sub || origin.plane != plane || origin.lightmapSlot <= 0
+		|| origin.sub->sector->Index() != sectorIndex)
+		return false;
+	const unsigned slot = origin.lightmapSlot;
+	const unsigned roverIndex = (slot - 1) / 2;
+	const auto& rovers = origin.sub->sector->e->XFloor.ffloors;
+	const auto& tiles = origin.sub->LightmapTiles[plane];
+	if ((slot - 1) % 2 != unsigned(ceiling) || roverIndex >= rovers.Size()
+		|| rovers[roverIndex] != rover || slot >= tiles.Size() || tiles[slot] < 0)
+		return false;
+	subsector = origin.sub->Index();
+	tile = tiles[slot];
+	return true;
+}
 
 static void UpdatePlaneLightmap(FRenderState& renderstate, sector_t* sec, int plane)
 {

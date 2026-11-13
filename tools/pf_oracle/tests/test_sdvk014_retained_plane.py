@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 import unittest
 
-from tools.pf_oracle.fixture_runner import compile_fixture
+from tools.pf_oracle.tests.legacy_msvc_fixture import compile_legacy_fixture as compile_fixture
 from tools.pf_oracle.tests.sdvk014_source import ROOT, block
 
 
@@ -33,7 +33,7 @@ class RetainedPlaneTests(unittest.TestCase):
             source = root / (name + ".cpp")
             source.write_text(template.replace("// @PRODUCTION_ADMISSION@", current))
             return compile_fixture(source, output_dir=root,
-                includes=(data, ROOT / "src/common/utility", ROOT / "src/common/thirdparty"), name=name)
+                includes=(data, ROOT / "src/common/utility", ROOT / "src/common/thirdparty"))
 
         cls.current = build("current", admission)
         gate = block(admission, "if (tile->RuntimeBakeOnly)")

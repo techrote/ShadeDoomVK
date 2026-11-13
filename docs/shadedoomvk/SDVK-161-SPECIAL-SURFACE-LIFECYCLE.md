@@ -83,7 +83,7 @@ names and camera structure; other corpus rules remain strict.
 | Two solid 3D floors in the main view | Actual LevelMesh sides and floor/ceiling faces; receiving sector 6, control sectors 4/5, distinct control materials and source planes | Native target is ordinary opaque solid floors. Current owner/control/plane, per-subsector triangle association, UVs and allocation receipts are required. Recursive portal 3D-flat submission is outside this native claim. |
 | Upper/middle/lower wall semantics at differing sector heights | Ordinary target boundary upper/lower bands plus both controlled middle-side receivers on side 34 | Outside sector 1 remains 0–160; target sector 6 is 16–144. Actual upper PBR and lower height-only bands use control -1, while slab sides retain controls 4/5. |
 | Inverted/alternative controlled planes | Exact production `CreateFlatSurface`, binding/publication and bake-target CPU replay | Selected source plane and source axis are qualified by CPU regression; the native corpus does not claim general inverted or sloped 3D-floor coverage. |
-| Multiple unequal planes sharing one controlled flat binding | `AddSurfaceToTile` rejects before bounds/use-count mutation | Explicit unsupported lightmapped case, including ambiguous `FF_BOTHPLANES`; no plausible shared tile is admitted. No-lightmap rendering is unchanged. |
+| Multiple controlled source axes with one facing (`FF_BOTHPLANES`) | [Bounded follow-on](SDVK-014-CONTROLLED-PLANES.md) separates runtime source/facing bindings and immediate UV streams; unequal planes under the same complete key still reject before mutation | Actual producer/consumer CPU regressions cover four distinct tiles and opposite-facing page/UV selection. The existing #161 native corpus does not claim this added cell; authored native coverage and full #14 acceptance remain separate. All historical v5 BOTHPLANES RGB requires runtime baking. |
 | Non-sky stack flat portal overlay | Existing immediate flat receiver/table path retained | Source/CPU preservation control only. This child does not claim a new native sector-stack-portal matrix. |
 
 Map A deliberately distinguishes PBR+height (`S161PH`, height binding 8),
@@ -127,9 +127,12 @@ method claim. No portal renderer policy is changed to satisfy the fixture.
    neighboring alternative source plane as a bake receiver. Exact plane equality
    applies only to controlled tiles. Ordinary same-height-group neighbors retain
    their existing seam/padding coverage, including slightly differing planes.
-4. **Ambiguous controlled binding.** Unequal planes under one flat binding fail
+4. **Ambiguous controlled binding.** Unequal planes under one complete flat binding fail
    explicitly, before changing the old tile's bounds or use count. This avoids
    creating a structurally current tile with the wrong geometric meaning.
+   The later [controlled-plane increment](SDVK-014-CONTROLLED-PLANES.md) adds
+   source axis and separate immediate facing streams, preserving this guard
+   while permitting distinct floor/ceiling source owners.
 5. **Corrected-plane retained RGB.** Old v5 retained RGB may have the same source
    digest and XY transform but have been baked at the earlier wrong plane.
    `RuntimeBakeOnly` quarantines affected corrected controlled planes before

@@ -11,6 +11,22 @@ import images
 class RGBExtentContractTests(unittest.TestCase):
     POLICY = {"metric": "exact-rgb8"}
 
+    def test_equal_separate_buffers_keep_all_comparison_metrics(self):
+        from tools.renderer_oracle.common import sha256
+
+        rgb = bytes(range(12))
+        same_rgb = bytes(bytearray(rgb))
+        self.assertIsNot(rgb, same_rgb)
+        for policy in (self.POLICY, {"metric": "rgb8-absolute", "max_channel_error": 0,
+                                      "mean_channel_error": 0, "changed_pixel_fraction": 0}):
+            with self.subTest(policy=policy):
+                self.assertEqual(images.compare_rgb(rgb, same_rgb, (2, 2), policy), {
+                    "passed": True, "extent": [2, 2], "policy": policy,
+                    "max_channel_error": 0, "mean_channel_error": 0.0,
+                    "changed_pixels": 0, "changed_pixel_fraction": 0.0,
+                    "left_rgb_sha256": sha256(rgb), "right_rgb_sha256": sha256(rgb),
+                })
+
     def test_negative_extents_cannot_become_matching_positive_pixel_counts(self):
         for extent in ((-1, -1), (-4, -2)):
             with self.subTest(extent=extent):

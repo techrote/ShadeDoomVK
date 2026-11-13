@@ -164,6 +164,18 @@ static void run(const std::string& mode) {
                     u16(m.saved,at+4)==3000+y,"wrong-owner-pixels");at+=6;
         }
         require(at==m.saved.size(),"wrong-encoded-size");
+    } else if(mode=="runtime-only-save") {
+        int ordinary=allocate(m,100),runtime=allocate(m,200);
+        m.Lightmap.Tiles[runtime].RuntimeBakeOnly=true;
+        // A runtime-only alternative can have the same serialized v5 triple.
+        // It must not export either a duplicate binding or its RGB payload.
+        m.Lightmap.Tiles[runtime].Binding=m.Lightmap.Tiles[ordinary].Binding;
+        m.SavePrefix();
+        require(u32(m.saved,0)==5 && u32(m.saved,4)==1 && u32(m.saved,8)==16,"runtime-only-binding-serialized");
+        require(m.saved.size()==28+56+16*6 && u32(m.saved,32)==100 && u32(m.saved,44)==0,
+                "runtime-only-payload-offset-or-size");
+        require(m.Lightmap.Tiles[runtime].UseCount==1 && m.Lightmap.Tiles[runtime].GeometryUpdate,
+                "runtime-only-save-mutated-live-owner");
     } else if(mode=="readback-isolation") {
         allocate(m,100);m.Lightmap.TextureData.Resize(16*16*3);
         for(auto& x:m.Lightmap.TextureData) x=1234;

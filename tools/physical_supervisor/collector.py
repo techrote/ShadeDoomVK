@@ -237,12 +237,20 @@ def source_proof(packet,stage,control,receipt_pin):
 
 
 def prepare_subprocess_adapter(packet,stage,control,receipt_pin):
-    source_proof(packet,stage,control,receipt_pin)
+    proof = source_proof(packet,stage,control,receipt_pin)
+    # The exact oracle-root Git facts are already checked in source_proof.
+    # The pinned manifest may come from the renderer source or from the
+    # distinct oracle source that generated its recipes and assets.
+    expected = {
+        tuple(["git", *check["argv"][4:]])
+        for check in proof["checks"]
+        if check["argv"][3] == packet["oracle_source_root"] and check["argv"][4:6] == ["cat-file", "-e"]
+    }
     used=False
     def preverified(argv,**kwargs):
         nonlocal used
-        expected=["git","cat-file","-e",packet["source"]["commit"]+"^{commit}"]
-        require(not used and argv==expected and set(kwargs)=={"cwd","capture_output","check"} and
+        require(not used and isinstance(argv,list) and all(isinstance(arg,str) for arg in argv) and
+                tuple(argv) in expected and set(kwargs)=={"cwd","capture_output","check"} and
                 normalized(kwargs["cwd"])==normalized(packet["oracle_source_root"]) and
                 kwargs["capture_output"] is True and kwargs["check"] is True,
                 "Unapproved preparation subprocess; no child created")
@@ -262,7 +270,7 @@ def prepare_subprocess_adapter(packet,stage,control,receipt_pin):
         Popen=denied,call=denied,check_call=denied,check_output=denied,getoutput=denied,getstatusoutput=denied)
 
 
-def run_oracle(packet, stage, control,receipt_pin):
+def run_oracle(packet, stage, control, receipt_pin, reference_pin=None):
     verify_oracle_python_pins(packet)
     # Do not let current tooling source shadow the frozen oracle package.
     for name in list(sys.modules):
@@ -280,7 +288,7 @@ def run_oracle(packet, stage, control,receipt_pin):
     original_prepare_subprocess=preparation.subprocess
     original_write = run.write_json
     from .registered import before_capture
-    registered_gate = before_capture(packet, stage, run)
+    registered_gate = before_capture(packet, stage, run, control=control, reference_pin=reference_pin)
     if registered_gate is not None:
         exclusive(control / "registered-reference-gate.json", registered_gate)
     preparation.subprocess=prepare_subprocess_adapter(packet,stage,control,receipt_pin)
@@ -307,8 +315,8 @@ def run_oracle(packet, stage, control,receipt_pin):
                 "Oracle launch policy changed")
         require(kwargs.get("stdout") is not None and kwargs.get("stderr") is not None, "Missing raw output handles")
         return gated_target(packet, stage, control, list(argv), kwargs["cwd"], kwargs["stdout"], kwargs["stderr"], env=kwargs.get("env"))
-    # Keep both shadows module-local. The sole preparation Git fact was checked
-    # by the supervisor before this collector entered the containment job.
+    # Keep both shadows module-local. The preparation Git fact was checked by
+    # the supervisor before this collector entered the containment job.
     # Pure source/member/recipe regeneration checks still execute unmodified.
     run.subprocess = types.SimpleNamespace(**{**vars(subprocess), "run": intercepted})
     try:
@@ -342,7 +350,7 @@ def run_oracle(packet, stage, control,receipt_pin):
         run.write_json = original_write
 
 
-def main(packet_path, stage_index, control_path,receipt_pin):
+def main(packet_path, stage_index, control_path, receipt_pin, reference_pin=None):
     packet = read_json(packet_path)
     supplied_sha = packet.pop("packet_sha256")
     require(hashlib.sha256(canonical(packet)).hexdigest() == supplied_sha, "Collector packet changed")
@@ -353,7 +361,7 @@ def main(packet_path, stage_index, control_path,receipt_pin):
     try:
         with gate:
             gate.check()
-        result = run_oracle(packet, stage, control,receipt_pin)
+        result = run_oracle(packet, stage, control, receipt_pin, reference_pin)
         with gate:
             gate.check()
             exclusive(control / "stage-result.json", {"packet_sha256": supplied_sha, "stage": stage["name"],

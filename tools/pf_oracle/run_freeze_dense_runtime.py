@@ -439,6 +439,11 @@ def decode_png(path, extent=EXTENT):
     for y in range(extent[1]):
         start = y * (stride + 1); mode = filtered[start]; require(mode <= 4, "PNG filter invalid")
         row = bytearray(filtered[start + 1:start + 1 + stride]); modes.add(mode)
+        if mode == 0:
+            # PNG's None filter already stores the original RGB bytes.
+            pixels.extend(row)
+            previous = row
+            continue
         for x in range(stride):
             left, up, corner = (row[x - 3] if x >= 3 else 0), previous[x], (previous[x - 3] if x >= 3 else 0)
             predictors = (0, left, up, (left + up) // 2)

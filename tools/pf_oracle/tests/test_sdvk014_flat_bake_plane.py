@@ -17,10 +17,10 @@ template<class T> struct TArray : std::vector<T>
     using std::vector<T>::vector;
     void Push(const T& value) { this->push_back(value); }
 };
-enum DoomLevelMeshSurfaceType { ST_NONE, ST_MIDDLESIDE, ST_UPPERSIDE, ST_LOWERSIDE, ST_CEILING, ST_FLOOR };
+enum DoomLevelMeshSurfaceType : uint32_t { ST_NONE, ST_MIDDLESIDE, ST_UPPERSIDE, ST_LOWERSIDE, ST_CEILING, ST_FLOOR };
 struct sector_t { int id; int lightmapHeightGroup[2]{1,1}; int Index() const { return id; } };
 struct subsector_t { sector_t* sector; };
-struct Binding { uint32_t Type, TypeIndex, ControlSector; };
+struct Binding { uint32_t Type, TypeIndex, ControlSector; uint32_t ControlPlane=1; };
 struct Plane { float X,Y,Z,W; };
 struct LightmapTile { struct Binding Binding; struct Plane Plane; };
 struct DoomSurfaceInfo
@@ -28,6 +28,7 @@ struct DoomSurfaceInfo
     DoomLevelMeshSurfaceType Type;
     sector_t* ControlSector;
     int NextSurface = -1, NextSubsectorSurface = -1;
+    int LightmapPlane = 1;
 };
 struct { TArray<subsector_t> subsectors; } level;
 class DoomLevelMesh
@@ -59,6 +60,12 @@ int main()
     mesh.GetVisibleSurfaces(&tile, targets);
     if (targets.size() != 1 || targets[0] != 0)
     { std::cerr << "cross-source-plane-bake-target\n"; return 11; }
+    // Coincident geometry does not make two authored source axes one owner.
+    mesh.Mesh.Surfaces[1].Plane.W = 80;
+    mesh.DoomSurfaceInfos[1].LightmapPlane = 0;
+    targets.clear();mesh.GetVisibleSurfaces(&tile,targets);
+    if (targets.size() != 1 || targets[0] != 0)
+    { std::cerr << "coplanar-source-axis-bake-target\n"; return 13; }
     // The ordinary no-control height group intentionally includes nearby
     // different planes for bake seam/padding coverage. Do not narrow it.
     mesh.DoomSurfaceInfos[0].ControlSector = nullptr;
@@ -89,13 +96,15 @@ class FlatBakePlaneTests(unittest.TestCase):
             return compile_fixture(source, output_dir=root, name=name)
 
         cls.current = build("current", production)
-        guard = "if (tile->Binding.ControlSector == (uint32_t)0xffffffffUL ||\n\t\t\t\t\t\t(plane.X == tile->Plane.X && plane.Y == tile->Plane.Y &&\n\t\t\t\t\t\t plane.Z == tile->Plane.Z && plane.W == tile->Plane.W))"
+        guard = "if (tile->Binding.ControlSector == (uint32_t)0xffffffffUL ||\n\t\t\t\t\t\t(sinfo.LightmapPlane == int(tile->Binding.ControlPlane) &&\n\t\t\t\t\t\t plane.X == tile->Plane.X && plane.Y == tile->Plane.Y &&\n\t\t\t\t\t\t plane.Z == tile->Plane.Z && plane.W == tile->Plane.W))"
         if guard not in production:
             raise AssertionError("exact bake target source-plane boundary changed")
         # Keep the plane read so warnings-as-errors does not mask the negative.
         cls.alias = build("old-control-only", production.replace(guard, "if ((void(plane), true))"))
         cls.overreach = build("ordinary-plane-overreach", production.replace(
             "tile->Binding.ControlSector == (uint32_t)0xffffffffUL ||", "false ||"))
+        cls.axis_alias = build("coplanar-axis-alias", production.replace(
+            "sinfo.LightmapPlane == int(tile->Binding.ControlPlane) &&", "true &&"))
 
     def test_current_flat_target_plane(self) -> None:
         result = subprocess.run([str(self.current)], text=True, capture_output=True, timeout=10)
@@ -111,6 +120,11 @@ class FlatBakePlaneTests(unittest.TestCase):
         result = subprocess.run([str(self.overreach)], text=True, capture_output=True, timeout=10)
         self.assertEqual(result.returncode, 12, result.stdout + result.stderr)
         self.assertEqual(result.stderr.strip(), "ordinary-neighbor-coverage-changed")
+
+    def test_coplanar_source_axes_remain_distinct_bake_owners(self) -> None:
+        result = subprocess.run([str(self.axis_alias)], text=True, capture_output=True, timeout=10)
+        self.assertEqual(result.returncode, 13, result.stdout + result.stderr)
+        self.assertEqual(result.stderr.strip(), "coplanar-source-axis-bake-target")
 
 
 if __name__ == "__main__":
