@@ -312,7 +312,7 @@ class FixtureAndIdentityRules(unittest.TestCase):
 
 class CampaignControls(unittest.TestCase):
     def execute(self, root, *, partial=False, incomplete=False, compare_status="PASS", crash=False, software=False,
-                image_status="PASS", runtime_driver=4202499, direction_status=None):
+                image_status="PASS", runtime_driver=4202499, direction_status=None, current=False):
         exe, iwad = root / "engine.exe", root / "iwad.wad"
         exe.write_bytes(b"not executed")
         iwad.write_bytes(b"private fixture")
@@ -322,6 +322,17 @@ class CampaignControls(unittest.TestCase):
         args = Namespace(exe=exe, iwad=iwad, out=root / "campaign", timeout=600,
                          execute=True, correctness_only=partial, device_name="test GPU", vulkan_summary=vulkan_summary)
         contract = fixture_contract(complete=not incomplete)
+        current_plan = {}
+        if current:
+            args.current_source_plan = root / "prospective.json"
+            args.current_source_plan.write_bytes(canonical({"synthetic": True}))
+            authority = root / "synthetic-authority.txt"
+            authority.write_text("Synthetic unit fixture only; no physical authority", encoding="utf-8")
+            contract.CORRECTNESS_PAIRS[0]["id"] = "single-m"
+            current_plan = {"experiment_id": "synthetic-current-generation", "renderer_source": {"commit": "b" * 40, "tree": "c" * 40},
+                            "mode": "partial-reference" if partial else "partial-reference-and-cost",
+                            "protocol": physical.current_protocol(600),
+                            **{key: physical.pin(authority) for key in ("owner_authorization", "generation", "iwad_license")}}
         if direction_status is not None:
             contract.source_projected_marker_direction = lambda *a, **kw: None
             contract.red_marker_direction = lambda *a, **kw: {"status": "FAIL", "delta_x_px": -1}
@@ -342,12 +353,13 @@ class CampaignControls(unittest.TestCase):
             captures.append(ns)
             if crash:
                 raise EvidenceError("simulated crash")
-            return {"build": {"backend": "vulkan", "working_tree": "clean", "commit": args.expected_commit if software else physical.IMPLEMENTATION_COMMIT,
+            return {"build": {"backend": "vulkan", "working_tree": "clean", "commit": args.expected_commit if software or current else physical.IMPLEMENTATION_COMMIT,
                     "device": args.device_name, "vulkan": {"available": True, "device_type": 4 if software else 2,
                     "vendor_id": 0x10de, "device_id": 0x2187, "driver_version_raw": runtime_driver}},
                     "executable": {"sha256": "a" * 64}, "loaded_packages": []}
 
         with patch.object(physical, "fixture_contract", return_value=contract), \
+             patch.object(physical, "current_source_plan", return_value=(current_plan, physical.pin(args.current_source_plan) if current else {})), \
              patch.object(physical.prepare, "load_catalog", return_value=fixture_catalog(contract)), \
              patch.object(physical.prepare, "prepare", return_value={"status": "PREPARED"}), \
              patch.object(physical, "prepared_pair_continuity"), \
@@ -392,6 +404,23 @@ class CampaignControls(unittest.TestCase):
         self.assertTrue(all(ns.frames == 1 and not ns.gpu for ns in captures if ns.mode == "state"))
         self.assertEqual(result["status"], "COLLECTED_PENDING_REVIEW")
         self.assertFalse(result["physical_gpu_qualified"])
+
+    def test_current_partial_cost_retains_missing_full_gates_and_exact_matched_budget(self):
+        with tempfile.TemporaryDirectory() as directory:
+            _, captures, result = self.execute(Path(directory), incomplete=True, current=True)
+        timings = [ns for ns in captures if ns.mode == "timing"]
+        self.assertEqual([ns.scene for ns in timings], ["sdvk008-s0", "sdvk008-sm", "sdvk008-sm", "sdvk008-s0", "sdvk008-s0", "sdvk008-sm"])
+        self.assertTrue(all(ns.frames == ns.warmup == 120 and ns.require_clean and ns.expected_commit == "b" * 40 for ns in timings))
+        self.assertEqual(result["missing_gates"], ["direction"])
+        self.assertEqual(result["status"], "CURRENT_SOURCE_PARTIAL_REFERENCE_AND_COST_COLLECTED")
+        self.assertTrue(result["full_acceptance_held"])
+        self.assertFalse(result["performance_accepted"])
+        self.assertEqual(result["quality_modes_accepted"], [])
+        self.assertEqual(set(result["analysis"]["comparisons"]), {"SM"})
+        with tempfile.TemporaryDirectory() as directory:
+            _, captures, result = self.execute(Path(directory), incomplete=True, current=True, image_status="FAIL")
+        self.assertEqual(result["status"], "FAIL")
+        self.assertTrue(all(ns.mode == "state" for ns in captures))
 
     def test_partial_never_launches_timing_and_records_missing_gates(self):
         with tempfile.TemporaryDirectory() as directory:

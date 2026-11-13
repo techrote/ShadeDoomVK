@@ -1938,3 +1938,18 @@ pending-latch query allows rejection before consuming an already queued user
 request. Six focused CPU tests pass, including actual generic-backup/restore
 source exercised with latched/current/pending/native-inactive controls. New
 source-matched native restoration and transition checks remain required.
+
+### 13 November 2026 - controlled-plane lightmap ownership resumes
+
+- Reconciled the retained production commits `2d6e2ec42` and `e3e328c9a`
+  and native draft `fc79a715a` onto master `ffb679a955989c0eea7503cf15a60642d05990f2`.
+- The immediate Vulkan witness checks the actual indexed draw and maps its
+  ranges to the source plane, facing, rover, subsector, live atlas tile and
+  uploaded CPU-visible UV/page data. The accepted SDVK-161 recipe stays in
+  place. The controlled-plane scene runs separately in the existing hosted
+  software Vulkan job, before SDVK-009 publication.
+- The CPU/source checks and compiled translation units are preliminary.
+  The linked build, actual native coverage and repeatability, independent
+  review and normal exact-head CI govern integration. Earlier SDVK-161
+  repeatability failures are retained. No physical GPU work or acceptance
+  is part of this increment.

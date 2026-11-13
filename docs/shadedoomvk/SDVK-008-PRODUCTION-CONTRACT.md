@@ -21,6 +21,14 @@ Selected fixed-layer shallow POM (prepass reference): view tangent projection `V
 
 The C++ per-draw options and texture bounds are append-only `SurfaceUniforms` fields, cleared each sprite/draw; there is no global mutable per-sprite cache. Diagnostic state is read-only and emitted on actual Vulkan sprite draws, identifying candidate/material/height/basis/quality/rect, and differentiating a **theoretical shader sample ceiling** from unmeasured actual fragment invocations. Negative state validation rejects out-of-contract settings, missing basis/height and stale options.
 
+The Vulkan relief path obtains original albedo and its UV gradients before
+the per-fragment march result branches. It reads displaced albedo with
+those explicit gradients and the existing albedo sampler, retaining the
+same texture-mode and color processing. Only the RGB from an eligible
+displaced sample can replace the original result. The original alpha is
+preserved and a failed displaced cutoff keeps the original material UV.
+
+
 ## Qualification and hardware boundary
 
 - Preserve independent unmodified reference/oracle fixtures from the prepass; add C++ state/ABI and GLSL/source fixtures, and native renderer state/images that visibly exercise ON and disabled heightless controls.

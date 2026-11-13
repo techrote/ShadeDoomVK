@@ -5,6 +5,8 @@ by the real Process contract, pinned separately below. Retained pre-fix function
 mutations must fail the same independent triangle/plane ownership oracle.
 """
 from pathlib import Path
+import hashlib
+import json
 import subprocess
 import tempfile
 import unittest
@@ -49,6 +51,8 @@ class FlatSurfaceOwnershipTests(unittest.TestCase):
             ("inline int LevelMesh::AllocTile(", "inline void LevelMesh::FreeTile("))
         template = template.replace("// @PRODUCTION_TILE_POOL_METHODS@", methods.replace("LevelMesh::", "DoomLevelMesh::"))
         template = template.replace("// @PRODUCTION_RELEASE_TILES@", block(doom, "void DoomLevelMesh::ReleaseTiles("))
+        free_flat = block(doom, "void DoomLevelMesh::FreeFlat(")
+        template = template.replace("// @PRODUCTION_FREE_FLAT@", free_flat)
 
         def build(name: str, function: str) -> Path:
             path = root / (name + ".cpp")
@@ -82,6 +86,20 @@ class FlatSurfaceOwnershipTests(unittest.TestCase):
         path = root / "old-source-axis.cpp"
         path.write_text(old_template.replace("// @PRODUCTION_CREATE_FLAT_SURFACE@", cls.function))
         cls.old_source_axis = compile_fixture(path, output_dir=root, name="old-source-axis")
+        retained = json.loads(Path(__file__).with_name("fixtures").joinpath("sdvk014-controlled-plane-pre-fix.json").read_text())
+        old = retained["functions"]["allocate"]
+        if hashlib.sha256(old["content"].encode()).hexdigest() != old["sha256"]:
+            raise AssertionError("retained pre-fix binding source changed")
+        old_allocate = old["content"].replace("uint8_t alwaysUpdate)", "uint8_t /*alwaysUpdate*/)")
+        path = root / "pre-fix-controlled-binding.cpp"
+        path.write_text(template.replace(allocate, old_allocate).replace("// @PRODUCTION_CREATE_FLAT_SURFACE@", cls.function))
+        cls.old_controlled_binding = compile_fixture(path, output_dir=root, name="pre-fix-controlled-binding")
+        old_free = retained["functions"]["free_flat"]
+        if hashlib.sha256(old_free["content"].encode()).hexdigest() != old_free["sha256"]:
+            raise AssertionError("retained pre-fix retirement source changed")
+        path = root / "pre-fix-published-retirement.cpp"
+        path.write_text(template.replace(free_flat, old_free["content"]).replace("// @PRODUCTION_CREATE_FLAT_SURFACE@", cls.function))
+        cls.old_published_retirement = compile_fixture(path, output_dir=root, name="pre-fix-published-retirement")
 
     def execute(self, executable: Path, case: str, error: str | None = None) -> None:
         result = subprocess.run([str(executable), case], text=True, capture_output=True, timeout=10)
@@ -94,7 +112,7 @@ class FlatSurfaceOwnershipTests(unittest.TestCase):
 
     def test_current_flat_publication(self) -> None:
         for case in ("floor", "ceiling", "3dfloor-top", "3dfloor-bottom", "inverted-selected-plane",
-                     "sky-no-tile", "one-subsector", "repeated", "both-planes-ambiguous"):
+                     "sky-no-tile", "one-subsector", "repeated", "both-planes-ambiguous", "both-planes-distinct"):
             with self.subTest(case=case):
                 self.execute(self.current, case)
 
@@ -130,6 +148,13 @@ class FlatSurfaceOwnershipTests(unittest.TestCase):
     def test_ambiguous_both_plane_binding_cannot_merge(self) -> None:
         self.execute(self.unchecked_alias, "both-planes-ambiguous", "plane-binding-alias")
 
+    def test_retained_pre_fix_binding_rejects_real_distinct_both_planes(self) -> None:
+        self.execute(self.old_controlled_binding, "both-planes-distinct", "distinct-plane-publication-rejected")
+        self.execute(self.old_controlled_binding, "3dfloor-top")
+
+    def test_actual_retirement_detaches_faces_not_reconstructed_after_height_change(self) -> None:
+        self.execute(self.old_published_retirement, "both-planes-distinct", "vanished-facing-retains-retired-tile")
+
     def test_source_plane_table_is_distinct_from_emitted_facing(self) -> None:
         self.execute(self.old_source_axis, "inverted-selected-plane", "source-plane-table-owner")
         self.execute(self.old_source_axis, "3dfloor-top")
@@ -138,7 +163,7 @@ class FlatSurfaceOwnershipTests(unittest.TestCase):
         producer = block(vertex, "static int CreateIndexedVertices(")
         self.assertIn("ffloor->top.isceiling == h", producer)
         self.assertIn("ffloor->bottom.isceiling == h", producer)
-        self.assertIn("h, ffloorIndex + 1", producer)
+        self.assertIn("h, 1 + ffloorIndex * 2 + facing", producer)
         consumer = block(vertex, "static void UpdatePlaneLightmap(")
         self.assertIn("origin->sub->LightmapTiles[origin->plane][origin->lightmapSlot]", consumer)
 

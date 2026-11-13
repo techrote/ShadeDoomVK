@@ -1723,7 +1723,7 @@ struct subsector_t
 									// 2: has one-sided walls
 	FPortalCoverage	portalcoverage[2];
 	TArray<DVisualThinker *> sprites;
-	TArrayView<int> LightmapTiles[2]; // all lightmap tiles belonging to this subsector
+	TArrayView<int> LightmapTiles[2]; // source axis; slot 0 is sector, then two facings per 3D floor
 };
 
 
