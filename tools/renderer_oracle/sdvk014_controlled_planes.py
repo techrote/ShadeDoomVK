@@ -25,7 +25,8 @@ MAP_CAMERAS = legacy.MAP_CAMERAS
 SCHEDULE, WITNESS_FRAMES = legacy.SCHEDULE, legacy.WITNESS_FRAMES
 MAP_HEIGHTS = {MAP_A: (32, 48), MAP_B: (96, 112)}
 CONTROL = 1
-NO_CONTROL_PLANE = 0xFFFFFFFF
+# TileCensus serializes the engine's unsigned no-plane sentinel as -1.
+NO_CONTROL_PLANE = -1
 NAMES = {0: "S161PN", 1: "S161PH"}
 EXCLUDED = ["FF_FIX/Vavoom", "copied/sloped control planes", "overlapping controls",
             "in-place animated control-height changes", "hardware cost/scaling/stability",

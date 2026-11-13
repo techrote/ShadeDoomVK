@@ -1,5 +1,6 @@
 """CPU-only authored-map and native-admission controls; never native proof."""
 import copy
+import json
 from pathlib import Path
 import tempfile
 import unittest
@@ -25,12 +26,17 @@ def witness():
                   "binding": {"type": 4+facing, "type_index": 0, "control_sector": 1, "control_plane": axis},
                   "dirty": {"initial": False, "geometry": False, "light": False}}
                  for axis in (0, 1) for facing in (0, 1)]
-        resource["lightmap_state"].update(live_tiles=4, valid_live_tiles=4, page_live_tiles=[4], tile_receipts=tiles)
+        # TileCensus emits the ordinary surface sentinel as a signed JSON integer.
+        ordinary = json.loads('{"type": 4, "type_index": 1, "control_sector": -1, "control_plane": -1}')
+        tiles.append({"tile": 4, "page": 0, "valid": True,
+                      "receipt": {"owner": 100+incarnation, "incarnation": 14, "slot": 4},
+                      "binding": ordinary, "dirty": {"initial": False, "geometry": False, "light": False}})
+        resource["lightmap_state"].update(live_tiles=5, valid_live_tiles=5, page_live_tiles=[5], tile_receipts=tiles)
         if frame % 8: continue
         map_name = "SDV161A" if frame <= 48 else "SDV161B"
         context = {"available": True, "map": map_name, "type": "main", "producer": "root", "depth": 0,
                    "portal_group": 0, "epoch": incarnation+1, "identity": 1, "parent_identity": 0}
-        for tile in tiles:
+        for tile in tiles[:4]:
             axis, kind = tile["binding"]["control_plane"], tile["binding"]["type"]
             name = "S161PN" if axis == 0 else "S161PH"
             material, shader = old.material(name, int(17 <= frame <= 32 or 65 <= frame <= 80))
@@ -109,6 +115,13 @@ class ControlledPlaneNativeTests(unittest.TestCase):
         self.assertFalse(admitted["physical_gpu_qualified"])
         self.assertEqual(admitted["source_facing_submissions"]["8"]["immediate_faces"], [(0, 5), (1, 5)])
         self.assertEqual(admitted["source_facing_submissions"]["56"]["immediate_faces"], [(0, 4), (1, 4)])
+
+    def test_ordinary_tile_rejects_internal_unsigned_sentinel(self):
+        raw = witness()
+        ordinary = old.resource(raw, 8)["lightmap_state"]["tile_receipts"][4]
+        ordinary["binding"]["control_plane"] = 0xFFFFFFFF
+        with self.assertRaisesRegex(EvidenceError, "Ordinary tile invented"):
+            self.validate(raw)
 
     def test_old_source_alias_and_opposite_facing_uv_are_rejected(self):
         for mutation, message in (
