@@ -32,7 +32,6 @@ jobs:
 
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
-    needs: pf_oracle
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -74,14 +73,6 @@ jobs:
           extra_options: -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
           deps_cmdline: sudo apt update && sudo apt install clang-15 libsdl2-dev libvpx-dev libwebp-dev
           build_type: Release
-
-        - name: Linux software Vulkan
-          # Required CI critical path: GitHub-hosted software Vulkan; do not duplicate this job.
-          os: ubuntu-24.04
-          extra_options: -DNO_GTK=ON
-          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
-          build_type: RelWithDebInfo
-          native_renderer: true
 
     steps:
     - uses: actions/checkout@v4
@@ -149,8 +140,140 @@ jobs:
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
 
+    - name: Diagnose macOS startup failure
+      if: failure() && runner.os == 'macOS'
+      shell: bash
+      env:
+        DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        runtime="build/vkdoom.app/Contents/MacOS/vkdoom"
+        if [[ -f "build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom" ]]; then
+          runtime="build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom"
+        fi
+        lldb --batch -o 'breakpoint set -n __cxa_throw' -o run -o 'thread backtrace all' -- "$runtime" --version
+
+#   - name: Create Package
+#     if: (runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12') && matrix.config.build_type == 'RelWithDebInfo'
+#     shell: bash
+#     run: |
+#       cd build
+#       mkdir package
+#       if [[ "${{ runner.os }}" == 'Windows' ]]; then
+#         cp -r ${{ matrix.config.build_type }}/vkdoom.exe ${{ matrix.config.build_type }}/vktool.exe ${{ matrix.config.build_type }}/*.pk3 ${{ matrix.config.build_type }}/fm_banks ${{ matrix.config.build_type }}/soundfonts package
+#         cp ../bin/licenses.zip ../bin/windows/libsndfile/64bit/libsndfile-1.dll ../bin/windows/openal/64bit/openal32.dll ../bin/windows/zmusic/64bit/zmusic.dll package
+#         cp ${{ matrix.config.build_type }}/vkdoom-stripped.pdb package/vkdoom.pdb
+#         cp ${{ matrix.config.build_type }}/vkdoom-stripped.pdb package/vktool.pdb
+#       elif [[ "${{ runner.os }}" == 'macOS' ]]; then
+#         cp -r vkdoom.app package
+#         cp -r vktool package
+#       elif [[ "${{ runner.os }}" == 'Linux' ]]; then
+#         cp vkdoom vktool *.pk3 zmusic/lib/libzmusic.so package
+#         strip package/vkdoom package/vktool
+#       fi
+#
+#   - name: Upload Package
+#     if: runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12'
+#     uses: actions/upload-artifact@v4
+#     with:
+#       path: build/package
+#       name: ${{ matrix.config.name }} ${{ matrix.config.build_type }}
+#
+#   - name: List Build Directory
+#     if: always()
+#     shell: bash
+#     run: |
+#       git status
+#       ls -lR build
+#
+
+  # The once-serial software renderer qualification is split into two
+  # parallel suites using one identical, source-matched binary package.
+  vulkan_build:
+    name: Linux software Vulkan | Build
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install software Vulkan build dependencies
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+
+    - name: Configure and build
+      shell: bash
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        export MAKEFLAGS=--keep-going
+        cmake --build build --config RelWithDebInfo --parallel 3
+
+    - name: Verify source-matched binaries
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+
+    - name: Package exact build once for both qualification suites
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+        test -f build/vkdoom.pk3
+        files=(build/vkdoom build/vktool build/CMakeCache.txt build/deps/zmusic/lib build/*.pk3)
+        for directory in build/fm_banks build/soundfonts; do
+          [[ ! -d "$directory" ]] || files+=("$directory")
+        done
+        tar -cf build/software-vulkan-runtime.tar "${files[@]}"
+        (cd build && sha256sum software-vulkan-runtime.tar > software-vulkan-runtime.tar.sha256)
+
+    - name: Upload source-matched renderer
+      uses: actions/upload-artifact@v4
+      with:
+        name: software-vulkan-runtime
+        path: |
+          build/software-vulkan-runtime.tar
+          build/software-vulkan-runtime.tar.sha256
+        compression-level: 0
+        retention-days: 1
+        if-no-files-found: error
+
+  vulkan_qualification:
+    name: Linux software Vulkan | ${{ matrix.suite }}
+    needs: vulkan_build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [corpus, publication]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install original hosted software Vulkan test environment
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+
+    - name: Download exactly one shared renderer build
+      uses: actions/download-artifact@v4
+      with:
+        name: software-vulkan-runtime
+        path: build
+
+    - name: Verify archive and source-matched runtime
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        (cd build && sha256sum -c software-vulkan-runtime.tar.sha256)
+        tar -tf build/software-vulkan-runtime.tar >/dev/null
+        tar -xf build/software-vulkan-runtime.tar
+        test -x build/vkdoom && test -x build/vktool
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+
     - name: Qualify software Vulkan corpus and timing collection
-      if: matrix.config.native_renderer
+      if: matrix.suite == 'corpus'
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
@@ -169,7 +292,7 @@ jobs:
         python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
 
     - name: Qualify SDVK-010 actors and SDVK-009 publication on hosted software Vulkan
-      if: matrix.config.native_renderer
+      if: matrix.suite == 'publication'
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
@@ -234,74 +357,101 @@ jobs:
           --out build/renderer-sdvk009-publication \
           --expected-commit "$GITHUB_SHA"
 
-    - name: Package complete software Vulkan evidence losslessly
-      if: always() && matrix.config.native_renderer
+
+    - name: Package lossless suite evidence (including failures)
+      if: always()
       shell: bash
       run: |
-        sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
-          if [[ -d "build/$sdvk_evidence_dir" ]]; then
-            sdvk_evidence_dirs+=("$sdvk_evidence_dir")
-          fi
+        set -euo pipefail
+        if [[ "${{ matrix.suite }}" == corpus ]]; then
+          directories=(renderer-native renderer-sdvk008-control renderer-sdvk008-preflight)
+        else
+          directories=(renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled)
+        fi
+        present=()
+        for directory in "${directories[@]}"; do
+          [[ ! -d "build/$directory" ]] || present+=("$directory")
         done
-        if [[ "${#sdvk_evidence_dirs[@]}" -gt 0 ]]; then
-          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
+        if (( ${#present[@]} > 0 )); then
+          XZ_OPT='-1 -T0' tar -cJf "build/renderer-${{ matrix.suite }}.tar.xz" -C build "${present[@]}"
+          xz -t "build/renderer-${{ matrix.suite }}.tar.xz"
+          tar -tJf "build/renderer-${{ matrix.suite }}.tar.xz" >/dev/null
+          (cd build && sha256sum "renderer-${{ matrix.suite }}.tar.xz" > "renderer-${{ matrix.suite }}.tar.xz.sha256")
         fi
 
+    - name: Retain suite evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-software-vulkan-${{ matrix.suite }}
+        path: |
+          build/renderer-${{ matrix.suite }}.tar.xz
+          build/renderer-${{ matrix.suite }}.tar.xz.sha256
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: ignore
+
+  vulkan_evidence:
+    # Preserve the old required-check name and single complete tar.xz artifact.
+    name: Linux software Vulkan | RelWithDebInfo
+    needs: [vulkan_build, vulkan_qualification]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Download available qualification evidence
+      if: needs.vulkan_build.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        pattern: renderer-software-vulkan-*
+        path: build/parts
+        merge-multiple: true
+
+    - name: Reassemble the original complete evidence format
+      if: needs.vulkan_build.result == 'success'
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+        archives=(build/parts/renderer-*.tar.xz)
+        if (( ${#archives[@]} == 0 )); then
+          echo "No qualification evidence was published" >&2
+          exit 1
+        fi
+        mkdir -p build/evidence-merged
+        for archive in "${archives[@]}"; do
+          (cd build/parts && sha256sum -c "$(basename "$archive").sha256")
+          xz -t "$archive"
+          tar -xJf "$archive" -C build/evidence-merged
+        done
+        directories=()
+        for directory in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
+          [[ ! -d "build/evidence-merged/$directory" ]] || directories+=("$directory")
+        done
+        if (( ${#directories[@]} == 0 )); then
+          echo "Evidence archives contained no recognised qualification directories" >&2
+          exit 1
+        fi
+        XZ_OPT='-1 -T0' tar -cJf build/renderer-software-vulkan.tar.xz -C build/evidence-merged "${directories[@]}"
+        xz -t build/renderer-software-vulkan.tar.xz
+        tar -tJf build/renderer-software-vulkan.tar.xz >/dev/null
+
     - name: Upload complete software Vulkan evidence
-      if: always() && matrix.config.native_renderer
+      if: always()
       uses: actions/upload-artifact@v4
       with:
         name: renderer-software-vulkan
         path: build/renderer-software-vulkan.tar.xz
         compression-level: 0
         retention-days: 30
+        if-no-files-found: ignore
 
-    - name: Diagnose macOS startup failure
-      if: failure() && runner.os == 'macOS'
+    - name: Require both native suites and their shared build
+      if: always()
       shell: bash
-      env:
-        DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: |
-        runtime="build/vkdoom.app/Contents/MacOS/vkdoom"
-        if [[ -f "build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom" ]]; then
-          runtime="build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom"
-        fi
-        lldb --batch -o 'breakpoint set -n __cxa_throw' -o run -o 'thread backtrace all' -- "$runtime" --version
+        test "${{ needs.vulkan_build.result }}" = success
+        test "${{ needs.vulkan_qualification.result }}" = success
 
-#   - name: Create Package
-#     if: (runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12') && matrix.config.build_type == 'RelWithDebInfo'
-#     shell: bash
-#     run: |
-#       cd build
-#       mkdir package
-#       if [[ "${{ runner.os }}" == 'Windows' ]]; then
-#         cp -r ${{ matrix.config.build_type }}/vkdoom.exe ${{ matrix.config.build_type }}/vktool.exe ${{ matrix.config.build_type }}/*.pk3 ${{ matrix.config.build_type }}/fm_banks ${{ matrix.config.build_type }}/soundfonts package
-#         cp ../bin/licenses.zip ../bin/windows/libsndfile/64bit/libsndfile-1.dll ../bin/windows/openal/64bit/openal32.dll ../bin/windows/zmusic/64bit/zmusic.dll package
-#         cp ${{ matrix.config.build_type }}/vkdoom-stripped.pdb package/vkdoom.pdb
-#         cp ${{ matrix.config.build_type }}/vkdoom-stripped.pdb package/vktool.pdb
-#       elif [[ "${{ runner.os }}" == 'macOS' ]]; then
-#         cp -r vkdoom.app package
-#         cp -r vktool package
-#       elif [[ "${{ runner.os }}" == 'Linux' ]]; then
-#         cp vkdoom vktool *.pk3 zmusic/lib/libzmusic.so package
-#         strip package/vkdoom package/vktool
-#       fi
-#
-#   - name: Upload Package
-#     if: runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12'
-#     uses: actions/upload-artifact@v4
-#     with:
-#       path: build/package
-#       name: ${{ matrix.config.name }} ${{ matrix.config.build_type }}
-#
-#   - name: List Build Directory
-#     if: always()
-#     shell: bash
-#     run: |
-#       git status
-#       ls -lR build
-#
 # deploy:
 #   name: Update Latest successful build
 #   runs-on: ubuntu-latest
