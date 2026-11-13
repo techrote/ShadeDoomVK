@@ -69,7 +69,7 @@ struct F3DFloor
 		const FTextureID *	texture;
 		sector_t *		model;
 		int				isceiling;
-		int				vindex;
+		int				vindex[2]; // render-only index streams by emitted floor/ceiling facing
 		bool			copied;
 
 		void copyPlane(planeref * other)

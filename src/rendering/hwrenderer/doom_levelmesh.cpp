@@ -1120,6 +1120,10 @@ void DoomLevelMesh::FreeFlat(FLevelLocals& doomMap, unsigned int sectorIndex)
 		for (subsector_t* subsector : section.subsectors)
 		{
 			SubsectorSurfaces[subsector->Index()] = -1;
+			// Reconstruction may stop emitting a formerly visible face. Detach
+			// every immediate receiver before its old tile slot can be recycled.
+			for (auto& plane : subsector->LightmapTiles)
+				for (int& tile : plane) tile = -1;
 		}
 	}
 
@@ -1904,6 +1908,12 @@ int DoomLevelMesh::AddSurfaceToTile(const DoomSurfaceInfo& info, const LevelMesh
 	binding.Type = info.Type;
 	binding.TypeIndex = info.TypeIndex;
 	binding.ControlSector = info.ControlSector ? info.ControlSector->Index() : (int)0xffffffffUL;
+	if (info.ControlSector && (info.Type == ST_CEILING || info.Type == ST_FLOOR))
+	{
+		if (info.LightmapPlane != sector_t::floor && info.LightmapPlane != sector_t::ceiling)
+			I_FatalError("Invalid controlled flat source plane for lightmap binding");
+		binding.ControlPlane = info.LightmapPlane;
+	}
 
 	auto it = TileBindings.find(binding);
 	if (it != TileBindings.end())
@@ -1914,9 +1924,8 @@ int DoomLevelMesh::AddSurfaceToTile(const DoomSurfaceInfo& info, const LevelMesh
 		if (tile.UseXYAxis && (tile.Plane.X != surf.Plane.X || tile.Plane.Y != surf.Plane.Y ||
 			tile.Plane.Z != surf.Plane.Z || tile.Plane.W != surf.Plane.W))
 		{
-			// The retained binding and raster table have only one plane per
-			// facing/control owner. FF_BOTHPLANES can require two. Do not merge
-			// their bounds or silently drop baked/dynamic lighting on one face.
+			// One source axis and facing must still describe one actual plane.
+			// Different controlled axes now have independent runtime bindings.
 			I_FatalError("Unsupported ambiguous flat lightmap binding (type %u, subsector %u, control sector %u): multiple planes require distinct identities", binding.Type, binding.TypeIndex, binding.ControlSector);
 		}
 		tile.RuntimeBakeOnly = tile.RuntimeBakeOnly || info.RuntimeBakeOnly;
@@ -2008,21 +2017,13 @@ void DoomLevelMesh::CreateFlatSurface(HWFlatDispatcher& disp, MeshBuilder& state
 		int pipelineID = 0;
 		const SurfaceUniforms* uniforms = nullptr;
 		const FMaterialState* material = nullptr;
-		bool foundDraw = false;
-		for (auto& it : state.mSortedLists)
-		{
-			const MeshApplyState& applyState = it.first;
-
-			pipelineID = screen->GetLevelMeshPipelineID(applyState.applyData, applyState.surfaceUniforms, applyState.material);
-			textureMatrix = applyState.textureMatrix;
-			uniforms = &applyState.surfaceUniforms;
-			material = &applyState.material;
-			foundDraw = true;
-			break;
-		}
-
-		if (!foundDraw)
+		if (state.mSortedLists.empty())
 			continue;
+		const MeshApplyState& applyState = state.mSortedLists.begin()->first;
+		pipelineID = screen->GetLevelMeshPipelineID(applyState.applyData, applyState.surfaceUniforms, applyState.material);
+		textureMatrix = applyState.textureMatrix;
+		uniforms = &applyState.surfaceUniforms;
+		material = &applyState.material;
 
 		int numVertices = 0;
 		int numIndexes = 0;
@@ -2098,7 +2099,8 @@ void DoomLevelMesh::CreateFlatSurface(HWFlatDispatcher& disp, MeshBuilder& state
 			legacyPlane.FlipVert();
 			// An old v5 bake can have the same authored checksum and XY
 			// transform while its RGB was produced at the reconstructed plane.
-			info.RuntimeBakeOnly = flatpart.lightmapPlane != int(!flatpart.ceiling) || !(flatpart.plane.plane == legacyPlane);
+			info.RuntimeBakeOnly = (flatpart.controlsector->flags & FF_BOTHPLANES) ||
+				flatpart.lightmapPlane != int(!flatpart.ceiling) || !(flatpart.plane.plane == legacyPlane);
 		}
 
 		float skyZ = flatpart.ceiling ? 32768.0f : -32768.0f;
@@ -2219,7 +2221,8 @@ void DoomLevelMesh::SetSubsectorLightmap(int surfaceIndex)
 		{
 			if (ffloors[i]->model == surface->ControlSector)
 			{
-				surface->Subsector->LightmapTiles[index][i + 1] = lightmapTileIndex;
+				const int facing = surface->Type == ST_CEILING ? 1 : 0;
+				surface->Subsector->LightmapTiles[index][1 + i * 2 + facing] = lightmapTileIndex;
 			}
 		}
 	}
@@ -2318,7 +2321,8 @@ void DoomLevelMesh::GetVisibleSurfaces(LightmapTile* tile, TArray<int>& outSurfa
 					// including the differing planes intentionally grouped above.
 					const auto& plane = Mesh.Surfaces[surf].Plane;
 					if (tile->Binding.ControlSector == (uint32_t)0xffffffffUL ||
-						(plane.X == tile->Plane.X && plane.Y == tile->Plane.Y &&
+						(sinfo.LightmapPlane == int(tile->Binding.ControlPlane) &&
+						 plane.X == tile->Plane.X && plane.Y == tile->Plane.Y &&
 						 plane.Z == tile->Plane.Z && plane.W == tile->Plane.W))
 						outSurfaces.Push(surf);
 				}
@@ -2821,7 +2825,9 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	for (unsigned int i = 0; i < Lightmap.Tiles.Size(); i++)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
-		if (tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
+		// v5 cannot encode the new controlled source/facing distinction. In
+		// particular, old BOTHPLANES RGB can alias either of the two planes.
+		if (tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker) && !tile->RuntimeBakeOnly)
 		{
 			tileCount++;
 			pixelCount += tile->AtlasLocation.Area();
@@ -2856,7 +2862,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
 
-		if (!tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
+		if (!tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker) || tile->RuntimeBakeOnly)
 			continue;
 
 		lumpFile.Write32(tile->Binding.Type);
@@ -2888,7 +2894,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 	{
 		LightmapTile* tile = &Lightmap.Tiles[i];
 
-		if (!tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker))
+		if (!tile->HasLiveAtlasAllocation(*Lightmap.AtlasPacker) || tile->RuntimeBakeOnly)
 			continue;
 
 		const uint16_t* pixels = readback.Data() + uint64_t(tile->AtlasLocation.ArrayIndex) * elementsPerPage;
@@ -2909,7 +2915,7 @@ void DoomLevelMesh::SaveLightmapLump(FLevelLocals& doomMap)
 
 	FString fullpath = GetMapFilename(doomMap);
 	if (fullpath.Len() == 0)
-		return;
+		I_Error("Could not resolve map WAD file for LIGHTMAP output");
 
 	Printf("Saving LIGHTMAP lump into %s\n", fullpath.GetChars());
 
@@ -3011,18 +3017,14 @@ FString DoomLevelMesh::GetMapFilename(FLevelLocals& doomMap)
 	FString fmt;
 	fmt.Format("maps/%s.wad", mapname);
 	int lump_wad = fileSystem.CheckNumForFullName(fmt.GetChars());
-	if (lump_wad == -1)
-	{
-		I_Error("Could not find map lump");
-		return {};
-	}
+	// P_OpenMapData can prefer a later classic WAD or maps/*.map with the
+	// same map name. The selected map must be this exact nested WAD entry.
+	if (lump_wad == -1 || lump_wad != doomMap.lumpnum)
+		I_Error("Loaded map '%s' is not the maps/%s.wad entry required for LIGHTMAP output", mapname, mapname);
 
 	int wadnum = fileSystem.GetFileContainer(lump_wad);
 	if (wadnum == -1)
-	{
 		I_Error("Could not find map folder");
-		return {};
-	}
 
 	FString filename = fileSystem.GetFileFullName(lump_wad);
 	FString folder = fileSystem.GetResourceFileFullName(wadnum);

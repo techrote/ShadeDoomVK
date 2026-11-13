@@ -28,7 +28,7 @@ CATALOG = ROOT / "tools/renderer_oracle/corpus.json"
 SCHEMA = "sdvk-renderer-prepared/v1"
 GENERATORS = {"pf_view", "pf_indexed", "pf_pbr", "compositing", "lighting",
               "material_stress", "sun_probes", "sun_actor_occlusion", "portal_probes",
-              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "special_surface_lifecycle", "sprite_mirror", "sprite_relief", "viewmodel", "gameplay_smoke"}
+              "probe_owner_transition", "probe_sampler_reset", "lightmap_transition", "special_surface_lifecycle", "controlled_plane_lifecycle", "sprite_mirror", "sprite_relief", "viewmodel", "gameplay_smoke"}
 CLASSES = {"sprite_orientation", "semantic_materials", "lights_occlusion",
            "probes_sun", "portals_views", "decals_canvas_translucency",
            "shadows", "resource_stress"}
@@ -78,6 +78,17 @@ def setting_literal(value: object) -> str:
     if type(value) is str and re.fullmatch(r"[a-z][a-z0-9_]{0,63}", value):
         return value
     raise ValueError("Fixture setting must be finite or a safe literal string")
+
+
+def special_surface_module(scene):
+    """Only the two named recipes may reuse the fixed96/32 native driver."""
+    if scene.get("id") == "controlled-plane-lifecycle" and scene.get("native", {}).get("generator") == "controlled_plane_lifecycle":
+        from tools.renderer_oracle import sdvk014_controlled_planes as module
+    else:
+        from tools.renderer_oracle import sdvk161_fixtures, sdvk161_special_surfaces as module
+        sdvk161_fixtures.validate_recipe(scene)
+    module.validate_recipe(scene)
+    return module
 
 
 def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
@@ -151,10 +162,8 @@ def validate_catalog(catalog: dict, root: Path = ROOT) -> None:
         if native.get("generator") == "lightmap_transition":
             from tools.renderer_oracle.sdvk158_lightmap_transition import validate_recipe
             validate_recipe(scene)
-        if native.get("generator") == "special_surface_lifecycle":
-            from tools.renderer_oracle import sdvk161_fixtures, sdvk161_special_surfaces
-            sdvk161_fixtures.validate_recipe(scene)
-            sdvk161_special_surfaces.validate_recipe(scene)
+        if native.get("generator") in ("special_surface_lifecycle", "controlled_plane_lifecycle"):
+            special_surface_module(scene)
         if native.get("generator") == "gameplay_smoke":
             from tools.renderer_oracle.gameplay_smoke import validate_recipe
             validate_recipe(scene)
@@ -859,6 +868,8 @@ def authored_members(scene: dict) -> tuple[dict[str, bytes], dict]:
     if generator == "viewmodel":
         from tools.renderer_oracle import sdvk011_viewmodel
         return sdvk011_viewmodel.authored_members(scene, sys.modules[__name__])
+    if generator == "controlled_plane_lifecycle":
+        return special_surface_module(scene).authored_members(scene, sys.modules[__name__])
     if generator == "special_surface_lifecycle":
         from tools.renderer_oracle import sdvk161_fixtures
         return sdvk161_fixtures.authored_members(scene, sys.modules[__name__])

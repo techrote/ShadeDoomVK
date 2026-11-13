@@ -203,6 +203,12 @@ source derivation checks remain unchanged; no extra actor/context displacement i
 
 ## SDVK-161 surface receiver boundary
 
+The [controlled-plane follow-on](../SDVK-014-CONTROLLED-PLANES.md) separates source
+axis and emitted facing in receiving tile/UV identities. It does not add portal
+displacements or change sector-group/portal ownership: internal controlled faces
+remain ordinary material surfaces, and recursive immediate rendering consumes
+the same selected source/facing binding as the main mesh path.
+
 Portal-wall ST_NONE geometry serves traversal/stencil ownership and has no
 side-table/bake-target lightmap consumer. Its geometry, trace material and portal
 index remain current while receiving allocation is explicitly excluded. This

@@ -42,13 +42,15 @@ class SeparatedSourceTests(unittest.TestCase):
     def test_renderer_and_oracle_head_checks_are_distinct(self):
         packet = self.separated()
         requests = source_check_requests(packet)
-        self.assertEqual(len(requests), 6)
+        self.assertEqual(len(requests), 7)
         self.assertEqual(requests[0][0][3], str(self.renderer))
         self.assertEqual(requests[0][1], ["a" * 40, "b" * 40])
         self.assertEqual(requests[3][0][3], str(self.oracle))
         self.assertEqual(requests[3][1], ["d" * 40, "e" * 40])
         for index in (2, 5):
             self.assertEqual(requests[index][0][-3:], ["cat-file", "-e", "a" * 40 + "^{commit}"])
+        self.assertEqual(requests[6][0][3], str(self.oracle))
+        self.assertEqual(requests[6][0][-3:], ["cat-file", "-e", "d" * 40 + "^{commit}"])
 
     def test_missing_paired_field_bad_oracle_identity_and_relative_root_fail(self):
         packet = self.separated()
@@ -72,17 +74,17 @@ class SeparatedSourceTests(unittest.TestCase):
                 stdout = b"changed HEAD, tree, dirty state or existence\n"
             return subprocess.CompletedProcess(requests[index][0], 0, stdout=stdout, stderr=b"")
         with patch("tools.physical_supervisor.common.sealed_environment", return_value={}), \
-             patch("tools.physical_supervisor.common.subprocess.run", side_effect=[result(i) for i in range(6)]) as run:
-            self.assertEqual(len(verify_source(packet)), 6)
-            self.assertEqual(run.call_count, 6)
-        for invalid in range(6):
+             patch("tools.physical_supervisor.common.subprocess.run", side_effect=[result(i) for i in range(7)]) as run:
+            self.assertEqual(len(verify_source(packet)), 7)
+            self.assertEqual(run.call_count, 7)
+        for invalid in range(7):
             with self.subTest(check=invalid), \
                  patch("tools.physical_supervisor.common.sealed_environment", return_value={}), \
-                 patch("tools.physical_supervisor.common.subprocess.run", side_effect=[result(i, invalid) for i in range(6)]), \
+                 patch("tools.physical_supervisor.common.subprocess.run", side_effect=[result(i, invalid) for i in range(7)]), \
                  self.assertRaises(Stop):
                 verify_source(packet)
 
-    def test_collector_consumes_only_exact_renderer_commit_fact_in_oracle_root(self):
+    def test_collector_consumes_only_one_exact_pinned_commit_fact_in_oracle_root(self):
         packet = self.separated()
         stage = {"name": "compositing"}
         control = self.root / "control"
@@ -98,15 +100,18 @@ class SeparatedSourceTests(unittest.TestCase):
         receipt = pin(control / "source-preflight.json")
         source_proof(packet, stage, control, receipt)
         adapter = prepare_subprocess_adapter(packet, stage, control, receipt)
-        expected = ["git", "cat-file", "-e", packet["source"]["commit"] + "^{commit}"]
+        renderer = ["git", "cat-file", "-e", packet["source"]["commit"] + "^{commit}"]
+        oracle = ["git", "cat-file", "-e", packet["oracle_source"]["commit"] + "^{commit}"]
         with patch("subprocess.Popen", side_effect=AssertionError("No native process permitted")) as native, \
              patch("tools.physical_supervisor.collector.Gate"):
             with self.assertRaises(Stop):
-                adapter.run(["git", "cat-file", "-e", packet["oracle_source"]["commit"] + "^{commit}"],
+                adapter.run(["git", "cat-file", "-e", "f" * 40 + "^{commit}"],
                             cwd=packet["oracle_source_root"], capture_output=True, check=True)
-            self.assertEqual(adapter.run(expected, cwd=packet["oracle_source_root"], capture_output=True, check=True).returncode, 0)
             with self.assertRaises(Stop):
-                adapter.run(expected, cwd=packet["oracle_source_root"], capture_output=True, check=True)
+                adapter.run(renderer, cwd=packet["renderer_source_root"], capture_output=True, check=True)
+            self.assertEqual(adapter.run(oracle, cwd=packet["oracle_source_root"], capture_output=True, check=True).returncode, 0)
+            with self.assertRaises(Stop):
+                adapter.run(renderer, cwd=packet["oracle_source_root"], capture_output=True, check=True)
             native.assert_not_called()
 
 

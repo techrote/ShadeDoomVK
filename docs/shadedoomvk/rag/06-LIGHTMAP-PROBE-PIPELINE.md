@@ -359,6 +359,16 @@ or RGB can change; their ordinary fresh bake remains required. Allocation/free
 resets that runtime policy. Ordinary v5 source/structural admission, allocation
 incarnations and page/copy transitions remain unchanged.
 
+The [controlled-plane follow-on](../SDVK-014-CONTROLLED-PLANES.md) separates source
+axis from facing in runtime tile identity and in immediate UV/page streams.
+Controlled bake targets match both source axis and actual oriented plane.
+Retained v5 still encodes only the historical facing/control tuple: loader lookup
+derives its legacy source axis. All FF_BOTHPLANES tiles require current baking
+because historical aliased RGB cannot identify its actual source plane.
+RuntimeBakeOnly tiles are omitted consistently from saved tile counts, entries
+and pixels; ordinary compatible v5 load/save remains supported. No atlas receipt,
+descriptor/probe identity or post-copy completion rule changes.
+
 The [special-surface matrix](../SDVK-161-SPECIAL-SURFACE-LIFECYCLE.md) uses zero
 authored probes with gl_lightprobe enabled to exercise the existing empty-owner
 reset path. It requires current runtime-zero fallback and advancing owner epochs

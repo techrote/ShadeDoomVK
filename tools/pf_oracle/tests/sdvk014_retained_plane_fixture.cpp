@@ -1,4 +1,4 @@
-// Exact v5 admission/mutation loops and actual tile allocation/free methods.
+// Exact v5 admission/mutation loops and actual currentTile allocation/free methods.
 // CPU only: pixel copying is an admission witness, not a renderer or WAD loader.
 #include <algorithm>
 #include <cstdarg>
@@ -46,6 +46,8 @@ public:
 // @PRODUCTION_BOUNDS@
 // @PRODUCTION_SPAN@
 
+enum { ST_CEILING=4, ST_FLOOR=5 };
+struct sector_t { enum { floor=0, ceiling=1 }; };
 struct FLevelLocals {};
 struct TileEntry
 {
@@ -66,17 +68,18 @@ static bool admission(bool runtimeOnly)
     current.Transform.TranslateWorldToLocal = {11, 22, 33};
     current.NeedsInitialBake = true;
     const int index = mesh.AllocTile(current);
-    LightmapTile* tile = &mesh.Lightmap.Tiles[index];
+    LightmapTile* currentTile = &mesh.Lightmap.Tiles[index];
     FLevelLocals state;
     FLevelLocals* Level = &state;
     constexpr int textureSize = 1024;
     constexpr uint32_t numTexPixels = 4;
     int errors = 0;
-    TileEntry entry;
-    TArray<TileEntry> tileEntries; tileEntries.Push(entry);
+    TileEntry authoredEntry;
+    TArray<TileEntry> tileEntries; tileEntries.Push(authoredEntry);
     std::map<LightmapTileBinding, LightmapTile*> levelTiles;
-    LightmapTileBinding key; key.Type = entry.type; key.TypeIndex = entry.typeIndex; key.ControlSector = entry.controlSector;
-    levelTiles.emplace(key, tile);
+    LightmapTileBinding key; key.Type = authoredEntry.type; key.TypeIndex = authoredEntry.typeIndex; key.ControlSector = authoredEntry.controlSector;
+    key.ControlPlane = sector_t::ceiling;
+    levelTiles.emplace(key, currentTile);
     TArray<std::pair<const TileEntry*, LightmapTile*>> foundBindings;
     std::set<LightmapTile*> foundTiles;
     unsigned int runtimeBakeOnlyTiles = 0;
@@ -86,13 +89,13 @@ static bool admission(bool runtimeOnly)
     if (runtimeOnly)
     {
         if (foundBindings.Size() != 0 || runtimeBakeOnlyTiles != 1 || !foundTiles.empty() ||
-            tile->Transform.TranslateWorldToLocal.X != 11 || !tile->NeedsInitialBake ||
-            !tile->GeometryUpdate || !tile->ReceivedNewLight)
+            currentTile->Transform.TranslateWorldToLocal.X != 11 || !currentTile->NeedsInitialBake ||
+            !currentTile->GeometryUpdate || !currentTile->ReceivedNewLight)
         { std::cerr << "wrong-plane-retained-payload-admitted\n"; return false; }
     }
     else if (foundBindings.Size() != 1 || runtimeBakeOnlyTiles != 0 || foundTiles.size() != 1 ||
-             tile->Transform.TranslateWorldToLocal.X != 777 || tile->NeedsInitialBake ||
-             tile->GeometryUpdate || tile->ReceivedNewLight)
+             currentTile->Transform.TranslateWorldToLocal.X != 777 || currentTile->NeedsInitialBake ||
+             currentTile->GeometryUpdate || currentTile->ReceivedNewLight)
     { std::cerr << "ordinary-v5-admission-changed\n"; return false; }
     return true;
 }
