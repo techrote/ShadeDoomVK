@@ -175,6 +175,12 @@ class RealOracleAdapterTests(TempCase):
         declared = read_json(control / "prepared-commit-existence.json")
         self.assertEqual(declared["argv"], ["git", "cat-file", "-e", packet["oracle_source"]["commit"] + "^{commit}"])
         self.assertFalse(declared["actual_collector_git_process_created"])
+        argv = target.call_args.args[3]
+        self.assertEqual(argv[argv.index("-width") + 1], "1904")
+        self.assertEqual(argv[argv.index("-height") + 1], "1001")
+        script = (Path(stage["capture"]["out"]) / "capture.cfg").read_bytes()
+        self.assertIn(b"; vid_setsize 1904 1001; ", script)
+        self.assertNotIn(b"; vid_setsize 640 480; ", script)
         self.assertFalse((control / "target-request.json").exists())
 
     def test_real_adapter_preregisters_exact_support_before_target_boundary(self):

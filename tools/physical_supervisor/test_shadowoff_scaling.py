@@ -53,6 +53,11 @@ class ShadowoffAdmissionTests(fixtures.TempCase):
                    return_value={"status": "PASS", "CPU_CONTROL_ONLY": True}) as gate:
             self.assert_real_capture_boundary(packet, stages[8])
         gate.assert_called_once()
+        for stage in (stages[0], stages[8]):
+            script = Path(stage["capture"]["out"]) / "capture.cfg"
+            expected = next(row for row in stage["generated_pins"] if row["path"] == str(script))
+            self.assertEqual(pin(script), expected)
+            self.assertIn(b"; vid_setsize 1904 1001; ", script.read_bytes())
         self.assertIn("-sdvkobservegpu", stages[8]["expected_argv"])
         self.assertNotIn("-sdvkobservegpu", stages[0]["expected_argv"])
         self.assertEqual(stages[8]["expected_argv"][stages[8]["expected_argv"].index("-sdvkobserveframes") + 1], "120")

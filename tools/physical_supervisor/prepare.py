@@ -87,6 +87,13 @@ def oracle_stage(packet, run, spec, base, *, recipe=None):
               (Path(packet["prepared"]) / native["config"], out / "input/fixture.ini"),
               (Path(packet["prepared"]) / native["capture_script"], out / "capture.cfg")]
     generated = [{**pin(source), "path": str(target)} for source, target in copies]
+    if spec["extent"] != native["extent"]:
+        script_source, script_target = copies[-1]
+        script = script_source.read_bytes()
+        require(run.sha256(script) == generated[-1]["sha256"] and len(script) == generated[-1]["size"],
+                "Prepared capture script changed during stage derivation")
+        effective = run.capture_script_at_extent(script, native["extent"], spec["extent"])
+        generated[-1] = {"path": str(script_target), "sha256": run.sha256(effective), "size": len(effective)}
     capture = {"exe": packet["renderer"], "iwad": packet["iwad"], "prepared": packet["prepared"],
                "out": str(out), "scene": scene, "mode": spec["mode"], "frames": spec["frames"],
                "warmup": spec["warmup"], "timeout": spec["deadline_seconds"], "gpu": spec["mode"] == "timing",

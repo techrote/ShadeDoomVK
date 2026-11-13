@@ -70,6 +70,16 @@ three-process benchmark summaries per scene, retaining raw distributions and
 source/build/engine/IWAD/device/host/environment continuity. No outlier removal,
 retry, nested-group sum or automatic architecture decision is introduced.
 
+The first source-matched physical process exited cleanly and emitted
+state and RGB at 640x480, then failed its 1904x1001 extent check.
+The copied reference script still issued \`vid_setsize 640 480\` after
+the command-line extent. Its one creation charge and failed status
+are retained. The runner now derives the effective resize from the
+requested extent and the supervisor pins the resulting script bytes.
+The reference script, all other authored commands and exact native
+extent validation are preserved.
+
+
 ## Interpretation and remaining gates
 
 CPU timing is the existing RenderView steady-clock interval; it excludes CPU
