@@ -1,0 +1,28 @@
+name: Doom II showcase
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/doom2_showcase.yml'
+      - 'tools/doom2_showcase/**'
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/doom2_showcase.yml'
+      - 'tools/doom2_showcase/**'
+
+permissions:
+  contents: read
+
+jobs:
+  cpu:
+    name: Doom II showcase CPU tests
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install 'numpy>=1.26,<3' 'Pillow>=10.1,<14'
+      - run: python -B tools/doom2_showcase/test_showcase.py

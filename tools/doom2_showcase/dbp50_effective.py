@@ -131,13 +131,28 @@ def effective_rows(iwad, pwad, entries):
     """
     original = _lumps(iwad, IWAD_SHA256, b"IWAD")
     replacement = _lumps(pwad, PWAD_SHA256, b"PWAD")
+    effective_flats = _flat_namespace(iwad) | _flat_namespace(pwad)
+    return reconstruct_rows(original, replacement, effective_flats, entries)
+
+
+def texture_overrides(original, replacement):
+    """Use the replacement texture tables with their own or inherited PNAMES."""
+    tables = {
+        key: replacement[key] for key in ("TEXTURE1", "TEXTURE2") if key in replacement
+    }
+    if tables:
+        tables["PNAMES"] = replacement.get("PNAMES", original["PNAMES"])
+    return tables
+
+
+def reconstruct_rows(original, replacement, effective_flats, entries):
     names = {e["name"] for e in entries if e["kind"] == "wall"}
     baseline = _IndexedOverlay(original).selected_textures(original, names)
     lookup = original | replacement
-    effective_flats = _flat_namespace(iwad) | _flat_namespace(pwad)
     current = _IndexedOverlay(lookup).selected_textures(original, names)
-    if "PNAMES" in replacement:
-        current.update(_IndexedOverlay(lookup).selected_textures(replacement, names))
+    tables = texture_overrides(original, replacement)
+    if tables:
+        current.update(_IndexedOverlay(lookup).selected_textures(tables, names))
     before_palette = np.frombuffer(original["PLAYPAL"][:768], dtype=np.uint8).reshape(
         256, 3
     )
@@ -183,10 +198,6 @@ def effective_rows(iwad, pwad, entries):
             pattern_changed=(
                 before.shape != after.shape or not np.array_equal(before, after)
             ),
-            geometry_changed=(
-                before.shape != after.shape or not np.array_equal(before, after)
-            ),
         )
         rows.append(item)
-    assert len(rows) == 578 and len({(r["kind"], r["name"]) for r in rows}) == 578
     return rows

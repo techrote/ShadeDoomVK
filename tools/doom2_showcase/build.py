@@ -43,7 +43,25 @@ def build_flashlight(out):
         for name in FLASHLIGHT_FILES:
             member = ZipInfo(name)
             member.compress_type = ZIP_DEFLATED
-            package.writestr(member, (source / name).read_text(encoding="utf-8").encode("utf-8"))
+            package.writestr(
+                member, (source / name).read_text(encoding="utf-8").encode("utf-8")
+            )
+
+
+def dbp50_material_inputs(effective_rows, original, replacement):
+    """Yield changed art and switch context using the effective definition and patches."""
+    import dbp50_effective as dbp
+    import wall_materials as walls
+
+    rows = {(row["kind"], row["name"]): row for row in effective_rows}
+    decoder = dbp._IndexedOverlay(original | replacement)
+    tables = dbp.texture_overrides(original, replacement)
+    definitions = walls.definitions(original)
+    if tables:
+        definitions.update(walls.definitions(tables))
+    for row in effective_rows:
+        if row["rgba_changed"] and not row["placeholder"]:
+            yield row, walls.context(row, rows, definitions, decoder)
 
 
 def build_materials(out, iwad, pwad, include_gallery):
@@ -152,15 +170,9 @@ def build_materials(out, iwad, pwad, include_gallery):
 
     if pwad:
         effective_rows = dbp.effective_rows(iwad, pwad, entries)
-        effective_keys = {(row["kind"], row["name"]): row for row in effective_rows}
         mod_lookup = dbp._lumps(pwad, dbp.PWAD_SHA256, b"PWAD")
-        decoder = dbp._IndexedOverlay(lookup | mod_lookup)
-        mod_definitions = walls.definitions(mod_lookup)
         overrides = {}
-        for row in effective_rows:
-            if not row["pattern_changed"] or row["placeholder"]:
-                continue
-            context = walls.context(row, effective_keys, mod_definitions, decoder)
+        for row, context in dbp50_material_inputs(effective_rows, lookup, mod_lookup):
             maps, _ = wall_maps(row, row["family"], context)
             overrides[row["kind"], row["name"]] = {
                 channel: sprites.png(base.np.asarray(maps[channel]))
