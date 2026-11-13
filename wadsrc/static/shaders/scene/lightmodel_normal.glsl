@@ -21,7 +21,8 @@
 
 		if ((light.flags & LIGHTINFO_SPOT) != 0)
 		{
-			attenuation *= spotLightAttenuation(light.pos.xyz, light.spotDir.xyz, light.spotInnerAngle, light.spotOuterAngle);
+			float spotCosine = dot(lightdir, light.spotDir.xyz);
+			attenuation *= smoothstep(light.spotOuterAngle, light.spotInnerAngle, spotCosine);
 		}
 		
 		if (!LIGHT_NONORMALS)
