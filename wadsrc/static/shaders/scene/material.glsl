@@ -65,22 +65,24 @@ Material CreateMaterial()
 				texCoord.t = period + mod(texCoord.t, uNpotEmulation.y);
 			}
 		#endif	
-			// Opt-in SDVK-008 sprite relief samples only existing material layers.
-			// Original alpha remains authoritative for the rasterized silhouette.
+			// Preserve original alpha and sample it before the per-fragment relief
+			// branch. Use the original footprint for the displaced albedo lookup.
+			material.Base = getTexel(texCoord.st);
+			#if !defined(NO_LAYERS) && (defined(SHADERTYPE_DEFAULT) || defined(SHADERTYPE_SPECULAR) || defined(SHADERTYPE_PBR))
+			vec2 uvDx = dFdx(texCoord.st);
+			vec2 uvDy = dFdy(texCoord.st);
 			bool reliefApplied = false;
-			vec2 relieved = SDVKResolveSpriteReliefUV(texCoord.st, reliefApplied);
+			vec2 relieved = SDVKResolveSpriteReliefUV(texCoord.st, uvDx, uvDy, reliefApplied);
 			if (reliefApplied)
 			{
-				vec4 baseTexel = getTexel(texCoord.st);
-				vec4 reliefTexel = getTexel(relieved);
+				vec4 reliefTexel = ProcessBaseTexel(textureGrad(tex, relieved, uvDx, uvDy), relieved);
 				if (reliefTexel.a > uAlphaThreshold)
 				{
-					material.Base = vec4(reliefTexel.rgb, baseTexel.a);
+					material.Base.rgb = reliefTexel.rgb;
 					texCoord = relieved;
 				}
-				else material.Base = baseTexel;
 			}
-			else material.Base = getTexel(texCoord.st);
+			#endif
 			material.Normal = ApplyNormalMap(texCoord.st);
 			
 		// OpenGL doesn't care, but Vulkan pukes all over the place if these texture samplings are included in no-texture shaders, even though never called.

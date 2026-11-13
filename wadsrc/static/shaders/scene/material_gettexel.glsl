@@ -3,12 +3,9 @@
 
 vec4 ApplyTextureManipulation(vec4 texel, int blendflags);
 
-// Samples from the base texture according to gzdoom's texture mode.
-// In good gzdoom tradition it also does all kinds of unrelated garbage.
-vec4 getTexel(vec2 st)
+// Apply the inherited texture modes and color controls to a sampled texel.
+vec4 ProcessBaseTexel(vec4 texel, vec2 st)
 {
-	vec4 texel = texture(tex, st);
-
 	// Apply texture modes
 	if (TM_STENCIL)
 	{
@@ -70,6 +67,11 @@ vec4 getTexel(vec2 st)
 
 	// Last but not least apply the desaturation from the sector's light.
 	return desaturate(texel);
+}
+
+vec4 getTexel(vec2 st)
+{
+	return ProcessBaseTexel(texture(tex, st), st);
 }
 
 const int Tex_Blend_Alpha = 1;
