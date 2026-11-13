@@ -13,15 +13,16 @@ import json
 from pathlib import Path
 import re
 import statistics
+import subprocess
 import sys
 
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
     from tools.renderer_oracle import benchmark, images, prepare, run
-    from tools.renderer_oracle.common import EvidenceError, canonical, checked, number, pin, read_json, require
+    from tools.renderer_oracle.common import EvidenceError, canonical, checked, number, pin, read_json, require, sha256
 else:
     from . import benchmark, images, prepare, run
-    from .common import EvidenceError, canonical, checked, number, pin, read_json, require
+    from .common import EvidenceError, canonical, checked, number, pin, read_json, require, sha256
 
 IMPLEMENTATION_COMMIT = "9536324ce33ea418af5a8efe733b4659f6b4ad9b"
 IMPLEMENTATION_TREE = "3123bc7fd3dd9074487cbe3487f9336ef3589003"
@@ -36,6 +37,82 @@ TIMING_ORDER = (
 MATCHED_OFF = {"SL": "S0", "SM": "S0", "SH": "S0", "MM": "M0", "MH": "M0", "GH": "G0", "PM": "P0"}
 WORK_CEILINGS = {"S0": 0, "SL": 10, "SM": 15, "SH": 23, "M0": 0, "MM": 15,
                  "MH": 23, "G0": 0, "GH": 23, "P0": 0, "PM": 15}
+PARTIAL_PAIRS = ("default-off", "heightless", "single-m", "alpha")
+PARTIAL_VARIANTS = ("S0", "SM")
+
+
+def current_protocol(timeout):
+    """A new partial protocol; no original full-campaign gate is removed."""
+    return {"pairs": list(PARTIAL_PAIRS), "cost_variants": list(PARTIAL_VARIANTS),
+            "reference_extent": REFERENCE_EXTENT, "timing_extent": TIMING_EXTENT,
+            "state_frames": 1, "warmup_frames": 120, "timing_frames": 120,
+            "timing_orders": [[v for v in order if v in PARTIAL_VARIANTS] for order in TIMING_ORDER],
+            "timeout_seconds": timeout, "automatic_retries": 0,
+            "detection_floor_ms": 0.05, "off_mad_multiplier": 2,
+            "off_variability_fraction": 0.05, "same_sign_repetitions_minimum": 2}
+
+
+def source_identity(root):
+    root = Path(root).resolve(strict=True)
+    values = subprocess.check_output(["git", "--no-optional-locks", "-C", str(root),
+                                      "rev-parse", "HEAD", "HEAD^{tree}"]).decode().splitlines()
+    require(len(values) == 2 and all(re.fullmatch(r"[0-9a-f]{40}", value) for value in values),
+            "Current-source checkout has no exact commit/tree identity")
+    require(not subprocess.check_output(["git", "--no-optional-locks", "-C", str(root),
+                                         "status", "--porcelain", "--untracked-files=all"]),
+            "Current-source campaign checkout is dirty")
+    return {"commit": values[0], "tree": values[1]}
+
+
+def current_source_plan(args):
+    """Authenticate a prospective generation; retain the fixed historical path.
+
+    This is workload preregistration. The physical supervisor still owns native
+    containment, telemetry/events, fault handling and independent launch review.
+    """
+    path = Path(args.current_source_plan)
+    identity = pin(path)
+    require(identity["sha256"] == getattr(args, "current_source_plan_sha256", None),
+            "Current-source plan differs from its preregistered SHA-256")
+    plan = read_json(path)
+    require(set(plan) == {"schema", "experiment_id", "mode", "renderer_source_root", "renderer_source",
+                         "oracle_source", "owner_authorization", "generation", "runtime", "iwad_license",
+                         "vulkan_summary", "device_name", "protocol", "recipes", "missing_full_gates"}
+            and plan["schema"] == "sdvk008-current-source-plan/v1"
+            and isinstance(plan["experiment_id"], str) and re.fullmatch(r"[a-zA-Z0-9_-]{1,96}", plan["experiment_id"]),
+            "Malformed current-source experiment plan")
+    require(plan["mode"] in ("partial-reference", "partial-reference-and-cost")
+            and args.correctness_only is (plan["mode"] == "partial-reference")
+            and not getattr(args, "software_fixture_control", False), "Current-source plan/mode mismatch")
+    require(type(args.timeout) is int and 1 <= args.timeout <= 600 and plan["protocol"] == current_protocol(args.timeout),
+            "Current-source protocol changed its fixed workload or thresholds")
+    for key in ("owner_authorization", "generation", "iwad_license", "vulkan_summary"):
+        require(pin(Path(plan[key]["path"])) == plan[key], "Current-source input changed: " + key)
+    require(pin(args.vulkan_summary) == plan["vulkan_summary"] and args.device_name == plan["device_name"],
+            "Current-source Vulkan preregistration differs")
+    generation = read_json(Path(plan["generation"]["path"]))
+    require(generation.get("schema") == "sdvk-physical-prospective-generation/v1"
+            and generation.get("new_authority") == "LATER_DIRECT_OWNER_CORRECTION_FRESH_PROSPECTIVE_EXPERIMENT",
+            "Current-source campaign needs a prospective owner-authorized generation")
+    for key in ("path", "sha256"):
+        require(generation["owner_authorization"][key] == plan["owner_authorization"][key], "Owner authority differs from generation")
+    require(generation["source"]["commit"] == plan["renderer_source"]["commit"]
+            and generation["source"]["tree"] == plan["renderer_source"]["tree"], "Generation renderer source differs")
+    require(generation.get("historical_stops"), "Current-source plan must retain historical STOP identities")
+    for stop in generation["historical_stops"]:
+        retained = pin(Path(stop["path"]))
+        require(retained["sha256"] == stop["sha256"] and retained["bytes"] == stop["size"], "Historical STOP changed or disappeared")
+    require(source_identity(plan["renderer_source_root"]) == plan["renderer_source"]
+            and source_identity(prepare.ROOT) == plan["oracle_source"], "Current-source renderer/oracle identity mismatch")
+    require(pin_runtime(args) == plan["runtime"], "Current-source runtime/content identity mismatch")
+    contract, catalog = fixture_contract(), prepare.load_catalog()
+    require(plan["missing_full_gates"] == list(contract.MISSING_GATES), "Missing full-acceptance gates were altered")
+    pairs = [row for row in contract.CORRECTNESS_PAIRS if row["id"] in PARTIAL_PAIRS]
+    require({row["id"] for row in pairs} == set(PARTIAL_PAIRS), "Current-source reference pair absent")
+    ids = {row[key] for row in pairs for key in ("off", "on", "background") if key in row}
+    require(plan["recipes"] == {row["id"]: sha256(canonical(row)) for row in catalog["scenes"] if row["id"] in ids},
+            "Current-source recipes differ from preregistration")
+    return plan, identity
 
 
 def fixture_contract():
@@ -355,8 +432,9 @@ def timing_integrity(path):
             "physical_gpu_qualified": False}
 
 
-def timing_analysis(summaries, *, anomaly=False):
-    require(set(summaries) == set(WORK_CEILINGS), "Incomplete timing matrix")
+def timing_analysis(summaries, *, anomaly=False, partial=False):
+    expected_variants = set(PARTIAL_VARIANTS) if partial else set(WORK_CEILINGS)
+    require(set(summaries) == expected_variants, "Incomplete timing matrix")
     per_variant = {}
     gpu_integrity = {}
     for variant, summary in summaries.items():
@@ -389,6 +467,8 @@ def timing_analysis(summaries, *, anomaly=False):
             per_variant[variant].append(groups)
     comparisons = {}
     for on, off in MATCHED_OFF.items():
+        if partial and on not in expected_variants:
+            continue
         group_sets = [set(row) for variant in (off, on) for row in per_variant[variant]]
         groups = set.intersection(*group_sets)
         missing = set.union(*group_sets) - groups
@@ -404,10 +484,11 @@ def timing_analysis(summaries, *, anomaly=False):
     return {"schema": "sdvk008-physical-analysis/v1",
             "status": "DESCRIPTIVE_GPU_SCENE_SCOPE_AVAILABLE" if gpu_complete else "INCONCLUSIVE_GPU_SCENE_SCOPE",
             "gpu_scene_scope_complete": gpu_complete, "gpu_group_integrity": gpu_integrity,
-            "gpu_scope_limitation": "Requires scene.immediate exactly once in each raw retained frame 1..120 in every one of 33 processes and complete retained groups; lengths or postprocess groups cannot substitute for the sprite scene span",
+            "gpu_scope_limitation": "Requires scene.immediate exactly once in each raw retained frame 1..120 in every one of " + str(3 * len(expected_variants)) + " processes and complete retained groups; lengths or postprocess groups cannot substitute for the sprite scene span",
+            "scope": "PARTIAL_SINGLE_MEDIUM_COST_ONLY_FULL_ACCEPTANCE_HELD" if partial else "original eleven-variant cost matrix",
             "comparisons": comparisons,
             "per_process_distributions": per_variant, "nested_gpu_groups_summed": False,
-            "work_ceilings": WORK_CEILINGS, "work_ceiling_is_measured_work": False,
+            "work_ceilings": {key: WORK_CEILINGS[key] for key in WORK_CEILINGS if key in expected_variants}, "work_ceiling_is_measured_work": False,
             "physical_gpu_qualified": False, "performance_accepted": False, "quality_modes_accepted": []}
 
 
@@ -454,20 +535,34 @@ def campaign(args):
     require(args.execute, "Physical GPU launches require explicit --execute")
     software = getattr(args, "software_fixture_control", False)
     expected_commit = getattr(args, "expected_commit", None) or IMPLEMENTATION_COMMIT
+    current = None
+    if getattr(args, "current_source_plan", None):
+        current, current_pin = current_source_plan(args)
+        require(getattr(args, "expected_commit", None) in (None, current["renderer_source"]["commit"]), "Expected commit differs from current plan")
+        expected_commit = args.expected_commit = current["renderer_source"]["commit"]
     require(not software or args.correctness_only, "Software fixture control requires --correctness-only; no timing")
     require(not software or getattr(args, "expected_commit", None), "Software fixture control requires an explicit --expected-commit")
     require(re.fullmatch(r"[0-9a-f]{40}", expected_commit), "Expected renderer commit must be exact")
-    require(software or expected_commit == IMPLEMENTATION_COMMIT, "Physical renderer source cannot override the frozen implementation")
+    require(software or current is not None or expected_commit == IMPLEMENTATION_COMMIT, "Physical renderer source cannot override the frozen implementation")
     root = run.fresh_directory(args.out)
     receipt = {"schema": "sdvk008-software-fixture-control/v1" if software else "sdvk008-physical-campaign/v1", "status": "FAIL", "steps": [],
-        "implementation_commit": expected_commit, "implementation_tree": None if software else IMPLEMENTATION_TREE,
+        "implementation_commit": expected_commit, "implementation_tree": current["renderer_source"]["tree"] if current else None if software else IMPLEMENTATION_TREE,
         "image_oracle_revision": IMAGE_ORACLE_REVISION,
         "physical_gpu_evidence_collected": False, "physical_gpu_qualified": False,
         "performance_accepted": False, "automatic_retries": 0,
         "software_fixture_control": software, "software_vulkan_evidence_collected": False,
-        "correctness_only": args.correctness_only, "timing_order": TIMING_ORDER,
+        "correctness_only": args.correctness_only, "timing_order": current["protocol"]["timing_orders"] if current else TIMING_ORDER,
         "reference_extent": REFERENCE_EXTENT, "timing_extent": TIMING_EXTENT,
         "default_policy": "OFF; SDVK-016 owns final tiers/defaults"}
+    if current:
+        receipt.update(current_source_plan=current_pin, current_source_experiment=current["experiment_id"],
+                       partial_scope=current["mode"], full_acceptance_held=True, quality_modes_accepted=[])
+        (root / "current-source-plan.json").write_bytes(Path(args.current_source_plan).read_bytes())
+        for key, name in (("owner_authorization", "owner-authorization.md"), ("generation", "prospective-generation.json"),
+                          ("iwad_license", "iwad-copyright.txt")):
+            raw = Path(current[key]["path"]).read_bytes()
+            require(sha256(raw) == current[key]["sha256"], "Current-source input changed while retained: " + key)
+            (root / name).write_bytes(raw)
     try:
         contract = fixture_contract()
         receipt["bootstrap_revision"] = getattr(contract, "BOOTSTRAP_REVISION", None)
@@ -475,8 +570,13 @@ def campaign(args):
         receipt["tooling_files"] = [pin(path) for path in
             (Path(__file__), Path(contract.__file__) if hasattr(contract, "__file__") else Path(__file__),
              Path(run.__file__), Path(prepare.__file__), prepare.CATALOG)]
-        ids = validate_fixtures(contract, prepare.load_catalog(), correctness_only=args.correctness_only)
+        ids = validate_fixtures(contract, prepare.load_catalog(), correctness_only=args.correctness_only or current is not None)
         pairs = contract.CORRECTNESS_PAIRS
+        if current:
+            pairs = [row for row in pairs if row["id"] in PARTIAL_PAIRS]
+            ids = sorted({row[key] for row in pairs for key in ("off", "on", "background") if key in row})
+            receipt["uncollected_full_pairs"] = [row["id"] for row in contract.CORRECTNESS_PAIRS if row["id"] not in PARTIAL_PAIRS]
+            receipt["uncollected_full_timing_variants"] = [key for key in WORK_CEILINGS if key not in PARTIAL_VARIANTS or args.correctness_only]
         if software:
             pairs = [row for row in pairs if row["id"] in ("default-off", "heightless", "single-m", "alpha")]
             require(pairs, "Software smoke has no supported fixture pairs")
@@ -501,6 +601,8 @@ def campaign(args):
 
         def capture(scene, extent, path, mode):
             nonlocal reference, reference_environment
+            if current:
+                require(pin(args.current_source_plan) == current_pin, "Current-source plan changed before a capture")
             step = {"scene": scene, "extent": extent, "mode": mode,
                     "path": path.relative_to(root).as_posix(), "status": "STARTED"}
             receipt["steps"].append(step)
@@ -533,8 +635,9 @@ def campaign(args):
         # Every correctness recipe twice, then every timing variant twice at
         # timing extent. These are state processes, never timing samples.
         stages = [(REFERENCE_EXTENT, ids)]
-        if not software:
-            stages.append((TIMING_EXTENT, list(contract.TIMING_VARIANTS.values())))
+        if not software and not (current and args.correctness_only):
+            stages.append((TIMING_EXTENT, [contract.TIMING_VARIANTS[key] for key in PARTIAL_VARIANTS]
+                           if current else list(contract.TIMING_VARIANTS.values())))
         for extent, selected in stages:
             for scene in selected:
                 paths = [root / "state" / extent / scene / str(attempt) for attempt in (1, 2)]
@@ -579,12 +682,13 @@ def campaign(args):
         receipt["physical_gpu_evidence_collected"] = not software
         receipt["software_vulkan_evidence_collected"] = software
         if args.correctness_only:
-            receipt["status"] = "SOFTWARE_FIXTURE_CONTROL_COLLECTED" if software else "PARTIAL_CORRECTNESS_COLLECTED"
+            receipt["status"] = "CURRENT_SOURCE_PARTIAL_REFERENCE_COLLECTED" if current else "SOFTWARE_FIXTURE_CONTROL_COLLECTED" if software else "PARTIAL_CORRECTNESS_COLLECTED"
         else:
             require(all(row["status"] == "PASS" for rows in receipt["image_pairs"].values() for row in rows),
                     "Descriptive image witnesses cannot qualify correctness before timing")
-            timing_paths = {variant: [] for variant in WORK_CEILINGS}
-            for repetition, order in enumerate(TIMING_ORDER, 1):
+            timing_paths = {variant: [] for variant in (PARTIAL_VARIANTS if current else WORK_CEILINGS)}
+            orders = current["protocol"]["timing_orders"] if current else TIMING_ORDER
+            for repetition, order in enumerate(orders, 1):
                 for ordinal, variant in enumerate(order, 1):
                     path = root / "timing" / f"rep-{repetition}" / f"{ordinal:02d}-{variant}"
                     capture(contract.TIMING_VARIANTS[variant], TIMING_EXTENT, path, "timing")
@@ -593,10 +697,10 @@ def campaign(args):
             for variant, paths in timing_paths.items():
                 for process, path in zip(summaries[variant]["runs"], paths):
                     process["gpu_timing_integrity"] = raw_timing_integrities[path]
-            receipt["analysis"] = timing_analysis(summaries)
+            receipt["analysis"] = timing_analysis(summaries, partial=current is not None)
             for variant, summary in summaries.items():
                 (root / f"timing-{variant}-summary.json").write_bytes(canonical(summary))
-            receipt["status"] = "COLLECTED_PENDING_REVIEW"
+            receipt["status"] = "CURRENT_SOURCE_PARTIAL_REFERENCE_AND_COST_COLLECTED" if current else "COLLECTED_PENDING_REVIEW"
     except (OSError, ValueError, ImportError, KeyError, TypeError) as error:
         receipt["error"] = str(error)
     finally:
@@ -618,8 +722,10 @@ def main(argv=None):
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--correctness-only", action="store_true", help="bounded partial evidence; never runs timings")
     parser.add_argument("--software-fixture-control", action="store_true", help="separate CPU llvmpipe smoke; never physical evidence")
-    parser.add_argument("--expected-commit", help="exact hosted software-control build; physical source is immutable")
+    parser.add_argument("--expected-commit", help="exact software build, or renderer identity from a sealed current-source plan; frozen physical default is unchanged")
     parser.add_argument("--iwad-license", type=Path, help="license retained for the software-control artifact")
+    parser.add_argument("--current-source-plan", type=Path, help="sealed prospective partial physical generation; frozen mode remains unchanged")
+    parser.add_argument("--current-source-plan-sha256", help="reviewed exact SHA-256 of --current-source-plan")
     args = parser.parse_args(argv)
     try:
         result = campaign(args)

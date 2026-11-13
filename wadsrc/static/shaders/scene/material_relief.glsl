@@ -14,13 +14,10 @@ bool SDVKInsideReliefRect(vec2 uv, vec2 lo, vec2 hi)
 
 // Returns the original coordinate for every unsupported or invalid case.
 // The inherited material sampler is still the only source for final color.
-vec2 SDVKResolveSpriteReliefUV(vec2 original, out bool applied)
+vec2 SDVKResolveSpriteReliefUV(vec2 original, vec2 uvDx, vec2 uvDy, out bool applied)
 {
 	applied = false;
 #if !defined(NO_LAYERS) && (defined(SHADERTYPE_DEFAULT) || defined(SHADERTYPE_SPECULAR) || defined(SHADERTYPE_PBR))
-	// Implicit derivatives must be evaluated before nonuniform shader branches.
-	vec2 uvDx = dFdx(original);
-	vec2 uvDy = dFdy(original);
 	float scale = uSpriteReliefParams.x;
 	int quality = int(uSpriteReliefParams.y + 0.5);
 	if (uSpriteReliefParams.w < 0.5 || uSpriteNormal.w < 0.5 ||
