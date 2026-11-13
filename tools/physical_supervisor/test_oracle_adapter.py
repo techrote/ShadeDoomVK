@@ -20,7 +20,7 @@ import unittest
 from unittest.mock import patch
 
 from .collector import prepare_subprocess_adapter,run_oracle,source_proof
-from .common import Stop,exclusive,pin,read_json,source_check_requests,utc,verify_oracle_python_pins
+from .common import Stop,environment_policy,exclusive,pin,read_json,utc,verify_oracle_python_pins,verify_source
 from .prepare import frozen_oracle
 from .test_integration import synthetic_source_checks
 from .test_supervisor import TempCase
@@ -42,7 +42,7 @@ class RealOracleAdapterTests(TempCase):
             self.assertEqual(Path(run.__file__).resolve(),root/"tools/renderer_oracle/run.py")
             self.assertEqual(Path(prepare.pf_view.__file__).resolve(),root/"tools/pf_oracle/prepare_freeze_view_fixture.py")
 
-    def setup_packet(self):
+    def setup_packet(self, *, split_source=False):
         # Match production execute(), including Windows TEMP short-name aliases.
         self.root=self.root.resolve(strict=True)
         root=Path(__file__).resolve().parents[2]
@@ -51,7 +51,8 @@ class RealOracleAdapterTests(TempCase):
         # Warm its shared stdlib caches before the strict zero-process trap.
         run.host_profile()
         prepared=self.root/"prepared"
-        manifest=run.preparation_module().prepare(prepared,["compositing"])
+        scene = "lights-one-shadow-off" if split_source else "compositing"
+        manifest=run.preparation_module().prepare(prepared,[scene])
         commit=manifest["source_identity"]["git_commit"]
         git=shutil.which("git")
         tree=subprocess.run([git,"rev-parse","HEAD^{tree}"],cwd=root,capture_output=True,check=True,text=True).stdout.strip()
@@ -59,26 +60,49 @@ class RealOracleAdapterTests(TempCase):
         exe=runtime/"SYNTHETIC_NEVER_EXECUTED.exe";exe.write_bytes(b"not an executable; no renderer launches")
         (runtime/"vkdoom.pk3").write_bytes(b"synthetic engine package; never loaded")
         iwad=self.root/"synthetic.wad";iwad.write_bytes(b"synthetic IWAD; never loaded")
+        source = {"commit": commit, "tree": tree}
+        split = {}
+        if split_source:
+            # Both identities are real Git objects. The parent verification
+            # runs before the collector's strict no-process trap.
+            renderer = self.root / "renderer-source"
+            # Use the actual ancestor object without materializing another
+            # full source tree or adding Git metadata to the frozen checkout.
+            subprocess.run([git, "clone", "-q", "--shared", "--no-checkout",
+                            str(root), str(renderer)], check=True)
+            # The parent only needs a real clean checkout for identity checks.
+            subprocess.run([git, "-C", str(renderer), "config", "core.sparseCheckout", "true"], check=True)
+            sparse = renderer / ".git" / "info" / "sparse-checkout"
+            sparse.write_text("/AGENTS.md\n", encoding="utf-8")
+            subprocess.run([git, "-C", str(renderer), "checkout", "-q", "--detach", commit + "^"], check=True)
+            renderer_commit, renderer_tree = subprocess.check_output(
+                [git, "-C", str(renderer), "rev-parse", "HEAD", "HEAD^{tree}"], text=True
+            ).splitlines()
+            split = {"renderer_source_root": str(renderer), "oracle_source": source}
+            source = {"commit": renderer_commit, "tree": renderer_tree}
         gate=self.gate()
         expiry=(dt.datetime.now(dt.timezone.utc)+dt.timedelta(hours=1)).isoformat()
-        packet={"source":{"commit":commit,"tree":tree},"oracle_source_root":str(root),"git":git,
+        packet={"source":source,"oracle_source_root":str(root),"git":git,**split,
+                "environment_policy":environment_policy(),
                 "renderer":str(exe),"renderer_sha256":pin(exe)["sha256"],"packet_sha256":"a"*64,
                 "stop_root":str(gate.root),"expires_utc":expiry,
-                "declared_version_utf8":"ShadeDoomVK synthetic expected declaration\nCommit: "+commit+"\nWorking tree: clean\n"}
+                "declared_version_utf8":"ShadeDoomVK synthetic expected declaration\nCommit: "+source["commit"]+"\nWorking tree: clean\n"}
         directories=[root/"tools/renderer_oracle",root/"tools/pf_oracle",runtime,prepared]
         packet["runtime_roots"]=[{"path":str(directory),"files":[str(p) for p in directory.rglob("*") if p.is_file()]}
                                   for directory in directories]
         packet["files"]=[pin(path) for row in packet["runtime_roots"] for path in row["files"]]+[pin(iwad),pin(git)]
         out=self.root/"capture"
-        stage={"name":"compositing","capture":{"exe":str(exe),"iwad":str(iwad),"prepared":str(prepared),"out":str(out),
-               "scene":"compositing","mode":"state","frames":1,"warmup":120,"timeout":180,"gpu":False,
-               "include_stress":True,"image_policy":"exact","extent":"640x480","expected_commit":commit,"require_clean":True}}
+        stage={"name":scene,"capture":{"exe":str(exe),"iwad":str(iwad),"prepared":str(prepared),"out":str(out),
+               "scene":scene,"mode":"state","frames":1,"warmup":120,"timeout":180,"gpu":False,
+               "include_stress":True,"image_policy":"exact","extent":"1904x1001" if split_source else "640x480",
+               "expected_commit":source["commit"],"require_clean":True}}
         control=self.root/"control";control.mkdir()
         identity={"synthetic_cpu_test_supervisor":True}
         exclusive(control/"supervisor-identity.json",identity)
         proof={"schema":"physical-supervisor/source-preflight-v1","packet_sha256":"a"*64,"stage":stage["name"],
                "source":packet["source"],"root":str(root),"git":pin(git),"supervisor":identity,
-               "checks":synthetic_source_checks(packet),"utc":utc(),"test_scope":"synthetic parent transcript; no physical evidence"}
+               "checks":verify_source(packet) if split_source else synthetic_source_checks(packet),
+               "utc":utc(),"test_scope":"CPU test parent transcript; no physical evidence"}
         exclusive(control/"source-preflight.json",proof)
         return packet,stage,control,pin(control/"source-preflight.json")
 
@@ -113,6 +137,22 @@ class RealOracleAdapterTests(TempCase):
         decoder_path=Path(decoder.__code__.co_filename).resolve()
         self.assertEqual(decoder_path,Path(packet["oracle_source_root"])/"tools/pf_oracle/run_freeze_dense_runtime.py")
         self.assertIn(str(decoder_path),{row["path"] for row in packet["files"]})
+
+    def test_distinct_oracle_preparation_reaches_target_gate_without_any_process(self):
+        packet, stage, control, receipt = self.setup_packet(split_source=True)
+        self.assertNotEqual(packet["source"]["commit"], packet["oracle_source"]["commit"])
+        with (
+            patch("subprocess.Popen", side_effect=AssertionError("No collector subprocess")) as native,
+            patch("tools.physical_supervisor.collector.gated_target", side_effect=NoTarget("CPU target boundary")) as target,
+        ):
+            with self.assertRaises(NoTarget):
+                run_oracle(packet, stage, control, receipt)
+        native.assert_not_called()
+        target.assert_called_once()
+        declared = read_json(control / "prepared-commit-existence.json")
+        self.assertEqual(declared["argv"], ["git", "cat-file", "-e", packet["oracle_source"]["commit"] + "^{commit}"])
+        self.assertFalse(declared["actual_collector_git_process_created"])
+        self.assertFalse((control / "target-request.json").exists())
 
     def test_real_adapter_preregisters_exact_support_before_target_boundary(self):
         packet,stage,control,receipt=self.setup_packet()
