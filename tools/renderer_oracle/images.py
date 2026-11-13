@@ -64,11 +64,15 @@ def compare_rgb(left, right, extent, policy):
             "Invalid RGB extent; width/height must be positive bounded integers")
     require(len(left) == len(right) == extent[0] * extent[1] * 3 and len(left) > 0, "RGB extents differ")
     maximum = total = changed = 0
-    for at in range(0, len(left), 3):
-        errors = [abs(left[at+i] - right[at+i]) for i in range(3)]
-        maximum = max(maximum, *errors)
-        total += sum(errors)
-        changed += any(errors)
+    # Equality of already decoded RGB samples proves all error metrics are
+    # zero. Keep the full difference scan for any unequal pair and for its
+    # exact or tolerant policy decision.
+    if left != right:
+        for at in range(0, len(left), 3):
+            errors = [abs(left[at+i] - right[at+i]) for i in range(3)]
+            maximum = max(maximum, *errors)
+            total += sum(errors)
+            changed += any(errors)
     mean = total / len(left)
     fraction = changed / (extent[0] * extent[1])
     passed = maximum == 0 if policy["metric"] == "exact-rgb8" else (

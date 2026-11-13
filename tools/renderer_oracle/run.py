@@ -262,6 +262,24 @@ def apply_extent(argv, extent):
     return result
 
 
+def capture_script_at_extent(raw, reference, extent):
+    """Keep authored commands, adapting the fixed window resize to the capture extent."""
+    if extent == reference:
+        return raw
+    commands = raw.rstrip(b"\n").split(b"; ")
+    resize = [index for index, command in enumerate(commands)
+              if command.split()[:1] == [b"vid_setsize"]]
+    if not resize:
+        return raw
+    require(len(resize) == 1 and commands[resize[0]].split() ==
+            [b"vid_setsize", str(reference[0]).encode(), str(reference[1]).encode()],
+            "Authored window resize does not match the reference extent")
+    commands[resize[0]] = f"vid_setsize {extent[0]} {extent[1]}".encode("ascii")
+    script = b"; ".join(commands) + b"\n"
+    require(len(script) + 1 <= 4094, "Capture script exceeds the inherited exec parser line bound")
+    return script
+
+
 def version_identity(stdout):
     """Read native LF or Windows CRT CRLF output without changing retained bytes."""
     text = stdout.decode("utf-8", errors="strict")
@@ -338,10 +356,19 @@ def capture(args):
         shutil.copyfile(artifact_path(prepared_dir, native["pk3"]), out / "input" / "scene.pk3")
         shutil.copyfile(artifact_path(prepared_dir, native["config"]), out / "fixture.ini")
         shutil.copyfile(out / "fixture.ini", out / "input" / "fixture.ini")
-        shutil.copyfile(artifact_path(prepared_dir, native["capture_script"]), out / "capture.cfg")
+        script = artifact_path(prepared_dir, native["capture_script"]).read_bytes()
+        script_pin = prepared["files"][native["capture_script"]]
+        require(sha256(script) == script_pin["sha256"] and len(script) == script_pin["bytes"],
+                "Prepared capture script changed while being copied")
+        effective_script = capture_script_at_extent(script, native["extent"], extent)
+        script_path = out / "capture.cfg"
+        script_path.write_bytes(effective_script)
+        effective_script_sha256 = sha256(effective_script)
+        require(pin(script_path)["sha256"] == effective_script_sha256,
+                "Effective capture script changed while being staged")
         write_json(out / "recipe.json", scene)
         write_json(out / "prepared.json", prepared)
-        for key, relative in (("pk3", "input/scene.pk3"), ("config", "input/fixture.ini"), ("capture_script", "capture.cfg")):
+        for key, relative in (("pk3", "input/scene.pk3"), ("config", "input/fixture.ini")):
             original = prepared["files"][native[key]]
             require(pin(out / relative)["sha256"] == original["sha256"] and (out / relative).stat().st_size == original["bytes"],
                     "Prepared input changed while being copied: " + key)
@@ -376,7 +403,7 @@ def capture(args):
         profile = {"scene": scene["id"], "recipe_sha256": sha256(canonical(scene)),
                    "iwad_sha256": iwad_pin["sha256"], "scene_sha256": pin(out / "input" / "scene.pk3")["sha256"],
                    "config_sha256": pin(out / "input" / "fixture.ini")["sha256"],
-                   "script_sha256": pin(out / "capture.cfg")["sha256"],
+                   "script_sha256": effective_script_sha256,
                    "seed": native["seed"], "extent": extent, "reference_extent": native["extent"], "camera": native["camera"],
                    "settings": native["settings"], "clock": native["clock"][mode],
                    "warmup_frames": warmup, "frames": frames,
@@ -952,6 +979,14 @@ def _validate_run(path):
     recipes = [item for item in prepared.get("scenes", []) if item.get("id") == scene["id"]]
     require(len(recipes) == 1 and {key: value for key, value in recipes[0].items() if key != "prepared_assets"} == scene,
             "Run recipe differs from the retained preparation")
+    if extent != scene["native"]["extent"]:
+        script = preparation_module().capture_script(scene)
+        script_pin = prepared["files"][scene["native"]["capture_script"]]
+        require(sha256(script) == script_pin["sha256"] and len(script) == script_pin["bytes"],
+                "Retained authored script differs from the recipe")
+        effective_script = capture_script_at_extent(script, scene["native"]["extent"], extent)
+        require((root / "capture.cfg").read_bytes() == effective_script,
+                "Effective capture script differs from the exact capture extent")
     require(data["executable"] == request["executable"], "Executable identity differs from preregistration")
     require(data["build"] == raw["build"] and data["mode"] == raw["mode"] == request["mode"], "Run/native mode or build mismatch")
     require(raw["build"]["commit"] == request["source_commit"] and raw["build"]["working_tree"] == request["working_tree"],
