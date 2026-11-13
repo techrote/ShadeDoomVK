@@ -1003,8 +1003,9 @@ def _validate_run(path):
                 and raw["gpu_timing_requested"] is False,
                 "Special-surface request differs from its exact driver/frame policy")
         contract.validate_transition_records(raw, stdout, scene["native"])
-        contract.validate_checkpoint_artifacts(artifacts)
-        contract.validate_checkpoint_images(root, raw)
+        from tools.renderer_oracle.sdvk161_special_surfaces import validate_checkpoint_artifacts, validate_checkpoint_images
+        validate_checkpoint_artifacts(artifacts)
+        validate_checkpoint_images(root, raw)
     if "diagnostics" in request:
         publication_module().validate_capture_diagnostics(root, request, artifacts=artifacts)
     if data["mode"] == "state":
