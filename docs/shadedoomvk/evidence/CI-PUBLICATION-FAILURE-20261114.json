@@ -1,0 +1,444 @@
+{
+  "additional_derived_files": 13,
+  "all_raw_transport_bytes_retained": true,
+  "archive_bytes": 88029068,
+  "archive_fail_stop": "Aggregator stopped after witness1 control comparison; witness2 raw capture fully retained, its derived publication proof/negatives not generated in CI. Offline diagnosis remains separate.",
+  "archive_sha256": "a6c502bdfd0628a8899ad40a38985534a48804f075f0a0adb1fe22a28ea9feed",
+  "artifact_id": 14090593859,
+  "artifact_integrity_status": "PASS",
+  "capture_timing": {
+    "model_scope": "Sum/max of actual capture-attempt durations; excludes startup, transfer, aggregation; not an executed full-shadow serial or gated A/B run",
+    "modeled_control_gated_seconds": 5024.502633,
+    "modeled_full_parallel_seconds": 2516.461033,
+    "observed_attempt_span_seconds": 2546.354993,
+    "peak_attempt_overlap": 3,
+    "sum_capture_attempt_seconds": 6484.414401,
+    "sum_native_subprocess_seconds": 6450.192145739,
+    "sum_to_span_ratio": 2.5465476804396223
+  },
+  "error": "Instrumented witness changed protected state or exact RGB",
+  "files_verified": 2969,
+  "gates": {
+    "renderer-native/collision-review.json": "PASS",
+    "renderer-native/native-ci.json": "PASS",
+    "renderer-sdvk008-control/sdvk008-software-fixture-control.json": "SOFTWARE_FIXTURE_CONTROL_COLLECTED",
+    "renderer-sdvk009-content/content.json": "PASS",
+    "renderer-sdvk009-publication/qualification.json": "FAIL",
+    "renderer-sdvk010/qualification.json": "PASS",
+    "renderer-sdvk014-controlled/qualification.json": "PASS",
+    "renderer-sdvk150/qualification.json": "PASS",
+    "renderer-sdvk153/qualification.json": "PASS",
+    "renderer-sdvk158/qualification.json": "PASS",
+    "renderer-sdvk161/qualification.json": "PASS"
+  },
+  "independent_comparison_replays": {
+    "changed_pixels": 0,
+    "control_to_witness_1": "FAIL: protected state differs; exact RGB PASS",
+    "control_to_witness_2": "FAIL: protected state differs; exact RGB PASS",
+    "historical_620": "All three shadow states match the current generation-4 control state exactly.",
+    "native_reexecution": false,
+    "protected_differences": [
+      {
+        "both_witnesses": 3,
+        "control": 4,
+        "field": "SDVFL material resource generation (two records)"
+      },
+      {
+        "both_witnesses": 3,
+        "control": 4,
+        "field": "renderer-owner texture_epoch"
+      }
+    ],
+    "rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+    "state_sha256": {
+      "control": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+      "witnesses": "b37cf21225300137100fe5837332b7c37b423bc73b7e7d6f0d9e6e1402860e40"
+    },
+    "witness_repeat": "PASS: exact state and RGB; explicit_build_change=false"
+  },
+  "manifest_transport_complete": true,
+  "native_captures": {
+    "compositing-control": {
+      "attempt_finished_utc": "2026-11-14T00:19:47.499325+00:00",
+      "attempt_started_utc": "2026-11-14T00:19:14.649038+00:00",
+      "attempt_utc_span_seconds": 32.850287,
+      "capture_finished_utc": "2026-11-14T00:19:47.472416+00:00",
+      "capture_started_utc": "2026-11-14T00:19:15.045013+00:00",
+      "capture_utc_span_seconds": 32.427403,
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "frames": 1,
+      "image_policy": {
+        "metric": "exact-rgb8"
+      },
+      "logical_processors": 4,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 31.896355626000002,
+      "timeout_seconds": 3600,
+      "warmup_frames": 120
+    },
+    "shadow-control": {
+      "attempt_finished_utc": "2026-11-14T01:01:11.156417+00:00",
+      "attempt_started_utc": "2026-11-14T00:19:47.545671+00:00",
+      "attempt_utc_span_seconds": 2483.610746,
+      "capture_finished_utc": "2026-11-14T01:01:11.121287+00:00",
+      "capture_started_utc": "2026-11-14T00:19:47.941832+00:00",
+      "capture_utc_span_seconds": 2483.179455,
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "frames": 1,
+      "image_policy": {
+        "metric": "exact-rgb8"
+      },
+      "logical_processors": 4,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 2482.460440543,
+      "timeout_seconds": 3600,
+      "warmup_frames": 120
+    },
+    "shadow-witness-1": {
+      "attempt_finished_utc": "2026-11-14T00:43:04.713192+00:00",
+      "attempt_started_utc": "2026-11-14T00:18:44.801424+00:00",
+      "attempt_utc_span_seconds": 1459.911768,
+      "capture_finished_utc": "2026-11-14T00:43:04.565986+00:00",
+      "capture_started_utc": "2026-11-14T00:18:45.093261+00:00",
+      "capture_utc_span_seconds": 1459.472725,
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "frames": 1,
+      "image_policy": {
+        "metric": "exact-rgb8"
+      },
+      "logical_processors": 4,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 1445.889509693,
+      "timeout_seconds": 3600,
+      "warmup_frames": 120
+    },
+    "shadow-witness-2": {
+      "attempt_finished_utc": "2026-11-14T01:00:41.421708+00:00",
+      "attempt_started_utc": "2026-11-14T00:18:53.380108+00:00",
+      "attempt_utc_span_seconds": 2508.0416,
+      "capture_finished_utc": "2026-11-14T01:00:41.224333+00:00",
+      "capture_started_utc": "2026-11-14T00:18:53.775240+00:00",
+      "capture_utc_span_seconds": 2507.449093,
+      "cpu": "AMD EPYC 7763 64-Core Processor",
+      "frames": 1,
+      "image_policy": {
+        "metric": "exact-rgb8"
+      },
+      "logical_processors": 4,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 2489.945839877,
+      "timeout_seconds": 3600,
+      "warmup_frames": 120
+    }
+  },
+  "offline_witness_2_diagnosis": {
+    "automatic_retries": 0,
+    "kind": "offline-cpu-failure-diagnosis",
+    "native_processes_launched": 0,
+    "negative-controls": {
+      "output": "offline-witness2-negative-controls.json",
+      "seconds": 95.3888262319997,
+      "status": "PASS"
+    },
+    "original_qualification_status": "FAIL",
+    "qualification_override": false,
+    "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+    "source_run_id": 43532176029,
+    "witness-proof": {
+      "output": "offline-witness2-witness-proof.json",
+      "seconds": 18.001467430000048,
+      "status": "PASS"
+    }
+  },
+  "ordinary_tar_members": 3477,
+  "original_corpus": {
+    "native_processes": 56,
+    "status": "PASS",
+    "step_receipts": 83,
+    "workload_and_step_sequence_match_620": true
+  },
+  "packaging": {
+    "archive_bytes": 88029068,
+    "assembly_verification_seconds": 6.619,
+    "compression_argv": [
+      "xz",
+      "-6",
+      "-T3",
+      "--block-size=512MiB",
+      "--lzma2=dict=64MiB",
+      "--memlimit-compress=7GiB",
+      "--no-adjust",
+      "-c"
+    ],
+    "compression_seconds": 330.277,
+    "files": 2969,
+    "host_resources": {
+      "affinity_processors": 4,
+      "effective_memory_bytes": 16760348672,
+      "effective_processors": 4,
+      "physical_memory_bytes": 16760348672
+    },
+    "performance_accepted": false,
+    "physical_gpu_qualified": false,
+    "schema": "sdvk-software-vulkan-packaging-timing/v1",
+    "total_seconds": 347.235,
+    "transport_artifacts": {
+      "controls": {
+        "manifest.json": {
+          "sha256": "f94b9c3282ae178a8efb903e29d84d1407f80ba15af55cac1fcae09162eba717",
+          "size": 13310
+        },
+        "tar": {
+          "sha256": "af0b214fedbd9c108f0a03727cb9529c629fa61412baff391fabdec2138be901",
+          "size": 119408640
+        },
+        "tar.sha256": {
+          "sha256": "4e7af7afab8e0cb909a0936347938114a6651162f842a75be14ab1538e574890",
+          "size": 88
+        }
+      },
+      "corpus": {
+        "manifest.json": {
+          "sha256": "b5ba98d57d88ceda6996229c705cf40b4a858452ec62e4d43c3627d42a6fdd0f",
+          "size": 257809
+        },
+        "tar": {
+          "sha256": "6ce3ab723acc0b857950b50b44284b445578f3857cc669e1c341e70f727776ff",
+          "size": 2290288640
+        },
+        "tar.sha256": {
+          "sha256": "cc72d7aaf72537aeb04d7014d03aebfe2ef44ec9d6ce8d6e1f69ffc273280221",
+          "size": 86
+        }
+      },
+      "publication": {
+        "manifest.json": {
+          "sha256": "00e82a6a5f636777a2b96d2e5503c4f7955cb67f2e67c24dec0cbb7d89eacc1b",
+          "size": 75226
+        },
+        "tar": {
+          "sha256": "e68715d107d947c31d80bb8392269d44de7f4700269fb6b4dcc7e35c396c5d6c",
+          "size": 524400640
+        },
+        "tar.sha256": {
+          "sha256": "dffa9f572f6b5b87b29e698097b4fa45df135dc1421699522dc5bf91c1604b0b",
+          "size": 91
+        }
+      },
+      "witness-1": {
+        "manifest.json": {
+          "sha256": "5ba4ecf6f0c460966ace896802987258fa21e8e31e5bad8b2f849a2bdce3b21d",
+          "size": 103275
+        },
+        "tar": {
+          "sha256": "304f7e71adeb7f24771373058663a7cbe75d2cc938c4cc9b823636a51054ce09",
+          "size": 67246080
+        },
+        "tar.sha256": {
+          "sha256": "ececed88c7a916922791d8d2b3f221642dfdfaa6871447a2415ddee27c0de53c",
+          "size": 89
+        }
+      },
+      "witness-2": {
+        "manifest.json": {
+          "sha256": "c0a4ded4c6abb3063c0b0edafdab6b9fa74c85c85889a89e531194df80f80ab2",
+          "size": 103275
+        },
+        "tar": {
+          "sha256": "7fd4b128f22397855e7b552d11bc4282bcdd6de77f71c3c241d751f1ca076ba6",
+          "size": 67246080
+        },
+        "tar.sha256": {
+          "sha256": "f3386efbf74982a75a7f7720f562ef6caeab2d2a12f429fc19ef15fd724d11c6",
+          "size": 89
+        }
+      }
+    },
+    "uncompressed_file_bytes": 3067198171,
+    "verification_seconds": 10.339
+  },
+  "performance_scope": "Failed exact-head campaign; processing latency is measurable, but successful qualification and repeatable speedup are not established.",
+  "profiles": {
+    "renderer-ci-controls/profile.json": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "AMD EPYC 7763 64-Core Processor",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "github_sha": "a694923ac0c123d01a06c1bfb3b48775960b229f",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "started_utc": "2026-11-14T00:18:55.686580+00:00",
+      "vulkan_icd": null,
+      "worker": "controls"
+    },
+    "renderer-ci-corpus/profile.json": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "github_sha": "a694923ac0c123d01a06c1bfb3b48775960b229f",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "started_utc": "2026-11-14T00:18:53.923980+00:00",
+      "vulkan_icd": null,
+      "worker": "corpus"
+    },
+    "renderer-ci-publication/profile.json": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "github_sha": "a694923ac0c123d01a06c1bfb3b48775960b229f",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "started_utc": "2026-11-14T00:18:43.048996+00:00",
+      "vulkan_icd": null,
+      "worker": "publication"
+    },
+    "renderer-ci-witness-1/profile.json": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "github_sha": "a694923ac0c123d01a06c1bfb3b48775960b229f",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "started_utc": "2026-11-14T00:18:38.936220+00:00",
+      "vulkan_icd": null,
+      "worker": "witness-1"
+    },
+    "renderer-ci-witness-2/profile.json": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "AMD EPYC 7763 64-Core Processor",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "github_sha": "a694923ac0c123d01a06c1bfb3b48775960b229f",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "started_utc": "2026-11-14T00:18:34.703710+00:00",
+      "vulkan_icd": null,
+      "worker": "witness-2"
+    }
+  },
+  "qualification_awarded": false,
+  "qualification_error_is_protected_native_state": true,
+  "qualification_status": "FAIL",
+  "relocated_files": 1069,
+  "repair_investigation": {
+    "bounded_probe": "Three first-use uninstrumented shadow captures at warmup=5, frames=1, timeout=180; controls worker also performs compositing warmup=120 then a second short shadow to measure history. Explicitly nonqualifying.",
+    "established_orchestration_difference": "Control followed compositing on its host; both independent witnesses were their hosts first renderer capture.",
+    "hypothesis": "Prior renderer startup/history changes protected texture resource counters; external driver cache is a possible mechanism, not an established cause.",
+    "probe_and_new_head_full_qualification": "PENDING",
+    "proposed_full_topology": "Move compositing to the existing short-module worker; all three shadow captures first on separate fresh hosts; still five native runners and exactly four full captures.",
+    "unchanged_acceptance": "No renderer/fixture/tolerance/state-projection changes. Full captures remain warmup=120, frames=1, timeout=3600, 121-frame witnesses and all nine negative controls each."
+  },
+  "retained_negative_controls": {
+    "renderer-sdvk009-publication/shadow-witness-1-negative-controls.json": {
+      "all_rejected": true,
+      "count": 9,
+      "names": [
+        "stale-bound-descriptor-generation",
+        "unknown-bound-pipeline-coverage",
+        "missing-bound-stage-bytes",
+        "wrong-postuse-source-allocation",
+        "missing-postuse-field-coverage",
+        "wrong-completed-fence-generation",
+        "altered-readback-defined-bytes",
+        "missing-observed-warmup-frame",
+        "truncated-completion-evidence"
+      ],
+      "status": "PASS"
+    }
+  },
+  "retained_witness_proofs": {
+    "renderer-sdvk009-publication/shadow-witness-1-publication.json": {
+      "observer_frames": 121,
+      "qualified_frames": 121,
+      "retained_frames": 1,
+      "status": "PASS",
+      "warmup_frames": 120
+    }
+  },
+  "run_id": 43532176029,
+  "schema": "sdvk-publication-failure-investigation/v1",
+  "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+  "status": "FAIL_CLOSED",
+  "strict_audit_expected_rejection": "Failed gate renderer-sdvk009-publication/qualification.json",
+  "strict_audit_wall_seconds": 16.148,
+  "transport_identities": {
+    "controls": {
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "job_status": "success",
+      "plan_sha256": "0724c1d41ce63932be0dda6b83df28e71593400ca8eca4462f03a03a460a34b9",
+      "runtime_sha256": "c32ce7ada38e416aea1a4d4c4c62836937e859d502b72d4e59eb26de1a918794",
+      "source_sha": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "worker": "controls"
+    },
+    "corpus": {
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "job_status": "success",
+      "plan_sha256": "0724c1d41ce63932be0dda6b83df28e71593400ca8eca4462f03a03a460a34b9",
+      "runtime_sha256": "c32ce7ada38e416aea1a4d4c4c62836937e859d502b72d4e59eb26de1a918794",
+      "source_sha": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "worker": "corpus"
+    },
+    "publication": {
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "job_status": "success",
+      "plan_sha256": "0724c1d41ce63932be0dda6b83df28e71593400ca8eca4462f03a03a460a34b9",
+      "runtime_sha256": "c32ce7ada38e416aea1a4d4c4c62836937e859d502b72d4e59eb26de1a918794",
+      "source_sha": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "worker": "publication"
+    },
+    "witness-1": {
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "job_status": "success",
+      "plan_sha256": "0724c1d41ce63932be0dda6b83df28e71593400ca8eca4462f03a03a460a34b9",
+      "runtime_sha256": "c32ce7ada38e416aea1a4d4c4c62836937e859d502b72d4e59eb26de1a918794",
+      "source_sha": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "worker": "witness-1"
+    },
+    "witness-2": {
+      "github_run_attempt": "1",
+      "github_run_id": "43532176029",
+      "job_status": "success",
+      "plan_sha256": "0724c1d41ce63932be0dda6b83df28e71593400ca8eca4462f03a03a460a34b9",
+      "runtime_sha256": "c32ce7ada38e416aea1a4d4c4c62836937e859d502b72d4e59eb26de1a918794",
+      "source_sha": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+      "worker": "witness-2"
+    }
+  },
+  "transported_files": 2956,
+  "workflow_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43532176029",
+  "zip_bytes": 89141135,
+  "zip_sha256": "224f257060f2e29747dab70d8f1cca13c2cf1e83fb249d9589cd8d034d127dd7"
+}

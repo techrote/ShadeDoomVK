@@ -815,31 +815,78 @@ class LivenessIntegrationTests(unittest.TestCase):
         self.assertFalse((self.root/"control/00-compositing/target-resumed.json").exists())
 
     def test_slow_successful_deep_checks_do_not_suspend_control_heartbeat(self):
-        # Keep this control focused on off-thread deep-audit/heartbeat behavior.
-        # The adjacent realistic_closed_topology test retains three stages,
-        # eight roots and 1,359 pins. Combining both stresses also demanded
-        # unrelated durable-I/O/scheduling progress inside every .5s boundary.
+        from .supervisor import resume_receipt
+        # Exercise one slow background audit while the authenticated target is
+        # running. Delaying every launch/resume audit mixed heartbeat liveness
+        # with unrelated proof-publication work inside each .5s native boundary.
+        # The adjacent large-topology and stale-boundary controls stay separate.
         self.stages[:]=self.stages[:1]
         self.assertEqual(len(self.packet["runtime_roots"]),3)
+        capture=Path(self.stages[0]["capture"]["out"])
+        release=capture/"slow-audit-complete.json"
+        # The handshake belongs to the existing mutable capture output, never
+        # to an immutable runtime root or a production supervisor control file.
+        self.assertFalse(any(capture.resolve().is_relative_to(Path(row["path"]).resolve())
+                             for row in self.packet["runtime_roots"]))
+        self.assertFalse(release.exists())
+        intervals=[]
         original=IntegrityWatch.audit
         def slow(instance):
-            time.sleep(2.05)
-            return original(instance)
-        self.fault("none","import time;from pathlib import Path;Path('marker.txt').write_text('CPU benign success');time.sleep(2.2)")
+            if (intervals or instance.audit_request is not None
+                    or not (instance.control/"target-resumed.json").is_file()
+                    or not (capture/"marker.txt").is_file()):
+                return original(instance)
+            registration=read_json(instance.control/"target-request.json")
+            resumed=resume_receipt(instance.control,registration["target"])
+            self.assertIsNotNone(resumed)
+            self.assertEqual(read_json(instance.control/"target-ack.json"),
+                             {"request_sha256":digest(instance.control/"target-request.json"),
+                              "packet_sha256":instance.packet["packet_sha256"]})
+            interval={"started":time.monotonic(),"generation":instance.sequence}
+            intervals.append(interval)
+            # Cancellation must not release a target on a fabricated successful
+            # audit. The supervisor retains its normal containment/deadlines.
+            if instance.done.wait(2.05):raise Stop("Synthetic slow audit cancelled")
+            result=original(instance)
+            if instance.done.is_set():raise Stop("Synthetic slow audit cancelled")
+            interval["finished"]=time.monotonic()
+            exclusive(release,{"synthetic_cpu_only":True,"audit":interval})
+            return result
+        self.fault("none", "import json,time\nfrom pathlib import Path\n"
+                   "Path('marker.txt').write_text('CPU benign success')\n"
+                   "release=Path('slow-audit-complete.json')\n"
+                   "until=time.monotonic()+4\n"
+                   "while not release.is_file():\n"
+                   " if time.monotonic()>=until:raise RuntimeError('CPU audit handshake timed out')\n"
+                   " time.sleep(.01)\n"
+                   "assert json.loads(release.read_text())['synthetic_cpu_only'] is True\n")
         with patch.object(IntegrityWatch,"audit",new=slow),patch(
                 "tools.physical_supervisor.supervisor.publish_heartbeat",wraps=publish_heartbeat) as published:
             result=self.run_engine()
         self.assertEqual(result["status"],"COLLECTED_PENDING_ACCEPTANCE",result)
         self.assertEqual(self.spawn_count(),1)
+        self.assertEqual(len(list((self.root/"control").glob("*/target-request.json"))),1)
         self.assertTrue((self.root/"control/00-compositing/target-resumed.json").exists())
         self.assertEqual(read_json(self.root/"control/00-compositing/target-exit.json")["returncode"],0)
+        self.assertEqual(len(intervals),1)
+        interval=intervals[0]
+        self.assertGreater(interval["finished"]-interval["started"],2)
+        self.assertEqual(read_json(release),{"synthetic_cpu_only":True,"audit":interval})
+        generation=read_json(self.root/"control/00-compositing"/f"integrity-{interval['generation']:06d}.json")
+        self.assertIsNone(generation["request"])
         actual=list((self.root/"control").glob("*/heartbeat-*.json"))
         self.assertGreater(len(actual),3)
         self.assertEqual({Path(call.args[0]).resolve(strict=True) for call in published.call_args_list},
                          {path.resolve(strict=True) for path in actual})
         self.assertEqual(len(published.call_args_list),len(actual))
         rows=self.heartbeats()
+        during=[row for row in rows if interval["started"]<=row["monotonic"]<=interval["finished"]]
+        self.assertGreaterEqual(len(during),2,"The actual control loop must publish throughout the slow audit")
         self.assertLess(max(b["monotonic"]-a["monotonic"] for a,b in zip(rows,rows[1:])),2)
+        self.assertEqual(POLICY["boundary_finish_freshness_seconds"],.5)
+        self.assertEqual(POLICY["heartbeat_freshness_seconds"],2)
+        self.assertEqual(POLICY["timeout_seconds"],10)
+        self.assertEqual(self.stages[0]["deadline_seconds"],5)
 
     def test_realistic_topology_reaches_native_boundary_without_target_creation(self):
         from . import supervisor

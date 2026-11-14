@@ -1,7 +1,9 @@
 """Synthetic losslessness, corruption, incompleteness and traversal controls."""
 import json
+import io
 from pathlib import Path
 import shutil
+import subprocess
 import tarfile
 import tempfile
 import unittest
@@ -10,6 +12,25 @@ import renderer_evidence as evidence
 
 
 class EvidenceTest(unittest.TestCase):
+    source = '1' * 40
+    runtime = '2' * 64
+    plan = '3' * 64
+
+    def test_compressor_memory_and_cpu_budget_cannot_overcommit_small_hosts(self):
+        for memory, cpu in ((7 * 1024**3, 4), (16 * 1024**3, 2), (None, 8)):
+            command = evidence.compression_policy({'effective_memory_bytes': memory, 'effective_processors': cpu})
+            self.assertIn('-T1', command)
+            self.assertIn('--memlimit-compress=1GiB', command)
+            self.assertIn('--no-adjust', command)
+        command = evidence.compression_policy({'effective_memory_bytes': 16 * 1024**3, 'effective_processors': 4})
+        self.assertIn('-T3', command)
+        self.assertIn('--block-size=512MiB', command)
+        self.assertIn('--memlimit-compress=7GiB', command)
+        self.assertIn('--no-adjust', command)
+        # Exercise xz's own option/memory admission without another benchmark.
+        result = subprocess.run(command, input=b'bounded option check', capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -19,30 +40,276 @@ class EvidenceTest(unittest.TestCase):
         self.parts.mkdir()
         self.build.mkdir()
 
-    def populate(self, suite, complete=False):
+    def populate(self, suite, complete=False, status='success'):
         roots = evidence.ROOTS[suite] if complete else evidence.ROOTS[suite][:1]
         for name in roots:
             root = self.build / name / 'deep'
             root.mkdir(parents=True)
             (root / 'capture.bin').write_bytes(b'hello' * 10000)
-        evidence.pack(self.build, suite)
+        if complete:
+            for name, gate_status in evidence.GATES[suite].items():
+                gate = self.build / name
+                gate.parent.mkdir(parents=True, exist_ok=True)
+                gate.write_text(json.dumps({'status': gate_status}))
+        evidence.pack(self.build, suite, expected_commit=self.source,
+                      runtime_sha256=self.runtime, plan_sha256=self.plan, job_status=status)
         for path in self.build.glob(f'renderer-{suite}.*'):
             shutil.copy2(path, self.parts / path.name)
         for name in roots:
             shutil.rmtree(self.build / name)
 
-    def test_roundtrip_both_suites_and_final(self):
-        self.populate('corpus', complete=True)
-        self.populate('publication', complete=True)
+    def merge(self, output, *, complete=True, suites=None, **kwargs):
+        return evidence.merge(self.parts, output, complete=complete, suites=suites,
+                              expected_commit=kwargs.get('source', self.source),
+                              runtime_sha256=kwargs.get('runtime', self.runtime),
+                              plan_sha256=kwargs.get('plan', self.plan))
+
+    def populate_all(self):
+        for suite in evidence.ROOTS:
+            self.populate(suite, complete=True)
+
+    def test_roundtrip_five_suites_and_legacy_consumer(self):
+        self.populate_all()
         merged = self.root / 'merged'
-        evidence.merge(self.parts, merged, complete=True)
-        names = (self.root / 'renderer-evidence-directories.txt').read_text().splitlines()
+        self.merge(merged)
         archive = self.root / 'renderer-software-vulkan.tar.xz'
-        with tarfile.open(archive, 'w:xz') as dst:
-            for name in names:
-                dst.add(merged / name, arcname=name)
-        evidence.verify_final(archive, self.root / 'renderer-evidence-manifest.json')
+        report = evidence.finalize(merged, archive)
+        self.assertGreater(report['files'], 0)
         self.assertTrue(archive.with_suffix('.xz.sha256').is_file())
+        listing = subprocess.check_output(['tar', '-tJf', str(archive)], text=True)
+        self.assertIn('renderer-native/deep/capture.bin', listing)
+        self.assertIn('renderer-sdvk014-controlled/deep/capture.bin', listing)
+        self.assertIn('renderer-sdvk009-worker-publication/worker.json', listing)
+
+    def test_six_module_success_cannot_replace_compositing_capture_receipt(self):
+        target = 'renderer-sdvk009-worker-publication/worker.json'
+        for label, raw in (('missing', None), ('failed', b'{"status":"FAIL"}')):
+            with self.subTest(compositing=label):
+                self.populate('publication', complete=True)
+                archive = self.parts / 'renderer-publication.tar'
+                with tarfile.open(self.build / archive.name, 'r:') as src, tarfile.open(archive, 'w:') as dst:
+                    for member in src:
+                        if member.name != target:
+                            dst.addfile(member, src.extractfile(member) if member.isfile() else None)
+                        elif raw is not None:
+                            member.size = len(raw)
+                            dst.addfile(member, io.BytesIO(raw))
+                manifest_path = self.parts / 'renderer-publication.manifest.json'
+                manifest = evidence.read_json(manifest_path)
+                if raw is None:
+                    del manifest['files'][target]
+                else:
+                    manifest['files'][target] = {'size': len(raw), 'sha256': evidence.sha256(io.BytesIO(raw))}
+                evidence.atomic_json(manifest_path, manifest)
+                (self.parts / 'renderer-publication.tar.sha256').write_text(
+                    evidence.sha256(archive) + '  ' + archive.name + '\n')
+                with self.assertRaisesRegex(ValueError, 'qualification receipt'):
+                    evidence.verify_suite(self.parts, 'publication', complete=True,
+                                          expected_commit=self.source, runtime_sha256=self.runtime,
+                                          plan_sha256=self.plan)
+
+    def test_publication_compositing_relocates_to_legacy_capture_path(self):
+        self.populate_all()
+        merged = self.root / 'merged'
+        self.merge(merged)
+        source = 'renderer-sdvk009-worker-publication/deep/capture.bin'
+        destination = 'renderer-sdvk009-publication/captures/compositing-control/capture.bin'
+        original, target = merged / source, merged / destination
+        target.parent.mkdir(parents=True)
+        record = {'destination': destination, 'sha256': evidence.sha256(original),
+                  'bytes': original.stat().st_size}
+        original.rename(target)
+        evidence.atomic_json(merged / 'renderer-sdvk009-publication/relocation.json', {
+            'schema': 'sdvk009-publication-relocation/v1', 'files': {source: record}})
+        archive = self.root / 'renderer-software-vulkan.tar.xz'
+        evidence.finalize(merged, archive)
+        manifest = evidence.read_json(self.root / 'renderer-evidence-manifest.json')
+        self.assertIn(destination, manifest['files'])
+        self.assertNotIn(source, manifest['files'])
+        self.assertIn(destination, subprocess.check_output(['tar', '-tJf', str(archive)], text=True))
+
+    def test_authenticated_relocation_keeps_every_original_byte(self):
+        self.populate_all()
+        merged = self.root / 'merged'
+        self.merge(merged)
+        source = 'renderer-sdvk009-worker-witness-1/deep/capture.bin'
+        destination = 'renderer-sdvk009-publication/captures/shadow-witness-1/capture.bin'
+        target = merged / destination
+        target.parent.mkdir(parents=True)
+        original = merged / source
+        record = {'destination': destination, 'sha256': evidence.sha256(original),
+                  'bytes': original.stat().st_size}
+        original.rename(target)
+        relocation = merged / 'renderer-sdvk009-publication/relocation.json'
+        evidence.atomic_json(relocation, {'schema': 'sdvk009-publication-relocation/v1',
+                                         'files': {source: record}})
+        evidence.finalize(merged, self.root / 'relocated.tar.xz')
+        manifest = evidence.read_json(self.root / 'renderer-evidence-manifest.json')
+        self.assertIn(destination, manifest['files'])
+        self.assertNotIn(source, manifest['files'])
+
+    def test_lost_or_modified_original_cannot_be_sealed(self):
+        self.populate_all()
+        merged = self.root / 'merged'
+        self.merge(merged)
+        (merged / 'renderer-native/deep/capture.bin').write_bytes(b'changed')
+        with self.assertRaisesRegex(ValueError, 'lost or altered'):
+            evidence.finalize(merged, self.root / 'bad.tar.xz')
+
+    def test_strict_merge_rejects_mismatched_source_runtime_plan(self):
+        self.populate_all()
+        for key, value in (('source', '4' * 40), ('runtime', '5' * 64), ('plan', '6' * 64)):
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, 'Mismatched worker'):
+                self.merge(self.root / key, **{key: value})
+
+    def test_cancelled_worker_retains_partial_evidence_but_cannot_pass(self):
+        self.populate('corpus', complete=True, status='cancelled')
+        self.merge(self.root / 'partial', complete=False)
+        with self.assertRaisesRegex(ValueError, 'Unsuccessful worker'):
+            self.merge(self.root / 'strict')
+        evidence.finalize(self.root / 'partial', self.root / 'failed.tar.xz')
+
+    def test_missing_worker_or_reordered_set_is_rejected(self):
+        self.populate('corpus', complete=True)
+        with self.assertRaisesRegex(ValueError, 'missing suite evidence'):
+            self.merge(self.root / 'missing')
+        with self.assertRaisesRegex(ValueError, 'Unknown or reordered'):
+            self.merge(self.root / 'reordered', suites=tuple(reversed(evidence.ROOTS)))
+
+    def test_probe_requires_exact_three_worker_set(self):
+        for suite in evidence.PROBE_SUITES:
+            self.populate(suite, complete=True)
+        self.merge(self.root / 'probe', suites=evidence.PROBE_SUITES)
+        self.populate('corpus', complete=True)
+        with self.assertRaisesRegex(ValueError, 'Unexpected or duplicated'):
+            self.merge(self.root / 'extra', suites=evidence.PROBE_SUITES)
+
+    def test_cohort_probe_requires_four_workers_and_retains_raw_probe_once(self):
+        for suite in evidence.COHORT_PROBE_SUITES:
+            if suite in evidence.PROBE_SUITES:
+                probe = self.build / ('renderer-sdvk009-probe-' + suite)
+                probe.mkdir()
+                (probe / 'raw-native.bin').write_bytes(('original ' + suite).encode())
+            self.populate(suite, complete=True)
+            if suite in evidence.PROBE_SUITES:
+                shutil.rmtree(probe)
+        merged = self.root / 'cohort'
+        self.merge(merged, suites=evidence.COHORT_PROBE_SUITES)
+        archive = self.root / 'cohort.tar.xz'
+        evidence.finalize(merged, archive)
+        listing = subprocess.check_output(['tar', '-tJf', str(archive)], text=True).splitlines()
+        for suite in evidence.PROBE_SUITES:
+            name = f'renderer-sdvk009-probe-{suite}/raw-native.bin'
+            self.assertEqual(listing.count(name), 1)
+            self.assertEqual((merged / name).read_bytes(), ('original ' + suite).encode())
+        with self.assertRaisesRegex(ValueError, 'Unknown or reordered'):
+            self.merge(self.root / 'reordered-cohort', suites=tuple(reversed(evidence.COHORT_PROBE_SUITES)))
+
+    def test_cohort_probe_cannot_accept_missing_publication_worker(self):
+        for suite in evidence.PROBE_SUITES:
+            self.populate(suite, complete=True)
+        with self.assertRaisesRegex(ValueError, 'missing suite evidence'):
+            self.merge(self.root / 'missing-cohort-publication', suites=evidence.COHORT_PROBE_SUITES)
+
+    def test_failed_cohort_probe_raw_evidence_survives_transport(self):
+        probe = self.build / 'renderer-sdvk009-probe-controls'
+        probe.mkdir()
+        (probe / 'partial-diagnostic.bin').write_bytes(b'partial original native bytes')
+        self.populate('controls', complete=False, status='failure')
+        merged = self.root / 'partial-cohort'
+        self.merge(merged, complete=False, suites=evidence.COHORT_PROBE_SUITES)
+        self.assertEqual((merged / 'renderer-sdvk009-probe-controls/partial-diagnostic.bin').read_bytes(),
+                         b'partial original native bytes')
+        evidence.finalize(merged, self.root / 'partial-cohort.tar.xz')
+        with self.assertRaisesRegex(ValueError, 'Unsuccessful worker'):
+            self.merge(self.root / 'failed-cohort', suites=evidence.COHORT_PROBE_SUITES)
+
+    def test_successful_worker_without_artifact_manifest_rejected(self):
+        self.populate_all()
+        (self.parts / 'renderer-witness-2.manifest.json').unlink()
+        with self.assertRaisesRegex(ValueError, 'Missing suite artifact or manifest'):
+            self.merge(self.root / 'missing')
+
+    def test_success_metadata_cannot_replace_missing_native_qualification(self):
+        self.populate('corpus', complete=True)
+        manifest_path = self.parts / 'renderer-corpus.manifest.json'
+        manifest = evidence.read_json(manifest_path)
+        # Forge an internally hash-consistent export containing roots but no
+        # native result. Gate validation must reject it despite success metadata.
+        del manifest['files']['renderer-native/native-ci.json']
+        evidence.atomic_json(manifest_path, manifest)
+        archive = self.parts / 'renderer-corpus.tar'
+        with tarfile.open(self.build / 'renderer-corpus.tar', 'r:') as src, tarfile.open(archive, 'w:') as dst:
+            for member in src:
+                if member.name != 'renderer-native/native-ci.json':
+                    dst.addfile(member, src.extractfile(member) if member.isfile() else None)
+        (self.parts / 'renderer-corpus.tar.sha256').write_text(evidence.sha256(archive) + '  ' + archive.name + '\n')
+        with self.assertRaisesRegex(ValueError, 'missing qualification receipt'):
+            self.merge(self.root / 'no-native-result')
+
+    def test_artifact_namespaces_prevent_duplicate_leaf_overwrite(self):
+        self.populate_all()
+        for suite in evidence.ROOTS:
+            folder = self.parts / ('renderer-software-vulkan-' + suite)
+            folder.mkdir()
+            for path in list(self.parts.glob('renderer-' + suite + '.*')):
+                path.rename(folder / path.name)
+        self.merge(self.root / 'nested')
+        duplicate = self.parts / 'renderer-software-vulkan-witness-1-copy'
+        duplicate.mkdir()
+        shutil.copy2(self.parts / 'renderer-software-vulkan-witness-1/renderer-witness-1.tar', duplicate)
+        with self.assertRaisesRegex(ValueError, 'Unexpected or duplicated'):
+            self.merge(self.root / 'duplicate')
+
+    def test_cross_wired_nested_artifact_rejected_before_extraction(self):
+        self.populate('corpus', complete=True)
+        folder = self.parts / 'renderer-software-vulkan-publication'
+        folder.mkdir()
+        for path in list(self.parts.glob('renderer-corpus.*')):
+            path.rename(folder / path.name)
+        with self.assertRaisesRegex(ValueError, 'Cross-wired artifact namespace'):
+            self.merge(self.root / 'cross-wired', complete=False)
+
+    def test_cross_wired_manifest_and_duplicate_json_rejected(self):
+        self.populate('corpus')
+        path = self.parts / 'renderer-corpus.manifest.json'
+        data = evidence.read_json(path)
+        data['identity']['worker'] = 'publication'
+        evidence.atomic_json(path, data)
+        with self.assertRaisesRegex(ValueError, 'Cross-wired'):
+            evidence.verify_suite(self.parts, 'corpus')
+        path.write_text('{"schema":"first","schema":"second"}')
+        with self.assertRaisesRegex(ValueError, 'Duplicate JSON'):
+            evidence.verify_suite(self.parts, 'corpus')
+
+    def test_rehashed_ambiguous_native_status_is_rejected(self):
+        self.populate('corpus', complete=True)
+        target = 'renderer-native/native-ci.json'
+        raw = b'{"status":"FAIL","status":"PASS"}'
+        archive = self.parts / 'renderer-corpus.tar'
+        with tarfile.open(self.build / archive.name, 'r:') as src, tarfile.open(archive, 'w:') as dst:
+            for member in src:
+                if member.name == target:
+                    member.size = len(raw)
+                    dst.addfile(member, io.BytesIO(raw))
+                else:
+                    dst.addfile(member, src.extractfile(member) if member.isfile() else None)
+        path = self.parts / 'renderer-corpus.manifest.json'
+        data = evidence.read_json(path)
+        data['files'][target] = {'size': len(raw), 'sha256': evidence.sha256(io.BytesIO(raw))}
+        evidence.atomic_json(path, data)
+        (self.parts / 'renderer-corpus.tar.sha256').write_text(evidence.sha256(archive) + '  ' + archive.name + '\n')
+        with self.assertRaisesRegex(ValueError, 'Duplicate JSON member'):
+            self.merge(self.root / 'ambiguous')
+
+    def test_rehashed_trailing_tar_payload_is_rejected(self):
+        self.populate('corpus')
+        archive = self.parts / 'renderer-corpus.tar'
+        with archive.open('ab') as stream:
+            stream.write(b'undeclared trailing evidence')
+        (self.parts / 'renderer-corpus.tar.sha256').write_text(evidence.sha256(archive) + '  ' + archive.name + '\n')
+        with self.assertRaisesRegex(ValueError, 'Nonzero bytes after suite tar'):
+            evidence.verify_suite(self.parts, 'corpus')
 
     def test_rejects_corrupt_transport_or_manifest(self):
         self.populate('corpus')
@@ -61,9 +328,20 @@ class EvidenceTest(unittest.TestCase):
 
     def test_partial_retention_and_complete_fail_closed(self):
         self.populate('corpus')
-        evidence.merge(self.parts, self.root / 'partial', complete=False)
-        with self.assertRaisesRegex(ValueError, 'missing a required evidence root'):
-            evidence.merge(self.parts, self.root / 'strict', complete=True)
+        self.merge(self.root / 'partial', complete=False)
+        with self.assertRaisesRegex(ValueError, 'missing qualification receipt|missing a required evidence root'):
+            self.merge(self.root / 'strict', complete=True)
+
+    def test_final_xz_corruption_is_rejected_with_all_hash_checks_intact(self):
+        self.populate_all()
+        merged = self.root / 'merged'
+        self.merge(merged)
+        archive = self.root / 'complete.tar.xz'
+        evidence.finalize(merged, archive)
+        raw = archive.read_bytes()
+        archive.write_bytes(raw[:-8])
+        with self.assertRaisesRegex(ValueError, 'XZ integrity'):
+            evidence.verify_final(archive, self.root / 'renderer-evidence-manifest.json')
 
     def test_rejects_path_escape_or_symlink(self):
         self.populate('corpus')

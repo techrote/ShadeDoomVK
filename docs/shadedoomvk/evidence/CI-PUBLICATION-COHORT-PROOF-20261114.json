@@ -1,0 +1,1993 @@
+{
+  "schema": "sdvk-publication-weighted-cohort-proof-evidence/v1",
+  "created_utc": "2026-11-14T02:57:55.900422+00:00",
+  "status": "HOSTED_COHORT_PROBE_PASS_NOT_FULL_QUALIFICATION",
+  "qualification_awarded": false,
+  "run": {
+    "id": 43546946436,
+    "number": 626,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436",
+    "head": "91cfec0fac878e0e166450252f97a96a01d12004",
+    "tree": "2ee294af848ed1d6174b9ff31ded825988f9e5c3",
+    "conclusion": "failure",
+    "started_at": "2026-11-14T02:33:13Z",
+    "last_job_completed_at": "2026-11-14T02:56:15Z"
+  },
+  "source_export": {
+    "status": "PASS",
+    "run_id": 43546946367,
+    "workflow_number": 333,
+    "artifact_id": 14094243292,
+    "zip_bytes": 151525523,
+    "zip_sha256": "79fff9cf03aee5e637aaaeecf7c7f016c591fb08d263c2c6a8be949ff9cadc3b",
+    "checksums": {
+      "source.bundle": "c6eceee54fb8893e561b16e47ce1032257d84274d497aeacd2451e87d55cf8e3",
+      "COMMIT.txt": "dda54875c4929f911eb57eca88190549a94101d57c0d29b7c46a7a4942a57d2a",
+      "TREE.txt": "99ff818a4ebb2c7144ed1fe0609db0336b2c3bd4c3eb05f9c44298e63de2fc89"
+    },
+    "bundle_bytes": 151524737,
+    "bundle_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+    "bundle_tree": "2ee294af848ed1d6174b9ff31ded825988f9e5c3",
+    "bundle_parents": [
+      "181c4c14390ff7802ebfac384c1371c9e449a748",
+      "0ecba708e283e33c381fae329ace7a2cedc6a3f3"
+    ],
+    "source_files": {
+      ".github/workflows/continuous_integration.yml": {
+        "bytes": 34005,
+        "sha256": "8a24b3d80238c49fd91711dc40112a850f28e79390dd92ffd750d45c63f9833e"
+      },
+      "tools/renderer_oracle/run.py": {
+        "bytes": 82114,
+        "sha256": "76117c3a45dbc08a488af9ac30eaeb69906d737513b396e183e904a81740962f"
+      },
+      "tools/renderer_oracle/sdvk009_publication.py": {
+        "bytes": 71684,
+        "sha256": "11f1805dbcf009f6254adf5c6a4086143c0b26c697629d14fd595ac5d22986a4"
+      },
+      "tools/renderer_oracle/sdvk009_distributed.py": {
+        "bytes": 54272,
+        "sha256": "e0bcc3642815fc44307e5289dd998c4f94be6208936dad8864cf206bfed89146"
+      },
+      "tools/ci/renderer_cohort_artifacts.py": {
+        "bytes": 20241,
+        "sha256": "3f0e69afb4ededfb28333b8081348125d35f483e06eb67b02ede53b0fd4b654b"
+      },
+      "tools/ci/renderer_evidence.py": {
+        "bytes": 26956,
+        "sha256": "9ed99d9e5c1d73ab915e96c333de2cf32db2e1c3787bee94969fdf72d6154048"
+      },
+      "tools/renderer_oracle/sdvk161_special_surfaces.py": {
+        "bytes": 95259,
+        "sha256": "06174f732bdb842ab3976c15f5b5107028f1e3f0d1b21bb140d058c055f2a7ad"
+      },
+      "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py": {
+        "bytes": 86387,
+        "sha256": "72a12ceb35510c5150757c8989df2a8e9493cdc4529e71df54647d8f43bcca2d"
+      }
+    },
+    "local_frozen_source_files_match": true
+  },
+  "accepted_master_integration": {
+    "status": "PASS",
+    "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+    "accepted_master": "0ecba708e283e33c381fae329ace7a2cedc6a3f3",
+    "foundation_commit": "da017d82d74d4681164c0aac8b031bdeea0543a7",
+    "both_ancestors": true,
+    "files": {
+      "tools/renderer_oracle/sdvk161_special_surfaces.py": {
+        "bytes": 95259,
+        "sha256": "06174f732bdb842ab3976c15f5b5107028f1e3f0d1b21bb140d058c055f2a7ad",
+        "identical_to_accepted_master": true
+      },
+      "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py": {
+        "bytes": 86387,
+        "sha256": "72a12ceb35510c5150757c8989df2a8e9493cdc4529e71df54647d8f43bcca2d",
+        "identical_to_accepted_master": true
+      }
+    },
+    "changed_paths_from_foundation": [
+      ".github/workflows/continuous_integration.yml",
+      ".github/workflows/renderer_source_evidence.yml",
+      "docs/shadedoomvk/CI-PUBLICATION-PARALLELISATION.md",
+      "docs/shadedoomvk/SDVK-009-BOUND-PUBLICATION-WITNESS.md",
+      "docs/shadedoomvk/evidence/CI-PUBLICATION-COHORT-INVESTIGATION-20261114.json",
+      "docs/shadedoomvk/evidence/CI-PUBLICATION-COHORT-REPAIR-20261114.json",
+      "docs/shadedoomvk/evidence/CI-PUBLICATION-COMPRESSION-20261113.json",
+      "docs/shadedoomvk/evidence/CI-PUBLICATION-FAILURE-20261114.json",
+      "docs/shadedoomvk/evidence/CI-PUBLICATION-PREFLIGHT-20261114.json",
+      "docs/shadedoomvk/evidence/CI-WINDOWS-CPU-FIXTURE-20261114.json",
+      "docs/shadedoomvk/rag/11-RENDERER-OBSERVABILITY.md",
+      "tools/ci/renderer_ci_timings.py",
+      "tools/ci/renderer_cohort_artifacts.py",
+      "tools/ci/renderer_evidence.py",
+      "tools/ci/test_renderer_ci_timings.py",
+      "tools/ci/test_renderer_cohort_artifacts.py",
+      "tools/ci/test_renderer_evidence.py",
+      "tools/physical_supervisor/test_integrity.py",
+      "tools/renderer_oracle/sdvk009_distributed.py",
+      "tools/renderer_oracle/sdvk161_special_surfaces.py",
+      "tools/renderer_oracle/tests/test_ci_runner_policy.py",
+      "tools/renderer_oracle/tests/test_sdvk009_distributed.py",
+      "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py"
+    ],
+    "scope": "Independent source-bundle ancestry and byte comparison; accepted upstream check integration, no new renderer or tolerance edits; no native qualification inferred",
+    "original_qualification_implementations": {
+      "tools/renderer_oracle/sdvk009_publication.py": {
+        "bytes": 71684,
+        "sha256": "11f1805dbcf009f6254adf5c6a4086143c0b26c697629d14fd595ac5d22986a4",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/native_ci.py": {
+        "bytes": 16704,
+        "sha256": "88ddb6480a897c5252d1a8193eebefd058b2cf704625fca4d2f058b747d70bd2",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/run.py": {
+        "bytes": 82114,
+        "sha256": "76117c3a45dbc08a488af9ac30eaeb69906d737513b396e183e904a81740962f",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/sdvk010_acceptance.py": {
+        "bytes": 7563,
+        "sha256": "ea96c5d371e024e32ad843738148b8d96c8fb98942bc01907d8ddc4a874f5bab",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/sdvk150_probe_owner.py": {
+        "bytes": 10708,
+        "sha256": "fa887ba967b923eca951a187e04be0c2bc3061c307778e4a103d93ea2caaf6bc",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/sdvk153_probe_reset.py": {
+        "bytes": 10791,
+        "sha256": "dea3ec016ee91fb202647334880ea54db46255d344b591b1ba97926476cb444e",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/sdvk158_lightmap_transition.py": {
+        "bytes": 12895,
+        "sha256": "2b0d006bd6edb0e0d3b21dbe63918e19aa7e393ccf3ab72c0e44026fb3e758c5",
+        "identical_to_pr196": true
+      },
+      "tools/renderer_oracle/sdvk014_controlled_planes.py": {
+        "bytes": 24035,
+        "sha256": "f6b051d7e10d592c4f28cdf7c0cd76c61c379c298b21b17e909da17052e537f3",
+        "identical_to_pr196": true
+      }
+    }
+  },
+  "authenticated_inputs": {
+    "artifact": {
+      "id": 14094855685,
+      "name": "software-vulkan-publication-inputs",
+      "size_in_bytes": 35127362,
+      "digest": "sha256:31b0d5529215c2f8b3018318457911e99abc95824cf37f83517560fa03ec7d99"
+    },
+    "plan": {
+      "bytes": 8062,
+      "sha256": "a0b1bb32243fedf4ef5148e611f48901e42cd3936d273c5573b10585598529f9"
+    },
+    "runtime": {
+      "archive": {
+        "bytes": 258752340,
+        "sha256": "fdd33537601a3c4f4438fd9e597abff80f9e2002f8e8055202fff35394c3cf18"
+      },
+      "engine_packages": {
+        "brightmaps.pk3": {
+          "bytes": 246072,
+          "sha256": "c9e5ed65af48516f8e24e0e9711c3ce5ad07ab0d436d217e050f725468e857c4"
+        },
+        "game_support.pk3": {
+          "bytes": 2378144,
+          "sha256": "3615fd032594ae20fad6bf004283d683ce2e02703da7a2c1ccf3607d29bc0bd2"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565898,
+          "sha256": "ea71a1333056c85243aee1865786314f803f2b9a58415a8d9b5d82bbbf8914eb"
+        },
+        "lights.pk3": {
+          "bytes": 23760,
+          "sha256": "a484fa7a1a3c0a2cbc69bef5c247df100525e6bbc79f72a11fa9032f5cc539a8"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4231108,
+          "sha256": "00442c9975d3851835b4cd60580d11ebe195bc03838853075e4fdf0bdac64f78"
+        }
+      },
+      "executable": {
+        "bytes": 272971024,
+        "sha256": "51eadff765b342e4c957296482d1a29bf7fc843193ffa58b137117f900d9c1ea"
+      }
+    },
+    "matching_content": {
+      "historical_manifest": {
+        "bytes": 47176,
+        "sha256": "2e27dd0554bf9c5df900239cd6e31224b18c28c3e02b43b9533c772ecee0f08e"
+      },
+      "inputs": {
+        "compositing/capture.cfg": {
+          "bytes": 1046,
+          "path": "scenes/compositing/capture.cfg",
+          "sha256": "f6a1a4c7a59e22a307e59964afa5a165baa746f66926b19e46f297407f23055b"
+        },
+        "compositing/fixture.ini": {
+          "bytes": 591,
+          "path": "scenes/compositing/fixture.ini",
+          "sha256": "10a5d850346172951ffe799068e0e3abdbf4b58ccec8071bb7fd50c86cfed5ac"
+        },
+        "compositing/scene.pk3": {
+          "bytes": 74904,
+          "path": "scenes/compositing/scene.pk3",
+          "sha256": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95"
+        },
+        "shadow-boundary/capture.cfg": {
+          "bytes": 1306,
+          "path": "scenes/shadow-boundary/capture.cfg",
+          "sha256": "51da6967380238796b862dc5032fd5cd359070bde1d317c6a601ae41a29b30d6"
+        },
+        "shadow-boundary/fixture.ini": {
+          "bytes": 725,
+          "path": "scenes/shadow-boundary/fixture.ini",
+          "sha256": "aa711a2493aba461401a71ac527f50221e58287203a83e7d90f05782ebe42e5c"
+        },
+        "shadow-boundary/scene.pk3": {
+          "bytes": 370067,
+          "path": "scenes/shadow-boundary/scene.pk3",
+          "sha256": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116"
+        }
+      },
+      "iwad": {
+        "bytes": 28787748,
+        "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+      }
+    },
+    "iwad_license": {
+      "bytes": 1644,
+      "sha256": "7c62f2c520769c798774f416637eec4921e5f0aafdac1245ae7c8a8cf65fe102"
+    }
+  },
+  "capture_contract": {
+    "all_seven_authorizations_preregistered": true,
+    "actual_cold_shadow_probes": 3,
+    "actual_post_probe_shadow_proofs": 3,
+    "actual_compositing_control": 1,
+    "shadow_warmup": 5,
+    "compositing_warmup": 120,
+    "frames": 1,
+    "timeout_seconds": 180,
+    "extent": [
+      640,
+      480
+    ],
+    "image_policy": {
+      "metric": "exact-rgb8"
+    },
+    "publication_witness_diagnostics": false,
+    "ordinary_state_observation": true,
+    "automatic_retries": 0,
+    "application_cache": "fresh independent process working directories and empty application caches",
+    "driver_cache": "external driver-global cache uncontrolled"
+  },
+  "captures": [
+    {
+      "name": "cohort-probe-controls",
+      "worker": "controls",
+      "phase": "probe",
+      "authorization_id": "d02a741b958845d0b84420a407e60be3",
+      "request": {
+        "bytes": 7145,
+        "sha256": "a57c72b2aacc7c64687e15824e8d25bc3cc52af9f65828d8e64f6af580bc23cb"
+      },
+      "run": {
+        "bytes": 9409,
+        "sha256": "bc6b9e1e55e7668f6770ed5c7d239e503df0df0f0cf9c3c8ae3dad9b67dc31f9"
+      },
+      "raw_state": {
+        "bytes": 4708467,
+        "sha256": "a47335d2f54a4b801e1d4a4b3143775bdb4a59d435d12863653921fb566cb638"
+      },
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "fe3c5c6ba7aa018b0c3de669650e808dc5107846f55947286803810feda70e27"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "550cfcb4-ec3f-4a2a-9115-f146b7af4440",
+      "native_subprocess_seconds": 56.52860466499999,
+      "capture_started_utc": "2026-11-14T02:41:42.165982+00:00",
+      "capture_finished_utc": "2026-11-14T02:42:39.308623+00:00",
+      "attempt_started_utc": "2026-11-14T02:41:41.938659+00:00",
+      "attempt_finished_utc": "2026-11-14T02:42:39.336221+00:00",
+      "attempt_seconds": 57.397562,
+      "state_sha256": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 17,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      }
+    },
+    {
+      "name": "cohort-probe-witness-1",
+      "worker": "witness-1",
+      "phase": "probe",
+      "authorization_id": "4e898358c35049dfbb15596173acedac",
+      "request": {
+        "bytes": 7178,
+        "sha256": "80a28f1ac91558ef09491152c8f12294ac7ef7a23c77821f6f79c80589d7e85e"
+      },
+      "run": {
+        "bytes": 9411,
+        "sha256": "da4e1ad8fe932e061af77183a19a4eef55910d7e49c83d091113e59459f0f3ba"
+      },
+      "raw_state": {
+        "bytes": 4614826,
+        "sha256": "7c6f84ba6804b223c762899a7648477d4e7da531fb882be27b09eb747272e5ea"
+      },
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "fe3c5c6ba7aa018b0c3de669650e808dc5107846f55947286803810feda70e27"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "008e8be8-474a-48a4-b2d7-632e469d75d8",
+      "native_subprocess_seconds": 135.285517143,
+      "capture_started_utc": "2026-11-14T02:41:45.408739+00:00",
+      "capture_finished_utc": "2026-11-14T02:44:01.430753+00:00",
+      "attempt_started_utc": "2026-11-14T02:41:45.012422+00:00",
+      "attempt_finished_utc": "2026-11-14T02:44:01.465089+00:00",
+      "attempt_seconds": 136.452667,
+      "state_sha256": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 17,
+      "light_wall_rendered": 672,
+      "light_uploads": {
+        "normal_records": 3279,
+        "records_used": 3279,
+        "uploaded_bytes": 262464
+      }
+    },
+    {
+      "name": "cohort-probe-witness-2",
+      "worker": "witness-2",
+      "phase": "probe",
+      "authorization_id": "cebc1701fa7e4bc69adcbaa1319ad0d0",
+      "request": {
+        "bytes": 7169,
+        "sha256": "a9d9a957ddef1bac7a47379b3628ef0eadef3c3b29fbcb7cf880aab0c188e778"
+      },
+      "run": {
+        "bytes": 9416,
+        "sha256": "133f20834f5d06cee3f34e678eb0aeafeb71d76f34ab5d0455a7d59d3ffe0367"
+      },
+      "raw_state": {
+        "bytes": 4614826,
+        "sha256": "5e79748eacd211b46d90209aea3e2fc4200f714c3b51775294430a134d81c044"
+      },
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "fe3c5c6ba7aa018b0c3de669650e808dc5107846f55947286803810feda70e27"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "3d2b3b84-e6be-4a20-8b3e-9fd25e546fff",
+      "native_subprocess_seconds": 56.902307423999986,
+      "capture_started_utc": "2026-11-14T02:41:41.653620+00:00",
+      "capture_finished_utc": "2026-11-14T02:42:39.159467+00:00",
+      "attempt_started_utc": "2026-11-14T02:41:41.420578+00:00",
+      "attempt_finished_utc": "2026-11-14T02:42:39.186081+00:00",
+      "attempt_seconds": 57.765503,
+      "state_sha256": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 17,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      }
+    },
+    {
+      "name": "cohort-proof-compositing-control",
+      "worker": "publication",
+      "phase": "worker",
+      "authorization_id": "0bfcf6ee71b94db8819f8d1306db659f",
+      "request": {
+        "bytes": 7138,
+        "sha256": "df35c784c21da2f939beb66504714936c4b41f436006021f2d2078d8f379b17d"
+      },
+      "run": {
+        "bytes": 9040,
+        "sha256": "42107f28fbe51290e8b0d1d0ad4f84a90ff7e2e646f13c15d95e24cc360d0807"
+      },
+      "raw_state": {
+        "bytes": 189514,
+        "sha256": "a539da1c57dd5bf7483ac8d236548c6eb4a34c8d86df960ee24e7c856e6fb798"
+      },
+      "raw_png": {
+        "bytes": 57958,
+        "sha256": "4f1d8adb11ecf1080d960357ba58de6911c3af1cc3a8fe4ef8cdc9064ead07f0"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "45743989-f731-44e5-adf6-62e8d6ea3fdf",
+      "native_subprocess_seconds": 21.971547749000024,
+      "capture_started_utc": "2026-11-14T02:52:49.716007+00:00",
+      "capture_finished_utc": "2026-11-14T02:53:12.198134+00:00",
+      "attempt_started_utc": "2026-11-14T02:52:49.312941+00:00",
+      "attempt_finished_utc": "2026-11-14T02:53:12.224334+00:00",
+      "attempt_seconds": 22.911393,
+      "state_sha256": "11ad288aa76bddbfae92cedc50a64a101e814f19ef355eeba0a544136db5ecf5",
+      "sdvfl_generations": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 130,
+      "light_wall_rendered": 0,
+      "light_uploads": {
+        "normal_records": 0,
+        "records_used": 0,
+        "uploaded_bytes": 0
+      }
+    },
+    {
+      "name": "cohort-proof-shadow-control",
+      "worker": "controls",
+      "phase": "worker",
+      "authorization_id": "d6e9d407fa0e4215a0bd728500519866",
+      "request": {
+        "bytes": 7229,
+        "sha256": "d410b979170ee1548382706d24ca580ad30f9e19baf467aed7e883014a1c714b"
+      },
+      "run": {
+        "bytes": 9425,
+        "sha256": "d47b75d0a3d001ea1626854a936fdd60e97bb285d1c31dcd7cc3d6c6e81dceb1"
+      },
+      "raw_state": {
+        "bytes": 4614836,
+        "sha256": "c098a9dc58a08478e259dcb0cca4fb3715565dd951966d8c5893e620d587ba47"
+      },
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "fe3c5c6ba7aa018b0c3de669650e808dc5107846f55947286803810feda70e27"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "550cfcb4-ec3f-4a2a-9115-f146b7af4440",
+      "native_subprocess_seconds": 53.183679869,
+      "capture_started_utc": "2026-11-14T02:44:26.738576+00:00",
+      "capture_finished_utc": "2026-11-14T02:45:20.516156+00:00",
+      "attempt_started_utc": "2026-11-14T02:44:26.504770+00:00",
+      "attempt_finished_utc": "2026-11-14T02:45:20.542879+00:00",
+      "attempt_seconds": 54.038109,
+      "state_sha256": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+      "sdvfl_generations": [
+        4,
+        4
+      ],
+      "texture_epoch": 4,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 17,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      }
+    },
+    {
+      "name": "cohort-proof-shadow-witness-1",
+      "worker": "witness-2",
+      "phase": "worker",
+      "authorization_id": "2dfdb727b7ab443687bbe4946aa23a6e",
+      "request": {
+        "bytes": 7265,
+        "sha256": "817b20817e2e19fac87b5ec47b4261ee85e154947500f1129c3c407047879164"
+      },
+      "run": {
+        "bytes": 9439,
+        "sha256": "80e59225efef39fd7a1a5490ad1ce84438dc7e6be5cc4bc27d96840b3a2f98da"
+      },
+      "raw_state": {
+        "bytes": 4614842,
+        "sha256": "47bef867d760c56c9eaeb5789181d63e71caed1bbc42270ebedc1bfafe81b059"
+      },
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "fe3c5c6ba7aa018b0c3de669650e808dc5107846f55947286803810feda70e27"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "3d2b3b84-e6be-4a20-8b3e-9fd25e546fff",
+      "native_subprocess_seconds": 53.53067596599999,
+      "capture_started_utc": "2026-11-14T02:44:31.855168+00:00",
+      "capture_finished_utc": "2026-11-14T02:45:25.984066+00:00",
+      "attempt_started_utc": "2026-11-14T02:44:31.617622+00:00",
+      "attempt_finished_utc": "2026-11-14T02:45:26.012363+00:00",
+      "attempt_seconds": 54.394741,
+      "state_sha256": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+      "sdvfl_generations": [
+        4,
+        4
+      ],
+      "texture_epoch": 4,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 17,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      }
+    },
+    {
+      "name": "cohort-proof-shadow-witness-2",
+      "worker": "controls",
+      "phase": "worker",
+      "authorization_id": "d873e88f32c94f3db24f1b1da2da9264",
+      "request": {
+        "bytes": 7253,
+        "sha256": "3b11a3c5243277b70f666c53709a24320261073440f19c295dfcda4764939673"
+      },
+      "run": {
+        "bytes": 9436,
+        "sha256": "264c19f8dc23bd09df719e835d4ffee230d09ba5f98b1ae8bf704f3ecd82b71f"
+      },
+      "raw_state": {
+        "bytes": 4708485,
+        "sha256": "1d0e55817b7f68872fd34eb9f381c94b92f42f5aab64ca831d88ac92bc4d8e52"
+      },
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "fe3c5c6ba7aa018b0c3de669650e808dc5107846f55947286803810feda70e27"
+      },
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "boot_id": "550cfcb4-ec3f-4a2a-9115-f146b7af4440",
+      "native_subprocess_seconds": 53.26651996299995,
+      "capture_started_utc": "2026-11-14T02:45:20.933753+00:00",
+      "capture_finished_utc": "2026-11-14T02:46:14.786708+00:00",
+      "attempt_started_utc": "2026-11-14T02:45:20.703070+00:00",
+      "attempt_finished_utc": "2026-11-14T02:46:14.813799+00:00",
+      "attempt_seconds": 54.110729,
+      "state_sha256": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+      "sdvfl_generations": [
+        4,
+        4
+      ],
+      "texture_epoch": 4,
+      "lightmap_epoch": 4,
+      "levelmesh_lights": 17,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      }
+    }
+  ],
+  "cold_exact_comparisons": {
+    "controls-vs-witness-1": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4146/data/light_wall_rendered",
+          "left": 731,
+          "right": 672
+        },
+        {
+          "path": "/4147/data/light_uploads/normal_records",
+          "left": 3338,
+          "right": 3279
+        },
+        {
+          "path": "/4147/data/light_uploads/records_used",
+          "left": 3338,
+          "right": 3279
+        },
+        {
+          "path": "/4147/data/light_uploads/uploaded_bytes",
+          "left": 267184,
+          "right": 262464
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "controls-vs-witness-2": {
+      "status": "PASS",
+      "explicit_build_change": false,
+      "state_equal": true,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935"
+      },
+      "first_state_differences": [],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "witness-1-vs-witness-2": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+        "right": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4146/data/light_wall_rendered",
+          "left": 672,
+          "right": 731
+        },
+        {
+          "path": "/4147/data/light_uploads/normal_records",
+          "left": 3279,
+          "right": 3338
+        },
+        {
+          "path": "/4147/data/light_uploads/records_used",
+          "left": 3279,
+          "right": 3338
+        },
+        {
+          "path": "/4147/data/light_uploads/uploaded_bytes",
+          "left": 262464,
+          "right": 267184
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    }
+  },
+  "placement": {
+    "policy": {
+      "probe_workers": [
+        "controls",
+        "witness-1",
+        "witness-2"
+      ],
+      "barrier": "all-three-authenticated-probes",
+      "comparison": "original-exact-state-and-rgb",
+      "selection": "compatible-subsets-within-relative-minimum-score",
+      "weight": "ceil-milliseconds-of-authenticated-native-probe-elapsed-seconds",
+      "score": "maximum-assigned-shadow-count-times-probe-weight",
+      "near_minimum": {
+        "numerator": 110,
+        "denominator": 100
+      },
+      "tie_break": "largest-cohort-then-lowest-score-then-lexicographic-worker-ids",
+      "assignment": "round-robin-original-shadow-order",
+      "assignment_order": "two-host-fastest-first-otherwise-lexicographic-worker-ids",
+      "weight_scope": "uncertain-relative-placement-estimate; no performance acceptance",
+      "automatic_retries": 0,
+      "reassignment": false
+    },
+    "weights": [
+      {
+        "worker": "controls",
+        "native_elapsed_seconds": 56.52860466499999,
+        "ceil_milliseconds": 56529
+      },
+      {
+        "worker": "witness-1",
+        "native_elapsed_seconds": 135.285517143,
+        "ceil_milliseconds": 135286
+      },
+      {
+        "worker": "witness-2",
+        "native_elapsed_seconds": 56.902307423999986,
+        "ceil_milliseconds": 56903
+      }
+    ],
+    "candidates": [
+      {
+        "cohort": [
+          "controls"
+        ],
+        "compatible": true,
+        "assignment_order": [
+          "controls"
+        ],
+        "role_counts": {
+          "controls": 3
+        },
+        "score_milliseconds": 169587,
+        "within_near_minimum": false
+      },
+      {
+        "cohort": [
+          "witness-1"
+        ],
+        "compatible": true,
+        "assignment_order": [
+          "witness-1"
+        ],
+        "role_counts": {
+          "witness-1": 3
+        },
+        "score_milliseconds": 405858,
+        "within_near_minimum": false
+      },
+      {
+        "cohort": [
+          "witness-2"
+        ],
+        "compatible": true,
+        "assignment_order": [
+          "witness-2"
+        ],
+        "role_counts": {
+          "witness-2": 3
+        },
+        "score_milliseconds": 170709,
+        "within_near_minimum": false
+      },
+      {
+        "cohort": [
+          "controls",
+          "witness-1"
+        ],
+        "compatible": false,
+        "assignment_order": [
+          "controls",
+          "witness-1"
+        ],
+        "role_counts": {
+          "controls": 2,
+          "witness-1": 1
+        },
+        "score_milliseconds": 135286,
+        "within_near_minimum": false
+      },
+      {
+        "cohort": [
+          "controls",
+          "witness-2"
+        ],
+        "compatible": true,
+        "assignment_order": [
+          "controls",
+          "witness-2"
+        ],
+        "role_counts": {
+          "controls": 2,
+          "witness-2": 1
+        },
+        "score_milliseconds": 113058,
+        "within_near_minimum": true
+      },
+      {
+        "cohort": [
+          "witness-1",
+          "witness-2"
+        ],
+        "compatible": false,
+        "assignment_order": [
+          "witness-2",
+          "witness-1"
+        ],
+        "role_counts": {
+          "witness-1": 1,
+          "witness-2": 2
+        },
+        "score_milliseconds": 135286,
+        "within_near_minimum": false
+      },
+      {
+        "cohort": [
+          "controls",
+          "witness-1",
+          "witness-2"
+        ],
+        "compatible": false,
+        "assignment_order": [
+          "controls",
+          "witness-1",
+          "witness-2"
+        ],
+        "role_counts": {
+          "controls": 1,
+          "witness-1": 1,
+          "witness-2": 1
+        },
+        "score_milliseconds": 135286,
+        "within_near_minimum": false
+      }
+    ],
+    "minimum_score_milliseconds": 113058,
+    "selected_score_milliseconds": 113058
+  },
+  "allocation": {
+    "sha256": "d9f9aa101e516a2642f6906a195cfc160057e7718595864ac52f78b268f023bf",
+    "cohort": [
+      "controls",
+      "witness-2"
+    ],
+    "assignment_order": [
+      "controls",
+      "witness-2"
+    ],
+    "assignment": {
+      "cohort-proof-compositing-control": "publication",
+      "cohort-proof-shadow-control": "controls",
+      "cohort-proof-shadow-witness-1": "witness-2",
+      "cohort-proof-shadow-witness-2": "controls"
+    },
+    "all_three_probes_required_and_valid": true,
+    "three_distinct_probe_boot_ids": true,
+    "selected_proof_workers_bound_to_their_probe_boot": true,
+    "independent_seven_subset_recomputation": "PASS"
+  },
+  "post_probe_exact_comparisons": {
+    "control-witness-1": {
+      "status": "PASS",
+      "explicit_build_change": false,
+      "state_equal": true,
+      "state_sha256": {
+        "left": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "control-witness-2": {
+      "status": "PASS",
+      "explicit_build_change": false,
+      "state_equal": true,
+      "state_sha256": {
+        "left": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "witness-repeat": {
+      "status": "PASS",
+      "explicit_build_change": false,
+      "state_equal": true,
+      "state_sha256": {
+        "left": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    }
+  },
+  "same_host_startup_history": {
+    "cohort-proof-shadow-control": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4121/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4125/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4147/data/texture_epoch",
+          "left": 3,
+          "right": 4
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "cohort-proof-shadow-witness-1": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4121/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4125/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4147/data/texture_epoch",
+          "left": 3,
+          "right": 4
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "cohort-proof-shadow-witness-2": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4121/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4125/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4147/data/texture_epoch",
+          "left": 3,
+          "right": 4
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    }
+  },
+  "same_worker_successive_proofs": {
+    "cohort-proof-shadow-control-then-cohort-proof-shadow-witness-2": {
+      "status": "PASS",
+      "explicit_build_change": false,
+      "state_equal": true,
+      "state_sha256": {
+        "left": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    }
+  },
+  "execution_context": "Frozen workflow launches cold probe and proof worker in separate xvfb-run steps; successive proofs on one selected worker share its latter Xserver. DISPLAY names alone are not server identities.",
+  "workers": {
+    "publication": {
+      "status": "PASS",
+      "worker_execution_id": "291e689f426547589985393958fb31db",
+      "host_identity": {
+        "boot_id": "45743989-f731-44e5-adf6-62e8d6ea3fdf"
+      },
+      "started_utc": "2026-11-14T02:52:41.669173+00:00",
+      "finished_utc": "2026-11-14T02:53:12.268660+00:00",
+      "allocation_sha256": "d9f9aa101e516a2642f6906a195cfc160057e7718595864ac52f78b268f023bf",
+      "automatic_retries": 0,
+      "assigned_capture_names": [
+        "cohort-proof-compositing-control"
+      ]
+    },
+    "controls": {
+      "status": "PASS",
+      "worker_execution_id": "008377b82adf4f99935b49da3157436d",
+      "host_identity": {
+        "boot_id": "550cfcb4-ec3f-4a2a-9115-f146b7af4440"
+      },
+      "started_utc": "2026-11-14T02:44:21.499631+00:00",
+      "finished_utc": "2026-11-14T02:46:14.980119+00:00",
+      "allocation_sha256": "d9f9aa101e516a2642f6906a195cfc160057e7718595864ac52f78b268f023bf",
+      "automatic_retries": 0,
+      "assigned_capture_names": [
+        "cohort-proof-shadow-control",
+        "cohort-proof-shadow-witness-2"
+      ]
+    },
+    "witness-1": {
+      "status": "PASS",
+      "worker_execution_id": "5bacc6ef433b4556852411a761d030d7",
+      "host_identity": {
+        "boot_id": "008e8be8-474a-48a4-b2d7-632e469d75d8"
+      },
+      "started_utc": "2026-11-14T02:44:26.355610+00:00",
+      "finished_utc": "2026-11-14T02:44:34.059030+00:00",
+      "allocation_sha256": "d9f9aa101e516a2642f6906a195cfc160057e7718595864ac52f78b268f023bf",
+      "automatic_retries": 0,
+      "assigned_capture_names": []
+    },
+    "witness-2": {
+      "status": "PASS",
+      "worker_execution_id": "b4a2719c96ad4ce18486ff915c3f83fa",
+      "host_identity": {
+        "boot_id": "3d2b3b84-e6be-4a20-8b3e-9fd25e546fff"
+      },
+      "started_utc": "2026-11-14T02:44:26.555940+00:00",
+      "finished_utc": "2026-11-14T02:45:26.174598+00:00",
+      "allocation_sha256": "d9f9aa101e516a2642f6906a195cfc160057e7718595864ac52f78b268f023bf",
+      "automatic_retries": 0,
+      "assigned_capture_names": [
+        "cohort-proof-shadow-witness-1"
+      ]
+    }
+  },
+  "artifact_barriers": {
+    "publication": {
+      "status": "PASS",
+      "polls": 4,
+      "elapsed_seconds": 19.473,
+      "automatic_retries": 0,
+      "deadline_seconds": 600,
+      "settlement_requested_seconds": 15,
+      "settlement_actual_seconds": 15.797,
+      "artifact_set_sha256": "82ebdf08c72b0b33ac4e981061bb6491643a72be9239c2c53602b1b15873c94f",
+      "downloaded": [
+        {
+          "archive_bytes": 12784412,
+          "archive_sha256": "fbf3dced44a5f539e665c883b28b7004986e50b991eaf0472f8fb9b715eac2d2",
+          "artifact_id": 14094980624,
+          "manifest_sha256": "ba3a3944fb1a8e62eb47f617384482a4669192b46fb1330f1c2962baef4e194a",
+          "name": "sdvk-cohort-probe-43546946436-1-controls",
+          "worker": "controls"
+        },
+        {
+          "archive_bytes": 12776191,
+          "archive_sha256": "fc3c060c0b6c4c0a139c412f54a39660025eb4e4bab2867e25158004ad9460c0",
+          "artifact_id": 14094534230,
+          "manifest_sha256": "abddff85df4754026734c8574b2964e1d3c0f71f9e052e6c5dd8cfdf08427567",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-1",
+          "worker": "witness-1"
+        },
+        {
+          "archive_bytes": 12776323,
+          "archive_sha256": "5f8870c3f3a3a67b45f930612ea66ee948548a971b579c289f5e60bea1d86370",
+          "artifact_id": 14094876747,
+          "manifest_sha256": "9f7aba61c066b730fc140cd713d31c5d46c2c78c072e144aeb2513ae2809508c",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-2",
+          "worker": "witness-2"
+        }
+      ],
+      "error": ""
+    },
+    "controls": {
+      "status": "PASS",
+      "polls": 20,
+      "elapsed_seconds": 100.35,
+      "automatic_retries": 0,
+      "deadline_seconds": 600,
+      "settlement_requested_seconds": 15,
+      "settlement_actual_seconds": 15.568,
+      "artifact_set_sha256": "82ebdf08c72b0b33ac4e981061bb6491643a72be9239c2c53602b1b15873c94f",
+      "downloaded": [
+        {
+          "archive_bytes": 12784412,
+          "archive_sha256": "fbf3dced44a5f539e665c883b28b7004986e50b991eaf0472f8fb9b715eac2d2",
+          "artifact_id": 14094980624,
+          "manifest_sha256": "ba3a3944fb1a8e62eb47f617384482a4669192b46fb1330f1c2962baef4e194a",
+          "name": "sdvk-cohort-probe-43546946436-1-controls",
+          "worker": "controls"
+        },
+        {
+          "archive_bytes": 12776191,
+          "archive_sha256": "fc3c060c0b6c4c0a139c412f54a39660025eb4e4bab2867e25158004ad9460c0",
+          "artifact_id": 14094534230,
+          "manifest_sha256": "abddff85df4754026734c8574b2964e1d3c0f71f9e052e6c5dd8cfdf08427567",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-1",
+          "worker": "witness-1"
+        },
+        {
+          "archive_bytes": 12776323,
+          "archive_sha256": "5f8870c3f3a3a67b45f930612ea66ee948548a971b579c289f5e60bea1d86370",
+          "artifact_id": 14094876747,
+          "manifest_sha256": "9f7aba61c066b730fc140cd713d31c5d46c2c78c072e144aeb2513ae2809508c",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-2",
+          "worker": "witness-2"
+        }
+      ],
+      "error": ""
+    },
+    "witness-1": {
+      "status": "PASS",
+      "polls": 4,
+      "elapsed_seconds": 21.922,
+      "automatic_retries": 0,
+      "deadline_seconds": 600,
+      "settlement_requested_seconds": 15,
+      "settlement_actual_seconds": 15.948,
+      "artifact_set_sha256": "82ebdf08c72b0b33ac4e981061bb6491643a72be9239c2c53602b1b15873c94f",
+      "downloaded": [
+        {
+          "archive_bytes": 12784412,
+          "archive_sha256": "fbf3dced44a5f539e665c883b28b7004986e50b991eaf0472f8fb9b715eac2d2",
+          "artifact_id": 14094980624,
+          "manifest_sha256": "ba3a3944fb1a8e62eb47f617384482a4669192b46fb1330f1c2962baef4e194a",
+          "name": "sdvk-cohort-probe-43546946436-1-controls",
+          "worker": "controls"
+        },
+        {
+          "archive_bytes": 12776191,
+          "archive_sha256": "fc3c060c0b6c4c0a139c412f54a39660025eb4e4bab2867e25158004ad9460c0",
+          "artifact_id": 14094534230,
+          "manifest_sha256": "abddff85df4754026734c8574b2964e1d3c0f71f9e052e6c5dd8cfdf08427567",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-1",
+          "worker": "witness-1"
+        },
+        {
+          "archive_bytes": 12776323,
+          "archive_sha256": "5f8870c3f3a3a67b45f930612ea66ee948548a971b579c289f5e60bea1d86370",
+          "artifact_id": 14094876747,
+          "manifest_sha256": "9f7aba61c066b730fc140cd713d31c5d46c2c78c072e144aeb2513ae2809508c",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-2",
+          "worker": "witness-2"
+        }
+      ],
+      "error": ""
+    },
+    "witness-2": {
+      "status": "PASS",
+      "polls": 21,
+      "elapsed_seconds": 105.674,
+      "automatic_retries": 0,
+      "deadline_seconds": 600,
+      "settlement_requested_seconds": 15,
+      "settlement_actual_seconds": 15.543,
+      "artifact_set_sha256": "82ebdf08c72b0b33ac4e981061bb6491643a72be9239c2c53602b1b15873c94f",
+      "downloaded": [
+        {
+          "archive_bytes": 12784412,
+          "archive_sha256": "fbf3dced44a5f539e665c883b28b7004986e50b991eaf0472f8fb9b715eac2d2",
+          "artifact_id": 14094980624,
+          "manifest_sha256": "ba3a3944fb1a8e62eb47f617384482a4669192b46fb1330f1c2962baef4e194a",
+          "name": "sdvk-cohort-probe-43546946436-1-controls",
+          "worker": "controls"
+        },
+        {
+          "archive_bytes": 12776191,
+          "archive_sha256": "fc3c060c0b6c4c0a139c412f54a39660025eb4e4bab2867e25158004ad9460c0",
+          "artifact_id": 14094534230,
+          "manifest_sha256": "abddff85df4754026734c8574b2964e1d3c0f71f9e052e6c5dd8cfdf08427567",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-1",
+          "worker": "witness-1"
+        },
+        {
+          "archive_bytes": 12776323,
+          "archive_sha256": "5f8870c3f3a3a67b45f930612ea66ee948548a971b579c289f5e60bea1d86370",
+          "artifact_id": 14094876747,
+          "manifest_sha256": "9f7aba61c066b730fc140cd713d31c5d46c2c78c072e144aeb2513ae2809508c",
+          "name": "sdvk-cohort-probe-43546946436-1-witness-2",
+          "worker": "witness-2"
+        }
+      ],
+      "error": ""
+    }
+  },
+  "profiles": {
+    "publication": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "AMD EPYC 7763 64-Core Processor",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43546946436",
+      "github_sha": "ffd105e6eaa79b5235e829c11aa419cf1b3116c5",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+      "started_utc": "2026-11-14T02:41:20.472213+00:00",
+      "vulkan_icd": null,
+      "worker": "publication"
+    },
+    "controls": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43546946436",
+      "github_sha": "ffd105e6eaa79b5235e829c11aa419cf1b3116c5",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+      "started_utc": "2026-11-14T02:41:33.086342+00:00",
+      "vulkan_icd": null,
+      "worker": "controls"
+    },
+    "witness-1": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "AMD EPYC 7763 64-Core Processor",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43546946436",
+      "github_sha": "ffd105e6eaa79b5235e829c11aa419cf1b3116c5",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+      "started_utc": "2026-11-14T02:41:35.754471+00:00",
+      "vulkan_icd": null,
+      "worker": "witness-1"
+    },
+    "witness-2": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43546946436",
+      "github_sha": "ffd105e6eaa79b5235e829c11aa419cf1b3116c5",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+      "started_utc": "2026-11-14T02:41:32.409868+00:00",
+      "vulkan_icd": null,
+      "worker": "witness-2"
+    }
+  },
+  "hosted_pf_cpu_gates": {
+    "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+    "source_tree": "2ee294af848ed1d6174b9ff31ded825988f9e5c3",
+    "run_id": "43546946436",
+    "job_id": 132300370877,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300370877",
+    "job_conclusion": "success",
+    "artifact": {
+      "id": 14094374298,
+      "name": "cpu-contract-checks",
+      "size_in_bytes": 182099,
+      "url": "https://api.github.com/repos/techrote/ShadeDoomVK/actions/artifacts/14094374298",
+      "archive_download_url": "https://api.github.com/repos/techrote/ShadeDoomVK/actions/artifacts/14094374298/zip",
+      "expired": false,
+      "created_at": "2026-11-14T02:40:34Z",
+      "expires_at": "2027-02-12T02:33:13Z",
+      "updated_at": "2026-11-14T02:40:34Z",
+      "digest": "sha256:4b16f8eeff14d7d2c57ce884d0fc4aec82ef84ba3a29315dd080aec1726ad7cd",
+      "workflow_run": {
+        "id": 43546946436,
+        "repository_id": 1374914016,
+        "head_repository_id": 1374914016,
+        "head_branch": "ci/sdvk-publication-shards",
+        "head_sha": "91cfec0fac878e0e166450252f97a96a01d12004"
+      }
+    },
+    "zip_sha256": "4b16f8eeff14d7d2c57ce884d0fc4aec82ef84ba3a29315dd080aec1726ad7cd",
+    "job_log": {
+      "path": "pf-renderer-oracle-132300370877.log",
+      "sha256": "a8c05aadc7c37dda77b79047dc6b5905ec65a5326830d02dced2b346319775ba",
+      "normalization": "Decoded GitHub log; CRLF normalized to LF"
+    },
+    "ci_helpers": {
+      "tests": 55,
+      "elapsed_seconds": 1.07,
+      "status": "OK"
+    },
+    "suites": {
+      "pf-tests": {
+        "tests": 900,
+        "elapsed_seconds": 143.138,
+        "skipped": 0,
+        "status": "OK",
+        "log": "pf-tests.log",
+        "sha256": "fefd752547631d75e77f9a81b0f8b3b3e263638cca822e4fe37419379b433b6c"
+      },
+      "cfx-tests": {
+        "tests": 10,
+        "elapsed_seconds": 0.006,
+        "skipped": 0,
+        "status": "OK",
+        "log": "cfx-tests.log",
+        "sha256": "0a64f2094e2fd2d918efc8c2f1750a2996af3839e9446eb99277ec53979c7003"
+      },
+      "renderer-oracle-tests": {
+        "tests": 527,
+        "elapsed_seconds": 213.144,
+        "skipped": 0,
+        "status": "OK",
+        "log": "renderer-oracle-tests.log",
+        "sha256": "9acb081f0822f213b81a989147fdd6a0910354b93f2bf2cee70e4582edd155b2"
+      },
+      "physical-supervisor-cpu": {
+        "tests": 206,
+        "elapsed_seconds": 67.817,
+        "skipped": 82,
+        "status": "OK",
+        "log": "physical-supervisor-cpu.log",
+        "sha256": "4a92c52cf7c6cefecf7c94c0c606b181e5bdee24963367eab8679fb7d703aaec"
+      }
+    },
+    "distributed_tests": {
+      "method_count": 53,
+      "source_sha256": "5576215e61dd85eda3d03526824ae49401fa8fe07f69110e80ab50ba1b222b50",
+      "previously_transient_test": "test_singleton_empty_workers_survive_real_tar_transport_and_assembly",
+      "hosted_recurrence_observed": false,
+      "method_results_individually_logged": false,
+      "scope": "The complete unchanged unittest-discover command passed all527 renderer tests without skips; quiet logs do not provide individual test timestamps."
+    }
+  },
+  "hosted_windows_cpu_and_source_identity": {
+    "schema": "sdvk-ci-windows-cpu-log-review/v1",
+    "source_commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+    "source_tree": "2ee294af848ed1d6174b9ff31ded825988f9e5c3",
+    "run_id": "43546946436",
+    "job_id": 132300371179,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371179",
+    "job_conclusion": "success",
+    "log": {
+      "path": "windows-relwithdebinfo-132300371179.log",
+      "sha256": "ff8ae1c9c9ec11ba8119bd7c5806e1d127bc72f7a5caabffc3f5f1e7a9dab346",
+      "normalization": "GitHub decoded job log; CRLF normalized to LF"
+    },
+    "cpu_suite": {
+      "command": "python -B -m unittest discover -s tools/physical_supervisor -t . -v",
+      "tests": 206,
+      "elapsed_seconds": 217.143,
+      "status": "OK",
+      "skips": 0,
+      "named_test_lines": 206,
+      "repaired_test": "2026-11-14T02:36:23.3125559Z test_slow_successful_deep_checks_do_not_suspend_control_heartbeat (tools.physical_supervisor.test_integrity.LivenessIntegrationTests) ... ok",
+      "fixture_source_sha256": "097f7f1c01cf4f188aefb5201042e4ef2b36046a9c278bd4cdb8688791e4ce88",
+      "raw_success_heartbeat_receipts_archived": false
+    },
+    "fake_backend": {
+      "scope": "CPU_FAKE_BACKEND_NO_VULKAN_LOADER",
+      "positive": 1,
+      "negatives": 13
+    },
+    "build_identity": {
+      "status": "PASS",
+      "executables": [
+        "2026-11-14T02:43:44.8747509Z PASS D:\\a\\ShadeDoomVK\\ShadeDoomVK\\build\\RelWithDebInfo\\vkdoom.exe",
+        "2026-11-14T02:43:44.8751580Z PASS D:\\a\\ShadeDoomVK\\ShadeDoomVK\\build\\RelWithDebInfo\\vktool.exe"
+      ],
+      "commit": "91cfec0fac878e0e166450252f97a96a01d12004",
+      "working_tree": "clean"
+    },
+    "claim_limit": "CPU-only containment/liveness fixture qualification. The repaired test PASS proves its encoded assertions; no measured successful heartbeat receipt or physical GPU acceptance is claimed."
+  },
+  "qualification_matrix": {
+    "jobs": [
+      {
+        "id": 132300370877,
+        "name": "PF renderer contract oracle",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:16Z",
+        "completed_at": "2026-11-14T02:40:41Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300370877",
+        "elapsed_seconds": 445.0
+      },
+      {
+        "id": 132300371079,
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:16Z",
+        "completed_at": "2026-11-14T02:38:13Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371079",
+        "elapsed_seconds": 297.0
+      },
+      {
+        "id": 132300371120,
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:16Z",
+        "completed_at": "2026-11-14T02:38:53Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371120",
+        "elapsed_seconds": 337.0
+      },
+      {
+        "id": 132300371149,
+        "name": "Linux software Vulkan | Build",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:17Z",
+        "completed_at": "2026-11-14T02:40:28Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371149",
+        "elapsed_seconds": 431.0
+      },
+      {
+        "id": 132300371179,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:17Z",
+        "completed_at": "2026-11-14T02:43:48Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371179",
+        "elapsed_seconds": 631.0
+      },
+      {
+        "id": 132300371196,
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:17Z",
+        "completed_at": "2026-11-14T02:38:34Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371196",
+        "elapsed_seconds": 317.0
+      },
+      {
+        "id": 132300371213,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:33:16Z",
+        "completed_at": "2026-11-14T02:40:52Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132300371213",
+        "elapsed_seconds": 456.0
+      },
+      {
+        "id": 132302439079,
+        "name": "Linux software Vulkan | controls",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:40:31Z",
+        "completed_at": "2026-11-14T02:46:20Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132302439079",
+        "elapsed_seconds": 349.0
+      },
+      {
+        "id": 132302439110,
+        "name": "Linux software Vulkan | publication",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:40:31Z",
+        "completed_at": "2026-11-14T02:53:26Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132302439110",
+        "elapsed_seconds": 775.0
+      },
+      {
+        "id": 132302439135,
+        "name": "Linux software Vulkan | witness-1",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:40:31Z",
+        "completed_at": "2026-11-14T02:44:39Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132302439135",
+        "elapsed_seconds": 248.0
+      },
+      {
+        "id": 132302439328,
+        "name": "Linux software Vulkan | witness-2",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:40:31Z",
+        "completed_at": "2026-11-14T02:45:29Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132302439328",
+        "elapsed_seconds": 298.0
+      },
+      {
+        "id": 132306002528,
+        "name": "Linux software Vulkan | RelWithDebInfo",
+        "conclusion": "failure",
+        "started_at": "2026-11-14T02:53:29Z",
+        "completed_at": "2026-11-14T02:56:15Z",
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436/job/132306002528",
+        "elapsed_seconds": 166.0
+      }
+    ],
+    "publication_module_api_steps": [
+      {
+        "name": "Qualify SDVK-010 actors on hosted software Vulkan",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:41:20Z",
+        "completed_at": "2026-11-14T02:44:26Z",
+        "elapsed_seconds": 186.0
+      },
+      {
+        "name": "Qualify SDVK-150 probe ownership on hosted software Vulkan",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:44:26Z",
+        "completed_at": "2026-11-14T02:46:55Z",
+        "elapsed_seconds": 149.0
+      },
+      {
+        "name": "Qualify SDVK-153 sampler reset on hosted software Vulkan",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:46:55Z",
+        "completed_at": "2026-11-14T02:48:59Z",
+        "elapsed_seconds": 124.0
+      },
+      {
+        "name": "Qualify SDVK-158 lightmap transition on hosted software Vulkan",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:48:59Z",
+        "completed_at": "2026-11-14T02:49:23Z",
+        "elapsed_seconds": 24.0
+      },
+      {
+        "name": "Qualify SDVK-161 special surfaces on hosted software Vulkan",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:49:23Z",
+        "completed_at": "2026-11-14T02:51:39Z",
+        "elapsed_seconds": 136.0
+      },
+      {
+        "name": "Qualify SDVK-014 controlled planes on hosted software Vulkan",
+        "conclusion": "success",
+        "started_at": "2026-11-14T02:51:39Z",
+        "completed_at": "2026-11-14T02:52:21Z",
+        "elapsed_seconds": 42.0
+      }
+    ],
+    "six_companion_gates": {
+      "renderer-sdvk010/qualification.json": "PASS",
+      "renderer-sdvk150/qualification.json": "PASS",
+      "renderer-sdvk153/qualification.json": "PASS",
+      "renderer-sdvk158/qualification.json": "PASS",
+      "renderer-sdvk161/qualification.json": "PASS",
+      "renderer-sdvk014-controlled/qualification.json": "PASS"
+    },
+    "assembly": "PROBE_PASS",
+    "stable_required_check": "FAIL_PRECHECK_ONLY_AS_DESIGNED",
+    "failed_steps": [
+      {
+        "job": "Linux software Vulkan | RelWithDebInfo",
+        "name": "Require every native, platform, CPU and authenticated assembly gate",
+        "conclusion": "failure",
+        "started_at": "2026-11-14T02:56:14Z",
+        "completed_at": "2026-11-14T02:56:14Z"
+      }
+    ]
+  },
+  "final_archive": {
+    "artifact": {
+      "id": 14095447231,
+      "name": "renderer-software-vulkan",
+      "size_in_bytes": 42937035,
+      "url": "https://api.github.com/repos/techrote/ShadeDoomVK/actions/artifacts/14095447231",
+      "archive_download_url": "https://api.github.com/repos/techrote/ShadeDoomVK/actions/artifacts/14095447231/zip",
+      "expired": false,
+      "created_at": "2026-11-14T02:56:14Z",
+      "expires_at": "2026-12-14T02:56:13Z",
+      "updated_at": "2026-11-14T02:56:14Z",
+      "digest": "sha256:7918575b6bfd348381b558851dd3fc50159dba9ffe7eebbc3f115eadc6d061ab",
+      "workflow_run": {
+        "id": 43546946436,
+        "repository_id": 1374914016,
+        "head_repository_id": 1374914016,
+        "head_branch": "ci/sdvk-publication-shards",
+        "head_sha": "91cfec0fac878e0e166450252f97a96a01d12004"
+      }
+    },
+    "archive_bytes": 42659452,
+    "archive_sha256": "b557e04c1999b20eb912b651295bbb843e1e7b49b21ca430df4cb6cfee306eeb",
+    "files_verified": 748,
+    "ordinary_tar_members": 932,
+    "transported_files": 728,
+    "relocated_files": 274,
+    "full_hash_verification_seconds": 3.394499096997606,
+    "audit_seconds": 48.1947846960029,
+    "all_raw_evidence_preserved": true,
+    "packaging": {
+      "archive_bytes": 42659452,
+      "assembly_verification_seconds": 2.098,
+      "compression_argv": [
+        "xz",
+        "-6",
+        "-T3",
+        "--block-size=512MiB",
+        "--lzma2=dict=64MiB",
+        "--memlimit-compress=7GiB",
+        "--no-adjust",
+        "-c"
+      ],
+      "compression_seconds": 122.489,
+      "files": 748,
+      "host_resources": {
+        "affinity_processors": 4,
+        "effective_memory_bytes": 16760344576,
+        "effective_processors": 4,
+        "physical_memory_bytes": 16760344576
+      },
+      "performance_accepted": false,
+      "physical_gpu_qualified": false,
+      "schema": "sdvk-software-vulkan-packaging-timing/v1",
+      "total_seconds": 128.382,
+      "transport_artifacts": {
+        "controls": {
+          "manifest.json": {
+            "sha256": "336946b1f2d470d0712ad2b5e03b1bfe9ea992ba95c5484ea1252ba532fd0190",
+            "size": 21428
+          },
+          "tar": {
+            "sha256": "46ac65d8b11065afd80d8cf480dd7e9fd8cd9693b9ea07741831a780244e4f1d",
+            "size": 159559680
+          },
+          "tar.sha256": {
+            "sha256": "d746433716fa7e3046282a457dd7bf7125f59953ff55f01fab14fbf7c4d76375",
+            "size": 88
+          }
+        },
+        "publication": {
+          "manifest.json": {
+            "sha256": "c70c83ec255271d05891e524b5595abf5f2378604b3fbf0ab81a813d050135c2",
+            "size": 83274
+          },
+          "tar": {
+            "sha256": "ab271e0e5db9699e1e5cb1db8c06beccbbbc4b641e272f51d567c7fa1ae44196",
+            "size": 555059200
+          },
+          "tar.sha256": {
+            "sha256": "f207881383edfaaf118a4b10ec14eef91b7a19755e20be15875962e8dfd7789a",
+            "size": 91
+          }
+        },
+        "witness-1": {
+          "manifest.json": {
+            "sha256": "9e0d6170432651a5ea7afd54078afe2d3c2945b147add2ba7c921bb2e9d6404b",
+            "size": 11450
+          },
+          "tar": {
+            "sha256": "f8ce442a85ba80b0b8e7077967ebe2889cec0a181896e2603c95c963101d6d30",
+            "size": 35491840
+          },
+          "tar.sha256": {
+            "sha256": "8bd48baebc97c9c5f08ad1d05f3ab1faa69100a60360851736cfd8812c248927",
+            "size": 89
+          }
+        },
+        "witness-2": {
+          "manifest.json": {
+            "sha256": "d84bf583002e4caaf3faaec706473584b2a6f618433de72ba0a2a54cc27b363e",
+            "size": 15372
+          },
+          "tar": {
+            "sha256": "9d6c03c0f25fea277a7985d4bf80670e338941b1d88edaf66299d021cfea938a",
+            "size": 70686720
+          },
+          "tar.sha256": {
+            "sha256": "04e727294719a0c83498d441123f56517ec72debfe89e83d8e17e813cc421183",
+            "size": 89
+          }
+        }
+      },
+      "uncompressed_file_bytes": 820432690,
+      "verification_seconds": 3.795
+    },
+    "consumer_scope": "Complete diagnostic legacy-layout tar/XZ restores and authenticates all original probe/proof bytes; this is not a full publication qualification archive."
+  },
+  "accounting": {
+    "workflow_seconds": 1382.0,
+    "sum_elapsed_job_seconds": 4750.0,
+    "main_artifact_zip_bytes": 704600669,
+    "main_artifact_count": 11,
+    "artifacts": [
+      {
+        "id": 14095480202,
+        "name": "renderer-software-vulkan-witness-1",
+        "size_in_bytes": 12813331,
+        "digest": "sha256:5131fd689bf8a597f907ee25a5d077deea37fcfc665305612efd07ee83063251"
+      },
+      {
+        "id": 14095447231,
+        "name": "renderer-software-vulkan",
+        "size_in_bytes": 42937035,
+        "digest": "sha256:7918575b6bfd348381b558851dd3fc50159dba9ffe7eebbc3f115eadc6d061ab"
+      },
+      {
+        "id": 14095236084,
+        "name": "renderer-software-vulkan-witness-2",
+        "size_in_bytes": 25553136,
+        "digest": "sha256:26e5ec6dc4c754f8233a29c557c3fade59a27bbfccc405a4c9bbf16abf60d835"
+      },
+      {
+        "id": 14095141672,
+        "name": "renderer-software-vulkan-controls",
+        "size_in_bytes": 74533897,
+        "digest": "sha256:7f7b527600bddc9448889af6e5260deb2815aa8509fbf7ec4a22968534d53038"
+      },
+      {
+        "id": 14094980624,
+        "name": "sdvk-cohort-probe-43546946436-1-controls",
+        "size_in_bytes": 12784412,
+        "digest": "sha256:fbf3dced44a5f539e665c883b28b7004986e50b991eaf0472f8fb9b715eac2d2"
+      },
+      {
+        "id": 14094876747,
+        "name": "sdvk-cohort-probe-43546946436-1-witness-2",
+        "size_in_bytes": 12776323,
+        "digest": "sha256:5f8870c3f3a3a67b45f930612ea66ee948548a971b579c289f5e60bea1d86370"
+      },
+      {
+        "id": 14094855685,
+        "name": "software-vulkan-publication-inputs",
+        "size_in_bytes": 35127362,
+        "digest": "sha256:31b0d5529215c2f8b3018318457911e99abc95824cf37f83517560fa03ec7d99"
+      },
+      {
+        "id": 14094850731,
+        "name": "software-vulkan-runtime",
+        "size_in_bytes": 258752777,
+        "digest": "sha256:91baa8644bc09b65f90103ddd5169f61d7e7a6463601be680198d4395ba8afc9"
+      },
+      {
+        "id": 14094724058,
+        "name": "renderer-software-vulkan-publication",
+        "size_in_bytes": 216364106,
+        "digest": "sha256:bcfacfa813edd90a1135429bc3bec3e277464115faebed41887edb5b990ae99e"
+      },
+      {
+        "id": 14094534230,
+        "name": "sdvk-cohort-probe-43546946436-1-witness-1",
+        "size_in_bytes": 12776191,
+        "digest": "sha256:fc3c060c0b6c4c0a139c412f54a39660025eb4e4bab2867e25158004ad9460c0"
+      },
+      {
+        "id": 14094374298,
+        "name": "cpu-contract-checks",
+        "size_in_bytes": 182099,
+        "digest": "sha256:4b16f8eeff14d7d2c57ce884d0fc4aec82ef84ba3a29315dd080aec1726ad7cd"
+      }
+    ],
+    "source333_zip_bytes_separate": 151525523,
+    "units": "Job intervals are observed elapsed seconds, not billing. ZIP bytes differ from innerXZ bytes and are not retention-weighted storage."
+  },
+  "scope": {
+    "native_processes_launched_by_audit": 0,
+    "qualification_override": false,
+    "physical_gpu_qualified": false,
+    "performance_accepted": false,
+    "limits": [
+      "The5warmup uninstrumented proof cannot replace120warmup full instrumented witnesses or their18negative controls.",
+      "All original full comparisons remain decisive on the next frozen source.",
+      "The10percent score band is a deterministic engineering heuristic, not a confidence interval.",
+      "Cold probe time includes startup and omits witness diagnostics; a single campaign cannot establish repeatable performance.",
+      "Evidence from previously failed622/624/625 remains failed and is not reclassified by this diagnostic result."
+    ]
+  },
+  "detailed_scratch_receipts": {
+    "independent-probe-verification.json": {
+      "bytes": 66366,
+      "sha256": "d3d99869f14290f7740b22563a1cc75472fb5be9c52d0391ea6eba68ae9ec233"
+    },
+    "final/independent-cohort-verification.json": {
+      "bytes": 140479,
+      "sha256": "48028b7cf749387a7dd27cfef46365e7588c6bc8515cb85e779a1b6443e9c258"
+    },
+    "source333/source333-authentication.json": {
+      "bytes": 2629,
+      "sha256": "4de998e06c38cc6453c1b2bd59b2c3d3aad4f583a6d9f57a90c8966fae16f873"
+    },
+    "source333/accepted-master-integration.json": {
+      "bytes": 3891,
+      "sha256": "28f655bba5ecd6bd873ce90929beea1b06384ad369dd2804e48e3b345d1bf70e"
+    },
+    "jobs-accounting-final.json": {
+      "bytes": 65608,
+      "sha256": "a83c79760f23d1a544078a677deba451aa85a434a1e631aedad622ceee6f32da"
+    },
+    "artifacts-accounting-final.json": {
+      "bytes": 9820,
+      "sha256": "83af51a1994ea91048f87be99a2eb56a014f9e57844a53d6f584ec2ed065b258"
+    },
+    "run-accounting-final.json": {
+      "bytes": 15283,
+      "sha256": "ed6b0cce918792c2f28cafdf9c91c58dac58023f521daaa1b9c73db77f19caf7"
+    },
+    "pf-cpu-verification.json": {
+      "bytes": 5422,
+      "sha256": "1b968b602b1aae6c3e2c48f446e8f7035a856923fc737171f7bdce051de0c302"
+    },
+    "pf-renderer-oracle-132300370877.log": {
+      "bytes": 43040,
+      "sha256": "a8c05aadc7c37dda77b79047dc6b5905ec65a5326830d02dced2b346319775ba"
+    },
+    "windows-cpu-verification.json": {
+      "bytes": 1846,
+      "sha256": "1b1a3f9ab4fd8ffc4dc6a52d1b47900210b0e732a2d8f1402cb234538a22ae9e"
+    },
+    "windows-relwithdebinfo-132300371179.log": {
+      "bytes": 116493,
+      "sha256": "ff8ae1c9c9ec11ba8119bd7c5806e1d127bc72f7a5caabffc3f5f1e7a9dab346"
+    }
+  }
+}

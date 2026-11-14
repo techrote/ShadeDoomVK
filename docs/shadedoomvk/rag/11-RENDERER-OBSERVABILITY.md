@@ -245,8 +245,27 @@ CPU llvmpipe processes: compositing control, shadow control, then two shadow
 witnesses. Each uses 640x480, 120 warmup, one retained state/RGB frame and no GPU
 timing. The official Freedoom 0.13.0 IWAD and authored scene/configuration bytes
 must match the historical pins before launch. The separately preregistered
-software timeout is 600 seconds per process, with no automatic retry or later
+software timeout is 3600 seconds per process, with no automatic retry or later
 threshold relaxation. A failure stops dependent stages and retains raw output.
+
+The candidate [publication parallelisation contract](../CI-PUBLICATION-PARALLELISATION.md)
+adds a separate `sdvk009_distributed.py` API. It preregisters the complete fixed
+four-capture plan, puts compositing on the existing short-module VM and uses
+three separately authorized nonqualifying probes to allocate original shadows
+among compatible hosts in the fixed three-worker pool. Every probe must validate;
+all original pairwise comparisons determine one immutable allocation with no
+post-failure retry or reassignment. The assembler independently recomputes that
+allocation and authenticates/reconstructs all original full evidence before
+applying the unchanged comparisons and nine negative controls. The initial
+controls-paired full campaign failed three protected SDVFL generation/texture
+epoch fields; the startup-history probe exposed an additional protected light
+selection/upload mismatch across hosts. No fields are normalized or exempted.
+All original full captures remain 120 warmup frames plus one retained frame.
+Already-authorized siblings may finish
+after another worker fails; missing or failed workers cannot qualify. This is an
+explicit change to global launch-order semantics requiring Owner review. The
+original serial API and its fail-stop tests remain unchanged. The workflow's
+cheap compatibility probe cannot satisfy full qualification.
 
 The read-only validator joins the complete packet and requires the existing
 exact RGB/semantic state match against the uninstrumented shadow control. Copied

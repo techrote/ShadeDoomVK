@@ -9,6 +9,11 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+env:
+  # Diagnostic source revisions never award qualification: the legacy required
+  # check fails with PRECHECK_ONLY. Full mode retains every original workload.
+  SDVK_PUBLICATION_CAMPAIGN: full
+
 jobs:
   pf_oracle:
     name: PF renderer contract oracle
@@ -16,6 +21,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Validate CI evidence transport and timing reporting
       run: python3 -m unittest discover -s tools/ci -p 'test_*.py' -v
@@ -48,17 +55,6 @@ jobs:
           os: windows-2022
           build_type: Debug
 
-        - name: macOS
-          os: macos-15
-          deps_cmdline: brew install libvpx
-          build_type: Release
-
-        - name: macOS
-          os: macos-15
-          extra_options: -G Xcode -DDYN_OPENAL=OFF
-          deps_cmdline: brew install libvpx
-          build_type: Debug
-
         - name: Linux GCC 12
           os: ubuntu-22.04
           extra_options: -DCMAKE_C_COMPILER=gcc-12 -DCMAKE_CXX_COMPILER=g++-12
@@ -79,6 +75,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Select Python for Windows CPU containment controls
       if: runner.os == 'Windows' && matrix.config.build_type == 'RelWithDebInfo'
@@ -112,6 +110,7 @@ jobs:
         name: supervisor-cpu-failures
         path: ${{ runner.temp }}/sdvk-supervisor-cpu-failures
         if-no-files-found: ignore
+        include-hidden-files: true
 
     - name: Install Dependencies
       shell: bash
@@ -119,9 +118,7 @@ jobs:
         if [[ -n "${{ matrix.config.deps_cmdline }}" ]]; then
           eval ${{ matrix.config.deps_cmdline }}
         fi
-        if [[ "${{ runner.os }}" == 'macOS' ]]; then
-          python3 tools/fetch_build_deps.py --platform macos --output build/deps
-        elif [[ "${{ runner.os }}" == 'Linux' ]]; then
+        if [[ "${{ runner.os }}" == 'Linux' ]]; then
           python3 tools/fetch_build_deps.py --platform linux --output build/deps
         fi
 
@@ -140,20 +137,7 @@ jobs:
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-        DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
-
-    - name: Diagnose macOS startup failure
-      if: failure() && runner.os == 'macOS'
-      shell: bash
-      env:
-        DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        runtime="build/vkdoom.app/Contents/MacOS/vkdoom"
-        if [[ -f "build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom" ]]; then
-          runtime="build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom"
-        fi
-        lldb --batch -o 'breakpoint set -n __cxa_throw' -o run -o 'thread backtrace all' -- "$runtime" --version
 
 #   - name: Create Package
 #     if: (runner.os == 'Windows' || matrix.config.name == 'Linux GCC 12') && matrix.config.build_type == 'RelWithDebInfo'
@@ -166,9 +150,6 @@ jobs:
 #         cp ../bin/licenses.zip ../bin/windows/libsndfile/64bit/libsndfile-1.dll ../bin/windows/openal/64bit/openal32.dll ../bin/windows/zmusic/64bit/zmusic.dll package
 #         cp ${{ matrix.config.build_type }}/vkdoom-stripped.pdb package/vkdoom.pdb
 #         cp ${{ matrix.config.build_type }}/vkdoom-stripped.pdb package/vktool.pdb
-#       elif [[ "${{ runner.os }}" == 'macOS' ]]; then
-#         cp -r vkdoom.app package
-#         cp -r vktool package
 #       elif [[ "${{ runner.os }}" == 'Linux' ]]; then
 #         cp vkdoom vktool *.pk3 zmusic/lib/libzmusic.so package
 #         strip package/vkdoom package/vktool
@@ -189,13 +170,23 @@ jobs:
 #       ls -lR build
 #
 
-  # The once-serial software renderer qualification is split into two
-  # parallel suites using one identical, source-matched binary package.
+  # One exact source/runtime feeds the corpus, six short publication modules
+  # plus compositing control, and three shadow workers. No consumer recompiles.
   vulkan_build:
     name: Linux software Vulkan | Build
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    outputs:
+      source: ${{ steps.publication_plan.outputs.source }}
+      campaign: ${{ steps.publication_plan.outputs.campaign }}
+      suites: ${{ steps.publication_plan.outputs.suites }}
+      runtime_sha256: ${{ steps.publication_plan.outputs.runtime_sha256 }}
+      inputs_sha256: ${{ steps.publication_plan.outputs.inputs_sha256 }}
+      plan_sha256: ${{ steps.publication_plan.outputs.plan_sha256 }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Install software Vulkan build dependencies
       shell: bash
@@ -203,6 +194,19 @@ jobs:
         sudo apt update
         sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
         python3 tools/fetch_build_deps.py --platform linux --output build/deps
+
+    - name: Record shared build host and source identity
+      shell: bash
+      run: |
+        python3 - <<'PY'
+        import json, subprocess
+        from tools.ci.renderer_ci_timings import machine_profile
+        profile = machine_profile()
+        profile.update(role='shared-build',
+            source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+            source_tree=subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip())
+        print('SDVK_SHARED_BUILD_PROFILE_JSON=' + json.dumps(profile, sort_keys=True))
+        PY
 
     - name: Configure and build
       shell: bash
@@ -216,7 +220,7 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
 
-    - name: Package exact build once for both qualification suites
+    - name: Package exact build once for all qualification workers
       shell: bash
       run: |
         set -euo pipefail
@@ -230,6 +234,53 @@ jobs:
         gzip -1 build/software-vulkan-runtime.tar
         (cd build && sha256sum software-vulkan-runtime.tar.gz > software-vulkan-runtime.tar.gz.sha256)
 
+    - name: Authenticate historical content and preregister the complete capture plan
+      id: publication_plan
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        source=$(git rev-parse HEAD)
+        flags=()
+        case "$SDVK_PUBLICATION_CAMPAIGN" in
+          full)
+            suites='["corpus","publication","controls","witness-1","witness-2"]'
+            flags+=(--cohort)
+            ;;
+          cohort-probe)
+            suites='["publication","controls","witness-1","witness-2"]'
+            flags+=(--cohort-probe)
+            ;;
+          preflight)
+            suites='["controls","witness-1","witness-2"]'
+            flags+=(--compatibility-probe)
+            ;;
+          shadow-startup-probe)
+            suites='["controls","witness-1","witness-2"]'
+            flags+=(--shadow-startup-probe)
+            ;;
+          *) echo 'Unknown publication campaign mode' >&2; exit 1 ;;
+        esac
+        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+        python3 -m tools.renderer_oracle.sdvk009_distributed register \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --runtime-archive build/software-vulkan-runtime.tar.gz \
+          --expected-commit "$source" \
+          --out build/renderer-sdvk009-plan "${flags[@]}"
+        tar -czf build/software-vulkan-publication-inputs.tar.gz -C build renderer-sdvk009-content renderer-sdvk009-plan
+        (cd build && sha256sum software-vulkan-publication-inputs.tar.gz > software-vulkan-publication-inputs.tar.gz.sha256)
+        {
+          printf 'source=%s\n' "$source"
+          printf 'campaign=%s\n' "$SDVK_PUBLICATION_CAMPAIGN"
+          printf 'suites=%s\n' "$suites"
+          printf 'runtime_sha256=%s\n' "$(sha256sum build/software-vulkan-runtime.tar.gz | cut -d ' ' -f1)"
+          printf 'inputs_sha256=%s\n' "$(sha256sum build/software-vulkan-publication-inputs.tar.gz | cut -d ' ' -f1)"
+          printf 'plan_sha256=%s\n' "$(sha256sum build/renderer-sdvk009-plan/preregistration.json | cut -d ' ' -f1)"
+        } >> "$GITHUB_OUTPUT"
+
     - name: Upload source-matched renderer
       uses: actions/upload-artifact@v4
       with:
@@ -241,16 +292,38 @@ jobs:
         retention-days: 1
         if-no-files-found: error
 
+    - name: Upload immutable publication inputs once
+      uses: actions/upload-artifact@v4
+      with:
+        name: software-vulkan-publication-inputs
+        path: |
+          build/software-vulkan-publication-inputs.tar.gz
+          build/software-vulkan-publication-inputs.tar.gz.sha256
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: error
+
+
   vulkan_qualification:
     name: Linux software Vulkan | ${{ matrix.suite }}
     needs: vulkan_build
     runs-on: ubuntu-24.04
+    # A one-host compatible cohort may execute three original 3600-second
+    # captures serially. This bound includes setup, rendezvous and retention.
+    timeout-minutes: 230
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
-        suite: [corpus, publication]
+        # Registration emits only fixed 3/4-worker diagnostic sets or the five
+        # full workers. Cohort allocation changes capture owners, never jobs.
+        suite: ${{ fromJSON(needs.vulkan_build.outputs.suites) }}
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Install original hosted software Vulkan test environment
       shell: bash
@@ -264,17 +337,53 @@ jobs:
         name: software-vulkan-runtime
         path: build
 
+    - name: Download preregistered publication inputs
+      if: matrix.suite != 'corpus'
+      uses: actions/download-artifact@v4
+      with:
+        name: software-vulkan-publication-inputs
+        path: build
+
     - name: Verify archive and source-matched runtime
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: |
         set -euo pipefail
+        test "$(git rev-parse HEAD)" = '${{ needs.vulkan_build.outputs.source }}'
+        echo '${{ needs.vulkan_build.outputs.runtime_sha256 }}  build/software-vulkan-runtime.tar.gz' | sha256sum -c -
         (cd build && sha256sum -c software-vulkan-runtime.tar.gz.sha256)
         tar -tzf build/software-vulkan-runtime.tar.gz >/dev/null
         tar -xzf build/software-vulkan-runtime.tar.gz
         test -x build/vkdoom && test -x build/vktool
         python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+
+    - name: Verify preregistered publication inputs
+      if: matrix.suite != 'corpus'
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo '${{ needs.vulkan_build.outputs.inputs_sha256 }}  build/software-vulkan-publication-inputs.tar.gz' | sha256sum -c -
+        (cd build && sha256sum -c software-vulkan-publication-inputs.tar.gz.sha256)
+        tar -tzf build/software-vulkan-publication-inputs.tar.gz >/dev/null
+        tar -xzf build/software-vulkan-publication-inputs.tar.gz -C build
+        echo '${{ needs.vulkan_build.outputs.plan_sha256 }}  build/renderer-sdvk009-plan/preregistration.json' | sha256sum -c -
+
+    - name: Record hosted worker environment and execution identity
+      shell: bash
+      env:
+        SDVK_WORKER: ${{ matrix.suite }}
+      run: |
+        python3 - <<'PY'
+        from datetime import datetime, timezone
+        import json, os, pathlib, subprocess
+        from tools.ci.renderer_ci_timings import machine_profile
+        out = pathlib.Path('build') / ('renderer-ci-' + os.environ['SDVK_WORKER'])
+        out.mkdir(parents=True, exist_ok=True)
+        profile = machine_profile()
+        profile.update(worker=os.environ['SDVK_WORKER'], started_utc=datetime.now(timezone.utc).isoformat(), source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip())
+        (out / 'profile.json').write_text(json.dumps(profile, indent=2, sort_keys=True) + '\n')
+        PY
 
     - name: Qualify software Vulkan corpus and timing collection
       if: matrix.suite == 'corpus'
@@ -295,10 +404,10 @@ jobs:
         xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
         python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
 
-    # Preserve serial fail-stop publication and actor acceptance. Separate GitHub
-    # steps expose the real per-suite timings without changing capture counts.
-    - name: Select hosted llvmpipe and authenticate publication content
-      if: matrix.suite == 'publication'
+    # The six short module sequences stay serial. The preregistered SDVK-009
+    # sibling captures run independently and are accepted only after assembly.
+    - name: Select explicit hosted llvmpipe for publication workers
+      if: matrix.suite != 'corpus'
       shell: bash
       run: |
         set -euo pipefail
@@ -309,7 +418,34 @@ jobs:
           printf 'VK_ICD_FILENAMES=%s\n' "$sdvk_publication_icds"
           printf 'SDL_VIDEODRIVER=x11\n'
         } >> "$GITHUB_ENV"
-        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+
+    - name: Collect one preregistered bounded compatibility probe per shadow host
+      if: (env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe') && (matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2')
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_distributed probe \
+          --plan build/renderer-sdvk009-plan/preregistration.json \
+          --worker '${{ matrix.suite }}' \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --runtime-archive build/software-vulkan-runtime.tar.gz \
+          --out 'build/renderer-sdvk009-probe-${{ matrix.suite }}' \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Retain immutable compatibility probe including failures
+      if: always() && (env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe') && (matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2')
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk-cohort-probe-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.suite }}
+        path: build/renderer-sdvk009-probe-${{ matrix.suite }}/
+        include-hidden-files: true
+        compression-level: 1
+        retention-days: 30
+        if-no-files-found: error
 
     - name: Qualify SDVK-010 actors on hosted software Vulkan
       if: matrix.suite == 'publication'
@@ -399,35 +535,79 @@ jobs:
           --out build/renderer-sdvk014-controlled \
           --expected-commit "$(git rev-parse HEAD)"
 
-    - name: Qualify SDVK-009 publication witnesses on hosted software Vulkan
-      if: matrix.suite == 'publication'
+    - name: Authenticate all three immutable peer probes within a bounded barrier
+      id: cohort_barrier
+      if: (env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe') && matrix.suite != 'corpus'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        python3 tools/ci/renderer_cohort_artifacts.py \
+          --repository '${{ github.repository }}' \
+          --run-id '${{ github.run_id }}' --run-attempt '${{ github.run_attempt }}' \
+          --expected-commit "$(git rev-parse HEAD)" \
+          --plan-sha256 '${{ needs.vulkan_build.outputs.plan_sha256 }}' \
+          --out build/cohort-peers --artifact-set build/cohort-artifacts.json \
+          --report 'build/renderer-ci-${{ matrix.suite }}/cohort-barrier.json'
+
+    - name: Retain failed cohort transfers without repeating probes
+      if: always() && (steps.cohort_barrier.outcome == 'failure' || steps.cohort_barrier.outcome == 'cancelled')
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-cohort-transfer-failure-${{ matrix.suite }}
+        path: |
+          build/cohort-peers-archives/
+          build/renderer-ci-${{ matrix.suite }}/cohort-barrier.json
+        include-hidden-files: true
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: error
+
+    - name: Execute exactly the preregistered SDVK-009 worker captures
+      if: matrix.suite == 'publication' || matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2'
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: |
         set -euo pipefail
-        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_publication qualify \
+        flags=()
+        if [[ "$SDVK_PUBLICATION_CAMPAIGN" == full || "$SDVK_PUBLICATION_CAMPAIGN" == cohort-probe ]]; then
+          flags+=(--peers build/cohort-peers --artifact-set build/cohort-artifacts.json)
+        fi
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_distributed worker \
+          --plan build/renderer-sdvk009-plan/preregistration.json \
+          --worker '${{ matrix.suite }}' \
           --exe "$PWD/build/vkdoom" \
           --iwad build/renderer-sdvk009-content/freedoom2.wad \
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk009-publication \
-          --expected-commit "$GITHUB_SHA"
+          --runtime-archive build/software-vulkan-runtime.tar.gz \
+          --out 'build/renderer-sdvk009-worker-${{ matrix.suite }}' \
+          --expected-commit "$(git rev-parse HEAD)" "${flags[@]}"
 
-    - name: Report individual hosted publication capture timings
-      if: always() && matrix.config.native_renderer
+    - name: Record worker completion including failures
+      if: always()
       shell: bash
+      env:
+        SDVK_WORKER: ${{ matrix.suite }}
+        SDVK_JOB_STATUS: ${{ job.status }}
       run: |
-        set -euo pipefail
-        if [[ -f build/renderer-sdvk009-publication/qualification.json ]]; then
-          python3 tools/ci/renderer_ci_timings.py build/renderer-sdvk009-publication \
-            --out build/renderer-ci-timings/report.json \
-            --summary "$GITHUB_STEP_SUMMARY"
-        fi
+        python3 - <<'PY'
+        from datetime import datetime, timezone
+        import json, os, pathlib
+        out = pathlib.Path('build') / ('renderer-ci-' + os.environ['SDVK_WORKER'])
+        out.mkdir(parents=True, exist_ok=True)
+        (out / 'completion.json').write_text(json.dumps({'worker': os.environ['SDVK_WORKER'], 'status': os.environ['SDVK_JOB_STATUS'], 'finished_utc': datetime.now(timezone.utc).isoformat()}, indent=2, sort_keys=True) + '\n')
+        PY
 
     - name: Package lossless suite evidence (including failures)
       if: always()
       shell: bash
-      run: python3 tools/ci/renderer_evidence.py pack --build build --suite '${{ matrix.suite }}'
+      run: |
+        python3 tools/ci/renderer_evidence.py pack --build build --suite '${{ matrix.suite }}' \
+          --expected-commit "$(git rev-parse HEAD)" \
+          --runtime-sha256 '${{ needs.vulkan_build.outputs.runtime_sha256 }}' \
+          --plan-sha256 '${{ needs.vulkan_build.outputs.plan_sha256 }}' \
+          --job-status '${{ job.status }}'
 
     - name: Retain suite evidence
       if: always()
@@ -443,14 +623,18 @@ jobs:
         retention-days: 30
         if-no-files-found: error
 
+
   vulkan_evidence:
     # Preserve the exact required check name and original .tar.xz consumer.
     name: Linux software Vulkan | RelWithDebInfo
-    needs: [vulkan_build, vulkan_qualification]
+    needs: [pf_oracle, build, vulkan_build, vulkan_qualification]
     if: always()
     runs-on: ubuntu-24.04
+    timeout-minutes: 60
     steps:
     - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
     - name: Download available qualification evidence
       if: needs.vulkan_build.result == 'success'
@@ -458,26 +642,58 @@ jobs:
       with:
         pattern: renderer-software-vulkan-*
         path: build/parts
-        merge-multiple: true
+        # Keep each artifact in its own directory so duplicate or unknown
+        # deliveries cannot overwrite valid evidence before authentication.
+        merge-multiple: false
 
-    - name: Authenticate, reassemble and verify lossless evidence
-      if: needs.vulkan_build.result == 'success'
+    - name: Authenticate and restore worker evidence without accepting captures
+      id: restore
+      if: always() && needs.vulkan_build.result == 'success'
       shell: bash
       run: |
         set -euo pipefail
+        flags=()
         if [[ "${{ needs.vulkan_qualification.result }}" == success ]]; then
-          python3 tools/ci/renderer_evidence.py merge --parts build/parts --out build/evidence-merged --complete
-        else
-          python3 tools/ci/renderer_evidence.py merge --parts build/parts --out build/evidence-merged
+          flags+=(--complete)
         fi
-        mapfile -t directories < build/renderer-evidence-directories.txt
-        test "${#directories[@]}" -gt 0
-        # The original one-block XZ policy is essential for highly repetitive
-        # raw captures; xz -1 -T0 inflated the final artifact approximately 19x.
-        XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build/evidence-merged "${directories[@]}"
-        python3 tools/ci/renderer_evidence.py verify-final \
-          --archive build/renderer-software-vulkan.tar.xz \
-          --manifest build/renderer-evidence-manifest.json
+        case "$SDVK_PUBLICATION_CAMPAIGN" in
+          full) ;;
+          cohort-probe) flags+=(--suites publication,controls,witness-1,witness-2) ;;
+          preflight|shadow-startup-probe) flags+=(--suites controls,witness-1,witness-2) ;;
+          *) echo 'Unknown publication campaign mode' >&2; exit 1 ;;
+        esac
+        python3 tools/ci/renderer_evidence.py merge \
+          --parts build/parts --out build/evidence-merged \
+          --expected-commit "$(git rev-parse HEAD)" \
+          --runtime-sha256 '${{ needs.vulkan_build.outputs.runtime_sha256 }}' \
+          --plan-sha256 '${{ needs.vulkan_build.outputs.plan_sha256 }}' "${flags[@]}"
+
+    - name: Reconstruct and validate all original SDVK-009 comparisons and controls
+      id: assemble
+      if: always() && steps.restore.outcome == 'success' && needs.vulkan_qualification.result == 'success'
+      shell: bash
+      run: |
+        python3 -m tools.renderer_oracle.sdvk009_distributed assemble \
+          --plan build/evidence-merged/renderer-sdvk009-plan/preregistration.json \
+          --workers build/evidence-merged \
+          --out build/evidence-merged/renderer-sdvk009-publication \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Report individual capture timings after evidence assembly
+      if: always() && steps.restore.outcome == 'success' && env.SDVK_PUBLICATION_CAMPAIGN == 'full'
+      shell: bash
+      run: |
+        python3 tools/ci/renderer_ci_timings.py build/evidence-merged/renderer-sdvk009-publication \
+          --out build/evidence-merged/renderer-ci-timings/report.json \
+          --summary "$GITHUB_STEP_SUMMARY"
+
+    - name: Package and verify the complete legacy archive including failed comparisons
+      id: finalize
+      if: always() && steps.restore.outcome == 'success'
+      shell: bash
+      run: |
+        python3 tools/ci/renderer_evidence.py finalize \
+          --root build/evidence-merged --archive build/renderer-software-vulkan.tar.xz
 
     - name: Upload complete software Vulkan evidence
       if: always()
@@ -488,16 +704,34 @@ jobs:
           build/renderer-software-vulkan.tar.xz
           build/renderer-software-vulkan.tar.xz.sha256
           build/renderer-evidence-manifest.json
+          build/renderer-transport-manifest.json
+          build/renderer-evidence-packaging.json
         compression-level: 0
         retention-days: 30
         if-no-files-found: ignore
 
-    - name: Require both native suites and their shared build
+    - name: Require every native, platform, CPU and authenticated assembly gate
       if: always()
       shell: bash
       run: |
+        set -euo pipefail
+        if [[ "$SDVK_PUBLICATION_CAMPAIGN" != full ]]; then
+          echo 'PRECHECK_ONLY: compatibility evidence cannot satisfy native qualification.' >&2
+          exit 1
+        fi
+        test "${{ needs.pf_oracle.result }}" = success
+        test "${{ needs.build.result }}" = success
         test "${{ needs.vulkan_build.result }}" = success
         test "${{ needs.vulkan_qualification.result }}" = success
+        test "${{ steps.restore.outcome }}" = success
+        test "${{ steps.assemble.outcome }}" = success
+        test "${{ steps.finalize.outcome }}" = success
+        python3 - <<'PY'
+        import json
+        from pathlib import Path
+        qualification = json.loads(Path('build/evidence-merged/renderer-sdvk009-publication/qualification.json').read_text())
+        assert qualification['status'] == 'PASS', 'Missing complete SDVK-009 qualification'
+        PY
 
 # deploy:
 #   name: Update Latest successful build

@@ -139,7 +139,22 @@ not establish byte equality.
 | 3 | Shadow-boundary witness 1 | On; CPU snapshot and complete publication/readback evidence |
 | 4 | Shadow-boundary witness 2 | On; independent fresh process and evidence directory |
 
-Every process uses 640x480, 120 warmup frames, one retained state/RGB frame and
+The original serial API retains this launch order. A separate Owner-requested
+[distributed orchestration candidate](CI-PUBLICATION-PARALLELISATION.md)
+preregisters the same four workloads, puts compositing on the existing short
+publication runner and allocates the three original shadows across compatible
+hosts in the fixed three-worker pool. Three separately authorized short probes
+must all validate before their original exact comparisons determine a fixed
+allocation; they cannot award qualification. The initial controls-paired
+topology failed protected resource-state comparison, and the first-use probe
+exposed a separate cross-host light-workload mismatch. Neither retained failure
+is normalized away. Full captures retain every original setting and comparison.
+Independent siblings may
+already be running when another fails. This bounded temporal policy change
+requires Owner review before merge; it does not relax any capture or acceptance
+invariant below and does not authorize physical execution.
+
+Every original qualification process uses 640x480, 120 warmup frames, one retained state/RGB frame and
 the unchanged authored settings. There are no timing samples or automatic
 retries. The GitHub-hosted software-only process execution ceiling is 3600 seconds.
 The workload remains exactly 120 warmup frames plus one retained state/RGB frame,

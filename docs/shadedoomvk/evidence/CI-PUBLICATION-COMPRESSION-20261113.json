@@ -1,0 +1,66 @@
+{
+  "schema": "sdvk-retained-evidence-compression-experiment/v1",
+  "source_run": "https://github.com/techrote/ShadeDoomVK/actions/runs/43506661855",
+  "source_artifact_id": 14083560781,
+  "run_head": "da017d82d74d4681164c0aac8b031bdeea0543a7",
+  "built_merge_commit": "7980f0cc9f1e7aa3b759c47f3b6db66e0992387a",
+  "source_xz_sha256": "dcc17cd3a5d65ebb3acd5570e6346621ea003a6aec4e6e32d63269bb6bc1f82a",
+  "raw_tar_sha256": "25fd8e30eaafe84b447632ce650a57cd663ce14f2c545ae95e3e15a0751369ab",
+  "raw_tar_bytes": 3068303360,
+  "baseline": {
+    "args": [
+      "-6",
+      "-T1",
+      "--lzma2=dict=64MiB"
+    ],
+    "elapsed_seconds": 1090.267,
+    "raw_bytes": 3068303360,
+    "raw_sha256": "25fd8e30eaafe84b447632ce650a57cd663ce14f2c545ae95e3e15a0751369ab",
+    "compressed_bytes": 47282436,
+    "compression_exit": 0,
+    "decode_exit": 0,
+    "verify_seconds": 7.275,
+    "verify_exit": 0,
+    "verified_raw_sha256": "25fd8e30eaafe84b447632ce650a57cd663ce14f2c545ae95e3e15a0751369ab",
+    "verified": true
+  },
+  "candidate": {
+    "args": [
+      "-6",
+      "-T3",
+      "--block-size=512MiB",
+      "--lzma2=dict=64MiB"
+    ],
+    "elapsed_seconds": 419.641,
+    "raw_bytes": 3068303360,
+    "raw_sha256": "25fd8e30eaafe84b447632ce650a57cd663ce14f2c545ae95e3e15a0751369ab",
+    "compressed_bytes": 87495836,
+    "compression_exit": 0,
+    "decode_exit": 0,
+    "verify_seconds": 8.43,
+    "verify_exit": 0,
+    "verified_raw_sha256": "25fd8e30eaafe84b447632ce650a57cd663ce14f2c545ae95e3e15a0751369ab",
+    "verified": true,
+    "original_compressed_bytes": 47282436,
+    "ratio_to_original_bytes": 1.8504934052044189,
+    "host": {
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "logical_affinity_cpus": 9,
+      "kernel": "Linux-6.18.57",
+      "glibc": "2.41"
+    },
+    "xz_reported_compression_memory_mib": 6628,
+    "notes": [
+      "Offline retained-evidence packaging only; not GitHub-hosted native or GPU performance.",
+      "Single baseline compressor ran concurrently on one of nine available CPUs during part of this trial."
+    ]
+  },
+  "speedup_ratio": 2.598095,
+  "seconds_saved": 670.626,
+  "compressed_bytes_added": 40213400,
+  "compressed_size_ratio": 1.850493,
+  "raw_tar_identical": true,
+  "baseline_reproduced_original_xz_sha256": "dcc17cd3a5d65ebb3acd5570e6346621ea003a6aec4e6e32d63269bb6bc1f82a",
+  "scope": "One offline retained-byte compression comparison on the local EPYC 9V74 host. The compressors overlapped during part of the experiment and other CPU checks also ran; this is not a controlled or repeated hosted benchmark. No native workload, physical GPU acceptance or repeatable speedup is claimed.",
+  "recommendation": "Use measured -6 -T3 --block-size=512MiB --lzma2=dict=64MiB only with at least 12 GiB effective memory and three effective processors, an explicit 7 GiB compression memory cap and --no-adjust; otherwise retain -T1 with a 1 GiB cap. Record actual hosted archive size and timing. Keep the original 64 MiB dictionary and CRC64; standard multi-block XZ preserves consumer format."
+}
