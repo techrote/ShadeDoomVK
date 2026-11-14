@@ -1,6 +1,6 @@
 # SHADOW-001 — Stylised Raster Sprite Shadow Projection
 
-**Proposed GitHub issue and implementation specification**  
+**Owner-approved implementation specification for [SHADOW-001 #204](https://github.com/techrote/ShadeDoomVK/issues/204)**  
 **Programme:** ShadeDoomVK — *The Lost 2003 Remaster*  
 **Status:** OWNER-APPROVED DESIGN. Implementation still requires a scoped branch/PR, normal review, and the applicable acceptance policy.  
 **Priority:** First flagship visual feature.  
