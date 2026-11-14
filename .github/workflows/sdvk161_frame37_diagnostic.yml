@@ -1,0 +1,73 @@
+name: SDVK-161 frame 37 diagnostic (NONQUALIFYING)
+
+on:
+  push:
+    branches:
+      - diagnostic/sdvk161-frame37-20261114
+
+permissions:
+  contents: read
+
+jobs:
+  frame37:
+    name: Hosted llvmpipe frame-37 trace — not an acceptance check
+    runs-on: ubuntu-24.04
+    timeout-minutes: 80
+    steps:
+    - uses: actions/checkout@v4
+    - name: Prepare source, validate diagnostic script
+      run: |
+        python3 -m py_compile tools/renderer_oracle/sdvk161_frame37_diagnostic.py
+        git status --short
+        git rev-parse HEAD
+    - name: Install original software Vulkan prerequisites
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+    - name: Build exact diagnostic source on hosted runner
+      shell: bash
+      run: |
+        set -euo pipefail
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        export MAKEFLAGS=--keep-going
+        cmake --build build --config RelWithDebInfo --parallel 3
+    - name: Verify exact source/runtime identity
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+    - name: Authenticate explicit hosted llvmpipe ICD
+      shell: bash
+      run: |
+        set -euo pipefail
+        mapfile -t lvp < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#lvp[@]}" -eq 1
+        echo "VK_DRIVER_FILES=${lvp[0]}" >> "$GITHUB_ENV"
+        echo "VK_ICD_FILENAMES=${lvp[0]}" >> "$GITHUB_ENV"
+        echo "SDL_VIDEODRIVER=x11" >> "$GITHUB_ENV"
+    - name: Execute fixed independent native diagnostic attempts (no qualification)
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_frame37_diagnostic
+    - name: Preserve bounded raw captures, comparison and failures
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk161-nonqualifying-frame37-${{ github.sha }}
+        path: build/sdvk161-frame37-diagnostic/
+        retention-days: 14
+        compression-level: 1
+        include-hidden-files: true
+        if-no-files-found: warn
+    - name: Explicitly prevent qualifying this diagnostic
+      if: always()
+      run: |
+        echo "PRECHECK_ONLY: these extra selected frames and repeated processes are NOT publication qualification"
+        exit 1
