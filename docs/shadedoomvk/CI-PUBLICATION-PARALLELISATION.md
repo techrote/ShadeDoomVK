@@ -25,9 +25,10 @@ The Owner superseded earlier macOS requirements: mandatory CI now contains the
 two Visual Studio 2022 configurations and all three original Linux compiler
 configurations. macOS Release/Debug, their dependency branch and their startup
 diagnostic are removed. Historical macOS evidence remains historical evidence.
-At reconnaissance `master` had no branch protection requirements and the
-repository had no rulesets, so there were no externally configured macOS check
-contexts to remove.
+Accessible branch metadata reports unprotected `master` with no required
+contexts, and the repository ruleset list is empty. No accessible external
+macOS requirement was found. The administrative enforcement endpoint was not
+accessible; no repository permissions or protection settings were changed.
 
 | Historical CI | Six short modules | Three shadow captures | Complete SDVK-009 | Whole workflow |
 | --- | ---: | ---: | ---: | ---: |
@@ -321,6 +322,31 @@ the missing assigned captures cannot be inferred from those successes. The
 [repair investigation receipt](evidence/CI-PUBLICATION-COHORT-REPAIR-20261114.json)
 records these source boundaries and retained outcomes.
 
+The repaired [cohort proof #626](https://github.com/techrote/ShadeDoomVK/actions/runs/43546946436)
+at `91cfec0fac878e0e166450252f97a96a01d12004` passed all real native, publication,
+platform, CPU and strict assembly gates. The only failing step is the deliberate
+`PRECHECK_ONLY` guard. Its selected Intel Xeon 6975P-C pair executed the actual
+two-plus-one assignment: controls ran shadow-control and shadow-witness-2;
+physical witness-2 ran shadow-witness-1. The slower incompatible AMD host
+retained its valid probe and an explicitly empty full-work assignment.
+
+The three post-probe shadows took 53.184, 53.267 and 53.531 native seconds.
+All original exact state/RGB comparisons passed with zero changed pixels,
+including the two successive independent processes on controls. All three had
+the same generation/texture-epoch value 4, following cold probes at 3. Every
+worker completed the stable-artifact barrier without a failed-transfer retry.
+All six companion modules, including the accepted SDVK-161 repair, passed.
+The hosted CPU gate passed all 527 renderer tests and the Windows gate passed
+all 206 supervisor tests. This is evidence for routing and startup compatibility,
+not a substitute for the original complete 120-warmup captures and witnesses.
+
+The [source-qualified proof receipt](evidence/CI-PUBLICATION-COHORT-PROOF-20261114.json)
+records authenticated source, artifacts, comparisons, timings and the explicit
+nonqualifying status. The full campaign enables the complete original workload;
+its fresh exact-head build and all mandatory gates must pass before qualification
+can be reported. The corpus transfer trim and read-only shared-build profile
+do not change any native harness or comparison implementation from this proof.
+
 ## Explicit change to serial fail-stop semantics
 
 `sdvk009_publication.qualify` and its original serial fail-stop tests remain
@@ -393,6 +419,11 @@ fails before qualification.
 The shared runtime is built once. The publication packet now contains its
 compositing worker's manifest and raw capture as well as the six original
 module packets; all seven roots and successful native receipts are required.
+The corpus keeps its original installed Freedoom input and source-authored
+preparation. It skips the unused publication-input download and extraction,
+saving one roughly 35 MB transfer without changing its source/runtime
+authentication or any native command. Its transport still binds the plan digest
+directly from the shared build output.
 Runtime and authored-input archive SHA-256
 values and the plan SHA-256 are passed directly from build job outputs and
 checked by consumers, in addition to retained sidecars. Historical Freedoom

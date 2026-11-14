@@ -164,6 +164,12 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         self.assertIn('needs.vulkan_build.outputs.inputs_sha256', consumer)
         self.assertIn('needs.vulkan_build.outputs.plan_sha256', consumer)
         self.assertIn('--expected-state clean', consumer)
+        steps = step_blocks(consumer)
+        for name in ('Download exactly one shared renderer build', 'Verify archive and source-matched runtime'):
+            self.assertNotIn('if:', steps[name], 'Every worker must authenticate the shared source/runtime')
+        for name in ('Download preregistered publication inputs', 'Verify preregistered publication inputs'):
+            self.assertIn("if: matrix.suite != 'corpus'", steps[name])
+        self.assertNotIn('software-vulkan-publication-inputs', steps['Verify archive and source-matched runtime'])
         self.assertIn('SDVK_PUBLICATION_CAMPAIGN', self.text)
         self.assertNotIn('--expected-commit "$GITHUB_SHA"', self.text)
 

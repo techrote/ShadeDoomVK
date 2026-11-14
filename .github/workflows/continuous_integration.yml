@@ -12,7 +12,7 @@ concurrency:
 env:
   # Diagnostic source revisions never award qualification: the legacy required
   # check fails with PRECHECK_ONLY. Full mode retains every original workload.
-  SDVK_PUBLICATION_CAMPAIGN: cohort-probe
+  SDVK_PUBLICATION_CAMPAIGN: full
 
 jobs:
   pf_oracle:
@@ -195,6 +195,19 @@ jobs:
         sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
         python3 tools/fetch_build_deps.py --platform linux --output build/deps
 
+    - name: Record shared build host and source identity
+      shell: bash
+      run: |
+        python3 - <<'PY'
+        import json, subprocess
+        from tools.ci.renderer_ci_timings import machine_profile
+        profile = machine_profile()
+        profile.update(role='shared-build',
+            source_commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip(),
+            source_tree=subprocess.check_output(['git', 'rev-parse', 'HEAD^{tree}'], text=True).strip())
+        print('SDVK_SHARED_BUILD_PROFILE_JSON=' + json.dumps(profile, sort_keys=True))
+        PY
+
     - name: Configure and build
       shell: bash
       run: |
@@ -325,6 +338,7 @@ jobs:
         path: build
 
     - name: Download preregistered publication inputs
+      if: matrix.suite != 'corpus'
       uses: actions/download-artifact@v4
       with:
         name: software-vulkan-publication-inputs
@@ -343,6 +357,12 @@ jobs:
         tar -xzf build/software-vulkan-runtime.tar.gz
         test -x build/vkdoom && test -x build/vktool
         python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+
+    - name: Verify preregistered publication inputs
+      if: matrix.suite != 'corpus'
+      shell: bash
+      run: |
+        set -euo pipefail
         echo '${{ needs.vulkan_build.outputs.inputs_sha256 }}  build/software-vulkan-publication-inputs.tar.gz' | sha256sum -c -
         (cd build && sha256sum -c software-vulkan-publication-inputs.tar.gz.sha256)
         tar -tzf build/software-vulkan-publication-inputs.tar.gz >/dev/null
