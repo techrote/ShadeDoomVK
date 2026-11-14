@@ -102,7 +102,8 @@ void VkLightmapper::Raytrace(const TArray<LightmapTile*>& tiles)
 		lightmapRaytraceLast.active = true;
 
 		lightmapRaytraceLast.ResetAndClock();
-		fb->GetCommands()->PushGroup(fb->GetCommands()->GetTransferCommands(), "lightmap.total");
+		const auto stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		bool timing = fb->GetCommands()->PushGroup(fb->GetCommands()->GetTransferCommands(), "lightmap.total", stage);
 		UploadUniforms();
 
 		bool firstCall = true;
@@ -120,16 +121,18 @@ void VkLightmapper::Raytrace(const TArray<LightmapTile*>& tiles)
 
 			if (drawindexed.IsFull || copytiles.Pos == drawindexed.BufferSize)
 			{
-				fb->GetCommands()->PopGroup(fb->GetCommands()->GetTransferCommands());
+				if (timing)
+					fb->GetCommands()->PopGroup(fb->GetCommands()->GetTransferCommands(), stage);
 				fb->WaitForCommands(false);
-				fb->GetCommands()->PushGroup(fb->GetCommands()->GetTransferCommands(), "lightmap.total");
+				timing = fb->GetCommands()->PushGroup(fb->GetCommands()->GetTransferCommands(), "lightmap.total", stage);
 				drawindexed.Pos = 0;
 				drawindexed.IsFull = false;
 				copytiles.Pos = 0;
 			}
 		}
 
-		fb->GetCommands()->PopGroup(fb->GetCommands()->GetTransferCommands());
+		if (timing)
+			fb->GetCommands()->PopGroup(fb->GetCommands()->GetTransferCommands(), stage);
 		lightmapRaytraceLast.Unclock();
 	}
 }

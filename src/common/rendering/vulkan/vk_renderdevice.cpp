@@ -454,9 +454,14 @@ void VulkanRenderDevice::ResetLightProbes()
 
 void VulkanRenderDevice::RenderLightProbe(int probeIndex, std::function<void(IntRect& bounds, int side)> renderFunc)
 {
+	// Include graphics, compute and transfer completion in the probe interval.
+	const auto stage = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+	const bool timing = mCommands->PushGroup(mCommands->GetDrawCommands(), "lightprobe.rebuild", stage);
 	mLightprober->RenderEnvironmentMap(std::move(renderFunc));
 	mLightprober->GenerateIrradianceMap(probeIndex);
 	mLightprober->GeneratePrefilterMap(probeIndex);
+	if (timing)
+		mCommands->PopGroup(mCommands->GetDrawCommands(), stage);
 }
 
 void VulkanRenderDevice::EndLightProbePass()

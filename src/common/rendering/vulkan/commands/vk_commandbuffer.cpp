@@ -34,6 +34,9 @@
 #include "diagnostics/hw_sdvkdiagnostics.h"
 #include "v_video.h"
 #include "i_system.h"
+#include "i_interface.h"
+#include "m_argv.h"
+#include "printf.h"
 #include <cmath>
 
 extern int rendered_commandbuffers;
@@ -73,8 +76,11 @@ VkCommandBufferManager::VkCommandBufferManager(VulkanRenderDevice* fb) : fb(fb)
 			.QueryType(VK_QUERY_TYPE_TIMESTAMP, MaxTimestampQueries)
 			.Create(fb->GetDevice());
 
-		GetDrawCommands()->resetQueryPool(mTimestampQueryPool.get(), 0, MaxTimestampQueries);
+		GetTransferCommands()->resetQueryPool(mTimestampQueryPool.get(), 0, MaxTimestampQueries);
 	}
+	mToolGpuTiming = RunningAsTool && Args->CheckParm("-sdvkobservegpu");
+	if (mToolGpuTiming)
+		gpuStatActive = true;
 }
 
 VkCommandBufferManager::~VkCommandBufferManager()
@@ -548,7 +554,7 @@ void VkCommandBufferManager::FinishPublicationWitness()
 	CfxTrace::WitnessFinish();
 }
 
-bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name)
+bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FString& name, VkPipelineStageFlagBits stage)
 {
 	if (!gpuStatActive)
 		return false;
@@ -559,7 +565,7 @@ bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FSt
 		q.name = name;
 		q.startIndex = mNextTimestampQuery++;
 		q.endIndex = 0;
-		cmdbuffer->writeTimestamp(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, mTimestampQueryPool.get(), q.startIndex);
+		cmdbuffer->writeTimestamp(stage, mTimestampQueryPool.get(), q.startIndex);
 		mGroupStack.push_back(timeElapsedQueries.size());
 		timeElapsedQueries.push_back(q);
 		return true;
@@ -567,7 +573,7 @@ bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FSt
 	return false;
 }
 
-void VkCommandBufferManager::PopGroup(VulkanCommandBuffer* cmdbuffer)
+void VkCommandBufferManager::PopGroup(VulkanCommandBuffer* cmdbuffer, VkPipelineStageFlagBits stage)
 {
 	if (!gpuStatActive || mGroupStack.empty())
 		return;
@@ -578,7 +584,7 @@ void VkCommandBufferManager::PopGroup(VulkanCommandBuffer* cmdbuffer)
 	if (mNextTimestampQuery < MaxTimestampQueries && fb->GetDevice()->GraphicsTimeQueries)
 	{
 		q.endIndex = mNextTimestampQuery++;
-		cmdbuffer->writeTimestamp(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, mTimestampQueryPool.get(), q.endIndex);
+		cmdbuffer->writeTimestamp(stage, mTimestampQueryPool.get(), q.endIndex);
 	}
 }
 
@@ -592,12 +598,12 @@ void VkCommandBufferManager::UpdateGpuStats()
 	double timestampPeriod = fb->GetDevice()->PhysicalDevice.Properties.Properties.limits.timestampPeriod;
 
 	// Reuse the existing requested profiling readback: never issue an additional
-	// query or wait for diagnostics. These can be nested named groups measured at
-	// COLOR_ATTACHMENT_OUTPUT; they are not a sum or a whole-frame GPU timer.
+	// query or wait for diagnostics. These named groups can nest and are not
+	// a sum or a whole-frame GPU timer.
 	const bool diagnosticsRequested = SdvkDiagnostics::GpuTimingRequested();
 	bool diagnosticQueriesReady = false;
 	uint64_t timestampMask = std::numeric_limits<uint64_t>::max();
-	if (diagnosticsRequested)
+	if (diagnosticsRequested || mToolGpuTiming)
 	{
 		const auto* device = fb->GetDevice();
 		const auto& families = device->PhysicalDevice.QueueFamilies;
@@ -620,7 +626,12 @@ void VkCommandBufferManager::UpdateGpuStats()
 			unavailable = "gpu_timestamp_groups_incomplete_or_capacity_reached";
 
 		if (unavailable)
-			SdvkDiagnostics::GpuUnavailable(unavailable);
+		{
+			if (diagnosticsRequested)
+				SdvkDiagnostics::GpuUnavailable(unavailable);
+			if (mToolGpuTiming && mNextTimestampQuery > 0)
+				Printf("SDVK_TOOL_GPU unavailable=%s\n", unavailable);
+		}
 		else
 		{
 			diagnosticQueriesReady = true;
@@ -640,7 +651,11 @@ void VkCommandBufferManager::UpdateGpuStats()
 			// This measures an interval shorter than one full counter period;
 			// timestamps alone cannot disambiguate additional complete wraps.
 			const uint64_t elapsedTicks = (timestamps[q.endIndex] - timestamps[q.startIndex]) & timestampMask;
-			SdvkDiagnostics::GpuGroup(q.name.GetChars(), double(elapsedTicks) * timestampPeriod / 1000000.0);
+			const double milliseconds = double(elapsedTicks) * timestampPeriod / 1000000.0;
+			if (diagnosticsRequested)
+				SdvkDiagnostics::GpuGroup(q.name.GetChars(), milliseconds);
+			if (mToolGpuTiming)
+				Printf("SDVK_TOOL_GPU group=%s ms=%.6f\n", q.name.GetChars(), milliseconds);
 		}
 
 		// Preserve the inherited display calculation and rounding independently.
@@ -654,6 +669,6 @@ void VkCommandBufferManager::UpdateGpuStats()
 	timeElapsedQueries.clear();
 	mGroupStack.clear();
 
-	gpuStatActive = keepGpuStatActive || diagnosticsRequested;
+	gpuStatActive = keepGpuStatActive || diagnosticsRequested || mToolGpuTiming;
 	keepGpuStatActive = false;
 }
