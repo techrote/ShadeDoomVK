@@ -124,19 +124,27 @@ def main():
         try:
             receipt = run.capture(opts)
             entry["capture_status"] = receipt.get("status")
-            if (path / "native.renderer.json").exists():
+        except Exception as exc:
+            # Original SDVK-161 validation MUST reject extra surface snapshots.
+            # Inspect the retained raw OBSERVER packet only as nonqualifying
+            # diagnostic evidence; no run is relabeled admitted.
+            entry["capture_status"] = "REJECTED_BY_ORIGINAL_CAPTURE_VALIDATION"
+            entry["error"] = repr(exc)
+            entry["traceback"] = traceback.format_exc()
+            print("CAPTURE_EXCEPTION", i, entry["error"], flush=True)
+        if (path / "native.renderer.json").exists():
+            try:
                 summary = inspect(path)
+                summary["ordinal"] = i
                 seen.append(summary)
-                entry["observation"] = summary
-                # Do not dump full raw records into the job log.
+                entry["raw_observation_retained"] = True
                 for f in FRAMES:
                     x = summary["frames"][str(f)]
                     print("FRAME", i, f, "COUNTERS", json.dumps(x["frame_counters"], sort_keys=True),
                           "KINDS", json.dumps(x["kinds"], sort_keys=True), flush=True)
-        except Exception as exc:
-            entry["error"] = repr(exc)
-            entry["traceback"] = traceback.format_exc()
-            print("CAPTURE_EXCEPTION", i, entry["error"], flush=True)
+            except Exception as exc:
+                entry["inspection_error"] = repr(exc)
+                print("RAW_INSPECTION_FAILED", i, entry["inspection_error"], flush=True)
         entry["finished"] = datetime.now(timezone.utc).isoformat()
         # Each independently authorised attempt is recorded once, even on failure.
         report["attempts"].append({k: v for k, v in entry.items() if k != "observation"})
