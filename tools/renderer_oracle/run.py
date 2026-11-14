@@ -449,7 +449,7 @@ def capture(args):
         diagnostics, process_environment = None, None
         if getattr(args, "publication_witness", False):
             diagnostics, process_environment = publication_module().capture_diagnostics(args, out)
-        env_keys = ("VK_ICD_FILENAMES", "VK_DRIVER_FILES", "VK_INSTANCE_LAYERS", "VK_LAYER_PATH", "DISPLAY",
+        env_keys = ("SDVK161_WORKER_GATE", "VK_ICD_FILENAMES", "VK_DRIVER_FILES", "VK_INSTANCE_LAYERS", "VK_LAYER_PATH", "DISPLAY",
                     "WAYLAND_DISPLAY", "SDL_VIDEODRIVER", "LP_NUM_THREADS", "OMP_NUM_THREADS",
                     "MESA_SHADER_CACHE_DISABLE", "MESA_SHADER_CACHE_DIR", "MESA_LOADER_DRIVER_OVERRIDE",
                     "VK_LOADER_DRIVERS_SELECT", "VK_LOADER_DRIVERS_DISABLE", "VK_LOADER_LAYERS_ENABLE",

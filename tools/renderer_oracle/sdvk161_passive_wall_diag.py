@@ -11,6 +11,7 @@ import argparse
 from collections import Counter, defaultdict
 from datetime import datetime, timezone
 import json
+import os
 from pathlib import Path
 import subprocess
 import traceback
@@ -23,7 +24,10 @@ TARGET_FRAMES = (4, 37)
 ROOT = Path("build/sdvk161-passive-wall")
 TRACE_NAME = "native.walltrace.json"
 STAGES = {1: "queued", 2: "draw-entry", 3: "after-setup", 4: "actually-drawn",
-          5: "draw-exit", 6: "successful-light-upload"}
+          5: "draw-exit", 6: "successful-light-upload", 7: "worker-schedule"}
+# Eight predetermined two-process cohorts; all four modes repeat twice.
+PAIR_MODES = ("immediate", "after1", "after4", "after_all") * 2
+MODE_NUMBERS = {"immediate": 0, "after1": 1, "after4": 4, "after_all": 300001}
 
 
 def stage_key(row):
@@ -70,6 +74,13 @@ def summaries(raw, trace):
                 f"Frame {frame}: indexed actual upload calls disagree with native light ledger")
         require(stage[2] == stage[3] == stage[5],
                 f"Frame {frame}: draw-entry/setup/exit stage calls disagree")
+        if frame == 37:
+            require(stage[7] >= 1 and all(
+                row["vertices"] > 0 and 0 <= row["light_index"] <= row["vertices"]
+                for row in by_frame[frame] if row["stage"] == 7),
+                "Frame 37 worker schedule missing or impossible")
+        else:
+            require(stage[7] == 0, "Worker schedule altered an unselected frame")
         output[str(frame)] = {
             "native_walls": original_frames[frame]["walls"],
             "native_vertices": original, "native_light_attempts": light["attempts"],
@@ -78,6 +89,9 @@ def summaries(raw, trace):
             "emitted": len(emitted), "sum_emitted_vertices": accounted,
             "actual_empty_uploads": sum(r["normal"] + r["subtractive"] + r["additive"] == 0 for r in uploaded),
             "portal_queue_rows": sum(r["portal"] == 1 for r in by_frame[frame] if r["stage"] == 1),
+            "worker_gates": [{"threshold": r["type"], "published_jobs": r["vertices"],
+                              "worker_started_at": r["light_index"], "portal": r["portal"]}
+                             for r in by_frame[frame] if r["stage"] == 7],
         }
     return output
 
@@ -86,7 +100,7 @@ def compare_traces(left, right, frame):
     la = [r for r in left["rows"] if r["frame"] == frame]
     ra = [r for r in right["rows"] if r["frame"] == frame]
     differences = {}
-    for stage in STAGES:
+    for stage in (1, 2, 3, 4, 5, 6):
         x = Counter(stage_key(r) for r in la if r["stage"] == stage)
         y = Counter(stage_key(r) for r in ra if r["stage"] == stage)
         extra_l, extra_r = list((x - y).elements()), list((y - x).elements())
@@ -100,6 +114,8 @@ def compare_traces(left, right, frame):
 
 
 def attempt(index, prepared, manifest, source, root):
+    mode = PAIR_MODES[(index - 1) // 2]
+    os.environ["SDVK161_WORKER_GATE"] = mode
     out = root / f"attempt-{index:02d}"
     args = argparse.Namespace(
         exe=Path("build/vkdoom"), iwad=Path("/usr/share/games/doom/freedoom2.wad"),
@@ -108,11 +124,13 @@ def attempt(index, prepared, manifest, source, root):
         gpu=False, include_stress=True, image_policy="exact", extent=None,
         collision_snapshot=False, publication_witness=False,
         expected_commit=source, require_clean=True)
-    entry = {"ordinal": index, "folder": str(out), "status": "FAIL",
+    entry = {"ordinal": index, "worker_mode": mode, "folder": str(out), "status": "FAIL",
              "started_utc": datetime.now(timezone.utc).isoformat()}
     trace = None
     try:
         run.capture(args)
+        requested = read_json(out / "request.json")["environment"].get("SDVK161_WORKER_GATE")
+        require(requested == mode, "Effective native diagnostic gate differs from preregistered schedule")
         # Independent original gates, not a parallel proxy:
         native_root, _, raw, _ = run.validate_run(out)
         qualified = ss.validate_transition_records(
@@ -126,6 +144,18 @@ def attempt(index, prepared, manifest, source, root):
         write_json(out / "original-checkpoints.json", checkpoints)
         trace = read_json(out / TRACE_NAME)
         verified = summaries(raw, trace)
+        require(all(g["threshold"] == MODE_NUMBERS[mode]
+                    for g in verified["37"]["worker_gates"]),
+                "Actual recursive worker gate differs from preregistered mode")
+        if mode == "after_all":
+            require(all(g["worker_started_at"] == g["published_jobs"]
+                        for g in verified["37"]["worker_gates"]),
+                    "Deferred worker did not start after its producer completed")
+        if mode in ("after1", "after4"):
+            require(all(g["worker_started_at"] >= MODE_NUMBERS[mode]
+                        or g["worker_started_at"] == g["published_jobs"]
+                        for g in verified["37"]["worker_gates"]),
+                    "Worker started before its registered queue publication threshold")
         write_json(out / "passive-frame-summary.json", verified)
         entry.update(status="ADMITTED_ORIGINAL_NATIVE_WITH_NONQUALIFYING_TRACE",
                      original_gate_pass=True,
@@ -164,6 +194,9 @@ def main():
         "original_frames": ss.FRAMES, "original_warmup": ss.WARMUP,
         "original_detailed_witness_frames": list(range(8, ss.FRAMES + 1, 8)),
         "additional_passive_only_frames": list(TARGET_FRAMES),
+        "worker_modes_by_original_pair": list(PAIR_MODES),
+        "reproduction_goal": "original missing actual four-vertex wall and one empty light upload",
+        "qualification": "NONQUALIFYING: scheduling and diagnostic instrumentation do not award source acceptance",
         "classification": "NONQUALIFYING; no render/fixture/comparison predicates changed",
         "policy": "Diagnostic env only; original native input and all native acceptance predicates unchanged",
         "attempts": [], "pair_comparisons": [],
@@ -175,7 +208,8 @@ def main():
         if receipt["status"].startswith("ADMITTED_") and trace is not None:
             traces[i] = trace
     for i in range(1, COUNT, 2):
-        row = {"pair": [i, i + 1], "status": "NOT_COMPARABLE"}
+        row = {"pair": [i, i + 1], "worker_mode": PAIR_MODES[(i - 1) // 2],
+               "status": "NOT_COMPARABLE"}
         if i in traces and i + 1 in traces:
             a = root / f"attempt-{i:02d}"
             b = root / f"attempt-{i+1:02d}"
@@ -199,11 +233,49 @@ def main():
             except Exception as error:
                 row.update(status="REJECTED", error=repr(error))
         report["pair_comparisons"].append(row)
+    # Compare independently admitted representatives between worker-start
+    # schedules. These comparisons are forensic only: the schedules differ.
+    report["cross_mode_comparisons"] = []
+    representatives = (1, 3, 5, 7, 9, 11, 13, 15)
+    for left_index in representatives:
+        for right_index in representatives:
+            if right_index <= left_index:
+                continue
+            left_mode = PAIR_MODES[(left_index - 1) // 2]
+            right_mode = PAIR_MODES[(right_index - 1) // 2]
+            if left_mode == right_mode:
+                continue
+            record = {"left": left_index, "right": right_index,
+                      "modes": [left_mode, right_mode], "status": "NOT_COMPARABLE"}
+            if left_index in traces and right_index in traces:
+                left = root / f"attempt-{left_index:02d}"
+                right = root / f"attempt-{right_index:02d}"
+                try:
+                    comparison = run.compare_runs(left, right)
+                    delta = {}
+                    for frame in TARGET_FRAMES:
+                        changes = compare_traces(traces[left_index], traces[right_index], frame)
+                        if changes:
+                            delta[str(frame)] = changes
+                    record.update(status=comparison["status"],
+                                  state_equal=comparison["state_equal"],
+                                  image=comparison["image"],
+                                  first_state_differences=comparison["first_state_differences"][:20],
+                                  real_draw_differences=delta)
+                    if comparison["status"] != "PASS":
+                        print("CROSS_MODE_FAILURE", left_index, right_index,
+                              left_mode, right_mode,
+                              json.dumps(record["first_state_differences"][:8]), flush=True)
+                except Exception as error:
+                    record.update(status="REJECTED", error=repr(error))
+            report["cross_mode_comparisons"].append(record)
     write_json(root / "forensics.json", report)
     print("PASSIVE_NONQUALIFYING_FINISHED", "attempts", len(report["attempts"]),
           "admitted_original_native", len(traces), "pairs", len(report["pair_comparisons"]),
           "original_repeatability_failures",
-          sum(p["status"] == "FAIL" for p in report["pair_comparisons"]), flush=True)
+          sum(p["status"] == "FAIL" for p in report["pair_comparisons"]),
+          "cross_mode_failures",
+          sum(p["status"] == "FAIL" for p in report["cross_mode_comparisons"]), flush=True)
 
 
 if __name__ == "__main__":

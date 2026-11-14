@@ -44,6 +44,11 @@
 #include "hw_vertexbuilder.h"
 #include "hw_walldispatcher.h"
 #include "hw_flatdispatcher.h"
+#include "diagnostics/hw_sdvkdiagnostics.h"
+#include <cstdlib>
+#include <cstring>
+#include <thread>
+#include <stdexcept>
 
 #include "p_visualthinker.h"
 
@@ -111,6 +116,8 @@ public:
 		return nullptr;
 	}
 	
+	int Published() const { return writeindex.load(std::memory_order_acquire); }
+
 	void ReleaseAll()
 	{
 		readindex = 0;
@@ -1064,18 +1071,41 @@ void HWDrawInfo::RenderBSP(void *node, bool drawpsprites, FRenderState& state)
 
 	if (multithread)
 	{
+		// RESEARCH ONLY: change worker-start interleaving, never omit or alter
+		// a job. Runs only under the default-off SDVK-161 wall diagnostic on
+		// the original historically failed retained frame (37).
+		int gate = 0;
+		if (SdvkDiagnostics::PassiveWallTraceWorkerGateEnabled())
+		{
+			const char* mode = std::getenv("SDVK161_WORKER_GATE");
+			if (mode && std::strcmp(mode, "after1") == 0) gate = 1;
+			else if (mode && std::strcmp(mode, "after4") == 0) gate = 4;
+			else if (mode && std::strcmp(mode, "after_all") == 0) gate = 300001;
+			else if (mode && std::strcmp(mode, "immediate") != 0)
+				throw std::runtime_error("Invalid SDVK161_WORKER_GATE diagnostic mode");
+		}
+		std::atomic<bool> producerComplete{false};
+		std::atomic<int> workerStartedAt{-1};
 		jobQueue.ReleaseAll();
 		auto future = renderPool.push([&](int id) {
+			while (gate > 0 && !producerComplete.load(std::memory_order_acquire)
+				&& jobQueue.Published() < gate)
+				std::this_thread::yield();
+			workerStartedAt.store(jobQueue.Published(), std::memory_order_release);
 			WorkerThread();
 		});
 		if (Viewpoint.IsOrtho() && ((Level->flags3 & LEVEL3_NOFOGOFWAR) || !r_radarclipper)) RenderOrthoNoFog(state);
 		else RenderBSPNode(node, state);
 
 		jobQueue.AddJob(RenderJob::TerminateJob, nullptr, nullptr);
+		const int published = jobQueue.Published();
+		producerComplete.store(true, std::memory_order_release);
 		Bsp.Unclock();
 		MTWait.Clock();
 		future.wait();
 		MTWait.Unclock();
+		SdvkDiagnostics::PassiveWallTraceWorkerGate(this, gate, published,
+			workerStartedAt.load(std::memory_order_acquire));
 	}
 	else
 	{

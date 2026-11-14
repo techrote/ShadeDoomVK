@@ -844,6 +844,27 @@ void PassiveWallTraceWall(const HWWall* wall, const HWDrawInfo* context, int sta
     }
     AppendPassiveWall(row);
 }
+// Registered after a completed recursive producer/worker join: real issued
+// draw events are unchanged; gate scheduling is recorded in a separate sidecar.
+bool PassiveWallTraceWorkerGateEnabled()
+{
+    return PassiveWallTraceEnabled() &&
+        Get().Frame.load(std::memory_order_relaxed) == 37;
+}
+
+void PassiveWallTraceWorkerGate(const HWDrawInfo* context, int gate, int published, int startedAt)
+{
+    if (!PassiveWallTraceWorkerGateEnabled()) return;
+    PassiveWallRow row;
+    row.Frame = Get().Frame.load(std::memory_order_relaxed);
+    row.Stage = 7;
+    row.Type = gate; // 0=immediate, 1/4=wait for that many jobs, 300001=all jobs
+    row.Vertices = published; // total published jobs including termination
+    row.LightIndex = startedAt; // published jobs visible when worker was released
+    row.Portal = context ? (context->mCurrentPortal != nullptr) : -1;
+    AppendPassiveWall(row);
+}
+
 void PassiveWallTraceLightUpload(int index, int normal, int subtractive, int additive)
 {
     if (!PassiveWallTraceEnabled()) return;

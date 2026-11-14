@@ -48,6 +48,8 @@ bool PassiveWallTraceEnabled();
 void PassiveWallTraceWall(const HWWall* wall, const HWDrawInfo* context, int stage);
 void PassiveWallTraceLightUpload(int index, int normal, int subtractive, int additive);
 void PassiveWallTraceDump(const char* prefix);
+bool PassiveWallTraceWorkerGateEnabled();
+void PassiveWallTraceWorkerGate(const HWDrawInfo* context, int gate, int published, int startedAt);
 // Empty means use the inherited/PF cache path. A requested invalid isolated
 // cache throws before any shared-cache fallback or renderer initialization.
 std::string ApplicationCacheFilename(const char* leaf);
