@@ -29,12 +29,16 @@ class SceneGpuScopeTests(unittest.TestCase):
 #include <vector>
 using FString = std::string;
 bool gpuStatActive = false;
-enum { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT = 1 };
+enum VkPipelineStageFlagBits {
+    VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT = 1,
+    VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT = 2
+};
 struct Pool {};
 struct VulkanCommandBuffer {
     std::vector<unsigned> writes;
-    void writeTimestamp(int stage, Pool*, unsigned index) {
-        assert(stage == VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    std::vector<VkPipelineStageFlagBits> stages;
+    void writeTimestamp(VkPipelineStageFlagBits stage, Pool*, unsigned index) {
+        stages.push_back(stage);
         writes.push_back(index);
     }
 };
@@ -49,8 +53,8 @@ struct VkCommandBufferManager {
     int mNextTimestampQuery = 0;
     std::vector<size_t> mGroupStack;
     std::vector<TimestampQuery> timeElapsedQueries;
-    bool PushGroup(VulkanCommandBuffer*, const FString&);
-    void PopGroup(VulkanCommandBuffer*);
+    bool PushGroup(VulkanCommandBuffer*, const FString&, VkPipelineStageFlagBits = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+    void PopGroup(VulkanCommandBuffer*, VkPipelineStageFlagBits = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 };
 '''
         suffix = r'''
@@ -71,6 +75,11 @@ int main() {
     assert(manager.timeElapsedQueries[0].startIndex == 0 && manager.timeElapsedQueries[0].endIndex == 1);
     manager.PopGroup(&afterFlush);
     assert(afterFlush.writes.size() == 1);
+    assert(first.stages == std::vector<VkPipelineStageFlagBits>{VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT});
+    assert(afterFlush.stages == first.stages);
+    assert(manager.PushGroup(&first, "lightmap.total", VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT));
+    manager.PopGroup(&afterFlush, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+    assert(first.stages.back() == VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT && afterFlush.stages == first.stages);
     manager.mNextTimestampQuery = manager.MaxTimestampQueries;
     assert(!manager.PushGroup(&afterFlush, "capacity"));
     assert(manager.mGroupStack.empty());

@@ -64,6 +64,14 @@ struct FString
 bool gpuStatActive = false;
 bool keepGpuStatActive = false;
 FString gpuStatOutput;
+std::vector<std::string> toolLines;
+template<class... Args>
+void Printf(const char* format, Args... args)
+{
+    char buffer[256];
+    std::snprintf(buffer, sizeof(buffer), format, args...);
+    toolLines.emplace_back(buffer);
+}
 namespace SdvkDiagnostics
 {
     bool requested = false;
@@ -119,6 +127,7 @@ struct VkCommandBufferManager
     VulkanRenderDevice* fb = nullptr;
     QueryPool* mTimestampQueryPool = nullptr;
     int mNextTimestampQuery = 0;
+    bool mToolGpuTiming = false;
     std::vector<TimestampQuery> timeElapsedQueries;
     std::vector<size_t> mGroupStack;
     void UpdateGpuStats();
@@ -137,6 +146,7 @@ struct Fixture
         SdvkDiagnostics::requested = true;
         SdvkDiagnostics::groups.clear();
         SdvkDiagnostics::unavailable.clear();
+        toolLines.clear();
         gpuStatActive = true;
         keepGpuStatActive = false;
         commands.fb = &fb;
@@ -182,6 +192,19 @@ int main()
         assert(gpuStatActive && !keepGpuStatActive && f.pool.reads == 1);
         assert(gpuStatOutput.value == "postprocess.bloom=1.23 ms\n");
         assert(SdvkDiagnostics::groups.empty() && SdvkDiagnostics::unavailable.empty());
+    }
+    {
+        Fixture f;
+        SdvkDiagnostics::requested = false;
+        f.commands.mToolGpuTiming = true;
+        f.commands.UpdateGpuStats();
+        assert(gpuStatActive && f.pool.reads == 1);
+        assert(toolLines == std::vector<std::string>{"SDVK_TOOL_GPU group=postprocess.bloom ms=1.234567\n"});
+        assert(SdvkDiagnostics::groups.empty());
+        f.SetQueries();
+        f.pool.ready = false;
+        f.commands.UpdateGpuStats();
+        assert(toolLines.back() == "SDVK_TOOL_GPU unavailable=gpu_timestamp_query_results_unavailable\n");
     }
     {
         Fixture f;
