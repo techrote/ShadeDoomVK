@@ -42,6 +42,13 @@ class StartupIsolation(unittest.TestCase):
         self.assertEqual(target["native"]["map_sequence"],
                          ["SDV161A", "SDV161A", "SDV161B", "SDV161B"])
 
+    def test_synthetic_asset_authoring_without_executable_argv_remains_valid(self):
+        authored = scene()
+        authored["native"].pop("argv")
+        # This is asset generation, not a real native run. The corpus and
+        # executed native request separately require the pinned executable argv.
+        sdvk161_fixtures.validate_recipe(authored)
+
     def test_original_argv_fails_for_explicit_missing_startup_isolation(self):
         pre_fix = scene()
         pre_fix["native"]["argv"] = ORIGINAL

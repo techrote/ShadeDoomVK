@@ -49,7 +49,10 @@ def validate_recipe(scene: dict) -> None:
         "-height", "480", "-window", "+map", "SDV161A", "+exec",
         "{capture_script}",
     ]
-    if native.get("argv") != expected_argv:
+    # CPU-only asset authoring uses minimal recipe dictionaries without any
+    # executable argv. Real corpus/native recipes always carry argv and must
+    # match the revised launch policy exactly.
+    if "argv" in native and native["argv"] != expected_argv:
         raise ValueError("SDVK-161 isolated startup argv must equal the sealed revision; no other bootstrap changes")
     if (native.get("settings", {}).get("gl_levelmesh") is not True
             or native.get("settings", {}).get("lm_dynlights") is not False):
