@@ -1,5 +1,7 @@
 # ShadeDoomVK autonomous development rules
 
+> **Refreshed campaign (14 November 2026, owner-approved direction):** [The Lost 2003 Remaster](docs/shadedoomvk/REMASTER-2003-CAMPAIGN.md), [SHADOW-001 #204](https://github.com/techrote/ShadeDoomVK/issues/204) and [R-001 #203](https://github.com/techrote/ShadeDoomVK/issues/203). A [risk-based acceptance-policy replacement](docs/shadedoomvk/REMASTER-2003-ENGINEERING-POLICY.md) is proposed for reviewed integration. **Until R-001's actual workflow/authority migration is verified and merged, the existing required checks and safety/physical STOPs below still apply.** Founding-issue evidence and closure limits: [transfer ledger](docs/shadedoomvk/REMASTER-2003-HISTORICAL-TRANSFER.md).
+
 This file is authoritative for autonomous issue execution unless a later accepted issue or decision record explicitly supersedes a rule.
 
 ## 1. Source of truth
