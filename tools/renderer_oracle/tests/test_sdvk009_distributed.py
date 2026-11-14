@@ -9,6 +9,7 @@ from argparse import Namespace
 from contextlib import ExitStack, redirect_stdout
 import copy
 import io
+import itertools
 import json
 import os
 from pathlib import Path
@@ -79,6 +80,7 @@ class DistributedControls(unittest.TestCase):
         self.fail_at = None
         self.interrupt_at = None
         self.synthetic_generations = {}
+        self.synthetic_elapsed = {}
 
     def args(self, **kwargs):
         return Namespace(exe=self.exe, iwad=self.iwad, iwad_license=self.license, runtime_archive=self.archive,
@@ -132,7 +134,7 @@ class DistributedControls(unittest.TestCase):
                  "device": "SYNTHETIC llvmpipe", "vulkan": {"driver": "SYNTHETIC Mesa", "driverVersion": 1},
                  "application_cache": {"available": True, "path": str(args.out / "cache")}}
         data = {"status": "COLLECTED", "build": build, "reproduction": profile, "mode": "state", "scene": args.scene,
-                "executable": pin(self.exe), "elapsed_seconds": 0.001,
+                "executable": pin(self.exe), "elapsed_seconds": self.synthetic_elapsed.get(args.out.name, 0.001),
                 "loaded_packages": [{**pin(self.runtime / "vkdoom.pk3"), "lumps": 1}]}
         rewrite(args.out / "run.json", data)
         return data
@@ -195,6 +197,13 @@ class DistributedControls(unittest.TestCase):
             {name: self.root / "cohort-peers" / name for name in distributed.PROBE_WORKERS},
             read_json(self.root / "cohort-artifacts.json"))
 
+    @staticmethod
+    def placement(mask, elapsed):
+        pairs = itertools.combinations(distributed.PROBE_WORKERS, 2)
+        comparisons = [{"left": left, "right": right, "status": "PASS" if mask & (1 << index) else "FAIL"}
+                       for index, (left, right) in enumerate(pairs)]
+        return distributed.compatible_placement(comparisons, elapsed)
+
     def test_all_seven_subset_candidates_ties_and_nontransitive_pair_results(self):
         # Eight possible graphs, including every single compatible pair and all
         # non-transitive two-edge graphs. Never merge a failing third edge.
@@ -207,11 +216,82 @@ class DistributedControls(unittest.TestCase):
             comparisons = [{"left": left, "right": right, "status": "PASS" if mask & (1 << index) else "FAIL"}
                            for index, (left, right) in enumerate(pairs)]
             with self.subTest(mask=mask):
-                self.assertEqual(distributed.compatible_subset(comparisons), group)
+                placement = distributed.compatible_placement(comparisons, dict.fromkeys(distributed.PROBE_WORKERS, 1))
+                self.assertEqual(placement["cohort"], group)
+                self.assertEqual(placement["assignment_order"], group)
+                self.assertEqual(len(placement["placement"]["candidates"]), 7)
         with self.assertRaisesRegex(EvidenceError, "Incomplete"):
-            distributed.compatible_subset(comparisons[:-1])
+            distributed.compatible_placement(comparisons[:-1], dict.fromkeys(distributed.PROBE_WORKERS, 1))
         with self.assertRaisesRegex(EvidenceError, "Incomplete"):
-            distributed.compatible_subset(comparisons[::-1])
+            distributed.compatible_placement(comparisons[::-1], dict.fromkeys(distributed.PROBE_WORKERS, 1))
+
+    def test_actual_625_elapsed_selects_faster_singleton_over_slower_compatible_pair(self):
+        # Authenticated native elapsed from #625; only the first two hosts had
+        # equal protected state. No CPU vendor or post-proof outcome is an input.
+        elapsed = {"controls": 133.391190131, "witness-1": 135.591586732, "witness-2": 72.14588943100003}
+        value = self.placement(1, elapsed)
+        self.assertEqual(value["cohort"], ["witness-2"])
+        self.assertEqual(value["assignment_order"], ["witness-2"])
+        self.assertEqual(value["placement"]["minimum_score_milliseconds"], 216438)
+        self.assertEqual(value["placement"]["selected_score_milliseconds"], 216438)
+        self.assertEqual([row["ceil_milliseconds"] for row in value["placement"]["weights"]], [133392, 135592, 72146])
+        self.assertEqual({row["worker"]: row["native_elapsed_seconds"] for row in value["placement"]["weights"]}, elapsed)
+        pair = next(row for row in value["placement"]["candidates"] if row["cohort"] == ["controls", "witness-1"])
+        self.assertEqual(pair["score_milliseconds"], 266784)
+        self.assertTrue(pair["compatible"])
+        self.assertFalse(pair["within_near_minimum"])
+        self.assertTrue(all(not row["within_near_minimum"] for row in value["placement"]["candidates"] if not row["compatible"]))
+
+    def test_pair_assigns_two_roles_to_faster_host_and_retains_canonical_membership(self):
+        value = self.placement(2, {"controls": 100, "witness-1": 170, "witness-2": 60})
+        self.assertEqual(value["cohort"], ["controls", "witness-2"])
+        self.assertEqual(value["assignment_order"], ["witness-2", "controls"])
+        self.assertEqual(value["placement"]["selected_score_milliseconds"], 120000)
+        pair = next(row for row in value["placement"]["candidates"] if row["cohort"] == value["cohort"])
+        self.assertEqual(pair["role_counts"], {"controls": 1, "witness-2": 2})
+
+    def test_largest_cohort_wins_exact_ten_percent_boundary_but_not_one_millisecond_outside(self):
+        for slow, expected in ((22.0, list(distributed.PROBE_WORKERS)), (22.000001, ["controls", "witness-1"])):
+            with self.subTest(slow=slow):
+                value = self.placement(7, {"controls": 10, "witness-1": 10, "witness-2": slow})
+                self.assertEqual(value["cohort"], expected)
+                self.assertEqual(value["placement"]["minimum_score_milliseconds"], 20000)
+        near = self.placement(1, {"controls": 10, "witness-1": 32, "witness-2": 170})
+        self.assertEqual(near["cohort"], ["controls", "witness-1"])
+        self.assertEqual(near["placement"]["minimum_score_milliseconds"], 30000)
+        self.assertEqual(near["placement"]["selected_score_milliseconds"], 32000)
+
+    def test_equal_sized_near_candidates_use_lower_score_before_lexical_tie(self):
+        value = self.placement(3, {"controls": 20, "witness-1": 19, "witness-2": 18})
+        self.assertEqual(value["cohort"], ["controls", "witness-2"])
+        pairs = [row for row in value["placement"]["candidates"] if len(row["cohort"]) == 2 and row["within_near_minimum"]]
+        self.assertEqual([row["score_milliseconds"] for row in pairs], [38000, 36000])
+        tied = self.placement(3, {"controls": 20, "witness-1": 30, "witness-2": 22})
+        self.assertEqual(tied["cohort"], ["controls", "witness-1"])
+
+    def test_three_host_assignment_preserves_role_order_and_weight_mapping_permutations(self):
+        elapsed = {"controls": 10, "witness-1": 9, "witness-2": 8}
+        expected = self.placement(7, elapsed)
+        self.assertEqual(expected["assignment_order"], list(distributed.PROBE_WORKERS))
+        for items in itertools.permutations(elapsed.items()):
+            self.assertEqual(canonical(self.placement(7, dict(items))), canonical(expected))
+
+    def test_native_weight_ceil_is_exact_and_has_no_new_capture_timeout_acceptance(self):
+        value = self.placement(0, {"controls": 0.001, "witness-1": 0.0010000000000000002, "witness-2": 180.001})
+        self.assertEqual([row["ceil_milliseconds"] for row in value["placement"]["weights"]], [1, 2, 180001])
+        self.assertEqual(value["cohort"], ["controls"])
+        # The existing native deadline validator, not the routing score, decides
+        # whether subprocess creation/wait overhead is a successful collection.
+        self.assertEqual(value["placement"]["weights"][2]["native_elapsed_seconds"], 180.001)
+
+    def test_missing_extra_and_nonpositive_nonfinite_or_non_numeric_weights_fail_closed(self):
+        valid = dict.fromkeys(distributed.PROBE_WORKERS, 1)
+        for invalid in (0, -1, float("nan"), float("inf"), float("-inf"), None, True, False, "1", []):
+            with self.subTest(invalid=repr(invalid)), self.assertRaisesRegex(EvidenceError, "positive and finite"):
+                self.placement(7, {**valid, "controls": invalid})
+        for invalid in ({"controls": 1, "witness-1": 1}, {**valid, "unregistered": 1}):
+            with self.assertRaisesRegex(EvidenceError, "All three authenticated"):
+                self.placement(7, invalid)
 
     def test_cohort_plan_preserves_original_full_workload_and_distinct_probe_authorizations(self):
         plan = self.register(cohort=True)
@@ -228,6 +308,7 @@ class DistributedControls(unittest.TestCase):
         for mutation in (lambda value: value["probes"][0].update(warmup_frames=1),
                          lambda value: value["probes"].reverse(),
                          lambda value: value["allocation_policy"].update(reassignment=True),
+                         lambda value: value["allocation_policy"]["near_minimum"].update(numerator=111),
                          lambda value: value.update(kind=distributed.COHORT_PROBE_KIND),
                          lambda value: value["captures"][1].update(worker="controls"),
                          lambda value: value["probes"][0].update(authorization_id=value["captures"][0]["authorization_id"])):
@@ -268,6 +349,44 @@ class DistributedControls(unittest.TestCase):
         for name in ("shadow-witness-1", "shadow-witness-2"):
             self.assertEqual(len(read_json(final / (name + "-negative-controls.json"))["controls"]), 9)
 
+    def test_weighted_full_workers_and_aggregator_agree_on_two_roles_for_faster_host(self):
+        self.register(cohort=True)
+        self.synthetic_generations["cohort-probe-witness-1"] = 2
+        self.synthetic_elapsed = {"cohort-probe-controls": 100, "cohort-probe-witness-1": 170,
+                                  "cohort-probe-witness-2": 60}
+        self.collect_probes()
+        allocation = self.allocation()
+        self.assertEqual(allocation["cohort"], ["controls", "witness-2"])
+        self.assertEqual(allocation["assignment_order"], ["witness-2", "controls"])
+        self.assertEqual([row["worker"] for row in allocation["captures"]],
+                         ["publication", "witness-2", "controls", "witness-2"])
+        workers = self.run_workers()
+        self.assertEqual([value["status"] for value in workers], ["PASS"] * 4)
+        self.assertEqual([len(value["captures"]) for value in workers], [1, 1, 0, 2])
+        self.assertEqual({value["allocation_sha256"] for value in workers}, {sha256(canonical(allocation))})
+        self.assertEqual([call.out.name for call in self.calls[3:]],
+                         ["compositing-control", "shadow-witness-1", "shadow-control", "shadow-witness-2"])
+        self.assertTrue(all((call.warmup, call.frames, call.timeout) == (120, 1, 3600) for call in self.calls[3:]))
+        result = self.assemble()
+        self.assertEqual(result["status"], "PASS", result.get("error"))
+        self.assertTrue(result["qualification_awarded"])
+        self.assertEqual(result["cohort_allocation"], allocation)
+        self.assertEqual([step["name"] for step in result["steps"]], ["preflight", *[row[0] for row in distributed.publication.PLAN]])
+        final = self.root / "renderer-sdvk009-publication"
+        self.assertEqual(sum(len(read_json(final / (name + "-negative-controls.json"))["controls"])
+                             for name in ("shadow-witness-1", "shadow-witness-2")), 18)
+
+    def test_invalid_native_weight_cannot_be_silently_excluded_from_a_valid_cohort(self):
+        self.register(cohort=True)
+        self.synthetic_generations["cohort-probe-controls"] = 2
+        self.synthetic_elapsed["cohort-probe-controls"] = -1
+        self.collect_probes()
+        result = self.run_worker("witness-1")
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("positive and finite", result["error"])
+        self.assertEqual(len(self.calls), 3)
+        self.assertEqual(result["captures"], [])
+
     def test_cohort_post_probe_is_nonqualifying_and_retains_cold_to_warm_differences(self):
         self.register(cohort_probe=True)
         self.collect_probes()
@@ -303,7 +422,9 @@ class DistributedControls(unittest.TestCase):
         self.register(cohort_probe=True)
         self.synthetic_generations.update({"cohort-probe-witness-1": 2, "cohort-probe-witness-2": 3})
         self.collect_probes()
-        self.assertEqual([value["status"] for value in self.run_workers()], ["PASS"] * 4)
+        workers = self.run_workers()
+        self.assertEqual([value["status"] for value in workers], ["PASS"] * 4,
+                         [value.get("error") for value in workers])
         parts = self.root / "transport-parts"
         parts.mkdir()
         for suite in renderer_evidence.COHORT_PROBE_SUITES:
@@ -461,6 +582,35 @@ class DistributedControls(unittest.TestCase):
         self.assertEqual(result["status"], "FAIL")
         self.assertIn("allocation missing or disagrees", result["error"])
         self.assertTrue((worker / "captures/cohort-proof-shadow-witness-2/run.json").is_file())
+
+    def test_all_workers_agreeing_on_rehashed_false_scores_cannot_override_raw_probe_recomputation(self):
+        self.register(cohort_probe=True)
+        self.collect_probes()
+        self.assertEqual([value["status"] for value in self.run_workers()], ["PASS"] * 4)
+        forged = self.allocation()
+        forged["placement"]["selected_score_milliseconds"] += 1
+        forged_hash = sha256(canonical(forged))
+        for name in distributed.WORKERS:
+            root = self.root / ("renderer-sdvk009-worker-" + name)
+            rewrite(root / "allocation.json", forged)
+            registration = read_json(root / "worker-registration.json")
+            registration["allocation_sha256"] = forged_hash
+            rewrite(root / "worker-registration.json", registration)
+            worker = read_json(root / "worker.json")
+            worker["allocation_sha256"] = forged_hash
+            for entry in worker["captures"]:
+                path = root / entry["launch"]["path"]
+                launch = read_json(path)
+                launch["allocation_sha256"] = forged_hash
+                rewrite(path, launch)
+                entry["launch"] = pin(path, relative_to=root)
+            rewrite(root / "worker.json", worker)
+            refresh_inventory(root)
+        result = self.assemble()
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("allocation missing or disagrees", result["error"])
+        self.assertFalse(result["qualification_awarded"])
+        self.assertTrue((self.root / "renderer-sdvk009-worker-controls/captures/cohort-proof-shadow-control/run.json").is_file())
 
     def test_empty_assignment_worker_remains_mandatory(self):
         self.register(cohort_probe=True)

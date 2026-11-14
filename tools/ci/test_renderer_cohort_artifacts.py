@@ -107,6 +107,77 @@ class ArtifactBarrierTests(unittest.TestCase):
             self.assertEqual((root / 'captures/independent.bin').read_text(), item['worker'])
         self.assertEqual(self.report()['status'], 'PASS')
         self.assertEqual(self.report()['automatic_retries'], 0)
+        self.assertEqual(self.clock.seconds, 15)
+        self.assertEqual(self.client.list_calls, 4)
+        self.assertEqual(self.report()['settlement_requested_seconds'], 15)
+        self.assertEqual(self.report()['settlement_actual_seconds'], 15)
+
+    def test_changed_disappeared_or_duplicated_complete_pins_fail_without_download(self):
+        mutations = (lambda rows: rows[0].update(id=999), lambda rows: rows.pop(),
+                     lambda rows: rows.append(copy.deepcopy(rows[0])))
+        for mutate in mutations:
+            with self.subTest(mutate=mutate), tempfile.TemporaryDirectory() as folder:
+                self.args.out = Path(folder) / 'peers'
+                self.args.artifact_set = Path(folder) / 'set.json'
+                self.client, self.clock = Client(), Clock()
+                original = self.client.list
+
+                def listing(deadline):
+                    if self.client.list_calls == 1:
+                        mutate(self.client.rows)
+                    return original(deadline)
+
+                self.client.list = listing
+                with self.assertRaises(cohort.CohortError):
+                    self.collect()
+                self.assertEqual(self.clock.seconds, 5)
+                self.assertEqual(self.client.downloads, [])
+                self.assertFalse(self.args.artifact_set.exists())
+                self.assertEqual(self.report()['settlement_actual_seconds'], 5)
+
+    def test_settlement_is_inside_the_existing_six_hundred_second_deadline(self):
+        original = self.client.list
+
+        def late_complete(deadline):
+            payload = original(deadline)
+            if self.clock.seconds < 590:
+                payload['artifacts'].pop()
+                payload['total_count'] -= 1
+            return payload
+
+        self.client.list = late_complete
+        with self.assertRaisesRegex(cohort.CohortError, '600-second maximum'):
+            self.collect()
+        self.assertEqual(self.clock.seconds, 600)
+        self.assertEqual(self.client.downloads, [])
+        self.assertEqual(self.report()['settlement_actual_seconds'], 10)
+        self.assertFalse(self.args.artifact_set.exists())
+
+    def test_first_http_error_after_settlement_is_fatal_and_records_safe_stage(self):
+        for stage in ('github-api', 'artifact-storage'):
+            with self.subTest(stage=stage), tempfile.TemporaryDirectory() as folder:
+                self.args.out = Path(folder) / 'peers'
+                self.args.artifact_set = Path(folder) / 'set.json'
+                self.clock = Clock()
+                opener = mock.Mock()
+                failure = urllib.error.HTTPError('https://hidden/?token=secret', 404, '', {}, io.BytesIO())
+                replies = [failure]
+                if stage == 'artifact-storage':
+                    replies.insert(0, urllib.error.HTTPError('https://api.github.com', 302, '',
+                        {'Location': 'https://example.blob.core.windows.net/file?signature=secret'}, io.BytesIO()))
+                opener.open.side_effect = replies
+                self.client = cohort.ArtifactAPI('owner/repo', '123', 'token', opener=opener, clock=self.clock)
+                listing = Client()
+                self.client.list = listing.list
+                with self.assertRaises(cohort.CohortHTTPError):
+                    self.collect()
+                self.assertEqual(self.clock.seconds, 15)
+                self.assertEqual(listing.list_calls, 4)
+                self.assertEqual(opener.open.call_count, len(replies))
+                self.assertEqual(self.report()['http_error'], {'status_code': 404, 'stage': stage})
+                self.assertEqual(self.report()['received_archives'], [])
+                self.assertNotIn('secret', self.args.report.read_text())
+                self.assertFalse(self.args.artifact_set.exists())
 
     def test_missing_peer_exhausts_one_bounded_barrier_without_execution_or_download(self):
         self.client.rows.pop()

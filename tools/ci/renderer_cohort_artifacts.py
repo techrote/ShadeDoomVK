@@ -23,6 +23,8 @@ import zipfile
 WORKERS = ('controls', 'witness-1', 'witness-2')
 SCHEMA = 'sdvk009-cohort-artifacts/v1'
 MAX_SECONDS = 600
+SETTLE_SECONDS = 15
+POLL_SECONDS = 5
 MAX_ARCHIVE = 256 * 1024 * 1024
 MAX_EXPANDED = 512 * 1024 * 1024
 MAX_FILES = 4096
@@ -31,6 +33,12 @@ CHUNK = 1024 * 1024
 
 class CohortError(ValueError):
     pass
+
+
+class CohortHTTPError(CohortError):
+    def __init__(self, status, stage):
+        self.status, self.stage = status, stage
+        super().__init__('Artifact ' + stage + ' HTTP request failed with status ' + str(status))
 
 
 def require(condition, message):
@@ -100,6 +108,7 @@ class ArtifactAPI:
         self.opener = opener or urllib.request.build_opener(NoRedirect())
 
     def request(self, url, deadline, *, authenticated):
+        stage = 'github-api' if authenticated else 'artifact-storage'
         headers = {'User-Agent': 'ShadeDoomVK-cohort-artifact-reader'}
         if authenticated:
             require(url.startswith(self.base + '/'), 'Refusing authenticated request outside repository API')
@@ -114,7 +123,7 @@ class ArtifactAPI:
             error.close()
             if code in (301, 302, 303, 307, 308) and location:
                 return None, location
-            raise CohortError('Artifact HTTP request failed with status ' + str(code)) from None
+            raise CohortHTTPError(code, stage) from None
         except (OSError, urllib.error.URLError):
             raise CohortError('Artifact network request failed; no retry is permitted') from None
 
@@ -262,9 +271,10 @@ def restore_archive(archive, destination, worker, *, deadline=None, clock=time.m
 
 def collect(args, client=None, *, clock=time.monotonic, sleep=time.sleep):
     started = clock()
-    archives = None
+    archives, settled_from = None, None
     report = {'schema': 'sdvk009-cohort-artifact-barrier/v1', 'status': 'FAIL',
               'automatic_retries': 0, 'deadline_seconds': MAX_SECONDS, 'polls': 0,
+              'settlement_requested_seconds': SETTLE_SECONDS, 'settlement_actual_seconds': 0,
               'expected_workers': list(WORKERS), 'selected_artifacts': [], 'received_archives': [],
               'downloaded': [], 'error': 'Barrier did not finish'}
     try:
@@ -283,6 +293,8 @@ def collect(args, client=None, *, clock=time.monotonic, sleep=time.sleep):
         archives.mkdir(parents=True)
         names = expected_names(args.run_id, args.run_attempt)
         deadline = started + MAX_SECONDS
+        pinned = None
+        report['phase'] = 'wait-for-artifacts'
         while True:
             remaining(deadline, clock)
             selected = select_artifacts(client.list(deadline), names, args.run_id, args.expected_commit)
@@ -290,9 +302,23 @@ def collect(args, client=None, *, clock=time.monotonic, sleep=time.sleep):
             report['selected_artifacts'] = [expected_artifact(worker, selected[worker])
                                            for worker in WORKERS if worker in selected]
             report['missing_workers'] = [worker for worker in WORKERS if worker not in selected]
-            if not report['missing_workers']:
-                break
-            sleep(min(5, remaining(deadline, clock)))
+            if pinned is not None:
+                require(report['selected_artifacts'] == pinned,
+                        'Complete probe artifact pins changed or disappeared during settlement')
+            elif not report['missing_workers']:
+                # Run625 exposed a list-before-download readiness race. Pin the
+                # first complete set and observe it unchanged before any first
+                # download; no HTTP failure is retried or capture reauthorized.
+                pinned = report['selected_artifacts']
+                report['settlement_pins'] = pinned
+                settled_from = clock()
+                report['phase'] = 'settle-artifacts'
+            if settled_from is not None:
+                report['settlement_actual_seconds'] = round(clock() - settled_from, 3)
+                if clock() - settled_from >= SETTLE_SECONDS:
+                    remaining(deadline, clock)
+                    break
+            sleep(min(POLL_SECONDS, remaining(deadline, clock)))
         artifacts = []
         for worker in WORKERS:
             row = selected[worker]
@@ -321,8 +347,12 @@ def collect(args, client=None, *, clock=time.monotonic, sleep=time.sleep):
     except BaseException as error:
         # Do not record HTTP objects, signed URLs, request headers or credentials.
         report['error'] = str(error) if isinstance(error, CohortError) else 'Artifact rendezvous failed: ' + type(error).__name__
+        if isinstance(error, CohortHTTPError):
+            report['http_error'] = {'status_code': error.status, 'stage': error.stage}
         raise
     finally:
+        if settled_from is not None and report.get('phase') == 'settle-artifacts':
+            report['settlement_actual_seconds'] = round(clock() - settled_from, 3)
         # Preserve actual received identities even if a transfer stopped midway
         # or a digest/ZIP check failed. The failure-only workflow upload retains
         # these bounded files; successful peers are not duplicated in the final

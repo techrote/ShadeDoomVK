@@ -1,0 +1,1284 @@
+{
+  "accounting": {
+    "artifacts": [
+      {
+        "digest": "sha256:668e7b2726a20958bdc218970d1d6034c9f9ce12d174f53e32d20d6fa1d4b592",
+        "id": 14094455755,
+        "name": "renderer-software-vulkan",
+        "size_in_bytes": 41545993
+      },
+      {
+        "digest": "sha256:2b0aad3d8061090edbebc85acf7a255556a59d994a58d1d828b1f6eb71473da8",
+        "id": 14094185372,
+        "name": "renderer-software-vulkan-publication",
+        "size_in_bytes": 157668028
+      },
+      {
+        "digest": "sha256:2ccf794c620d88bad52c1f7b034398340aae70cec72675c8532463c2a6ba3fcc",
+        "id": 14093945688,
+        "name": "renderer-software-vulkan-controls",
+        "size_in_bytes": 49000727
+      },
+      {
+        "digest": "sha256:6513b880ebfc60be6cf68d8e02a66320b4a999717a4ebc3c65c5ee68db469d01",
+        "id": 14093895827,
+        "name": "renderer-cohort-transfer-failure-controls",
+        "size_in_bytes": 1733
+      },
+      {
+        "digest": "sha256:82cec529b7c98a0ea894fdc9baccacd143eaa33fef1fe7715f57652dd7d1603d",
+        "id": 14093880318,
+        "name": "software-vulkan-runtime",
+        "size_in_bytes": 258752545
+      },
+      {
+        "digest": "sha256:8acd749e5d4674bda7701cbb917dbf859f4c7ee7f3e24cd2ea74442d15cd9f1f",
+        "id": 14093850689,
+        "name": "software-vulkan-publication-inputs",
+        "size_in_bytes": 35126608
+      },
+      {
+        "digest": "sha256:1995daaa8caaada51397566af8c0c70de45ce75703b6811352a733cf391f1c8c",
+        "id": 14093836529,
+        "name": "sdvk-cohort-probe-43544111662-1-controls",
+        "size_in_bytes": 12776730
+      },
+      {
+        "digest": "sha256:6d9b584388efbc9877376f308ac9e623cd5dcb26c9f563ece83a8baef2020b81",
+        "id": 14093826714,
+        "name": "renderer-software-vulkan-witness-2",
+        "size_in_bytes": 12810849
+      },
+      {
+        "digest": "sha256:eadc37769cd410a15dd0a7c115d9723eb02ecc665429042545eb795f902483fb",
+        "id": 14093706900,
+        "name": "renderer-software-vulkan-witness-1",
+        "size_in_bytes": 25538354
+      },
+      {
+        "digest": "sha256:87692b2297fb7d3f36c8f8c9ffd7cd00f13705bf451d5caef0af0b9788c2a642",
+        "id": 14093591796,
+        "name": "sdvk-cohort-probe-43544111662-1-witness-2",
+        "size_in_bytes": 12776452
+      },
+      {
+        "digest": "sha256:ec7d553f0c31a2ac08d1c3df584fc97d0d3ff11cbcba8a5b52e78be1bac2fde0",
+        "id": 14093108746,
+        "name": "cpu-contract-checks",
+        "size_in_bytes": 182097
+      },
+      {
+        "digest": "sha256:b4ee9e080739204d1d09fb3242dd67a5d2c164068b78bc76bec66199cbcf3f5e",
+        "id": 14092744895,
+        "name": "sdvk-cohort-probe-43544111662-1-witness-1",
+        "size_in_bytes": 12776231
+      }
+    ],
+    "gross_task_through625": {
+      "gross_created_artifact_bytes": 3798711462,
+      "sum_completed_job_elapsed_seconds": 23305
+    },
+    "main_artifact_count": 12,
+    "main_artifact_zip_bytes": 618956347,
+    "source332_export_separate": {
+      "elapsed_job_seconds": 19,
+      "zip_bytes": 151466196
+    },
+    "sum_elapsed_job_seconds": 4510.0,
+    "units": "Job intervals are observed elapsed seconds, not billing. ZIP bytes differ from innerXZ bytes and are not retention-weighted storage.",
+    "workflow_seconds": 1147.0
+  },
+  "actual_registered_allocation": {
+    "all_three_probe_identities_authenticated": true,
+    "assignment": {
+      "cohort-proof-compositing-control": "publication",
+      "cohort-proof-shadow-control": "controls",
+      "cohort-proof-shadow-witness-1": "witness-1",
+      "cohort-proof-shadow-witness-2": "controls"
+    },
+    "cohort": [
+      "controls",
+      "witness-1"
+    ],
+    "controls_full_worker_not_launched": true,
+    "policy": "largest all-pairs exact-PASS subset, lexical tie, original-order round robin",
+    "publication_full_worker_not_launched": true,
+    "sha256": "97fc46a7e5b8250c6780fc610f2eed271c25111df48e77b60c0250e2c1d90343",
+    "three_distinct_probe_boot_ids": true,
+    "witness1_proof_bound_to_same_boot": true,
+    "witness2_empty_assignment_worker_pass": true
+  },
+  "artifact_readiness_failure": {
+    "barriers": {
+      "controls": {
+        "active_artifact": {
+          "artifact_id": 14093836529,
+          "expected_archive_bytes": 12776730,
+          "expected_archive_sha256": "1995daaa8caaada51397566af8c0c70de45ce75703b6811352a733cf391f1c8c",
+          "name": "sdvk-cohort-probe-43544111662-1-controls",
+          "worker": "controls"
+        },
+        "automatic_retries": 0,
+        "controls_archive": null,
+        "downloaded_artifact_ids": [],
+        "elapsed_seconds": 0.522,
+        "error": "Artifact HTTP request failed with status 404",
+        "phase": "download",
+        "polls": 1,
+        "received_archives": [],
+        "status": "FAIL"
+      },
+      "publication": {
+        "status": "SKIPPED_AFTER_MODULE_FAILURE"
+      },
+      "witness-1": {
+        "automatic_retries": 0,
+        "controls_archive": {
+          "archive_bytes": 12776730,
+          "archive_sha256": "1995daaa8caaada51397566af8c0c70de45ce75703b6811352a733cf391f1c8c",
+          "artifact_id": 14093836529
+        },
+        "downloaded_artifact_ids": [
+          14093836529,
+          14092744895,
+          14093591796
+        ],
+        "elapsed_seconds": 17.648,
+        "error": "",
+        "phase": "complete",
+        "polls": 4,
+        "status": "PASS"
+      },
+      "witness-2": {
+        "automatic_retries": 0,
+        "controls_archive": {
+          "archive_bytes": 12776730,
+          "archive_sha256": "1995daaa8caaada51397566af8c0c70de45ce75703b6811352a733cf391f1c8c",
+          "artifact_id": 14093836529
+        },
+        "downloaded_artifact_ids": [
+          14093836529,
+          14092744895,
+          14093591796
+        ],
+        "elapsed_seconds": 76.117,
+        "error": "",
+        "phase": "complete",
+        "polls": 15,
+        "status": "PASS"
+      }
+    },
+    "controls_artifact_created_at": "2026-11-14T02:12:30Z",
+    "controls_barrier_api_interval": {
+      "completed_at": "2026-11-14T02:12:30Z",
+      "started_at": "2026-11-14T02:12:30Z"
+    },
+    "diagnosis": "A newly listed immutable artifact returned404 in its creation second; two peers successfully authenticated the identical IDs/digests five to six seconds later. The first worker failed closed without retry or full native launch.",
+    "repair_scope": "Bounded immutable-artifact readiness observation before the single download; no retry of invalid bytes, native processes or qualification.",
+    "successful_peer_api_completion": {
+      "witness-1": "2026-11-14T02:12:35Z",
+      "witness-2": "2026-11-14T02:12:36Z"
+    }
+  },
+  "authenticated_inputs": {
+    "artifact": {
+      "digest": "sha256:8acd749e5d4674bda7701cbb917dbf859f4c7ee7f3e24cd2ea74442d15cd9f1f",
+      "id": 14093850689,
+      "name": "software-vulkan-publication-inputs",
+      "size_in_bytes": 35126608
+    },
+    "historical_iwad_and_license_verified": true,
+    "plan": {
+      "bytes": 7608,
+      "sha256": "f2f13764c763a73c1e8eb475a3d55127b3c166359836df867af595fd43727c9f"
+    },
+    "prepared_scene_bytes_verified": true,
+    "runtime": {
+      "archive": {
+        "bytes": 258752108,
+        "sha256": "91dd6601e3f73620291bc33660cebabc88eb4acc003e1f175778a5b4c95c2b5a"
+      },
+      "engine_packages": {
+        "brightmaps.pk3": {
+          "bytes": 246072,
+          "sha256": "618d74ed0a58d85f0066bbc930e408172b541e33bf05a7d5de47b919b01a7cb3"
+        },
+        "game_support.pk3": {
+          "bytes": 2378144,
+          "sha256": "a91aab0517b06f96a9042d3ed75f057653f3056f8c9fcfd550e11b13689cfee2"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565898,
+          "sha256": "991459da582888a9d344a862c70fac84c3d58b0ecb9d1555a92faa36f693b16f"
+        },
+        "lights.pk3": {
+          "bytes": 23760,
+          "sha256": "c0850eb4ca80f00a41f44b936721e3bb56759552a3b99526cc7911e9ec45d883"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4231108,
+          "sha256": "f7eb97db6d440f07917cec41e635a16720659b3067d26cb75a33e93d31e43529"
+        }
+      },
+      "executable": {
+        "bytes": 272970904,
+        "sha256": "9b9537aba87f2daed7f52354bae59bf3931f443604f29d3438aa918f5d4f2e49"
+      }
+    }
+  },
+  "candidate_prepublication_cpu_validation": {
+    "accepted_master_parent": "0ecba708e283e33c381fae329ace7a2cedc6a3f3",
+    "actionlint": {
+      "status": "PASS",
+      "workflows": [
+        "continuous_integration.yml",
+        "renderer_source_evidence.yml"
+      ]
+    },
+    "base_parent": "181c4c14390ff7802ebfac384c1371c9e449a748",
+    "ci_helpers": {
+      "seconds": 1.557,
+      "status": "PASS",
+      "tests": 55
+    },
+    "initial_focused_observation": {
+      "case": "test_singleton_empty_workers_survive_real_tar_transport_and_assembly",
+      "cause": "UNDETERMINED; original assertion did not retain worker errors",
+      "failures": 1,
+      "follow_up": "Added assertion error details; isolated case passed and subsequent complete 527-test suite passed without weakened assertions. Hosted CPU gate will provide separate exact-head verification.",
+      "log": {
+        "bytes": 15322,
+        "file": "cohort-weighted-regressions.log",
+        "sha256": "54ddd4630dce3add7c0da5c95729a97009ccf31d394ea3f98ddd478107cefcec"
+      },
+      "phase": "all four synthetic worker wrappers failed before tar transport",
+      "status": "FAIL",
+      "tests": 66
+    },
+    "integrated_renderer_suite": {
+      "log": {
+        "bytes": 2395,
+        "file": "cohort-repair-full-renderer-tests.log",
+        "sha256": "41a6569e330a11942517f7203b5904fd3e986a97f1578d8a603ef3f134796dfa"
+      },
+      "seconds": 201.609,
+      "status": "PASS",
+      "tests": 527
+    },
+    "native_processes_launched_locally": 0,
+    "qualification_awarded": false,
+    "scope": "CPU-only verification of the repair working tree, including unchanged accepted master #199; not native qualification",
+    "upstream_blobs_unchanged": {
+      "tools/renderer_oracle/sdvk161_special_surfaces.py": "370309e3ae149da99cd07a2d47fb78c601740773",
+      "tools/renderer_oracle/tests/test_sdvk161_special_surfaces.py": "f119efb7b1fbf0be18bcb4e031bad4dc95320444"
+    },
+    "workflow_policy": {
+      "status": "PASS",
+      "tests": 11
+    }
+  },
+  "capture_contract": {
+    "actual_cold_probes": 3,
+    "actual_native_processes": 4,
+    "actual_post_probe_shadows": 1,
+    "all_seven_authorizations_preregistered": true,
+    "application_cache": "fresh independent cwd and empty application cache for every process",
+    "automatic_retries": 0,
+    "driver_cache": "external driver-global cache uncontrolled",
+    "extent": [
+      640,
+      480
+    ],
+    "frames": 1,
+    "image_policy": "exact-rgb8",
+    "not_launched": [
+      "cohort-proof-compositing-control",
+      "cohort-proof-shadow-control",
+      "cohort-proof-shadow-witness-2"
+    ],
+    "ordinary_state_observation": true,
+    "publication_witness_diagnostics": false,
+    "shadow_warmup": 5,
+    "timeout_seconds": 180
+  },
+  "captures": [
+    {
+      "attempt_finished_utc": "2026-11-14T02:12:27.479070+00:00",
+      "attempt_seconds": 134.563205,
+      "attempt_started_utc": "2026-11-14T02:10:12.915865+00:00",
+      "authorization_id": "4e2770bc9bef4539be1c61dc7d728f97",
+      "boot_id": "9d99fff1-591e-4f11-b811-7ccd7572c6b8",
+      "capture_finished_utc": "2026-11-14T02:12:27.446001+00:00",
+      "capture_started_utc": "2026-11-14T02:10:13.317125+00:00",
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "levelmesh_lights": 17,
+      "light_uploads": {
+        "normal_records": 3279,
+        "records_used": 3279,
+        "uploaded_bytes": 262464
+      },
+      "light_wall_rendered": 672,
+      "lightmap_epoch": 4,
+      "name": "cohort-probe-controls",
+      "native_subprocess_seconds": 133.391190131,
+      "phase": "probe",
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "4f9e5553d3c844dfff9630007314bae1392eed838c09b1ea39aa5e21b2975536"
+      },
+      "raw_state": {
+        "bytes": 4614822,
+        "sha256": "8145ad4fc3828fdab4c56ae48beabb24283e6fc7af02ea834dfbc4995e55a734"
+      },
+      "request": {
+        "bytes": 7154,
+        "sha256": "34a6861c688d5566690fd1e81641f3a5154e93352a7c28c83f78ebdd1a9cd937"
+      },
+      "run": {
+        "bytes": 9405,
+        "sha256": "984c3d962d1a3a59f70161d600bfa160cb0ee7b1761745eaa2dcd65c7c0f25d9"
+      },
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "state_sha256": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+      "texture_epoch": 3,
+      "worker": "controls"
+    },
+    {
+      "attempt_finished_utc": "2026-11-14T02:12:16.183614+00:00",
+      "attempt_seconds": 136.767585,
+      "attempt_started_utc": "2026-11-14T02:09:59.416029+00:00",
+      "authorization_id": "6ce5901c1bce455a9ebbfeac658a0018",
+      "boot_id": "1760caaf-1440-4ffb-b9bd-cb6d0cbd7fde",
+      "capture_finished_utc": "2026-11-14T02:12:16.148923+00:00",
+      "capture_started_utc": "2026-11-14T02:09:59.818611+00:00",
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "levelmesh_lights": 17,
+      "light_uploads": {
+        "normal_records": 3279,
+        "records_used": 3279,
+        "uploaded_bytes": 262464
+      },
+      "light_wall_rendered": 672,
+      "lightmap_epoch": 4,
+      "name": "cohort-probe-witness-1",
+      "native_subprocess_seconds": 135.591586732,
+      "phase": "probe",
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "4f9e5553d3c844dfff9630007314bae1392eed838c09b1ea39aa5e21b2975536"
+      },
+      "raw_state": {
+        "bytes": 4614826,
+        "sha256": "0da8f6c527e29c99eb0afd0aaa5fdb50845a45f0f09073409a94ccfa19afbef7"
+      },
+      "request": {
+        "bytes": 7178,
+        "sha256": "ed66328d7b68b528f957aeb71c2ef08bb65fe31fe16298f0e6c1a81ca562902f"
+      },
+      "run": {
+        "bytes": 9411,
+        "sha256": "06061235a6a7274144b743c6ab5370e3a764f628f09366b6d44782a88d3270e3"
+      },
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "state_sha256": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+      "texture_epoch": 3,
+      "worker": "witness-1"
+    },
+    {
+      "attempt_finished_utc": "2026-11-14T02:11:17.874867+00:00",
+      "attempt_seconds": 73.240255,
+      "attempt_started_utc": "2026-11-14T02:10:04.634612+00:00",
+      "authorization_id": "44d501d52b2141eeb57dddf56293f815",
+      "boot_id": "175c2259-ede4-4752-9f4b-e6238a6235d9",
+      "capture_finished_utc": "2026-11-14T02:11:17.835709+00:00",
+      "capture_started_utc": "2026-11-14T02:10:04.930350+00:00",
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "INTEL(R) XEON(R) PLATINUM 8573C",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "levelmesh_lights": 17,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      },
+      "light_wall_rendered": 731,
+      "lightmap_epoch": 4,
+      "name": "cohort-probe-witness-2",
+      "native_subprocess_seconds": 72.14588943100003,
+      "phase": "probe",
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "4f9e5553d3c844dfff9630007314bae1392eed838c09b1ea39aa5e21b2975536"
+      },
+      "raw_state": {
+        "bytes": 4614826,
+        "sha256": "13715147fb0650f43d977b0d7dd43cf7c080c33a3471c99953810763a3d8acf9"
+      },
+      "request": {
+        "bytes": 7178,
+        "sha256": "97f2836c22a64bce12bcd4a9ce39b5f1ef08fbd906a01636a0d3645226c266cc"
+      },
+      "run": {
+        "bytes": 9415,
+        "sha256": "904baf178fb0d9f49eb0629f9ea5865d774e350f15a3111cb01c48cd5501f84c"
+      },
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "state_sha256": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+      "texture_epoch": 3,
+      "worker": "witness-2"
+    },
+    {
+      "attempt_finished_utc": "2026-11-14T02:14:51.674732+00:00",
+      "attempt_seconds": 127.982742,
+      "attempt_started_utc": "2026-11-14T02:12:43.691990+00:00",
+      "authorization_id": "13ab0e984ba44ab19f1ad6325fb001ce",
+      "boot_id": "1760caaf-1440-4ffb-b9bd-cb6d0cbd7fde",
+      "capture_finished_utc": "2026-11-14T02:14:51.639854+00:00",
+      "capture_started_utc": "2026-11-14T02:12:44.095447+00:00",
+      "host": {
+        "allowed_processors": 4,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "machine": "x86_64",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "power_and_scheduling": "external host policy; not controlled by the harness"
+      },
+      "levelmesh_lights": 17,
+      "light_uploads": {
+        "normal_records": 3279,
+        "records_used": 3279,
+        "uploaded_bytes": 262464
+      },
+      "light_wall_rendered": 672,
+      "lightmap_epoch": 4,
+      "name": "cohort-proof-shadow-witness-1",
+      "native_subprocess_seconds": 126.83137857100002,
+      "phase": "worker",
+      "raw_png": {
+        "bytes": 24093,
+        "sha256": "4f9e5553d3c844dfff9630007314bae1392eed838c09b1ea39aa5e21b2975536"
+      },
+      "raw_state": {
+        "bytes": 4614842,
+        "sha256": "2ffe526a1239cdbb0e5c27f875f51c3631de702f3ef6ec9121bc9ce96d27e15b"
+      },
+      "request": {
+        "bytes": 7274,
+        "sha256": "48afc637988f2dbb5330af6af6e4763c98991df64485f6e82819c273fdbe3368"
+      },
+      "run": {
+        "bytes": 9440,
+        "sha256": "ceef3df5b94e0c4cf360f44c38f4f1d866aa5431be2dec5d691f8fd2f1277d53"
+      },
+      "sdvfl_generations": [
+        4,
+        4
+      ],
+      "state_sha256": "408a7944d4e56ae1f6af1515abb89390a85036d63c07e53fbace8041acf29a2d",
+      "texture_epoch": 4,
+      "worker": "witness-1"
+    }
+  ],
+  "cold_exact_comparisons": {
+    "controls-vs-witness-1": {
+      "explicit_build_change": false,
+      "first_state_differences": [],
+      "image": {
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "extent": [
+          640,
+          480
+        ],
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "passed": true,
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      },
+      "state_equal": true,
+      "state_sha256": {
+        "left": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+        "right": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203"
+      },
+      "status": "PASS"
+    },
+    "controls-vs-witness-2": {
+      "explicit_build_change": false,
+      "first_state_differences": [
+        {
+          "left": 672,
+          "path": "/4146/data/light_wall_rendered",
+          "right": 731
+        },
+        {
+          "left": 3279,
+          "path": "/4147/data/light_uploads/normal_records",
+          "right": 3338
+        },
+        {
+          "left": 3279,
+          "path": "/4147/data/light_uploads/records_used",
+          "right": 3338
+        },
+        {
+          "left": 262464,
+          "path": "/4147/data/light_uploads/uploaded_bytes",
+          "right": 267184
+        }
+      ],
+      "image": {
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "extent": [
+          640,
+          480
+        ],
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "passed": true,
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      },
+      "state_equal": false,
+      "state_sha256": {
+        "left": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+        "right": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935"
+      },
+      "status": "FAIL"
+    },
+    "witness-1-vs-witness-2": {
+      "explicit_build_change": false,
+      "first_state_differences": [
+        {
+          "left": 672,
+          "path": "/4146/data/light_wall_rendered",
+          "right": 731
+        },
+        {
+          "left": 3279,
+          "path": "/4147/data/light_uploads/normal_records",
+          "right": 3338
+        },
+        {
+          "left": 3279,
+          "path": "/4147/data/light_uploads/records_used",
+          "right": 3338
+        },
+        {
+          "left": 262464,
+          "path": "/4147/data/light_uploads/uploaded_bytes",
+          "right": 267184
+        }
+      ],
+      "image": {
+        "changed_pixel_fraction": 0.0,
+        "changed_pixels": 0,
+        "extent": [
+          640,
+          480
+        ],
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "passed": true,
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      },
+      "state_equal": false,
+      "state_sha256": {
+        "left": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+        "right": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935"
+      },
+      "status": "FAIL"
+    }
+  },
+  "created_utc": "2026-11-14T02:27:42.406929+00:00",
+  "detailed_scratch_receipts": {
+    "final/independent-failure-verification.json": {
+      "bytes": 24079,
+      "sha256": "8a166f69e087f7127584f7ea4ae797cda7f445107ba4a13413c24c5c94f295ac"
+    },
+    "independent-partial-post-probe-verification.json": {
+      "bytes": 23211,
+      "sha256": "d2ef2839a4ccd154869d3d83a554c3ea6dc428645f85c861b715a737f23e504c"
+    },
+    "independent-probe-verification.json": {
+      "bytes": 44502,
+      "sha256": "3541225e360583e63cd8ab68f5603f9f78a9735bdf4504a02c6b63efe9e6c050"
+    },
+    "protocol-accounting.json": {
+      "bytes": 40022,
+      "sha256": "6f663631a549930f0dea949a74dde422c91733c1d2b62eebe3972e5b6af16e54"
+    },
+    "publication-failure/sdvk161-failure-diagnosis.json": {
+      "bytes": 13509,
+      "sha256": "3271361b7b27a9ea682496a58cd2bc13a5c007b46589de0ff8034fa93f9d4beb"
+    },
+    "source332/source332-authentication.json": {
+      "bytes": 2154,
+      "sha256": "738ae0ff61edf52dcb5218be90e05bb714e18e9c23e00eebf23ace1ac50094cf"
+    },
+    "windows-cpu-verification.json": {
+      "bytes": 1383,
+      "sha256": "9457a0176db4018b1cd97d01d23aaa7c135cd28e28fa9c23a56cc769ef8f218a"
+    },
+    "windows-relwithdebinfo-132291196752.log": {
+      "bytes": 117385,
+      "sha256": "60e741dc44e79f5534034dc69fa1e7c453adb6f7fcc5871976d5b1c653071c51"
+    }
+  },
+  "final_partial_archive": {
+    "all_raw_transport_bytes_retained": true,
+    "archive_bytes": 41355828,
+    "archive_sha256": "dc3bccfdc3a713d9504ba1ebe850a99d7e58dab704d2e009d446ad43461ddffa",
+    "artifact": {
+      "archive_download_url": "https://api.github.com/repos/techrote/ShadeDoomVK/actions/artifacts/14094455755/zip",
+      "created_at": "2026-11-14T02:22:19Z",
+      "digest": "sha256:668e7b2726a20958bdc218970d1d6034c9f9ce12d174f53e32d20d6fa1d4b592",
+      "expired": false,
+      "expires_at": "2026-12-14T02:22:17Z",
+      "id": 14094455755,
+      "name": "renderer-software-vulkan",
+      "node_id": "MDg6QXJ0aWZhY3QxNDA5NDQ1NTc1NQ==",
+      "size_in_bytes": 41545993,
+      "updated_at": "2026-11-14T02:22:19Z",
+      "url": "https://api.github.com/repos/techrote/ShadeDoomVK/actions/artifacts/14094455755",
+      "workflow_run": {
+        "head_branch": "ci/sdvk-publication-shards",
+        "head_repository_id": 1374914016,
+        "head_sha": "181c4c14390ff7802ebfac384c1371c9e449a748",
+        "id": 43544111662,
+        "repository_id": 1374914016
+      }
+    },
+    "artifact_integrity_status": "PASS",
+    "audit_seconds": 7.715501752001728,
+    "consumer_scope": "Ordinary tar/XZ can read all651members; all512 transported files retain original SHA256. No assembled publication qualification was fabricated.",
+    "derived_files": 2,
+    "files_verified": 514,
+    "native_qualification_status": "FAIL_CLOSED",
+    "ordinary_tar_members": 651,
+    "packaging": {
+      "archive_bytes": 41355828,
+      "assembly_verification_seconds": 1.113,
+      "compression_argv": [
+        "xz",
+        "-6",
+        "-T3",
+        "--block-size=512MiB",
+        "--lzma2=dict=64MiB",
+        "--memlimit-compress=7GiB",
+        "--no-adjust",
+        "-c"
+      ],
+      "compression_seconds": 116.45,
+      "files": 514,
+      "host_resources": {
+        "affinity_processors": 4,
+        "effective_memory_bytes": 16760344576,
+        "effective_processors": 4,
+        "physical_memory_bytes": 16760344576
+      },
+      "total_seconds": 119.896,
+      "uncompressed_file_bytes": 597862358,
+      "verification_seconds": 2.333
+    },
+    "transport_complete": false,
+    "transported_files": 512,
+    "verification_seconds": 3.2282020040001953
+  },
+  "placement_model_for_repair": {
+    "candidates": [
+      {
+        "assignment_order": [
+          "controls"
+        ],
+        "cohort": [
+          "controls"
+        ],
+        "compatible": true,
+        "role_counts": {
+          "controls": 3
+        },
+        "score_milliseconds": 400176,
+        "within_ten_percent": false
+      },
+      {
+        "assignment_order": [
+          "witness-1"
+        ],
+        "cohort": [
+          "witness-1"
+        ],
+        "compatible": true,
+        "role_counts": {
+          "witness-1": 3
+        },
+        "score_milliseconds": 406776,
+        "within_ten_percent": false
+      },
+      {
+        "assignment_order": [
+          "witness-2"
+        ],
+        "cohort": [
+          "witness-2"
+        ],
+        "compatible": true,
+        "role_counts": {
+          "witness-2": 3
+        },
+        "score_milliseconds": 216438,
+        "within_ten_percent": true
+      },
+      {
+        "assignment_order": [
+          "controls",
+          "witness-1"
+        ],
+        "cohort": [
+          "controls",
+          "witness-1"
+        ],
+        "compatible": true,
+        "role_counts": {
+          "controls": 2,
+          "witness-1": 1
+        },
+        "score_milliseconds": 266784,
+        "within_ten_percent": false
+      },
+      {
+        "assignment_order": [
+          "witness-2",
+          "controls"
+        ],
+        "cohort": [
+          "controls",
+          "witness-2"
+        ],
+        "compatible": false,
+        "role_counts": {
+          "controls": 1,
+          "witness-2": 2
+        },
+        "score_milliseconds": 144292,
+        "within_ten_percent": false
+      },
+      {
+        "assignment_order": [
+          "witness-2",
+          "witness-1"
+        ],
+        "cohort": [
+          "witness-1",
+          "witness-2"
+        ],
+        "compatible": false,
+        "role_counts": {
+          "witness-1": 1,
+          "witness-2": 2
+        },
+        "score_milliseconds": 144292,
+        "within_ten_percent": false
+      },
+      {
+        "assignment_order": [
+          "controls",
+          "witness-1",
+          "witness-2"
+        ],
+        "cohort": [
+          "controls",
+          "witness-1",
+          "witness-2"
+        ],
+        "compatible": false,
+        "role_counts": {
+          "controls": 1,
+          "witness-1": 1,
+          "witness-2": 1
+        },
+        "score_milliseconds": 135592,
+        "within_ten_percent": false
+      }
+    ],
+    "minimum_score_milliseconds": 216438,
+    "old_chosen_pair_score_milliseconds": 266784,
+    "proposed_choice": {
+      "assignment_order": [
+        "witness-2"
+      ],
+      "cohort": [
+        "witness-2"
+      ],
+      "compatible": true,
+      "role_counts": {
+        "witness-2": 3
+      },
+      "score_milliseconds": 216438,
+      "within_ten_percent": true
+    },
+    "rounding": "ceil of the recorded decimal native subprocess seconds into integer milliseconds; integer10xscore<=11xmin threshold",
+    "rule": "Evaluate seven all-pairs compatible subsets; score maximum assigned-role-count times authenticated native probe milliseconds. In pairs assign two roles to faster member. Prefer largest cohort within110percent of compatible minimum, then lower score and lexicalIDs.",
+    "status": "COUNTERFACTUAL_ROUTING_MODEL_NOT_A_BENCHMARK",
+    "uncertainty": [
+      "The10percent band is an engineering stability heuristic, not a measured confidence interval.",
+      "Cold probe time includes startup and omits full witness instrumentation; future scheduling and software-Vulkan variability remain.",
+      "All three probes must pass structural/source/runtime/device admission; timing never excuses a failed or incompatible comparison.",
+      "No post-proof/full result selects a different host; no reallocation or native retry is allowed.",
+      "The native subprocess timeout remains authoritative; no additional exact elapsed-time cutoff is introduced."
+    ],
+    "weights": {
+      "controls": {
+        "ceil_milliseconds": 133392,
+        "native_seconds": 133.391190131
+      },
+      "witness-1": {
+        "ceil_milliseconds": 135592,
+        "native_seconds": 135.591586732
+      },
+      "witness-2": {
+        "ceil_milliseconds": 72146,
+        "native_seconds": 72.14588943100003
+      }
+    }
+  },
+  "qualification_awarded": false,
+  "qualification_matrix": {
+    "assembly": "SKIPPED_REQUIRED_WORKER_FAILURE",
+    "diagnostic_mode_gate": "PRECHECK_ONLY remains nonqualifying; independent real failures also occurred",
+    "jobs": [
+      {
+        "completed_at": "2026-11-14T02:09:16Z",
+        "conclusion": "success",
+        "elapsed_seconds": 358.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196660",
+        "id": 132291196660,
+        "name": "Linux software Vulkan | Build",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:20:03Z",
+        "conclusion": "success",
+        "elapsed_seconds": 1005.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196752",
+        "id": 132291196752,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:12:42Z",
+        "conclusion": "success",
+        "elapsed_seconds": 564.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196761",
+        "id": 132291196761,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:10:36Z",
+        "conclusion": "success",
+        "elapsed_seconds": 438.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196787",
+        "id": 132291196787,
+        "name": "PF renderer contract oracle",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:06:05Z",
+        "conclusion": "success",
+        "elapsed_seconds": 167.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196866",
+        "id": 132291196866,
+        "name": "Linux Clang 11 | Debug",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:08:07Z",
+        "conclusion": "success",
+        "elapsed_seconds": 289.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196876",
+        "id": 132291196876,
+        "name": "Linux Clang 15 | Release",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:09:10Z",
+        "conclusion": "success",
+        "elapsed_seconds": 352.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291197170",
+        "id": 132291197170,
+        "name": "Visual Studio 2022 | Debug",
+        "started_at": "2026-11-14T02:03:18Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:12:46Z",
+        "conclusion": "success",
+        "elapsed_seconds": 207.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132293107611",
+        "id": 132293107611,
+        "name": "Linux software Vulkan | witness-2",
+        "started_at": "2026-11-14T02:09:19Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:16:59Z",
+        "conclusion": "failure",
+        "elapsed_seconds": 460.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132293107622",
+        "id": 132293107622,
+        "name": "Linux software Vulkan | publication",
+        "started_at": "2026-11-14T02:09:19Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:12:38Z",
+        "conclusion": "failure",
+        "elapsed_seconds": 199.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132293107628",
+        "id": 132293107628,
+        "name": "Linux software Vulkan | controls",
+        "started_at": "2026-11-14T02:09:19Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:14:55Z",
+        "conclusion": "success",
+        "elapsed_seconds": 336.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132293107772",
+        "id": 132293107772,
+        "name": "Linux software Vulkan | witness-1",
+        "started_at": "2026-11-14T02:09:19Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:22:21Z",
+        "conclusion": "failure",
+        "elapsed_seconds": 135.0,
+        "html_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132296408373",
+        "id": 132296408373,
+        "name": "Linux software Vulkan | RelWithDebInfo",
+        "started_at": "2026-11-14T02:20:06Z"
+      }
+    ],
+    "publication_module_api_steps": [
+      {
+        "completed_at": "2026-11-14T02:12:25Z",
+        "conclusion": "success",
+        "name": "Qualify SDVK-010 actors on hosted software Vulkan",
+        "seconds": 131.0,
+        "started_at": "2026-11-14T02:10:14Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:14:28Z",
+        "conclusion": "success",
+        "name": "Qualify SDVK-150 probe ownership on hosted software Vulkan",
+        "seconds": 123.0,
+        "started_at": "2026-11-14T02:12:25Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:16:10Z",
+        "conclusion": "success",
+        "name": "Qualify SDVK-153 sampler reset on hosted software Vulkan",
+        "seconds": 102.0,
+        "started_at": "2026-11-14T02:14:28Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:16:28Z",
+        "conclusion": "success",
+        "name": "Qualify SDVK-158 lightmap transition on hosted software Vulkan",
+        "seconds": 18.0,
+        "started_at": "2026-11-14T02:16:10Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:16:50Z",
+        "conclusion": "failure",
+        "name": "Qualify SDVK-161 special surfaces on hosted software Vulkan",
+        "seconds": 22.0,
+        "started_at": "2026-11-14T02:16:28Z"
+      },
+      {
+        "completed_at": "2026-11-14T02:16:50Z",
+        "conclusion": "skipped",
+        "name": "Qualify SDVK-014 controlled planes on hosted software Vulkan",
+        "seconds": 0.0,
+        "started_at": "2026-11-14T02:16:50Z"
+      }
+    ],
+    "retained_publication_gate_statuses": {
+      "renderer-sdvk010": "PASS",
+      "renderer-sdvk014-controlled": "MISSING_OR_SKIPPED",
+      "renderer-sdvk150": "PASS",
+      "renderer-sdvk153": "PASS",
+      "renderer-sdvk158": "PASS",
+      "renderer-sdvk161": "FAIL"
+    },
+    "retained_worker_statuses": {
+      "controls": "NOT_LAUNCHED",
+      "publication": "NOT_LAUNCHED",
+      "witness-1": "PASS",
+      "witness-2": "PASS"
+    },
+    "stable_required_check": "FAIL"
+  },
+  "run": {
+    "conclusion": "failure",
+    "head": "181c4c14390ff7802ebfac384c1371c9e449a748",
+    "id": 43544111662,
+    "kind": "cohort-post-probe-compatibility",
+    "last_job_completed_at": "2026-11-14T02:22:21Z",
+    "number": 625,
+    "started_at": "2026-11-14T02:03:14Z",
+    "tree": "c1c1261ecf226a959da06d71926a2c3337f91933",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662"
+  },
+  "same_host_startup_history": {
+    "comparisons": {
+      "cohort-proof-shadow-witness-1": {
+        "explicit_build_change": false,
+        "first_state_differences": [
+          {
+            "left": 3,
+            "path": "/4121/data/resource/generation",
+            "right": 4
+          },
+          {
+            "left": 3,
+            "path": "/4125/data/resource/generation",
+            "right": 4
+          },
+          {
+            "left": 3,
+            "path": "/4147/data/texture_epoch",
+            "right": 4
+          }
+        ],
+        "image": {
+          "changed_pixel_fraction": 0.0,
+          "changed_pixels": 0,
+          "extent": [
+            640,
+            480
+          ],
+          "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+          "max_channel_error": 0,
+          "mean_channel_error": 0.0,
+          "passed": true,
+          "policy": {
+            "metric": "exact-rgb8"
+          },
+          "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+        },
+        "state_equal": false,
+        "state_sha256": {
+          "left": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+          "right": "408a7944d4e56ae1f6af1515abb89390a85036d63c07e53fbace8041acf29a2d"
+        },
+        "status": "FAIL"
+      }
+    },
+    "execution_context": "Frozen workflow launches probe and proof worker in separate xvfb-run steps. DISPLAY names do not identify the Xserver.",
+    "limit": "No host executed two post-probe shadows because controls failed before native launch; complete post-probe comparisons remain unavailable.",
+    "observation": "AMD7763 cold probe3/3/epoch3 followed by a new-Xvfb proof4/4/epoch4; only those three protected fields differ and exactRGB is equal."
+  },
+  "schema": "sdvk-publication-cohort-repair-evidence/v1",
+  "scope": {
+    "automatic_retries": 0,
+    "native_processes_launched_by_audit": 0,
+    "performance_accepted": false,
+    "physical_gpu_qualified": false,
+    "qualification_override": false
+  },
+  "sdvk161_failure": {
+    "accepted_upstream": {
+      "head": "5fbdb58597b3448f7ac07a1339aa452cec5bc246",
+      "merge_commit": "0ecba708e283e33c381fae329ace7a2cedc6a3f3",
+      "merged_at": "2026-11-14T00:12:12Z",
+      "plane_rule": {
+        "abs_tol": 1e-07,
+        "rel_tol": 2e-07
+      },
+      "pr": 199,
+      "same_retained_float_vector_as_added_regression": true,
+      "source_file": "tools/renderer_oracle/sdvk161_special_surfaces.py",
+      "source_file_sha256": "06174f732bdb842ab3976c15f5b5107028f1e3f0d1b21bb140d058c055f2a7ad"
+    },
+    "actual_planes": [
+      [
+        0,
+        -0.9999999403953552,
+        0,
+        -191.99998474121094
+      ]
+    ],
+    "claim_limit": "CPU-only raw-state revalidation against accepted199 diagnoses the known float case; it does not pass the failed181 campaign, execute lifecycle2, validate missing comparisons or grant new-source qualification.",
+    "expected_plane": [
+      0,
+      -1,
+      0,
+      -192
+    ],
+    "host": {
+      "affinity_processors": 4,
+      "cgroup_cpu_max": null,
+      "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+      "evidence_scope": "Descriptive software-Vulkan runner profile, not a physical GPU",
+      "github_run_attempt": "1",
+      "github_run_id": "43544111662",
+      "github_sha": "215a03d7850f88922a9c09531f3e559892635559",
+      "logical_processors": 4,
+      "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+      "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+      "runner_environment": "github-hosted",
+      "source_commit": "181c4c14390ff7802ebfac384c1371c9e449a748",
+      "started_utc": "2026-11-14T02:10:14.780569+00:00",
+      "vulkan_icd": null,
+      "worker": "publication"
+    },
+    "integration_decision": "Merge exact already Owner-accepted master0ec into the stacked branch while preserving196 ancestry; import199 unchanged and disclose the accepted upstream acceptance-baseline change. No new tolerance or production renderer change.",
+    "maximum_absolute_coefficient_error": [
+      0,
+      5.960464477539063e-08,
+      0,
+      1.52587890625e-05
+    ],
+    "offline_raw_state_validator_results": {
+      "accepted199": {
+        "seconds": 0.026839443999051582,
+        "status": "PASS"
+      },
+      "frozen181": {
+        "error": "SDVK-161 reverse portal receiving plane differs from its authored view",
+        "seconds": 0.04661823099741014,
+        "status": "REJECTED"
+      }
+    },
+    "original_gate_status": "FAIL",
+    "original_native_error": "SDVK-161 reverse portal receiving plane differs from its authored view",
+    "original_native_run_status": "FAIL",
+    "original_native_subprocess_seconds": null,
+    "owner_merge": {
+      "base": "2cc70f33295881f73c7460364c6fa8e4e546efb3",
+      "head": "5fbdb58597b3448f7ac07a1339aa452cec5bc246",
+      "merge_commit_sha": "0ecba708e283e33c381fae329ace7a2cedc6a3f3",
+      "merged": true,
+      "merged_at": "2026-11-14T00:12:12Z",
+      "merged_by": "techrote",
+      "number": 199,
+      "title": "Handle float roundoff in the SDVK-161 reverse portal plane check",
+      "url": "https://github.com/techrote/ShadeDoomVK/pull/199"
+    },
+    "receiving_record_count": 6
+  },
+  "source_export": {
+    "artifact_id": 14093705420,
+    "bundle_bytes": 151465410,
+    "bundle_commit": "181c4c14390ff7802ebfac384c1371c9e449a748",
+    "bundle_tree": "c1c1261ecf226a959da06d71926a2c3337f91933",
+    "checksums": {
+      "COMMIT.txt": "40000064ecdee4fbc30c27b706244d5657214f243c50dea00ffa1684407fb84e",
+      "TREE.txt": "a8d8f3ac8acc2aa1622b85d59c93eabd6c878c02b6122e0b116e8f0250c04803",
+      "source.bundle": "4ccdf6a0d7d1a8a9f07192931cf9870704675cf77be56e7390bc5b0c58685e47"
+    },
+    "local_frozen_source_files_match": true,
+    "run_id": 43544111563,
+    "source_files": {
+      ".github/workflows/continuous_integration.yml": {
+        "bytes": 34005,
+        "sha256": "8a24b3d80238c49fd91711dc40112a850f28e79390dd92ffd750d45c63f9833e"
+      },
+      "tools/ci/renderer_cohort_artifacts.py": {
+        "bytes": 18583,
+        "sha256": "b61cf9d7e3ac9ed37819898db87cf00da21d25126da489317b014ffb753bad4a"
+      },
+      "tools/ci/renderer_evidence.py": {
+        "bytes": 26956,
+        "sha256": "9ed99d9e5c1d73ab915e96c333de2cf32db2e1c3787bee94969fdf72d6154048"
+      },
+      "tools/renderer_oracle/run.py": {
+        "bytes": 82114,
+        "sha256": "76117c3a45dbc08a488af9ac30eaeb69906d737513b396e183e904a81740962f"
+      },
+      "tools/renderer_oracle/sdvk009_distributed.py": {
+        "bytes": 51018,
+        "sha256": "e858acd977010e050f585b8e71503082afaa94270da9fe0138a4335f72b91b06"
+      },
+      "tools/renderer_oracle/sdvk009_publication.py": {
+        "bytes": 71684,
+        "sha256": "11f1805dbcf009f6254adf5c6a4086143c0b26c697629d14fd595ac5d22986a4"
+      }
+    },
+    "status": "PASS",
+    "workflow_number": 332,
+    "zip_bytes": 151466196,
+    "zip_sha256": "226d9d2d56d7ce33638b739d87e080c58c98ac9446945a90ca49b4e1df43ce61"
+  },
+  "status": "FAILED_NONQUALIFYING_CAMPAIGN_RETAINED",
+  "windows_cpu_and_source_identity": {
+    "build_identity": {
+      "vkdoom": "PASS",
+      "vktool": "PASS",
+      "working_tree": "clean"
+    },
+    "claim_limit": "CPU-only containment/liveness fixture qualification. PASS establishes source assertions; no measured successful heartbeat interval receipt or physical GPU acceptance is claimed.",
+    "cpu_suite": {
+      "command": "python -B -m unittest discover -s tools/physical_supervisor -t . -v",
+      "elapsed_seconds": 307.593,
+      "raw_success_heartbeat_receipts_archived": false,
+      "repaired_test": "2026-11-14T02:09:04.9017112Z test_slow_successful_deep_checks_do_not_suspend_control_heartbeat (tools.physical_supervisor.test_integrity.LivenessIntegrationTests) ... ok",
+      "status": "OK",
+      "tests": 206,
+      "unexpected_skip_lines": 0
+    },
+    "fake_backend": {
+      "negatives": 13,
+      "positive": 1,
+      "scope": "CPU_FAKE_BACKEND_NO_VULKAN_LOADER"
+    },
+    "job_conclusion": "success",
+    "job_id": 132291196752,
+    "log": {
+      "normalization": "GitHub decoded job log; CRLF normalized to LF",
+      "path": "windows-relwithdebinfo-132291196752.log",
+      "sha256": "60e741dc44e79f5534034dc69fa1e7c453adb6f7fcc5871976d5b1c653071c51"
+    },
+    "run_id": "43544111662",
+    "schema": "sdvk-ci-windows-cpu-log-review/v1",
+    "source_commit": "181c4c14390ff7802ebfac384c1371c9e449a748",
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662/job/132291196752"
+  }
+}

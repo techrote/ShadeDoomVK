@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import copy
+from decimal import Decimal
 import itertools
 import os
 from pathlib import Path
@@ -39,8 +40,14 @@ COHORT_KINDS = (COHORT_KIND, COHORT_PROBE_KIND)
 ARTIFACT_SET_SCHEMA = "sdvk009-cohort-artifacts/v1"
 ALLOCATION_SCHEMA = "sdvk009-cohort-allocation/v1"
 ALLOCATION_POLICY = {"probe_workers": list(PROBE_WORKERS), "barrier": "all-three-authenticated-probes",
-    "comparison": "original-exact-state-and-rgb", "selection": "largest-all-pairs-pass-subset",
-    "tie_break": "lexicographic-worker-ids", "assignment": "round-robin-original-shadow-order",
+    "comparison": "original-exact-state-and-rgb", "selection": "compatible-subsets-within-relative-minimum-score",
+    "weight": "ceil-milliseconds-of-authenticated-native-probe-elapsed-seconds",
+    "score": "maximum-assigned-shadow-count-times-probe-weight",
+    "near_minimum": {"numerator": 110, "denominator": 100},
+    "tie_break": "largest-cohort-then-lowest-score-then-lexicographic-worker-ids",
+    "assignment": "round-robin-original-shadow-order",
+    "assignment_order": "two-host-fastest-first-otherwise-lexicographic-worker-ids",
+    "weight_scope": "uncertain-relative-placement-estimate; no performance acceptance",
     "automatic_retries": 0, "reassignment": False}
 HOSTED_KEYS = ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA", "RUNNER_NAME", "RUNNER_ENVIRONMENT")
 
@@ -309,19 +316,53 @@ def validate_artifact_set(value, plan, plan_identity, roots):
     return value
 
 
-def compatible_subset(comparisons):
-    """Enumerate seven subsets; no scheduler, host preference or transitivity assumption."""
+def compatible_placement(comparisons, elapsed_seconds):
+    """Score seven fixed subsets; probe time is a routing estimate, not acceptance."""
     pairs = list(itertools.combinations(PROBE_WORKERS, 2))
     require([(row["left"], row["right"]) for row in comparisons] == pairs
             and all(row["status"] in ("PASS", "FAIL") for row in comparisons), "Incomplete cohort comparison matrix")
+    require(isinstance(elapsed_seconds, dict) and set(elapsed_seconds) == set(PROBE_WORKERS),
+            "All three authenticated native probe elapsed values are required")
+    weights = []
+    for worker in PROBE_WORKERS:
+        value = elapsed_seconds[worker]
+        require(type(value) in (int, float), "Native probe elapsed seconds must be positive and finite")
+        decimal = Decimal(str(value))
+        require(decimal.is_finite() and decimal > 0, "Native probe elapsed seconds must be positive and finite")
+        # Preserve the retained native value and ceil its decimal representation
+        # exactly. Integer arithmetic avoids float threshold/rounding ties. The
+        # native timeout remains authoritative: subprocess creation/wait costs
+        # mean elapsed time need not be bounded by precisely 180.000 seconds.
+        numerator, denominator = decimal.as_integer_ratio()
+        weights.append({"worker": worker, "native_elapsed_seconds": value,
+                        "ceil_milliseconds": (numerator * 1000 + denominator - 1) // denominator})
+    milliseconds = {row["worker"]: row["ceil_milliseconds"] for row in weights}
     passed = {frozenset((row["left"], row["right"])) for row in comparisons if row["status"] == "PASS"}
-    candidates = [group for size in range(1, 4) for group in itertools.combinations(sorted(PROBE_WORKERS), size)
-                  if all(frozenset(pair) in passed for pair in itertools.combinations(group, 2))]
-    return list(min(candidates, key=lambda group: (-len(group), group)))
+    candidates = []
+    for size in range(1, 4):
+        for members in itertools.combinations(sorted(PROBE_WORKERS), size):
+            group = list(members)
+            order = sorted(group, key=lambda name: (milliseconds[name], name)) if size == 2 else group
+            counts = {name: sum(order[index % size] == name for index in range(3)) for name in group}
+            candidates.append({"cohort": group, "compatible": all(frozenset(pair) in passed
+                for pair in itertools.combinations(group, 2)), "assignment_order": order, "role_counts": counts,
+                "score_milliseconds": max(counts[name] * milliseconds[name] for name in group)})
+    minimum = min(row["score_milliseconds"] for row in candidates if row["compatible"])
+    band = ALLOCATION_POLICY["near_minimum"]
+    for row in candidates:
+        row["within_near_minimum"] = row["compatible"] and (
+            row["score_milliseconds"] * band["denominator"] <= minimum * band["numerator"])
+    chosen = min((row for row in candidates if row["within_near_minimum"]),
+                 key=lambda row: (-len(row["cohort"]), row["score_milliseconds"], row["cohort"]))
+    return {"cohort": chosen["cohort"], "assignment_order": chosen["assignment_order"],
+            "placement": {"policy": copy.deepcopy(ALLOCATION_POLICY), "weights": weights, "candidates": candidates,
+                          "minimum_score_milliseconds": minimum,
+                          "selected_score_milliseconds": chosen["score_milliseconds"]}}
 
 
 def derive_allocation(plan, plan_identity, prepared_identity, roots, artifact_set, *, evidence_out=None):
     require(plan["kind"] in COHORT_KINDS and set(roots) == set(PROBE_WORKERS), "Cohort needs all three probe workers")
+    require(plan["allocation_policy"] == ALLOCATION_POLICY, "Preregistered cohort placement policy changed")
     validate_artifact_set(artifact_set, plan, plan_identity, roots)
     probes = [verify_worker(roots[name], name, plan, plan_identity, prepared_identity, probe=True) for name in PROBE_WORKERS]
     require(len({value["host_identity"]["boot_id"] for value in probes}) == 3
@@ -338,21 +379,24 @@ def derive_allocation(plan, plan_identity, prepared_identity, roots, artifact_se
         if evidence_out is not None:
             write_json(Path(evidence_out) / "cohort-comparisons" / (left + "-vs-" + right + ".json"), comparison)
         comparisons.append({"left": left, "right": right, "status": comparison["status"]})
-    group = compatible_subset(comparisons)
+    placement = compatible_placement(comparisons, {value["worker"]: value["captures"][0]["admission"]["elapsed_seconds"]
+                                                  for value in probes})
+    order = placement["assignment_order"]
     captures = copy.deepcopy(plan["captures"])
     shadows = [row for row in captures if row["worker"] == "cohort"]
     require(len(shadows) == 3, "Cohort must allocate exactly the three registered shadows")
     for ordinal, row in enumerate(shadows):
-        row["worker"] = group[ordinal % len(group)]
+        row["worker"] = order[ordinal % len(order)]
     return {"schema": ALLOCATION_SCHEMA, "kind": plan["kind"], "campaign_id": plan["campaign_id"],
             "plan": plan_identity, "artifact_set_sha256": sha256(canonical(artifact_set)),
             "probes": [{"worker": value["worker"], "worker_execution_id": value["worker_execution_id"],
                         "host_identity": value["host_identity"], "manifest": file_identity(roots[value["worker"]] / "manifest.json"),
                         "started_utc": value["started_utc"], "finished_utc": value["finished_utc"],
                         "build": value["captures"][0]["admission"]["build"],
+                        "elapsed_seconds": value["captures"][0]["admission"]["elapsed_seconds"],
                         "request": value["captures"][0]["admission"]["request"],
                         "run": value["captures"][0]["admission"]["run"]} for value in probes],
-            "comparisons": comparisons, "cohort": group, "captures": captures,
+            "comparisons": comparisons, **placement, "captures": captures,
             "automatic_retries": 0, "qualification_awarded": False}
 
 

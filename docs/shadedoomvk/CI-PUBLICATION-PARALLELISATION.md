@@ -14,6 +14,13 @@ runtime, native corpus, six companion modules and legacy evidence consumer are
 retained. This PR must remain stacked until #196 is accepted; it must not replace
 or merge the foundation independently.
 
+The candidate also includes accepted
+`master@0ecba708e283e33c381fae329ace7a2cedc6a3f3` as an explicit second-parent
+integration, retaining the complete #196 ancestry. This brings in the already
+merged [PR #199](https://github.com/techrote/ShadeDoomVK/pull/199) validator and its
+two regressions byte-for-byte. That upstream acceptance-baseline change is
+separate from this PR's orchestration work and is described below.
+
 The Owner superseded earlier macOS requirements: mandatory CI now contains the
 two Visual Studio 2022 configurations and all three original Linux compiler
 configurations. macOS Release/Debug, their dependency branch and their startup
@@ -60,10 +67,12 @@ corpus and shadow paths. The inexpensive compositing control now shares that
 short-module worker. The three shadow hosts first collect explicitly nonqualifying
 five-warmup/one-frame/180-second probes from the original historical shadow scene.
 All three packets must arrive and validate. Original exact comparisons select
-compatible hosts, and an immutable placement rule assigns the three original
-full shadow roles exactly once across them. Three compatible hosts give one
-capture each, two give two plus one, and a singleton gives three sequential
-captures. No fourth expensive shadow worker, consumer recompilation, replacement
+compatible hosts, and an immutable placement rule uses authenticated probe
+durations to assign the three original full shadow roles exactly once. A selected
+three-host group gives one capture each, two give two plus one, and a singleton
+gives three sequential captures. The rule can select fewer compatible hosts when
+their measured relative speed predicts a shorter capture path. No fourth expensive
+shadow worker, consumer recompilation, replacement
 host or post-failure reassignment is added. The barrier and its limits are
 described below.
 Matrix `fail-fast` remains false: a failed worker must not erase siblings' useful
@@ -167,9 +176,11 @@ restoration, with incomplete/failed status preserved.
 
 During #622, accepted master advanced to
 `0ecba708e283e33c381fae329ace7a2cedc6a3f3` by merging independent PR #199.
-The stacked #196 foundation stayed unchanged. This candidate does not import
-that tolerance change; SDVK-161 passed its original checks in #622. The PR
-conversation records the latest source relationship and eventual qualification.
+The stacked #196 foundation stayed unchanged. The stack did not include
+that tolerance change in #622 or the initial #625 diagnostic; SDVK-161 passed its
+original checks in #622. After #625 reproduced the already-fixed failure, the
+new candidate incorporates the accepted master commit as described below. The
+PR conversation records the latest source relationship and qualification.
 
 ## Protected cross-host mismatch and bounded placement
 
@@ -217,28 +228,51 @@ packet must pass the original native validator and global source/runtime/input
 checks. A wrong source, failed process, missing file or cancelled worker is a
 campaign failure, not a host that can be silently excluded.
 
-The fixed algorithm computes all three original exact pairwise comparisons,
-enumerates the seven nonempty host subsets and selects the largest subset whose
-every pair passes. A fixed lexical tie-break resolves equal-sized candidates;
-the ordered three full shadow roles are assigned round-robin. This does not
-assume comparator transitivity or select hosts by CPU vendor. All workers bind
-the same complete artifact identities and canonical allocation hash before full
-execution. There is no new group, replacement host, takeover or retry after a
-failure.
+The initial algorithm selected the largest exactly compatible subset. The next
+bounded hosted diagnostic, [#625](https://github.com/techrote/ShadeDoomVK/actions/runs/43544111662),
+exposed the cost of that rule: two compatible AMD EPYC 7763 probes took
+133.391 and 135.592 native seconds, while the separate Intel Xeon Platinum 8573C
+probe took 72.146 seconds. A two-plus-one schedule on that pair has a relative
+probe-time score of 266.784 seconds; three serial roles on the Intel host score
+216.438 seconds. These are scheduling estimates, not full-capture measurements.
 
-This rule preserves three-way overlap when possible and a two-plus-one schedule
-when only two hosts compare exactly. A singleton remains safe but has no shadow
-parallel speedup and adds probe overhead. The short probe includes startup costs
-and does not reliably predict full 120-frame witness time, so the placement rule
-does not rank hosts using speculative extrapolation. A faster singleton could
-in principle beat a slower pair. Actual assignment, probe overhead and full
-critical-path measurements must remain visible; this is not a claim of globally
-optimal or repeatable performance.
+The revised fixed algorithm computes all three original exact pairwise
+comparisons and evaluates all seven nonempty host subsets. Only a group whose
+every pair passes can be selected. Each host's unmodified native probe duration
+is rounded upward to integer milliseconds. A candidate's score is the maximum
+of its assigned role count times that host's weight. A pair gives two roles to
+its faster member, using original role order and round-robin assignment; a
+three-host group keeps lexical role assignment. Within 10% of the lowest
+compatible score, the rule prefers more hosts, then lower score, then lexical
+membership. Integer arithmetic makes the decision repeatable on every worker.
+All seven candidate scores, measured weights, assignment order and selected
+group remain in the canonical allocation. This does not assume comparator
+transitivity or select hosts by CPU vendor. All workers bind the same complete
+artifact identities and allocation hash before full execution. There is no new
+group, replacement host, takeover or retry after a failure.
+
+The 10% band is an engineering stability choice, not a calibrated confidence
+interval or renderer acceptance tolerance. The short uninstrumented probes
+include startup overhead and cannot reliably predict absolute 120-frame witness
+duration. The selected group therefore minimizes a bounded relative-work model
+with a preference for concurrency near ties; it does not claim global optimality
+or repeatable speedup. A singleton has no shadow overlap and still incurs probe
+overhead. Actual assignment, probe overhead and measured full critical path
+remain visible, and only the unchanged full comparisons can qualify captures.
 
 Artifact names bind the current run, attempt and three fixed workers. The
 barrier requires immutable artifact IDs, API SHA-256 digests, bounded safe ZIP
 extraction and complete original raw evidence. It has a finite 600-second wait;
-missing peers never produce a successful smaller campaign. [GitHub artifact v4](https://github.blog/changelog/2024-02-12-github-actions-artifacts-v4-is-now-generally-available/)
+missing peers never produce a successful smaller campaign. In #625 the controls
+worker saw its just-created artifact in the API but received HTTP 404 on its
+first download. The two peers downloaded the identical three IDs and digests
+five to six seconds later. The repair pins the first complete artifact set and
+requires it to remain unchanged through a 15-second monotonic settlement
+interval, with five-second metadata polls, before any first download. A changed
+or disappearing pin fails closed. Settlement is inside the existing deadline;
+HTTP failures are still fatal and no failed transfer or native process is retried.
+The report distinguishes GitHub API and signed-storage failures without retaining
+credentials or signed URLs. [GitHub artifact v4](https://github.blog/changelog/2024-02-12-github-actions-artifacts-v4-is-now-generally-available/)
 makes completed uploads downloadable before their jobs end, permitting this
 rendezvous inside the existing matrix. The workflow uses read-only Actions
 access and does not create or reschedule jobs. Its native-job ceiling accounts
@@ -263,6 +297,29 @@ real authenticated target resume and uses a bounded benign handshake to observe
 heartbeats. Production deadlines and stale-proof negative controls remain
 unchanged. Hidden partial coordination files are also retained by that bounded
 failure upload. See the [fixture investigation](evidence/CI-WINDOWS-CPU-FIXTURE-20261114.json).
+
+In #625 all Windows/Linux build jobs and the CPU oracle passed. The Windows
+supervisor log explicitly records the repaired heartbeat test passing and
+`Ran 206 tests` followed by `OK`. Native evidence remained incomplete because
+of the controls artifact race and an independent SDVK-161 failure on the short
+publication worker. Its six reverse-portal receiver records contained
+`[0, -0.9999999403953552, 0, -191.99998474121094]`, exactly the retained float
+vector in #199's regression. The old validator rejects that raw state; a
+byte-exact copy of the separately accepted master validator passes it in a
+CPU-only replay. That replay does not supply the suppressed second lifecycle
+capture, its exact comparisons, negative controls or qualification.
+
+The repair therefore integrates accepted master #199 unchanged as a real
+second parent. Its only two changed files are the existing SDVK-161 validator
+and its tests; no new tolerance, renderer, authored input or image policy change
+is introduced here. Full native requalification still runs all of that module's
+accepted gates. #625 remains a failed diagnostic with its original raw evidence
+and receipts intact. Its one successful AMD post-probe shadow shows generation
+and texture epoch 4 after a cold generation-3 probe on the same host, across
+separate Xvfb instances. The other host's explicit empty worker also passed;
+the missing assigned captures cannot be inferred from those successes. The
+[repair investigation receipt](evidence/CI-PUBLICATION-COHORT-REPAIR-20261114.json)
+records these source boundaries and retained outcomes.
 
 ## Explicit change to serial fail-stop semantics
 
@@ -400,7 +457,10 @@ enforce final dependencies. The original serial tests continue to apply to the
 serial API. Cohort controls additionally cover all seven subsets, deterministic
 ties, non-transitive comparison outcomes, strict three-party authentication,
 unsafe/corrupt ZIPs, missing/cancelled probes, allocation disagreement, excluded
-workers and exact full role ownership. A successful subset cannot hide an
+workers, weighted placement/near-tie boundaries and exact full role ownership.
+The artifact controls also cover stable-set settlement, pin disappearance or
+mutation, the shared deadline and fatal HTTP errors without transfer retries.
+A successful subset cannot hide an
 invalid or absent probe packet.
 
 The initial hosted compatibility result must pass before the complete expensive

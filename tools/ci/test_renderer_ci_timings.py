@@ -165,6 +165,10 @@ class TimingReportTest(unittest.TestCase):
         allocation = {"schema": "sdvk009-cohort-allocation/v1", "cohort": ["controls", "witness-1"],
                       "captures": [{"name": name, "worker": worker}
                                    for name, worker in zip(timing.CAPTURES, assignments)]}
+        allocation["placement"] = {"candidates": [
+            {"cohort": ["controls", "witness-1"], "compatible": True,
+             "score_milliseconds": 2500, "within_near_minimum": True}],
+            "minimum_score_milliseconds": 2500, "selected_score_milliseconds": 2500}
         qualification = {"status": "PASS", "workers": [{"worker": name} for name in timing.WORKERS],
                          "cohort_allocation": allocation, "cohort_allocation_sha256": "a" * 64}
         (self.root / "qualification.json").write_text(json.dumps(qualification))
@@ -191,12 +195,14 @@ class TimingReportTest(unittest.TestCase):
         self.assertEqual(cohort["probe_attempt_seconds_sum"], 6)
         self.assertEqual(cohort["probe_native_seconds_sum"], 3.75)
         self.assertEqual(cohort["barrier_reports"]["controls"]["elapsed_seconds"], 3)
+        self.assertEqual(cohort["placement_model"], allocation["placement"])
         self.assertTrue(cohort["all_probe_receipts_retained"])
         self.assertFalse(cohort["qualification_authority"])
         self.assertEqual(report["capture_duration_seconds_sum"], 32)
         self.assertEqual(report["capture_observation"]["observed_span_seconds"], 20)
         self.assertEqual(report["topology_model"]["ideal_parallel_capture_seconds"], 10)
         self.assertIn("unconstrained three-way model", timing.markdown(report))
+        self.assertIn("not predicted full-capture durations", timing.markdown(report))
         after = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
                  for path in self.base.rglob('*') if path.is_file()}
         self.assertEqual(before, after)

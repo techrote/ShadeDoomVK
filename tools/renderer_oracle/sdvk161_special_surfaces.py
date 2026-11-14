@@ -796,7 +796,14 @@ def _require_b_surfaces(frame: int, draws: list[tuple], raw: dict) -> dict:
                 "SDVK-161 reverse portal receiver has wrong actual path/material/owner/current tile")
         _camera_vector(context.get("position"), [36, -176, 64], "reverse portal context position")
         _camera_vector(context.get("angles"), [180, 0, 0], "reverse portal context angles")
-        _camera_vector(value["geometry"]["plane"], [0, -1, 0, -192], "reverse portal receiving plane")
+        plane = value["geometry"]["plane"]
+        # The submitted wall normal and plane distance are computed in float.
+        # Keep the oriented coefficients bound to this authored receiver.
+        require(isinstance(plane, list) and len(plane) == 4
+                and all(type(actual) in (int, float) and math.isfinite(actual)
+                        and math.isclose(actual, expected, rel_tol=2e-7, abs_tol=1e-7)
+                        for actual, expected in zip(plane, (0, -1, 0, -192))),
+                "SDVK-161 reverse portal receiving plane differs from its authored view")
         portal_receivers.append(value)
     require(portal_receivers, f"SDVK-161 frame {frame} lacks an actual reverse linked-portal receiving wall")
     stencils = [value for value, _ in draws if value.get("class") == "line-to-line-portal"

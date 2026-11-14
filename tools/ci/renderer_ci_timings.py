@@ -170,6 +170,7 @@ def cohort_evidence(root: Path, qualification: dict, records: list[dict]) -> dic
             barriers[worker] = json.loads(path.read_text(encoding="utf-8"))
     return {"allocation_sha256": qualification.get("cohort_allocation_sha256"),
             "cohort": cohort, "capture_workers": assignments,
+            "placement_model": allocation.get("placement"),
             "worker_capture_seconds": loads,
             "allocated_capture_lower_bound_seconds": round(max(loads.values()), 3) if loads else None,
             "probe_processes": probes,
@@ -178,7 +179,7 @@ def cohort_evidence(root: Path, qualification: dict, records: list[dict]) -> dic
             "all_probe_receipts_retained": all(row["status"] != "NOT_RETAINED" for row in probes),
             "barrier_reports": barriers,
             "qualification_authority": False,
-            "limitations": "Placement lower bound sums full capture attempts per allocated worker; excludes probe, barrier, setup, companion modules, queue, transfer and aggregation. Probe time is not a full-witness predictor."}
+            "limitations": "Placement lower bound sums full capture attempts per allocated worker; excludes probe, barrier, setup, companion modules, queue, transfer and aggregation. Probe time is a relative placement heuristic, not a validated prediction of full-witness duration."}
 
 
 def machine_profile() -> dict:
@@ -297,6 +298,16 @@ def markdown(result: dict) -> str:
                   "| Full capture | Allocated worker |", "| --- | --- |"]
         for capture, worker in cohort["capture_workers"].items():
             lines.append(f"| `{capture}` | `{worker}` |")
+        placement = cohort.get("placement_model")
+        if placement is not None:
+            lines += ["", "| Candidate shadow hosts | Exact-compatible | Relative scheduling score (probe ms) | Within 10% of minimum |",
+                      "| --- | --- | ---: | --- |"]
+            for candidate in placement["candidates"]:
+                names = ", ".join(candidate["cohort"])
+                lines.append(f"| {names} | {candidate['compatible']} | {candidate['score_milliseconds']} | {candidate['within_near_minimum']} |")
+            lines += ["", "Scores use the preregistered count-times-probe-duration heuristic. "
+                      "The 10% band is a scheduling choice, not a confidence interval or renderer acceptance tolerance. "
+                      "These scores are not predicted full-capture durations."]
         lower = cohort["allocated_capture_lower_bound_seconds"]
         if lower is not None:
             lines += ["", f"Placement-specific capture lower bound: **{lower / 60:.2f} min**, "

@@ -689,6 +689,20 @@ class SubmittedSpecialSurfaceTests(unittest.TestCase):
         with self.assertRaisesRegex(EvidenceError, "main LevelMesh S161T4 3D-floor plane"):
             self.validate(raw)
 
+    def test_reverse_portal_plane_accepts_retained_float_roundoff(self):
+        raw = full_raw()
+        receiver = surface(raw, "SDVW", 56)
+        receiver["geometry"]["plane"] = [0, -0.9999999403953552, 0, -191.99998474121094]
+        self.validate(raw)
+
+    def test_reverse_portal_plane_rejects_changed_orientation_or_offset(self):
+        for plane in ([0, 1, 0, 192], [0, -1, 0, -191.999], [0, -1, 0.001, -192]):
+            with self.subTest(plane=plane):
+                raw = full_raw()
+                surface(raw, "SDVW", 56)["geometry"]["plane"] = plane
+                with self.assertRaisesRegex(EvidenceError, "reverse portal receiving plane"):
+                    self.validate(raw)
+
     def test_reverse_portal_needs_actual_current_receiver_even_with_valid_context_and_stencil(self):
         edits = ("missing", "wrong-material", "wrong-owner", "wrong-group", "wrong-path",
                  "wrong-position", "wrong-hardware-angle", "wrong-destination-group", "wrong-origin-line",
