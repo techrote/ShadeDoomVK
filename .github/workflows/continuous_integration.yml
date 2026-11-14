@@ -17,6 +17,9 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: Validate CI evidence transport and timing reporting
+      run: python3 -m unittest discover -s tools/ci -p 'test_*.py' -v
+
     - name: Run CPU contracts and deterministic oracle
       run: python3 tools/check.py --output build/pf-oracle
 
@@ -32,7 +35,6 @@ jobs:
 
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
-    needs: pf_oracle
     runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
@@ -74,14 +76,6 @@ jobs:
           extra_options: -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
           deps_cmdline: sudo apt update && sudo apt install clang-15 libsdl2-dev libvpx-dev libwebp-dev
           build_type: Release
-
-        - name: Linux software Vulkan
-          # Required CI critical path: GitHub-hosted software Vulkan; do not duplicate this job.
-          os: ubuntu-24.04
-          extra_options: -DNO_GTK=ON
-          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
-          build_type: RelWithDebInfo
-          native_renderer: true
 
     steps:
     - uses: actions/checkout@v4
@@ -149,114 +143,6 @@ jobs:
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
 
-    - name: Qualify software Vulkan corpus and timing collection
-      if: matrix.config.native_renderer
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        set -euo pipefail
-        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
-        test "${#sdvk_icds[@]}" -eq 1
-        export VK_DRIVER_FILES="${sdvk_icds[0]}"
-        export VK_ICD_FILENAMES="${sdvk_icds[0]}"
-        export SDL_VIDEODRIVER=x11
-        mkdir -p build/renderer-sdvk008-preflight
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' vulkaninfo --summary > build/renderer-sdvk008-preflight/vulkaninfo-summary.txt 2> build/renderer-sdvk008-preflight/vulkaninfo-summary.stderr.txt
-        sdvk_control_device=$(python3 -c 'from pathlib import Path; from tools.renderer_oracle.native_ci import fields; print(fields(Path("build/renderer-sdvk008-preflight/vulkaninfo-summary.txt").read_text(), "deviceName")[0])')
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/sdvk008_physical.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-sdvk008-control --device-name "$sdvk_control_device" --vulkan-summary build/renderer-sdvk008-preflight/vulkaninfo-summary.txt --expected-commit "$(git rev-parse HEAD)" --iwad-license /usr/share/doc/freedoom/copyright --execute --correctness-only --software-fixture-control
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
-        python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
-
-    - name: Qualify SDVK-010 actors and SDVK-009 publication on hosted software Vulkan
-      if: matrix.config.native_renderer
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        set -euo pipefail
-        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
-        test "${#sdvk_publication_icds[@]}" -eq 1
-        export VK_DRIVER_FILES="${sdvk_publication_icds[0]}"
-        export VK_ICD_FILENAMES="${sdvk_publication_icds[0]}"
-        export SDL_VIDEODRIVER=x11
-        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
-        # The combined actor acceptance gate runs here once, on the same normal
-        # software-Vulkan job/build and authenticated content as SDVK-009.
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk010_acceptance \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk010 \
-          --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-150 adds one focused same-process A->B correctness gate to this
-        # existing normal GitHub-hosted build. It is not a duplicate full matrix or benchmark.
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk150_probe_owner \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk150 \
-          --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-153: live sampler-reset correctness/control on this same build.
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk153_probe_reset \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk153 \
-          --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-158: retained-v5 multi-page invalidate/reload correctness on this same build.
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk158_lightmap_transition \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk158 \
-          --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-161: bounded special surfaces with current submitted owners and
-        # exact checkpoint RGB across both maps and their same-map reloads.
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_special_surfaces \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk161 \
-          --expected-commit "$(git rev-parse HEAD)"
-        # SDVK-014: independent BOTH-plane source/facing correctness on the
-        # same hosted software build. The accepted SDVK-161 recipe stays intact.
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk014_controlled_planes \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk014-controlled \
-          --expected-commit "$(git rev-parse HEAD)"
-        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_publication qualify \
-          --exe "$PWD/build/vkdoom" \
-          --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk009-publication \
-          --expected-commit "$GITHUB_SHA"
-
-    - name: Package complete software Vulkan evidence losslessly
-      if: always() && matrix.config.native_renderer
-      shell: bash
-      run: |
-        sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
-          if [[ -d "build/$sdvk_evidence_dir" ]]; then
-            sdvk_evidence_dirs+=("$sdvk_evidence_dir")
-          fi
-        done
-        if [[ "${#sdvk_evidence_dirs[@]}" -gt 0 ]]; then
-          XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
-        fi
-
-    - name: Upload complete software Vulkan evidence
-      if: always() && matrix.config.native_renderer
-      uses: actions/upload-artifact@v4
-      with:
-        name: renderer-software-vulkan
-        path: build/renderer-software-vulkan.tar.xz
-        compression-level: 0
-        retention-days: 30
-
     - name: Diagnose macOS startup failure
       if: failure() && runner.os == 'macOS'
       shell: bash
@@ -302,6 +188,317 @@ jobs:
 #       git status
 #       ls -lR build
 #
+
+  # The once-serial software renderer qualification is split into two
+  # parallel suites using one identical, source-matched binary package.
+  vulkan_build:
+    name: Linux software Vulkan | Build
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install software Vulkan build dependencies
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+
+    - name: Configure and build
+      shell: bash
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        export MAKEFLAGS=--keep-going
+        cmake --build build --config RelWithDebInfo --parallel 3
+
+    - name: Verify source-matched binaries
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+
+    - name: Package exact build once for both qualification suites
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+        test -f build/vkdoom.pk3
+        files=(build/vkdoom build/vktool build/CMakeCache.txt build/deps/zmusic/lib build/*.pk3)
+        for directory in build/fm_banks build/soundfonts; do
+          [[ ! -d "$directory" ]] || files+=("$directory")
+        done
+        tar -cf build/software-vulkan-runtime.tar "${files[@]}"
+        gzip -1 build/software-vulkan-runtime.tar
+        (cd build && sha256sum software-vulkan-runtime.tar.gz > software-vulkan-runtime.tar.gz.sha256)
+
+    - name: Upload source-matched renderer
+      uses: actions/upload-artifact@v4
+      with:
+        name: software-vulkan-runtime
+        path: |
+          build/software-vulkan-runtime.tar.gz
+          build/software-vulkan-runtime.tar.gz.sha256
+        compression-level: 0
+        retention-days: 1
+        if-no-files-found: error
+
+  vulkan_qualification:
+    name: Linux software Vulkan | ${{ matrix.suite }}
+    needs: vulkan_build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [corpus, publication]
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install original hosted software Vulkan test environment
+      shell: bash
+      run: |
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+
+    - name: Download exactly one shared renderer build
+      uses: actions/download-artifact@v4
+      with:
+        name: software-vulkan-runtime
+        path: build
+
+    - name: Verify archive and source-matched runtime
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        (cd build && sha256sum -c software-vulkan-runtime.tar.gz.sha256)
+        tar -tzf build/software-vulkan-runtime.tar.gz >/dev/null
+        tar -xzf build/software-vulkan-runtime.tar.gz
+        test -x build/vkdoom && test -x build/vktool
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+
+    - name: Qualify software Vulkan corpus and timing collection
+      if: matrix.suite == 'corpus'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_icds[@]}" -eq 1
+        export VK_DRIVER_FILES="${sdvk_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_icds[0]}"
+        export SDL_VIDEODRIVER=x11
+        mkdir -p build/renderer-sdvk008-preflight
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' vulkaninfo --summary > build/renderer-sdvk008-preflight/vulkaninfo-summary.txt 2> build/renderer-sdvk008-preflight/vulkaninfo-summary.stderr.txt
+        sdvk_control_device=$(python3 -c 'from pathlib import Path; from tools.renderer_oracle.native_ci import fields; print(fields(Path("build/renderer-sdvk008-preflight/vulkaninfo-summary.txt").read_text(), "deviceName")[0])')
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/sdvk008_physical.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-sdvk008-control --device-name "$sdvk_control_device" --vulkan-summary build/renderer-sdvk008-preflight/vulkaninfo-summary.txt --expected-commit "$(git rev-parse HEAD)" --iwad-license /usr/share/doc/freedoom/copyright --execute --correctness-only --software-fixture-control
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/renderer_oracle/native_ci.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/renderer-native --full
+        python3 tools/collision_replay.py --snapshot-root build/renderer-native/state/shadow-boundary --output build/renderer-native/collision-review.json --classification reconstructed-hosted-production --replay
+
+    # Preserve serial fail-stop publication and actor acceptance. Separate GitHub
+    # steps expose the real per-suite timings without changing capture counts.
+    - name: Select hosted llvmpipe and authenticate publication content
+      if: matrix.suite == 'publication'
+      shell: bash
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_publication_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_publication_icds[@]}" -eq 1
+        {
+          printf 'VK_DRIVER_FILES=%s\n' "$sdvk_publication_icds"
+          printf 'VK_ICD_FILENAMES=%s\n' "$sdvk_publication_icds"
+          printf 'SDL_VIDEODRIVER=x11\n'
+        } >> "$GITHUB_ENV"
+        python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+
+    - name: Qualify SDVK-010 actors on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk010_acceptance \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk010 \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-150 probe ownership on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk150_probe_owner \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk150 \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-153 sampler reset on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk153_probe_reset \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk153 \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-158 lightmap transition on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk158_lightmap_transition \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk158 \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-161 special surfaces on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        # SDVK-161: bounded special surfaces with current submitted owners and
+        # exact checkpoint RGB across both maps and their same-map reloads.
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_special_surfaces \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk161 \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-014 controlled planes on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        # SDVK-014: independent BOTH-plane source/facing correctness on the
+        # same hosted software build. The accepted SDVK-161 recipe stays intact.
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk014_controlled_planes \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk014-controlled \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Qualify SDVK-009 publication witnesses on hosted software Vulkan
+      if: matrix.suite == 'publication'
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_publication qualify \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --out build/renderer-sdvk009-publication \
+          --expected-commit "$GITHUB_SHA"
+
+    - name: Report individual hosted publication capture timings
+      if: always() && matrix.config.native_renderer
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ -f build/renderer-sdvk009-publication/qualification.json ]]; then
+          python3 tools/ci/renderer_ci_timings.py build/renderer-sdvk009-publication \
+            --out build/renderer-ci-timings/report.json \
+            --summary "$GITHUB_STEP_SUMMARY"
+        fi
+
+    - name: Package lossless suite evidence (including failures)
+      if: always()
+      shell: bash
+      run: python3 tools/ci/renderer_evidence.py pack --build build --suite '${{ matrix.suite }}'
+
+    - name: Retain suite evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-software-vulkan-${{ matrix.suite }}
+        path: |
+          build/renderer-${{ matrix.suite }}.tar
+          build/renderer-${{ matrix.suite }}.tar.sha256
+          build/renderer-${{ matrix.suite }}.manifest.json
+        # Zip's inexpensive DEFLATE is temporary transport, not final storage.
+        compression-level: 1
+        retention-days: 30
+        if-no-files-found: error
+
+  vulkan_evidence:
+    # Preserve the exact required check name and original .tar.xz consumer.
+    name: Linux software Vulkan | RelWithDebInfo
+    needs: [vulkan_build, vulkan_qualification]
+    if: always()
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Download available qualification evidence
+      if: needs.vulkan_build.result == 'success'
+      uses: actions/download-artifact@v4
+      with:
+        pattern: renderer-software-vulkan-*
+        path: build/parts
+        merge-multiple: true
+
+    - name: Authenticate, reassemble and verify lossless evidence
+      if: needs.vulkan_build.result == 'success'
+      shell: bash
+      run: |
+        set -euo pipefail
+        if [[ "${{ needs.vulkan_qualification.result }}" == success ]]; then
+          python3 tools/ci/renderer_evidence.py merge --parts build/parts --out build/evidence-merged --complete
+        else
+          python3 tools/ci/renderer_evidence.py merge --parts build/parts --out build/evidence-merged
+        fi
+        mapfile -t directories < build/renderer-evidence-directories.txt
+        test "${#directories[@]}" -gt 0
+        # The original one-block XZ policy is essential for highly repetitive
+        # raw captures; xz -1 -T0 inflated the final artifact approximately 19x.
+        XZ_OPT='-6 --lzma2=dict=64MiB' tar -cJf build/renderer-software-vulkan.tar.xz -C build/evidence-merged "${directories[@]}"
+        python3 tools/ci/renderer_evidence.py verify-final \
+          --archive build/renderer-software-vulkan.tar.xz \
+          --manifest build/renderer-evidence-manifest.json
+
+    - name: Upload complete software Vulkan evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-software-vulkan
+        path: |
+          build/renderer-software-vulkan.tar.xz
+          build/renderer-software-vulkan.tar.xz.sha256
+          build/renderer-evidence-manifest.json
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: ignore
+
+    - name: Require both native suites and their shared build
+      if: always()
+      shell: bash
+      run: |
+        test "${{ needs.vulkan_build.result }}" = success
+        test "${{ needs.vulkan_qualification.result }}" = success
+
 # deploy:
 #   name: Update Latest successful build
 #   runs-on: ubuntu-latest
