@@ -1,5 +1,7 @@
 # ShadeDoomVK autonomous issue graph
 
+> **Planning transition:** [Lost 2003 Remaster](REMASTER-2003-CAMPAIGN.md) is owner-approved as the next programme; [transfer ledger](REMASTER-2003-HISTORICAL-TRANSFER.md) links founding obligations to new issues. The serial graph below is historical context and remains operative for existing issues until [R-001 #203](https://github.com/techrote/ShadeDoomVK/issues/203) formally supersedes the relevant authority. Do not claim legacy issue closure.
+
 ## Current dependency authority — 14 October 2026
 
 The [SDVK-009 gate split](SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) supersedes older
