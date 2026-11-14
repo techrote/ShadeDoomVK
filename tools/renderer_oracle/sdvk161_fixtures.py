@@ -38,6 +38,19 @@ def validate_recipe(scene: dict) -> None:
             or native.get("map") != MAPS[0] or native.get("camera") != CAMERA
             or native.get("map_cameras") != MAP_CAMERAS):
         raise ValueError("SDVK-161 needs its exact authored scene/map/camera")
+    # Revised authored fixture: isolate the optional real-time startup-progress
+    # screen without changing 32+96 rendering, lifecycle commands, twelve
+    # detailed witnesses, exact state/RGB or the 35 negative controls.
+    # Other renderer scenes retain their original native bootstrap.
+    expected_argv = [
+        "{exe}", "-stdout", "-nostartup", "-noautoload", "-noautoexec",
+        "-nosound", "-nojoy", "-rngseed", "161", "-iwad", "{iwad}",
+        "-file", "{pk3}", "-config", "{config}", "-width", "640",
+        "-height", "480", "-window", "+map", "SDV161A", "+exec",
+        "{capture_script}",
+    ]
+    if native.get("argv") != expected_argv:
+        raise ValueError("SDVK-161 isolated startup argv must equal the sealed revision; no other bootstrap changes")
     if (native.get("settings", {}).get("gl_levelmesh") is not True
             or native.get("settings", {}).get("lm_dynlights") is not False):
         raise ValueError("SDVK-161 requires ordinary lightmapped LevelMesh rendering")

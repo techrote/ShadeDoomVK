@@ -20182,6 +20182,7 @@
         "argv": [
           "{exe}",
           "-stdout",
+          "-nostartup",
           "-noautoload",
           "-noautoexec",
           "-nosound",

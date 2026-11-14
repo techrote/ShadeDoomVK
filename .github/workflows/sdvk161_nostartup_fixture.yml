@@ -1,0 +1,91 @@
+name: SDVK-161 -nostartup fixture | targeted qualification only
+
+on:
+  push:
+    branches:
+      - fix/sdvk161-nostartup-fixture-20261114
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-source:
+    name: SDVK-161 isolated startup | original CPU/source/fixtures
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@v4
+    - name: Reject non-isolated startup argv and unchanged-sequence regressions
+      run: |
+        set -euo pipefail
+        python3 -B -m unittest tools.renderer_oracle.tests.test_sdvk161_nostartup_fixture -v
+        python3 -m py_compile tools/renderer_oracle/sdvk161_fixture_isolation.py
+    - name: Execute complete original CPU contracts, corpus and source oracle
+      run: python3 tools/check.py --output build/sdvk161-nostartup-cpu
+    - name: Retain CPU source qualification logs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk161-nostartup-cpu-${{ github.sha }}
+        path: |
+          build/sdvk161-nostartup-cpu/*.log
+          build/sdvk161-nostartup-cpu/renderer-corpus/result.json
+          build/sdvk161-nostartup-cpu/renderer-corpus/prepare-*/prepared.json
+        if-no-files-found: warn
+        retention-days: 30
+
+  native-exact:
+    name: SDVK-161 isolated startup | 8 original native attempts, 28 exact comparisons
+    needs: cpu-source
+    runs-on: ubuntu-24.04
+    timeout-minutes: 85
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install original software Vulkan build and runtime prerequisites
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+    - name: Build target exact-source Vulkan renderer once
+      shell: bash
+      run: |
+        set -euo pipefail
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        export MAKEFLAGS=--keep-going
+        cmake --build build --config RelWithDebInfo --parallel 3
+    - name: Verify native source identity and select real hosted llvmpipe
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+        mapfile -t lvp < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#lvp[@]}" -eq 1
+        echo "VK_DRIVER_FILES=${lvp[0]}" >> "$GITHUB_ENV"
+        echo "VK_ICD_FILENAMES=${lvp[0]}" >> "$GITHUB_ENV"
+        echo "SDL_VIDEODRIVER=x11" >> "$GITHUB_ENV"
+    - name: Qualify eight independent original SDVK-161 native attempts; 28 cross-attempt exact comparisons
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_fixture_isolation \
+          --exe "$PWD/build/vkdoom" \
+          --iwad /usr/share/games/doom/freedoom2.wad \
+          --iwad-license /usr/share/doc/freedoom/copyright \
+          --out build/sdvk161-nostartup-evaluation \
+          --expected-commit "$(git rev-parse HEAD)"
+    - name: Preserve all original native packets and failed evidence
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk161-nostartup-native-${{ github.sha }}
+        path: build/sdvk161-nostartup-evaluation/
+        if-no-files-found: warn
+        compression-level: 1
+        retention-days: 30
+        include-hidden-files: true
