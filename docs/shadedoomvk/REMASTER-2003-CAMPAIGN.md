@@ -71,13 +71,13 @@ The following labels are **provisional issue identifiers**, not actual GitHub is
 
 | Proposed issue | Priority | Output / acceptance in one sentence |
 | --- | --- | --- |
-| **R-001 — Development policy and CI reset** | Immediate enabling | Establish a risk-based short CI gate, optional deeper coverage and bounded evidence, with prior physical-test authorisations unchanged until separately reviewed. |
-| **SHADOW-001 — Stylised raster sprite shadow projection** | Flagship #1 | Demonstrate light-relative shadows from improved sprite silhouette proxies with safe floors, expressive hard edges and a cheap contact fallback. |
-| **MAT-001 — Material Forge** | Flagship #2 | Evolve PR #190's Doom II/DBP50 local material-generation showcase into configurable, per-material editable PBR interpretations without replacing source sprites. |
-| **LIGHT-001 — Expressive lighting and viewmodels** | Flagship #3 | Refine flashlight, local-light response, sector/probe and first-person weapon coherence in real scenes. |
-| **PERF-001 — Older-GPU performance and quality profiles** | Continuous | Measure real representative workloads, select explicit quality budgets and optimise proved hot paths rather than assuming a costly architecture rewrite is needed. |
-| **WORLD-001 — Practical lightmap/probe workflows** | Selective | Make bake/rebake/load/update operations and ordinary world lighting dependable, with accepted lifecycle fixes preserved. |
-| **PLAY-001 — Doom II 2003 preview** | Early milestone | Produce a playable opt-in showcase and small compatible build with defaults, instructions, known limitations and owner visual acceptance. |
+| **[R-001](https://github.com/techrote/ShadeDoomVK/issues/203) — Development policy and CI reset** | Immediate enabling | Establish a risk-based short CI gate, optional deeper coverage and bounded evidence, with prior physical-test authorisations unchanged until separately reviewed. |
+| **[SHADOW-001](https://github.com/techrote/ShadeDoomVK/issues/204) — Stylised raster sprite shadow projection** | Flagship #1 | Demonstrate light-relative shadows from improved sprite silhouette proxies with safe floors, expressive hard edges and a cheap contact fallback. |
+| **[MAT-001](https://github.com/techrote/ShadeDoomVK/issues/205) — Material Forge** | Flagship #2 | Evolve PR #190's Doom II/DBP50 local material-generation showcase into configurable, per-material editable PBR interpretations without replacing source sprites. |
+| **[LIGHT-001](https://github.com/techrote/ShadeDoomVK/issues/206) — Expressive lighting and viewmodels** | Flagship #3 | Refine flashlight, local-light response, sector/probe and first-person weapon coherence in real scenes. |
+| **[PERF-001](https://github.com/techrote/ShadeDoomVK/issues/207) — Older-GPU performance and quality profiles** | Continuous | Measure real representative workloads, select explicit quality budgets and optimise proved hot paths rather than assuming a costly architecture rewrite is needed. |
+| **[WORLD-001](https://github.com/techrote/ShadeDoomVK/issues/208) — Practical lightmap/probe workflows** | Selective | Make bake/rebake/load/update operations and ordinary world lighting dependable, with accepted lifecycle fixes preserved. |
+| **[PLAY-001](https://github.com/techrote/ShadeDoomVK/issues/209) — Doom II 2003 preview** | Early milestone | Produce a playable opt-in showcase and small compatible build with defaults, instructions, known limitations and owner visual acceptance. |
 
 **Sequencing:** R-001 policy must be agreed before *changing acceptance rules*; it is not permission to stall visual prototyping. SHADOW-001, MAT-001 and LIGHT-001 form the first visible wave. PERF-001 establishes cost measurements alongside them. WORLD-001 advances only on user-value or substantive defects. PLAY-001 starts early using the existing #190 gallery and can ship without future optional shadow subfeatures.
 
@@ -171,9 +171,9 @@ Retain a slim, provenance-linked historical index before closing or superseding 
 | #16 performance tiers | PERF-001, moved earlier |
 | #17 final freeze | PLAY-001 playable preview; no all-predecessors gate |
 
-Open CI PRs #187/#196/#197/#198/#201 should be independently disposed after reviewing reusable improvements against R-001; do not blindly merge their existing qualification burden. Open CFX/physical risk records need separate faithful disposition. Existing issue closures require **separate owner approval** and exact historical transfer comments; the new plan does not falsely satisfy original acceptance criteria.
+Open CI PRs #187/#196/#197/#198/#201 should be independently disposed after reviewing reusable improvements against [R-001 #203](https://github.com/techrote/ShadeDoomVK/issues/203); do not blindly merge their existing qualification burden. Open CFX/physical risk records need separate faithful disposition. Existing issue closures require **separate owner approval** and exact historical transfer comments; the new plan does not falsely satisfy original acceptance criteria.
 
-## 10. Immediate owner decisions
+## 10. Owner decision and implementation handoff
 
 The owner **approved this direction and authorised GitHub kickoff on 14 November 2026**, endorsing (a) the 2003-remaster artistic target; (b) raster-first sprite shadows with independently processed masks and optional authored cutouts; (c) a refreshed, non-serial issue slate; and (d) drafting an explicit risk-based acceptance policy.
 
