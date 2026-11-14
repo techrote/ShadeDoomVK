@@ -38,6 +38,9 @@
 #include "vulkan/commands/vk_commandbuffer.h"
 #include <zvulkan/cfxtrace.h>
 #include <chrono>
+#include <array>
+#include <algorithm>
+#include <cstdlib>
 #include <cstring>
 #include <map>
 #include <set>
@@ -62,6 +65,31 @@ namespace SdvkDiagnostics
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
 namespace {
 thread_local SpecialSurfaceMetadata ImmediateSurface;
+struct PassiveWallRow
+{
+    uint64_t Frame = 0;
+    int Stage = 0; // 1 queue, 2 entry, 3 setup, 4 emitted, 5 exit, 6 upload
+    int Side = -1, Line = -1, Sector = -1, Control = -1, Group = -1, Portal = -1;
+    int Type = -1, Flags = 0, Vertices = 0, LightIndex = -1, Tile = -1, Texture = 0;
+    int Normal = 0, Subtractive = 0, Additive = 0;
+    float X1 = 0, Y1 = 0, X2 = 0, Y2 = 0, Top0 = 0, Top1 = 0, Bottom0 = 0, Bottom1 = 0;
+};
+constexpr uint32_t PassiveWallCap = 32768;
+std::array<PassiveWallRow, PassiveWallCap> PassiveWallBuffer{};
+std::atomic<uint32_t> PassiveWallCursor{0};
+bool PassiveWallRequested()
+{
+    static const bool requested = [] {
+        const char* value = std::getenv("SDVK161_PASSIVE_WALL_TRACE");
+        return value && std::strcmp(value, "1") == 0;
+    }();
+    return requested;
+}
+void AppendPassiveWall(const PassiveWallRow& row)
+{
+    auto index = PassiveWallCursor.fetch_add(1, std::memory_order_acq_rel);
+    if (index < PassiveWallCap) PassiveWallBuffer[index] = row;
+}
 // Workers author portal decals before the main thread submits them. This
 // frame-owned store is shared; only draw-scope metadata remains thread-local.
 SdvkSurfaceObservation::WrittenVertexStore WrittenVertices;
@@ -778,6 +806,105 @@ void Emit(const char* kind, const std::string& object, bool deduplicate)
 }
 
 bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
+bool PassiveWallTraceEnabled()
+{
+    // Diagnostic-only: sample the two original intermittent mismatch frames
+    // instead of instrumenting every retained frame and altering frame pacing.
+    const auto frame = Get().Frame.load(std::memory_order_relaxed);
+    return PassiveWallRequested() && SpecialSurfaceEnabled() && StateEnabled()
+        && (frame == 4 || frame == 37);
+}
+void PassiveWallTraceWall(const HWWall* wall, const HWDrawInfo* context, int stage)
+{
+    if (!PassiveWallTraceEnabled() || !wall) return;
+    PassiveWallRow row;
+    row.Frame = Get().Frame.load(std::memory_order_relaxed);
+    row.Stage = stage;
+    row.Type = wall->type;
+    row.Flags = wall->flags;
+    row.Vertices = int(wall->vertcount);
+    row.LightIndex = wall->dynlightindex;
+    row.Tile = wall->lightmaptile;
+    row.Texture = wall->texture != nullptr;
+    row.X1 = wall->glseg.x1; row.Y1 = wall->glseg.y1;
+    row.X2 = wall->glseg.x2; row.Y2 = wall->glseg.y2;
+    row.Top0 = wall->ztop[0]; row.Top1 = wall->ztop[1];
+    row.Bottom0 = wall->zbottom[0]; row.Bottom1 = wall->zbottom[1];
+    row.Control = wall->LevelMeshInfo.ControlSector ? wall->LevelMeshInfo.ControlSector->Index() : -1;
+    row.Portal = context ? (context->mCurrentPortal != nullptr) : -1;
+    if (wall->seg)
+    {
+        row.Side = wall->seg->sidedef ? wall->seg->sidedef->Index() : -1;
+        row.Line = wall->seg->linedef ? wall->seg->linedef->Index() : -1;
+        if (wall->seg->sidedef && wall->seg->sidedef->sector)
+        {
+            row.Sector = wall->seg->sidedef->sector->Index();
+            row.Group = wall->seg->sidedef->sector->PortalGroup;
+        }
+    }
+    AppendPassiveWall(row);
+}
+void PassiveWallTraceLightUpload(int index, int normal, int subtractive, int additive)
+{
+    if (!PassiveWallTraceEnabled()) return;
+    PassiveWallRow row;
+    row.Frame = Get().Frame.load(std::memory_order_relaxed);
+    row.Stage = 6;
+    row.LightIndex = index;
+    row.Normal = normal;
+    row.Subtractive = subtractive;
+    row.Additive = additive;
+    AppendPassiveWall(row);
+}
+void PassiveWallTraceDump(const char* prefix)
+{
+    if (!PassiveWallRequested()) return;
+    static bool written = false;
+    if (written) return;
+    written = true;
+    try
+    {
+        const uint32_t total = PassiveWallCursor.load(std::memory_order_acquire);
+        const uint32_t count = std::min(total, PassiveWallCap);
+        std::string rows = "[";
+        for (uint32_t i = 0; i < count; ++i)
+        {
+            const auto& r = PassiveWallBuffer[i];
+            if (i) rows += ',';
+            rows += SdvkObservation::Object()
+                .Int("seq", i).Int("frame", r.Frame).Int("stage", r.Stage)
+                .Int("side", r.Side).Int("line", r.Line)
+                .Int("sector", r.Sector).Int("control", r.Control)
+                .Int("group", r.Group).Int("portal", r.Portal)
+                .Int("type", r.Type).Int("flags", r.Flags)
+                .Int("vertices", r.Vertices).Int("light_index", r.LightIndex)
+                .Int("tile", r.Tile).Bool("texture", r.Texture)
+                .Int("normal", r.Normal).Int("subtractive", r.Subtractive).Int("additive", r.Additive)
+                .Raw("xy", '[' + SdvkObservation::Number(r.X1) + ',' +
+                    SdvkObservation::Number(r.Y1) + ',' + SdvkObservation::Number(r.X2) + ',' +
+                    SdvkObservation::Number(r.Y2) + ']')
+                .Raw("height", '[' + SdvkObservation::Number(r.Top0) + ',' +
+                    SdvkObservation::Number(r.Top1) + ',' + SdvkObservation::Number(r.Bottom0) + ',' +
+                    SdvkObservation::Number(r.Bottom1) + ']').Json();
+        }
+        rows += ']';
+        const bool overflow = total > PassiveWallCap;
+        auto report = SdvkObservation::Object()
+            .Str("schema", "sdvk161-passive-wall-trace/v1")
+            .Str("qualification", "NONQUALIFYING")
+            .Int("capacity", PassiveWallCap).Int("total", total)
+            .Int("retained", count).Bool("overflow", overflow)
+            .Raw("rows", rows).Json() + '\n';
+        SdvkObservation::WriteFresh(std::filesystem::u8path(std::string(prefix) + ".walltrace.json"), report);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY,
+            "SDVK161_PASSIVE_WALL_TRACE rows=%u overflow=%u\n", total, unsigned(overflow));
+    }
+    catch (const std::exception& error)
+    {
+        Printf(PRINT_HIGH | PRINT_NONOTIFY,
+            "SDVK161_PASSIVE_WALL_TRACE_FAILED: %s\n", error.what());
+    }
+}
 bool GameplaySmokeEnabled() { return Enabled() && Get().GameplayInput; }
 
 bool SpecialSurfaceFrameSelected()
@@ -1041,6 +1168,7 @@ void FramePresented()
         catch (const std::exception& error) { Fail(error.what()); }
     }
     Dump(complete);
+    SdvkDiagnostics::PassiveWallTraceDump(observer.Prefix.c_str());
     if (CfxTrace::WitnessEnabled())
     {
         const bool valid = complete && observer.Written && observer.Screenshot &&

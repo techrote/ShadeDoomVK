@@ -5,6 +5,7 @@
 #include "hw_specialsurfacecontract.h"
 
 struct HWDrawInfo;
+class HWWall;
 struct FFlatVertex;
 struct F3DFloor;
 class LevelMesh;
@@ -41,6 +42,12 @@ void SpecialSurfaceMapTransitionCompleted();
 void BeginFrame();
 void EndFrame();
 void FramePresented();
+// SDVK-161 isolated nonqualifying passive wall trace; never part of fixed
+// twelve-frame witness, production state, original comparisons, or acceptance.
+bool PassiveWallTraceEnabled();
+void PassiveWallTraceWall(const HWWall* wall, const HWDrawInfo* context, int stage);
+void PassiveWallTraceLightUpload(int index, int normal, int subtractive, int additive);
+void PassiveWallTraceDump(const char* prefix);
 // Empty means use the inherited/PF cache path. A requested invalid isolated
 // cache throws before any shared-cache fallback or renderer initialization.
 std::string ApplicationCacheFilename(const char* leaf);

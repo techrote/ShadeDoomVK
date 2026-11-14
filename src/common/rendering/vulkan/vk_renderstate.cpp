@@ -707,6 +707,7 @@ int VkRenderState::UploadLights(const FDynLightData& data)
 		if (size1) memcpy(dataptr + size0, data.arrays[1].Data(), size1 * sizeof(FDynLightInfo));
 		if (size2) memcpy(dataptr + (size0 + size1), data.arrays[2].Data(), size2 * sizeof(FDynLightInfo));
 
+		SdvkDiagnostics::PassiveWallTraceLightUpload(indexindex, size0, size1, size2);
 		return indexindex;
 	}
 	else
