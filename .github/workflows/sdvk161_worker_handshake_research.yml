@@ -1,0 +1,75 @@
+name: SDVK-161 source-backed worker handshake (RESEARCH / NOT QUALIFICATION)
+
+on:
+  push:
+    branches: [research/sdvk161-worker-handshake-20261114]
+
+permissions:
+  contents: read
+
+jobs:
+  worker-interleaving:
+    name: Hosted llvmpipe | 8 real native attempts, four verified worker-release schedules | PRECHECK_ONLY
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v4
+    - name: Reject falsified job/draw/empty-upload evidence with CPU-only controls
+      shell: bash
+      run: |
+        set -euo pipefail
+        python3 -m py_compile tools/renderer_oracle/sdvk161_passive_wall_diag.py
+        python3 -m unittest tools.renderer_oracle.tests.test_sdvk161_passive_wall_diag -v
+        python3 -m unittest tools.renderer_oracle.tests.test_sdvk161_nostartup_fixture -v
+        git status --short
+        git rev-parse HEAD
+    - name: Install original hosted software Vulkan and build dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt update
+        sudo apt install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+    - name: Build exact diagnostic source (single clean native build)
+      shell: bash
+      run: |
+        set -euo pipefail
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="${PWD}/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        export MAKEFLAGS=--keep-going
+        cmake --build build --config RelWithDebInfo --parallel 3
+    - name: Verify clean source/build identity and select exactly one hosted CPU Vulkan ICD
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+        mapfile -t lvp < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#lvp[@]}" -eq 1
+        echo "VK_DRIVER_FILES=${lvp[0]}" >> "$GITHUB_ENV"
+        echo "VK_ICD_FILENAMES=${lvp[0]}" >> "$GITHUB_ENV"
+        echo "SDL_VIDEODRIVER=x11" >> "$GITHUB_ENV"
+    - name: Real original SDVK-161 captures under four bounded recursive worker schedules
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+        SDVK161_PASSIVE_WALL_TRACE: '1'
+      run: |
+        set -euo pipefail
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_passive_wall_diag
+    - name: Retain all native originals, negative controls, exact comparisons, and wall/job traces
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk161-worker-interleaving-${{ github.sha }}
+        path: build/sdvk161-passive-wall/
+        retention-days: 30
+        compression-level: 1
+        include-hidden-files: true
+        if-no-files-found: warn
+    - name: Deliberate release-publication prohibition
+      if: always()
+      run: |
+        echo "PRECHECK_ONLY: worker scheduling changes are diagnostic, not a production renderer repair."
+        echo "No full SDVK-009 publication or merge qualification is awarded by this experiment."
+        exit 1

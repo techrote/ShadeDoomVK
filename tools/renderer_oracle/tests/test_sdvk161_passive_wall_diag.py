@@ -68,6 +68,23 @@ class PassiveTraceTest(unittest.TestCase):
         with self.assertRaisesRegex(EvidenceError, "worker schedule"):
             passive.summaries(raw, trace)
 
+    def test_original_native_probe_enforces_actual_early_start(self):
+        # Source-order contract: the diagnostic worker must be released after
+        # an exact number of published queue entries, not after the entire BSP.
+        from pathlib import Path
+        root = Path(__file__).resolve().parents[3]
+        source = (root / "src/rendering/hwrenderer/scene/hw_bsp.cpp").read_text()
+        self.assertIn("DiagnosticWorkerStarted", source)
+        self.assertIn("SetDiagnosticProducerPause(&workerStartedAt, pauseAt)", source)
+        self.assertIn("workerStartedAt.store(jobQueue.Published()", source)
+        self.assertIn("while (DiagnosticWorkerStarted->load", source)
+
+    def test_worker_scheduler_is_nonqualifying_by_selection(self):
+        import tools.renderer_oracle.sdvk161_passive_wall_diag as p
+        self.assertEqual(p.COUNT, 8)
+        self.assertEqual(p.PAIR_MODES, ("immediate", "after1", "after4", "after_all"))
+        self.assertEqual(p.MODE_NUMBERS["after_all"], 300001)
+
     def test_schedule_only_difference_does_not_forge_wall_delta(self):
         _, trace = fixture()
         alternate = copy.deepcopy(trace)

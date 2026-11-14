@@ -49,6 +49,7 @@
 #include <cstring>
 #include <thread>
 #include <stdexcept>
+#include <chrono>
 
 #include "p_visualthinker.h"
 
@@ -101,13 +102,45 @@ class RenderJobQueue
 	RenderJob pool[300000];	// Way more than ever needed. The largest ever seen on a single viewpoint is around 40000.
 	std::atomic<int> readindex{};
 	std::atomic<int> writeindex{};
+	// The producer alone owns these diagnostic pointers; the worker only
+	// publishes its start ordinal through the pointed-to atomic.
+	std::atomic<int>* DiagnosticWorkerStarted = nullptr;
+	int DiagnosticPauseAt = -1;
+	bool DiagnosticPauseUsed = false;
 public:
+	void SetDiagnosticProducerPause(std::atomic<int>* workerStarted, int ordinal)
+	{
+		DiagnosticWorkerStarted = workerStarted;
+		DiagnosticPauseAt = ordinal;
+		DiagnosticPauseUsed = false;
+	}
+	void ClearDiagnosticProducerPause()
+	{
+		DiagnosticWorkerStarted = nullptr;
+		DiagnosticPauseAt = -1;
+		DiagnosticPauseUsed = false;
+	}
 	void AddJob(int type, subsector_t *sub, seg_t *seg = nullptr)
 	{
 		// This does not check for array overflows. The pool should be large enough that it never hits the limit.
 
 		pool[writeindex] = { type, sub, seg };
 		writeindex++;	// update index only after the value has been written.
+		// RESEARCH-ONLY HANDSHAKE: earlier hosted captures showed the ordinary
+		// worker always started after producer completion, including nominally
+		// "early" modes. Pause the producer exactly once after N published jobs
+		// to genuinely exercise the worker before the rest are enqueued.
+		// A bounded timeout resumes the producer; the harness requires the
+		// actual early-start evidence and rejects ineffective/late cases.
+		if (DiagnosticWorkerStarted && !DiagnosticPauseUsed &&
+			writeindex.load(std::memory_order_acquire) == DiagnosticPauseAt)
+		{
+			DiagnosticPauseUsed = true;
+			const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(2);
+			while (DiagnosticWorkerStarted->load(std::memory_order_acquire) < 0 &&
+				std::chrono::steady_clock::now() < deadline)
+				std::this_thread::yield();
+		}
 	}
 
 	RenderJob *GetJob()
@@ -122,6 +155,7 @@ public:
 	{
 		readindex = 0;
 		writeindex = 0;
+		ClearDiagnosticProducerPause();
 	}
 };
 
@@ -1087,6 +1121,12 @@ void HWDrawInfo::RenderBSP(void *node, bool drawpsprites, FRenderState& state)
 		std::atomic<bool> producerComplete{false};
 		std::atomic<int> workerStartedAt{-1};
 		jobQueue.ReleaseAll();
+		// The pause must be producer-owned and installed only for a selected
+		// frame/mode. In all other frames the queue behaves exactly as before.
+		const int pauseAt = SdvkDiagnostics::PassiveWallTraceWorkerGateEnabled()
+			? ((gate == 0 || gate == 1) ? 1 : gate == 4 ? 4 : -1) : -1;
+		if (pauseAt > 0)
+			jobQueue.SetDiagnosticProducerPause(&workerStartedAt, pauseAt);
 		auto future = renderPool.push([&](int id) {
 			while (gate > 0 && !producerComplete.load(std::memory_order_acquire)
 				&& jobQueue.Published() < gate)
@@ -1104,6 +1144,7 @@ void HWDrawInfo::RenderBSP(void *node, bool drawpsprites, FRenderState& state)
 		MTWait.Clock();
 		future.wait();
 		MTWait.Unclock();
+		jobQueue.ClearDiagnosticProducerPause();
 		SdvkDiagnostics::PassiveWallTraceWorkerGate(this, gate, published,
 			workerStartedAt.load(std::memory_order_acquire));
 	}

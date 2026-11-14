@@ -19,14 +19,14 @@ import traceback
 from tools.renderer_oracle import native_ci, prepare, run, sdvk161_special_surfaces as ss
 from tools.renderer_oracle.common import canonical, pin, read_json, require, sha256, write_json
 
-COUNT = 16
+COUNT = 8
 TARGET_FRAMES = (4, 37)
 ROOT = Path("build/sdvk161-passive-wall")
 TRACE_NAME = "native.walltrace.json"
 STAGES = {1: "queued", 2: "draw-entry", 3: "after-setup", 4: "actually-drawn",
           5: "draw-exit", 6: "successful-light-upload", 7: "worker-schedule"}
 # Eight predetermined two-process cohorts; all four modes repeat twice.
-PAIR_MODES = ("immediate", "after1", "after4", "after_all") * 2
+PAIR_MODES = ("immediate", "after1", "after4", "after_all")
 MODE_NUMBERS = {"immediate": 0, "after1": 1, "after4": 4, "after_all": 300001}
 
 
@@ -151,11 +151,12 @@ def attempt(index, prepared, manifest, source, root):
             require(all(g["worker_started_at"] == g["published_jobs"]
                         for g in verified["37"]["worker_gates"]),
                     "Deferred worker did not start after its producer completed")
-        if mode in ("after1", "after4"):
-            require(all(g["worker_started_at"] >= MODE_NUMBERS[mode]
-                        or g["worker_started_at"] == g["published_jobs"]
+        else:
+            required_after = 1 if mode == "immediate" else MODE_NUMBERS[mode]
+            require(all(0 <= g["worker_started_at"] <= required_after
+                        and g["worker_started_at"] < g["published_jobs"]
                         for g in verified["37"]["worker_gates"]),
-                    "Worker started before its registered queue publication threshold")
+                    "Research producer/worker handshake did not produce an actual early start")
         write_json(out / "passive-frame-summary.json", verified)
         entry.update(status="ADMITTED_ORIGINAL_NATIVE_WITH_NONQUALIFYING_TRACE",
                      original_gate_pass=True,
@@ -195,6 +196,12 @@ def main():
         "original_detailed_witness_frames": list(range(8, ss.FRAMES + 1, 8)),
         "additional_passive_only_frames": list(TARGET_FRAMES),
         "worker_modes_by_original_pair": list(PAIR_MODES),
+        "experiment_revision": "handshake-after-N-jobs/v1",
+        "prior_experiment": {
+            "source": "594bb38ae8a2fd9df444b8600d1f294c294633bb",
+            "result": "16/16 native, all worker starts were after all jobs published; no effective interleaving",
+            "artifact": "https://github.com/techrote/ShadeDoomVK/actions/runs/43610912930/artifacts/14120568607"
+        },
         "reproduction_goal": "original missing actual four-vertex wall and one empty light upload",
         "qualification": "NONQUALIFYING: scheduling and diagnostic instrumentation do not award source acceptance",
         "classification": "NONQUALIFYING; no render/fixture/comparison predicates changed",
@@ -236,7 +243,7 @@ def main():
     # Compare independently admitted representatives between worker-start
     # schedules. These comparisons are forensic only: the schedules differ.
     report["cross_mode_comparisons"] = []
-    representatives = (1, 3, 5, 7, 9, 11, 13, 15)
+    representatives = tuple(range(1, COUNT, 2))
     for left_index in representatives:
         for right_index in representatives:
             if right_index <= left_index:
