@@ -1,5 +1,7 @@
 # Validation and performance contract
 
+> **Owner-approved policy direction, not yet an implemented CI waiver:** [R-001 pragmatic verification policy](REMASTER-2003-ENGINEERING-POLICY.md) aims to replace universal exact-frame reproducibility with risk-based feature tests. Existing check requirements and physical GPU STOP remain binding until [R-001 #203](https://github.com/techrote/ShadeDoomVK/issues/203) is reviewed and merged. Preserve every historical failed result unchanged.
+
 ## Scoped dependency qualification — 14 October 2026
 
 [SDVK-009-GATE-SPLIT-20261014](SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) separates
