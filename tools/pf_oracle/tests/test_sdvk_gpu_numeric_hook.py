@@ -64,6 +64,14 @@ struct FString
 bool gpuStatActive = false;
 bool keepGpuStatActive = false;
 FString gpuStatOutput;
+std::vector<std::string> toolLines;
+template<class... Args>
+void Printf(const char* format, Args... args)
+{
+    char buffer[256];
+    std::snprintf(buffer, sizeof(buffer), format, args...);
+    toolLines.emplace_back(buffer);
+}
 namespace SdvkDiagnostics
 {
     bool requested = false;
@@ -119,6 +127,8 @@ struct VkCommandBufferManager
     VulkanRenderDevice* fb = nullptr;
     QueryPool* mTimestampQueryPool = nullptr;
     int mNextTimestampQuery = 0;
+    bool mToolGpuTiming = false;
+    bool mToolGpuCapabilityUnavailableReported = false;
     std::vector<TimestampQuery> timeElapsedQueries;
     std::vector<size_t> mGroupStack;
     void UpdateGpuStats();
@@ -137,6 +147,7 @@ struct Fixture
         SdvkDiagnostics::requested = true;
         SdvkDiagnostics::groups.clear();
         SdvkDiagnostics::unavailable.clear();
+        toolLines.clear();
         gpuStatActive = true;
         keepGpuStatActive = false;
         commands.fb = &fb;
@@ -182,6 +193,19 @@ int main()
         assert(gpuStatActive && !keepGpuStatActive && f.pool.reads == 1);
         assert(gpuStatOutput.value == "postprocess.bloom=1.23 ms\n");
         assert(SdvkDiagnostics::groups.empty() && SdvkDiagnostics::unavailable.empty());
+    }
+    {
+        Fixture f;
+        SdvkDiagnostics::requested = false;
+        f.commands.mToolGpuTiming = true;
+        f.commands.UpdateGpuStats();
+        assert(gpuStatActive && f.pool.reads == 1);
+        assert(toolLines == std::vector<std::string>{"SDVK_TOOL_GPU group=postprocess.bloom ms=1.234567\n"});
+        assert(SdvkDiagnostics::groups.empty());
+        f.SetQueries();
+        f.pool.ready = false;
+        f.commands.UpdateGpuStats();
+        assert(toolLines.back() == "SDVK_TOOL_GPU unavailable=gpu_timestamp_query_results_unavailable\n");
     }
     {
         Fixture f;
@@ -242,6 +266,35 @@ int main()
         Fixture f;
         f.fb.device.PhysicalDevice.QueueFamilies[0].timestampValidBits = 0;
         f.ExpectUnavailable("graphics_queue_timestamp_queries_unsupported");
+    }
+    {
+        // Unsupported timestamp hardware cannot allocate even the first query.
+        // Report this once in opt-in tool mode, rather than silently skipping.
+        for (int mode = 0; mode < 2; ++mode)
+        {
+            Fixture f;
+            f.ClearQueries();
+            SdvkDiagnostics::requested = false;
+            f.commands.mToolGpuTiming = true;
+            if (mode == 0)
+                f.fb.device.GraphicsTimeQueries = false;
+            else
+                f.fb.device.PhysicalDevice.QueueFamilies[0].timestampValidBits = 0;
+            f.commands.UpdateGpuStats();
+            f.commands.UpdateGpuStats();
+            assert(f.pool.reads == 0);
+            assert(toolLines == std::vector<std::string>{
+                "SDVK_TOOL_GPU unavailable=graphics_queue_timestamp_queries_unsupported\n"});
+            assert(SdvkDiagnostics::groups.empty() && SdvkDiagnostics::unavailable.empty());
+        }
+    }
+    {
+        Fixture f;
+        f.ClearQueries();
+        SdvkDiagnostics::requested = false;
+        f.commands.mToolGpuTiming = true;
+        f.commands.UpdateGpuStats();
+        assert(toolLines.empty()); // no measurements attempted on supported GPU
     }
     for (uint32_t bits : { 35u, 65u })
     {
