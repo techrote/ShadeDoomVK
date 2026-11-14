@@ -783,7 +783,11 @@ bool GameplaySmokeEnabled() { return Enabled() && Get().GameplayInput; }
 bool SpecialSurfaceFrameSelected()
 {
     const uint64_t frame = Get().Frame.load(std::memory_order_relaxed);
-    return SpecialSurfaceEnabled() && StateEnabled() && frame > 0 && frame <= 96 && frame % 8 == 0;
+    // TEMPORARY NONQUALIFYING ROOT-CAUSE TRACE. Never merge this selection:
+    // add the two retained intermittent mismatch frames to the original
+    // twelve fixed snapshots without moving any gameplay/renderer input.
+    return SpecialSurfaceEnabled() && StateEnabled() && frame > 0 && frame <= 96 &&
+        (frame % 8 == 0 || frame == 4 || frame == 37);
 }
 
 bool BeginSceneGpuGroup()
