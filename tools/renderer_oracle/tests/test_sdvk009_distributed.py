@@ -78,6 +78,7 @@ class DistributedControls(unittest.TestCase):
         self.calls = []
         self.fail_at = None
         self.interrupt_at = None
+        self.synthetic_generations = {}
 
     def args(self, **kwargs):
         return Namespace(exe=self.exe, iwad=self.iwad, iwad_license=self.license, runtime_archive=self.archive,
@@ -90,9 +91,10 @@ class DistributedControls(unittest.TestCase):
                            for scene in ("compositing", "shadow-boundary")
                            for name in ("scene.pk3", "fixture.ini", "capture.cfg")}}
 
-    def register(self, probe=False):
+    def register(self, probe=False, startup_probe=False):
         self.plan_path = self.root / "renderer-sdvk009-plan/preregistration.json"
-        result = distributed.register(self.args(out=self.plan_path.parent, compatibility_probe=probe))
+        result = distributed.register(self.args(out=self.plan_path.parent, compatibility_probe=probe,
+                                                shadow_startup_probe=startup_probe))
         self.assertEqual(result["status"], "REGISTERED")
         return result
 
@@ -134,12 +136,13 @@ class DistributedControls(unittest.TestCase):
         rewrite(args.out / "run.json", data)
         return data
 
-    @staticmethod
-    def validate_synthetic(root):
+    def validate_synthetic(self, root):
         root = Path(root)
         if root.name == "run.json":
             root = root.parent
-        return root, read_json(root / "run.json"), observation(), {}
+        raw = observation()
+        raw["records"][1]["data"]["resource"]["generation"] = self.synthetic_generations.get(root.name, 1)
+        return root, read_json(root / "run.json"), raw, {}
 
     def run_worker(self, name):
         with patch.dict(os.environ, {"RUNNER_NAME": "hosted-" + name}):
@@ -147,7 +150,7 @@ class DistributedControls(unittest.TestCase):
                 out=self.root / ("renderer-sdvk009-worker-" + name)))
 
     def run_workers(self):
-        return [self.run_worker(name) for name in distributed.WORKERS]
+        return [self.run_worker(name) for name in read_json(self.plan_path)["workers"]]
 
     def assemble(self):
         return distributed.assemble(Namespace(plan=self.plan_path, workers=self.root,
@@ -158,7 +161,13 @@ class DistributedControls(unittest.TestCase):
         original_plan_bytes = self.plan_path.read_bytes()
         self.assertEqual([(row["name"], row["scene"], row["publication_witness"]) for row in plan["captures"]],
                          list(distributed.publication.PLAN))
-        self.assertEqual([value["status"] for value in self.run_workers()], ["PASS"] * 3)
+        self.assertEqual(plan["workers"], ["publication", "controls", "witness-1", "witness-2"])
+        self.assertEqual([row["worker"] for row in plan["captures"]], plan["workers"])
+        workers = self.run_workers()
+        self.assertEqual([value["status"] for value in workers], ["PASS"] * 4)
+        for value, row in zip(workers, plan["captures"]):
+            self.assertEqual([step["name"] for step in value["steps"]], ["preflight", row["name"]])
+            self.assertEqual([entry["name"] for entry in value["captures"]], [row["name"]])
         self.assertEqual(len(self.calls), 4)
         self.assertTrue(all((call.warmup, call.frames, call.timeout, call.gpu, call.image_policy) ==
                             (120, 1, 3600, False, "exact") for call in self.calls))
@@ -167,8 +176,12 @@ class DistributedControls(unittest.TestCase):
         result = self.assemble()
         self.assertEqual(result["status"], "PASS", result.get("error"))
         self.assertTrue(result["qualification_awarded"])
+        self.assertEqual([step["name"] for step in result["steps"]],
+                         ["preflight", *[row["name"] for row in plan["captures"]]])
         final = self.root / "renderer-sdvk009-publication"
         self.assertEqual((final / "preregistration.json").read_bytes(), original_plan_bytes)
+        self.assertEqual((final / "steps/preflight.json").read_bytes(),
+                         (final / "distributed-workers/controls/steps/preflight.json").read_bytes())
         for name, _, _ in distributed.publication.PLAN:
             self.assertTrue((final / "captures" / name / "run.json").is_file())
             self.assertTrue((final / "steps" / (name + ".json")).is_file())
@@ -197,6 +210,70 @@ class DistributedControls(unittest.TestCase):
         self.assertFalse(result["qualification_awarded"])
         self.assertEqual(result["kind"], distributed.PROBE_KIND)
 
+    def test_startup_probe_keeps_exact_original_comparators_and_cannot_qualify(self):
+        plan = self.register(startup_probe=True)
+        self.assertEqual(plan["kind"], distributed.STARTUP_PROBE_KIND)
+        self.assertEqual(plan["workers"], ["controls", "witness-1", "witness-2"])
+        self.assertEqual([row["name"] for row in plan["captures"]],
+                         ["startup-control-cold", "startup-compositing-primer", "startup-control-warm",
+                          "startup-witness-1", "startup-witness-2"])
+        self.assertEqual([value["status"] for value in self.run_workers()], ["PASS"] * 3)
+        self.assertEqual(len(self.calls), 5)
+        for call in self.calls:
+            self.assertEqual((call.frames, call.timeout, call.publication_witness, call.collision_snapshot),
+                             (1, 180, False, False))
+            self.assertEqual(call.warmup, 120 if call.scene == "compositing" else 5)
+        # A protected startup-history difference remains visible and is never
+        # normalized away. It describes the probe, not full qualification.
+        self.synthetic_generations["startup-control-warm"] = 2
+        with patch.object(distributed.run, "compare_runs", wraps=distributed.run.compare_runs) as compare, \
+             patch.object(distributed.publication, "validate_witness", side_effect=AssertionError("full witness API")), \
+             patch.object(distributed.publication, "negative_controls", side_effect=AssertionError("full negative API")):
+            result = self.assemble()
+        self.assertEqual(result["status"], "PROBE_PASS", result.get("error"))
+        self.assertFalse(result["qualification_awarded"])
+        self.assertEqual(compare.call_count, 4)
+        self.assertTrue(all(not call.kwargs for call in compare.call_args_list))
+        self.assertEqual(result["startup_history"]["comparison"]["status"], "FAIL")
+        self.assertFalse(result["startup_history"]["comparison"]["state_equal"])
+        self.assertTrue(all(comparison["status"] == "PASS" for comparison in result["comparisons"]))
+        final = self.root / "renderer-sdvk009-publication"
+        self.assertTrue((final / "startup-history-comparison.json").is_file())
+        self.assertFalse((final / "shadow-witness-1-publication.json").exists())
+
+    def test_startup_probe_cannot_hide_a_first_use_state_mismatch(self):
+        self.register(startup_probe=True)
+        self.run_workers()
+        self.synthetic_generations["startup-witness-1"] = 2
+        result = self.assemble()
+        self.assertEqual(result["status"], "FAIL")
+        self.assertIn("original exact comparison", result["error"])
+        self.assertFalse(result["qualification_awarded"])
+        final = self.root / "renderer-sdvk009-publication"
+        comparison = read_json(final / "startup-cold-control-witness-1-comparison.json")
+        self.assertFalse(comparison["state_equal"])
+        self.assertTrue((final / "captures/startup-control-warm/run.json").is_file())
+
+    def test_startup_probe_scope_and_worker_set_cannot_be_relabelled_as_full(self):
+        self.register(startup_probe=True)
+        original = read_json(self.plan_path)
+        mutations = [lambda value: value.update(kind=distributed.FULL_KIND),
+                     lambda value: value.update(workers=list(distributed.WORKERS)),
+                     lambda value: value["captures"][3].update(publication_witness=True),
+                     lambda value: value["captures"][0].update(warmup_frames=120),
+                     lambda value: value.update(qualification_awarded=True)]
+        for mutate in mutations:
+            changed = copy.deepcopy(original)
+            mutate(changed)
+            reseal(self.plan_path, changed)
+            with self.assertRaises(EvidenceError):
+                distributed.load_plan(self.plan_path, COMMIT)
+        reseal(self.plan_path, original)
+        worker = self.run_worker("publication")
+        self.assertEqual(worker["status"], "FAIL")
+        self.assertIn("not authorized", worker["error"])
+        self.assertEqual(self.calls, [])
+
     def test_immutable_registration_rejects_shortened_reordered_or_reassigned_work(self):
         self.register()
         original = read_json(self.plan_path)
@@ -221,14 +298,24 @@ class DistributedControls(unittest.TestCase):
             distributed.load_plan(self.plan_path, COMMIT)
         self.assertEqual(self.calls, [])
 
-    def test_failed_control_suppresses_local_later_launch_but_siblings_remain_authorized(self):
+    def test_failed_compositing_leaves_three_independent_shadows_authorized(self):
         self.register()
+        self.fail_at = 1
+        results = self.run_workers()
+        self.assertEqual([value["status"] for value in results], ["FAIL", "PASS", "PASS", "PASS"])
+        self.assertEqual([call.out.name for call in self.calls],
+                         ["compositing-control", "shadow-control", "shadow-witness-1", "shadow-witness-2"])
+        self.assertTrue((self.root / "renderer-sdvk009-worker-publication/captures/compositing-control/stdout.log").is_file())
+        self.assertEqual(self.assemble()["status"], "FAIL")
+
+    def test_startup_probe_failure_suppresses_local_later_launches_only(self):
+        self.register(startup_probe=True)
         self.fail_at = 1
         results = self.run_workers()
         self.assertEqual([value["status"] for value in results], ["FAIL", "PASS", "PASS"])
         self.assertEqual([call.out.name for call in self.calls],
-                         ["compositing-control", "shadow-witness-1", "shadow-witness-2"])
-        self.assertTrue((self.root / "renderer-sdvk009-worker-controls/captures/compositing-control/stdout.log").is_file())
+                         ["startup-control-cold", "startup-witness-1", "startup-witness-2"])
+        self.assertTrue((self.root / "renderer-sdvk009-worker-controls/captures/startup-control-cold/stdout.log").is_file())
         self.assertEqual(self.assemble()["status"], "FAIL")
 
     def test_cancellation_preserves_partial_failure_and_cannot_be_resumed(self):
@@ -238,7 +325,7 @@ class DistributedControls(unittest.TestCase):
         self.assertEqual(result["status"], "CANCELLED")
         root = self.root / "renderer-sdvk009-worker-controls"
         self.assertEqual(read_json(root / "manifest.json")["status"], "CANCELLED")
-        self.assertTrue((root / "captures/compositing-control/stdout.log").is_file())
+        self.assertTrue((root / "captures/shadow-control/stdout.log").is_file())
         with self.assertRaises(FileExistsError):
             self.run_worker("controls")
         self.assertEqual(len(self.calls), 1)
@@ -259,6 +346,15 @@ class DistributedControls(unittest.TestCase):
         result = self.assemble()
         self.assertEqual(result["status"], "FAIL")
         self.assertTrue((self.root / "renderer-sdvk009-worker-controls").is_dir())
+
+    def test_full_qualification_requires_publication_capture_worker_manifest(self):
+        self.register()
+        self.run_workers()
+        (self.root / "renderer-sdvk009-worker-publication/manifest.json").unlink()
+        result = self.assemble()
+        self.assertEqual(result["status"], "FAIL")
+        self.assertFalse(result["qualification_awarded"])
+        self.assertTrue((self.root / "renderer-sdvk009-worker-controls/captures/shadow-control/run.json").is_file())
 
     def test_raw_file_corruption_rejected_before_any_relocation(self):
         self.register(probe=True)
@@ -338,7 +434,7 @@ class DistributedControls(unittest.TestCase):
     def test_shared_runner_name_does_not_erase_distinct_boot_identities(self):
         self.register(probe=True)
         self.run_workers()
-        for worker_name in distributed.WORKERS:
+        for worker_name in read_json(self.plan_path)["workers"]:
             worker = self.root / ("renderer-sdvk009-worker-" + worker_name)
             for name in ("worker.json", "worker-start.json", "worker-registration.json"):
                 value = read_json(worker / name)

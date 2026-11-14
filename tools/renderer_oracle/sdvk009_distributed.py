@@ -26,8 +26,10 @@ from .common import ROOT, EvidenceError, canonical, checked, pin, read_json, req
 PLAN_SCHEMA = "sdvk009-distributed-plan/v1"
 WORKER_SCHEMA = "sdvk009-distributed-worker/v1"
 INVENTORY_SCHEMA = "sdvk009-distributed-inventory/v1"
-WORKERS = ("controls", "witness-1", "witness-2")
+WORKERS = ("publication", "controls", "witness-1", "witness-2")
+PROBE_WORKERS = ("controls", "witness-1", "witness-2")
 PROBE_KIND = "cross-runner-compatibility-probe"
+STARTUP_PROBE_KIND = "shadow-startup-compatibility-probe"
 FULL_KIND = "publication-qualification"
 HOSTED_KEYS = ("GITHUB_RUN_ID", "GITHUB_RUN_ATTEMPT", "GITHUB_SHA", "RUNNER_NAME", "RUNNER_ENVIRONMENT")
 
@@ -59,15 +61,30 @@ def source_identity(expected):
     return {"commit": expected, "tree": git("rev-parse", "HEAD^{tree}")}
 
 
-def workload(probe=False):
-    if probe:
-        rows = [("compatibility-" + worker, "compositing", False, worker) for worker in WORKERS]
+def workers_for_kind(kind):
+    require(kind in (FULL_KIND, PROBE_KIND, STARTUP_PROBE_KIND), "Unknown distributed campaign kind")
+    return WORKERS if kind == FULL_KIND else PROBE_WORKERS
+
+
+def workload(probe=False, *, shadow_startup_probe=False):
+    require(not (probe and shadow_startup_probe), "Select only one compatibility probe")
+    if shadow_startup_probe:
+        # This diagnostic does not enable publication instrumentation: the
+        # unchanged full witness validator requires all 121 observed frames.
+        rows = [("startup-control-cold", "shadow-boundary", False, "controls"),
+                ("startup-compositing-primer", "compositing", False, "controls"),
+                ("startup-control-warm", "shadow-boundary", False, "controls"),
+                ("startup-witness-1", "shadow-boundary", False, "witness-1"),
+                ("startup-witness-2", "shadow-boundary", False, "witness-2")]
+    elif probe:
+        rows = [("compatibility-" + worker, "compositing", False, worker) for worker in PROBE_WORKERS]
     else:
-        rows = [(name, scene, witness, "controls" if ordinal < 2 else "witness-" + str(ordinal - 1))
+        rows = [(name, scene, witness, WORKERS[ordinal])
                 for ordinal, (name, scene, witness) in enumerate(publication.PLAN)]
     return [{"ordinal": ordinal, "name": name, "scene": scene, "publication_witness": witness,
-             "worker": worker, "extent": [640, 480], "warmup_frames": 120,
-             "frames": 1, "timeout_seconds": 180 if probe else 3600, "mode": "state",
+             "worker": worker, "extent": [640, 480],
+             "warmup_frames": 5 if shadow_startup_probe and scene == "shadow-boundary" else 120,
+             "frames": 1, "timeout_seconds": 180 if probe or shadow_startup_probe else 3600, "mode": "state",
              "gpu_timestamps": False, "image_policy": {"metric": "exact-rgb8"}}
             for ordinal, (name, scene, witness, worker) in enumerate(rows)]
 
@@ -122,16 +139,19 @@ def register(args):
     prepared = out / "prepared"
     prepare.prepare(prepared, ["compositing", "shadow-boundary"])
     probe = bool(getattr(args, "compatibility_probe", False))
+    startup_probe = bool(getattr(args, "shadow_startup_probe", False))
+    captures = workload(probe, shadow_startup_probe=startup_probe)
+    kind = STARTUP_PROBE_KIND if startup_probe else PROBE_KIND if probe else FULL_KIND
     result = {"schema": PLAN_SCHEMA, "status": "REGISTERED", "started_utc": run.utc(),
-              "campaign_id": uuid.uuid4().hex, "kind": PROBE_KIND if probe else FULL_KIND,
+              "campaign_id": uuid.uuid4().hex, "kind": kind,
               "source": source, "runtime": runtime_identity(args),
               "matching_content": matching_content(args.iwad, prepared),
               "iwad_license": file_identity(args.iwad_license),
               "prepared_manifest": pin(prepared / "prepared.json", relative_to=out),
-              "captures": [{**row, "authorization_id": uuid.uuid4().hex} for row in workload(probe)],
-              "workers": list(WORKERS), "automatic_retries": 0,
+              "captures": [{**row, "authorization_id": uuid.uuid4().hex} for row in captures],
+              "workers": list(workers_for_kind(kind)), "automatic_retries": 0,
               "hosted_run": {key: os.environ.get(key) for key in HOSTED_KEYS if key != "RUNNER_NAME"},
-              "launch_policy": "independently authorized workers; fail-stop within controls; all workers required at assembly",
+              "launch_policy": "independently authorized workers; fail-stop within each worker; all registered workers required at assembly",
               "physical_gpu_qualified": False, "performance_accepted": False,
               "qualification_awarded": False}
     _write_seal(out / "preregistration.json", result)
@@ -146,9 +166,9 @@ def load_plan(path, expected_commit):
                          "automatic_retries", "hosted_run", "launch_policy", "physical_gpu_qualified",
                          "performance_accepted", "qualification_awarded"}, "Unknown distributed plan fields")
     require(plan["schema"] == PLAN_SCHEMA and plan["status"] == "REGISTERED"
-            and plan["kind"] in (PROBE_KIND, FULL_KIND), "Unknown distributed plan/schema")
+            and plan["kind"] in (PROBE_KIND, STARTUP_PROBE_KIND, FULL_KIND), "Unknown distributed plan/schema")
     require(plan["source"] == source_identity(expected_commit), "Plan source identity differs")
-    require(plan["workers"] == list(WORKERS) and plan["automatic_retries"] == 0,
+    require(plan["workers"] == list(workers_for_kind(plan["kind"])) and plan["automatic_retries"] == 0,
             "Worker allocation or retry policy changed")
     require(all(plan[key] is False for key in ("physical_gpu_qualified", "performance_accepted", "qualification_awarded")),
             "Registration cannot grant qualification")
@@ -156,7 +176,8 @@ def load_plan(path, expected_commit):
     captures = plan["captures"]
     require(isinstance(captures, list) and all(isinstance(row, dict) for row in captures), "Malformed capture plan")
     require([{k: v for k, v in row.items() if k != "authorization_id"} for row in captures]
-            == workload(plan["kind"] == PROBE_KIND), "Capture plan order, ownership or fixed workload changed")
+            == workload(plan["kind"] == PROBE_KIND, shadow_startup_probe=plan["kind"] == STARTUP_PROBE_KIND),
+            "Capture plan order, ownership or fixed workload changed")
     tokens = [row.get("authorization_id") for row in captures]
     require(all(isinstance(token, str) and re.fullmatch(r"[0-9a-f]{32}", token) for token in tokens)
             and len(set(tokens)) == len(tokens), "Missing or duplicate capture authorization")
@@ -236,7 +257,7 @@ def worker(args):
         # This durable failure-default receipt precedes even device enumeration.
         write_json(out / "worker-start.json", copy.deepcopy(result))
         plan = load_plan(args.plan, args.expected_commit)
-        require(args.worker in WORKERS, "Worker is not authorized")
+        require(args.worker in plan["workers"], "Worker is not authorized by this campaign")
         result.update(plan=_plan_pin(args.plan), campaign_id=plan["campaign_id"], kind=plan["kind"], source=plan["source"])
         result["software_execution_guard"] = publication.hosted_software_guard()
         require(not any(key.startswith("CFX_") and value for key, value in os.environ.items()),
@@ -383,13 +404,14 @@ def assemble(args):
                       plan=plan["captures"], matching_content=plan["matching_content"])
         plan_identity = _plan_pin(plan_path)
         prepared_identity = file_identity(plan_path.parent / "prepared/prepared.json")
+        worker_names = workers_for_kind(plan["kind"])
         found = sorted(path.name.removeprefix("renderer-sdvk009-worker-")
                        for path in workers_root.glob("renderer-sdvk009-worker-*"))
-        require(found == sorted(WORKERS), "Missing, duplicate or unregistered distributed worker")
+        require(found == sorted(worker_names), "Missing, duplicate or unregistered distributed worker")
         workers = [verify_worker(workers_root / ("renderer-sdvk009-worker-" + name), name,
-                                 plan, plan_identity, prepared_identity) for name in WORKERS]
-        require(len({row["worker_execution_id"] for row in workers}) == len(WORKERS), "Worker execution reused")
-        require(len({row["host_identity"]["boot_id"] for row in workers}) == len(WORKERS),
+                                 plan, plan_identity, prepared_identity) for name in worker_names]
+        require(len({row["worker_execution_id"] for row in workers}) == len(worker_names), "Worker execution reused")
+        require(len({row["host_identity"]["boot_id"] for row in workers}) == len(worker_names),
                 "Distributed workers did not execute on independent hosted runners")
         captures = [item for value in workers for item in value["captures"]]
         require(len({row["admission"]["cwd"] for row in captures}) == len(captures)
@@ -407,9 +429,10 @@ def assemble(args):
         for row in plan["captures"]:
             source = workers_root / ("renderer-sdvk009-worker-" + row["worker"]) / "captures" / row["name"]
             _relocate_tree(source, out / "captures" / row["name"], workers_root, relocations, journal)
-        for name in WORKERS:
+        provenance_worker = "controls"
+        for name in worker_names:
             worker_root = workers_root / ("renderer-sdvk009-worker-" + name)
-            if name == "controls":
+            if name == provenance_worker:
                 _relocate_tree(worker_root / "provenance", out / "provenance", workers_root, relocations, journal)
             _relocate_tree(worker_root, out / "distributed-workers" / name, workers_root, relocations, journal)
         # Plan files/inputs move with the packet; all original bytes are retained.
@@ -429,17 +452,39 @@ def assemble(args):
         write_json(out / "matching-content.json", plan["matching_content"])
         # Preserve original step receipt filenames; these small aliases are exact
         # copies, not duplicated native captures. The originals remain in workers.
-        for value in workers:
-            for step in value["steps"]:
-                if step["name"] == "preflight" and value["worker"] != "controls":
-                    continue
-                source = out / "distributed-workers" / value["worker"] / step["receipt"]["path"]
-                destination = out / "steps" / (step["name"] + ".json")
-                destination.parent.mkdir(exist_ok=True)
-                shutil.copyfile(source, destination)
-                require(file_identity(source) == file_identity(destination), "Step alias differs")
-                result["steps"].append({**step, "receipt": pin(destination, relative_to=out)})
-        if plan["kind"] == PROBE_KIND:
+        workers_by_name = {value["worker"]: value for value in workers}
+        aliases = [(provenance_worker, workers_by_name[provenance_worker]["steps"][0])]
+        for row in plan["captures"]:
+            step = next(step for step in workers_by_name[row["worker"]]["steps"] if step["name"] == row["name"])
+            aliases.append((row["worker"], step))
+        # Legacy order describes the immutable plan, not concurrent timestamps.
+        for worker_name, step in aliases:
+            source = out / "distributed-workers" / worker_name / step["receipt"]["path"]
+            destination = out / "steps" / (step["name"] + ".json")
+            destination.parent.mkdir(exist_ok=True)
+            shutil.copyfile(source, destination)
+            require(file_identity(source) == file_identity(destination), "Step alias differs")
+            result["steps"].append({**step, "receipt": pin(destination, relative_to=out)})
+        if plan["kind"] == STARTUP_PROBE_KIND:
+            cold = out / "captures/startup-control-cold"
+            warm = out / "captures/startup-control-warm"
+            history = run.compare_runs(cold, warm)
+            write_json(out / "startup-history-comparison.json", history)
+            result["startup_history"] = {
+                "comparison": history,
+                "scope": "Descriptive first-use versus post-compositing state/RGB; its result cannot award qualification"}
+            result["comparisons"] = []
+            pairs = [("cold-control-witness-1", cold, out / "captures/startup-witness-1"),
+                     ("cold-control-witness-2", cold, out / "captures/startup-witness-2"),
+                     ("witness-repeat", out / "captures/startup-witness-1", out / "captures/startup-witness-2")]
+            for name, left, right in pairs:
+                comparison = run.compare_runs(left, right)
+                write_json(out / ("startup-" + name + "-comparison.json"), comparison)
+                result["comparisons"].append(comparison)
+                require(comparison["status"] == "PASS", "First-use shadow startup probe failed original exact comparison")
+            result.update(status="PROBE_PASS", qualification_awarded=False,
+                          evidence_scope="Short uninstrumented first-use shadow startup diagnosis; not full publication qualification")
+        elif plan["kind"] == PROBE_KIND:
             reference = out / "captures" / plan["captures"][0]["name"]
             result["comparisons"] = []
             for row in plan["captures"][1:]:
@@ -479,7 +524,9 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
     registration = sub.add_parser("register")
-    registration.add_argument("--compatibility-probe", action="store_true")
+    probes = registration.add_mutually_exclusive_group()
+    probes.add_argument("--compatibility-probe", action="store_true")
+    probes.add_argument("--shadow-startup-probe", action="store_true")
     execution = sub.add_parser("worker")
     execution.add_argument("--worker", choices=WORKERS, required=True)
     execution.add_argument("--plan", type=Path, required=True)

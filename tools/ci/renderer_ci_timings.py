@@ -16,8 +16,8 @@ import subprocess
 
 SCHEMA = "sdvk-software-vulkan-ci-timing/v1"
 CAPTURES = ("compositing-control", "shadow-control", "shadow-witness-1", "shadow-witness-2")
-WORKERS = ("controls", "witness-1", "witness-2")
-SUITES = ("corpus", "publication", *WORKERS)
+WORKERS = ("publication", "controls", "witness-1", "witness-2")
+SUITES = ("corpus", *WORKERS)
 
 
 def capture_interval(receipt: dict) -> tuple[datetime, datetime] | None:
@@ -70,22 +70,31 @@ def capture_overlap(records: list[dict]) -> dict:
     }
 
 
-def topology_model(records: list[dict]) -> dict:
+def topology_model(records: list[dict], *, independent_compositing: bool = False) -> dict:
     result = {
         "basis": "Scheduling estimates using the individual successful capture durations observed in this run",
         "measured_alternative_execution": False,
         "excludes": ["shared build", "runner queue/startup", "dependency preparation", "artifact transfer",
                      "evidence assembly", "compression", "runner-to-runner workload variability"],
+        "capture_assignment": ("compositing on publication worker; one shadow per independent host"
+                               if independent_compositing else "compositing then shadow on controls worker"),
     }
+    if independent_compositing:
+        result["excludes"].append("six short publication modules preceding the independent compositing capture")
     if len(records) != len(CAPTURES) or any(row["status"] != "PASS" or row["duration_seconds"] is None
                                           for row in records):
         return {**result, "available": False, "reason": "All four successful capture durations are required"}
     durations = {row["name"]: row["duration_seconds"] for row in records}
     controls = durations["compositing-control"] + durations["shadow-control"]
     witnesses = max(durations["shadow-witness-1"], durations["shadow-witness-2"])
+    parallel = max(controls, witnesses)
+    gated = controls + witnesses
+    if independent_compositing:
+        parallel = max(durations.values())
+        gated = max(durations["compositing-control"], durations["shadow-control"] + witnesses)
     return {**result, "available": True, "serial_capture_seconds": round(sum(durations.values()), 3),
-            "ideal_parallel_capture_seconds": round(max(controls, witnesses), 3),
-            "ideal_control_gated_capture_seconds": round(controls + witnesses, 3)}
+            "ideal_parallel_capture_seconds": round(parallel, 3),
+            "ideal_control_gated_capture_seconds": round(gated, 3)}
 
 
 def worker_evidence(root: Path, qualification: dict) -> tuple[list[dict], dict]:
@@ -137,7 +146,8 @@ def machine_profile() -> dict:
 
 def summarize(root: Path, host: dict | None = None) -> dict:
     qualification_path = root / "qualification.json"
-    qualification = json.loads(qualification_path.read_text(encoding="utf-8"))
+    qualification = (json.loads(qualification_path.read_text(encoding="utf-8"))
+                     if qualification_path.is_file() else {"status": "NOT_ASSEMBLED"})
     records = []
     for name in CAPTURES:
         receipt_path = root / "steps" / (name + ".json")
@@ -162,7 +172,8 @@ def summarize(root: Path, host: dict | None = None) -> dict:
         "actual_processes": records,
         "capture_duration_seconds_sum": round(sum(row["duration_seconds"] or 0 for row in records), 3),
         "capture_observation": capture_overlap(records),
-        "topology_model": topology_model(records),
+        "topology_model": topology_model(records, independent_compositing=any(
+            row["worker"] == "publication" for row in workers)),
         "workers": workers,
         "worker_profiles": profiles,
         "missing_capture_worker_profiles": [row["worker"] for row in workers if row["worker"] not in profiles],
@@ -207,9 +218,11 @@ def markdown(result: dict) -> str:
         lines += [
             "",
             "**Modeled scheduling only**, using this run's capture durations and excluding startup/queue/transfer overhead:",
+            f"Capture assignment: {model['capture_assignment']}.",
             f"three-way parallel **{model['ideal_parallel_capture_seconds'] / 60:.2f} min**; "
             f"control-gated **{model['ideal_control_gated_capture_seconds'] / 60:.2f} min**.",
             "These estimates are separate from the actual observed intervals and any separately retained native compatibility probe.",
+            "The capture-only model excludes companion-module preparation on the publication worker.",
         ]
     profiles = result.get("worker_profiles", {})
     if profiles:

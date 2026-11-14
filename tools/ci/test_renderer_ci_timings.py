@@ -99,6 +99,32 @@ class TimingReportTest(unittest.TestCase):
         self.assertFalse(report["topology_model"]["available"])
         self.assertIn("partial capture evidence", timing.markdown(report))
 
+    def test_failed_assembly_retains_new_four_worker_capture_timings(self):
+        workers = [{"worker": name} for name in timing.WORKERS]
+        (self.root / "qualification.json").write_text(json.dumps({"status": "FAIL", "workers": workers}))
+        intervals = [(3, 5), (0, 10), (0, 10), (0, 10)]
+        for name, (start, finish) in zip(timing.CAPTURES, intervals):
+            self.receipt(name, f"2026-11-06T13:00:{start:02}+00:00",
+                         f"2026-11-06T13:00:{finish:02}+00:00")
+        report = timing.summarize(self.root, host={})
+        self.assertEqual(report["qualification_status"], "FAIL")
+        self.assertEqual(report["workers"], workers)
+        self.assertEqual(report["capture_observation"]["peak_overlapping_capture_steps"], 4)
+        self.assertEqual(report["capture_duration_seconds_sum"], 32)
+        model = report["topology_model"]
+        self.assertEqual(model["ideal_parallel_capture_seconds"], 10)
+        self.assertEqual(model["ideal_control_gated_capture_seconds"], 20)
+        self.assertIn("compositing on publication worker", model["capture_assignment"])
+        self.assertIn("six short publication modules preceding the independent compositing capture", model["excludes"])
+        self.assertIn("**FAIL**", timing.markdown(report))
+
+    def test_authenticated_partial_restore_without_assembly_has_no_qualification(self):
+        (self.root / "qualification.json").unlink()
+        report = timing.summarize(self.root, host={})
+        self.assertEqual(report["qualification_status"], "NOT_ASSEMBLED")
+        self.assertFalse(report["capture_observation"]["all_expected_captures_passed"])
+        self.assertFalse(report["topology_model"]["available"])
+
     def test_worker_identity_profiles_and_inputs_remain_immutable(self):
         worker = {"worker": "controls", "worker_execution_id": "capture-worker", "hosted_run": {"RUNNER_NAME": "hosted-2"},
                   "host_identity": {"boot_id": "separate-boot"},

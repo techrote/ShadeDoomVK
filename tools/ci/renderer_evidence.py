@@ -19,10 +19,11 @@ import tarfile
 import time
 
 SCHEMA = 'sdvk-software-vulkan-evidence/v2'
+SHORT_PUBLICATION_ROOTS = ('renderer-sdvk010', 'renderer-sdvk150', 'renderer-sdvk153',
+                           'renderer-sdvk158', 'renderer-sdvk161', 'renderer-sdvk014-controlled')
 ROOTS = {
     'corpus': ('renderer-native', 'renderer-sdvk008-control', 'renderer-sdvk008-preflight'),
-    'publication': ('renderer-sdvk010', 'renderer-sdvk150', 'renderer-sdvk153',
-                    'renderer-sdvk158', 'renderer-sdvk161', 'renderer-sdvk014-controlled'),
+    'publication': (*SHORT_PUBLICATION_ROOTS, 'renderer-sdvk009-worker-publication'),
     # Shared authored input and the immutable registration travel exactly once.
     'controls': ('renderer-sdvk009-worker-controls', 'renderer-sdvk009-plan',
                  'renderer-sdvk009-content'),
@@ -35,7 +36,8 @@ GATES = {
     'corpus': {'renderer-native/native-ci.json': 'PASS',
                'renderer-native/collision-review.json': 'PASS',
                'renderer-sdvk008-control/sdvk008-software-fixture-control.json': 'SOFTWARE_FIXTURE_CONTROL_COLLECTED'},
-    'publication': {root + '/qualification.json': 'PASS' for root in ROOTS['publication']},
+    'publication': {**{root + '/qualification.json': 'PASS' for root in SHORT_PUBLICATION_ROOTS},
+                    'renderer-sdvk009-worker-publication/worker.json': 'PASS'},
     'controls': {'renderer-sdvk009-content/content.json': 'PASS',
                  'renderer-sdvk009-worker-controls/worker.json': 'PASS'},
     'witness-1': {'renderer-sdvk009-worker-witness-1/worker.json': 'PASS'},

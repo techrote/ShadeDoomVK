@@ -10,9 +10,9 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  # Normal CI runs the complete workload. An explicit source change to preflight
-  # is diagnostic only: the legacy required check then fails with PRECHECK_ONLY.
-  SDVK_PUBLICATION_CAMPAIGN: full
+  # Diagnostic source revisions never award qualification: the legacy required
+  # check fails with PRECHECK_ONLY. Full mode retains every original workload.
+  SDVK_PUBLICATION_CAMPAIGN: shadow-startup-probe
 
 jobs:
   pf_oracle:
@@ -169,8 +169,8 @@ jobs:
 #       ls -lR build
 #
 
-  # One exact source/runtime feeds the corpus, six short publication modules,
-  # and three independent SDVK-009 capture workers. No consumer recompiles.
+  # One exact source/runtime feeds the corpus, six short publication modules
+  # plus compositing control, and three shadow workers. No consumer recompiles.
   vulkan_build:
     name: Linux software Vulkan | Build
     runs-on: ubuntu-24.04
@@ -235,6 +235,10 @@ jobs:
             suites='["controls","witness-1","witness-2"]'
             flags+=(--compatibility-probe)
             ;;
+          shadow-startup-probe)
+            suites='["controls","witness-1","witness-2"]'
+            flags+=(--shadow-startup-probe)
+            ;;
           *) echo 'Unknown publication campaign mode' >&2; exit 1 ;;
         esac
         python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
@@ -287,8 +291,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Only the fixed three-worker compatibility probe or fixed five-worker
-        # full campaign can be emitted by the source-matched registration step.
+        # Only fixed three-worker diagnostic modes or the fixed five-worker full
+        # campaign can be emitted by the source-matched registration step.
         suite: ${{ fromJSON(needs.vulkan_build.outputs.suites) }}
     steps:
     - uses: actions/checkout@v4
@@ -471,7 +475,7 @@ jobs:
           --expected-commit "$(git rev-parse HEAD)"
 
     - name: Execute exactly the preregistered SDVK-009 worker captures
-      if: matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2'
+      if: matrix.suite == 'publication' || matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2'
       shell: bash
       env:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
@@ -559,7 +563,7 @@ jobs:
         if [[ "${{ needs.vulkan_qualification.result }}" == success ]]; then
           flags+=(--complete)
         fi
-        if [[ "$SDVK_PUBLICATION_CAMPAIGN" == preflight ]]; then
+        if [[ "$SDVK_PUBLICATION_CAMPAIGN" != full ]]; then
           flags+=(--suites controls,witness-1,witness-2)
         fi
         python3 tools/ci/renderer_evidence.py merge \
@@ -580,7 +584,7 @@ jobs:
           --expected-commit "$(git rev-parse HEAD)"
 
     - name: Report individual capture timings after evidence assembly
-      if: always() && steps.assemble.outcome == 'success' && env.SDVK_PUBLICATION_CAMPAIGN == 'full'
+      if: always() && steps.restore.outcome == 'success' && env.SDVK_PUBLICATION_CAMPAIGN == 'full'
       shell: bash
       run: |
         python3 tools/ci/renderer_ci_timings.py build/evidence-merged/renderer-sdvk009-publication \

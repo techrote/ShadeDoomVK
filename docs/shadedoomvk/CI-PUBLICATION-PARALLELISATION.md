@@ -50,14 +50,17 @@ One Ubuntu 24.04 software-Vulkan build feeds five independent hosted workers:
 | Worker | Exact workload | Dependency |
 | --- | --- | --- |
 | `corpus` | Original SDVK-008 preflight/control, complete native state/timing corpus and collision replay | Authenticated build |
-| `publication` | SDVK-010, 150, 153, 158, 161 and 014, preserving their internal sequences | Authenticated build and shared authored input |
-| `controls` | Original compositing control, then original shadow control | Authenticated build and immutable four-capture plan |
+| `publication` | SDVK-010, 150, 153, 158, 161 and 014 in their original sequences, then the original inexpensive compositing control | Authenticated build and shared authored input/plan |
+| `controls` | Original shadow control as the first renderer capture on its fresh host | Authenticated build and immutable four-capture plan |
 | `witness-1` | Original first instrumented shadow witness | Same build and plan |
 | `witness-2` | Original second instrumented shadow witness | Same build and plan |
 
 The six short modules share one worker because their 8–11 minutes are below the
-corpus and shadow paths. The inexpensive compositing control shares the controls
-worker. No fourth expensive shadow worker or consumer recompilation is added.
+corpus and shadow paths. The inexpensive compositing control now shares that
+short-module worker. Each of the three shadows is its host's first renderer
+capture. This addresses the startup-history asymmetry found in the first full
+campaign, described below. No fourth expensive shadow worker or consumer
+recompilation is added.
 Matrix `fail-fast` remains false: a failed worker must not erase siblings' useful
 evidence. The final `Linux software Vulkan | RelWithDebInfo` check keeps its
 original name and requires the CPU oracle, complete Windows/Linux matrix, shared
@@ -71,7 +74,7 @@ validation, transfer and queueing. With concurrency the 35m56s corpus can become
 the limiting worker. These are dependency-graph estimates, not new native
 measurements or performance acceptance.
 
-The initial, explicitly labelled compatibility preflight exercises separate
+The initial, explicitly labelled compatibility preflight exercised separate
 parallel and control-gated three-runner probe plans against one source-matched
 runtime. Each plan has its own campaign and capture authorization IDs. Tiny
 compositing captures establish comparable metadata and exact state/RGB plus
@@ -97,9 +100,71 @@ parallel** and **181 seconds for control-gated**. Their aggregation jobs took
 aggregator did not require; final packet completion times are therefore not a
 matched topology comparison. The tiny native captures took approximately
 10–31 seconds, so this experiment mostly measures setup and scheduling. The
-full shadow campaign remains decisive. Its complete
+full shadow campaign remains decisive. The preflight's complete
 [source-qualified receipt](evidence/CI-PUBLICATION-PREFLIGHT-20261114.json)
 records timings, identities, artifacts and the deliberate `PRECHECK_ONLY` failure.
+
+## Full-campaign failure and startup-history repair
+
+[Full CI #622](https://github.com/techrote/ShadeDoomVK/actions/runs/43532176029)
+at `c99a20f36733d3b198f2bbebf8e61130fd2511bf` passed all twelve upstream jobs,
+including the complete original corpus, six companion modules and four original
+captures. Authenticated restoration passed, but the unchanged control/witness
+state comparison failed closed. Both witnesses had two `SDVFL` material resource
+generations and renderer-owner `texture_epoch` equal to 3, against 4 in the
+control. These three protected fields are not normalized or exempted.
+
+All three shadow RGB comparisons were exact, with zero changed pixels. The two
+witnesses also matched each other's exact state. Control and witness 2 shared
+EPYC 7763 CPUs; witness 1 used EPYC 9V74. CPU model mismatch alone therefore does
+not explain the rejection. All three original #620 shadows match #622's
+control state exactly. The original corpus's 56 native processes and ordered
+83-step sequence also matched #620, although its new Xeon 6975P-C host was much
+faster than #620's EPYC 7763. That speed difference is not credited to scheduling.
+
+The failed packet retains every raw byte: 2,956 transported files, 1,069
+relocations, 2,969 final files, an 88,029,068-byte XZ and 89,141,135-byte Actions
+ZIP. Its archive SHA-256 is
+`a6c502bdfd0628a8899ad40a38985534a48804f075f0a0adb1fe22a28ea9feed`.
+Independent ZIP, XZ, file-hash, relocation and ordinary tar checks passed;
+qualification remains FAIL. The main workflow took 61m09s to retain that failed
+result, not to achieve qualification. Compression took 330.277s and full archive
+verification 10.339s on the hosted runner. See the complete
+[failure investigation receipt](evidence/CI-PUBLICATION-FAILURE-20261114.json).
+
+The initial topology gave shadow-control a preceding compositing process, while
+both independent witnesses were their hosts' first renderer captures. Their
+fresh application caches are proven; the unchanged reproduction policy records
+external driver cache as uncontrolled. This is evidence of a startup-history
+asymmetry, not proof of a particular Mesa cache mechanism. The revised topology
+moves compositing to the existing short-module worker so all three shadows are
+first-use processes on fresh hosts, without extra full captures or changed
+acceptance. The historical four-capture plan order is still immutable even
+though execution times overlap.
+
+Before another full campaign, `--shadow-startup-probe` registers a distinct
+nonqualifying plan. Three independent workers first collect uninstrumented
+shadow captures with five warmup frames, one retained frame and a 180-second
+ceiling. The controls probe then performs a 120-warmup compositing primer and
+another five-warmup shadow. Original exact comparisons test the three first-use
+shadows; a separate original comparison records the cold/warm history effect.
+All probe names, workload identities and authorizations are explicitly labelled.
+Only `PROBE_PASS` is possible, with `qualification_awarded=false`, and the legacy
+required check still rejects it as `PRECHECK_ONLY`.
+
+The short probe does not weaken or parameterize publication witness validation.
+The original instrumented validator requires all 121 observer frames and remains
+unchanged; a new full exact-head campaign must supply those complete witnesses,
+all eighteen negative-control outcomes, and both exact control comparisons.
+The probe diagnoses startup state and cannot substitute for full qualification.
+Any failed-assembly timing report is now retained after successful transport
+restoration, with incomplete/failed status preserved.
+
+During #622, accepted master advanced to
+`0ecba708e283e33c381fae329ace7a2cedc6a3f3` by merging independent PR #199.
+The stacked #196 foundation stayed unchanged. This candidate does not import
+that tolerance change; SDVK-161 passed its original checks in #622. The PR
+conversation records the latest source relationship and eventual qualification.
 
 ## Explicit change to serial fail-stop semantics
 
@@ -114,10 +179,12 @@ It still suppresses later dependent launches after an earlier failure. The new
 2. Each independently authorized worker authenticates those identities and the
    explicit hosted lavapipe guard before its native preflight. It writes a
    failure-default prospective receipt and exclusive capture launch records.
-3. Controls retain local fail-stop order: compositing must pass before shadow
-   control starts. Witness workers may already be running when another worker
-   fails. This is the deliberately changed temporal property requiring Owner
-   approval; it is never described as preserving global serial fail-stop.
+3. All four captures are independently authorized. Compositing runs after the
+   six companion modules on their worker; each shadow is the first renderer
+   capture on its separate host. Already-authorized siblings may be running
+   when another fails. The original plan order and legacy receipt aliases are
+   retained, but temporal launch suppression is deliberately changed and
+   requires Owner approval; global serial fail-stop is not claimed.
 4. Every worker must finish exactly its registered captures. Each capture keeps
    the original fresh process directory/application cache, mode, diagnostics,
    640×480 extent, **120 warmup frames, one retained frame, 3600-second deadline,
@@ -148,9 +215,9 @@ publication) with the same llvmpipe LLVM 20.1.2 device and Mesa 25.2.8 package.
 That observation motivates the preflight; it does not substitute for the actual
 cross-runner exact comparisons.
 
-Distinct Linux VM boot identities, worker execution UUIDs, request hashes,
-original process working directories and publication diagnostic run IDs are
-required. Runner display names remain descriptive, not a uniqueness assumption.
+Distinct Linux VM boot identities for all four full-mode capture workers,
+worker execution UUIDs, request hashes, original process working directories
+and publication diagnostic run IDs are required. Runner display names remain descriptive, not a uniqueness assumption.
 The aggregator verifies capture names/order, exactly one authorized request,
 receipt/run equality and worker provenance. Renaming a copied packet cannot
 supply an independent repetition. Mismatched source, runtime, device or plan
@@ -158,7 +225,10 @@ fails before qualification.
 
 ## Evidence transport and consumer compatibility
 
-The shared runtime is built once. Runtime and authored-input archive SHA-256
+The shared runtime is built once. The publication packet now contains its
+compositing worker's manifest and raw capture as well as the six original
+module packets; all seven roots and successful native receipts are required.
+Runtime and authored-input archive SHA-256
 values and the plan SHA-256 are passed directly from build job outputs and
 checked by consumers, in addition to retained sidecars. Historical Freedoom
 0.13.0 content is fetched and authenticated once; controls retain that shared

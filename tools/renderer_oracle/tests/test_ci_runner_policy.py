@@ -3,12 +3,14 @@
 import json
 from pathlib import Path
 import re
+import subprocess
 import unittest
 
 ROOT = Path(__file__).resolve().parents[3]
 WORKFLOW = ROOT / '.github' / 'workflows' / 'continuous_integration.yml'
 WORKERS = ['corpus', 'publication', 'controls', 'witness-1', 'witness-2']
-CAPTURE_WORKERS = WORKERS[2:]
+PROBE_WORKERS = WORKERS[2:]
+CAPTURE_WORKERS = WORKERS[1:]
 
 
 def job_blocks(text):
@@ -81,7 +83,7 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         registration = step_blocks(self.jobs['vulkan_build'])[
             'Authenticate historical content and preregister the complete capture plan']
         arrays = [json.loads(value) for value in re.findall(r"suites='([^']+)'", registration)]
-        self.assertEqual(arrays, [WORKERS, CAPTURE_WORKERS])
+        self.assertEqual(arrays, [WORKERS, PROBE_WORKERS, PROBE_WORKERS])
         for workers in arrays:
             self.assertEqual(len(workers), len(set(workers)))
         self.assertIn('suite: ${{ fromJSON(needs.vulkan_build.outputs.suites) }}', self.jobs['vulkan_qualification'])
@@ -113,40 +115,37 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
             visit(name)
         self.assertEqual(visited, set(graph))
 
-    def test_temporary_control_gated_probe_is_separate_and_bounded(self):
+    def test_diagnostic_modes_are_bounded_and_never_qualify(self):
         names = {'vulkan_probe_gated_controls', 'vulkan_probe_gated_witnesses', 'vulkan_probe_gated_evidence'}
         mode = re.search(r'(?m)^  SDVK_PUBLICATION_CAMPAIGN: (.+)$', self.text).group(1)
-        self.assertIn(mode, ('preflight', 'full'))
-        if mode == 'full':
-            self.assertFalse(names.intersection(self.jobs), 'One-time gated probe must leave the full campaign')
-            self.assertNotIn('TEMPORARY POC', self.text)
-            return
-        self.assertTrue(names.issubset(self.jobs))
-        self.assertEqual(dependencies(self.jobs['vulkan_probe_gated_controls']), ['vulkan_build'])
-        self.assertEqual(dependencies(self.jobs['vulkan_probe_gated_witnesses']),
-                         ['vulkan_build', 'vulkan_probe_gated_controls'])
-        self.assertIn('suite: [controls]', self.jobs['vulkan_probe_gated_controls'])
-        self.assertIn('suite: [witness-1, witness-2]', self.jobs['vulkan_probe_gated_witnesses'])
-        for name in ('vulkan_probe_gated_controls', 'vulkan_probe_gated_witnesses'):
-            job = self.jobs[name]
-            self.assertIn("if: needs.vulkan_build.outputs.campaign == 'preflight'", job)
-            self.assertNotIn('native_ci.py --exe', job)
-            self.assertNotIn('sdvk010_acceptance', job)
-            self.assertEqual(job.count('sdvk009_distributed worker'), 1)
-            self.assertIn('needs.vulkan_build.outputs.gated_inputs_sha256', job)
-            self.assertIn('needs.vulkan_build.outputs.gated_plan_sha256', job)
-            self.assertIn('needs.vulkan_build.outputs.runtime_sha256', job)
-            self.assertIn('name: sdvk-gated-evidence-${{ matrix.suite }}', job)
+        self.assertIn(mode, ('preflight', 'shadow-startup-probe', 'full'))
+        self.assertFalse(names.intersection(self.jobs), 'The completed one-time gated experiment must not recur')
+        self.assertNotIn('TEMPORARY POC', self.text)
         registration = step_blocks(self.jobs['vulkan_build'])[
             'Authenticate historical content and preregister the complete capture plan']
-        self.assertEqual(registration.count('sdvk009_distributed register'), 2)
-        self.assertIn('--out build/renderer-sdvk009-gated-plan --compatibility-probe', registration)
-        self.assertIn('software-vulkan-gated-inputs.tar.gz', registration)
-        aggregate = self.jobs['vulkan_probe_gated_evidence']
-        self.assertIn('pattern: sdvk-gated-evidence-*', aggregate)
-        self.assertIn('merge-multiple: false', aggregate)
-        self.assertIn("result['status'] == 'PROBE_PASS' and result['qualification_awarded'] is False", aggregate)
-        self.assertIn('name: sdvk-gated-preflight', aggregate)
+        self.assertEqual(registration.count('sdvk009_distributed register'), 1)
+        case = registration.split('        case "$SDVK_PUBLICATION_CAMPAIGN" in', 1)[1].split('        esac', 1)[0]
+        script = ('SDVK_PUBLICATION_CAMPAIGN="$1"\nflags=()\n'
+                  'case "$SDVK_PUBLICATION_CAMPAIGN" in' + case + '\nesac\n'
+                  'printf "%s\\n" "$suites" "${flags[*]}"\n')
+        expected = {'full': (WORKERS, ''), 'preflight': (PROBE_WORKERS, '--compatibility-probe'),
+                    'shadow-startup-probe': (PROBE_WORKERS, '--shadow-startup-probe')}
+        for campaign, (workers, flag) in expected.items():
+            with self.subTest(campaign=campaign):
+                result = subprocess.run(['bash', '-c', script, 'mode-check', campaign],
+                                        check=True, capture_output=True, text=True)
+                values = result.stdout.splitlines()
+                self.assertEqual(json.loads(values[0]), workers)
+                self.assertEqual(values[1], flag)
+        invalid = subprocess.run(['bash', '-c', script, 'mode-check', 'unbounded'],
+                                 capture_output=True, text=True)
+        self.assertNotEqual(invalid.returncode, 0)
+        aggregate = step_blocks(self.jobs['vulkan_evidence'])
+        self.assertIn('"$SDVK_PUBLICATION_CAMPAIGN" != full',
+                      aggregate['Authenticate and restore worker evidence without accepting captures'])
+        gate = aggregate['Require every native, platform, CPU and authenticated assembly gate']
+        self.assertIn('"$SDVK_PUBLICATION_CAMPAIGN" != full', gate)
+        self.assertIn('PRECHECK_ONLY', gate)
 
     def test_shared_build_is_exact_source_and_never_recompiled_by_consumers(self):
         for name, job in self.jobs.items():
@@ -187,9 +186,11 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
                     self.assertIn('--expected-commit "$(git rev-parse HEAD)"', step)
         self.assertEqual(actual, expected)
         worker = steps['Execute exactly the preregistered SDVK-009 worker captures']
-        self.assertIn("if: matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2'", worker)
+        self.assertIn("if: " + ' || '.join("matrix.suite == '" + name + "'" for name in CAPTURE_WORKERS), worker)
         self.assertEqual(worker.count('sdvk009_distributed worker'), 1)
         self.assertIn("--worker '${{ matrix.suite }}'", worker)
+        self.assertLess(self.jobs['vulkan_qualification'].index('Qualify SDVK-014 controlled planes'),
+                        self.jobs['vulkan_qualification'].index('Execute exactly the preregistered SDVK-009 worker captures'))
         self.assertNotIn('sdvk009_publication qualify', self.text)
         self.assertNotIn('retry', worker.lower())
 
@@ -214,6 +215,10 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         self.assertIn("steps.restore.outcome == 'success'", assemble)
         self.assertIn("needs.vulkan_qualification.result == 'success'", assemble)
         self.assertIn('sdvk009_distributed assemble', assemble)
+        timings = steps['Report individual capture timings after evidence assembly']
+        self.assertIn("if: always() && steps.restore.outcome == 'success'", timings)
+        self.assertNotIn("steps.assemble.outcome == 'success'", timings)
+        self.assertIn("env.SDVK_PUBLICATION_CAMPAIGN == 'full'", timings)
         finalize = steps['Package and verify the complete legacy archive including failed comparisons']
         self.assertIn("if: always() && steps.restore.outcome == 'success'", finalize)
         self.assertIn('renderer_evidence.py finalize', finalize)

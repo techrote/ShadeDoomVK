@@ -141,9 +141,11 @@ not establish byte equality.
 
 The original serial API retains this launch order. A separate Owner-requested
 [distributed orchestration candidate](CI-PUBLICATION-PARALLELISATION.md)
-preregisters the same four workloads, runs controls serially on one hosted
-runner and the two witnesses on separate runners, and defers dependent
-comparisons to fail-closed authenticated assembly. Independent siblings may
+preregisters the same four workloads, puts compositing on the existing short
+publication runner and each shadow first on a separate fresh hosted runner,
+and defers dependent comparisons to fail-closed authenticated assembly.
+The initial controls-paired topology failed protected resource-state comparison;
+that retained failure is not normalized away. Independent siblings may
 already be running when another fails. This bounded temporal policy change
 requires Owner review before merge; it does not relax any capture or acceptance
 invariant below and does not authorize physical execution.

@@ -250,9 +250,12 @@ threshold relaxation. A failure stops dependent stages and retains raw output.
 
 The candidate [publication parallelisation contract](../CI-PUBLICATION-PARALLELISATION.md)
 adds a separate `sdvk009_distributed.py` API. It preregisters the complete fixed
-four-capture plan, runs controls on one hosted VM and each witness on its own VM,
-then authenticates/reconstructs all evidence before applying the unchanged
-comparisons and nine negative controls. Already-authorized siblings may finish
+four-capture plan, puts compositing on the existing short-module VM and each
+shadow first on its own fresh VM, then authenticates/reconstructs all evidence
+before applying the unchanged comparisons and nine negative controls. The initial
+controls-paired full campaign failed three protected SDVFL generation/texture
+epoch fields; the startup-history probe and revised placement do not normalize
+or exempt those fields. Already-authorized siblings may finish
 after another worker fails; missing or failed workers cannot qualify. This is an
 explicit change to global launch-order semantics requiring Owner review. The
 original serial API and its fail-stop tests remain unchanged. The workflow's

@@ -79,6 +79,54 @@ class EvidenceTest(unittest.TestCase):
         listing = subprocess.check_output(['tar', '-tJf', str(archive)], text=True)
         self.assertIn('renderer-native/deep/capture.bin', listing)
         self.assertIn('renderer-sdvk014-controlled/deep/capture.bin', listing)
+        self.assertIn('renderer-sdvk009-worker-publication/worker.json', listing)
+
+    def test_six_module_success_cannot_replace_compositing_capture_receipt(self):
+        target = 'renderer-sdvk009-worker-publication/worker.json'
+        for label, raw in (('missing', None), ('failed', b'{"status":"FAIL"}')):
+            with self.subTest(compositing=label):
+                self.populate('publication', complete=True)
+                archive = self.parts / 'renderer-publication.tar'
+                with tarfile.open(self.build / archive.name, 'r:') as src, tarfile.open(archive, 'w:') as dst:
+                    for member in src:
+                        if member.name != target:
+                            dst.addfile(member, src.extractfile(member) if member.isfile() else None)
+                        elif raw is not None:
+                            member.size = len(raw)
+                            dst.addfile(member, io.BytesIO(raw))
+                manifest_path = self.parts / 'renderer-publication.manifest.json'
+                manifest = evidence.read_json(manifest_path)
+                if raw is None:
+                    del manifest['files'][target]
+                else:
+                    manifest['files'][target] = {'size': len(raw), 'sha256': evidence.sha256(io.BytesIO(raw))}
+                evidence.atomic_json(manifest_path, manifest)
+                (self.parts / 'renderer-publication.tar.sha256').write_text(
+                    evidence.sha256(archive) + '  ' + archive.name + '\n')
+                with self.assertRaisesRegex(ValueError, 'qualification receipt'):
+                    evidence.verify_suite(self.parts, 'publication', complete=True,
+                                          expected_commit=self.source, runtime_sha256=self.runtime,
+                                          plan_sha256=self.plan)
+
+    def test_publication_compositing_relocates_to_legacy_capture_path(self):
+        self.populate_all()
+        merged = self.root / 'merged'
+        self.merge(merged)
+        source = 'renderer-sdvk009-worker-publication/deep/capture.bin'
+        destination = 'renderer-sdvk009-publication/captures/compositing-control/capture.bin'
+        original, target = merged / source, merged / destination
+        target.parent.mkdir(parents=True)
+        record = {'destination': destination, 'sha256': evidence.sha256(original),
+                  'bytes': original.stat().st_size}
+        original.rename(target)
+        evidence.atomic_json(merged / 'renderer-sdvk009-publication/relocation.json', {
+            'schema': 'sdvk009-publication-relocation/v1', 'files': {source: record}})
+        archive = self.root / 'renderer-software-vulkan.tar.xz'
+        evidence.finalize(merged, archive)
+        manifest = evidence.read_json(self.root / 'renderer-evidence-manifest.json')
+        self.assertIn(destination, manifest['files'])
+        self.assertNotIn(source, manifest['files'])
+        self.assertIn(destination, subprocess.check_output(['tar', '-tJf', str(archive)], text=True))
 
     def test_authenticated_relocation_keeps_every_original_byte(self):
         self.populate_all()
