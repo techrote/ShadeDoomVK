@@ -1,5 +1,7 @@
 # ShadeDoomVK
 
+**New owner-approved direction (planning stage):** [The Lost 2003 Remaster](docs/shadedoomvk/REMASTER-2003-CAMPAIGN.md) · [SHADOW-001 shadow-caster design](docs/shadedoomvk/SHADOW-001-SPRITE-SHADOW-PROJECTION.md) · [R-001 policy/CI migration](https://github.com/techrote/ShadeDoomVK/issues/203). This planning work does not itself change runtime defaults, existing required CI, or the physical GPU STOP.
+
 ShadeDoomVK is a Vulkan-first experimental Doom-engine renderer fork based on VKDoom. Its purpose is to push the classic sprite-and-sector presentation toward materially rich, dynamically lit 2.5D rendering while preserving Doom-family gameplay, content semantics and mod compatibility wherever the renderer can do so honestly.
 
 The project is focused on:
