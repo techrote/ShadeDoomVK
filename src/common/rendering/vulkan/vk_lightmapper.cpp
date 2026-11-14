@@ -204,7 +204,7 @@ void VkLightmapper::Render()
 	for (const auto& selected : selectedTiles) ValidateSelectedTile(selected);
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
-	fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.raytrace");
+	const bool timing = fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.raytrace");
 
 	PipelineBarrier()
 		.AddImage(bakeImage.raytrace.Image.get(), VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_ACCESS_SHADER_READ_BIT, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT)
@@ -289,7 +289,8 @@ void VkLightmapper::Render()
 
 	cmdbuffer->endRenderPass();
 
-	fb->GetCommands()->PopGroup(cmdbuffer);
+	if (timing)
+		fb->GetCommands()->PopGroup(cmdbuffer);
 }
 
 void VkLightmapper::UploadUniforms()
@@ -341,7 +342,7 @@ void VkLightmapper::Resolve()
 {
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
-	fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.resolve");
+	const bool timing = fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.resolve");
 
 	PipelineBarrier()
 		.AddImage(bakeImage.raytrace.Image.get(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT)
@@ -367,14 +368,15 @@ void VkLightmapper::Resolve()
 
 	cmdbuffer->endRenderPass();
 
-	fb->GetCommands()->PopGroup(cmdbuffer);
+	if (timing)
+		fb->GetCommands()->PopGroup(cmdbuffer);
 }
 
 void VkLightmapper::Blur()
 {
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
-	fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.blur");
+	const bool timing = fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.blur");
 
 	PipelineBarrier()
 		.AddImage(bakeImage.resolve.Image.get(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT)
@@ -428,7 +430,8 @@ void VkLightmapper::Blur()
 		cmdbuffer->endRenderPass();
 	}
 
-	fb->GetCommands()->PopGroup(cmdbuffer);
+	if (timing)
+		fb->GetCommands()->PopGroup(cmdbuffer);
 }
 
 void VkLightmapper::CopyResult()
@@ -469,7 +472,7 @@ void VkLightmapper::CopyResult()
 
 	auto cmdbuffer = fb->GetCommands()->GetTransferCommands();
 
-	fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.copy");
+	const bool timing = fb->GetCommands()->PushGroup(cmdbuffer, "lightmap.copy");
 
 	// Transition lightmap destination images to be used as framebuffers and the resolve image as sampling source
 	PipelineBarrier barrier0;
@@ -602,7 +605,8 @@ void VkLightmapper::CopyResult()
 		selected.Tile->GeometryUpdate = false;
 	}
 
-	fb->GetCommands()->PopGroup(cmdbuffer);
+	if (timing)
+		fb->GetCommands()->PopGroup(cmdbuffer);
 }
 
 void VkLightmapper::CreateShaders()

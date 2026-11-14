@@ -123,6 +123,7 @@ private:
 	std::unique_ptr<VulkanQueryPool> mTimestampQueryPool;
 	int mNextTimestampQuery = 0;
 	bool mToolGpuTiming = false;
+	bool mToolGpuCapabilityUnavailableReported = false;
 	std::vector<size_t> mGroupStack;
 	std::vector<TimestampQuery> timeElapsedQueries;
 	std::mutex mMutex;

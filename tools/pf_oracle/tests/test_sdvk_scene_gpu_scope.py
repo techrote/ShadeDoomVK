@@ -80,6 +80,19 @@ int main() {
     assert(manager.PushGroup(&first, "lightmap.total", VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT));
     manager.PopGroup(&afterFlush, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     assert(first.stages.back() == VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT && afterFlush.stages == first.stages);
+    // A successful outer group reserves its closing timestamp at capacity.
+    manager.mNextTimestampQuery = manager.MaxTimestampQueries - 2;
+    const bool outer = manager.PushGroup(&first, "lightmap.total", VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+    assert(outer && manager.mGroupStack.size() == 1);
+    const bool inner = manager.PushGroup(&first, "lightmap.raytrace");
+    assert(!inner && manager.mGroupStack.size() == 1);
+    if (inner) manager.PopGroup(&afterFlush);
+    assert(manager.mGroupStack.size() == 1);
+    if (outer) manager.PopGroup(&afterFlush, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
+    assert(manager.mGroupStack.empty());
+    assert(manager.timeElapsedQueries.back().startIndex == manager.MaxTimestampQueries - 2);
+    assert(manager.timeElapsedQueries.back().endIndex == manager.MaxTimestampQueries - 1);
+    assert(afterFlush.stages.back() == VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT);
     manager.mNextTimestampQuery = manager.MaxTimestampQueries;
     assert(!manager.PushGroup(&afterFlush, "capacity"));
     assert(manager.mGroupStack.empty());
@@ -90,6 +103,29 @@ int main() {
             fixture = Path(directory) / "scene_group_commands.cpp"
             fixture.write_text(prefix + actual + suffix)
             run_fixture(fixture)
+
+    def test_lightmap_inner_groups_close_only_their_own_successful_pushes(self):
+        source = (ROOT / "src/common/rendering/vulkan/vk_lightmapper.cpp").read_text()
+        for method, group in (
+            ("Render", "lightmap.raytrace"),
+            ("Resolve", "lightmap.resolve"),
+            ("Blur", "lightmap.blur"),
+            ("CopyResult", "lightmap.copy"),
+        ):
+            body = source.split(f"void VkLightmapper::{method}()", 1)[1].split(
+                "\nvoid VkLightmapper::", 1
+            )[0]
+            self.assertEqual(
+                body.count(f'const bool timing = fb->GetCommands()->PushGroup(cmdbuffer, "{group}");'),
+                1,
+                group,
+            )
+            self.assertEqual(body.count("PopGroup(cmdbuffer);"), 1, group)
+            self.assertRegex(
+                body,
+                r"if\s*\(timing\)\s*fb->GetCommands\(\)->PopGroup\(cmdbuffer\);",
+                group,
+            )
 
     def test_production_scope_default_off_unavailable_double_close_and_unwinding(self):
         run_fixture(ROOT / "tools/pf_oracle/tests/sdvk_scene_gpu_scope_fixture.cpp",

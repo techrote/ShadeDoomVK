@@ -559,7 +559,9 @@ bool VkCommandBufferManager::PushGroup(VulkanCommandBuffer* cmdbuffer, const FSt
 	if (!gpuStatActive)
 		return false;
 
-	if (mNextTimestampQuery < MaxTimestampQueries && fb->GetDevice()->GraphicsTimeQueries)
+	// Reserve a closing timestamp for this group and each open ancestor.
+	// Rejected inner groups must not borrow the outer group's last slot.
+	if (mNextTimestampQuery + mGroupStack.size() + 2 <= MaxTimestampQueries && fb->GetDevice()->GraphicsTimeQueries)
 	{
 		TimestampQuery q;
 		q.name = name;
@@ -610,7 +612,8 @@ void VkCommandBufferManager::UpdateGpuStats()
 		const bool familyKnown = device->GraphicsFamily >= 0 && static_cast<size_t>(device->GraphicsFamily) < families.size();
 		const uint32_t validBits = familyKnown ? families[device->GraphicsFamily].timestampValidBits : 0;
 		const char* unavailable = nullptr;
-		if (!device->GraphicsTimeQueries || (familyKnown && validBits == 0))
+		const bool timestampsUnsupported = !device->GraphicsTimeQueries || (familyKnown && validBits == 0);
+		if (timestampsUnsupported)
 			unavailable = "graphics_queue_timestamp_queries_unsupported";
 		else if (!familyKnown || validBits < 36 || validBits > 64 || !std::isfinite(timestampPeriod) || timestampPeriod <= 0)
 			unavailable = "graphics_queue_timestamp_metadata_invalid";
@@ -629,8 +632,15 @@ void VkCommandBufferManager::UpdateGpuStats()
 		{
 			if (diagnosticsRequested)
 				SdvkDiagnostics::GpuUnavailable(unavailable);
-			if (mToolGpuTiming && mNextTimestampQuery > 0)
+			// An unsupported device cannot allocate even the first query.
+			// Emit one capability record without flooding idle tool frames.
+			if (mToolGpuTiming && (mNextTimestampQuery > 0 ||
+				(timestampsUnsupported && !mToolGpuCapabilityUnavailableReported)))
+			{
 				Printf("SDVK_TOOL_GPU unavailable=%s\n", unavailable);
+				if (timestampsUnsupported)
+					mToolGpuCapabilityUnavailableReported = true;
+			}
 		}
 		else
 		{
