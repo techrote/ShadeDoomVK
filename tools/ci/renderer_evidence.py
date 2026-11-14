@@ -131,6 +131,43 @@ def scan(build, names):
     return present, entries
 
 
+def packaging_resources():
+    """Bound compression by actual CPU/memory limits, not the runner label."""
+    processors = len(os.sched_getaffinity(0)) if hasattr(os, 'sched_getaffinity') else os.cpu_count() or 1
+    memory = None
+    try:
+        memory = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+    except (AttributeError, OSError, ValueError):
+        pass
+    limits = {'physical_memory_bytes': memory, 'affinity_processors': processors}
+    for name in ('/sys/fs/cgroup/memory.max', '/sys/fs/cgroup/memory/memory.limit_in_bytes'):
+        path = Path(name)
+        if path.is_file():
+            value = path.read_text().strip()
+            limits[name] = value
+            if value.isdigit() and int(value) > 0:
+                memory = min(memory, int(value)) if memory is not None else int(value)
+    quota = Path('/sys/fs/cgroup/cpu.max')
+    if quota.is_file():
+        limits['cpu_max'] = quota.read_text().strip()
+        fields = limits['cpu_max'].split()
+        if len(fields) == 2 and all(value.isdigit() for value in fields) and int(fields[1]) > 0:
+            processors = min(processors, max(1, int(fields[0]) // int(fields[1])))
+    limits.update(effective_memory_bytes=memory, effective_processors=processors)
+    return limits
+
+
+def compression_policy(resources):
+    # The retained 3.068 GB #620 tar was byte-for-byte verified after this
+    # bounded MT recipe: 87.50 MB, versus 47.28 MB for the original one block.
+    # xz reports 6628 MiB maximum compression memory. Reserve at least 5 GiB
+    # for the rest of a sufficiently large host; smaller hosts retain -T1.
+    if (resources.get('effective_memory_bytes') or 0) >= 12 * 1024**3 and resources['effective_processors'] >= 3:
+        return ['xz', '-6', '-T3', '--block-size=512MiB', '--lzma2=dict=64MiB',
+                '--memlimit-compress=7GiB', '--no-adjust', '-c']
+    return ['xz', '-6', '-T1', '--lzma2=dict=64MiB', '--memlimit-compress=1GiB', '--no-adjust', '-c']
+
+
 def pack(build, suite, *, expected_commit=None, runtime_sha256=None, plan_sha256=None,
          job_status='unknown'):
     t0 = time.monotonic()
@@ -338,12 +375,11 @@ def finalize(root, archive):
                 'Unregistered additional worker evidence: ' + name)
     provenance = root / 'renderer-ci-aggregation'
     atomic_json(provenance / 'transport-manifest.json', transport)
-    # Retain the foundation's strong single-stream 64 MiB dictionary policy.
-    # Bounded MT experiments are documented separately; small blocks duplicate
-    # authored content and large blocks can exceed hosted memory allowances.
-    compression = ['xz', '-6', '-T1', '--lzma2=dict=64MiB', '-c']
+    resources = packaging_resources()
+    compression = compression_policy(resources)
     atomic_json(provenance / 'packaging-policy.json', {
         'schema': 'sdvk-software-vulkan-packaging/v1', 'compression_argv': compression,
+        'host_resources': resources,
         'lossless': True, 'native_workloads_changed': False,
         'transported_files_verified': len(original), 'relocated_files': len(relocations)})
     roots, files = scan(root, sorted(path.name for path in root.iterdir()))
@@ -368,6 +404,7 @@ def finalize(root, archive):
     finished = time.monotonic()
     report = {'schema': 'sdvk-software-vulkan-packaging-timing/v1',
               'compression_argv': compression, 'compression_seconds': round(compressed-started, 3),
+              'host_resources': resources,
               'verification_seconds': round(finished-compressed, 3),
               'assembly_verification_seconds': round(started-beginning, 3),
               'total_seconds': round(finished-beginning, 3),

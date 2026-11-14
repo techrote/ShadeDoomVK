@@ -32,7 +32,9 @@ These are different source revisions and hosts, not a repeated controlled A/B.
 In #620, the run head was `da017d82` but checkout built synthetic PR merge
 `7980f0cc9f1e7aa3b759c47f3b6db66e0992387a`. This workflow instead checks out the
 actual PR head in every job, verifies the compiled clean commit, and binds all
-workers to the same immutable runtime digest.
+workers to the same immutable runtime digest. The separate source-bundle
+workflow now exports that same PR head, retaining its complete Git history and
+the existing source-evidence check identity.
 
 #620's build took 7m34s, native corpus 35m56s, publication worker 86m37s and final
 aggregation 12m27s. The two macOS jobs used 4m06s and 5m13s: removing them saves
@@ -77,6 +79,27 @@ observed scheduling/setup overhead; they do not establish full shadow coverage.
 Temporary gated probe jobs are removed before the full campaign. The required
 qualification check deliberately reports `PRECHECK_ONLY` during preflight,
 even when all probe comparisons pass. Only full-mode exact-head CI can qualify.
+
+The hosted [preflight #621](https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730)
+at exact head `4b8e0984da7941cdeba809874a9fee68ab29d802` passed both plans, all four
+cross-runner exact state/RGB comparisons, and all Windows/Linux/CPU gates. Each
+packet's 135 files were independently checked against its manifest, archive
+sidecar and GitHub artifact digest. Both packets report `PROBE_PASS`, with
+qualification explicitly false. The six captures have distinct VM boot and
+worker execution identities and use two independent campaign plans. The gated
+plan includes EPYC 7763 and EPYC 9V45 hosts; the parallel plan uses EPYC 9V74.
+No comparator relaxation was required.
+
+Build readiness through completion of all three workers was **87 seconds for
+parallel** and **181 seconds for control-gated**. Their aggregation jobs took
+59 and 53 seconds respectively. The parallel aggregator additionally waited
+155 seconds for its Windows prerequisite, which the experimental gated
+aggregator did not require; final packet completion times are therefore not a
+matched topology comparison. The tiny native captures took approximately
+10–31 seconds, so this experiment mostly measures setup and scheduling. The
+full shadow campaign remains decisive. Its complete
+[source-qualified receipt](evidence/CI-PUBLICATION-PREFLIGHT-20261114.json)
+records timings, identities, artifacts and the deliberate `PRECHECK_ONLY` failure.
 
 ## Explicit change to serial fail-stop semantics
 
@@ -169,9 +192,20 @@ without reducing integrity checks. A read-only replay of the original #620
 archive verified all **2,923 files in 12.455 seconds** in the coding environment.
 Compression, extraction, verification, transfer, archive size and host identity
 are recorded separately; no combined step duration is mislabeled as pure
-compression. The final compression policy is selected from the bounded retained
-evidence experiment recorded in the PR, preserving the 64 MiB dictionary and
-strong lossless compression.
+compression. The [bounded retained-byte experiment](evidence/CI-PUBLICATION-COMPRESSION-20261113.json)
+reproduced the original single-block archive exactly in 1090.267 seconds. The
+tested `xz -6 -T3 --block-size=512MiB --lzma2=dict=64MiB` produced identical
+decoded tar bytes in 419.641 seconds, at 87,495,836 compressed bytes. That is a
+one-off local packaging comparison with overlapping CPU work, not a repeatable
+hosted speedup claim. The size trade is +40,213,400 bytes (+85.05%), well below the
+893 MB regression, while preserving strong lossless compression.
+
+The helper selects this measured three-thread recipe only with at least 12 GiB
+effective memory and three effective processors, and enforces a 7 GiB XZ memory
+cap with `--no-adjust`. It records physical/cgroup memory and CPU limits. Smaller
+or unknown-memory hosts retain the original single-thread 64 MiB dictionary,
+with a 1 GiB cap. There is no retry or automatic dictionary reduction. The full
+hosted campaign, not the local benchmark, supplies the final workflow timing.
 
 ## Qualification and merge decision
 

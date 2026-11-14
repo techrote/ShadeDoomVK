@@ -71,6 +71,12 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         self.assertIn('unittest discover -s tools/physical_supervisor -t . -v', self.jobs['build'])
         self.assertIn('sdvk009_probe_cpu_tests.exe', self.jobs['build'])
 
+    def test_source_bundle_exports_the_same_exact_head_as_the_runtime(self):
+        source_workflow = (ROOT / '.github/workflows/renderer_source_evidence.yml').read_text()
+        self.assertIn('ref: ${{ github.event.pull_request.head.sha || github.sha }}', source_workflow)
+        self.assertIn('fetch-depth: 0', source_workflow)
+        self.assertIn('name: Exact renderer source bundle', source_workflow)
+
     def test_bounded_matrix_expansion_has_three_or_five_unique_workers(self):
         registration = step_blocks(self.jobs['vulkan_build'])[
             'Authenticate historical content and preregister the complete capture plan']

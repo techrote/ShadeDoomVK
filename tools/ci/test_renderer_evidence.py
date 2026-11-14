@@ -16,6 +16,21 @@ class EvidenceTest(unittest.TestCase):
     runtime = '2' * 64
     plan = '3' * 64
 
+    def test_compressor_memory_and_cpu_budget_cannot_overcommit_small_hosts(self):
+        for memory, cpu in ((7 * 1024**3, 4), (16 * 1024**3, 2), (None, 8)):
+            command = evidence.compression_policy({'effective_memory_bytes': memory, 'effective_processors': cpu})
+            self.assertIn('-T1', command)
+            self.assertIn('--memlimit-compress=1GiB', command)
+            self.assertIn('--no-adjust', command)
+        command = evidence.compression_policy({'effective_memory_bytes': 16 * 1024**3, 'effective_processors': 4})
+        self.assertIn('-T3', command)
+        self.assertIn('--block-size=512MiB', command)
+        self.assertIn('--memlimit-compress=7GiB', command)
+        self.assertIn('--no-adjust', command)
+        # Exercise xz's own option/memory admission without another benchmark.
+        result = subprocess.run(command, input=b'bounded option check', capture_output=True)
+        self.assertEqual(result.returncode, 0, result.stderr.decode())
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)

@@ -1,0 +1,406 @@
+{
+  "schema": "sdvk-publication-hosted-preflight-comparison/v1",
+  "workflow_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730",
+  "workflow_run_id": 43530238730,
+  "workflow_number": 621,
+  "source_commit": "4b8e0984da7941cdeba809874a9fee68ab29d802",
+  "workflow_event_sha": "ebd358ee9fc86058fcf56742198970669d68c1f4",
+  "workflow_seconds": 742,
+  "workflow_conclusion": "failure",
+  "deliberate_failure": "PRECHECK_ONLY: compatibility evidence cannot satisfy native qualification.",
+  "full_publication_qualification_awarded": false,
+  "physical_gpu_qualified": false,
+  "performance_accepted": false,
+  "shared_build_seconds": 437.0,
+  "campaigns": {
+    "parallel": {
+      "campaign_id": "639fd5981d88419e91ab8bd2104c8b57",
+      "plan_sha256": "c30bde8b21df81c681abcd3af22885ecd9f770170790240327055c50ec050522",
+      "source_tree": "7f5b2c27165bd656f5c5b560857b584cccc3d196",
+      "status": "PROBE_PASS",
+      "qualification_awarded": false,
+      "source_runtime_verified": true,
+      "workers": [
+        {
+          "worker": "controls",
+          "job_id": 132248583609,
+          "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132248583609",
+          "job_started_utc": "2026-11-13T23:59:24Z",
+          "job_finished_utc": "2026-11-14T00:00:48Z",
+          "job_seconds": 84.0,
+          "worker_execution_id": "0e9ea12b48c34e90abaab73af9da585d",
+          "boot_id": "2c9d1a21-9bf4-4041-bda1-9dcc6b4aacde",
+          "runner_name": "GitHub Actions 1000115542",
+          "capture": "compatibility-controls",
+          "authorization_id": "50c93dbb2cfd4a87b88dd97a00f2e899",
+          "request_sha256": "305587b953dec5790f3cffe154dfe66e3e72a8aa8601b79a086e06a89b060270",
+          "capture_started_utc": "2026-11-14T00:00:12.396501+00:00",
+          "capture_finished_utc": "2026-11-14T00:00:43.282434+00:00",
+          "capture_receipt_seconds": 30.886,
+          "native_elapsed_seconds": 29.886,
+          "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "logical_processors": 4,
+          "dependency_seconds": 23.0,
+          "runtime_download_seconds": 4.0,
+          "input_download_seconds": 1.0,
+          "runtime_verify_seconds": 11.0,
+          "upload_seconds": 3.0
+        },
+        {
+          "worker": "witness-1",
+          "job_id": 132248583679,
+          "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132248583679",
+          "job_started_utc": "2026-11-13T23:59:23Z",
+          "job_finished_utc": "2026-11-14T00:00:45Z",
+          "job_seconds": 82.0,
+          "worker_execution_id": "a39f153eda0d45c08f138cc482e5045f",
+          "boot_id": "52b04d87-90a8-4303-96ed-5ec78db45d13",
+          "runner_name": "GitHub Actions 1000115543",
+          "capture": "compatibility-witness-1",
+          "authorization_id": "4ab885b4b0c743e1a8daf5181deb047c",
+          "request_sha256": "2a9d1229a4c596098da14613789ab372cd5774589dacadaa255ad568e3f40bd9",
+          "capture_started_utc": "2026-11-14T00:00:27.721506+00:00",
+          "capture_finished_utc": "2026-11-14T00:00:42.142862+00:00",
+          "capture_receipt_seconds": 14.421,
+          "native_elapsed_seconds": 13.649,
+          "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "logical_processors": 4,
+          "dependency_seconds": 36.0,
+          "runtime_download_seconds": 3.0,
+          "input_download_seconds": 1.0,
+          "runtime_verify_seconds": 9.0,
+          "upload_seconds": 1.0
+        },
+        {
+          "worker": "witness-2",
+          "job_id": 132248583698,
+          "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132248583698",
+          "job_started_utc": "2026-11-13T23:59:24Z",
+          "job_finished_utc": "2026-11-14T00:00:46Z",
+          "job_seconds": 82.0,
+          "worker_execution_id": "8b5f6594064b425385cc70da57769785",
+          "boot_id": "0d68178e-23fa-4907-8cb5-e218408797af",
+          "runner_name": "GitHub Actions 1000115541",
+          "capture": "compatibility-witness-2",
+          "authorization_id": "eb1f4a319cea4ad09e2ac74758bcea91",
+          "request_sha256": "718a87c728166c5a86c42af2e77b55e999061b6a73a4c0d61f2cd5ad3ae6e9e6",
+          "capture_started_utc": "2026-11-14T00:00:27.415355+00:00",
+          "capture_finished_utc": "2026-11-14T00:00:40.993072+00:00",
+          "capture_receipt_seconds": 13.578,
+          "native_elapsed_seconds": 12.799,
+          "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+          "logical_processors": 4,
+          "dependency_seconds": 33.0,
+          "runtime_download_seconds": 8.0,
+          "input_download_seconds": 3.0,
+          "runtime_verify_seconds": 9.0,
+          "upload_seconds": 2.0
+        }
+      ],
+      "comparisons": [
+        {
+          "status": "PASS",
+          "state_equal": true,
+          "image_passed": true,
+          "changed_pixels": 0,
+          "rgb_sha256": "386479360766be99bf1c57cff5324a5be8ce11d163c08b6fe7dde4bdfcff4990"
+        },
+        {
+          "status": "PASS",
+          "state_equal": true,
+          "image_passed": true,
+          "changed_pixels": 0,
+          "rgb_sha256": "386479360766be99bf1c57cff5324a5be8ce11d163c08b6fe7dde4bdfcff4990"
+        }
+      ],
+      "worker_ready_to_finished_seconds": 87.0,
+      "worker_first_start_to_last_finish_seconds": 85.0,
+      "worker_runner_seconds_sum": 248.0,
+      "capture_receipt_seconds_sum": 58.885,
+      "capture_span_seconds": 30.886,
+      "aggregate_job_id": 132250175207,
+      "aggregate_job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132250175207",
+      "aggregate_started_utc": "2026-11-14T00:03:23Z",
+      "aggregate_finished_utc": "2026-11-14T00:04:22Z",
+      "aggregate_seconds": 59.0,
+      "worker_finish_to_aggregate_start_seconds": 155.0,
+      "aggregate_step_seconds": {
+        "Set up job": 2.0,
+        "Run actions/checkout@v4": 4.0,
+        "Download available qualification evidence": 3.0,
+        "Authenticate and restore worker evidence without accepting captures": 0.0,
+        "Reconstruct and validate all original SDVK-009 comparisons and controls": 2.0,
+        "Package and verify the complete legacy archive including failed comparisons": 43.0,
+        "Upload complete software Vulkan evidence": 2.0,
+        "Post Run actions/checkout@v4": 0.0,
+        "Complete job": 0.0
+      },
+      "compression_seconds": 41.095,
+      "verification_seconds": 1.194,
+      "archive_bytes": 31951080,
+      "artifact_zip_bytes": 32008657,
+      "artifact_id": 14087113902,
+      "artifact_zip_sha256": "b3a209c94e258fbd5c5e19da300a990e31ba60d27976f251ddc79de4c0018666",
+      "archive_xz_sha256": "7677e40904ef6ad431f1cc971f90b7575bb88a6ec6964958aa5496824d2a9d07",
+      "independent_archive_verification": "PASS: all135files, sizes, SHA256, path/member uniqueness, XZ CRC and tar trailer",
+      "verified_file_count": 135,
+      "authenticated_inputs_archive_sha256": "095dc4487209a651b39f1893825e4e07b00a754f33bac9458f3c157dff7dcedf"
+    },
+    "gated": {
+      "campaign_id": "be6ce8311be54a219f054998aac8fb3e",
+      "plan_sha256": "1e2f89051915e0b572397f95a6b733b5939356bd0a1471c57995ad7e106eaa18",
+      "source_tree": "7f5b2c27165bd656f5c5b560857b584cccc3d196",
+      "status": "PROBE_PASS",
+      "qualification_awarded": false,
+      "source_runtime_verified": true,
+      "workers": [
+        {
+          "worker": "controls",
+          "job_id": 132248583542,
+          "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132248583542",
+          "job_started_utc": "2026-11-13T23:59:24Z",
+          "job_finished_utc": "2026-11-14T00:00:57Z",
+          "job_seconds": 93.0,
+          "worker_execution_id": "4edf7e91dd8845f8b9a60848b9579cc4",
+          "boot_id": "68fc7ff5-c13a-4f23-b608-01838c46c8c6",
+          "runner_name": "GitHub Actions 1000115540",
+          "capture": "compatibility-controls",
+          "authorization_id": "bbffdd70710b428f88bfc6de5459d3f6",
+          "request_sha256": "eea468f1a79ec2e7b0672ea61cbe6d716739fd7ba430ca13491a9f89ab6fc838",
+          "capture_started_utc": "2026-11-14T00:00:19.343486+00:00",
+          "capture_finished_utc": "2026-11-14T00:00:51.562367+00:00",
+          "capture_receipt_seconds": 32.219,
+          "native_elapsed_seconds": 31.246,
+          "cpu_model": "AMD EPYC 7763 64-Core Processor",
+          "logical_processors": 4,
+          "dependency_seconds": 22.0,
+          "runtime_download_seconds": 8.0,
+          "input_download_seconds": 2.0,
+          "runtime_verify_seconds": 10.0,
+          "upload_seconds": 3.0
+        },
+        {
+          "worker": "witness-1",
+          "job_id": 132249225586,
+          "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132249225586",
+          "job_started_utc": "2026-11-14T00:01:00Z",
+          "job_finished_utc": "2026-11-14T00:02:03Z",
+          "job_seconds": 63.0,
+          "worker_execution_id": "a6052c41ca674e1fa8d35e674483fbd1",
+          "boot_id": "d2c6621e-755e-4f49-b220-24fa9291ad23",
+          "runner_name": "GitHub Actions 1000115545",
+          "capture": "compatibility-witness-1",
+          "authorization_id": "9d2de3d5dc3e44278ffd1d334a688a95",
+          "request_sha256": "4f718885a0730622826ce4161c5babc39abda98dc12fd6cf1c4952d9a4544ef5",
+          "capture_started_utc": "2026-11-14T00:01:48.370120+00:00",
+          "capture_finished_utc": "2026-11-14T00:01:58.986494+00:00",
+          "capture_receipt_seconds": 10.616,
+          "native_elapsed_seconds": 9.991,
+          "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+          "logical_processors": 4,
+          "dependency_seconds": 23.0,
+          "runtime_download_seconds": 6.0,
+          "input_download_seconds": 2.0,
+          "runtime_verify_seconds": 7.0,
+          "upload_seconds": 2.0
+        },
+        {
+          "worker": "witness-2",
+          "job_id": 132249225573,
+          "job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132249225573",
+          "job_started_utc": "2026-11-14T00:01:00Z",
+          "job_finished_utc": "2026-11-14T00:02:22Z",
+          "job_seconds": 82.0,
+          "worker_execution_id": "7dbdb25029714651b3eb6efa25f13fe3",
+          "boot_id": "272d269b-67d7-4fa4-84f6-9c8224c18041",
+          "runner_name": "GitHub Actions 1000115544",
+          "capture": "compatibility-witness-2",
+          "authorization_id": "bf5e0b0979ec4bd085881a491e989c0d",
+          "request_sha256": "43e8e278fe32f8969f062da189767bce46015d2ee059a11f5f2dee3a4ab50752",
+          "capture_started_utc": "2026-11-14T00:01:47.643975+00:00",
+          "capture_finished_utc": "2026-11-14T00:02:19.551294+00:00",
+          "capture_receipt_seconds": 31.907,
+          "native_elapsed_seconds": 30.945,
+          "cpu_model": "AMD EPYC 7763 64-Core Processor",
+          "logical_processors": 4,
+          "dependency_seconds": 24.0,
+          "runtime_download_seconds": 3.0,
+          "input_download_seconds": 1.0,
+          "runtime_verify_seconds": 10.0,
+          "upload_seconds": 2.0
+        }
+      ],
+      "comparisons": [
+        {
+          "status": "PASS",
+          "state_equal": true,
+          "image_passed": true,
+          "changed_pixels": 0,
+          "rgb_sha256": "386479360766be99bf1c57cff5324a5be8ce11d163c08b6fe7dde4bdfcff4990"
+        },
+        {
+          "status": "PASS",
+          "state_equal": true,
+          "image_passed": true,
+          "changed_pixels": 0,
+          "rgb_sha256": "386479360766be99bf1c57cff5324a5be8ce11d163c08b6fe7dde4bdfcff4990"
+        }
+      ],
+      "worker_ready_to_finished_seconds": 181.0,
+      "worker_first_start_to_last_finish_seconds": 178.0,
+      "worker_runner_seconds_sum": 238.0,
+      "capture_receipt_seconds_sum": 74.742,
+      "capture_span_seconds": 120.208,
+      "aggregate_job_id": 132249793898,
+      "aggregate_job_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43530238730/job/132249793898",
+      "aggregate_started_utc": "2026-11-14T00:02:25Z",
+      "aggregate_finished_utc": "2026-11-14T00:03:18Z",
+      "aggregate_seconds": 53.0,
+      "worker_finish_to_aggregate_start_seconds": 3.0,
+      "aggregate_step_seconds": {
+        "Set up job": 1.0,
+        "Run actions/checkout@v4": 2.0,
+        "Download isolated control-gated evidence": 2.0,
+        "Authenticate isolated control-gated worker evidence": 1.0,
+        "Compare the separately authorized control-gated compatibility captures": 1.0,
+        "Preserve the isolated compatibility comparison packet": 41.0,
+        "Upload separate control-gated preflight evidence": 2.0,
+        "Require compatibility only without awarding publication qualification": 0.0,
+        "Post Run actions/checkout@v4": 0.0,
+        "Complete job": 0.0
+      },
+      "compression_seconds": 39.523,
+      "verification_seconds": 1.192,
+      "archive_bytes": 31950472,
+      "artifact_zip_bytes": 32008049,
+      "artifact_id": 14087657271,
+      "artifact_zip_sha256": "22a8c627259a4203984560314f03314b5b7c409e4307cd03d54e191589a0b492",
+      "archive_xz_sha256": "39620a18f5d0bd64996419ef45a705e49d990445c9c56156774f89ff69c07dc3",
+      "independent_archive_verification": "PASS: all135files, sizes, SHA256, path/member uniqueness, XZ CRC and tar trailer",
+      "verified_file_count": 135,
+      "authenticated_inputs_archive_sha256": "be6dc1eef1d37469c7ca0a95edcfdfb6b693ab9e2ff4e1a806ec24cc346150b6"
+    }
+  },
+  "measurement_limits": [
+    "One hosted campaign with two separate compositing-only probe plans; no repeated fullshadow A/B benchmark.",
+    "Each probe retains warmup120,frames1,timeout180,640x480,exact-rgb8. Fullshadow qualification is separate.",
+    "Parallel final aggregator waited for all platform/CPU gates; gated benchmark aggregator did not. Worker paths and aggregation durations must be compared separately.",
+    "Different CPU generations and per-process runtimes prevent attributing all observed differences to topology."
+  ],
+  "source_tree": "7f5b2c27165bd656f5c5b560857b584cccc3d196",
+  "runtime_archive": {
+    "bytes": 258746293,
+    "sha256": "fe5ba4d64596cb19a3450003833ec55153438feff1e1c9b62491aac2a3e87a4b"
+  },
+  "executable": {
+    "bytes": 272971008,
+    "sha256": "3b95696e5b2c5a0b624a07f7fee67ac3320ce6928e32f6f2a996e5d111ade576"
+  },
+  "engine_packages": {
+    "brightmaps.pk3": {
+      "bytes": 246072,
+      "sha256": "94f400622a302e12cca880ed3a738eaf5f52d55f14ab6d3e6a3ba72d2d341b2a"
+    },
+    "game_support.pk3": {
+      "bytes": 2378144,
+      "sha256": "f62e418754cb2d95b0f29b00fab3b942dc105a4d157f9dcd486e2c422c524106"
+    },
+    "game_widescreen_gfx.pk3": {
+      "bytes": 5565898,
+      "sha256": "e8ac59850f3f3cfbc8edb4787d18ff0315f7d19993c569ebdab937b7dcd24fe0"
+    },
+    "lights.pk3": {
+      "bytes": 23760,
+      "sha256": "a3077a6c1b3ba2cc33fca2c7e2bab1924cf19fa2cef701f86024a4ff6cefb41a"
+    },
+    "vkdoom.pk3": {
+      "bytes": 4231108,
+      "sha256": "7afc54b5d89b123b3316bb252805734a9d65b640b023826736ef23bed28573b6"
+    }
+  },
+  "six_distinct_host_boot_ids": true,
+  "six_distinct_worker_execution_ids": true,
+  "two_distinct_preregistered_plans": true,
+  "all_exact_image_results_identical": true,
+  "all_platform_cpu_checks_passed": true,
+  "platform_and_cpu_checks": [
+    {
+      "name": "PF renderer contract oracle",
+      "job_id": 132245830915,
+      "status": "PASS",
+      "seconds": 300.0
+    },
+    {
+      "name": "Visual Studio 2022 | Debug",
+      "job_id": 132245831226,
+      "status": "PASS",
+      "seconds": 373.0
+    },
+    {
+      "name": "Linux Clang 11 | Debug",
+      "job_id": 132245831306,
+      "status": "PASS",
+      "seconds": 182.0
+    },
+    {
+      "name": "Visual Studio 2022 | RelWithDebInfo",
+      "job_id": 132245831320,
+      "status": "PASS",
+      "seconds": 677.0
+    },
+    {
+      "name": "Linux Clang 15 | Release",
+      "job_id": 132245831349,
+      "status": "PASS",
+      "seconds": 197.0
+    },
+    {
+      "name": "Linux GCC 12 | RelWithDebInfo",
+      "job_id": 132245831371,
+      "status": "PASS",
+      "seconds": 332.0
+    }
+  ],
+  "total_artifact_bytes": 541677031,
+  "observed_worker_latency_ratio": 2.08046,
+  "extra_gated_benchmark_runner_seconds": 291.0,
+  "parallel_aggregate_scheduler_seconds_after_platform_gate": 2,
+  "interpretation": "Parallel workers ready-to-complete87s versus181s control-gated. Aggregation59s versus53s; parallel additionally waited155s for Windows completion. Keep fullthree-way scheduling with strict exact comparisons. These are tinyprocess observations, not fullshadow workflow speedup.",
+  "comparable_native_build": {
+    "application_cache": {
+      "available": true,
+      "policy": "fresh shadercache.zdsc and pipelinecache.zdpc directory; driver-global cache uncontrolled"
+    },
+    "backend": "vulkan",
+    "commit": "4b8e0984da7941cdeba809874a9fee68ab29d802",
+    "description": "4b8e098",
+    "device": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "identity": "ShadeDoomVK 0.1.0-dev\nCommit: 4b8e0984da7941cdeba809874a9fee68ab29d802\nWorking tree: clean\nGit description: 4b8e098\nVKDoom lineage: nashmuhandes/VkDoom@09634479ab5bf9adf691074fffe85a006a398cd0\nPF-020 freeze: e185e60b04fe37ec84a18c5a85eec6722b541b71\n",
+    "renderer": "hardware",
+    "vulkan": {
+      "available": true,
+      "device_id": 0,
+      "device_type": 4,
+      "driver": "104865800",
+      "driver_version_raw": 104865800,
+      "graphics_pipeline_library": true,
+      "ray_query_enabled": false,
+      "vendor_id": 65541
+    },
+    "working_tree": "clean"
+  },
+  "vulkan_preflight_device": {
+    "apiVersion": "1.4.318",
+    "deviceName": "llvmpipe (LLVM 20.1.2, 256 bits)",
+    "driverID": "DRIVER_ID_MESA_LLVMPIPE",
+    "driverInfo": "Mesa 25.2.8-0ubuntu0.24.04.4 (LLVM 20.1.2)",
+    "driverName": "llvmpipe",
+    "driverVersion": "25.2.8"
+  },
+  "all_six_vulkan_build_identities_equal": true,
+  "historical_iwad": {
+    "bytes": 28787748,
+    "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+  },
+  "six_distinct_capture_authorizations": true
+}
