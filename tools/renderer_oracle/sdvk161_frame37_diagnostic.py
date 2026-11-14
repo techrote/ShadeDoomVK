@@ -140,7 +140,8 @@ def main():
         entry["finished"] = datetime.now(timezone.utc).isoformat()
         # Each independently authorised attempt is recorded once, even on failure.
         report["attempts"].append({k: v for k, v in entry.items() if k != "observation"})
-        write_json(ROOT / "report.json", report)
+        # The shared evidence writer is create-only: retain unique attempt receipts.
+        write_json(ROOT / ("attempt-%02d-receipt.json" % i), report["attempts"][-1])
     for i in range(0, len(seen) - 1, 2):
         pair = {"pair": [seen[i]["path"], seen[i + 1]["path"]],
                 "frames": [compare(seen[i], seen[i + 1], frame) for frame in FRAMES]}
