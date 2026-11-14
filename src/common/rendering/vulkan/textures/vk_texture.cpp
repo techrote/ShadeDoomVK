@@ -28,10 +28,14 @@
 #include "hw_cvars.h"
 #include "fcolormap.h"
 #include <zvulkan/cfxtrace.h>
+#include "diagnostics/hw_sdvkdiagnostics.h"
 #include <cstring>
 
 VkTextureManager::VkTextureManager(VulkanRenderDevice* fb) : fb(fb)
 {
+    SdvkDiagnostics::TextureEpochTraceEvent(this, nullptr, "manager-create",
+        TextureEpoch.Snapshot().Generation, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 	const char* retain = CfxTrace::ResourcesEnabled() ? std::getenv("CFX_RETAIN_REPLACED_LIGHTMAPS") : nullptr;
 	DiagnosticRetainReplacedLightmaps = retain && std::strcmp(retain, "1") == 0;
 	if (DiagnosticRetainReplacedLightmaps)
@@ -48,6 +52,9 @@ VkTextureManager::VkTextureManager(VulkanRenderDevice* fb) : fb(fb)
 
 VkTextureManager::~VkTextureManager()
 {
+    SdvkDiagnostics::TextureEpochTraceEvent(this, nullptr, "manager-destroy",
+        TextureEpoch.Snapshot().Generation, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 	StopWorkerThread();
 	while (!Textures.empty())
 		RemoveTexture(Textures.back());
@@ -57,7 +64,11 @@ VkTextureManager::~VkTextureManager()
 
 void VkTextureManager::Deinit()
 {
+    const auto textureBefore = TextureEpoch.Snapshot().Generation;
 	TextureEpoch.Invalidate();
+    SdvkDiagnostics::TextureEpochTraceEvent(this, nullptr, "manager-deinit",
+        textureBefore, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 	LightmapEpoch.Invalidate();
 	LightProbeEpoch.Invalidate();
 	AsyncUploadEpoch.Invalidate();
@@ -82,11 +93,18 @@ void VkTextureManager::BeginFrame(int lightmapTextureSize, int lightmapCount)
 void VkTextureManager::AddTexture(VkHardwareTexture* texture)
 {
 	texture->it = Textures.insert(Textures.end(), texture);
+    SdvkDiagnostics::TextureEpochTraceEvent(this, texture, "hw-add",
+        TextureEpoch.Snapshot().Generation, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 }
 
 void VkTextureManager::RemoveTexture(VkHardwareTexture* texture)
 {
+    const auto textureBefore = TextureEpoch.Snapshot().Generation;
 	TextureEpoch.Invalidate();
+    SdvkDiagnostics::TextureEpochTraceEvent(this, texture, "hw-remove",
+        textureBefore, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 	texture->Reset();
 	texture->fb = nullptr;
 	Textures.erase(texture->it);
@@ -105,11 +123,18 @@ void VkTextureManager::RemoveTexture(VkHardwareTexture* texture)
 void VkTextureManager::AddPPTexture(VkPPTexture* texture)
 {
 	texture->it = PPTextures.insert(PPTextures.end(), texture);
+    SdvkDiagnostics::TextureEpochTraceEvent(this, texture, "pp-add",
+        TextureEpoch.Snapshot().Generation, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 }
 
 void VkTextureManager::RemovePPTexture(VkPPTexture* texture)
 {
+    const auto textureBefore = TextureEpoch.Snapshot().Generation;
 	TextureEpoch.Invalidate();
+    SdvkDiagnostics::TextureEpochTraceEvent(this, texture, "pp-remove",
+        textureBefore, TextureEpoch.Snapshot().Generation,
+        uint32_t(Textures.size()), uint32_t(PPTextures.size()));
 	texture->Reset();
 	texture->fb = nullptr;
 	PPTextures.erase(texture->it);

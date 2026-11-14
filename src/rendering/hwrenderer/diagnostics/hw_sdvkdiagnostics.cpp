@@ -38,6 +38,14 @@
 #include "vulkan/commands/vk_commandbuffer.h"
 #include <zvulkan/cfxtrace.h>
 #include <chrono>
+#include <array>
+#include <mutex>
+#include <cstdlib>
+#include <algorithm>
+#if defined(__linux__)
+#include <execinfo.h>
+#include <dlfcn.h>
+#endif
 #include <cstring>
 #include <map>
 #include <set>
@@ -62,6 +70,34 @@ namespace SdvkDiagnostics
 std::atomic<bool> EnabledFlag{false}, StateFlag{false}, GpuFlag{false};
 namespace {
 thread_local SpecialSurfaceMetadata ImmediateSurface;
+// SDVK-161 standalone, NONQUALIFYING startup lifetime trace. The normal
+// observer, 12 detailed snapshot frames, and image/state gate are unchanged.
+// Only immutable scalar events are stored during startup; no filesystem I/O.
+struct TextureTraceRow
+{
+    const void* Manager = nullptr;
+    const void* Owner = nullptr;
+    const char* Event = nullptr; // static source-owned literal only
+    uint32_t Before = 0, After = 0, HardwareCount = 0, PPCount = 0;
+    uint32_t PresentedOrdinal = 0, Depth = 0;
+    std::array<void*, 14> Stack{};
+};
+constexpr uint32_t TextureTraceCapacity = 256;
+std::array<TextureTraceRow, TextureTraceCapacity> TextureTraceRows{};
+std::mutex TextureTraceLock;
+std::atomic<uint32_t> TextureTracePresented{0};
+uint32_t TextureTraceCount = 0;
+uint32_t TextureTraceFirstEpoch = 0;
+const void* TextureTraceFirstManager = nullptr;
+bool TextureTraceOverflow = false, TextureTraceFrozen = false, TextureTraceDumped = false;
+bool TextureTraceRequested()
+{
+    static const bool requested = [] {
+        const char* value = std::getenv("SDVK161_TEXTURE_EPOCH_TRACE");
+        return value && std::strcmp(value, "1") == 0;
+    }();
+    return requested;
+}
 // Workers author portal decals before the main thread submits them. This
 // frame-owned store is shared; only draw-scope metadata remains thread-local.
 SdvkSurfaceObservation::WrittenVertexStore WrittenVertices;
@@ -777,6 +813,150 @@ void Emit(const char* kind, const std::string& object, bool deduplicate)
     if (Enabled() && frame && GameplayRecordSelected(Get(), kind)) Get().Records.Add(kind, frame, object, deduplicate);
 }
 
+// The caller stacks, resource registration IDs, and epoch deltas are captured
+// before retained frame one. The original run never reads these diagnostics.
+void TextureEpochTraceEvent(const void* manager, const void* owner, const char* event,
+    uint32_t before, uint32_t after, uint32_t hwCount, uint32_t ppCount)
+{
+    if (!TextureTraceRequested()) return;
+    TextureTraceRow row;
+    row.Manager = manager;
+    row.Owner = owner;
+    row.Event = event;
+    row.Before = before;
+    row.After = after;
+    row.HardwareCount = hwCount;
+    row.PPCount = ppCount;
+    row.PresentedOrdinal = TextureTracePresented.load(std::memory_order_relaxed);
+#if defined(__linux__)
+    row.Depth = static_cast<uint32_t>(backtrace(row.Stack.data(), static_cast<int>(row.Stack.size())));
+#endif
+    std::lock_guard<std::mutex> guard(TextureTraceLock);
+    if (TextureTraceFrozen) return;
+    if (TextureTraceCount < TextureTraceCapacity)
+        TextureTraceRows[TextureTraceCount++] = row;
+    else
+        TextureTraceOverflow = true;
+}
+void TextureEpochTracePhase(uint32_t presentedViewOrdinal)
+{
+    if (TextureTraceRequested())
+        TextureTracePresented.store(presentedViewOrdinal, std::memory_order_relaxed);
+}
+void TextureEpochTraceFirstRetained(const void* manager, uint32_t actualEpoch)
+{
+    if (!TextureTraceRequested()) return;
+    std::lock_guard<std::mutex> guard(TextureTraceLock);
+    if (TextureTraceFrozen) return;
+    TextureTraceFirstEpoch = actualEpoch;
+    TextureTraceFirstManager = manager;
+    TextureTraceFrozen = true;
+}
+void TextureEpochTraceDump(const char* observerPrefix)
+{
+    if (!TextureTraceRequested()) return;
+    std::lock_guard<std::mutex> guard(TextureTraceLock);
+    if (TextureTraceDumped) return;
+    TextureTraceDumped = true;
+    try
+    {
+        using namespace SdvkObservation;
+        std::map<const void*, int> managerIds, ownerIds;
+        int nextManager = 0, nextOwner = 0;
+        std::string rows = "[";
+        for (uint32_t index = 0; index < TextureTraceCount; ++index)
+        {
+            const auto& row = TextureTraceRows[index];
+            if (index) rows += ',';
+            int managerId = 0;
+            if (row.Manager)
+            {
+                const bool newlyConstructed = row.Event && std::strcmp(row.Event, "manager-create") == 0;
+                if (newlyConstructed) managerIds[row.Manager] = ++nextManager;
+                auto found = managerIds.find(row.Manager);
+                if (found == managerIds.end())
+                    found = managerIds.emplace(row.Manager, ++nextManager).first;
+                managerId = found->second;
+            }
+            int ownerId = -1;
+            const std::string event = row.Event ? row.Event : "unknown";
+            if (row.Owner)
+            {
+                const bool add = event == "hw-add" || event == "pp-add";
+                if (add)
+                    ownerIds[row.Owner] = ++nextOwner;
+                auto found = ownerIds.find(row.Owner);
+                if (found != ownerIds.end())
+                {
+                    ownerId = found->second;
+                    if (event == "hw-remove" || event == "pp-remove")
+                        ownerIds.erase(found);
+                }
+            }
+            std::string stack = "[";
+#if defined(__linux__)
+            char** symbols = row.Depth ? backtrace_symbols(row.Stack.data(), static_cast<int>(row.Depth)) : nullptr;
+            for (uint32_t i = 0; symbols && i < row.Depth; ++i)
+            {
+                if (i) stack += ',';
+                stack += Quote(symbols[i]);
+            }
+            std::free(symbols);
+#endif
+            stack += ']';
+            // Retain ASLR-independent ELF module offsets for later addr2line.
+            // This runs only after the 96-frame native observation is complete.
+            std::string pcOffsets = "[";
+#if defined(__linux__)
+            for (uint32_t i = 0; i < row.Depth; ++i)
+            {
+                Dl_info info{};
+                if (dladdr(row.Stack[i], &info) && info.dli_fbase && info.dli_fname)
+                {
+                    if (pcOffsets.size() > 1) pcOffsets += ',';
+                    const auto offset = reinterpret_cast<uintptr_t>(row.Stack[i]) -
+                        reinterpret_cast<uintptr_t>(info.dli_fbase);
+                    pcOffsets += Object().Str("module", std::filesystem::path(info.dli_fname).filename().string())
+                        .Int("offset", uint64_t(offset)).Json();
+                }
+            }
+#endif
+            pcOffsets += ']';
+            rows += Object()
+                .Int("ordinal", index).Str("event", event)
+                .Int("manager_id", managerId).Int("owner_id", ownerId)
+                .Str("owner_kind", event.find("hw-") == 0 ? "hardware" :
+                    event.find("pp-") == 0 ? "postprocess" : "manager")
+                .Int("before", row.Before).Int("after", row.After)
+                .Int("hardware_count", row.HardwareCount).Int("pp_count", row.PPCount)
+                .Int("presented_view_ordinal", row.PresentedOrdinal)
+                .Raw("stack", stack).Raw("pc_offsets", pcOffsets).Json();
+        }
+        rows += ']';
+        const auto knownManager = managerIds.find(TextureTraceFirstManager);
+        const int currentManager = knownManager == managerIds.end() ? -1 : knownManager->second;
+        const auto report = Object()
+            .Str("schema", "sdvk161-texture-epoch-startup/v1")
+            .Str("status", "NONQUALIFYING_DIAGNOSTIC")
+            .Bool("default_off", true)
+            .Bool("snapshot_frozen", TextureTraceFrozen)
+            .Bool("overflow", TextureTraceOverflow)
+            .Int("capacity", TextureTraceCapacity)
+            .Int("recorded", TextureTraceCount)
+            .Int("first_retained_texture_epoch", TextureTraceFirstEpoch)
+            .Int("first_retained_manager_id", currentManager)
+            .Str("scope", "actual first-frame texture epoch; source removal/add/deinit calls from startup through first retained view; exact native acceptance unchanged")
+            .Raw("events", rows).Json() + '\n';
+        WriteFresh(std::filesystem::u8path(std::string(observerPrefix) + ".texture-epoch.json"), report);
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_TEXTURE_EPOCH_TRACE events=%u first_epoch=%u overflow=%u\n",
+            TextureTraceCount, TextureTraceFirstEpoch, unsigned(TextureTraceOverflow));
+    }
+    catch (const std::exception& error)
+    {
+        Printf(PRINT_HIGH | PRINT_NONOTIFY, "SDVK161_TEXTURE_EPOCH_TRACE_FAILED: %s\n", error.what());
+    }
+}
+
 bool SpecialSurfaceEnabled() { return Enabled() && Get().SpecialSurfaceInput; }
 bool GameplaySmokeEnabled() { return Enabled() && Get().GameplayInput; }
 
@@ -819,6 +999,7 @@ void BeginFrame()
         Require(!observer.InFrame && Scenes.empty(), "Unbalanced SDVK render-frame/scene observation");
         observer.InFrame = true;
         ++observer.Seen;
+        if (observer.SpecialSurfaceInput) SdvkDiagnostics::TextureEpochTracePhase(observer.Seen);
         WitnessObserverFrame("observer-frame", observer);
         if (observer.Seen <= observer.Warmup) { observer.Frame.store(0, std::memory_order_relaxed); return; }
         Require(observer.Collected < observer.Requested, "SDVK completion hook did not close the requested frame interval");
@@ -939,6 +1120,12 @@ void EndFrame()
         }
     }
     catch (const std::exception& error) { Fail(error.what()); }
+    // Snapshot once after the complete *original* first retained frame.
+    // No extra scene, readback, state record or timer is introduced.
+    if (observer.SpecialSurfaceInput && observer.Collected == 1 && screen->IsVulkan())
+        SdvkDiagnostics::TextureEpochTraceFirstRetained(
+            static_cast<VulkanRenderDevice*>(screen)->GetTextureManager(),
+            static_cast<VulkanRenderDevice*>(screen)->GetTextureManager()->GetTextureEpoch().Generation);
     // Per-draw state belongs to RenderView, including its final owner snapshot.
     // Later HUD/wipe draws must not consume this frame's bounded record store.
     // Keep Frame, EnabledFlag and GpuFlag alive for fence-resolved timestamps,
@@ -1041,6 +1228,7 @@ void FramePresented()
         catch (const std::exception& error) { Fail(error.what()); }
     }
     Dump(complete);
+    if (observer.SpecialSurfaceInput) SdvkDiagnostics::TextureEpochTraceDump(observer.Prefix.c_str());
     if (CfxTrace::WitnessEnabled())
     {
         const bool valid = complete && observer.Written && observer.Screenshot &&

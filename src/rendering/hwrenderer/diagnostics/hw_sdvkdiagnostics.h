@@ -41,6 +41,14 @@ void SpecialSurfaceMapTransitionCompleted();
 void BeginFrame();
 void EndFrame();
 void FramePresented();
+// SDVK-161 diagnostic only. These record source-side texture resource lifetime,
+// including before the observer is initialized. The default path does nothing.
+// A separate capped sidecar is emitted after the original complete capture.
+void TextureEpochTraceEvent(const void* manager, const void* owner, const char* event,
+    uint32_t before, uint32_t after, uint32_t hwCount, uint32_t ppCount);
+void TextureEpochTracePhase(uint32_t presentedViewOrdinal);
+void TextureEpochTraceFirstRetained(const void* manager, uint32_t actualEpoch);
+void TextureEpochTraceDump(const char* observerPrefix);
 // Empty means use the inherited/PF cache path. A requested invalid isolated
 // cache throws before any shared-cache fallback or renderer initialization.
 std::string ApplicationCacheFilename(const char* leaf);
