@@ -1,0 +1,1552 @@
+{
+  "schema": "sdvk-hosted-startup-and-compatibility-investigation/v1",
+  "created_utc": "2026-11-14T01:53:27.080612+00:00",
+  "status": "DIAGNOSTIC_ONLY_DRAFT_HOLD",
+  "qualification_awarded": false,
+  "candidate": {
+    "run_id": 43540127826,
+    "run_number": 624,
+    "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826",
+    "source": {
+      "commit": "d90410b5f014832e4592fd1d2ac4208784dad439",
+      "tree": "91a7464ee23adb5f2c302a121fecb790da458e25"
+    },
+    "workflow_conclusion": "failure",
+    "assembly_status": "FAIL",
+    "assembly_error": "First-use shadow startup probe failed original exact comparison"
+  },
+  "foundation_snapshot": {
+    "checked_utc": "2026-11-14T01:50:52.503Z",
+    "master_commit": "0ecba708e283e33c381fae329ace7a2cedc6a3f3",
+    "pr196": {
+      "number": 196,
+      "state": "open",
+      "draft": true,
+      "merged": false,
+      "html_url": "https://github.com/techrote/ShadeDoomVK/pull/196",
+      "head_commit": "da017d82d74d4681164c0aac8b031bdeea0543a7",
+      "base_commit_at_pr_creation": "2cc70f33295881f73c7460364c6fa8e4e546efb3"
+    }
+  },
+  "source_bundle": {
+    "status": "PASS",
+    "run_id": 43540127753,
+    "workflow_number": 331,
+    "artifact_id": 14091785953,
+    "zip_bytes": 151397632,
+    "zip_sha256": "973013e08a7d98fc5e4f2de50c06668038a5217c0525246c1a98fac569a07518",
+    "archive_members": [
+      "COMMIT.txt",
+      "SHA256SUMS",
+      "TREE.txt",
+      "source.bundle"
+    ],
+    "checksums": {
+      "source.bundle": "ff25fc78d9645415410a8207a51171f54babe2570f73d51134a9ce70335d26d0",
+      "COMMIT.txt": "b0bea150de58eefc4e05157b1dbfc0936fae16494e7d75d3d8d720d3cd3d6c3c",
+      "TREE.txt": "752284615518988f4ca7e54baeb56e00fce057b6a7e864ba1f4796b9f6f9b06e"
+    },
+    "bundle_bytes": 151396846,
+    "bundle_commit": "d90410b5f014832e4592fd1d2ac4208784dad439",
+    "bundle_tree": "91a7464ee23adb5f2c302a121fecb790da458e25",
+    "plan_source_matched": true,
+    "runtime_manifest_source_matched": true,
+    "source_files": {
+      ".github/workflows/continuous_integration.yml": {
+        "bytes": 30135,
+        "sha256": "2b79679cfaba5f2d6641f1904467bbdb58c99a9c7ae7023f786e2d22f9216509"
+      },
+      "tools/renderer_oracle/run.py": {
+        "bytes": 82114,
+        "sha256": "76117c3a45dbc08a488af9ac30eaeb69906d737513b396e183e904a81740962f"
+      },
+      "tools/renderer_oracle/sdvk009_publication.py": {
+        "bytes": 71684,
+        "sha256": "11f1805dbcf009f6254adf5c6a4086143c0b26c697629d14fd595ac5d22986a4"
+      },
+      "tools/renderer_oracle/sdvk009_distributed.py": {
+        "bytes": 35258,
+        "sha256": "7a3e2702223ee103354071e47d4feec75cd079cc09afa72beb7067d9b334caee"
+      },
+      "src/rendering/hwrenderer/scene/hw_walls.cpp": {
+        "bytes": 73447,
+        "sha256": "37d4959b66d8266cc4fa0810f84994fbbc94711cdce571235b10b7ea150a0b39"
+      },
+      "src/rendering/hwrenderer/scene/hw_drawstructs.h": {
+        "bytes": 16079,
+        "sha256": "e61caeea010e5e4415ec4d99bb5f15f1cd868f6456c4b4678ebd676e26b4faee"
+      },
+      "src/rendering/hwrenderer/hw_dynlightdata.cpp": {
+        "bytes": 5753,
+        "sha256": "1530622811cc3fd1a975df6b06f8c7ac4bb7221e293e116342e2a3d1146ca3f0"
+      },
+      "src/rendering/hwrenderer/hw_entrypoint.cpp": {
+        "bytes": 19793,
+        "sha256": "3064e87589d1362b9011f92b5b7e548892830a22851553006289944a4f6f3125"
+      },
+      "src/common/rendering/vulkan/vk_renderstate.cpp": {
+        "bytes": 42226,
+        "sha256": "8240bb9c5873bc41dffefbd035ab247972455dd3e49f58609bc38ddffe3f28e6"
+      },
+      "src/common/rendering/vulkan/textures/vk_sdvkdiagnostics.cpp": {
+        "bytes": 52619,
+        "sha256": "5142a90ae7bf12c17fdc2ebb4708cad9d20d42c3157c4ac875c8e0d99dd2f2b0"
+      },
+      "CMakeLists.txt": {
+        "bytes": 14080,
+        "sha256": "2af36ae6d4d73b49ef378861d97a8b1fdae948f7cb1048c53d1495dd46b5b374"
+      },
+      "src/CMakeLists.txt": {
+        "bytes": 63888,
+        "sha256": "14562fef575f346283d6cacbacb8084951dbbb6e4c16d05a88cfad54cff4c9c8"
+      }
+    },
+    "scope": "CPU-only byte authentication and local Git bundle import; no renderer or native qualification launched"
+  },
+  "plan": {
+    "kind": "shadow-startup-compatibility-probe",
+    "campaign_id": "5648e12fe809417e84bd3e81525ff944",
+    "sha256": "b390411a5d1305d9c395b8c8e605ed1a114017e5a978a1b637815c67b2ff8463",
+    "automatic_retries": 0,
+    "qualification_awarded": false,
+    "input_identities": {
+      "historical_manifest": {
+        "bytes": 47176,
+        "sha256": "2e27dd0554bf9c5df900239cd6e31224b18c28c3e02b43b9533c772ecee0f08e"
+      },
+      "inputs": {
+        "compositing/capture.cfg": {
+          "bytes": 1046,
+          "path": "scenes/compositing/capture.cfg",
+          "sha256": "f6a1a4c7a59e22a307e59964afa5a165baa746f66926b19e46f297407f23055b"
+        },
+        "compositing/fixture.ini": {
+          "bytes": 591,
+          "path": "scenes/compositing/fixture.ini",
+          "sha256": "10a5d850346172951ffe799068e0e3abdbf4b58ccec8071bb7fd50c86cfed5ac"
+        },
+        "compositing/scene.pk3": {
+          "bytes": 74904,
+          "path": "scenes/compositing/scene.pk3",
+          "sha256": "9b0b21ea961cf5b54a922753c4a291f438322d04b93282afb76a8204760e0f95"
+        },
+        "shadow-boundary/capture.cfg": {
+          "bytes": 1306,
+          "path": "scenes/shadow-boundary/capture.cfg",
+          "sha256": "51da6967380238796b862dc5032fd5cd359070bde1d317c6a601ae41a29b30d6"
+        },
+        "shadow-boundary/fixture.ini": {
+          "bytes": 725,
+          "path": "scenes/shadow-boundary/fixture.ini",
+          "sha256": "aa711a2493aba461401a71ac527f50221e58287203a83e7d90f05782ebe42e5c"
+        },
+        "shadow-boundary/scene.pk3": {
+          "bytes": 370067,
+          "path": "scenes/shadow-boundary/scene.pk3",
+          "sha256": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116"
+        }
+      },
+      "iwad": {
+        "bytes": 28787748,
+        "sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b"
+      }
+    },
+    "runtime": {
+      "archive": {
+        "bytes": 258751689,
+        "sha256": "2d05b5fe0aae6b3913bcde9e8022e0770085b75ccebca544514ed65684ad6b28"
+      },
+      "engine_packages": {
+        "brightmaps.pk3": {
+          "bytes": 246072,
+          "sha256": "4da3bc8d85e9c24589449ece9bc775905626c6965506143640ab60310be9b8ef"
+        },
+        "game_support.pk3": {
+          "bytes": 2378144,
+          "sha256": "8660f09a2d7b3d96cb7995a97b077a90850e384ee6ea439231ea04bbf79de7a4"
+        },
+        "game_widescreen_gfx.pk3": {
+          "bytes": 5565898,
+          "sha256": "4567421d2da49070cf0754cbd56380871650b8c391f92b2a5ec39a944fbe8883"
+        },
+        "lights.pk3": {
+          "bytes": 23760,
+          "sha256": "c2797bd0ef523d4d3e20fc2832fefcf4962be136015836d5b8a969e665b39c61"
+        },
+        "vkdoom.pk3": {
+          "bytes": 4231108,
+          "sha256": "2904f84ee6aecd44a3a7d50e35459f560fe5eb0434e498546249c37647785dfb"
+        }
+      },
+      "executable": {
+        "bytes": 272971008,
+        "sha256": "22d50b03c7b580c0eeec4837ec083cba3112690b573e38b541ff0bdc64117234"
+      }
+    }
+  },
+  "final_packet_verification": {
+    "artifact_id": 14091847656,
+    "zip_bytes": 32100609,
+    "zip_sha256": "b715913acba906ee94feda003b32590563dee2bba4a864c648be49f718fa76ea",
+    "archive_bytes": 32027824,
+    "archive_sha256": "3bf495ed2612c0484fc89149cddccca8aeaa6fe9679ba7720c6c23e5ac38451a",
+    "files": 175,
+    "transported_files": 162,
+    "relocated_files": 152,
+    "all_raw_evidence_preserved": true,
+    "status": "PASS",
+    "checks": [
+      "GitHub ZIP SHA256 and length",
+      "Original sidecar bytes bound to authenticated ZIP",
+      "All175 regular file sizes and SHA256, XZ CRC and tar trailer",
+      "Duplicate/type/path rejection and ordinary tar consumer readability",
+      "All162 transported file identities preserved;152 relocated without byte changes",
+      "Original source worker manifest and immutable registration verified for all3 hosts",
+      "Plan, runtime, source, request, launch, boot, process and raw-evidence identity chains",
+      "Four unchanged exact comparisons independently recomputed, including CI fail-stopped pairs"
+    ],
+    "strict_qualification_auditor_result": "Correctly rejected FAIL; no qualification status was overridden"
+  },
+  "workers": {
+    "controls": {
+      "status": "PASS",
+      "worker_execution_id": "c9ee584fdb5d40efbce4c067d510c6f6",
+      "host_identity": {
+        "boot_id": "c70d0e51-a5cd-4306-aa58-6a29828f3c20"
+      },
+      "started_utc": "2026-11-14T01:29:15.078782+00:00",
+      "finished_utc": "2026-11-14T01:31:21.669206+00:00",
+      "profile": {
+        "affinity_processors": 4,
+        "cgroup_cpu_max": null,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "runner_environment": "github-hosted"
+      }
+    },
+    "witness-1": {
+      "status": "PASS",
+      "worker_execution_id": "3ee5c4e78f3041099a6d2bee4adc96d8",
+      "host_identity": {
+        "boot_id": "7dc4b3d2-b413-4b71-b4be-183d5e168fa2"
+      },
+      "started_utc": "2026-11-14T01:28:50.046546+00:00",
+      "finished_utc": "2026-11-14T01:30:11.081749+00:00",
+      "profile": {
+        "affinity_processors": 4,
+        "cgroup_cpu_max": null,
+        "cpu_model": "AMD EPYC 9V74 80-Core Processor",
+        "logical_processors": 4,
+        "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+        "platform": "Linux-7.0.0-1017-azure-x86_64-with-glibc2.39",
+        "runner_environment": "github-hosted"
+      }
+    },
+    "witness-2": {
+      "status": "PASS",
+      "worker_execution_id": "783a97b6567045d29acdc877d24b947d",
+      "host_identity": {
+        "boot_id": "0639bc05-5e7b-4425-a8e0-219b4091580b"
+      },
+      "started_utc": "2026-11-14T01:29:13.375118+00:00",
+      "finished_utc": "2026-11-14T01:30:13.413516+00:00",
+      "profile": {
+        "affinity_processors": 4,
+        "cgroup_cpu_max": null,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "logical_processors": 4,
+        "mesa_vulkan_drivers_version": "25.2.8-0ubuntu0.24.04.4",
+        "platform": "Linux-7.0.0-1014-aws-x86_64-with-glibc2.39",
+        "runner_environment": "github-hosted"
+      }
+    }
+  },
+  "captures": [
+    {
+      "name": "startup-control-cold",
+      "worker": "controls",
+      "ordinal": 0,
+      "authorization_id": "7a61e2af57024dc994eb16701496c8e3",
+      "scene": "shadow-boundary",
+      "warmup_frames": 5,
+      "frames": 1,
+      "timeout_seconds": 180,
+      "publication_witness": false,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 57.09010086000001,
+      "capture_started_utc": "2026-11-14T01:29:16.927698+00:00",
+      "capture_finished_utc": "2026-11-14T01:30:14.628010+00:00",
+      "attempt_started_utc": "2026-11-14T01:29:16.699542+00:00",
+      "attempt_finished_utc": "2026-11-14T01:30:14.655979+00:00",
+      "attempt_utc_span_seconds": 57.956437,
+      "cwd": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-controls/captures/startup-control-cold",
+      "protected_state_sha256": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      },
+      "levelmesh_lights": 17,
+      "native_receipts_sha256": {
+        "request": "8f78a67817081de479afbebcca238d115e4788a869c62b1ee78808e81dd7c573",
+        "state": "73af64f9c6ae1acf0c021ccfa85bb19a2bf9f384463dc23f793f1bf0f4896df0",
+        "png": "30296e85792c76be137c348957e967885244d8aa736186aef153e244917b36d4"
+      },
+      "cache_path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-controls/captures/startup-control-cold/cache"
+    },
+    {
+      "name": "startup-compositing-primer",
+      "worker": "controls",
+      "ordinal": 1,
+      "authorization_id": "5a37ce5bb35947e1a15faa8383db8d1c",
+      "scene": "compositing",
+      "warmup_frames": 120,
+      "frames": 1,
+      "timeout_seconds": 180,
+      "publication_witness": false,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 11.699553573000003,
+      "capture_started_utc": "2026-11-14T01:30:15.058598+00:00",
+      "capture_finished_utc": "2026-11-14T01:30:27.228711+00:00",
+      "attempt_started_utc": "2026-11-14T01:30:14.829175+00:00",
+      "attempt_finished_utc": "2026-11-14T01:30:27.251398+00:00",
+      "attempt_utc_span_seconds": 12.422223,
+      "cwd": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-controls/captures/startup-compositing-primer",
+      "protected_state_sha256": "11ad288aa76bddbfae92cedc50a64a101e814f19ef355eeba0a544136db5ecf5",
+      "sdvfl_generations": [
+        3,
+        3,
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "light_wall_rendered": 0,
+      "light_uploads": {
+        "normal_records": 0,
+        "records_used": 0,
+        "uploaded_bytes": 0
+      },
+      "levelmesh_lights": 130,
+      "native_receipts_sha256": {
+        "request": "c7895c822ca6a506552aa7a4b580b8667486bac6b7feead7427db8a04f3c19f7",
+        "state": "0c84e91d2f7902d3017824631abcc3d4e0e2f4651b537f1caa4f15b266ac86e7",
+        "png": "96adb17983c33cc59d829bcacccd2f06f434a5bce15703945114f608e5ae8d58"
+      },
+      "cache_path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-controls/captures/startup-compositing-primer/cache"
+    },
+    {
+      "name": "startup-control-warm",
+      "worker": "controls",
+      "ordinal": 2,
+      "authorization_id": "73f41dde37ec49e3b49565407493fa45",
+      "scene": "shadow-boundary",
+      "warmup_frames": 5,
+      "frames": 1,
+      "timeout_seconds": 180,
+      "publication_witness": false,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 53.36330325099999,
+      "capture_started_utc": "2026-11-14T01:30:27.513804+00:00",
+      "capture_finished_utc": "2026-11-14T01:31:21.475755+00:00",
+      "attempt_started_utc": "2026-11-14T01:30:27.285575+00:00",
+      "attempt_finished_utc": "2026-11-14T01:31:21.503748+00:00",
+      "attempt_utc_span_seconds": 54.218173,
+      "cwd": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-controls/captures/startup-control-warm",
+      "protected_state_sha256": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6",
+      "sdvfl_generations": [
+        4,
+        4
+      ],
+      "texture_epoch": 4,
+      "lightmap_epoch": 4,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      },
+      "levelmesh_lights": 17,
+      "native_receipts_sha256": {
+        "request": "bae9251567d7da35e40c674adb183b2f58881636c5c1a79dfb520d81c5c12058",
+        "state": "13e71bb0a1e99acd0dd5f390b13ac2de5ac61c268e3ba44146b9419ad1f5f606",
+        "png": "30296e85792c76be137c348957e967885244d8aa736186aef153e244917b36d4"
+      },
+      "cache_path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-controls/captures/startup-control-warm/cache"
+    },
+    {
+      "name": "startup-witness-1",
+      "worker": "witness-1",
+      "ordinal": 3,
+      "authorization_id": "7482d5c6b3a84979880ea491fa3e19c0",
+      "scene": "shadow-boundary",
+      "warmup_frames": 5,
+      "frames": 1,
+      "timeout_seconds": 180,
+      "publication_witness": false,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 78.47947410299999,
+      "capture_started_utc": "2026-11-14T01:28:51.734738+00:00",
+      "capture_finished_utc": "2026-11-14T01:30:10.838491+00:00",
+      "attempt_started_utc": "2026-11-14T01:28:51.442824+00:00",
+      "attempt_finished_utc": "2026-11-14T01:30:10.868380+00:00",
+      "attempt_utc_span_seconds": 79.425556,
+      "cwd": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-witness-1/captures/startup-witness-1",
+      "protected_state_sha256": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "light_wall_rendered": 672,
+      "light_uploads": {
+        "normal_records": 3279,
+        "records_used": 3279,
+        "uploaded_bytes": 262464
+      },
+      "levelmesh_lights": 17,
+      "native_receipts_sha256": {
+        "request": "6582adaee2dcf477ea84bdbc945e4b5924378b24abaf2fdd491d53b29aa9be6c",
+        "state": "abcb70c9c51fda5eb237d3c4c51d5d8b56a7aabbeb70b11c3ca0b36307d3a1fd",
+        "png": "30296e85792c76be137c348957e967885244d8aa736186aef153e244917b36d4"
+      },
+      "cache_path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-witness-1/captures/startup-witness-1/cache"
+    },
+    {
+      "name": "startup-witness-2",
+      "worker": "witness-2",
+      "ordinal": 4,
+      "authorization_id": "f1beaad151cf4843b6fc782de723d489",
+      "scene": "shadow-boundary",
+      "warmup_frames": 5,
+      "frames": 1,
+      "timeout_seconds": 180,
+      "publication_witness": false,
+      "native_status": "COLLECTED",
+      "native_subprocess_seconds": 57.08968515000001,
+      "capture_started_utc": "2026-11-14T01:29:15.527324+00:00",
+      "capture_finished_utc": "2026-11-14T01:30:13.218474+00:00",
+      "attempt_started_utc": "2026-11-14T01:29:15.296148+00:00",
+      "attempt_finished_utc": "2026-11-14T01:30:13.245127+00:00",
+      "attempt_utc_span_seconds": 57.948979,
+      "cwd": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-witness-2/captures/startup-witness-2",
+      "protected_state_sha256": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+      "sdvfl_generations": [
+        3,
+        3
+      ],
+      "texture_epoch": 3,
+      "lightmap_epoch": 4,
+      "light_wall_rendered": 731,
+      "light_uploads": {
+        "normal_records": 3338,
+        "records_used": 3338,
+        "uploaded_bytes": 267184
+      },
+      "levelmesh_lights": 17,
+      "native_receipts_sha256": {
+        "request": "661b4965b3e033c337c9d855774b2f808f1990774e30ebcd3de4e3abeedf67ae",
+        "state": "8f52d30a8601b9207073ee4787a863718f4e9b7123ee280c0e03d145d6a87c27",
+        "png": "30296e85792c76be137c348957e967885244d8aa736186aef153e244917b36d4"
+      },
+      "cache_path": "/home/runner/work/ShadeDoomVK/ShadeDoomVK/build/renderer-sdvk009-worker-witness-2/captures/startup-witness-2/cache"
+    }
+  ],
+  "comparisons": {
+    "cold-vs-witness1": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4146/data/light_wall_rendered",
+          "left": 731,
+          "right": 672
+        },
+        {
+          "path": "/4147/data/light_uploads/normal_records",
+          "left": 3338,
+          "right": 3279
+        },
+        {
+          "path": "/4147/data/light_uploads/records_used",
+          "left": 3338,
+          "right": 3279
+        },
+        {
+          "path": "/4147/data/light_uploads/uploaded_bytes",
+          "left": 267184,
+          "right": 262464
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "cold-vs-witness2": {
+      "status": "PASS",
+      "explicit_build_change": false,
+      "state_equal": true,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935"
+      },
+      "first_state_differences": [],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "witness-repeat": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "d353159d89fedaa103cbaea07a269f6f80f0ec36d8c13595c1a37b37d0430203",
+        "right": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4146/data/light_wall_rendered",
+          "left": 672,
+          "right": 731
+        },
+        {
+          "path": "/4147/data/light_uploads/normal_records",
+          "left": 3279,
+          "right": 3338
+        },
+        {
+          "path": "/4147/data/light_uploads/records_used",
+          "left": 3279,
+          "right": 3338
+        },
+        {
+          "path": "/4147/data/light_uploads/uploaded_bytes",
+          "left": 262464,
+          "right": 267184
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    },
+    "cold-vs-warm": {
+      "status": "FAIL",
+      "explicit_build_change": false,
+      "state_equal": false,
+      "state_sha256": {
+        "left": "09720d364190f9513c8b6bd0098dcd178fc9cb71862dd76460a7b8a1a6273935",
+        "right": "5a6d4fbe3c03c8fb535dbfd6f9a3acb8c8977b7931651094ee9e69ea2a2751b6"
+      },
+      "first_state_differences": [
+        {
+          "path": "/4121/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4125/data/resource/generation",
+          "left": 3,
+          "right": 4
+        },
+        {
+          "path": "/4147/data/texture_epoch",
+          "left": 3,
+          "right": 4
+        }
+      ],
+      "image": {
+        "passed": true,
+        "extent": [
+          640,
+          480
+        ],
+        "policy": {
+          "metric": "exact-rgb8"
+        },
+        "max_channel_error": 0,
+        "mean_channel_error": 0.0,
+        "changed_pixels": 0,
+        "changed_pixel_fraction": 0.0,
+        "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+        "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+      }
+    }
+  },
+  "history_findings": {
+    "startup_history": "On one Intel host, cold-shadow then compositing then warm-shadow changed only SDVFL generation and texture_epoch3\u21924; allRGBidentical. The intervening history is reproduced, but compositing alone is not isolated.",
+    "first_use": "All3first-use shadows generation3/texture_epoch3; same-workload original exact comparison still rejected mixedIntel/AMD light-work counts.",
+    "protected_light_work": "Intel731walls/3338records/267184bytes versusAMD672/3279/262464, repeated in originalcorpus1warmup evidence and6245warmup probes. Counters reset each frame in frozenrenderer source; they are not accumulated warmup counts.",
+    "direct_full_intel_evidence": "Bounded history search has not found completed publication120warmup Intel evidence; #606wasAMD9V45, master623stillrunning.",
+    "decision": "Do not launch heterogeneous full sharding as a demonstrated repair. Same-host fallback or a source-authenticated compatible-cohort scheduler with unchanged decisive full comparisons needs further concrete qualification."
+  },
+  "cache_contract": {
+    "application": "Fresh independent cwd and empty application-cache directory for every capture",
+    "driver": "External driver-global cache explicitly uncontrolled by inherited acceptance contract",
+    "observed_sequence": [
+      "startup-control-cold",
+      "startup-compositing-primer",
+      "startup-control-warm"
+    ],
+    "inference_limit": "Same-host sequence changed only two SDVFL generations and texture_epoch3 to4; it does not isolate compositing from any earlier native process or prove a second shadow alone primes every host."
+  },
+  "historical_counter_evidence": {
+    "cases": [
+      {
+        "case": "620-1",
+        "source_commit": "7980f0cc9f1e7aa3b759c47f3b6db66e0992387a",
+        "protected_state_sha256": "3dbf8e480f18038b8f309a0bb01c686d00762290f9270df04ea856b5e63e21ae",
+        "native_subprocess_seconds": 44.60818433899999,
+        "light_wall_rendered": 672,
+        "light_uploads": {
+          "normal_records": 3279,
+          "records_used": 3279,
+          "uploaded_bytes": 262464
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 13,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "workload": {
+          "iwad_sha256": "5a9315fb7dedac6d11b42034d15b7f6828826b94c84c14078087fa4c97d88474",
+          "warmup_frames": 1,
+          "frames": 1
+        }
+      },
+      {
+        "case": "620-2",
+        "source_commit": "7980f0cc9f1e7aa3b759c47f3b6db66e0992387a",
+        "protected_state_sha256": "3dbf8e480f18038b8f309a0bb01c686d00762290f9270df04ea856b5e63e21ae",
+        "native_subprocess_seconds": 44.66478480799992,
+        "light_wall_rendered": 672,
+        "light_uploads": {
+          "normal_records": 3279,
+          "records_used": 3279,
+          "uploaded_bytes": 262464
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 13,
+        "cpu_model": "AMD EPYC 7763 64-Core Processor",
+        "workload": {
+          "iwad_sha256": "5a9315fb7dedac6d11b42034d15b7f6828826b94c84c14078087fa4c97d88474",
+          "warmup_frames": 1,
+          "frames": 1
+        }
+      },
+      {
+        "case": "622-1",
+        "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+        "protected_state_sha256": "b3bc0e283938c086911ad53766febf1ad34530da32cd12029c677d1b6a0d32ae",
+        "native_subprocess_seconds": 20.003099924000026,
+        "light_wall_rendered": 731,
+        "light_uploads": {
+          "normal_records": 3338,
+          "records_used": 3338,
+          "uploaded_bytes": 267184
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 13,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "workload": {
+          "iwad_sha256": "5a9315fb7dedac6d11b42034d15b7f6828826b94c84c14078087fa4c97d88474",
+          "warmup_frames": 1,
+          "frames": 1
+        }
+      },
+      {
+        "case": "622-2",
+        "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+        "protected_state_sha256": "b3bc0e283938c086911ad53766febf1ad34530da32cd12029c677d1b6a0d32ae",
+        "native_subprocess_seconds": 20.01084851799999,
+        "light_wall_rendered": 731,
+        "light_uploads": {
+          "normal_records": 3338,
+          "records_used": 3338,
+          "uploaded_bytes": 267184
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 13,
+        "cpu_model": "Intel(R) Xeon(R) 6975P-C",
+        "workload": {
+          "iwad_sha256": "5a9315fb7dedac6d11b42034d15b7f6828826b94c84c14078087fa4c97d88474",
+          "warmup_frames": 1,
+          "frames": 1
+        }
+      },
+      {
+        "case": "606-shadow-control",
+        "source_commit": "994e3304151c3ee081c8759f8db4f44c04e7c6bd",
+        "protected_state_sha256": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+        "native_subprocess_seconds": 1149.5909008120002,
+        "light_wall_rendered": 672,
+        "light_uploads": {
+          "normal_records": 3279,
+          "records_used": 3279,
+          "uploaded_bytes": 262464
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 132,
+        "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+        "workload": {
+          "iwad_sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b",
+          "warmup_frames": 120,
+          "frames": 1
+        }
+      },
+      {
+        "case": "606-shadow-witness-1",
+        "source_commit": "994e3304151c3ee081c8759f8db4f44c04e7c6bd",
+        "protected_state_sha256": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+        "native_subprocess_seconds": 1125.0138533630002,
+        "light_wall_rendered": 672,
+        "light_uploads": {
+          "normal_records": 3279,
+          "records_used": 3279,
+          "uploaded_bytes": 262464
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 132,
+        "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+        "workload": {
+          "iwad_sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b",
+          "warmup_frames": 120,
+          "frames": 1
+        }
+      },
+      {
+        "case": "606-shadow-witness-2",
+        "source_commit": "994e3304151c3ee081c8759f8db4f44c04e7c6bd",
+        "protected_state_sha256": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+        "native_subprocess_seconds": 1109.8384960290005,
+        "light_wall_rendered": 672,
+        "light_uploads": {
+          "normal_records": 3279,
+          "records_used": 3279,
+          "uploaded_bytes": 262464
+        },
+        "texture_epoch": 4,
+        "levelmesh_lights": 132,
+        "cpu_model": "AMD EPYC 9V45 96-Core Processor",
+        "workload": {
+          "iwad_sha256": "a8772e088847032510d97ba2312406a6998f21cbab44d4ff10696faa9c0ecd4b",
+          "warmup_frames": 120,
+          "frames": 1
+        }
+      }
+    ],
+    "run606_artifact": {
+      "run_id": 43430863398,
+      "run_number": 606,
+      "reported_pr_head": "c12c114b5aaa87868d3be843e7b886e757552cb4",
+      "artifact_id": 14048157005,
+      "zip_sha256": "c363c3e32257a888c6ff37c6903c794eb3f34bceff8ec9a9efb848640ef0fca2",
+      "archive_sha256": "d47d1058f90ae1b73d4958cfc73f11e9bd3da2cf6a6b880224add13b276540a4",
+      "qualification_status": "PASS"
+    },
+    "run620_publication": {
+      "native_source_commit": "7980f0cc9f1e7aa3b759c47f3b6db66e0992387a",
+      "cpu": "AMD EPYC 9V74 80-Core Processor",
+      "all3_shadows_warmup": 120,
+      "all3_shadows_frame_count": 1,
+      "protected_state": {
+        "all_shadow_state_sha256": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+        "sdvfl_generations": [
+          4,
+          4
+        ],
+        "texture_epoch": 4,
+        "lightmap_epoch": 4
+      },
+      "light_wall_rendered": 672,
+      "normal_records": 3279,
+      "uploaded_bytes": 262464
+    },
+    "interpretation": "AMD retained light-work counts agree at1,5,120warmup across the sampled sources/models; Intel counts agree at1and5. The light-work counters reset each render frame. Different source/IWAD/warmup samples are descriptive evidence only. A bounded search did not find a completed Intel120warmup publication receipt.",
+    "shared_scene_config_script_sha256": {
+      "scene_sha256": "d3821d83d2f7ff939c659cb6bb1be78cf01e8fe280cc335ee2df57d43b5e4116",
+      "config_sha256": "aa711a2493aba461401a71ac527f50221e58287203a83e7d90f05782ebe42e5c",
+      "script_sha256": "51da6967380238796b862dc5032fd5cd359070bde1d317c6a601ae41a29b30d6"
+    },
+    "case_scopes": {
+      "620-1/2 and622-1/2": "Original corpus scenes, different IWAD from publication.",
+      "606-*": "Original full publication qualification PASS at its own source, not reusable candidate qualification."
+    }
+  },
+  "retained_runtime_disassembly": {
+    "authentication": {
+      "schema": "sdvk-retained-runtime-disassembly-authentication/v1",
+      "artifact_id": 14091921747,
+      "source": {
+        "commit": "d90410b5f014832e4592fd1d2ac4208784dad439",
+        "tree": "91a7464ee23adb5f2c302a121fecb790da458e25"
+      },
+      "archive": {
+        "bytes": 258751689,
+        "sha256": "2d05b5fe0aae6b3913bcde9e8022e0770085b75ccebca544514ed65684ad6b28"
+      },
+      "executable": {
+        "bytes": 272971008,
+        "sha256": "22d50b03c7b580c0eeec4837ec083cba3112690b573e38b541ff0bdc64117234"
+      },
+      "artifact_zip_sha256": "287190fbc2d85f4775068325b2bb119ce3189a488a4bf372a3faa3745c444d22",
+      "artifact_zip_bytes": 258752126,
+      "native_execution": false,
+      "purpose": "Read-only disassembly of exact qualified-attempt bytes"
+    },
+    "proved": [
+      "The exact plan-authenticated executable contains RSQRTSS at0x47f953 in HWWall::SetupLights, followed by scalar Newton-refinement instructions.",
+      "HWSeg::Normal computes float1/sqrtf(length_squared); hw_walls.cpp is compiled with the repository fast-math policy.",
+      "The GetRightUp path instead calls the bundled c_sqrt at0x47fe1e and0x47ff17.",
+      "HWWall::SetupLights calls GetLight at0x4801c2 and increments draw_dlight from its acceptance result at0x4801d3.",
+      "VkRenderState::UploadLights accounts and uploads actual accepted normal-light records, so the differing counters describe real per-frame submitted data.",
+      "Retained authored map includes walls at y=384 and y=-384, and authenticated live-light records include radius192 lights at y=192 and y=-192."
+    ],
+    "float32_boundary_illustration": {
+      "scope": "CPU-only arithmetic using actual fixture coordinates and hypothetical adjacent normal values; not an observation of each hosted CPU's normal",
+      "wall_coordinate": 384,
+      "light_coordinate": 192,
+      "radius": 192,
+      "unit_normal": {
+        "normal": 1.0,
+        "distance": 192.0,
+        "strict_radius_accept": false
+      },
+      "one_ulp_lower_normal": {
+        "normal": 0.9999999403953552,
+        "distance": 191.99998474121094,
+        "strict_radius_accept": true
+      }
+    },
+    "not_proved": [
+      "Exact RSQRTSS output on each original hosted CPU was not captured.",
+      "The complete59-light count difference has not been causally reconstructed; per-wall final normals and candidate associations are absent from the retained records.",
+      "Five-warmup evidence is diagnostic only and does not replace the original120-warmup qualification."
+    ],
+    "runtime_policy_assessment": "No existing environment setting removes a hardwired inline RSQRTSS instruction. Mesa worker count, libm hardware-dispatch masks and queue scheduling cannot establish deterministic renderer wall arithmetic. No such setting is proposed as a qualification repair.",
+    "reference": "https://gcc.gnu.org/onlinedocs/gcc-14.2.0/gcc/x86-Options.html",
+    "acceptance": "No qualification or repeatable speedup awarded by this read-only investigation.",
+    "instruction_listing_sha256": {
+      "hw-wall-setup-lights.disassembly.txt": {
+        "bytes": 36204,
+        "sha256": "3798a73ae5173a741d7f913a92f308492c8812377c8d7967eb4be40581bb06b6"
+      },
+      "get-light.disassembly.txt": {
+        "bytes": 3881,
+        "sha256": "d6e794363b0d66c8b4afa9400155e8e05fe8853b417c4b582039bdbd38a36074"
+      }
+    },
+    "conclusion": "Hardwired approximate reciprocal-square-root plus strict light-boundary tests is a concrete plausible mechanism, not a causal reconstruction of the observed59-record difference. Renderer and comparison policy remain unchanged."
+  },
+  "failed_full_622": {
+    "run_id": 43532176029,
+    "source_commit": "c99a20f36733d3b198f2bbebf8e61130fd2511bf",
+    "qualification_awarded": false,
+    "error": "Instrumented witness changed protected state or exact RGB",
+    "final_packet": {
+      "artifact_id": 14090593859,
+      "zip_bytes": 89141135,
+      "zip_sha256": "224f257060f2e29747dab70d8f1cca13c2cf1e83fb249d9589cd8d034d127dd7",
+      "archive_bytes": 88029068,
+      "archive_sha256": "a6c502bdfd0628a8899ad40a38985534a48804f075f0a0adb1fe22a28ea9feed",
+      "files_verified": 2969
+    },
+    "captures": {
+      "compositing-control": {
+        "native_subprocess_seconds": 31.896355626000002,
+        "capture_utc_span_seconds": 32.427403,
+        "capture_started_utc": "2026-11-14T00:19:15.045013+00:00",
+        "capture_finished_utc": "2026-11-14T00:19:47.472416+00:00",
+        "attempt_started_utc": "2026-11-14T00:19:14.649038+00:00",
+        "attempt_finished_utc": "2026-11-14T00:19:47.499325+00:00",
+        "attempt_utc_span_seconds": 32.850287,
+        "native_status": "COLLECTED",
+        "cpu": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "warmup_frames": 120,
+        "frames": 1,
+        "timeout_seconds": 3600,
+        "image_policy": {
+          "metric": "exact-rgb8"
+        }
+      },
+      "shadow-control": {
+        "native_subprocess_seconds": 2482.460440543,
+        "capture_utc_span_seconds": 2483.179455,
+        "capture_started_utc": "2026-11-14T00:19:47.941832+00:00",
+        "capture_finished_utc": "2026-11-14T01:01:11.121287+00:00",
+        "attempt_started_utc": "2026-11-14T00:19:47.545671+00:00",
+        "attempt_finished_utc": "2026-11-14T01:01:11.156417+00:00",
+        "attempt_utc_span_seconds": 2483.610746,
+        "native_status": "COLLECTED",
+        "cpu": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "warmup_frames": 120,
+        "frames": 1,
+        "timeout_seconds": 3600,
+        "image_policy": {
+          "metric": "exact-rgb8"
+        }
+      },
+      "shadow-witness-1": {
+        "native_subprocess_seconds": 1445.889509693,
+        "capture_utc_span_seconds": 1459.472725,
+        "capture_started_utc": "2026-11-14T00:18:45.093261+00:00",
+        "capture_finished_utc": "2026-11-14T00:43:04.565986+00:00",
+        "attempt_started_utc": "2026-11-14T00:18:44.801424+00:00",
+        "attempt_finished_utc": "2026-11-14T00:43:04.713192+00:00",
+        "attempt_utc_span_seconds": 1459.911768,
+        "native_status": "COLLECTED",
+        "cpu": "AMD EPYC 9V74 80-Core Processor",
+        "logical_processors": 4,
+        "warmup_frames": 120,
+        "frames": 1,
+        "timeout_seconds": 3600,
+        "image_policy": {
+          "metric": "exact-rgb8"
+        }
+      },
+      "shadow-witness-2": {
+        "native_subprocess_seconds": 2489.945839877,
+        "capture_utc_span_seconds": 2507.449093,
+        "capture_started_utc": "2026-11-14T00:18:53.775240+00:00",
+        "capture_finished_utc": "2026-11-14T01:00:41.224333+00:00",
+        "attempt_started_utc": "2026-11-14T00:18:53.380108+00:00",
+        "attempt_finished_utc": "2026-11-14T01:00:41.421708+00:00",
+        "attempt_utc_span_seconds": 2508.0416,
+        "native_status": "COLLECTED",
+        "cpu": "AMD EPYC 7763 64-Core Processor",
+        "logical_processors": 4,
+        "warmup_frames": 120,
+        "frames": 1,
+        "timeout_seconds": 3600,
+        "image_policy": {
+          "metric": "exact-rgb8"
+        }
+      }
+    },
+    "comparisons": {
+      "control-vs-witness2": {
+        "status": "FAIL",
+        "state_equal": false,
+        "state_sha256": {
+          "control": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+          "witness": "b37cf21225300137100fe5837332b7c37b423bc73b7e7d6f0d9e6e1402860e40"
+        },
+        "first_state_differences": [
+          {
+            "path": "/4121/data/resource/generation",
+            "left": 4,
+            "right": 3
+          },
+          {
+            "path": "/4125/data/resource/generation",
+            "left": 4,
+            "right": 3
+          },
+          {
+            "path": "/4147/data/texture_epoch",
+            "left": 4,
+            "right": 3
+          }
+        ],
+        "image": {
+          "passed": true,
+          "extent": [
+            640,
+            480
+          ],
+          "policy": {
+            "metric": "exact-rgb8"
+          },
+          "max_channel_error": 0,
+          "mean_channel_error": 0.0,
+          "changed_pixels": 0,
+          "changed_pixel_fraction": 0.0,
+          "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+          "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+        }
+      },
+      "witness1-vs-witness2": {
+        "status": "PASS",
+        "state_equal": true,
+        "state_sha256": {
+          "left": "b37cf21225300137100fe5837332b7c37b423bc73b7e7d6f0d9e6e1402860e40",
+          "right": "b37cf21225300137100fe5837332b7c37b423bc73b7e7d6f0d9e6e1402860e40"
+        },
+        "first_state_differences": [],
+        "image": {
+          "passed": true,
+          "extent": [
+            640,
+            480
+          ],
+          "policy": {
+            "metric": "exact-rgb8"
+          },
+          "max_channel_error": 0,
+          "mean_channel_error": 0.0,
+          "changed_pixels": 0,
+          "changed_pixel_fraction": 0.0,
+          "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+          "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+        }
+      },
+      "control-vs-witness1": {
+        "status": "FAIL",
+        "state_equal": false,
+        "state_sha256": {
+          "control": "a205a1eb00abf6110ed91742d125b1780f6c0236cdd116e0f8ae38926f52c593",
+          "witness": "b37cf21225300137100fe5837332b7c37b423bc73b7e7d6f0d9e6e1402860e40"
+        },
+        "first_state_differences": [
+          {
+            "path": "/4121/data/resource/generation",
+            "left": 4,
+            "right": 3
+          },
+          {
+            "path": "/4125/data/resource/generation",
+            "left": 4,
+            "right": 3
+          },
+          {
+            "path": "/4147/data/texture_epoch",
+            "left": 4,
+            "right": 3
+          }
+        ],
+        "image": {
+          "passed": true,
+          "extent": [
+            640,
+            480
+          ],
+          "policy": {
+            "metric": "exact-rgb8"
+          },
+          "max_channel_error": 0,
+          "mean_channel_error": 0.0,
+          "changed_pixels": 0,
+          "changed_pixel_fraction": 0.0,
+          "left_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76",
+          "right_rgb_sha256": "90103e7b5daad044e50b03b63bb04bc124319fd9eff301e57f872a561823ef76"
+        }
+      }
+    },
+    "witness2_followup": "Unchanged original121-frame validator and all9 negatives independently passed CPU-only on retained witness2; original hosted qualification remains FAIL."
+  },
+  "historical_workflow_baselines": [
+    {
+      "number": 608,
+      "run_id": 43431359571,
+      "head": "22b94c57f30fa90688ee0bb0519eef0935e29803",
+      "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43431359571",
+      "start": "2026-11-13T13:10:24Z",
+      "end": "2026-11-13T15:30:15Z",
+      "workflow_seconds": 8391,
+      "total_artifact_bytes": 47460786,
+      "macos_runner_seconds": 665,
+      "capture_command_intervals": [
+        {
+          "name": "compositing-control",
+          "start": "2026-11-13T14:02:04.5896617Z",
+          "end": "2026-11-13T14:02:11.9452527Z",
+          "seconds": 7.356
+        },
+        {
+          "name": "shadow-control",
+          "start": "2026-11-13T14:02:11.9453447Z",
+          "end": "2026-11-13T14:26:00.0927594Z",
+          "seconds": 1428.147
+        },
+        {
+          "name": "shadow-witness-1",
+          "start": "2026-11-13T14:26:00.0928687Z",
+          "end": "2026-11-13T14:50:00.0558693Z",
+          "seconds": 1439.963
+        },
+        {
+          "name": "shadow-witness-2",
+          "start": "2026-11-13T14:51:36.2912394Z",
+          "end": "2026-11-13T15:15:35.1322949Z",
+          "seconds": 1438.841
+        }
+      ],
+      "capture_timing_scope": "Timestamped original start/end command logs; these are separate from the newer native subprocess receipt timings."
+    },
+    {
+      "number": 613,
+      "run_id": 43448945635,
+      "head": "0b6a623799f4ba0e6dddf21c450598528c852df7",
+      "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43448945635",
+      "start": "2026-11-13T15:04:51Z",
+      "end": "2026-11-13T17:43:54Z",
+      "workflow_seconds": 9543,
+      "total_artifact_bytes": 2360719136,
+      "macos_runner_seconds": 559,
+      "capture_command_intervals": [
+        {
+          "name": "compositing-control",
+          "start": "2026-11-13T15:27:25.5475091Z",
+          "end": "2026-11-13T15:27:48.1140238Z",
+          "seconds": 22.567
+        },
+        {
+          "name": "shadow-control",
+          "start": "2026-11-13T15:27:48.1142531Z",
+          "end": "2026-11-13T16:09:05.0337887Z",
+          "seconds": 2476.919
+        },
+        {
+          "name": "shadow-witness-1",
+          "start": "2026-11-13T16:09:05.0340006Z",
+          "end": "2026-11-13T16:50:41.3327413Z",
+          "seconds": 2496.298
+        },
+        {
+          "name": "shadow-witness-2",
+          "start": "2026-11-13T16:52:49.3790008Z",
+          "end": "2026-11-13T17:34:27.0087601Z",
+          "seconds": 2497.629
+        }
+      ],
+      "capture_timing_scope": "Timestamped original start/end command logs; these are separate from the newer native subprocess receipt timings."
+    },
+    {
+      "number": 620,
+      "run_id": 43506661855,
+      "head": "da017d82d74d4681164c0aac8b031bdeea0543a7",
+      "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43506661855",
+      "start": "2026-11-13T21:00:01Z",
+      "end": "2026-11-13T22:46:50Z",
+      "workflow_seconds": 6409,
+      "total_artifact_bytes": 1527585889,
+      "macos_runner_seconds": 559,
+      "capture_command_intervals": [
+        {
+          "name": "compositing-control",
+          "start": "2026-11-13T21:17:28.5199898Z",
+          "end": "2026-11-13T21:17:39.7410274Z",
+          "seconds": 11.222
+        },
+        {
+          "name": "shadow-control",
+          "start": "2026-11-13T21:17:39.7411311Z",
+          "end": "2026-11-13T21:41:42.6542437Z",
+          "seconds": 1442.913
+        },
+        {
+          "name": "shadow-witness-1",
+          "start": "2026-11-13T21:41:42.6543487Z",
+          "end": "2026-11-13T22:05:58.7905394Z",
+          "seconds": 1456.136
+        },
+        {
+          "name": "shadow-witness-2",
+          "start": "2026-11-13T22:07:36.0249968Z",
+          "end": "2026-11-13T22:31:56.9551277Z",
+          "seconds": 1460.931
+        }
+      ],
+      "capture_timing_scope": "Timestamped original start/end command logs; these are separate from the newer native subprocess receipt timings."
+    }
+  ],
+  "run624_accounting": {
+    "run_started_at": "2026-11-14T01:21:45Z",
+    "last_job_completed_at": "2026-11-14T01:33:21Z",
+    "workflow_to_last_job_seconds": 696.0,
+    "run_api_updated_at": "2026-11-14T01:33:22Z",
+    "jobs": [
+      {
+        "id": 132278489506,
+        "name": "PF renderer contract oracle",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:21:49Z",
+        "completed_at": "2026-11-14T01:28:24Z",
+        "seconds": 395.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489506"
+      },
+      {
+        "id": 132278489711,
+        "name": "Linux GCC 12 | RelWithDebInfo",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:21:49Z",
+        "completed_at": "2026-11-14T01:31:47Z",
+        "seconds": 598.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489711"
+      },
+      {
+        "id": 132278489764,
+        "name": "Visual Studio 2022 | RelWithDebInfo",
+        "conclusion": "failure",
+        "started_at": "2026-11-14T01:21:49Z",
+        "completed_at": "2026-11-14T01:27:11Z",
+        "seconds": 322.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489764"
+      },
+      {
+        "id": 132278489814,
+        "name": "Linux Clang 15 | Release",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:21:49Z",
+        "completed_at": "2026-11-14T01:28:25Z",
+        "seconds": 396.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489814"
+      },
+      {
+        "id": 132278489819,
+        "name": "Visual Studio 2022 | Debug",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:21:49Z",
+        "completed_at": "2026-11-14T01:26:06Z",
+        "seconds": 257.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489819"
+      },
+      {
+        "id": 132278489825,
+        "name": "Linux software Vulkan | Build",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:21:49Z",
+        "completed_at": "2026-11-14T01:28:04Z",
+        "seconds": 375.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489825",
+        "phase_seconds": {
+          "Install software Vulkan build dependencies": 22.0,
+          "Package exact build once for all qualification workers": 8.0,
+          "Authenticate historical content and preregister the complete capture plan": 3.0
+        }
+      },
+      {
+        "id": 132278489828,
+        "name": "Linux Clang 11 | Debug",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:21:48Z",
+        "completed_at": "2026-11-14T01:25:54Z",
+        "seconds": 246.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489828"
+      },
+      {
+        "id": 132280512135,
+        "name": "Linux software Vulkan | witness-1",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:28:06Z",
+        "completed_at": "2026-11-14T01:30:14Z",
+        "seconds": 128.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132280512135",
+        "phase_seconds": {
+          "Download exactly one shared renderer build": 3.0,
+          "Download preregistered publication inputs": 0.0,
+          "Verify archive and source-matched runtime": 9.0,
+          "Execute exactly the preregistered SDVK-009 worker captures": 82.0,
+          "Package lossless suite evidence (including failures)": 0.0,
+          "Retain suite evidence": 1.0
+        }
+      },
+      {
+        "id": 132280512162,
+        "name": "Linux software Vulkan | controls",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:28:06Z",
+        "completed_at": "2026-11-14T01:31:27Z",
+        "seconds": 201.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132280512162",
+        "phase_seconds": {
+          "Download exactly one shared renderer build": 2.0,
+          "Download preregistered publication inputs": 1.0,
+          "Verify archive and source-matched runtime": 9.0,
+          "Execute exactly the preregistered SDVK-009 worker captures": 130.0,
+          "Package lossless suite evidence (including failures)": 1.0,
+          "Retain suite evidence": 3.0
+        }
+      },
+      {
+        "id": 132280512176,
+        "name": "Linux software Vulkan | witness-2",
+        "conclusion": "success",
+        "started_at": "2026-11-14T01:28:06Z",
+        "completed_at": "2026-11-14T01:30:16Z",
+        "seconds": 130.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132280512176",
+        "phase_seconds": {
+          "Download exactly one shared renderer build": 3.0,
+          "Download preregistered publication inputs": 1.0,
+          "Verify archive and source-matched runtime": 8.0,
+          "Execute exactly the preregistered SDVK-009 worker captures": 66.0,
+          "Package lossless suite evidence (including failures)": 0.0,
+          "Retain suite evidence": 1.0
+        }
+      },
+      {
+        "id": 132281692418,
+        "name": "Linux software Vulkan | RelWithDebInfo",
+        "conclusion": "failure",
+        "started_at": "2026-11-14T01:31:50Z",
+        "completed_at": "2026-11-14T01:33:21Z",
+        "seconds": 91.0,
+        "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132281692418",
+        "phase_seconds": {
+          "Download available qualification evidence": 2.0,
+          "Authenticate and restore worker evidence without accepting captures": 1.0,
+          "Reconstruct and validate all original SDVK-009 comparisons and controls": 5.0,
+          "Package and verify the complete legacy archive including failed comparisons": 70.0,
+          "Upload complete software Vulkan evidence": 2.0
+        }
+      }
+    ],
+    "sum_job_elapsed_seconds": 3139.0,
+    "artifacts": [
+      {
+        "id": 14092440531,
+        "name": "renderer-software-vulkan-witness-2",
+        "size_in_bytes": 12774705,
+        "digest": "sha256:76bbba3aff10bb05c25a510695448a49876ab120eae9a877bdcff6e1e1859471",
+        "created_at": "2026-11-14T01:30:14Z",
+        "updated_at": "2026-11-14T01:30:14Z"
+      },
+      {
+        "id": 14092112115,
+        "name": "renderer-software-vulkan-controls",
+        "size_in_bytes": 74358330,
+        "digest": "sha256:db4a8b6cd4c80c7191c02bb96918d951e7bd3802e24d088123327f9a28c313b0",
+        "created_at": "2026-11-14T01:31:25Z",
+        "updated_at": "2026-11-14T01:31:25Z"
+      },
+      {
+        "id": 14091976636,
+        "name": "cpu-contract-checks",
+        "size_in_bytes": 182098,
+        "digest": "sha256:f8b96294a8151c2ef2ac4332cee473d4442d1f4530488b140b343e6f1b3edc94",
+        "created_at": "2026-11-14T01:28:21Z",
+        "updated_at": "2026-11-14T01:28:21Z"
+      },
+      {
+        "id": 14091921747,
+        "name": "software-vulkan-runtime",
+        "size_in_bytes": 258752126,
+        "digest": "sha256:287190fbc2d85f4775068325b2bb119ce3189a488a4bf372a3faa3745c444d22",
+        "created_at": "2026-11-14T01:28:00Z",
+        "updated_at": "2026-11-14T01:28:00Z"
+      },
+      {
+        "id": 14091847656,
+        "name": "renderer-software-vulkan",
+        "size_in_bytes": 32100609,
+        "digest": "sha256:b715913acba906ee94feda003b32590563dee2bba4a864c648be49f718fa76ea",
+        "created_at": "2026-11-14T01:33:19Z",
+        "updated_at": "2026-11-14T01:33:19Z"
+      },
+      {
+        "id": 14091806890,
+        "name": "software-vulkan-publication-inputs",
+        "size_in_bytes": 35126847,
+        "digest": "sha256:f33e03646e68b1cb388a99f56eba16af9981a3a1da2a03b109b9fc5809f08669",
+        "created_at": "2026-11-14T01:28:01Z",
+        "updated_at": "2026-11-14T01:28:01Z"
+      },
+      {
+        "id": 14091417136,
+        "name": "renderer-software-vulkan-witness-1",
+        "size_in_bytes": 12778125,
+        "digest": "sha256:a5ac59d67d58c0293f2d28cc473e4b778582ccf7df357a06f268ae5e5aeed5b9",
+        "created_at": "2026-11-14T01:30:12Z",
+        "updated_at": "2026-11-14T01:30:12Z"
+      },
+      {
+        "id": 14091098495,
+        "name": "supervisor-cpu-failures",
+        "size_in_bytes": 2218379,
+        "digest": "sha256:862f2c5938e208fdb01d5550d0e8b94c60e30749c3486ae7d8685ba29ed37b15",
+        "created_at": "2026-11-14T01:27:08Z",
+        "updated_at": "2026-11-14T01:27:08Z"
+      }
+    ],
+    "artifact_zip_total_bytes": 428291219,
+    "source_export_zip_bytes_separate": 151397632,
+    "packaging": {
+      "archive_bytes": 32027824,
+      "assembly_verification_seconds": 0.5,
+      "compression_argv": [
+        "xz",
+        "-6",
+        "-T3",
+        "--block-size=512MiB",
+        "--lzma2=dict=64MiB",
+        "--memlimit-compress=7GiB",
+        "--no-adjust",
+        "-c"
+      ],
+      "compression_seconds": 68.615,
+      "files": 175,
+      "host_resources": {
+        "affinity_processors": 4,
+        "effective_memory_bytes": 16464306176,
+        "effective_processors": 4,
+        "physical_memory_bytes": 16464306176
+      },
+      "performance_accepted": false,
+      "physical_gpu_qualified": false,
+      "schema": "sdvk-software-vulkan-packaging-timing/v1",
+      "total_seconds": 70.523,
+      "uncompressed_file_bytes": 225247763,
+      "verification_seconds": 1.408
+    },
+    "actual_failures": [
+      "Original exact startup comparison on mixedIntel/AMD light-work counts",
+      "Windows RelWithDebInfo benign supervisor fixture: stale launch proof correctly stopped launch"
+    ],
+    "intentional_nonqualification_gate": "PRECHECK_ONLY",
+    "units": "Job elapsed seconds are overlapping observed runner intervals, not billed/rounded minutes. Artifact bytes are GitHub ZIP payloads; innerXZ sizes are separate.",
+    "source_export": {
+      "run_id": 43540127753,
+      "url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127753",
+      "artifact_id": 14091785953,
+      "created_at": "2026-11-14T01:22:25Z",
+      "zip_bytes": 151397632,
+      "elapsed_job_seconds": 37
+    }
+  },
+  "task_accounting_through_624": {
+    "gross_created_artifact_bytes": 3028288919,
+    "sum_completed_job_elapsed_seconds": 18776,
+    "macOS_scope_change": {
+      "baseline620_without_macos_seconds": 11239,
+      "critical_path_savings_from_removal_observed_in620": 0,
+      "historical_debug_seconds": 313,
+      "historical_release_seconds": 246,
+      "historical_removed_runner_seconds": 559,
+      "interpretation": "Those #620 jobs were off the workflow critical path; exact future runner savings vary.",
+      "removed_jobs": 2
+    },
+    "excluded_independent_workflows": {
+      "main_ci_number": 623,
+      "reason": "Owner's independent PR199 merge to master0ecba708 at2026-11-14T00:12:11Z; not triggered by this task",
+      "source_export_number": 330
+    },
+    "limitations": [
+      "Accounting completion does not imply successful qualification; failed campaigns remain individually labelled.",
+      "Elapsed job durations exclude job queueing and sum overlapping runner intervals; not rounded billing or monetary cost.",
+      "Artifact bytes are GitHub ZIP payloads, not inner tar.xz sizes, decoded bytes or retention-weighted storage.",
+      "Incomplete runs contribute only completed job intervals and currently visible artifact metadata.",
+      "One failed full campaign plus bounded diagnostics is not a repeated A/B performance benchmark."
+    ]
+  },
+  "next_experiment": {
+    "status": "BOUNDED_COHORT_PROBE_PLANNED_NOT_QUALIFIED",
+    "fixed_native_job_count": 5,
+    "rule": "Require3 authenticated same-run cold shadow probes; choose deterministic largest all-pairs exact-PASS subset and preregistered tie order; allocate the3 full shadows once by round robin, with no retry/reassignment.",
+    "compositing_placement": "Original compositing process on publication worker after the six companion modules",
+    "required_preflight": "A nonqualifying cohort probe must demonstrate post-probe shadow consistency on the selected hosts before another full campaign.",
+    "acceptance_boundary": "Probe comparisons choose execution hosts only; all original120warmup/frame1/timeout3600 full captures, witness proofs, negative controls, exact state/RGB comparisons and platform/native gates remain decisive. Any missing or failed required probe/worker/evidence fails closed.",
+    "remaining_uncertainty": "Short uninstrumented host compatibility cannot prove later full instrumented equality or repeatable speedup. Smallest available compatible cohort may require serial full processes."
+  },
+  "scope": {
+    "native_processes_launched_by_this_audit": 0,
+    "renderer_changed": false,
+    "acceptance_tolerances_changed": false,
+    "automatic_retries": 0,
+    "qualification_override": false,
+    "physical_gpu_qualified": false,
+    "performance_accepted": false
+  },
+  "supporting_receipt_hashes": {
+    "run624/final/independent-failure-verification.json": {
+      "bytes": 23638,
+      "sha256": "68826b40695cf6b32ecd09a887924b28cf31db5795b7086954bf33320ec302b8"
+    },
+    "run624/historical-shadow-comparison/summary.json": {
+      "bytes": 14494,
+      "sha256": "57a7d37045b4727692b89533f58a6fbcbcd4f3ea63ca94b2b4dcf17c0597e973"
+    },
+    "run606/full-shadow-host-and-counters.json": {
+      "bytes": 8055,
+      "sha256": "90e0728bf09def49bd7822de1a34afe91bc238e3fcf6a3b0d9a7b0fc57597853"
+    },
+    "run622/assembly-diagnosis/failure-diagnosis-summary.json": {
+      "bytes": 4195,
+      "sha256": "aaf3d62fb85b4f57d88bd2619119262a261ce54ce1f4ee3a191f5cd05e65682f"
+    },
+    "run624/source331/source331-authentication.json": {
+      "bytes": 4032,
+      "sha256": "f302ae92740905062f76ad98fbcad1f04b94be6fa3169bccb37ffc37a548aa00"
+    }
+  },
+  "software_execution_guard": {
+    "additional_overrides": {},
+    "icd": {
+      "bytes": 135,
+      "path": "/usr/share/vulkan/icd.d/lvp_icd.json",
+      "sha256": "70d49f7fd41a7593a4e283543ed4855c139c700e5c1b31792f56e9576ede2398"
+    },
+    "library_path": "libvulkan_lvp.so",
+    "platform": "linux",
+    "selectors": {
+      "VK_DRIVER_FILES": "/usr/share/vulkan/icd.d/lvp_icd.json",
+      "VK_ICD_FILENAMES": "/usr/share/vulkan/icd.d/lvp_icd.json"
+    }
+  },
+  "capture_contract": {
+    "extent": [
+      640,
+      480
+    ],
+    "image_policy": {
+      "metric": "exact-rgb8"
+    },
+    "publication_witness_diagnostics": false,
+    "ordinary_state_observation": true,
+    "automatic_retries": 0,
+    "cache_policy": "Fresh empty application cache directory per process; external driver-global cache uncontrolled."
+  }
+}

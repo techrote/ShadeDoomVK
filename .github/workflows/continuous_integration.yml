@@ -12,7 +12,7 @@ concurrency:
 env:
   # Diagnostic source revisions never award qualification: the legacy required
   # check fails with PRECHECK_ONLY. Full mode retains every original workload.
-  SDVK_PUBLICATION_CAMPAIGN: shadow-startup-probe
+  SDVK_PUBLICATION_CAMPAIGN: cohort-probe
 
 jobs:
   pf_oracle:
@@ -110,6 +110,7 @@ jobs:
         name: supervisor-cpu-failures
         path: ${{ runner.temp }}/sdvk-supervisor-cpu-failures
         if-no-files-found: ignore
+        include-hidden-files: true
 
     - name: Install Dependencies
       shell: bash
@@ -230,7 +231,14 @@ jobs:
         source=$(git rev-parse HEAD)
         flags=()
         case "$SDVK_PUBLICATION_CAMPAIGN" in
-          full) suites='["corpus","publication","controls","witness-1","witness-2"]' ;;
+          full)
+            suites='["corpus","publication","controls","witness-1","witness-2"]'
+            flags+=(--cohort)
+            ;;
+          cohort-probe)
+            suites='["publication","controls","witness-1","witness-2"]'
+            flags+=(--cohort-probe)
+            ;;
           preflight)
             suites='["controls","witness-1","witness-2"]'
             flags+=(--compatibility-probe)
@@ -287,12 +295,17 @@ jobs:
     name: Linux software Vulkan | ${{ matrix.suite }}
     needs: vulkan_build
     runs-on: ubuntu-24.04
-    timeout-minutes: 150
+    # A one-host compatible cohort may execute three original 3600-second
+    # captures serially. This bound includes setup, rendezvous and retention.
+    timeout-minutes: 230
+    permissions:
+      contents: read
+      actions: read
     strategy:
       fail-fast: false
       matrix:
-        # Only fixed three-worker diagnostic modes or the fixed five-worker full
-        # campaign can be emitted by the source-matched registration step.
+        # Registration emits only fixed 3/4-worker diagnostic sets or the five
+        # full workers. Cohort allocation changes capture owners, never jobs.
         suite: ${{ fromJSON(needs.vulkan_build.outputs.suites) }}
     steps:
     - uses: actions/checkout@v4
@@ -386,6 +399,34 @@ jobs:
           printf 'SDL_VIDEODRIVER=x11\n'
         } >> "$GITHUB_ENV"
 
+    - name: Collect one preregistered bounded compatibility probe per shadow host
+      if: (env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe') && (matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2')
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_distributed probe \
+          --plan build/renderer-sdvk009-plan/preregistration.json \
+          --worker '${{ matrix.suite }}' \
+          --exe "$PWD/build/vkdoom" \
+          --iwad build/renderer-sdvk009-content/freedoom2.wad \
+          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
+          --runtime-archive build/software-vulkan-runtime.tar.gz \
+          --out 'build/renderer-sdvk009-probe-${{ matrix.suite }}' \
+          --expected-commit "$(git rev-parse HEAD)"
+
+    - name: Retain immutable compatibility probe including failures
+      if: always() && (env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe') && (matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2')
+      uses: actions/upload-artifact@v4
+      with:
+        name: sdvk-cohort-probe-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.suite }}
+        path: build/renderer-sdvk009-probe-${{ matrix.suite }}/
+        include-hidden-files: true
+        compression-level: 1
+        retention-days: 30
+        if-no-files-found: error
+
     - name: Qualify SDVK-010 actors on hosted software Vulkan
       if: matrix.suite == 'publication'
       shell: bash
@@ -474,6 +515,34 @@ jobs:
           --out build/renderer-sdvk014-controlled \
           --expected-commit "$(git rev-parse HEAD)"
 
+    - name: Authenticate all three immutable peer probes within a bounded barrier
+      id: cohort_barrier
+      if: (env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe') && matrix.suite != 'corpus'
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        python3 tools/ci/renderer_cohort_artifacts.py \
+          --repository '${{ github.repository }}' \
+          --run-id '${{ github.run_id }}' --run-attempt '${{ github.run_attempt }}' \
+          --expected-commit "$(git rev-parse HEAD)" \
+          --plan-sha256 '${{ needs.vulkan_build.outputs.plan_sha256 }}' \
+          --out build/cohort-peers --artifact-set build/cohort-artifacts.json \
+          --report 'build/renderer-ci-${{ matrix.suite }}/cohort-barrier.json'
+
+    - name: Retain failed cohort transfers without repeating probes
+      if: always() && (steps.cohort_barrier.outcome == 'failure' || steps.cohort_barrier.outcome == 'cancelled')
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-cohort-transfer-failure-${{ matrix.suite }}
+        path: |
+          build/cohort-peers-archives/
+          build/renderer-ci-${{ matrix.suite }}/cohort-barrier.json
+        include-hidden-files: true
+        compression-level: 0
+        retention-days: 30
+        if-no-files-found: error
+
     - name: Execute exactly the preregistered SDVK-009 worker captures
       if: matrix.suite == 'publication' || matrix.suite == 'controls' || matrix.suite == 'witness-1' || matrix.suite == 'witness-2'
       shell: bash
@@ -481,6 +550,10 @@ jobs:
         LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: |
         set -euo pipefail
+        flags=()
+        if [[ "$SDVK_PUBLICATION_CAMPAIGN" == full || "$SDVK_PUBLICATION_CAMPAIGN" == cohort-probe ]]; then
+          flags+=(--peers build/cohort-peers --artifact-set build/cohort-artifacts.json)
+        fi
         PYTHONPATH="$PWD" xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk009_distributed worker \
           --plan build/renderer-sdvk009-plan/preregistration.json \
           --worker '${{ matrix.suite }}' \
@@ -489,7 +562,7 @@ jobs:
           --iwad-license build/renderer-sdvk009-content/COPYING.txt \
           --runtime-archive build/software-vulkan-runtime.tar.gz \
           --out 'build/renderer-sdvk009-worker-${{ matrix.suite }}' \
-          --expected-commit "$(git rev-parse HEAD)"
+          --expected-commit "$(git rev-parse HEAD)" "${flags[@]}"
 
     - name: Record worker completion including failures
       if: always()
@@ -563,9 +636,12 @@ jobs:
         if [[ "${{ needs.vulkan_qualification.result }}" == success ]]; then
           flags+=(--complete)
         fi
-        if [[ "$SDVK_PUBLICATION_CAMPAIGN" != full ]]; then
-          flags+=(--suites controls,witness-1,witness-2)
-        fi
+        case "$SDVK_PUBLICATION_CAMPAIGN" in
+          full) ;;
+          cohort-probe) flags+=(--suites publication,controls,witness-1,witness-2) ;;
+          preflight|shadow-startup-probe) flags+=(--suites controls,witness-1,witness-2) ;;
+          *) echo 'Unknown publication campaign mode' >&2; exit 1 ;;
+        esac
         python3 tools/ci/renderer_evidence.py merge \
           --parts build/parts --out build/evidence-merged \
           --expected-commit "$(git rev-parse HEAD)" \

@@ -184,6 +184,46 @@ class EvidenceTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unexpected or duplicated'):
             self.merge(self.root / 'extra', suites=evidence.PROBE_SUITES)
 
+    def test_cohort_probe_requires_four_workers_and_retains_raw_probe_once(self):
+        for suite in evidence.COHORT_PROBE_SUITES:
+            if suite in evidence.PROBE_SUITES:
+                probe = self.build / ('renderer-sdvk009-probe-' + suite)
+                probe.mkdir()
+                (probe / 'raw-native.bin').write_bytes(('original ' + suite).encode())
+            self.populate(suite, complete=True)
+            if suite in evidence.PROBE_SUITES:
+                shutil.rmtree(probe)
+        merged = self.root / 'cohort'
+        self.merge(merged, suites=evidence.COHORT_PROBE_SUITES)
+        archive = self.root / 'cohort.tar.xz'
+        evidence.finalize(merged, archive)
+        listing = subprocess.check_output(['tar', '-tJf', str(archive)], text=True).splitlines()
+        for suite in evidence.PROBE_SUITES:
+            name = f'renderer-sdvk009-probe-{suite}/raw-native.bin'
+            self.assertEqual(listing.count(name), 1)
+            self.assertEqual((merged / name).read_bytes(), ('original ' + suite).encode())
+        with self.assertRaisesRegex(ValueError, 'Unknown or reordered'):
+            self.merge(self.root / 'reordered-cohort', suites=tuple(reversed(evidence.COHORT_PROBE_SUITES)))
+
+    def test_cohort_probe_cannot_accept_missing_publication_worker(self):
+        for suite in evidence.PROBE_SUITES:
+            self.populate(suite, complete=True)
+        with self.assertRaisesRegex(ValueError, 'missing suite evidence'):
+            self.merge(self.root / 'missing-cohort-publication', suites=evidence.COHORT_PROBE_SUITES)
+
+    def test_failed_cohort_probe_raw_evidence_survives_transport(self):
+        probe = self.build / 'renderer-sdvk009-probe-controls'
+        probe.mkdir()
+        (probe / 'partial-diagnostic.bin').write_bytes(b'partial original native bytes')
+        self.populate('controls', complete=False, status='failure')
+        merged = self.root / 'partial-cohort'
+        self.merge(merged, complete=False, suites=evidence.COHORT_PROBE_SUITES)
+        self.assertEqual((merged / 'renderer-sdvk009-probe-controls/partial-diagnostic.bin').read_bytes(),
+                         b'partial original native bytes')
+        evidence.finalize(merged, self.root / 'partial-cohort.tar.xz')
+        with self.assertRaisesRegex(ValueError, 'Unsuccessful worker'):
+            self.merge(self.root / 'failed-cohort', suites=evidence.COHORT_PROBE_SUITES)
+
     def test_successful_worker_without_artifact_manifest_rejected(self):
         self.populate_all()
         (self.parts / 'renderer-witness-2.manifest.json').unlink()

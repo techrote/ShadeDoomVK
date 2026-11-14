@@ -79,11 +79,11 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         self.assertIn('fetch-depth: 0', source_workflow)
         self.assertIn('name: Exact renderer source bundle', source_workflow)
 
-    def test_bounded_matrix_expansion_has_three_or_five_unique_workers(self):
+    def test_bounded_matrix_expansion_has_three_four_or_five_unique_workers(self):
         registration = step_blocks(self.jobs['vulkan_build'])[
             'Authenticate historical content and preregister the complete capture plan']
         arrays = [json.loads(value) for value in re.findall(r"suites='([^']+)'", registration)]
-        self.assertEqual(arrays, [WORKERS, PROBE_WORKERS, PROBE_WORKERS])
+        self.assertEqual(arrays, [WORKERS, CAPTURE_WORKERS, PROBE_WORKERS, PROBE_WORKERS])
         for workers in arrays:
             self.assertEqual(len(workers), len(set(workers)))
         self.assertIn('suite: ${{ fromJSON(needs.vulkan_build.outputs.suites) }}', self.jobs['vulkan_qualification'])
@@ -118,7 +118,7 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
     def test_diagnostic_modes_are_bounded_and_never_qualify(self):
         names = {'vulkan_probe_gated_controls', 'vulkan_probe_gated_witnesses', 'vulkan_probe_gated_evidence'}
         mode = re.search(r'(?m)^  SDVK_PUBLICATION_CAMPAIGN: (.+)$', self.text).group(1)
-        self.assertIn(mode, ('preflight', 'shadow-startup-probe', 'full'))
+        self.assertIn(mode, ('preflight', 'shadow-startup-probe', 'cohort-probe', 'full'))
         self.assertFalse(names.intersection(self.jobs), 'The completed one-time gated experiment must not recur')
         self.assertNotIn('TEMPORARY POC', self.text)
         registration = step_blocks(self.jobs['vulkan_build'])[
@@ -128,7 +128,8 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         script = ('SDVK_PUBLICATION_CAMPAIGN="$1"\nflags=()\n'
                   'case "$SDVK_PUBLICATION_CAMPAIGN" in' + case + '\nesac\n'
                   'printf "%s\\n" "$suites" "${flags[*]}"\n')
-        expected = {'full': (WORKERS, ''), 'preflight': (PROBE_WORKERS, '--compatibility-probe'),
+        expected = {'full': (WORKERS, '--cohort'), 'cohort-probe': (CAPTURE_WORKERS, '--cohort-probe'),
+                    'preflight': (PROBE_WORKERS, '--compatibility-probe'),
                     'shadow-startup-probe': (PROBE_WORKERS, '--shadow-startup-probe')}
         for campaign, (workers, flag) in expected.items():
             with self.subTest(campaign=campaign):
@@ -141,8 +142,9 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
                                  capture_output=True, text=True)
         self.assertNotEqual(invalid.returncode, 0)
         aggregate = step_blocks(self.jobs['vulkan_evidence'])
-        self.assertIn('"$SDVK_PUBLICATION_CAMPAIGN" != full',
-                      aggregate['Authenticate and restore worker evidence without accepting captures'])
+        restore = aggregate['Authenticate and restore worker evidence without accepting captures']
+        self.assertIn('cohort-probe) flags+=(--suites publication,controls,witness-1,witness-2)', restore)
+        self.assertIn('preflight|shadow-startup-probe) flags+=(--suites controls,witness-1,witness-2)', restore)
         gate = aggregate['Require every native, platform, CPU and authenticated assembly gate']
         self.assertIn('"$SDVK_PUBLICATION_CAMPAIGN" != full', gate)
         self.assertIn('PRECHECK_ONLY', gate)
@@ -193,6 +195,52 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
                         self.jobs['vulkan_qualification'].index('Execute exactly the preregistered SDVK-009 worker captures'))
         self.assertNotIn('sdvk009_publication qualify', self.text)
         self.assertNotIn('retry', worker.lower())
+
+    def test_cohort_barrier_is_fixed_authenticated_and_cannot_launch_native_retries(self):
+        job = self.jobs['vulkan_qualification']
+        steps = step_blocks(job)
+        probe = steps['Collect one preregistered bounded compatibility probe per shadow host']
+        upload = steps['Retain immutable compatibility probe including failures']
+        barrier = steps['Authenticate all three immutable peer probes within a bounded barrier']
+        execution = steps['Execute exactly the preregistered SDVK-009 worker captures']
+        modes = "(env.SDVK_PUBLICATION_CAMPAIGN == 'full' || env.SDVK_PUBLICATION_CAMPAIGN == 'cohort-probe')"
+        probe_hosts = '(' + ' || '.join("matrix.suite == '" + name + "'" for name in PROBE_WORKERS) + ')'
+        self.assertIn('if: ' + modes + ' && ' + probe_hosts, probe)
+        self.assertIn('if: always() && ' + modes + ' && ' + probe_hosts, upload)
+        self.assertIn('if: ' + modes + " && matrix.suite != 'corpus'", barrier)
+        self.assertEqual(probe.count('sdvk009_distributed probe'), 1)
+        self.assertIn("--out 'build/renderer-sdvk009-probe-${{ matrix.suite }}'", probe)
+        self.assertIn('sdvk-cohort-probe-${{ github.run_id }}-${{ github.run_attempt }}-${{ matrix.suite }}', upload)
+        self.assertIn('include-hidden-files: true', upload)
+        self.assertIn('if-no-files-found: error', upload)
+        self.assertIn('uses: actions/upload-artifact@v4', upload)
+        self.assertIn('--run-id', barrier)
+        self.assertIn('--run-attempt', barrier)
+        self.assertIn('--expected-commit "$(git rev-parse HEAD)"', barrier)
+        self.assertIn('needs.vulkan_build.outputs.plan_sha256', barrier)
+        self.assertIn('--out build/cohort-peers --artifact-set build/cohort-artifacts.json', barrier)
+        self.assertIn('renderer-ci-${{ matrix.suite }}/cohort-barrier.json', barrier)
+        self.assertIn('id: cohort_barrier', barrier)
+        self.assertIn('--peers build/cohort-peers --artifact-set build/cohort-artifacts.json', execution)
+        self.assertIn('permissions:\n      contents: read\n      actions: read', job)
+        self.assertIn('timeout-minutes: 230', job)
+        self.assertNotIn('actions: write', job)
+        self.assertEqual(job.count('GITHUB_TOKEN:'), 1, 'API credential must be scoped to the transfer step')
+        self.assertNotIn('GITHUB_TOKEN', probe)
+        failure = steps['Retain failed cohort transfers without repeating probes']
+        self.assertIn("if: always() && (steps.cohort_barrier.outcome == 'failure' || steps.cohort_barrier.outcome == 'cancelled')", failure)
+        self.assertIn('name: renderer-cohort-transfer-failure-${{ matrix.suite }}', failure)
+        self.assertIn('build/cohort-peers-archives/', failure)
+        self.assertIn('build/renderer-ci-${{ matrix.suite }}/cohort-barrier.json', failure)
+        self.assertIn('include-hidden-files: true', failure)
+        self.assertNotIn('renderer-software-vulkan-', failure)
+        for before, after in (
+                ('Select explicit hosted llvmpipe', 'Collect one preregistered bounded'),
+                ('Collect one preregistered bounded', 'Retain immutable compatibility probe'),
+                ('Retain immutable compatibility probe', 'Authenticate all three immutable peer probes'),
+                ('Qualify SDVK-014 controlled planes', 'Authenticate all three immutable peer probes'),
+                ('Authenticate all three immutable peer probes', 'Execute exactly the preregistered')):
+            self.assertLess(job.index(before), job.index(after))
 
     def test_failure_retention_and_complete_gate_are_explicit(self):
         workers = step_blocks(self.jobs['vulkan_qualification'])

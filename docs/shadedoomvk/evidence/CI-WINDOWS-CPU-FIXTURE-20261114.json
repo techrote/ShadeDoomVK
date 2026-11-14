@@ -1,0 +1,106 @@
+{
+  "artifact_id": 14091098495,
+  "artifact_zip_sha256": "862f2c5938e208fdb01d5550d0e8b94c60e30749c3486ae7d8685ba29ed37b15",
+  "automatic_retries": 0,
+  "boundary_requests_and_receipts_authenticated": true,
+  "failure_upload": {
+    "declared_control_files": 83,
+    "missing_partial_coordination_record_bytes": 152,
+    "reason": "Default upload-artifact filtering excluded a hidden unfinished coordination record.",
+    "repair": "include-hidden-files:true only for the bounded synthetic supervisor CPU failure directory.",
+    "verified_capture_files": 6,
+    "verified_control_files": 82
+  },
+  "finding": "Heartbeats continued within the unchanged limit. The positive fixture delayed every audit, including one-use creation/resume proofs, and the target boundary proof correctly expired before use.",
+  "fixture": "test_slow_successful_deep_checks_do_not_suspend_control_heartbeat",
+  "generations": [
+    {
+      "duration": 2.078,
+      "finished": 491.531,
+      "generation": 0,
+      "requested": null,
+      "role": null,
+      "started": 489.453,
+      "utc": "2026-11-14T01:25:17.512147+00:00"
+    },
+    {
+      "duration": 2.063,
+      "finished": 493.703,
+      "generation": 1,
+      "requested": 491.578,
+      "role": "collector",
+      "started": 491.64,
+      "utc": "2026-11-14T01:25:19.687521+00:00"
+    },
+    {
+      "duration": 2.062,
+      "finished": 495.89,
+      "generation": 2,
+      "requested": 493.765,
+      "role": "collector-resume",
+      "started": 493.828,
+      "utc": "2026-11-14T01:25:21.868422+00:00"
+    },
+    {
+      "duration": 2.062,
+      "finished": 498.421,
+      "generation": 3,
+      "requested": null,
+      "role": null,
+      "started": 496.359,
+      "utc": "2026-11-14T01:25:24.402966+00:00"
+    },
+    {
+      "duration": 2.063,
+      "finished": 501.078,
+      "generation": 4,
+      "requested": 496.468,
+      "role": "target",
+      "started": 499.015,
+      "utc": "2026-11-14T01:25:27.065236+00:00"
+    },
+    {
+      "duration": 2.062,
+      "finished": 504.046,
+      "generation": 5,
+      "requested": null,
+      "role": null,
+      "started": 501.984,
+      "utc": "2026-11-14T01:25:30.021636+00:00"
+    }
+  ],
+  "heartbeats": 21,
+  "job_id": 132278489764,
+  "journal_entries": 42,
+  "journal_final_sha256": "4ae3214abc17f090b7b215e644dda7eac3ada2b377853f92b477d6fd8d8b8e61",
+  "last_heartbeat_generation_age_seconds": 0.797,
+  "max_heartbeat_gap_seconds": 1.0150000000000432,
+  "physical_gpu_execution": false,
+  "production_supervisor_changed": false,
+  "repair": "Delay one non-boundary audit only after authenticated target resume; keep benign target alive with a bounded handshake; assert heartbeat publication during the delayed interval and require original successful result. Retain all existing stale-proof negative controls.",
+  "run_id": 43540127826,
+  "schema": "sdvk-supervisor-cpu-fixture-failure/v1",
+  "source_commit": "d90410b5f014832e4592fd1d2ac4208784dad439",
+  "stops": [
+    {
+      "packet_sha256": "4752270546a27da241ed9947faa146e438a73d2cb03e772b5db085e3ebe4961d",
+      "reason": "Durable STOP is active",
+      "status": "STOP",
+      "utc": "2026-11-14T01:25:28.088601+00:00"
+    },
+    {
+      "packet_sha256": "4752270546a27da241ed9947faa146e438a73d2cb03e772b5db085e3ebe4961d",
+      "reason": "Boundary integrity generation missing/stale/reused",
+      "status": "STOP",
+      "utc": "2026-11-14T01:25:27.863240+00:00"
+    }
+  ],
+  "target_registration_exists": false,
+  "target_resume_exists": false,
+  "unchanged_production_limits_seconds": {
+    "creation_boundary": 0.5,
+    "deep_integrity": 10,
+    "heartbeat": 2
+  },
+  "workflow_url": "https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826/job/132278489764"
+}

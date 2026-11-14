@@ -160,6 +160,58 @@ class TimingReportTest(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Duplicate"):
             timing.summarize(self.root, host={})
 
+    def test_two_plus_one_placement_and_probe_cost_are_separate_from_three_way_model(self):
+        assignments = ("publication", "controls", "witness-1", "controls")
+        allocation = {"schema": "sdvk009-cohort-allocation/v1", "cohort": ["controls", "witness-1"],
+                      "captures": [{"name": name, "worker": worker}
+                                   for name, worker in zip(timing.CAPTURES, assignments)]}
+        qualification = {"status": "PASS", "workers": [{"worker": name} for name in timing.WORKERS],
+                         "cohort_allocation": allocation, "cohort_allocation_sha256": "a" * 64}
+        (self.root / "qualification.json").write_text(json.dumps(qualification))
+        for name, (start, finish) in zip(timing.CAPTURES, ((3, 5), (0, 10), (0, 10), (10, 20))):
+            self.receipt(name, f"2026-11-06T13:00:{start:02}+00:00",
+                         f"2026-11-06T13:00:{finish:02}+00:00")
+        for worker in timing.WORKERS[1:]:
+            name = "cohort-probe-" + worker
+            path = self.root / "distributed-probes" / worker / "steps" / (name + ".json")
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps({"name": name, "status": "PASS",
+                "started_utc": "2026-11-06T12:59:50+00:00", "finished_utc": "2026-11-06T12:59:52+00:00",
+                "result": {"elapsed_seconds": 1.25}}))
+        barrier = self.base / "renderer-ci-controls/cohort-barrier.json"
+        barrier.parent.mkdir()
+        barrier.write_text('{"status":"PASS","elapsed_seconds":3}')
+        before = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                  for path in self.base.rglob('*') if path.is_file()}
+        report = timing.summarize(self.root, host={})
+        cohort = report["cohort_scheduling"]
+        self.assertEqual(cohort["allocated_capture_lower_bound_seconds"], 20)
+        self.assertEqual(cohort["worker_capture_seconds"],
+                         {"publication": 2, "controls": 20, "witness-1": 10, "witness-2": 0})
+        self.assertEqual(cohort["probe_attempt_seconds_sum"], 6)
+        self.assertEqual(cohort["probe_native_seconds_sum"], 3.75)
+        self.assertEqual(cohort["barrier_reports"]["controls"]["elapsed_seconds"], 3)
+        self.assertTrue(cohort["all_probe_receipts_retained"])
+        self.assertFalse(cohort["qualification_authority"])
+        self.assertEqual(report["capture_duration_seconds_sum"], 32)
+        self.assertEqual(report["capture_observation"]["observed_span_seconds"], 20)
+        self.assertEqual(report["topology_model"]["ideal_parallel_capture_seconds"], 10)
+        self.assertIn("unconstrained three-way model", timing.markdown(report))
+        after = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                 for path in self.base.rglob('*') if path.is_file()}
+        self.assertEqual(before, after)
+
+    def test_cohort_report_rejects_cross_wired_assignment_and_invalid_native_time(self):
+        allocation = {"schema": "sdvk009-cohort-allocation/v1", "cohort": ["controls"],
+                      "captures": [{"name": name, "worker": worker} for name, worker in
+                                   zip(timing.CAPTURES, ("publication", "controls", "controls", "witness-2"))]}
+        (self.root / "qualification.json").write_text(json.dumps({"status": "FAIL", "cohort_allocation": allocation}))
+        with self.assertRaisesRegex(ValueError, "Cross-wired cohort"):
+            timing.summarize(self.root, host={})
+        for value in (True, -1, float('nan'), float('inf')):
+            with self.subTest(value=value), self.assertRaisesRegex(ValueError, "native elapsed"):
+                timing.native_elapsed({"result": {"elapsed_seconds": value}})
+
 
 if __name__ == "__main__":
     unittest.main()

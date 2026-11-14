@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 from datetime import datetime
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -117,6 +118,69 @@ def worker_evidence(root: Path, qualification: dict) -> tuple[list[dict], dict]:
     return workers, profiles
 
 
+def native_elapsed(receipt: dict) -> float | None:
+    value = receipt.get("result", {}).get("elapsed_seconds")
+    if value is None:
+        return None
+    if type(value) not in (int, float) or not math.isfinite(value) or value < 0:
+        raise ValueError("Invalid native elapsed time")
+    return round(value, 3)
+
+
+def cohort_evidence(root: Path, qualification: dict, records: list[dict]) -> dict | None:
+    """Report actual placement and routing cost separately from full captures."""
+    allocation = qualification.get("cohort_allocation")
+    if allocation is None:
+        return None
+    cohort = allocation.get("cohort")
+    captures = allocation.get("captures")
+    if (allocation.get("schema") != "sdvk009-cohort-allocation/v1"
+            or not isinstance(cohort, list) or not 1 <= len(cohort) <= 3
+            or len(set(cohort)) != len(cohort)
+            or any(name not in WORKERS[1:] for name in cohort)
+            or not isinstance(captures, list)
+            or [row.get("name") for row in captures] != list(CAPTURES)):
+        raise ValueError("Unknown cohort timing allocation")
+    assignments = {row["name"]: row.get("worker") for row in captures}
+    if (assignments[CAPTURES[0]] != "publication"
+            or any(assignments[name] not in cohort for name in CAPTURES[1:])):
+        raise ValueError("Cross-wired cohort timing allocation")
+    durations = {row["name"]: row["duration_seconds"] for row in records}
+    complete = all(row["status"] == "PASS" and row["duration_seconds"] is not None for row in records)
+    loads = {worker: sum(durations[name] for name in CAPTURES if assignments[name] == worker)
+             for worker in WORKERS} if complete else None
+    probes = []
+    for worker in WORKERS[1:]:
+        name = "cohort-probe-" + worker
+        path = root / "distributed-probes" / worker / "steps" / (name + ".json")
+        if not path.is_file():
+            probes.append({"worker": worker, "name": name, "status": "NOT_RETAINED",
+                           "duration_seconds": None, "native_elapsed_seconds": None})
+            continue
+        receipt = json.loads(path.read_text(encoding="utf-8"))
+        if receipt.get("name") != name:
+            raise ValueError("Routing probe receipt name mismatch")
+        probes.append({"worker": worker, "name": name, "status": receipt.get("status", "UNKNOWN"),
+                       "started_utc": receipt.get("started_utc"), "finished_utc": receipt.get("finished_utc"),
+                       "duration_seconds": duration_seconds(receipt), "native_elapsed_seconds": native_elapsed(receipt)})
+    barriers = {}
+    for worker in WORKERS:
+        path = root.parent / ("renderer-ci-" + worker) / "cohort-barrier.json"
+        if path.is_file():
+            barriers[worker] = json.loads(path.read_text(encoding="utf-8"))
+    return {"allocation_sha256": qualification.get("cohort_allocation_sha256"),
+            "cohort": cohort, "capture_workers": assignments,
+            "worker_capture_seconds": loads,
+            "allocated_capture_lower_bound_seconds": round(max(loads.values()), 3) if loads else None,
+            "probe_processes": probes,
+            "probe_attempt_seconds_sum": round(sum(row["duration_seconds"] or 0 for row in probes), 3),
+            "probe_native_seconds_sum": round(sum(row["native_elapsed_seconds"] or 0 for row in probes), 3),
+            "all_probe_receipts_retained": all(row["status"] != "NOT_RETAINED" for row in probes),
+            "barrier_reports": barriers,
+            "qualification_authority": False,
+            "limitations": "Placement lower bound sums full capture attempts per allocated worker; excludes probe, barrier, setup, companion modules, queue, transfer and aggregation. Probe time is not a full-witness predictor."}
+
+
 def machine_profile() -> dict:
     cpu_model = platform.processor() or "unavailable"
     cpuinfo = Path("/proc/cpuinfo")
@@ -163,6 +227,7 @@ def summarize(root: Path, host: dict | None = None) -> dict:
             "started_utc": receipt.get("started_utc"),
             "finished_utc": receipt.get("finished_utc"),
             "duration_seconds": duration_seconds(receipt),
+            "native_elapsed_seconds": native_elapsed(receipt),
         })
     workers, profiles = worker_evidence(root, qualification)
     return {
@@ -174,6 +239,7 @@ def summarize(root: Path, host: dict | None = None) -> dict:
         "capture_observation": capture_overlap(records),
         "topology_model": topology_model(records, independent_compositing=any(
             row["worker"] == "publication" for row in workers)),
+        "cohort_scheduling": cohort_evidence(root, qualification, records),
         "workers": workers,
         "worker_profiles": profiles,
         "missing_capture_worker_profiles": [row["worker"] for row in workers if row["worker"] not in profiles],
@@ -224,6 +290,28 @@ def markdown(result: dict) -> str:
             "These estimates are separate from the actual observed intervals and any separately retained native compatibility probe.",
             "The capture-only model excludes companion-module preparation on the publication worker.",
         ]
+    cohort = result.get("cohort_scheduling")
+    if cohort is not None:
+        lines += ["", "#### Actual compatibility placement", "",
+                  "Selected shadow workers: " + ", ".join("`" + worker + "`" for worker in cohort["cohort"]) + ".",
+                  "| Full capture | Allocated worker |", "| --- | --- |"]
+        for capture, worker in cohort["capture_workers"].items():
+            lines.append(f"| `{capture}` | `{worker}` |")
+        lower = cohort["allocated_capture_lower_bound_seconds"]
+        if lower is not None:
+            lines += ["", f"Placement-specific capture lower bound: **{lower / 60:.2f} min**, "
+                      "summing measured capture attempts on each allocated worker. "
+                      "This excludes startup, routing, companions, transfer and aggregation."]
+        lines += ["", "| Routing probe | Result | Attempt time | Native time |",
+                  "| --- | --- | ---: | ---: |"]
+        for probe in cohort["probe_processes"]:
+            attempt, native = probe["duration_seconds"], probe["native_elapsed_seconds"]
+            attempt_text = "unavailable" if attempt is None else f"{attempt:.3f}s"
+            native_text = "unavailable" if native is None else f"{native:.3f}s"
+            lines.append(f"| `{probe['name']}` | {probe['status']} | {attempt_text} | {native_text} |")
+        lines += ["", "Routing probes are additional nonqualifying processes; their time is excluded from the original four-capture sum. "
+                  "The unconstrained three-way model above may be incompatible with this run's hosts. "
+                  "Original full comparisons remain the qualification authority."]
     profiles = result.get("worker_profiles", {})
     if profiles:
         lines += ["", "| Worker | CPU | Logical / affinity CPUs | CPU quota | Mesa package |",

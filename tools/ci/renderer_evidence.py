@@ -32,6 +32,13 @@ ROOTS = {
 }
 OPTIONAL = {suite: ('renderer-ci-' + suite,) for suite in ROOTS}
 PROBE_SUITES = ('controls', 'witness-1', 'witness-2')
+COHORT_PROBE_SUITES = ('publication', *PROBE_SUITES)
+# A cohort campaign requires these complete native probe packets in its
+# assembler. Older fixed-placement campaigns do not have them. Transport keeps
+# each original packet once, including partial failures; peer downloads remain
+# outside the retained worker roots.
+for _suite in PROBE_SUITES:
+    OPTIONAL[_suite] += ('renderer-sdvk009-probe-' + _suite,)
 GATES = {
     'corpus': {'renderer-native/native-ci.json': 'PASS',
                'renderer-native/collision-review.json': 'PASS',
@@ -262,7 +269,7 @@ def verify_suite(parts, suite, *, expected_commit=None, runtime_sha256=None,
 def merge(parts, output, *, complete, suites=None, expected_commit=None,
           runtime_sha256=None, plan_sha256=None):
     suites = tuple(ROOTS) if suites is None else tuple(suites)
-    require(suites in (tuple(ROOTS), PROBE_SUITES), 'Unknown or reordered worker set')
+    require(suites in (tuple(ROOTS), PROBE_SUITES, COHORT_PROBE_SUITES), 'Unknown or reordered worker set')
     require(not output.exists(), 'Evidence assembly output must be fresh')
     output.mkdir(parents=True)
     all_files, all_roots = {}, []

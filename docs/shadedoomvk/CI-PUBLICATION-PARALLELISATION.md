@@ -51,16 +51,21 @@ One Ubuntu 24.04 software-Vulkan build feeds five independent hosted workers:
 | --- | --- | --- |
 | `corpus` | Original SDVK-008 preflight/control, complete native state/timing corpus and collision replay | Authenticated build |
 | `publication` | SDVK-010, 150, 153, 158, 161 and 014 in their original sequences, then the original inexpensive compositing control | Authenticated build and shared authored input/plan |
-| `controls` | Original shadow control as the first renderer capture on its fresh host | Authenticated build and immutable four-capture plan |
-| `witness-1` | Original first instrumented shadow witness | Same build and plan |
-| `witness-2` | Original second instrumented shadow witness | Same build and plan |
+| `controls` | One bounded routing probe, then only its allocated original shadow roles | Authenticated build, immutable plan and complete three-probe barrier |
+| `witness-1` | One bounded routing probe, then only its allocated original shadow roles | Same build, plan and barrier |
+| `witness-2` | One bounded routing probe, then only its allocated original shadow roles | Same build, plan and barrier |
 
 The six short modules share one worker because their 8–11 minutes are below the
 corpus and shadow paths. The inexpensive compositing control now shares that
-short-module worker. Each of the three shadows is its host's first renderer
-capture. This addresses the startup-history asymmetry found in the first full
-campaign, described below. No fourth expensive shadow worker or consumer
-recompilation is added.
+short-module worker. The three shadow hosts first collect explicitly nonqualifying
+five-warmup/one-frame/180-second probes from the original historical shadow scene.
+All three packets must arrive and validate. Original exact comparisons select
+compatible hosts, and an immutable placement rule assigns the three original
+full shadow roles exactly once across them. Three compatible hosts give one
+capture each, two give two plus one, and a singleton gives three sequential
+captures. No fourth expensive shadow worker, consumer recompilation, replacement
+host or post-failure reassignment is added. The barrier and its limits are
+described below.
 Matrix `fail-fast` remains false: a failed worker must not erase siblings' useful
 evidence. The final `Linux software Vulkan | RelWithDebInfo` check keeps its
 original name and requires the CPU oracle, complete Windows/Linux matrix, shared
@@ -104,7 +109,7 @@ full shadow campaign remains decisive. The preflight's complete
 [source-qualified receipt](evidence/CI-PUBLICATION-PREFLIGHT-20261114.json)
 records timings, identities, artifacts and the deliberate `PRECHECK_ONLY` failure.
 
-## Full-campaign failure and startup-history repair
+## Full-campaign failure and startup-history investigation
 
 [Full CI #622](https://github.com/techrote/ShadeDoomVK/actions/runs/43532176029)
 at `c99a20f36733d3b198f2bbebf8e61130fd2511bf` passed all twelve upstream jobs,
@@ -136,13 +141,13 @@ The initial topology gave shadow-control a preceding compositing process, while
 both independent witnesses were their hosts' first renderer captures. Their
 fresh application caches are proven; the unchanged reproduction policy records
 external driver cache as uncontrolled. This is evidence of a startup-history
-asymmetry, not proof of a particular Mesa cache mechanism. The revised topology
-moves compositing to the existing short-module worker so all three shadows are
+asymmetry, not proof of a particular Mesa cache mechanism. The first repair candidate
+moved compositing to the existing short-module worker so all three shadows are
 first-use processes on fresh hosts, without extra full captures or changed
 acceptance. The historical four-capture plan order is still immutable even
 though execution times overlap.
 
-Before another full campaign, `--shadow-startup-probe` registers a distinct
+Before another full campaign, `--shadow-startup-probe` registered a distinct
 nonqualifying plan. Three independent workers first collect uninstrumented
 shadow captures with five warmup frames, one retained frame and a 180-second
 ceiling. The controls probe then performs a 120-warmup compositing primer and
@@ -166,40 +171,139 @@ The stacked #196 foundation stayed unchanged. This candidate does not import
 that tolerance change; SDVK-161 passed its original checks in #622. The PR
 conversation records the latest source relationship and eventual qualification.
 
+## Protected cross-host mismatch and bounded placement
+
+The [startup diagnostic #624](https://github.com/techrote/ShadeDoomVK/actions/runs/43540127826)
+at `d90410b5f014832e4592fd1d2ac4208784dad439` failed the original exact comparison.
+All three cold shadows had material generations and texture epoch equal to 3.
+On the Intel controls host, cold shadow followed by compositing and another
+shadow changed only those three fields to 4. This reproduces startup-history
+asymmetry without proving a specific driver-cache mechanism.
+
+The Intel control and Intel witness 2 agreed with each other. The AMD witness
+had a separate protected mismatch: `light_wall_rendered` was 672 versus 731,
+normal/used light records were 3279 versus 3338, and uploaded bytes were 262464
+versus 267184. All exact RGB comparisons passed. These counters describe actual
+selected and uploaded lights; they reset each frame and cannot be discarded as
+cumulative timing telemetry. The complete 175-file failure packet was retained
+and independently authenticated. The run also had a separate Windows CPU-test
+failure and the expected `PRECHECK_ONLY` failure. It was not a passing probe. The [complete investigation receipt](evidence/CI-PUBLICATION-COHORT-INVESTIGATION-20261114.json)
+binds its source bundle, runtime, raw packet, exact comparisons, historical
+observations and job/artifact accounting.
+
+Historical corpus captures show the same AMD/Intel counter split at one warmup
+frame, with the same authored scene/config/script hashes. The corpus uses a
+different IWAD, so these are supporting diagnostics, not interchangeable
+qualification. AMD publication evidence retains the lower counts at 120 warmup
+frames on EPYC 7763, 9V74 and 9V45. Bounded inspection found no completed Intel
+120-frame publication packet. The five-frame reduction alone does not explain
+this repeated per-frame split.
+
+Disassembly of the authenticated #624 executable confirms `rsqrtss` followed by
+Newton refinement in `HWWall::SetupLights`, corresponding to its existing
+fast-math wall-normal calculation. Strict radius and side tests consume that
+normal before accepting light records. [GCC documents this transformation](https://gcc.gnu.org/onlinedocs/gcc-14.2.0/gcc/x86-Options.html#index-mrecip).
+The actual fixture contains lights on an exact radius boundary, where a
+one-ULP normal difference can change a strict comparison. This is a concrete
+plausible mechanism, not proof of the complete 59-record causal chain. Compiler
+flags, renderer arithmetic, fixtures, counters and comparison projections are
+unchanged.
+
+The selected fallback retains the same five fixed jobs and inserts a bounded
+three-party compatibility barrier. Before any full shadow capture, all three
+candidate hosts collect one separately authorized uninstrumented shadow probe
+with five warmup frames, one retained frame and a 180-second deadline. Every
+packet must pass the original native validator and global source/runtime/input
+checks. A wrong source, failed process, missing file or cancelled worker is a
+campaign failure, not a host that can be silently excluded.
+
+The fixed algorithm computes all three original exact pairwise comparisons,
+enumerates the seven nonempty host subsets and selects the largest subset whose
+every pair passes. A fixed lexical tie-break resolves equal-sized candidates;
+the ordered three full shadow roles are assigned round-robin. This does not
+assume comparator transitivity or select hosts by CPU vendor. All workers bind
+the same complete artifact identities and canonical allocation hash before full
+execution. There is no new group, replacement host, takeover or retry after a
+failure.
+
+This rule preserves three-way overlap when possible and a two-plus-one schedule
+when only two hosts compare exactly. A singleton remains safe but has no shadow
+parallel speedup and adds probe overhead. The short probe includes startup costs
+and does not reliably predict full 120-frame witness time, so the placement rule
+does not rank hosts using speculative extrapolation. A faster singleton could
+in principle beat a slower pair. Actual assignment, probe overhead and full
+critical-path measurements must remain visible; this is not a claim of globally
+optimal or repeatable performance.
+
+Artifact names bind the current run, attempt and three fixed workers. The
+barrier requires immutable artifact IDs, API SHA-256 digests, bounded safe ZIP
+extraction and complete original raw evidence. It has a finite 600-second wait;
+missing peers never produce a successful smaller campaign. [GitHub artifact v4](https://github.blog/changelog/2024-02-12-github-actions-artifacts-v4-is-now-generally-available/)
+makes completed uploads downloadable before their jobs end, permitting this
+rendezvous inside the existing matrix. The workflow uses read-only Actions
+access and does not create or reschedule jobs. Its native-job ceiling accounts
+for the singleton case: three original 3600-second process deadlines plus
+bounded setup, barrier and evidence handling.
+
+A separate nonqualifying `--cohort-probe` mode exercises the whole barrier and
+placement rule, then collects distinctly named, uninstrumented post-probe checks
+with five shadow warmup frames. This tests the previously unobserved
+cold-shadow-to-shadow sequence before another expensive campaign. The full
+mode retains every original 120-warmup capture and complete witness. Probe
+plans can yield only `PROBE_PASS` with qualification false; the final required
+check still rejects them as `PRECHECK_ONLY`. A probe cohort predicts where to
+run the full captures. Only their unchanged exact comparisons can qualify them.
+
+The independent Windows failure in #624 was an existing CPU-only positive test
+that injected a 2.05-second delay into every integrity audit, including launch
+proofs with an unchanged 0.5-second freshness limit. Retained receipts show
+continuing heartbeats and an expired proof, so containment correctly failed
+closed. A test-only repair confines the delay to one background audit after
+real authenticated target resume and uses a bounded benign handshake to observe
+heartbeats. Production deadlines and stale-proof negative controls remain
+unchanged. Hidden partial coordination files are also retained by that bounded
+failure upload. See the [fixture investigation](evidence/CI-WINDOWS-CPU-FIXTURE-20261114.json).
+
 ## Explicit change to serial fail-stop semantics
 
-`sdvk009_publication.qualify` and its original fail-stop tests remain unchanged.
-It still suppresses later dependent launches after an earlier failure. The new
-`sdvk009_distributed` entry points have a distinct, reviewable contract:
+`sdvk009_publication.qualify` and its original serial fail-stop tests remain
+unchanged. The distributed entry points implement a separate contract requiring
+Owner review before merge:
 
-1. The build creates and SHA-256 seals the complete ordered plan before any
-   worker launches a capture. The plan contains source/tree, executable,
-   runtime archive, engine packages, historical input, prepared input, workload,
-   worker allocation and unique single-use capture authorization identities.
-2. Each independently authorized worker authenticates those identities and the
-   explicit hosted lavapipe guard before its native preflight. It writes a
-   failure-default prospective receipt and exclusive capture launch records.
-3. All four captures are independently authorized. Compositing runs after the
-   six companion modules on their worker; each shadow is the first renderer
-   capture on its separate host. Already-authorized siblings may be running
-   when another fails. The original plan order and legacy receipt aliases are
-   retained, but temporal launch suppression is deliberately changed and
-   requires Owner approval; global serial fail-stop is not claimed.
-4. Every worker must finish exactly its registered captures. Each capture keeps
-   the original fresh process directory/application cache, mode, diagnostics,
-   640×480 extent, **120 warmup frames, one retained frame, 3600-second deadline,
-   exact RGB policy and zero retries**.
-5. The CPU aggregator authenticates every complete worker before moving any
-   capture. It then runs the original independent witness validation, both
-   control/witness comparisons, witness-repeat comparison and all nine original
-   negative controls for each witness. Any failure or missing evidence fails
-   qualification. A sibling success cannot repair another worker's failure.
+1. The shared build seals the complete ordered four-capture workload, exact
+   source/tree/runtime/packages/historical inputs, single-use authorizations,
+   three separate routing probes and fixed placement algorithm before execution.
+2. Every worker authenticates those identities and the explicit hosted llvmpipe
+   guard before native preflight. It creates failure-default prospective receipts
+   and exclusive launch records.
+3. All three probes must complete and validate. Every worker recomputes the
+   original exact pairwise comparisons and the same canonical allocation. An
+   excluded host still retains its valid probe and explicit empty full workload;
+   it cannot disappear from the expected worker set.
+4. Compositing remains on the six-module worker. Shadow workers execute only
+   their allocated original roles, in original plan order, stopping locally on
+   a native capture or individual admission failure. Cross-capture comparisons
+   and negative controls remain deferred to assembly even when several roles
+   share one host; their failure cannot qualify that completed collection.
+   Already-authorized siblings on another host may continue. The
+   original plan and legacy receipt alias order remain intact; global temporal
+   launch suppression is deliberately changed and is not claimed.
+5. Every full capture retains a fresh process directory and application cache,
+   the original mode and diagnostic role, 640×480 extent, **120 warmup frames,
+   one retained frame, 3600-second deadline, exact RGB and zero retries**.
+6. The assembler authenticates every original probe and worker, independently
+   recomputes the allocation, and requires agreement and exactly-once ownership
+   before moving evidence. It runs the unchanged witness validators, both
+   control comparisons, witness-repeat comparison and all nine original negative
+   controls for each witness. Every applicable corpus/module/platform/CPU gate
+   remains mandatory. Neither a passing probe nor a sibling success can repair a
+   failed or missing qualification.
 
-SIGTERM/interruption leaves a failed or cancelled worker receipt and partial
-inventory when the process has an opportunity to finish. Actions uses `always()`
-for packing/upload and retains original per-worker artifacts even if aggregation
-fails. A hard runner loss may prevent an upload; absence is rejected, never
-treated as a pass or replaced by an automatic retry.
+SIGTERM/interruption leaves a failed or cancelled receipt and partial inventory
+when execution can finish its failure handler. Actions uses `always()` for
+packing/upload and retains original worker/probe artifacts when aggregation
+fails. A hard runner loss may prevent upload; that absence fails closed. There
+is no automatic native retry or reassignment.
 
 ## Cross-runner identity and independence
 
@@ -217,7 +321,11 @@ cross-runner exact comparisons.
 
 Distinct Linux VM boot identities for all four full-mode capture workers,
 worker execution UUIDs, request hashes, original process working directories
-and publication diagnostic run IDs are required. Runner display names remain descriptive, not a uniqueness assumption.
+and publication diagnostic run IDs are required. Several independently authorized
+full processes may share a selected worker, but their requests, directories and
+diagnostic IDs remain distinct. Each shadow worker must attest the same boot
+identity for its routing probe and later full captures. Runner display names
+remain descriptive, not a uniqueness assumption.
 The aggregator verifies capture names/order, exactly one authorized request,
 receipt/run equality and worker provenance. Renaming a copied packet cannot
 supply an independent repetition. Mismatched source, runtime, device or plan
@@ -238,7 +346,11 @@ Each worker transports a bounded namespace, source/runtime/plan/workflow
 identity, explicit job status, raw process receipts/captures/diagnostics, and
 complete SHA-256 file manifest. Download namespaces remain separate until
 verification. Unknown, duplicated, cross-wired, incomplete or corrupt artifacts
-cannot be silently overwritten by download merging.
+cannot be silently overwritten by download merging. Each original routing probe
+is retained once in final evidence, including probes from excluded hosts. Peer
+downloads stay outside retained worker roots; separate immutable probe Actions
+artifacts remain available, and all allocation receipts bind the same three
+artifact identities.
 
 Assembly moves authenticated capture files to the original
 `renderer-sdvk009-publication/captures/<name>` paths. It retains worker launch
@@ -285,7 +397,11 @@ reordered evidence, cancellation, partial retention, all original comparison
 calls and negative controls, path relocation and standard archive consumption.
 Workflow tests expand the bounded matrix, preserve Windows/Linux checks and
 enforce final dependencies. The original serial tests continue to apply to the
-serial API.
+serial API. Cohort controls additionally cover all seven subsets, deterministic
+ties, non-transitive comparison outcomes, strict three-party authentication,
+unsafe/corrupt ZIPs, missing/cancelled probes, allocation disagreement, excluded
+workers and exact full role ownership. A successful subset cannot hide an
+invalid or absent probe packet.
 
 The initial hosted compatibility result must pass before the complete expensive
 campaign is enabled. Full exact-head CI then runs all Windows/Linux, CPU and
