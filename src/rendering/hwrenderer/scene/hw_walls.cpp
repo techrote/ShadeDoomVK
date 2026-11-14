@@ -99,6 +99,7 @@ void HWWall::RenderWall(FRenderState &state, int textured)
 	state.SetLightProbeIndex(seg->sidedef->lightProbe.index);
 	state.Draw(DT_TriangleFan, vertindex, vertcount);
 	vertexcount += vertcount;
+	SdvkDiagnostics::PassiveWallTraceWall(this, nullptr, 4); // actual issued wall draw
 	if (ditherT)
 	{
 		state.SetEffect(EFF_NONE);
@@ -361,6 +362,7 @@ void HWWall::RenderTranslucentWall(HWWallDispatcher*di, FRenderState &state)
 //==========================================================================
 void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent)
 {
+	SdvkDiagnostics::PassiveWallTraceWall(this, di->di, 2);
 	std::optional<SdvkDiagnostics::SpecialSurfaceScope> observedSurface;
 	bool paletteModeDisabled = false;
 	if (texture && texture->isHardwareCanvas() && !V_IsTrueColor())
@@ -374,6 +376,7 @@ void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent
 		SetupLights(di->di, state, lightdata);
 	}
 	MakeVertices(state, !!(flags & HWWall::HWF_TRANSLUCENT), di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected());
+	SdvkDiagnostics::PassiveWallTraceWall(this, di->di, 3);
 	if (di->di && SdvkDiagnostics::SpecialSurfaceFrameSelected() && seg && seg->sidedef
 		&& type != RENDERWALL_MIRRORSURFACE)
 	{
@@ -421,6 +424,7 @@ void HWWall::DrawWall(HWWallDispatcher*di, FRenderState &state, bool translucent
 		}
 	}
 
+	SdvkDiagnostics::PassiveWallTraceWall(this, di->di, 5);
 	if (paletteModeDisabled)
 		state.SetPaletteMode(true);
 }
@@ -594,6 +598,7 @@ void HWWall::PutWall(HWWallDispatcher *di, FRenderState& state, bool translucent
 		ProcessDecals(di, state);
 	}
 
+	SdvkDiagnostics::PassiveWallTraceWall(this, di->di, 1);
 	di->AddWall(this);
 
 	lightlist = nullptr;
