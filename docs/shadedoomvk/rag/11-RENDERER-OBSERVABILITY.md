@@ -1,5 +1,9 @@
 # Renderer observation and evidence ownership
 
+## R-001 routing and claim boundary (proposed until merge)
+
+`tools/ci/route.py` selects routine native and relevant targeted suites from exact event-source changes; unknown paths fail toward full targeted coverage. `tools/ci/routine_native.py` reuses existing single-capture structural/semantic validators with bounded OFF/ON and ordinary-gameplay images. It explicitly cannot award the old full-corpus/publication contracts below. Those original recipes and exact-repeat comparisons remain unchanged in `.github/workflows/renderer_deep.yml`; affected lifetime/lightmap/actor gates stay in normal Lane B. See [R-001 gate matrix](../R-001-CI-LANES.md). No physical device, resource lifetime or gameplay invariant is relaxed.
+
 Primary issue: SDVK-002 / #2. Status: **accepted, merged and verified** on repaired `master@a05743fb428c0d7c66defccfb577834d012b4e31`. [Owning contract](../SDVK-002-OBSERVABILITY.md) and [release receipt](../SDVK-002-RELEASE-ACCEPTANCE.json) record the exact evidence and limitations.
 
 ## Entry points

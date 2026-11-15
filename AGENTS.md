@@ -2,6 +2,12 @@
 
 This file is authoritative for autonomous issue execution unless a later accepted issue or decision record explicitly supersedes a rule.
 
+## R-001 adoption boundary — proposed 15 November 2026
+
+This branch proposes the [Lost 2003 Remaster policy](docs/shadedoomvk/REMASTER-2003-ENGINEERING-POLICY.md) and [implemented CI gate matrix](docs/shadedoomvk/R-001-CI-LANES.md). **Draft branch qualification is not master adoption.** Once reviewed, owner-approved and merged, this explicit supersession controls future-work scope, applicability and severity wherever older blanket publication/repeatability guidance conflicts. Historical failed results stay failed; confirmed resource/Vulkan/gameplay faults remain blockers; **physical GPU STOP remains ACTIVE**. No merge or historical closure is authorized implicitly.
+
+For R-001 and the refreshed campaign, inspect relevant source/history and actual dependencies; no exhaustive all-history audit or serial completion of every founding issue is a prerequisite. The owner has authorized SHADOW-001 M1 implementation concurrently with this policy migration. Source work may proceed on isolated Draft branches; unmerged policy proposals cannot claim completed master acceptance.
+
 ## 1. Source of truth
 
 For every issue, read the issue body, current `master`, this file, and the relevant canonical documents under `docs/shadedoomvk/` before changing code. Later accepted repository documentation outranks stale chat context. Do not invent requirements from memory when the repository contains a more precise contract.
@@ -9,6 +15,8 @@ For every issue, read the issue body, current `master`, this file, and the relev
 The renderer RAG/reference corpus under `docs/shadedoomvk/rag/` is mandatory reading when an issue touches its subsystem. RAG material describes architecture/invariants and does not replace inspection of current source.
 
 ## 2. Programme gate
+
+The following serial gate describes the historical PF/founding SDVK programme. It does not automatically impose the old issue chain on R-001/SHADOW-001/MAT-001/LIGHT-001/PERF-001/WORLD-001/PLAY-001 after the R-001 adoption described above. Actual resource, gameplay and safety dependencies remain binding.
 
 The pre-foundation tranche PF-001 through PF-020 executes before the founding SDVK feature programme.
 
@@ -29,14 +37,14 @@ Canonical programme documents include:
 
 For implementation/research issues:
 
-1. inspect current `master` and the complete relevant open/closed issue/PR history;
+1. inspect current `master` and the directly relevant open/closed issue/PR history;
 2. confirm dependencies are genuinely satisfied;
 3. restate the issue objective and relevant invariants before implementation;
 4. work on a dedicated branch;
 5. add implementation, tests, diagnostics and documentation required by the issue;
 6. open a PR with evidence and acceptance-criteria mapping;
 7. repair every required automated check failure attributable to the change;
-8. merge only after all required automated checks pass;
+8. merge only after all applicable required automated checks pass, independent review and explicit final owner approval;
 9. verify the merge commit/change is present on `master`;
 10. close the issue only when its acceptance criteria are genuinely satisfied.
 
@@ -147,6 +155,8 @@ Every renderer feature/refactor needs at least one positive fixture and one deli
 Where image comparisons are used, pair them with machine-readable state/diagnostic assertions so CI does not depend only on subjective screenshots.
 
 Refactors must preserve baseline output/state within a declared tolerance. Bugfix issues must preserve a failing pre-fix fixture and demonstrate the corrected expected state.
+
+Upon R-001 adoption, routine work uses Lane A and risk-triggered Lane B from the implemented gate matrix. Lane C's exhaustive publication/research suite remains separately invocable. Exact serialization/source/gameplay and resource identity invariants remain exact. Raster-effect comparisons may use declared visual bounds and semantic/temporal assertions; they do not universally require identical internal counters. A skipped or absent applicable check is not PASS. Classify P0/P1 safety/material faults as blocking; timebox P2/P3 investigations with visible scope and retained failures.
 
 ## 14. Scope control
 

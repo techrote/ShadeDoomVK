@@ -18,14 +18,22 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
 
     def test_software_vulkan_lane_is_github_hosted_ubuntu_2404(self):
         text = (ROOT / ".github" / "workflows" / "continuous_integration.yml").read_text()
-        marker = "- name: Linux software Vulkan"
-        start = text.index(marker)
-        block = text[start:text.index("\n\n    steps:", start)]
-        self.assertIn("os: ubuntu-24.04", block)
-        self.assertIn("native_renderer: true", block)
+
+        self.assertIn("name: Linux software Vulkan | RelWithDebInfo", text)
+        self.assertIn("name: R-001 | One source-authenticated software Vulkan build", text)
+        self.assertIn("name: R-001 | Hosted Vulkan", text)
+        self.assertEqual(text.count("runs-on: ubuntu-24.04"), 3)
+        self.assertIn('test "$RUNNER_ENVIRONMENT" = github-hosted', text)
+        self.assertIn("lvp_icd*.json", text)
+        self.assertIn("sha256sum -c r001-native-runtime.tar.xz.sha256", text)
         self.assertNotIn("SDVK_REQUESTED_RUNNER", text)
         self.assertNotIn("sdvk009-avrea-ci.py", text)
-        self.assertIn("sdvk009_publication qualify", text)
+        self.assertIn("tools/ci/routine_native.py", text)
+        self.assertNotIn("sdvk009_publication qualify", text)
+        deep = (ROOT / ".github" / "workflows" / "renderer_deep.yml").read_text()
+        self.assertIn("sdvk009_publication qualify", deep)
+        self.assertIn("workflow_dispatch:", deep)
+        self.assertNotIn("  pull_request:", deep)
 
     def test_shared_native_guard_requires_github_hosted(self):
         text = (ROOT / "tools" / "renderer_oracle" / "sdvk010_sun_native.py").read_text()

@@ -59,6 +59,46 @@ def envelope(start=100, pace=1, fraction=.125):
 
 
 class SpecialSurfaceRepeatabilityTests(unittest.TestCase):
+    def test_background_texture_and_bound_material_generation_offsets_are_labels(self):
+        left = envelope()
+        right = envelope(300, 4, .875)
+        for row in right["records"]:
+            if row["kind"] == "resource":
+                row["data"]["texture_epoch"] += 1
+            if row["kind"] in ("surface", "material"):
+                material = row["data"].get("material", {}) if row["kind"] == "surface" else row["data"]
+                receipt = material.get("resource", {})
+                if receipt.get("available") is True and type(receipt.get("generation")) is int:
+                    receipt["generation"] += 1
+        original = copy.deepcopy(right)
+        result = self.compare(left, right)
+        self.assertEqual(result["status"], "PASS")
+        self.assertTrue(result["state_equal"])
+        self.assertEqual(result["image"]["changed_pixels"], 0)
+        self.assertEqual(right, original)
+
+    def test_per_descriptor_material_generation_aliasing_is_not_discarded(self):
+        receipt = {"available": True, "index": 259, "generation": 3, "epoch": 2, "span": 4}
+        left = [{"kind": "surface", "data": {"material": {"name": "S161PH", "resource": copy.deepcopy(receipt)}}},
+                {"kind": "material", "data": {"name": "S161PH", "resource": copy.deepcopy(receipt)}}]
+        right = copy.deepcopy(left)
+        for row in right:
+            resource = row["data"].get("material", row["data"])["resource"]
+            resource["generation"] = 4
+        project = lambda records: run._sdvk161_repeatability_projection(records, SCENE)
+        self.assertEqual(project(left), project(right))
+        wrong = copy.deepcopy(right)
+        wrong[1]["data"]["resource"]["generation"] = 5
+        self.assertNotEqual(project(left), project(wrong))
+        for key, value in (("index", 260), ("epoch", 3), ("span", 5)):
+            wrong = copy.deepcopy(right)
+            wrong[1]["data"]["resource"][key] = value
+            with self.subTest(key=key):
+                self.assertNotEqual(project(left), project(wrong))
+        self.assertNotEqual(run._sdvk161_repeatability_projection(left,"lights-zero"),
+                            run._sdvk161_repeatability_projection(right,"lights-zero"))
+
+
     def compare(self,left,right,*,scene=SCENE,clock=CLOCK,changed_image=False):
         for data in (left,right):
             run.validate.observation(data,required_kinds=['context','resource'],expected_frames=96)

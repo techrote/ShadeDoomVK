@@ -1,5 +1,7 @@
 # Validation and performance contract
 
+> **R-001 scoped supersession (proposed; active only after reviewed owner-approved merge):** [Engineering policy](REMASTER-2003-ENGINEERING-POLICY.md) and [implemented CI gate matrix](R-001-CI-LANES.md) govern applicability and severity for refreshed campaign work. The historical contracts and receipts below remain evidence. Their full-corpus/publication and universal repeatability requirements move to explicit Lane C; relevant resource, portal, lightmap and material obligations remain in Lane B. Unchanged gameplay/resource safety and the physical GPU STOP remain binding. Original failed observations are not relabelled. The owner has authorized concurrent SHADOW-001 M1 source work; no founding issue must be closed to begin it.
+
 ## Scoped dependency qualification — 14 October 2026
 
 [SDVK-009-GATE-SPLIT-20261014](SDVK-009-SOFTWARE-DEPENDENCY-AUTHORITY.md) separates

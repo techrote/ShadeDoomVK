@@ -2,7 +2,7 @@
 """SDVK-150 same-process probe-owner qualification.
 
 CPU helpers validate retained lifecycle records. The CLI runs two independent
-same-process A->B captures only on the approved Avrea 16-vCPU llvmpipe lane.
+same-process A->B captures only on the GitHub-hosted software llvmpipe lane.
 Hosted timing/performance is not accepted.
 """
 from __future__ import annotations
