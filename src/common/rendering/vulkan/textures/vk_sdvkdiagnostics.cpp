@@ -112,6 +112,10 @@ std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages, int frameTile
         ++pageTiles[tile.AtlasLocation.ArrayIndex];
     }
 
+    // SDVK-161 retains the complete live-tile/owner census under the unchanged
+    // 16,384-byte per-record cap. Shorter prose scopes in this diagnostic mode
+    // preserve every receipt and numeric witness; ordinary corpus scope strings
+    // and all admission limits remain untouched.
     std::string pages = "[";
     for (size_t i = 0; i < pageTiles.size(); ++i)
     {
@@ -131,7 +135,7 @@ std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages, int frameTile
         .Bool("all_clean", initialDirty == 0 && geometryDirty == 0 && lightDirty == 0)
         .Bool("page_count_match", size_t(std::max(mesh->Lightmap.TextureCount, 0)) == vulkanPages)
         .Bool("sampling_page_bounds_ok", invalid == 0).Raw("page_live_tiles", pages)
-        .Str("scope", "current live tile receipts and atlas page ownership; actual pixels remain image evidence");
+        .Str("scope", SpecialSurfaceEnabled() ? "atlas tile receipts" : "current live tile receipts and atlas page ownership; actual pixels remain image evidence");
     if (SdvkDiagnostics::SpecialSurfaceEnabled())
         result.Raw("tile_receipts", TileCensus(mesh, vulkanPages)).Int("authored_probe_count", level.lightProbes.Size());
     return result.Json();
@@ -708,7 +712,7 @@ void VulkanResources(VulkanRenderDevice* device)
         const auto rsbuffers = device->GetBufferManager()->GetRSBuffers();
         const auto& lightUploads = rsbuffers->Lightbuffer.Observation;
         Object result;
-        result.Str("scope", "renderer-owner snapshot after RenderView; allocation counters are cumulative")
+        result.Str("scope", SpecialSurfaceEnabled() ? "renderer owners" : "renderer-owner snapshot after RenderView; allocation counters are cumulative")
             .Int("descriptor_requested", plan.Requested).Int("descriptor_device_limit", plan.DeviceLimit).Int("descriptor_capacity", plan.Effective)
             .Int("descriptor_dynamic_start", descriptors->GetBindlessDynamicStart()).Int("descriptor_current", allocation.CurrentDescriptors)
             .Int("descriptor_high_water", allocation.HighWaterDescriptors).Int("descriptor_allocations", allocation.Allocations)
@@ -740,7 +744,7 @@ void VulkanResources(VulkanRenderDevice* device)
                     .Int("1_4", lightUploads.Uploads1To4).Int("5_16", lightUploads.Uploads5To16)
                     .Int("17_64", lightUploads.Uploads17To64).Int("65_256", lightUploads.Uploads65To256)
                     .Int("257_plus", lightUploads.Uploads257Plus).Json())
-                .Str("scope", "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate").Json()
+                .Str("scope", SpecialSurfaceEnabled() ? "dynamic-light uploads" : "state-mode immediate Vulkan dynamic-light range/data uploads for this render frame; LevelMesh tile buffers are separate").Json()
                 : Unavailable("light upload counters are state-mode only to keep timing mode free of per-upload bookkeeping"))
             .Raw("actor_shadows", Object().Bool("enabled", bool(gl_actor_light_shadows))
                 .Int("mask_width", ActorShadowMaskWidth).Int("mask_height", ActorShadowMaskHeight)
@@ -749,7 +753,7 @@ void VulkanResources(VulkanRenderDevice* device)
                 .Int("overflow_casters", rsbuffers->ActorShadowbuffer.OverflowCasters.load())
                 .Int("frame_epoch", rsbuffers->ActorShadowbuffer.Epoch)
                 .Int("buffer_bytes", rsbuffers->ActorShadowbuffer.SSO->size)
-                .Str("scope", "CPU-authored current-frame SSBO ranges; rendered pixels verify shader consumption").Json());
+                .Str("scope", SpecialSurfaceEnabled() ? "actor-shadow SSBO" : "CPU-authored current-frame SSBO ranges; rendered pixels verify shader consumption").Json());
         if (level.levelMesh)
         {
             const auto& epochs = level.levelMesh->GetMutationEpochs();
@@ -766,7 +770,7 @@ void VulkanResources(VulkanRenderDevice* device)
         }
         else result.Raw("levelmesh", Unavailable("no active level mesh"));
         result.Raw("sun", Object().Num("intensity", level.SunIntensity).Raw("direction", '[' + Number(level.SunDirection.X) + ',' + Number(level.SunDirection.Y) + ',' + Number(level.SunDirection.Z) + ']')
-            .Str("scope", "current level authored sun state, not per-surface visibility or physical radiometry").Json());
+            .Str("scope", SpecialSurfaceEnabled() ? "authored sun" : "current level authored sun state, not per-surface visibility or physical radiometry").Json());
         Emit("resource", result.Json());
     }
     catch (const std::exception& error) { Fail(error.what()); }
