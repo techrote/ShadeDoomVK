@@ -398,3 +398,11 @@ The [original hosted failure](../evidence/SDVK-161-SPLIT-WALL-UV-FAILURE.json) a
 extracted production CPU negative pin this producer defect. Actual copied writer
 UVs remain subject to the unchanged precise current-tile observer, independently
 of image equality. This is a correctness repair with no physical-cost claim.
+
+## 15 November 2026 current-source reconciliation — controlled planes, commands and timings
+
+- **Merged [#192](https://github.com/techrote/ShadeDoomVK/pull/192):** controlled 3D-floor runtime tiles distinguish *model source plane* from facing, per-facing vertex streams and their UV/page identities. Runtime `FF_BOTHPLANES` tiles cannot be encoded into the retained v5 format; keep dirty and re-bake. [RAG 17](17-CONTROLLED-3DFLOOR-LIGHTMAP-OWNERSHIP.md).
+- **Merged [#194](https://github.com/techrote/ShadeDoomVK/pull/194):** static commandlet checks actual map loading/identity, Vulkan and lightmapping status and live dirty work; no-progress aborts before `LIGHTMAP` persistence. [RAG 18](18-STATIC-LIGHTMAP-COMMANDS-AND-GPU-TIMING.md).
+- **Merged [#202](https://github.com/techrote/ShadeDoomVK/pull/202):** opt-in `vktool lightmap build ... -sdvkobservegpu` groups lightmap/probe Vulkan timestamp intervals. Query groups now reserve closing capacity and pair successful `PushGroup/PopGroup` correctly. Bottom-of-pipe intervals are not whole-frame or additive GPU costs. [RAG 18](18-STATIC-LIGHTMAP-COMMANDS-AND-GPU-TIMING.md).
+
+Parent [SDVK-014/#14](https://github.com/techrote/ShadeDoomVK/issues/14) remains open, and the physical GPU STOP remains active. Reported historical hardware numbers in #202 were not independently reproduced for its final code revision. Full review inventory: [RAG 21](21-NOV2026-CLOSED-PR-RECONCILIATION.md).

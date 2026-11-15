@@ -236,3 +236,7 @@ destination, including line/sector/group identities. The receiving sector group
 must agree with that selected destination; the inherited context field and
 semantic key remain unchanged. No alternate portal transform or XY sector
 lookup is introduced by this observation.
+
+## 15 November 2026 reverse linked-portal precision note
+
+Merged [PR #199](https://github.com/techrote/ShadeDoomVK/pull/199) changes **only a source-qualified diagnostic** for the reverse portal's authored plane: `[0,-1,0,-192]` may appear as `[0,-0.9999999403953552,0,-191.99998474121094]` after float conversion. The narrow `math.isclose` check uses `rel_tol=2e-7` / `abs_tol=1e-7` for that plane, retaining source/owner/material/view/camera and exact paired image/state expectations. **No portal render-space transform or geometry code was changed** by #199. See [RAG 20](20-REVERSE-PORTAL-NUMERIC-REGRESSION.md).

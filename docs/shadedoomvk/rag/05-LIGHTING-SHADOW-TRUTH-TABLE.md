@@ -210,3 +210,11 @@ The [combined gate](../SDVK-010-INTEGRATION-ACCEPTANCE.md) retains exact repeat 
 ## SDVK-011 candidate
 
 Legacy remains default. Enhanced cards share one camera-forward sample for light selection, shading and world rays. HUD geometry/gameplay are unchanged. stat viewmodel and emitted records report mode, fallback, sample and resource identity. See [bounded implementation](../SDVK-011-VIEWMODEL-LIGHTING.md). Native qualification/review remain required.
+
+## 15 November 2026 merged lighting increments versus pending raster shadows
+
+[PR #190](https://github.com/techrote/ShadeDoomVK/pull/190) provides a **user-loaded ZScript flashlight** with configurable cone/range/offsets and optional weapon/actor lighting. The flashlight beam deliberately sets `NOSHADOWMAP`; no occluding flashlight shadow is promised. See [RAG 15](15-DOOM2-DBP50-MATERIAL-FLASHLIGHT.md).
+
+[PR #193](https://github.com/techrote/ShadeDoomVK/pull/193) supplies an exact-source **shadow-OFF** 1/64/256/256-light physical collection protocol. [PR #195](https://github.com/techrote/ShadeDoomVK/pull/195) removes redundant spotlight direction evaluation only in `lightmodel_normal.glsl`. It does **not** change PBR/specular light loops, enable tiled lights or fix historical dense-shadow GPU faults. Reported fixture GPU costs are *not whole-frame metrics*; see [RAG 19](19-SHADOWOFF-LIGHT-SCALING-AND-SPOTLIGHT.md).
+
+The owner-approved [SHADOW-001 #212](https://github.com/techrote/ShadeDoomVK/pull/212) raster floor-projected sprite shadows are **open/unmerged** (and stacked on open R-001 #211). Do not describe new `gl_sprite_shadow_mode` or a 4× shadow proxy as part of current master. The older GPU STOP wording is retained as historical fault context; the owner's 15 November [GPU workflow direction](../LOCAL-GPU-WORKFLOW-20261115.md) instead makes normal hardware GPU rendering and testing the default. See [closure/status audit](21-NOV2026-CLOSED-PR-RECONCILIATION.md).

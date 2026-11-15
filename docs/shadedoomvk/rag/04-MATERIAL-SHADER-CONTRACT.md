@@ -279,3 +279,9 @@ each actual model skin in enhanced mode, with explicit sector fallback for
 unsupported material/normal-transform state and restoration for later supported
 surfaces. See `SDVK-011-VIEWMODEL-LIGHTING.md`; source/CPU qualification is distinct
 from the pending bounded native OBJ-model matrix.
+
+## 15 November 2026 current-source supplement — local art packs and POM gradients
+
+[PR #190](https://github.com/techrote/ShadeDoomVK/pull/190) merged an **optional offline material generator** in `tools/doom2_showcase/`. It emits Doom II and DBP50 **GLDEFS auxiliary layers** (normal, metallic, roughness, AO) for supported source-hash-pinned game art; it does **not** replace visible albedo, embed WAD art in the engine or activate automatically for ordinary play. The flashlight is a separate ZScript PK3, not an inherent material property. See [RAG 15](15-DOOM2-DBP50-MATERIAL-FLASHLIGHT.md).
+
+[PR #191](https://github.com/techrote/ShadeDoomVK/pull/191) corrected **opt-in sprite POM** albedo derivatives: original sample + `dFdx/dFdy` precede conditional relief, displaced RGB uses explicit `textureGrad` and existing texture-mode processing, original alpha stays authoritative. The generator produces no sprite height maps, and parent #8's full physical/mirror/portal acceptance remains open. See [RAG 16](16-SPRITE-RELIEF-ALBEDO-SAMPLING.md). Do not infer that engine PBR support implies a current release contains authored materials for every IWAD.

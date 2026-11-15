@@ -277,3 +277,9 @@ current receiver at draw construction; it does not retain a recyclable numeric
 tile. Wall portal geometry has no receiving allocation. Non-sky flat portal
 receiver behavior is preserved. The inherited OnMidTex3DHeightChanged no-op is
 still unclaimed. See the increment for CPU versus native coverage and acceptance.
+
+## 15 November 2026 source-qualified addendum — controlled flats and bake commands
+
+Merged [PR #192](https://github.com/techrote/ShadeDoomVK/pull/192) extends controlled 3D-floor lightmap tile identity by **source plane** as well as emitted facing; distinct `planeref::vindex[2]` streams and per-subsector slots must agree with actual submitted geometry. `FreeFlat` detaches old source/facing tile slots before retirement. Historical v5 cannot serialize newly ambiguous `FF_BOTHPLANES` runtime tiles, which require re-baking. See [RAG 17](17-CONTROLLED-3DFLOOR-LIGHTMAP-OWNERSHIP.md).
+
+Merged [PR #194](https://github.com/techrote/ShadeDoomVK/pull/194) refuses to save a static bake when dirty tile count stalls or the loaded map identity does not match the requested/output target; no-progress is a hard error, not normal completion. See [RAG 18](18-STATIC-LIGHTMAP-COMMANDS-AND-GPU-TIMING.md). These are **bounded integrated code corrections**, not completion of SDVK-014 physical bake/update acceptance. Exact closure reconciliation: [RAG 21](21-NOV2026-CLOSED-PR-RECONCILIATION.md).

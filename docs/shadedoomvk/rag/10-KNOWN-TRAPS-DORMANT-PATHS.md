@@ -349,3 +349,12 @@ attestation and positive same-object exit within the existing50ms bound. It reta
 the original error and exit code; the collector independently rejects nonzero exit.
 The original stopped physical compositing attempt remains failed with its original
 exit code unknown.
+
+## 15 November 2026 — traps found in the nine recent merges
+
+1. **Opt-in is not on-by-default:** merged [#190](https://github.com/techrote/ShadeDoomVK/pull/190) supports locally generated Doom II/DBP50 PBR PK3s and standalone flashlight, but an engine-only or shadow-fixture ZIP will *not* automatically include them; exact WAD hashes constrain the generator. [RAG 15](15-DOOM2-DBP50-MATERIAL-FLASHLIGHT.md).
+2. **Classic input is not vanilla sync:** [#189](https://github.com/techrote/ShadeDoomVK/pull/189) uses current physics/RNG with only accepted version-109 commands. [RAG 14](14-CLASSIC-INPUT-IMPORT.md).
+3. **POM isn't automatic material generation:** [#191](https://github.com/techrote/ShadeDoomVK/pull/191) is a derivative/alpha correction for separately authored, opt-in height materials. [RAG 16](16-SPRITE-RELIEF-ALBEDO-SAMPLING.md).
+4. **v5 is intentionally limited:** [#192](https://github.com/techrote/ShadeDoomVK/pull/192) cannot persist newly separated runtime BOTH-plane tiles to old v5. [RAG 17](17-CONTROLLED-3DFLOOR-LIGHTMAP-OWNERSHIP.md).
+5. **No false GPU acceptance:** #193/#195 measurements are shadow-OFF fixture-scoped; #202 earlier hardware times are descriptive rather than general performance acceptance. The later 15 November [owner direction](../LOCAL-GPU-WORKFLOW-20261115.md) makes ordinary GPU execution the default on GPU-equipped development machines. [RAG 19](19-SHADOWOFF-LIGHT-SCALING-AND-SPOTLIGHT.md), [RAG 18](18-STATIC-LIGHTMAP-COMMANDS-AND-GPU-TIMING.md).
+6. **Not merged yet:** [R-001 #211](https://github.com/techrote/ShadeDoomVK/pull/211) and [SHADOW-001 #212](https://github.com/techrote/ShadeDoomVK/pull/212) are open candidate work, not master defaults. See [closed-PR audit](21-NOV2026-CLOSED-PR-RECONCILIATION.md). No automatic long stress workload should be inferred from the user's desired playable nightly-quality preset.

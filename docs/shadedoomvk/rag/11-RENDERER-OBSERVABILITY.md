@@ -453,3 +453,14 @@ CFX paths unique to one process. Recipe-declared lifecycle flags are derived in
 the same order as `run.capture`, including probe-owner/reset and special-surface
 drivers. Both collector and supervisor retain the existing POM per-process
 backend/device, relief-work, raw timing and environment-continuity checks.
+
+## 15 November 2026 — new evidence consumers and qualification boundaries
+
+Recent merged work added/adjusted distinct observational contracts:
+
+- [#193](https://github.com/techrote/ShadeDoomVK/pull/193) registers **shadow-off many-light** work with an immutable state-pair receipt before timing. Exact image/census and 120-frame group coverage are specific to that schedule, not general GPU acceptance. [RAG 19](19-SHADOWOFF-LIGHT-SCALING-AND-SPOTLIGHT.md).
+- [#192](https://github.com/techrote/ShadeDoomVK/pull/192) joins actual controlled-floor **submitted indices → vertex UV/page → current source/facing tile owner** rather than trusting a preselected source record. [RAG 17](17-CONTROLLED-3DFLOOR-LIGHTMAP-OWNERSHIP.md).
+- [#199](https://github.com/techrote/ShadeDoomVK/pull/199) narrowly permits float coefficient rounding on a single reverse-portal plane, without relaxing exact paired image/state or identity checks. [RAG 20](20-REVERSE-PORTAL-NUMERIC-REGRESSION.md).
+- [#202](https://github.com/techrote/ShadeDoomVK/pull/202) reports lightmap/probe Vulkan GPU **intervals** with explicit opt-in, bounded timestamp support diagnostics and nested query correctness. Historical author-reported physical figures are not independently reproduced, and **physical STOP remains active**. [RAG 18](18-STATIC-LIGHTMAP-COMMANDS-AND-GPU-TIMING.md).
+
+Evidence labels should distinguish *merged code*, *CPU/hosted native qualification*, *physical author report*, and *owner-approved physical acceptance*. For nine exact closures see [RAG 21](21-NOV2026-CLOSED-PR-RECONCILIATION.md).
