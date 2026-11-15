@@ -142,6 +142,21 @@ class ActorShadowContracts(unittest.TestCase):
         self.assertIn("gl_actor_light_shadows, false", source)
         self.assertNotIn("STYLE_Stencil", source)
 
+    def test_flashlight_player_exclusion_keeps_no_shadowmap_actor_casters(self):
+        # A PR #190 flashlight is a separate beam actor, NOT the player pawn.
+        # Source-level integration guard; native visual acceptance is separate.
+        zscript = (ROOT / "tools/doom2_showcase/flashlight/ZSCRIPT").read_text()
+        lights = (ROOT / "src/playsim/a_dynlight.h").read_text()
+        renderer = (ROOT / "src/rendering/hwrenderer/hw_dynlightdata.cpp").read_text()
+        self.assertIn("class SDVKLocalFlashlightBeam : SpotLight", zscript)
+        self.assertIn("+DYNAMICLIGHT.NOSHADOWMAP", zscript)
+        self.assertIn("DontShadowmap() const", lights)
+        self.assertIn("candidate == light->target || candidate->player", renderer)
+        # NOSHADOWMAP is an ordinary world-shadowmap opt-out, not permission
+        # to remove actor silhouettes from lights (our native room uses it).
+        self.assertNotIn("light->DontShadowmap()", renderer)
+        self.assertIn("light_noshadowmap=True", (ROOT / "tools/dynamic_shadows/native_scene.py").read_text())
+
     def test_per_local_light_shading_not_global_composite(self):
         root = ROOT / "wadsrc/static/shaders/scene"
         for filename in ("lightmodel_normal.glsl", "lightmodel_specular.glsl",

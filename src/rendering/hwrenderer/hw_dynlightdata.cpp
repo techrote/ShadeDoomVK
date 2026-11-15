@@ -291,6 +291,8 @@ void ApplyActorShadowCache(FDynLightInfo& info, const ActorShadowCacheEntry& ent
 void CollectActorShadowCasters(FDynLightInfo& info, FDynamicLight* light, int group,
 	const AActor* receiver)
 {
+	// NOSHADOWMAP controls the inherited world shadow map, not actor-alpha
+	// visibility. Synthetic actor-shadow lights intentionally use this flag.
 	if (!gl_actor_light_shadows || !light || !light->Level || !light->Sector ||
 		light->Sector->PortalGroup != group || light->GetRadius() <= 0 ||
 		light->GetRadius() >= HWLightCompat::SunProxyRadius)
@@ -328,7 +330,12 @@ void CollectActorShadowCasters(FDynLightInfo& info, FDynamicLight* light, int gr
 	auto iter = light->Level->GetThinkerIterator<AActor>();
 	for (AActor* candidate = iter.Next(); candidate != nullptr; candidate = iter.Next())
 	{
-		if (candidate == light->target || !candidate->Sector ||
+		// A flashlight beam is a separate actor, not the player's pawn, so
+		// excluding light->target alone does not exclude the first-person body.
+		// Its interpolated position can cross a tick-updated light near the eye,
+		// producing a flickering, rotating near-field occluder when walking.
+		// Player sprites are outside this first monster-silhouette caster scope.
+		if (candidate == light->target || candidate->player || !candidate->Sector ||
 			candidate->Sector->PortalGroup != group || !(candidate->flags & MF_SHOOTABLE) ||
 			!ActorSilhouetteEligible(candidate, ticFrac))
 			continue;
