@@ -41,6 +41,7 @@
 #include "cmdlib.h"
 
 CVAR(Bool, gl_ubershaders, true, 0);
+EXTERN_CVAR(Bool, gl_actor_light_shadows)
 CVAR(Bool, vk_debug_pipeline_creation, false, 0);
 EXTERN_CVAR(Bool, gl_multithread);
 CUSTOM_CVAR(Int, vk_pipeline_threads, 0, 0) // Todo: archive?
@@ -502,7 +503,10 @@ VulkanRenderPass *VkRenderPassSetup::GetRenderPass(int clearTargets)
 
 VulkanPipeline *VkRenderPassSetup::GetPipeline(const VkPipelineKey &key, UniformStructHolder &Uniforms)
 {
-	if (UsePipelineLibrary)
+	// The generalized fallback deliberately omits per-fragment dynamic lights.
+	// An enabled actor-shadow preview must use its real per-light shaders from
+	// the first frame, including when toggled on after pipeline setup.
+	if (UsePipelineLibrary && !gl_actor_light_shadows)
 	{
 		auto data = GetSpecializedPipeline(key);
 		if (!data)
@@ -518,7 +522,11 @@ VulkanPipeline *VkRenderPassSetup::GetPipeline(const VkPipelineKey &key, Uniform
 		{
 			auto pipeline = CreateWithStats(*CreatePipeline(key, false, Uniforms), "Specialized");
 			auto ptr = pipeline.get();
-			SpecializedPipelines.insert(std::pair<VkPipelineKey, PipelineData>{key, PipelineData{std::move(pipeline), Uniforms}});
+			// A worker may already own an empty slot from an earlier OFF frame.
+			// Publish into that slot; insert-only would destroy this live pipeline.
+			auto& slot = SpecializedPipelines[key];
+			slot.pipeline = std::move(pipeline);
+			slot.Uniforms = Uniforms;
 			return ptr;
 		}
 		else

@@ -138,8 +138,15 @@ public:
         std::lock_guard<std::mutex> lock(Mutex);
         if (Closed) return false;
         if (!Error.empty()) { ++Dropped; return false; }
-        if (!kind || data.size() < 2 || data.front() != '{' || data.back() != '}' || data.size() > MaxRecordBytes)
-            return Reject("Invalid or oversized SDVK observation record");
+        // Preserve the fixed admission limit, but make a rejected packet actionable
+        // without retaining an unbounded or possibly malformed payload.
+        const bool invalidShape = !kind || data.size() < 2 || data.front() != '{' || data.back() != '}';
+        if (invalidShape || data.size() > MaxRecordBytes)
+            return Reject(std::string("Invalid or oversized SDVK observation record: kind=") +
+                (kind ? kind : "<null>") + " frame=" + std::to_string(frame) +
+                " data_bytes=" + std::to_string(data.size()) +
+                " max_record_bytes=" + std::to_string(MaxRecordBytes) +
+                " reason=" + (invalidShape ? "invalid-shape" : "record-byte-bound"));
         const std::string type(kind);
         // Only adjacent identical observations may be coalesced. A global
         // value lookup would erase the distinction between A,B,A and A,A,B.
@@ -184,7 +191,7 @@ public:
     }
 private:
     struct Row { std::string Kind; uint64_t Frame, Count; std::string Data; };
-    bool Reject(const char* reason) { Error = reason; ++Dropped; return false; }
+    bool Reject(const std::string& reason) { Error = reason; ++Dropped; return false; }
     mutable std::mutex Mutex;
     std::vector<Row> Rows;
     size_t MaxRecords, MaxBytes, Bytes = 0;

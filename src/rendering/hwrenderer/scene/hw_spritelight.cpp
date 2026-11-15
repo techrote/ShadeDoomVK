@@ -279,7 +279,7 @@ void HWDrawInfo::GetDynSpriteLight(AActor *self, sun_trace_cache_t * traceCache,
 					if (observing) observationDecision = "attenuation-or-shadow-rejected";
 					if(level.info->lightattenuationmode == ELightAttenuationMode::INVERSE_SQUARE)
 					{
-						frac = (inverseSquareAttenuation(std::max(dist, sqrt(radius) * 2), radius, light->GetStrength(), light->GetLinearity()));
+						frac = (inverseSquareAttenuation(std::max(dist, std::sqrt(radius) * 2), radius, light->GetStrength(), light->GetLinearity()));
 					}
 					else
 					{
@@ -448,7 +448,7 @@ void HWDrawInfo::GetDynSpriteLightList(AActor *self, double x, double y, double 
 				if (selections)
 					selections->push_back({ light, group, LightQueryClass(light) });
 				if (output)
-					AddLightToList(*output, group, light, true, gl_spritelight > 0);
+					AddLightToList(*output, group, light, true, gl_spritelight > 0, self);
 			}
 			else if (countDiagnostics)
 			{

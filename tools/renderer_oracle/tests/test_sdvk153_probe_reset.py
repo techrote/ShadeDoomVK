@@ -171,11 +171,12 @@ class ProbeSamplerResetTests(unittest.TestCase):
         from tools.renderer_oracle import native_ci,sdvk010_sun_native
         with tempfile.TemporaryDirectory() as directory:
             args=argparse.Namespace(out=Path(directory)/'run',expected_commit='a'*40)
-            with mock.patch.object(sdvk010_sun_native,'software_host_guard',side_effect=EvidenceError('host held')),\
+            with mock.patch.object(sdvk010_sun_native,'software_host_guard',side_effect=EvidenceError('host held')) as host_guard,\
                  mock.patch.object(native_ci,'preflight') as preflight:
                 result=gate.qualify(args)
                 self.assertEqual(result['status'],'FAIL')
                 self.assertEqual(result['error'],'host held')
+                host_guard.assert_called_once_with(args.out)
                 preflight.assert_not_called()
 
 

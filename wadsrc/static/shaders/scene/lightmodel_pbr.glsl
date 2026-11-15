@@ -79,6 +79,7 @@ vec3 ProcessLight(const DynLightInfo light, vec3 albedo, float metallic, float r
 			attenuation *= shadowAttenuation(light.pos.xyz, light.shadowIndex, light.softShadowRadius, light.flags);
 		}
 		
+		attenuation *= ActorLightShadowVisibility(light);
 		vec3 radiance = light.color.rgb * attenuation * LIGHT_COMPAT_PBR_BRIGHTNESS_SCALE;
 		
 		// cook-torrance brdf

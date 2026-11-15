@@ -150,7 +150,7 @@ class LightingCompatContractTests(unittest.TestCase):
         # The aggregate sprite path has inherited input conditioning that the
         # GPU fragment path does not: a minimum inverse-square distance and raw
         # (not upload-clamped) linearity. PF-011 documents and preserves it.
-        self.assertIn("std::max(dist, sqrt(radius) * 2)", self.actor_light_cpp)
+        self.assertIn("std::max(dist, std::sqrt(radius) * 2)", self.actor_light_cpp)
         self.assertIn("light->GetLinearity()", self.actor_light_cpp)
         self.assertNotIn("HWLightCompat::ClampLinearity", self.actor_light_cpp)
 

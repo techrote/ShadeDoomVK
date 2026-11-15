@@ -24,6 +24,7 @@
 #include "vulkan/vk_renderdevice.h"
 #include "vulkan/vk_levelmesh.h"
 #include "vulkan/vk_lightuploadpolicy.h"
+#include "vulkan/vk_actorshadowpolicy.h"
 #include "vulkan/commands/vk_commandbuffer.h"
 #include "vulkan/buffers/vk_buffer.h"
 #include "vulkan/pipelines/vk_renderpass.h"
@@ -659,6 +660,23 @@ void VkRenderState::SetTextureMatrix(const VSMatrix& matrix)
 	mNeedApply = true;
 }
 
+int VkRenderState::UploadActorShadowCasters(const FActorShadowCaster* casters, int count)
+{
+	if (!casters || count <= 0 || count > MaxActorShadowCastersPerLight)
+		return -1;
+	auto& buffer = mRSBuffers->ActorShadowbuffer;
+	if (!buffer.Data || buffer.Epoch == 0)
+		return -1;
+	const int start = VkActorShadowPolicy::Reserve(buffer.UploadIndex, count,
+		MaxActorShadowCastersPerFrame, MaxActorShadowCastersPerLight, buffer.OverflowCasters);
+	if (start < 0) return -1;
+	// Render workers are joined before draw submission, as for sprite vertices.
+	// Host-coherent mapped memory and disjoint reserved ranges need no GPU-side
+	// transfer or descriptor mutation while the frame is being assembled.
+	memcpy(buffer.Data + start, casters, size_t(count) * sizeof(FActorShadowCaster));
+	return start;
+}
+
 int VkRenderState::UploadLights(const FDynLightData& data)
 {
 	// All meaasurements here are in vec4's.
@@ -846,6 +864,12 @@ void VkRenderState::BeginFrame()
 	mRSBuffers->Lightbuffer.UploadIndex = 0;
 	mRSBuffers->Lightbuffer.DataIndex = 0;
 	mRSBuffers->Lightbuffer.Observation = {};
+	// A process-unique epoch also invalidates CPU cache entries after device
+	// recreation, even if an allocator reuses the old renderer's address.
+	static std::atomic<uint64_t> nextActorShadowEpoch{1};
+	mRSBuffers->ActorShadowbuffer.Epoch = nextActorShadowEpoch.fetch_add(1, std::memory_order_relaxed);
+	mRSBuffers->ActorShadowbuffer.UploadIndex.store(0, std::memory_order_relaxed);
+	mRSBuffers->ActorShadowbuffer.OverflowCasters.store(0, std::memory_order_relaxed);
 	mRSBuffers->Bonebuffer.UploadIndex = 0;
 	mRSBuffers->Fogballbuffer.UploadIndex = 0;
 	mRSBuffers->OcclusionQuery.NextIndex = 0;
@@ -870,6 +894,10 @@ void VkRenderState::EndRenderPass()
 
 void VkRenderState::EndFrame()
 {
+	// LevelMesh's next CPU update happens before the next Vulkan BeginFrame.
+	// Do not let that early/non-draw path write a range still owned by the
+	// submitted frame or publish references invalidated by the imminent reset.
+	mRSBuffers->ActorShadowbuffer.Epoch = 0;
 	mRSBuffers->MatrixBuffer->Reset();
 	mRSBuffers->SurfaceUniformsBuffer->Reset();
 	mMatricesChanged = true;

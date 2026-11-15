@@ -1,10 +1,13 @@
 //#include <shaders/binding_struct_definitions.glsl> //doesn't work somehow?
 
+// Duplicated light-data ABI for the optional tiled path. Keep exactly
+// aligned with binding_struct_definitions.glsl and FDynLightInfo (80 bytes).
+
 struct DynLightInfo
 {
-	vec3 pos; float padding0;
-	vec3 color; float padding1;
-	vec3 spotDir; float padding2;
+	vec3 pos; int actorShadowIndex;
+	vec3 color; int actorShadowCount;
+	vec3 spotDir; int actorShadowMask;
 	float radius;
 	float linarity;
 	float softShadowRadius;

@@ -74,7 +74,17 @@ int main(int argc, char** argv)
     assert(byteLimit.Size() == 0 && byteLimit.DroppedCount() == 1);
     RecordStore shape;
     assert(!shape.Add("frame", 1, "[]"));
-    assert(!shape.Failure().empty());
+    assert(shape.Failure().find("kind=frame frame=1 data_bytes=2") != std::string::npos);
+    assert(shape.Failure().find("reason=invalid-shape") != std::string::npos);
+    assert(shape.DroppedCount() == 1);
+    RecordStore oversized;
+    std::string large(RecordStore::MaxRecordBytes + 1, 'x');
+    large.front() = '{'; large.back() = '}';
+    assert(!oversized.Add("resource", 49, large));
+    assert(oversized.Failure().find("kind=resource frame=49 data_bytes=16385 max_record_bytes=16384 reason=record-byte-bound") != std::string::npos);
+    assert(oversized.Size() == 0 && oversized.DroppedCount() == 1);
+    assert(!oversized.Add("resource", 50, "{}"));
+    assert(oversized.DroppedCount() == 2);
 
     const std::filesystem::path path(argv[1]);
     const auto envelope = Object().Str("schema", "sdvk-observation-core-fixture/v1")

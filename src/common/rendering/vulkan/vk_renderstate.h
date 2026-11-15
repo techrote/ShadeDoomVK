@@ -49,6 +49,8 @@ public:
 	void SetModelMatrix(const VSMatrix& matrix, const VSMatrix& normalMatrix) override;
 	void SetTextureMatrix(const VSMatrix& matrix) override;
 	int UploadLights(const FDynLightData& lightdata) override;
+	int UploadActorShadowCasters(const FActorShadowCaster* casters, int count) override;
+	uint64_t GetActorShadowEpoch() const override { return mRSBuffers->ActorShadowbuffer.Epoch; }
 	int UploadBones(const TArray<VSMatrix>& bones) override;
 	int UploadFogballs(const TArray<Fogball>& balls) override;
 

@@ -112,6 +112,18 @@ PF-012 does not change probe capture transforms. Its per-lightmap selector runs 
 
 ## Shadow implications
 
+SHADOW-002 / PR #215's immediate actor-shadow candidate admits a caster only
+when source actor, dynamic light and receiver share one portal group. A
+transported light keeps its existing lighting/world visibility without a new
+straight-line actor shadow. Source rotation is selected from light to actor,
+independent of camera position, and its horizontal source-U direction matches
+`HWSprite`'s unmirrored `leftfac -> U=1` convention. Frame/actor X and Y flips
+remain separate from portal/view handedness. The frame-cache key includes
+resource owner/generation, group, interpolation fraction and process-unique
+side-buffer epoch; no GPU range survives `EndFrame`. This is not a general
+cross-portal shadow-ray implementation. See
+[SHADOW-002](../SHADOW-002-DYNAMIC-LIGHT-VISIBILITY.md).
+
 - world ray-query visibility uses LevelMesh world geometry;
 - actor projected/card shadows need portal-relative light/actor positions and mirror-correct silhouette orientation;
 - contact bias must be computed in the receiver/world space actually used for the pass;

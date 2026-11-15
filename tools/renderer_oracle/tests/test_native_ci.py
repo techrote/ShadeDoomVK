@@ -39,6 +39,41 @@ class Controls(unittest.TestCase):
             self.assertEqual(os.environ["DISPLAY"], ":99")
             self.assertEqual(os.environ["WAYLAND_DISPLAY"], "wayland-0")
 
+    def test_preflight_both_device_queries_are_headless_and_renderer_display_survives(self):
+        with tempfile.TemporaryDirectory(prefix='sdvk-native-host-unit-') as directory:
+            root = Path(directory)
+            args = Namespace(exe=root/'unit-exe', iwad=root/'unit-iwad',
+                             iwad_license=root/'unit-license')
+            for path in (args.exe, args.iwad, args.iwad_license):
+                path.write_bytes(b'Synthetic CPU test input; not native evidence')
+            manifest = root/'lvp_icd.json'
+            manifest.write_text(json.dumps({'ICD': {'library_path': 'libvulkan_lvp.so'}}))
+            environment = {'DISPLAY': ':99', 'WAYLAND_DISPLAY': 'wayland-0',
+                           'SDL_VIDEODRIVER': 'x11', 'KEEP': 'yes',
+                           'VK_DRIVER_FILES': str(manifest), 'VK_ICD_FILENAMES': str(manifest)}
+
+            def subprocess_result(argv, *, stdout, stderr, env=None, timeout, check):
+                if argv[0] == 'vulkaninfo':
+                    output = self.summary if '--summary' in argv else self.full
+                    stdout.write(output.encode())
+                else:
+                    self.assertEqual(argv[0], 'dpkg-query')
+                    stdout.write(b'synthetic-unit-package\t1\n')
+                return Namespace(returncode=0)
+
+            with patch.dict(os.environ, environment, clear=True), \
+                 patch.object(native_ci.run, 'host_profile', return_value={'synthetic': True}), \
+                 patch.object(native_ci.subprocess, 'run', side_effect=subprocess_result) as process:
+                result = native_ci.preflight(args, root)
+                self.assertEqual(result['status'], 'PASS')
+                self.assertEqual(dict(os.environ), environment)
+            queries = [call for call in process.call_args_list if call.args[0][0] == 'vulkaninfo']
+            self.assertEqual([call.args[0] for call in queries], [['vulkaninfo', '--summary'], ['vulkaninfo']])
+            child_environment = {key: value for key, value in environment.items()
+                                 if key not in ('DISPLAY', 'WAYLAND_DISPLAY')}
+            for call in queries:
+                self.assertEqual(call.kwargs['env'], child_environment)
+
     def test_synthetic_identity_and_each_missing_or_false_feature(self):
         value = native_ci.device_evidence(self.summary, self.full)
         self.assertEqual(len(value['required_features']), 5)

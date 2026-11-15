@@ -134,7 +134,8 @@ def preflight(args, out):
             shutil.copyfile("/etc/os-release", provenance / "os-release.txt")
         data["commands"] = {
             "packages": command(provenance, "packages", ["dpkg-query", "-W", "-f=${binary:Package}\t${Version}\n"]),
-            "vulkan_summary": command(provenance, "vulkaninfo-summary", ["vulkaninfo", "--summary"]),
+            "vulkan_summary": command(provenance, "vulkaninfo-summary", ["vulkaninfo", "--summary"],
+                                      env=device_feature_probe_environment()),
             "vulkan_full": command(provenance, "vulkaninfo-full", ["vulkaninfo"],
                                    env=device_feature_probe_environment())}
         data["device_feature_probe"] = {

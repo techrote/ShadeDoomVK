@@ -1389,7 +1389,7 @@ def qualify(args) -> dict:
                 "Expected exact build commit required")
         require(not any(key.startswith("CFX_") and value for key, value in os.environ.items()),
                 "No CFX experiments in this gate")
-        result["software_host"] = sdvk010_sun_native.software_host_guard()
+        result["software_host"] = sdvk010_sun_native.software_host_guard(out)
         result["preflight"] = native_ci.preflight(args, out)
         prepared = out / "prepared"
         manifest = prepare.prepare(prepared, [SCENE])

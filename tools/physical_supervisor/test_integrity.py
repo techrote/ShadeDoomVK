@@ -6,6 +6,7 @@ All GPU/event readers are synthetic; no hardware discovery runs here.
 from __future__ import annotations
 
 import os
+import datetime as dt
 import sys
 import hashlib
 from pathlib import Path
@@ -839,7 +840,24 @@ class LivenessIntegrationTests(unittest.TestCase):
                          {path.resolve(strict=True) for path in actual})
         self.assertEqual(len(published.call_args_list),len(actual))
         rows=self.heartbeats()
-        self.assertLess(max(b["monotonic"]-a["monotonic"] for a,b in zip(rows,rows[1:])),2)
+        # The collector's completion receipt is written only after its target
+        # has exited and all collector validation has finished. After that,
+        # the supervisor performs independent, potentially slow validation.
+        # That post-exit work has no live child's heartbeat lease to renew.
+        # Retain every published row, but measure the live interval rather
+        # than treating post-exit disk/validation time as a control stall.
+        control=self.root/"control/00-compositing"
+        resumed=read_json(next((self.root/"control/journal").glob("*-collector-resumed.json")))["value"]["resume_native_call_attempt_monotonic"]
+        finished=dt.datetime.fromisoformat(read_json(control/"stage-result.json")["finished_utc"])
+        before=[value for value in rows if value["monotonic"]<=resumed]
+        self.assertTrue(before)
+        live=before[-1:]+[value for value in rows if value["monotonic"]>resumed
+                         and dt.datetime.fromisoformat(value["utc"])<=finished]
+        self.assertGreater(len(live),3)
+        self.assertLess(max(b["monotonic"]-a["monotonic"] for a,b in zip(live,live[1:])),2)
+        # The final partial live interval still needs timely coverage; dropping
+        # the first post-exit row must not hide an actual final live stall.
+        self.assertLess((finished-dt.datetime.fromisoformat(live[-1]["utc"])).total_seconds(),2)
 
     def test_realistic_topology_reaches_native_boundary_without_target_creation(self):
         from . import supervisor

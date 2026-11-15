@@ -570,11 +570,27 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
             if light_uploads is not None:
                 _availability(light_uploads, "dynamic-light uploads")
                 if light_uploads["available"]:
+                    # Historical packets predate the explicit ABI witness and
+                    # have exactly the original 80-byte record. New layouts
+                    # require the complete registered tuple; never infer a
+                    # stride from the capacity it is supposed to validate.
+                    layout_fields = {"record_layout", "record_stride_bytes", "range_stride_bytes"}
+                    if layout_fields.intersection(light_uploads):
+                        require(layout_fields.issubset(light_uploads),
+                                "Incomplete dynamic-light record layout witness")
+                        record_stride = integer(light_uploads["record_stride_bytes"], "light record stride", minimum=80)
+                        range_stride = integer(light_uploads["range_stride_bytes"], "light range stride", minimum=16)
+                        require((light_uploads["record_layout"], record_stride, range_stride) ==
+                                ("fdynlightinfo-shadow002-sidecar-v1", 80, 16),
+                                "Unrecognized dynamic-light record layout")
+                    else:
+                        record_stride, range_stride = 80, 16
                     range_capacity = integer(light_uploads.get("range_capacity"), "light range capacity", minimum=1)
                     record_capacity = integer(light_uploads.get("record_capacity"), "light record capacity", minimum=1)
                     range_capacity_bytes = integer(light_uploads.get("range_capacity_bytes"), "light range capacity bytes", minimum=16)
                     record_capacity_bytes = integer(light_uploads.get("record_capacity_bytes"), "light record capacity bytes", minimum=80)
-                    require(range_capacity_bytes == range_capacity * 16 and record_capacity_bytes == record_capacity * 80,
+                    require(range_capacity_bytes == range_capacity * range_stride and
+                            record_capacity_bytes == record_capacity * record_stride,
                             "Dynamic-light capacity byte accounting disagrees")
                     ranges = integer(light_uploads.get("range_entries_used"), "light range entries used", minimum=0)
                     records_used = integer(light_uploads.get("records_used"), "light records used", minimum=0)
@@ -590,7 +606,8 @@ def _observation(data, *, required_kinds, expected_map, expected_frames, expecte
                     require(ranges <= range_capacity and records_used <= record_capacity, "Dynamic-light upload usage exceeds capacity")
                     require(attempts == successful + failed and ranges == successful, "Dynamic-light upload attempt accounting disagrees")
                     require(sum(classes) == records_used, "Dynamic-light class totals disagree with uploaded records")
-                    require(uploaded == successful * 16 + records_used * 80, "Dynamic-light upload byte accounting disagrees")
+                    require(uploaded == successful * range_stride + records_used * record_stride,
+                            "Dynamic-light upload byte accounting disagrees")
                     histogram = light_uploads.get("records_per_upload_histogram")
                     require(isinstance(histogram, dict), "Dynamic-light upload histogram is missing")
                     bins = [integer(histogram.get(key), "light upload histogram " + key, minimum=0) for key in

@@ -27,6 +27,7 @@ vec2 lightAttenuation(DynLightInfo light, vec3 normal, vec3 viewdir, float gloss
 		}
 	}
 
+	attenuation *= ActorLightShadowVisibility(light);
 	if (attenuation <= 0.0)
 		return vec2(0.0);
 

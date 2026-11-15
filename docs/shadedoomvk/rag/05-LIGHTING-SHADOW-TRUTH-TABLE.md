@@ -96,6 +96,31 @@ Exact full-key ties are selector-semantic equivalents; stable ordering is retain
 
 VKDoom contains simple sprite-shadow behavior/flags, but not the final ShadeDoomVK actor-cast architecture. SDVK-012 remains comparative: blob/proxy, alpha card, depth card and tractable AS participation are evidence candidates.
 
+### SHADOW-002 candidate — PR #215
+
+`gl_actor_light_shadows` is a default-off immediate-renderer feature. Per local
+dynamic light, up to four eligible opaque upright shootable sprites supply
+light-facing 64×128 filtered binary source-alpha masks. The light-to-fragment
+segment intersects those cards in renderer `(x, height, map-y)` space; only that
+emitter's normal/specular/PBR direct contribution is attenuated. Ambient, IBL,
+other lights, world shadows and displayed source textures remain independent.
+This is an alpha-card approximation, not a stencil volume or reconstructed mesh.
+
+`FDynLightInfo` stays 80 bytes: previous padding carries an index, count and
+receiver-specific enable mask. `VkRSBuffers::ActorShadowbuffer` owns at most
+4,096 × 1,072 bytes, with atomic disjoint reservations, range guards, counted
+exhaustion and a process-unique frame epoch. `EndFrame` closes that epoch before
+the next early LevelMesh update. Cached source alpha is bounded and scoped to
+LevelMesh resource owner/generation and immutable source image identity.
+`GetDynSpriteLightList` passes receiver identity to clear its own caster bit.
+
+Cross-group/transported portal lights, models, non-upright or special-visibility
+sprites, partial opacity/fuzz/additive/custom/warped/canvas sources and
+non-shootable actors omit the new caster. The LevelMesh/tiled and legacy vertex
+receiver paths keep their existing lighting. Actual native images and
+`resources.actor_shadows` submission counters are qualified separately from
+owner visual acceptance. See [implementation and playtest contract](../SHADOW-002-DYNAMIC-LIGHT-VISIBILITY.md).
+
 ## Lighting/shadow mode truth
 
 | Capability | Current status | Notes |

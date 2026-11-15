@@ -29,8 +29,14 @@ SDVK010_SUN_AFTER = '\t\t// SDVK-010: traced actor sunlight uses the already-sup
 SDVK010_SUN_BEFORE = '\t\t// The far-away sunlight proxy bypasses local-light shadow attenuation.\n\t\tif(light.radius < LIGHT_COMPAT_SUN_ATTENUATION_RADIUS && (light.flags & LIGHTINFO_SHADOWMAPPED) != 0)'
 
 
+# SHADOW-002 owns one explicit *per-light* direct radiance attenuation.
+# The PF113 whole-PBR preservation oracle must still reject all other changes,
+# especially ambient, IBL, BRDF and source-control rewrites.
+SHADOW002_DIRECT_LIGHT = '\t\tattenuation *= ActorLightShadowVisibility(light);\n'
+
+
 def restored_shader(candidate: str) -> str:
-    """Reverse exact PF113 sampling and separately owned SDVK010 sun deltas only."""
+    """Reverse exact, separately owned PF113, SDVK010/011 and SHADOW002 deltas."""
     # SDVK-011 substitutes only the three direct/view lighting positions.
     # Reversing this exact token leaves the original whole-shader guard intact.
     if candidate.count('SDVK_LIGHTING_POSITION') != 3:
@@ -39,6 +45,9 @@ def restored_shader(candidate: str) -> str:
     if candidate.count(SDVK010_SUN_AFTER) != 1:
         raise AssertionError("SDVK-010 traced-sun route differs from its exact owned delta")
     candidate = candidate.replace(SDVK010_SUN_AFTER, SDVK010_SUN_BEFORE, 1)
+    if candidate.count(SHADOW002_DIRECT_LIGHT) != 1:
+        raise AssertionError("SHADOW-002 per-source light attenuation differs from its exact owned delta")
+    candidate = candidate.replace(SHADOW002_DIRECT_LIGHT, '', 1)
     start = candidate.index('// Runtime zero is no probe, not the fixed 2D null/BRDF pair.')
     stop = candidate.index('vec3 ProcessMaterialLight(', start)
     restored = candidate[:start] + candidate[stop:]
@@ -86,6 +95,19 @@ class SourcePreservationTests(unittest.TestCase):
             restored_shader(shader.replace('attenuation *= traceSun(L);', 'attenuation *= 0.0;'))
         changed = shader.replace('vec3 R = reflect(-V, N);', 'vec3 R = reflect(V, N);')
         self.assertNotEqual(restored_shader(changed), (source.ORIGINAL / 'lightmodel_pbr.glsl').read_text())
+
+    def test_shadow002_owned_pbr_delta_is_exact_and_other_brdf_changes_fail(self):
+        shader = (ROOT / source.PATHS['shader']).read_text()
+        original = (source.ORIGINAL / 'lightmodel_pbr.glsl').read_text()
+        self.assertEqual(shader.count(SHADOW002_DIRECT_LIGHT), 1)
+        with self.assertRaisesRegex(AssertionError, "SHADOW-002"):
+            restored_shader(shader.replace(SHADOW002_DIRECT_LIGHT, '', 1))
+        with self.assertRaisesRegex(AssertionError, "SHADOW-002"):
+            restored_shader(shader.replace(SHADOW002_DIRECT_LIGHT,
+                                           '\\t\\tattenuation *= 0.0;\\n', 1))
+        self.assertNotEqual(restored_shader(shader.replace(
+            'LIGHT_COMPAT_PBR_AMBIENT_SCALE', 'LIGHT_COMPAT_PBR_AMBIENT_SCALE * 2.0')),
+            original)
 
     def test_actual_extraction_contains_current_helpers_and_complete_consumer(self):
         header, constants, metadata = source.extract_current()

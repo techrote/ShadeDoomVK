@@ -102,7 +102,7 @@ def qualify(args):
                 "An exact expected build commit is required")
         require(not any(k.startswith("CFX_") and v for k, v in os.environ.items()),
                 "Combined actor correctness must not inherit CFX experiment controls")
-        result["software_host"] = sdvk010_sun_native.software_host_guard()
+        result["software_host"] = sdvk010_sun_native.software_host_guard(out)
         require(pin(args.iwad)["sha256"] == sdvk009_publication.IWAD_SHA256,
                 "Combined actor acceptance requires the historical authenticated Freedoom IWAD")
         result["preflight"] = native_ci.preflight(args, out)

@@ -555,6 +555,6 @@ extern const float LARGE_VALUE;
 struct FDynLightData;
 struct FDynamicLight;
 bool GetLight(FDynLightData& dld, int group, Plane& p, FDynamicLight* light, bool checkside);
-void AddLightToList(FDynLightData &dld, int group, FDynamicLight* light, bool forceAttenuate, bool doTrace);
+void AddLightToList(FDynLightData &dld, int group, FDynamicLight* light, bool forceAttenuate, bool doTrace, AActor* receiver = nullptr);
 void AddSunLightToList(FDynLightData& dld, float x, float y, float z, const FVector3& sundir, const FVector3& suncolor, bool doTrace);
 void SetSplitPlanes(FRenderState& state, const secplane_t& top, const secplane_t& bottom);

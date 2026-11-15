@@ -149,6 +149,20 @@ jobs:
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
 
+    - name: Qualify source-alpha actor shadows on hosted software Vulkan
+      if: matrix.config.native_renderer
+      shell: bash
+      env:
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        mapfile -t sdvk_shadow_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
+        test "${#sdvk_shadow_icds[@]}" -eq 1
+        export VK_DRIVER_FILES="${sdvk_shadow_icds[0]}"
+        export VK_ICD_FILENAMES="${sdvk_shadow_icds[0]}"
+        export SDL_VIDEODRIVER=x11
+        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/dynamic_shadows/native_capture.py --exe build/vkdoom --iwad /usr/share/games/doom/freedoom2.wad --out build/shadow002-native --expected-commit "$(git rev-parse HEAD)"
+
     - name: Qualify software Vulkan corpus and timing collection
       if: matrix.config.native_renderer
       shell: bash
@@ -239,7 +253,7 @@ jobs:
       shell: bash
       run: |
         sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
+        for sdvk_evidence_dir in shadow002-native renderer-native renderer-sdvk008-control renderer-sdvk008-preflight renderer-sdvk009-content renderer-sdvk009-publication renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
           if [[ -d "build/$sdvk_evidence_dir" ]]; then
             sdvk_evidence_dirs+=("$sdvk_evidence_dir")
           fi

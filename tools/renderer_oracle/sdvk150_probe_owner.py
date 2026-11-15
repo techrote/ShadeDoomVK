@@ -157,7 +157,7 @@ def qualify(args) -> dict:
                 "An exact expected build commit is required")
         require(not any(key.startswith("CFX_") and value for key, value in os.environ.items()),
                 "Probe-owner qualification must not inherit CFX experiment controls")
-        result["software_host"] = sdvk010_sun_native.software_host_guard()
+        result["software_host"] = sdvk010_sun_native.software_host_guard(out)
         result["preflight"] = native_ci.preflight(args, out)
 
         prepared = out / "prepared"

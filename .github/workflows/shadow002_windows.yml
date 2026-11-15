@@ -1,0 +1,78 @@
+name: SHADOW-002 Windows research build
+
+on:
+  pull_request:
+    paths:
+      - 'src/common/rendering/hwrenderer/data/hw_dynlightdata.h'
+      - 'src/rendering/hwrenderer/hw_dynlightdata.cpp'
+      - 'wadsrc/static/shaders/**'
+      - 'tools/dynamic_shadows/**'
+      - 'docs/shadedoomvk/SHADOW-002-DYNAMIC-LIGHT-VISIBILITY.md'
+      - '.github/workflows/shadow002_windows.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  source-matched-windows:
+    runs-on: windows-2022
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install original material-generator build dependencies
+        shell: pwsh
+        run: python -m pip install numpy==2.2.6 Pillow==11.3.0 pyinstaller==6.16.0
+      - name: Focused source and geometric contracts
+        shell: pwsh
+        run: |
+          python -m unittest discover -s tools/pf_oracle/tests -p test_actor_dynamic_shadow.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Actor shadow contracts failed' }
+          python -m unittest tools.dynamic_shadows.test_packaging -v
+          if ($LASTEXITCODE -ne 0) { throw 'Windows package contracts failed' }
+          $parseErrors = $null
+          [System.Management.Automation.Language.Parser]::ParseFile((Resolve-Path tools/dynamic_shadows/Play-Windows.ps1).Path, [ref]$null, [ref]$parseErrors) | Out-Null
+          if ($parseErrors.Count) { throw ($parseErrors | Out-String) }
+      - name: Prepare ORIGINAL PR190 standalone flashlight
+        shell: pwsh
+        run: python tools/doom2_showcase/build.py --out build/original-pr190-flashlight
+      - name: Build standalone ORIGINAL PR190 material generator
+        shell: pwsh
+        run: |
+          $materialSource = (Resolve-Path tools/doom2_showcase).Path
+          $flashlightSource = (Resolve-Path tools/doom2_showcase/flashlight).Path
+          python -m PyInstaller --noconfirm --clean --onedir --console --name Build-PR190-Materials --paths "$materialSource" --add-data "$flashlightSource;flashlight" --copy-metadata numpy --copy-metadata pillow --copy-metadata pyinstaller --distpath build/frozen-materials --workpath build/frozen-materials-work --specpath build tools/dynamic_shadows/build_pr190_materials.py
+      - name: Qualify frozen generator against original algorithms on synthetic IWADs
+        shell: pwsh
+        run: >-
+          python tools/dynamic_shadows/qualify_material_generator.py
+          --generator build/frozen-materials/Build-PR190-Materials/Build-PR190-Materials.exe
+          --out build/frozen-materials-qualification
+      - name: Configure native Windows Vulkan renderer
+        shell: pwsh
+        run: cmake -S . -B build/windows -G "Visual Studio 17 2022" -A x64 -DPK3_QUIET_ZIPDIR=ON
+      - name: Compile both native executables and engine resources
+        shell: pwsh
+        run: cmake --build build/windows --config RelWithDebInfo --parallel 3
+      - name: Check exact native source identity
+        shell: pwsh
+        run: python tools/check_build_identity.py --build-dir build/windows --config RelWithDebInfo --expected-state clean
+      - name: Package owner-playable research candidate with full built engine resources
+        shell: pwsh
+        run: |
+          $sha = (git rev-parse HEAD).Trim()
+          python tools/dynamic_shadows/package_windows.py --build build/windows --flashlight build/original-pr190-flashlight/Local-Flashlight.pk3 --out build/shadow002-win --expected-commit $sha --material-generator build/frozen-materials/Build-PR190-Materials
+      - name: Publish research build (NOT visual acceptance)
+        uses: actions/upload-artifact@v4
+        with:
+          name: shadow002-windows-source-matched
+          path: build/shadow002-win/
+          retention-days: 14
+          if-no-files-found: error

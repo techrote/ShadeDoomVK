@@ -2,6 +2,7 @@
 #pragma once
 
 #include <cstdint>
+#include <atomic>
 
 #include "vulkan/buffers/vk_hwbuffer.h"
 #include "vulkan/shaders/vk_shader.h"
@@ -69,6 +70,15 @@ public:
 		};
 		ObservationStats Observation;
 	} Lightbuffer;
+
+	struct
+	{
+		std::atomic<int> UploadIndex{0};
+		std::atomic<uint64_t> OverflowCasters{0};
+		uint64_t Epoch = 0;
+		std::unique_ptr<VulkanBuffer> SSO;
+		FActorShadowCaster* Data = nullptr;
+	} ActorShadowbuffer;
 
 	struct
 	{

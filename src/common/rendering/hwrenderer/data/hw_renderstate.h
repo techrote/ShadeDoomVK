@@ -16,6 +16,7 @@ struct FColormap;
 class IBuffer;
 struct HWViewpointUniforms;
 struct FDynLightData;
+struct FActorShadowCaster;
 struct FSWColormap;
 enum class LevelMeshDrawType;
 
@@ -798,6 +799,11 @@ public:
 	virtual void SetModelMatrix(const VSMatrix& matrix, const VSMatrix& normalMatrix) = 0;
 	virtual void SetTextureMatrix(const VSMatrix& matrix) = 0;
 	virtual int UploadLights(const FDynLightData& lightdata) = 0;
+	// Optional render-only actor silhouettes. Implementations must reserve a
+	// disjoint frame-owned range before worker threads write it. Unsupported
+	// backends/mesh builders return no casters, preserving their existing path.
+	virtual int UploadActorShadowCasters(const FActorShadowCaster* casters, int count) { return -1; }
+	virtual uint64_t GetActorShadowEpoch() const { return 0; }
 	virtual int UploadBones(const TArray<VSMatrix>& bones) = 0;
 	virtual int UploadFogballs(const TArray<Fogball>& balls) = 0;
 

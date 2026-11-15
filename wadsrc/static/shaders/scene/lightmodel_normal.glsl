@@ -44,6 +44,7 @@
 				attenuation *= shadowAttenuation(light.pos.xyz, light.shadowIndex, light.softShadowRadius, light.flags);
 			}
 			
+			attenuation *= ActorLightShadowVisibility(light);
 			return light.color.rgb * attenuation;
 		}
 		else

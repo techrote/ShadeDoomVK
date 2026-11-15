@@ -309,7 +309,7 @@ def qualify(args):
     try:
         require(re.fullmatch(r"[0-9a-f]{40}", args.expected_commit) is not None, "Expected exact clean build commit required")
         require(not any(key.startswith("CFX_") and value for key, value in os.environ.items()), "No CFX experiments in controlled-plane gate")
-        result["software_host"] = sdvk010_sun_native.software_host_guard()
+        result["software_host"] = sdvk010_sun_native.software_host_guard(out)
         result["preflight"] = native_ci.preflight(args, out)
         prepared = out/"prepared"; manifest = prepare.prepare(prepared, [SCENE]); captures = []
         for name in ("lifecycle-1", "lifecycle-2"):

@@ -18,14 +18,14 @@ import subprocess
 import sys
 
 try:
-    from . import run
+    from . import native_ci, run
     from .common import pin, read_json, require, write_json
 except ImportError:
-    import run
+    import native_ci, run
     from common import pin, read_json, require, write_json
 
 
-def software_host_guard():
+def _software_host_contract():
     require(sys.platform == "linux" and os.environ.get("GITHUB_ACTIONS") == "true",
             "Focused native acceptance must run on hosted Linux Actions")
     require(os.environ.get("RUNNER_ENVIRONMENT") == "github-hosted",
@@ -52,17 +52,66 @@ def software_host_guard():
                   ("MESA_LOADER_DRIVER_OVERRIDE", "MESA_VK_DEVICE_SELECT",
                    "MESA_VK_DEVICE_SELECT_FORCE_DEFAULT_DEVICE", "DRI_PRIME"))}
     require(not overrides, "Unexpected Vulkan device/layer/driver override")
-    vk = subprocess.run(["vulkaninfo", "--summary"], capture_output=True,
-                        text=True, check=False, timeout=30)
-    require(vk.returncode == 0 and
-            len(re.findall(r"deviceName\s*=\s*llvmpipe", vk.stdout)) == 1 and
-            len(re.findall(r"deviceType\s*=\s*PHYSICAL_DEVICE_TYPE_CPU", vk.stdout)) == 1 and
-            len(re.findall(r"deviceName\s*=", vk.stdout)) == 1,
-            "Vulkan device discovery did not report exactly one CPU llvmpipe device")
     return {"schema":"sdvk010-sun-host/v1","runner":os.environ.get("RUNNER_NAME"),
             "allowed_cpus":allowed_cpus,"icd":pin(selected[0]),
             "device":"one software llvmpipe CPU","physical_gpu":False,
             "request":"diagnostic-only; no physical performance claim"}
+
+
+def software_host_guard(out):
+    """Qualify one isolated software device and retain every discovery outcome."""
+    evidence = run.fresh_directory(Path(out) / "software-host")
+    stdout = evidence / "vulkaninfo-summary.txt"
+    stderr = evidence / "vulkaninfo-summary.stderr.txt"
+    command = {"argv": ["vulkaninfo", "--summary"], "attempted": False,
+               "returncode": None, "timeout_seconds": 30, "outcome": "not-attempted"}
+    discovery = {"schema": "sdvk010-software-host-discovery/v1", "status": "FAIL",
+                 "started_utc": run.utc(), "command": command, "automatic_retries": 0,
+                 "presentation_surface": False}
+    try:
+        # Direct file streams preserve partial output if the one attempt times
+        # out or fails. A rejected host contract leaves empty, unattempted logs.
+        with stdout.open("xb") as output, stderr.open("xb") as errors:
+            host = _software_host_contract()
+            discovery["host"] = host
+            environment = native_ci.device_feature_probe_environment()
+            discovery["environment"] = {
+                key: environment[key] for key in native_ci.ENVIRONMENT if key in environment}
+            command.update(attempted=True, started_utc=run.utc())
+            try:
+                vk = subprocess.run(command["argv"], stdout=output, stderr=errors,
+                                    env=environment, check=False, timeout=30)
+                command.update(returncode=vk.returncode, outcome="completed")
+            except subprocess.TimeoutExpired:
+                command["outcome"] = "timed-out"
+                raise
+            except (OSError, subprocess.SubprocessError):
+                command["outcome"] = "launch-error"
+                raise
+            finally:
+                command["finished_utc"] = run.utc()
+        require(vk.returncode == 0,
+                "Vulkan device discovery exited with return code " + str(vk.returncode) +
+                "; inspect software-host/vulkaninfo-summary.stderr.txt")
+        summary = stdout.read_text(encoding="utf-8")
+        discovery["identity"] = {
+            "device_names": native_ci.fields(summary, "deviceName"),
+            "device_types": native_ci.fields(summary, "deviceType"),
+        }
+        require(len(re.findall(r"deviceName\s*=\s*llvmpipe", summary)) == 1 and
+                len(re.findall(r"deviceType\s*=\s*PHYSICAL_DEVICE_TYPE_CPU", summary)) == 1 and
+                len(re.findall(r"deviceName\s*=", summary)) == 1,
+                "Vulkan device discovery did not report exactly one CPU llvmpipe device; "
+                "inspect software-host/vulkaninfo-summary.txt")
+        discovery["status"] = "PASS"
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
+        discovery.update(error=str(error), error_type=type(error).__name__)
+        raise
+    finally:
+        discovery.update(finished_utc=run.utc(), stdout=pin(stdout, relative_to=evidence),
+                         stderr=pin(stderr, relative_to=evidence))
+        write_json(evidence / "discovery.json", discovery)
+    return {**host, "discovery": pin(evidence / "discovery.json", relative_to=out)}
 
 
 def main(argv=None):
@@ -82,7 +131,7 @@ def main(argv=None):
     try:
         require(re.fullmatch(r"[a-f0-9]{40}", args.expected_commit) is not None,
                 "Expected exact built commit is malformed")
-        result["host"]=software_host_guard()
+        result["host"]=software_host_guard(root)
         captures=[]
         for index in (1,2):
             capture_args=argparse.Namespace(

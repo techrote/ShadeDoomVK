@@ -132,7 +132,7 @@ def qualify(args) -> dict:
     try:
         require(re.fullmatch(r'[0-9a-f]{40}',args.expected_commit) is not None,'Expected exact build commit required')
         require(not any(k.startswith('CFX_') and v for k,v in os.environ.items()),'No CFX experiments in this gate')
-        result['software_host']=sdvk010_sun_native.software_host_guard()
+        result['software_host']=sdvk010_sun_native.software_host_guard(out)
         result['preflight']=native_ci.preflight(args,out)
         prepared=out/'prepared';manifest=prepare.prepare(prepared,list(SCENES))
         captures=[]

@@ -1,4 +1,11 @@
 
+// The same descriptor binding in immediate and LevelMesh layouts. Each range
+// belongs to the current render frame; lights carry no persistent GPU indices.
+layout(set = 1, binding = 7, std430) buffer readonly ActorShadowBufferSSO
+{
+	ActorShadowCaster actorShadowCasters[];
+};
+
 // This must match the HWViewpointUniforms struct
 layout(set = 1, binding = 0, std140) uniform readonly ViewpointUBO
 {

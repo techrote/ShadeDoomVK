@@ -84,6 +84,18 @@ VkRSBuffers::VkRSBuffers(VulkanRenderDevice* fb)
 
 	Lightbuffer.Data = Lightbuffer.SSO->Map(0, Lightbuffer.SSO->size);
 
+	// Independent of the surface-light record count: ~4.2 MiB at the fixed
+	// maximum, instead of repeating every alpha mask in up to 80,000 records.
+	ActorShadowbuffer.SSO = BufferBuilder()
+		.Usage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT)
+		.MemoryType(
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+		.Size(MaxActorShadowCastersPerFrame * sizeof(FActorShadowCaster))
+		.DebugName("ActorShadowbuffer.SSO")
+		.Create(fb->GetDevice());
+	ActorShadowbuffer.Data = (FActorShadowCaster*)ActorShadowbuffer.SSO->Map(0, ActorShadowbuffer.SSO->size);
+
 	Bonebuffer.SSO = BufferBuilder()
 		.Usage(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT, VMA_MEMORY_USAGE_UNKNOWN, VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_MAPPED_BIT)
 		.MemoryType(
@@ -125,6 +137,10 @@ VkRSBuffers::~VkRSBuffers()
 	if (Lightbuffer.SSO)
 		Lightbuffer.SSO->Unmap();
 	Lightbuffer.SSO.reset();
+
+	if (ActorShadowbuffer.SSO)
+		ActorShadowbuffer.SSO->Unmap();
+	ActorShadowbuffer.SSO.reset();
 
 	if (Bonebuffer.SSO)
 		Bonebuffer.SSO->Unmap();

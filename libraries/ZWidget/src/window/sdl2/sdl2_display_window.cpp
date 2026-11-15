@@ -1,5 +1,6 @@
 
 #include "sdl2_display_window.h"
+#include <cmath>
 #include <stdexcept>
 #include <SDL2/SDL_vulkan.h>
 
