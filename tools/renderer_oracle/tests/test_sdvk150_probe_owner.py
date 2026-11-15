@@ -135,6 +135,66 @@ class ProbeOwnerLifecycleValidationTests(unittest.TestCase):
             _sdvk150_repeatability_projection(strict, "probe-owner-transition"),
         )
 
+    def test_probe_owner_repeatability_ignores_only_manager_wide_texture_epoch_label(self):
+        """An independent renderer may allocate one extra background texture."""
+        left = records() + [{
+            "kind": "resource", "frame": 1, "count": 1,
+            "data": {
+                "texture_epoch": 41, "probe_epoch": 3, "lightmap_epoch": 5,
+                "levelmesh": {"epoch": 3},
+                "descriptor_current": 36,
+            },
+        }]
+        right = copy.deepcopy(left)
+        right[-1]["data"]["texture_epoch"] = 42
+        self.assertEqual(
+            _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+            _sdvk150_repeatability_projection(right, "probe-owner-transition"),
+        )
+        self.assertNotEqual(
+            _sdvk150_repeatability_projection(left, "some-other-scene"),
+            _sdvk150_repeatability_projection(right, "some-other-scene"),
+        )
+        for change in (
+            {"probe_epoch": 4},
+            {"lightmap_epoch": 6},
+            {"descriptor_current": 35},
+            {"levelmesh": {"epoch": 4}},
+        ):
+            with self.subTest(change=change):
+                unsafe = copy.deepcopy(right)
+                unsafe[-1]["data"].update(change)
+                self.assertNotEqual(
+                    _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+                    _sdvk150_repeatability_projection(unsafe, "probe-owner-transition"),
+                )
+
+    def test_texture_epoch_transition_pattern_and_presence_remain_protected(self):
+        left = records() + [
+            {"kind": "resource", "data": {"texture_epoch": 41}},
+            {"kind": "resource", "data": {"texture_epoch": 41}},
+            {"kind": "resource", "data": {"texture_epoch": 42}},
+        ]
+        right = copy.deepcopy(left)
+        for record in right[-3:]:
+            record["data"]["texture_epoch"] += 1
+        self.assertEqual(
+            _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+            _sdvk150_repeatability_projection(right, "probe-owner-transition"),
+        )
+        unsafe = copy.deepcopy(right)
+        unsafe[-2]["data"]["texture_epoch"] = 43
+        self.assertNotEqual(
+            _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+            _sdvk150_repeatability_projection(unsafe, "probe-owner-transition"),
+        )
+        missing = copy.deepcopy(right)
+        del missing[-1]["data"]["texture_epoch"]
+        self.assertNotEqual(
+            _sdvk150_repeatability_projection(left, "probe-owner-transition"),
+            _sdvk150_repeatability_projection(missing, "probe-owner-transition"),
+        )
+
     def test_half_pair_family_is_rejected(self):
         value = records()
         for row in value[0]["data"]["events"]:

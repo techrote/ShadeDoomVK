@@ -25,7 +25,7 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
         self.assertEqual(text.count("runs-on: ubuntu-24.04"), 3)
         self.assertIn('test "$RUNNER_ENVIRONMENT" = github-hosted', text)
         self.assertIn("lvp_icd*.json", text)
-        self.assertIn("sha256sum -c r001-native-runtime.tar.gz.sha256", text)
+        self.assertIn("sha256sum -c r001-native-runtime.tar.xz.sha256", text)
         self.assertNotIn("SDVK_REQUESTED_RUNNER", text)
         self.assertNotIn("sdvk009-avrea-ci.py", text)
         self.assertIn("tools/ci/routine_native.py", text)

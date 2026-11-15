@@ -1110,24 +1110,32 @@ def _portal_probe_repeatability_projection(records):
 
 
 def _sdvk150_repeatability_projection(records, scene):
-    """Normalize only process-local semantic probe-owner revision labels.
+    """Preserve semantic probe owners while canonicalizing process-local labels.
 
-    The transition pattern, map association, publication order, and all actual
-    LightProbe/resource epochs remain strict.
+    The manager-wide texture epoch reflects incidental background texture
+    acquisition during independent shader/material preparation. SDVK-150's
+    protected owner/reset contract is witnessed by separate LightProbe epochs,
+    publication callbacks, descriptor identities and exact RGB. Preserve each
+    raw observation; canonicalize only the texture-epoch equality/transition
+    pattern for this explicitly selected scene, as for SDVK-010.
     """
     result = copy.deepcopy(records)
     if scene != "probe-owner-transition":
         return result
     revisions = {}
+    texture_epochs = {}
     for record in result:
+        data = record.get("data", {})
+        if record.get("kind") == "resource" and type(data.get("texture_epoch")) is int:
+            raw = data["texture_epoch"]
+            data["texture_epoch"] = texture_epochs.setdefault(raw, len(texture_epochs))
         if record.get("kind") != "probe-builder":
             continue
-        for event in record.get("data", {}).get("events", []):
+        for event in data.get("events", []):
             raw = event.get("owner_revision")
             if type(raw) is int:
                 event["owner_revision"] = revisions.setdefault(raw, len(revisions))
     return result
-
 
 def _sdvk161_repeatability_projection(records, scene):
     """Keep actual mesh-instance aliasing while canonicalizing process labels.
@@ -1190,7 +1198,7 @@ def compare_runs(left, right, *, allow_build_change=False):
     if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     if a["scene"] == "probe-owner-transition":
-        normalization += "; SDVK-150 process-local probe owner revision labels normalized bijectively; map/order/distinctness and LightProbe/resource epochs remain exact"
+        normalization += "; SDVK-150 process-local probe owner revision and texture-manager epoch labels normalized bijectively; map/order/distinctness, actual LightProbe and other resource identities/epochs remain exact"
     if a["scene"] in ("special-surface-lifecycle", "controlled-plane-lifecycle"):
         normalization += "; SDVK-161 actual mesh-instance labels normalized bijectively; instance birth order, resource/draw aliasing, local mesh epochs, atlas receipts and phase order remain exact"
     if fixed_view_lightmap:

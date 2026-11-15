@@ -173,3 +173,11 @@ The #213 reference demonstrated working shared-runtime transport and passing
 routine/actor workers but a genuine SDVK-150 repeatability failure on its
 resources worker. This revision needs its own exact-head measurements and full
 qualification before any performance or merge claim.
+
+### SDVK-150 legacy repeatability false rejection: evidence-led correction
+
+[CI run 43737892516](https://github.com/techrote/ShadeDoomVK/actions/runs/43737892516) proved route, CPU, seven compiler jobs, one authenticated build and two native suites (routine, actors) PASS. The independent resource worker correctly failed SDVK-150, which retained both individually passing A→B captures and their unmodified RGB images. Its `comparison.json` independently pins the **sole** normalized state difference to `/47/data/texture_epoch` (41 versus 42); both images have **zero different pixels**, and both five-pass A→B probe-owner lifecycle witnesses and protected probe epochs match.
+
+`tools/renderer_oracle/run.py` now canonicalizes **only** the process-local background texture-manager epoch labels for the `probe-owner-transition` scene, by their within-run equality/transition pattern, consistent with the previously qualified SDVK-010 background texture epoch policy. It never edits original native evidence. The actual `light_probe_epoch`, owner revisions (distinct/order), descriptor identity, resource epoch, pixel comparison, map transitions and all publication callbacks remain independently validated; added adversarial CPU tests explicitly reject protected-epoch/descriptor changes and missing/different epoch transition patterns. No global comparator threshold or real visual error tolerance changes.
+
+The authenticated shared runtime switched from gzip -1 to **multithreaded lossless XZ -1** with matching SHA-256 checks at every consumer, to reduce redundant transfer of the initially 258,762,492-byte shared build. The compatible archive uses unprefixed original top-level paths. Exact-head latency and artifact-size improvements require a passing hosted measurement; never infer physical flashlight acceptance from green llvmpipe tests.

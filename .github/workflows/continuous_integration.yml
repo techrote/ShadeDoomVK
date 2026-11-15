@@ -279,18 +279,18 @@ jobs:
         for optional in build/fm_banks build/soundfonts; do
           if [[ -d "$optional" ]]; then members+=("$optional"); fi
         done
-        tar -cf build/r001-native-runtime.tar "${members[@]}"
-        gzip -1 build/r001-native-runtime.tar
-        (cd build && sha256sum r001-native-runtime.tar.gz > r001-native-runtime.tar.gz.sha256)
-        (cd build && sha256sum -c r001-native-runtime.tar.gz.sha256)
+        XZ_OPT='-1 -T0' tar -cJf build/r001-native-runtime.tar.xz "${members[@]}"
+        xz -t build/r001-native-runtime.tar.xz
+        (cd build && sha256sum r001-native-runtime.tar.xz > r001-native-runtime.tar.xz.sha256)
+        (cd build && sha256sum -c r001-native-runtime.tar.xz.sha256)
         echo "One native build shared across source-matched independent suites." >> "$GITHUB_STEP_SUMMARY"
     - name: Upload immutable same-run runtime
       uses: actions/upload-artifact@v4
       with:
         name: r001-authenticated-native-runtime
         path: |
-          build/r001-native-runtime.tar.gz
-          build/r001-native-runtime.tar.gz.sha256
+          build/r001-native-runtime.tar.xz
+          build/r001-native-runtime.tar.xz.sha256
         compression-level: 0
         if-no-files-found: error
         retention-days: 1
@@ -335,9 +335,9 @@ jobs:
       shell: bash
       run: |
         set -euo pipefail
-        (cd build && sha256sum -c r001-native-runtime.tar.gz.sha256)
-        tar -tzf build/r001-native-runtime.tar.gz >/dev/null
-        tar -xzf build/r001-native-runtime.tar.gz
+        (cd build && sha256sum -c r001-native-runtime.tar.xz.sha256)
+        tar -tJf build/r001-native-runtime.tar.xz >/dev/null
+        tar -xJf build/r001-native-runtime.tar.xz
         test "$(cat build/R001-COMMIT.txt)" = "$SOURCE_SHA"
         test "$(cat build/R001-TREE.txt)" = "$(git rev-parse 'HEAD^{tree}')"
         test -z "$(git status --porcelain)"
@@ -413,7 +413,7 @@ jobs:
         printf '{"schema":"sdvk-r001-suite/v1","source_sha":"%s","suite":"%s","execution":"%s"}\n' \
           "$SOURCE_SHA" "$SUITE" "$EXECUTION_OUTCOME" > "build/native-suite-$SUITE/receipt.json"
         members=("native-suite-$SUITE")
-        for directory in renderer-routine renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
+        for directory in renderer-routine renderer-sdvk009-content renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
           if [[ -d "build/$directory" ]]; then members+=("$directory"); fi
         done
         XZ_OPT='-1 -T0' tar -cJf "build/renderer-suite-$SUITE.tar.xz" -C build "${members[@]}"
@@ -497,7 +497,9 @@ jobs:
         assert data["execution"] == "success"
         PY
         done
-        XZ_OPT='-1 -T0' tar -cJf build/renderer-software-vulkan.tar.xz -C build/renderer-combined .
+        mapfile -t roots < <(find build/renderer-combined -mindepth 1 -maxdepth 1 -printf '%f\n' | sort)
+        test "${#roots[@]}" -gt 0
+        XZ_OPT='-1 -T0' tar -cJf build/renderer-software-vulkan.tar.xz -C build/renderer-combined "${roots[@]}"
         xz -t build/renderer-software-vulkan.tar.xz
         (cd build && sha256sum renderer-software-vulkan.tar.xz > renderer-software-vulkan.sha256)
         echo "PASS: source-matched independent native suites: ${expected[*]}" >> "$GITHUB_STEP_SUMMARY"
