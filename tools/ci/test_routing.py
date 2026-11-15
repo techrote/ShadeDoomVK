@@ -77,6 +77,26 @@ class PathRoutingTests(unittest.TestCase):
             self.assertFalse(route.classify(paths)["deep"])
 
 
+
+class ParallelNativeSelectionTests(unittest.TestCase):
+    def test_only_applicable_original_suites_are_selected(self):
+        cases = {
+            "docs/design.md": [],
+            "src/rendering/hwrenderer/scene/hw_sprites.cpp": ["routine", "actors"],
+            "src/common/rendering/vulkan/descriptorsets/vk_descriptorpool.cpp": ["routine", "resources"],
+            "src/common/rendering/hwrenderer/data/hw_levelmesh.cpp": ["routine", "resources", "lightmaps", "surfaces"],
+            "src/rendering/hwrenderer/scene/hw_portal.cpp": ["routine", "actors", "surfaces"],
+            ".github/workflows/continuous_integration.yml": ["routine", "actors", "resources"],
+            "CMakeLists.txt": ["routine", "actors", "resources", "lightmaps", "surfaces"],
+        }
+        for path, expected in cases.items():
+            with self.subTest(path=path):
+                self.assertEqual(route.select_native_suites(route.classify([path])), expected)
+
+    def test_docs_only_never_claims_native_acceptance(self):
+        self.assertEqual(route.select_native_suites(route.classify(["docs/r001.md"])), [])
+
+
 class SourceAdmissionTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
@@ -145,35 +165,44 @@ class WorkflowContractTests(unittest.TestCase):
         self.assertNotIn("--full", text)
         self.assertNotIn("sdvk009_publication qualify", text)
         self.assertIn("tools/ci/route.py --event-path", text)
-        self.assertIn("needs: pf_oracle", text)
+        self.assertIn("name: R-001 | Exact-source native selection", text)
+        self.assertIn("name: R-001 | One source-authenticated software Vulkan build", text)
+        self.assertIn("fromJSON(needs.route.outputs.suites)", text)
+        self.assertIn("needs: [route, pf_oracle, vulkan_build, vulkan_native]", text)
+        self.assertIn("name: renderer-software-vulkan", text)
         self.assertIn("github.event.pull_request.head.sha || github.sha", text)
         for group in route.GROUPS:
-            self.assertIn("steps.route.outputs." + group, text)
-            self.assertIn("needs.pf_oracle.outputs." + group, text)
+            self.assertIn("steps.selector.outputs." + group, text)
+        for command in ("routine_native.py", "sdvk010_acceptance", "sdvk150_probe_owner",
+                        "sdvk153_probe_reset", "sdvk158_lightmap_transition",
+                        "sdvk161_special_surfaces", "sdvk014_controlled_planes"):
+            self.assertIn(command, text)
         self.assertIn("if-no-files-found: error", text)
         self.assertNotIn("continue-on-error", text)
-        self.assertIn("Reject missing or malformed routing outputs", text)
+        self.assertIn("Reject missing, inconsistent or malformed selection", text)
         self.assertIn("Missing/invalid CI routing output", text)
-        self.assertNotIn("needs.pf_oracle.outputs.native != 'true'", text)
+        self.assertIn("test \"$SUITES_RESULT\" = success", text)
         source = (ROOT / ".github/workflows/renderer_source_evidence.yml").read_text()
-        self.assertIn("ref: ${{ github.event.pull_request.head.sha || github.sha }}", source)
+        self.assertIn("ref: $" + "{{ github.event.pull_request.head.sha || github.sha }}", source)
 
     def test_stable_required_check_names_remain(self):
         text = (ROOT / ".github/workflows/continuous_integration.yml").read_text()
         self.assertIn("name: PF renderer contract oracle", text)
         self.assertIn("name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}", text)
         for name, count in (("Visual Studio 2022", 2), ("macOS", 2), ("Linux GCC 12", 1),
-                            ("Linux Clang 11", 1), ("Linux Clang 15", 1), ("Linux software Vulkan", 1)):
+                            ("Linux Clang 11", 1), ("Linux Clang 15", 1)):
             self.assertEqual(text.count("- name: " + name + "\n"), count)
+        self.assertEqual(text.count("name: Linux software Vulkan | RelWithDebInfo"), 1)
+        self.assertNotIn("- name: Linux software Vulkan\n", text)
 
     def test_portal_only_change_reaches_native_special_surface_gate(self):
-        result = route.classify(["src/rendering/hwrenderer/scene/hw_portal.cpp"])
-        self.assertIn("portals", result["targeted"])
-        self.assertNotIn("lightmaps", result["targeted"])
+        decision = route.classify(["src/rendering/hwrenderer/scene/hw_portal.cpp"])
+        self.assertIn("portals", decision["targeted"])
+        self.assertNotIn("lightmaps", decision["targeted"])
+        self.assertIn("surfaces", route.select_native_suites(decision))
         text = (ROOT / ".github/workflows/continuous_integration.yml").read_text()
-        block = text.split("    - name: Lane B - special surfaces and portals\n", 1)[1].split("    - name:", 1)[0]
-        self.assertIn("|| needs.pf_oracle.outputs.portals == 'true'", block)
-        self.assertIn("sdvk161_special_surfaces", block)
+        self.assertIn("sdvk161_special_surfaces", text)
+        self.assertIn("surfaces)", text)
 
 
 class VisualMissingEffectTests(unittest.TestCase):

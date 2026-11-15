@@ -18,11 +18,14 @@ class GithubHostedRunnerPolicyTests(unittest.TestCase):
 
     def test_software_vulkan_lane_is_github_hosted_ubuntu_2404(self):
         text = (ROOT / ".github" / "workflows" / "continuous_integration.yml").read_text()
-        marker = "- name: Linux software Vulkan"
-        start = text.index(marker)
-        block = text[start:text.index("\n\n    steps:", start)]
-        self.assertIn("os: ubuntu-24.04", block)
-        self.assertIn("native_renderer: true", block)
+
+        self.assertIn("name: Linux software Vulkan | RelWithDebInfo", text)
+        self.assertIn("name: R-001 | One source-authenticated software Vulkan build", text)
+        self.assertIn("name: R-001 | Hosted Vulkan", text)
+        self.assertEqual(text.count("runs-on: ubuntu-24.04"), 3)
+        self.assertIn('test "$RUNNER_ENVIRONMENT" = github-hosted', text)
+        self.assertIn("lvp_icd*.json", text)
+        self.assertIn("sha256sum -c r001-native-runtime.tar.gz.sha256", text)
         self.assertNotIn("SDVK_REQUESTED_RUNNER", text)
         self.assertNotIn("sdvk009-avrea-ci.py", text)
         self.assertIn("tools/ci/routine_native.py", text)

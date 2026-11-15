@@ -8,7 +8,8 @@ GPU STOP remains active. No historical issue is closed by this implementation.
 ## What changes
 
 The regular `Continuous Integration` workflow retains the CPU oracle and all
-eight existing build configurations. It replaces the unconditional full native
+seven ordinary platform builds. Its eighth configuration, Linux software Vulkan,
+becomes one exact-source native build with separately selected parallel consumers. It replaces the unconditional full native
 publication campaign with a small hosted software-Vulkan capture set and
 change-triggered safety suites. The original complete workflow is preserved in
 `renderer_deep.yml`, invoked explicitly through `workflow_dispatch`.
@@ -33,9 +34,9 @@ has its own schema and explicitly does **not** award legacy campaign acceptance.
 | B: new/unclassified executable paths, shared build inputs or empty change information | All targeted groups | Conservative escalation, never a silent docs-only result |
 | C: explicit deep dispatch | Original full corpus, timing, collision replay, 008, 010, 150, 153, 158, 161, 014 and 009 publication | Original full contracts, independently reported |
 
-Documentation-only changes still compile and run CPU checks. Their native step
-is explicitly `NOT_APPLICABLE`; the stable software-Vulkan job does real source
-compilation and identity checks. It never claims it rendered those changes.
+Documentation-only changes still run CPU and ordinary compiler checks. The stable
+software-Vulkan summary explicitly reports `NOT_APPLICABLE` and skips native build
+and rendering. It never claims it rendered those changes.
 
 Paths are read from the authenticated event base/head through `git diff
 --no-renames`: both names of a rename remain visible, including deletions.
@@ -140,3 +141,35 @@ reviewed owner merge and verified master SHA are still required for adoption.
 The owner has separately authorized SHADOW-001 M1 implementation in parallel
 with this Draft migration. That permits source work and bounded software
 qualification; it grants neither policy adoption on master nor a physical test.
+
+## Parallel native fanout — implementation revision, 15 November 2026
+
+The exact source/base route now runs separately from the CPU oracle. All seven
+ordinary platform compiler jobs start immediately, while one hosted Ubuntu 24.04
+native build begins after the short route, only when native work is applicable.
+The runtime is packaged once with SHA-256, commit and tree identities; all
+independent native workers verify those identities and the embedded executable
+before running with the isolated llvmpipe ICD. No native worker recompiles.
+
+The route selects just the applicable suites: `routine`, `actors`, `resources`,
+`lightmaps` and `surfaces`. Materials additionally select the original routine
+material-stress capture and the resources suite; portal changes select surfaces.
+Unclassified executable changes select all suites. Each suite runs the original
+native oracle programs and publishes unfiltered lossless success/failure evidence.
+Missing, failed or skipped applicable suites cause the stable `Linux software
+Vulkan | RelWithDebInfo` aggregate to FAIL. On all-green runs, it verifies each
+suite checksum and receipt and recreates the established
+`renderer-software-vulkan.tar.xz` evidence format. Individual failed-suite
+artifacts remain retrievable if aggregation does not run.
+
+The historical full publication, negative controls and image comparisons remain
+preserved as explicitly invoked Deep qualification, not asserted by routine PASS.
+This is a topology and applicability optimisation, not validation that physical
+flashlight movement is correct. The owner's observed flickering flashlight remains
+an unresolved hands-on visual failure irrespective of green hosted CI.
+
+Prior #211 qualifying run took 23m17s, with 18m27s in the native build/test job.
+The #213 reference demonstrated working shared-runtime transport and passing
+routine/actor workers but a genuine SDVK-150 repeatability failure on its
+resources worker. This revision needs its own exact-head measurements and full
+qualification before any performance or merge claim.

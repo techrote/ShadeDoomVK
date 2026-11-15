@@ -13,55 +13,83 @@ permissions:
   contents: read
 
 jobs:
-  pf_oracle:
-    name: PF renderer contract oracle
-    runs-on: ubuntu-22.04
-    timeout-minutes: 15
-    outputs:
-      native: ${{ steps.route.outputs.native }}
-      actors: ${{ steps.route.outputs.actors }}
-      materials: ${{ steps.route.outputs.materials }}
-      resources: ${{ steps.route.outputs.resources }}
-      lightmaps: ${{ steps.route.outputs.lightmaps }}
-      portals: ${{ steps.route.outputs.portals }}
-      lighting: ${{ steps.route.outputs.lighting }}
 
+  route:
+    name: R-001 | Exact-source native selection
+    runs-on: ubuntu-22.04
+    timeout-minutes: 10
+    outputs:
+      native: ${{ steps.selector.outputs.native }}
+      actors: ${{ steps.selector.outputs.actors }}
+      materials: ${{ steps.selector.outputs.materials }}
+      resources: ${{ steps.selector.outputs.resources }}
+      lightmaps: ${{ steps.selector.outputs.lightmaps }}
+      portals: ${{ steps.selector.outputs.portals }}
+      lighting: ${{ steps.selector.outputs.lighting }}
+      suites: ${{ steps.selector.outputs.suites }}
     steps:
     - uses: actions/checkout@v4
       with:
         ref: ${{ github.event.pull_request.head.sha || github.sha }}
         fetch-depth: 0
         persist-credentials: false
-
-    - name: Validate CI routing and negative controls
-      run: python3 -m unittest discover -s tools/ci -p 'test_*.py' -v
-
-    - name: Select routine and targeted coverage from exact changed paths
-      id: route
+    - name: Select risk suites against exact source/base
+      id: selector
       shell: bash
-      run: |
-        python3 tools/ci/route.py --event-path "$GITHUB_EVENT_PATH" --event-name "$GITHUB_EVENT_NAME" --out build/ci-routing.json --github-output "$GITHUB_OUTPUT"
-        cat build/ci-routing.json >> "$GITHUB_STEP_SUMMARY"
-
-    - name: Reject missing or malformed routing outputs
-      shell: bash
-      env:
-        ROUTE_NATIVE: ${{ steps.route.outputs.native }}
-        ROUTE_ACTORS: ${{ steps.route.outputs.actors }}
-        ROUTE_MATERIALS: ${{ steps.route.outputs.materials }}
-        ROUTE_RESOURCES: ${{ steps.route.outputs.resources }}
-        ROUTE_LIGHTMAPS: ${{ steps.route.outputs.lightmaps }}
-        ROUTE_PORTALS: ${{ steps.route.outputs.portals }}
-        ROUTE_LIGHTING: ${{ steps.route.outputs.lighting }}
       run: |
         set -euo pipefail
-        for route_value in "$ROUTE_NATIVE" "$ROUTE_ACTORS" "$ROUTE_MATERIALS" "$ROUTE_RESOURCES" "$ROUTE_LIGHTMAPS" "$ROUTE_PORTALS" "$ROUTE_LIGHTING"; do
-          case "$route_value" in true|false) ;; *) echo 'Missing/invalid CI routing output'; exit 1 ;; esac
+        python3 tools/ci/route.py --event-path "$GITHUB_EVENT_PATH" --event-name "$GITHUB_EVENT_NAME" --out build/ci-routing.json --github-output "$GITHUB_OUTPUT"
+        cat build/ci-routing.json >> "$GITHUB_STEP_SUMMARY"
+    - name: Reject missing, inconsistent or malformed selection
+      shell: bash
+      env:
+        ROUTE_NATIVE: ${{ steps.selector.outputs.native }}
+        ROUTE_ACTORS: ${{ steps.selector.outputs.actors }}
+        ROUTE_MATERIALS: ${{ steps.selector.outputs.materials }}
+        ROUTE_RESOURCES: ${{ steps.selector.outputs.resources }}
+        ROUTE_LIGHTMAPS: ${{ steps.selector.outputs.lightmaps }}
+        ROUTE_PORTALS: ${{ steps.selector.outputs.portals }}
+        ROUTE_LIGHTING: ${{ steps.selector.outputs.lighting }}
+        ROUTE_SUITES: ${{ steps.selector.outputs.suites }}
+      run: |
+        set -euo pipefail
+        for v in "$ROUTE_NATIVE" "$ROUTE_ACTORS" "$ROUTE_MATERIALS" "$ROUTE_RESOURCES" "$ROUTE_LIGHTMAPS" "$ROUTE_PORTALS" "$ROUTE_LIGHTING"; do
+          case "$v" in true|false) ;; *) echo 'Missing/invalid CI routing output' >&2; exit 1 ;; esac
         done
+        python3 - <<'PY'
+        import json, os
+        from tools.ci.route import GROUPS, select_native_suites
+        data = json.load(open("build/ci-routing.json"))
+        actual = json.loads(os.environ["ROUTE_SUITES"])
+        expected = select_native_suites(data) or ["not-applicable"]
+        assert actual == expected, (actual, expected)
+        assert data["native"] == (os.environ["ROUTE_NATIVE"] == "true")
+        for group in GROUPS:
+            assert (group in data["targeted"]) == (os.environ["ROUTE_" + group.upper()] == "true")
+        PY
+    - name: Retain exact routing receipt
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: r001-exact-routing
+        path: build/ci-routing.json
+        if-no-files-found: ignore
+        retention-days: 7
 
+  pf_oracle:
+    name: PF renderer contract oracle
+    runs-on: ubuntu-22.04
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate CI routing and negative controls
+      run: python3 -m unittest discover -s tools/ci -p 'test_*.py' -v
     - name: Run CPU contracts and deterministic oracle
       run: python3 tools/check.py --output build/pf-oracle
-
     - name: Upload check logs
       if: always()
       uses: actions/upload-artifact@v4
@@ -69,14 +97,12 @@ jobs:
         name: cpu-contract-checks
         retention-days: ${{ job.status == 'success' && 7 || 30 }}
         path: |
-          build/ci-routing.json
           build/pf-oracle/*.log
           build/pf-oracle/renderer-corpus/result.json
           build/pf-oracle/renderer-corpus/prepare-*/prepared.json
 
   build:
     name: ${{ matrix.config.name }} | ${{ matrix.config.build_type }}
-    needs: pf_oracle
     runs-on: ${{ matrix.config.os }}
     timeout-minutes: 45
     strategy:
@@ -119,14 +145,6 @@ jobs:
           extra_options: -DCMAKE_C_COMPILER=clang-15 -DCMAKE_CXX_COMPILER=clang++-15
           deps_cmdline: sudo apt update && sudo apt install clang-15 libsdl2-dev libvpx-dev libwebp-dev
           build_type: Release
-
-        - name: Linux software Vulkan
-          # Required CI critical path: GitHub-hosted software Vulkan; do not duplicate this job.
-          os: ubuntu-24.04
-          extra_options: -DNO_GTK=ON
-          deps_cmdline: sudo apt update && sudo apt install libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
-          build_type: RelWithDebInfo
-          native_renderer: true
 
     steps:
     - uses: actions/checkout@v4
@@ -198,148 +216,6 @@ jobs:
         DYLD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
       run: python3 tools/check_build_identity.py --build-dir build --config ${{ matrix.config.build_type }} --expected-state clean
 
-    - name: Record documentation-only native scope
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.native == 'false'
-      run: echo 'Native rendering NOT_APPLICABLE to this documented change set; this job still compiled and verified the exact source.'
-
-    - name: Select isolated hosted software Vulkan
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.native == 'true'
-      shell: bash
-      run: |
-        set -euo pipefail
-        test "$RUNNER_ENVIRONMENT" = github-hosted
-        mapfile -t sdvk_icds < <(python3 -c 'from pathlib import Path; print("\n".join(str(p) for p in sorted(Path("/usr/share/vulkan/icd.d").glob("lvp_icd*.json"))))')
-        test "${#sdvk_icds[@]}" -eq 1
-        {
-          printf 'VK_DRIVER_FILES=%s\n' "${sdvk_icds[0]}"
-          printf 'VK_ICD_FILENAMES=%s\n' "${sdvk_icds[0]}"
-          printf 'SDL_VIDEODRIVER=x11\n'
-        } >> "$GITHUB_ENV"
-
-    - name: Lane A - bounded renderer OFF/ON and gameplay smoke
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.native == 'true'
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-        SDVK_ACTORS: ${{ needs.pf_oracle.outputs.actors }}
-        SDVK_MATERIALS: ${{ needs.pf_oracle.outputs.materials }}
-        SDVK_PORTALS: ${{ needs.pf_oracle.outputs.portals }}
-        SDVK_LIGHTING: ${{ needs.pf_oracle.outputs.lighting }}
-      run: |
-        set -euo pipefail
-        sdvk_extra=()
-        if [[ "$SDVK_ACTORS" == true || "$SDVK_PORTALS" == true ]]; then
-          sdvk_extra+=(--extra-scene sprite-mirror)
-        fi
-        if [[ "$SDVK_MATERIALS" == true ]]; then
-          sdvk_extra+=(--extra-scene material-stress)
-        fi
-        if [[ "$SDVK_LIGHTING" == true ]]; then
-          sdvk_extra+=(--extra-scene shadow-boundary)
-        fi
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/ci/routine_native.py \
-          --exe "$PWD/build/vkdoom" --iwad /usr/share/games/doom/freedoom2.wad \
-          --out build/renderer-routine --expected-commit "$(git rev-parse HEAD)" "${sdvk_extra[@]}"
-
-    - name: Authenticate targeted suite content
-      if: matrix.config.native_renderer && (needs.pf_oracle.outputs.actors == 'true' || needs.pf_oracle.outputs.resources == 'true' || needs.pf_oracle.outputs.lightmaps == 'true' || needs.pf_oracle.outputs.portals == 'true')
-      run: python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
-
-    - name: Lane B - actors and sunlight
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.actors == 'true'
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk010_acceptance \
-          --exe "$PWD/build/vkdoom" --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk010 --expected-commit "$(git rev-parse HEAD)"
-
-    - name: Lane B - probe owner lifetime
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.resources == 'true'
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk150_probe_owner \
-          --exe "$PWD/build/vkdoom" --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk150 --expected-commit "$(git rev-parse HEAD)"
-
-    - name: Lane B - live sampler and descriptor reset
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.resources == 'true'
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk153_probe_reset \
-          --exe "$PWD/build/vkdoom" --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk153 --expected-commit "$(git rev-parse HEAD)"
-
-    - name: Lane B - retained lightmap lifecycle
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.lightmaps == 'true'
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk158_lightmap_transition \
-          --exe "$PWD/build/vkdoom" --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk158 --expected-commit "$(git rev-parse HEAD)"
-
-    - name: Lane B - special surfaces and portals
-      if: matrix.config.native_renderer && (needs.pf_oracle.outputs.lightmaps == 'true' || needs.pf_oracle.outputs.portals == 'true')
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk161_special_surfaces \
-          --exe "$PWD/build/vkdoom" --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk161 --expected-commit "$(git rev-parse HEAD)"
-
-    - name: Lane B - controlled lightmap planes
-      if: matrix.config.native_renderer && needs.pf_oracle.outputs.lightmaps == 'true'
-      shell: bash
-      env:
-        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
-      run: |
-        xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk014_controlled_planes \
-          --exe "$PWD/build/vkdoom" --iwad build/renderer-sdvk009-content/freedoom2.wad \
-          --iwad-license build/renderer-sdvk009-content/COPYING.txt \
-          --out build/renderer-sdvk014-controlled --expected-commit "$(git rev-parse HEAD)"
-
-    - name: Package bounded native evidence losslessly
-      if: always() && matrix.config.native_renderer && needs.pf_oracle.outputs.native == 'true'
-      shell: bash
-      run: |
-        set -euo pipefail
-        sdvk_evidence_dirs=()
-        for sdvk_evidence_dir in renderer-routine renderer-sdvk009-content renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
-          if [[ -d "build/$sdvk_evidence_dir" ]]; then
-            sdvk_evidence_dirs+=("$sdvk_evidence_dir")
-          fi
-        done
-        test "${#sdvk_evidence_dirs[@]}" -gt 0
-        XZ_OPT='-1 -T0' tar -cJf build/renderer-software-vulkan.tar.xz -C build "${sdvk_evidence_dirs[@]}"
-        xz -t build/renderer-software-vulkan.tar.xz
-        sha256sum build/renderer-software-vulkan.tar.xz > build/renderer-software-vulkan.sha256
-        du -b build/renderer-software-vulkan.tar.xz >> "$GITHUB_STEP_SUMMARY"
-
-    - name: Upload routine and targeted evidence
-      if: always() && matrix.config.native_renderer && needs.pf_oracle.outputs.native == 'true'
-      uses: actions/upload-artifact@v4
-      with:
-        name: renderer-software-vulkan
-        path: |
-          build/renderer-software-vulkan.tar.xz
-          build/renderer-software-vulkan.sha256
-        compression-level: 0
-        retention-days: ${{ job.status == 'success' && 7 || 30 }}
-        if-no-files-found: error
-
     - name: Diagnose macOS startup failure
       if: failure() && runner.os == 'macOS'
       shell: bash
@@ -351,3 +227,288 @@ jobs:
           runtime="build/${{ matrix.config.build_type }}/vkdoom.app/Contents/MacOS/vkdoom"
         fi
         lldb --batch -o 'breakpoint set -n __cxa_throw' -o run -o 'thread backtrace all' -- "$runtime" --version
+
+  vulkan_build:
+    name: R-001 | One source-authenticated software Vulkan build
+    needs: route
+    if: needs.route.outputs.native == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        persist-credentials: false
+    - name: Prove exact source and hosted-only builder
+      shell: bash
+      env:
+        SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      run: |
+        set -euo pipefail
+        test "$RUNNER_ENVIRONMENT" = github-hosted
+        test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+        test -z "$(git status --porcelain)"
+    - name: Install hosted software Vulkan build dependencies
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo apt-get update
+        sudo apt-get install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+        python3 tools/fetch_build_deps.py --platform linux --output build/deps
+    - name: Configure, compile and verify source once
+      shell: bash
+      env:
+        SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      run: |
+        set -euo pipefail
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="$PWD/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+        cmake --build build --config RelWithDebInfo --parallel 3
+        test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+    - name: Seal runtime using SHA-256, Git commit and tree
+      shell: bash
+      run: |
+        set -euo pipefail
+        shopt -s nullglob
+        test -x build/vkdoom && test -x build/vktool
+        test -f build/vkdoom.pk3
+        git rev-parse HEAD > build/R001-COMMIT.txt
+        git rev-parse 'HEAD^{tree}' > build/R001-TREE.txt
+        members=(build/vkdoom build/vktool build/CMakeCache.txt build/deps/zmusic/lib build/R001-COMMIT.txt build/R001-TREE.txt build/*.pk3)
+        for optional in build/fm_banks build/soundfonts; do
+          if [[ -d "$optional" ]]; then members+=("$optional"); fi
+        done
+        tar -cf build/r001-native-runtime.tar "${members[@]}"
+        gzip -1 build/r001-native-runtime.tar
+        (cd build && sha256sum r001-native-runtime.tar.gz > r001-native-runtime.tar.gz.sha256)
+        (cd build && sha256sum -c r001-native-runtime.tar.gz.sha256)
+        echo "One native build shared across source-matched independent suites." >> "$GITHUB_STEP_SUMMARY"
+    - name: Upload immutable same-run runtime
+      uses: actions/upload-artifact@v4
+      with:
+        name: r001-authenticated-native-runtime
+        path: |
+          build/r001-native-runtime.tar.gz
+          build/r001-native-runtime.tar.gz.sha256
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 1
+
+  vulkan_native:
+    name: R-001 | Hosted Vulkan ${{ matrix.suite }}
+    needs: [route, vulkan_build]
+    if: needs.route.outputs.native == 'true' && needs.vulkan_build.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        suite: ${{ fromJSON(needs.route.outputs.suites) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      SUITE: ${{ matrix.suite }}
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+      LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+      SDVK_ACTORS: ${{ needs.route.outputs.actors }}
+      SDVK_MATERIALS: ${{ needs.route.outputs.materials }}
+      SDVK_PORTALS: ${{ needs.route.outputs.portals }}
+      SDVK_LIGHTING: ${{ needs.route.outputs.lighting }}
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        persist-credentials: false
+    - name: Install hosted llvmpipe runtime (never recompile)
+      shell: bash
+      run: |
+        set -euo pipefail
+        test "$RUNNER_ENVIRONMENT" = github-hosted
+        test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
+        sudo apt-get update
+        sudo apt-get install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+    - uses: actions/download-artifact@v4
+      with:
+        name: r001-authenticated-native-runtime
+        path: build
+    - name: Verify archive digest, source tree and native executable identity
+      shell: bash
+      run: |
+        set -euo pipefail
+        (cd build && sha256sum -c r001-native-runtime.tar.gz.sha256)
+        tar -tzf build/r001-native-runtime.tar.gz >/dev/null
+        tar -xzf build/r001-native-runtime.tar.gz
+        test "$(cat build/R001-COMMIT.txt)" = "$SOURCE_SHA"
+        test "$(cat build/R001-TREE.txt)" = "$(git rev-parse 'HEAD^{tree}')"
+        test -z "$(git status --porcelain)"
+        python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+    - name: Constrain native execution to one software-only ICD
+      shell: bash
+      run: |
+        set -euo pipefail
+        mapfile -t icds < <(find /usr/share/vulkan/icd.d -maxdepth 1 -type f -name 'lvp_icd*.json' | sort)
+        test "${#icds[@]}" -eq 1
+        {
+          printf 'VK_DRIVER_FILES=%s\n' "${icds[0]}"
+          printf 'VK_ICD_FILENAMES=%s\n' "${icds[0]}"
+          printf 'SDL_VIDEODRIVER=x11\n'
+        } >> "$GITHUB_ENV"
+    - name: Execute one selected original acceptance suite (no retry)
+      id: execute
+      shell: bash
+      run: |
+        set -euo pipefail
+        run_vulkan() {
+          xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' "$@"
+        }
+        case "$SUITE" in
+          routine)
+            extra=()
+            if [[ "$SDVK_ACTORS" == true || "$SDVK_PORTALS" == true ]]; then
+              extra+=(--extra-scene sprite-mirror)
+            fi
+            if [[ "$SDVK_MATERIALS" == true ]]; then
+              extra+=(--extra-scene material-stress)
+            fi
+            if [[ "$SDVK_LIGHTING" == true ]]; then
+              extra+=(--extra-scene shadow-boundary)
+            fi
+            run_vulkan python3 tools/ci/routine_native.py \
+              --exe "$PWD/build/vkdoom" --iwad /usr/share/games/doom/freedoom2.wad \
+              --out build/renderer-routine --expected-commit "$SOURCE_SHA" "${extra[@]}"
+            ;;
+          actors|resources|lightmaps|surfaces)
+            python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-sdvk009-content
+            common=(--exe "$PWD/build/vkdoom"
+              --iwad build/renderer-sdvk009-content/freedoom2.wad
+              --iwad-license build/renderer-sdvk009-content/COPYING.txt
+              --expected-commit "$SOURCE_SHA")
+            case "$SUITE" in
+              actors)
+                run_vulkan python3 -m tools.renderer_oracle.sdvk010_acceptance "${common[@]}" --out build/renderer-sdvk010
+                ;;
+              resources)
+                run_vulkan python3 -m tools.renderer_oracle.sdvk150_probe_owner "${common[@]}" --out build/renderer-sdvk150
+                run_vulkan python3 -m tools.renderer_oracle.sdvk153_probe_reset "${common[@]}" --out build/renderer-sdvk153
+                ;;
+              lightmaps)
+                run_vulkan python3 -m tools.renderer_oracle.sdvk158_lightmap_transition "${common[@]}" --out build/renderer-sdvk158
+                run_vulkan python3 -m tools.renderer_oracle.sdvk014_controlled_planes "${common[@]}" --out build/renderer-sdvk014-controlled
+                ;;
+              surfaces)
+                run_vulkan python3 -m tools.renderer_oracle.sdvk161_special_surfaces "${common[@]}" --out build/renderer-sdvk161
+                ;;
+            esac
+            ;;
+          *) echo "Unknown native suite: $SUITE" >&2; exit 1 ;;
+        esac
+    - name: Seal complete per-suite success or failure evidence
+      if: always()
+      shell: bash
+      env:
+        EXECUTION_OUTCOME: ${{ steps.execute.outcome }}
+      run: |
+        set -euo pipefail
+        mkdir -p "build/native-suite-$SUITE"
+        printf '{"schema":"sdvk-r001-suite/v1","source_sha":"%s","suite":"%s","execution":"%s"}\n' \
+          "$SOURCE_SHA" "$SUITE" "$EXECUTION_OUTCOME" > "build/native-suite-$SUITE/receipt.json"
+        members=("native-suite-$SUITE")
+        for directory in renderer-routine renderer-sdvk010 renderer-sdvk150 renderer-sdvk153 renderer-sdvk158 renderer-sdvk161 renderer-sdvk014-controlled; do
+          if [[ -d "build/$directory" ]]; then members+=("$directory"); fi
+        done
+        XZ_OPT='-1 -T0' tar -cJf "build/renderer-suite-$SUITE.tar.xz" -C build "${members[@]}"
+        xz -t "build/renderer-suite-$SUITE.tar.xz"
+        (cd build && sha256sum "renderer-suite-$SUITE.tar.xz" > "renderer-suite-$SUITE.sha256")
+    - name: Retain independent evidence, including native failure packets
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-r001-${{ matrix.suite }}
+        path: |
+          build/renderer-suite-${{ matrix.suite }}.tar.xz
+          build/renderer-suite-${{ matrix.suite }}.sha256
+        if-no-files-found: error
+        compression-level: 0
+        retention-days: ${{ job.status == 'success' && 7 || 30 }}
+
+  vulkan_complete:
+    name: Linux software Vulkan | RelWithDebInfo
+    needs: [route, pf_oracle, vulkan_build, vulkan_native]
+    if: always()
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      ROUTE_RESULT: ${{ needs.route.result }}
+      CPU_RESULT: ${{ needs.pf_oracle.result }}
+      NATIVE_SCOPE: ${{ needs.route.outputs.native }}
+      BUILD_RESULT: ${{ needs.vulkan_build.result }}
+      SUITES_RESULT: ${{ needs.vulkan_native.result }}
+      EXPECTED_SUITES: ${{ needs.route.outputs.suites }}
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+    steps:
+    - name: Fail closed if any applicable prerequisite is missing or red
+      shell: bash
+      run: |
+        set -euo pipefail
+        test "$ROUTE_RESULT" = success
+        test "$CPU_RESULT" = success
+        case "$NATIVE_SCOPE" in
+          true)
+            test "$BUILD_RESULT" = success
+            test "$SUITES_RESULT" = success
+            ;;
+          false)
+            test "$BUILD_RESULT" = skipped
+            test "$SUITES_RESULT" = skipped
+            echo 'NOT_APPLICABLE: documentation-only changes, no native work claimed.' >> "$GITHUB_STEP_SUMMARY"
+            ;;
+          *) echo "Invalid native scope" >&2; exit 1 ;;
+        esac
+    - name: Download the selected independent evidence packets
+      if: needs.route.outputs.native == 'true'
+      uses: actions/download-artifact@v4
+      with:
+        pattern: renderer-r001-*
+        path: build/native-suites
+    - name: Authenticate selected evidence, retain legacy combined archive
+      if: needs.route.outputs.native == 'true'
+      shell: bash
+      run: |
+        set -euo pipefail
+        mkdir -p build/renderer-combined
+        mapfile -t expected < <(python3 -c 'import json,os; print("\n".join(json.loads(os.environ["EXPECTED_SUITES"])))')
+        test "${#expected[@]}" -gt 0
+        mapfile -t actual < <(find build/native-suites -mindepth 1 -maxdepth 1 -type d -printf '%f\n' | sed 's/^renderer-r001-//' | sort)
+        test "$(printf '%s\n' "${expected[@]}" | sort)" = "$(printf '%s\n' "${actual[@]}")"
+        for suite in "${expected[@]}"; do
+          folder="build/native-suites/renderer-r001-$suite"
+          test -f "$folder/renderer-suite-$suite.tar.xz"
+          test -f "$folder/renderer-suite-$suite.sha256"
+          (cd "$folder" && sha256sum -c "renderer-suite-$suite.sha256")
+          tar -tJf "$folder/renderer-suite-$suite.tar.xz" >/dev/null
+          tar -xJf "$folder/renderer-suite-$suite.tar.xz" -C build/renderer-combined
+          test -f "build/renderer-combined/native-suite-$suite/receipt.json"
+          SUITE="$suite" python3 - <<'PY'
+        import json, os
+        from pathlib import Path
+        data = json.loads((Path("build/renderer-combined") / ("native-suite-" + os.environ["SUITE"]) / "receipt.json").read_text())
+        assert data["source_sha"] == os.environ["SOURCE_SHA"]
+        assert data["suite"] == os.environ["SUITE"]
+        assert data["execution"] == "success"
+        PY
+        done
+        XZ_OPT='-1 -T0' tar -cJf build/renderer-software-vulkan.tar.xz -C build/renderer-combined .
+        xz -t build/renderer-software-vulkan.tar.xz
+        (cd build && sha256sum renderer-software-vulkan.tar.xz > renderer-software-vulkan.sha256)
+        echo "PASS: source-matched independent native suites: ${expected[*]}" >> "$GITHUB_STEP_SUMMARY"
+    - name: Publish compatible legacy-format combined evidence
+      if: needs.route.outputs.native == 'true'
+      uses: actions/upload-artifact@v4
+      with:
+        name: renderer-software-vulkan
+        path: |
+          build/renderer-software-vulkan.tar.xz
+          build/renderer-software-vulkan.sha256
+        compression-level: 0
+        if-no-files-found: error
+        retention-days: 7

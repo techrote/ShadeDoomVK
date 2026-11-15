@@ -12,6 +12,7 @@ import subprocess
 from pathlib import Path
 
 GROUPS = ("actors", "materials", "resources", "lightmaps", "portals", "lighting")
+NATIVE_SUITES = ("routine", "actors", "resources", "lightmaps", "surfaces")
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -74,6 +75,23 @@ def classify(paths):
             "reasons": reasons, "physical_stop_active": True}
 
 
+def select_native_suites(result):
+    """Select each native risk group once; do not mistake a skipped suite for a PASS."""
+    if not result["native"]:
+        return []
+    groups = set(result["targeted"])
+    selected = ["routine"]
+    if "actors" in groups:
+        selected.append("actors")
+    if "resources" in groups or "materials" in groups:
+        selected.append("resources")
+    if "lightmaps" in groups:
+        selected.append("lightmaps")
+    if "lightmaps" in groups or "portals" in groups:
+        selected.append("surfaces")
+    return selected
+
+
 def git(*args):
     return subprocess.check_output(["git", *args], cwd=ROOT)
 
@@ -110,10 +128,12 @@ def main():
     paths, head, base = changed_paths(json.loads(args.event_path.read_text()), args.event_name)
     result = classify(paths)
     result.update(head=head, base=base)
+    result["native_suites"] = select_native_suites(result)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2) + "\n")
     with args.github_output.open("a") as stream:
         stream.write("native=" + str(result["native"]).lower() + "\n")
+        stream.write("suites=" + json.dumps(result["native_suites"] or ["not-applicable"], separators=(",", ":")) + "\n")
         for group in GROUPS:
             stream.write(group + "=" + str(group in result["targeted"]).lower() + "\n")
     print(json.dumps(result, indent=2))
