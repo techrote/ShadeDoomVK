@@ -73,6 +73,36 @@ def envelope(*, start_tic=100, tics_per_view=1, fraction=0.125):
 
 
 class LightmapRepeatabilityTests(unittest.TestCase):
+    def test_global_texture_manager_epoch_offset_is_not_lightmap_lifecycle(self):
+        left = envelope()
+        right = envelope(start_tic=300, tics_per_view=4, fraction=0.875)
+        for row in right["records"]:
+            if row["kind"] == "resource":
+                row["data"]["texture_epoch"] += 1
+        original = copy.deepcopy(right)
+        result = self.compare(left, right)
+        self.assertEqual(result["status"], "PASS")
+        self.assertTrue(result["state_equal"])
+        self.assertEqual(result["image"]["changed_pixels"], 0)
+        self.assertEqual(right, original)
+        self.assertEqual(self.compare(left, right, clock="ordinary_engine_clock")["status"], "FAIL")
+
+    def test_global_epoch_transition_pattern_still_detected(self):
+        left = envelope()
+        right = envelope(start_tic=300, tics_per_view=4, fraction=0.875)
+        for row in right["records"]:
+            if row["kind"] == "resource":
+                row["data"]["texture_epoch"] += 1
+                if row["frame"] >= 25:
+                    row["data"]["texture_epoch"] += 1
+        projected_left = run._fixture_texture_manager_projection(
+            run.validate.state_projection(left, static_scene=True), SCENE)
+        projected_right = run._fixture_texture_manager_projection(
+            run.validate.state_projection(right, static_scene=True), SCENE)
+        self.assertNotEqual(projected_left, projected_right)
+        self.assertEqual(self.compare(left, right)["status"], "FAIL")
+
+
     def compare(self, left, right, *, scene=SCENE, clock=CLOCK, changed_image=False):
         # Structural/lifecycle validation is real, including 48 exact frame
         # identities and the preregistered input markers and phase windows.

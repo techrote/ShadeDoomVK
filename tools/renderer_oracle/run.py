@@ -1138,24 +1138,64 @@ def _sdvk150_repeatability_projection(records, scene):
     return result
 
 def _sdvk161_repeatability_projection(records, scene):
-    """Keep actual mesh-instance aliasing while canonicalizing process labels.
+    """Preserve concrete atlas ownership and descriptor joins across processes.
 
-    Constructor-assigned IDs are not semantic IDs across independent processes.
-    Their first-seen order and every surface/resource join remain exact; local
-    mesh epochs, atlas receipt identities, maps, phases and all other fields stay.
+    Constructor mesh IDs and the first allocated generation label for a bound
+    material may differ across processes. Keep every actual
+    descriptor index/epoch/span and per-run generation alias/transition pattern,
+    every atlas receipt, mesh epoch, lightmap state and producer phase exact.
     """
     result = copy.deepcopy(records)
     if scene not in ("special-surface-lifecycle", "controlled-plane-lifecycle"):
         return result
     owners = {}
+    material_generations = {}
+    def normalize_bound_material(material):
+        if not isinstance(material, dict) or not isinstance(material.get("name"), str):
+            return
+        resource = material.get("resource", {})
+        if resource.get("available") is not True or type(resource.get("generation")) is not int:
+            return
+        stable = (resource.get("index"), resource.get("epoch"), resource.get("span"))
+        labels = material_generations.setdefault(stable, {})
+        raw = resource["generation"]
+        resource["generation"] = labels.setdefault(raw, len(labels))
     for record in result:
         value = record.get("data", {})
-        target = value.get("levelmesh", {}) if record.get("kind") == "resource" else value
-        name = "owner" if record.get("kind") == "resource" else "mesh_owner"
-        if record.get("kind") not in ("resource", "surface") or type(target.get(name)) is not int:
+        kind = record.get("kind")
+        if scene == "special-surface-lifecycle":
+            if kind == "surface":
+                normalize_bound_material(value.get("material", {}))
+            elif kind == "material":
+                normalize_bound_material(value)
+        target = value.get("levelmesh", {}) if kind == "resource" else value
+        name = "owner" if kind == "resource" else "mesh_owner"
+        if kind not in ("resource", "surface") or type(target.get(name)) is not int:
             continue
         owner = target[name]
         target[name] = owners.setdefault(owner, len(owners))
+    return result
+
+
+def _fixture_texture_manager_projection(records, scene):
+    """Canonicalize only incidental manager-wide texture-generation labels.
+
+    In the three fixed-view lightmap tests, semantic residency and transitions
+    are covered by actual lightmap/probe epochs, atlas receipts, descriptors,
+    map-phase records and exact RGB. Manager-global texture_epoch can begin at
+    a different non-semantic count when an independent process prepares one
+    additional background texture. Keep within-run changes and aliasing exact.
+    """
+    result = copy.deepcopy(records)
+    if scene not in ("lightmap-retained-transition", "special-surface-lifecycle", "controlled-plane-lifecycle"):
+        return result
+    labels = {}
+    for record in result:
+        data = record.get("data", {})
+        if record.get("kind") != "resource" or type(data.get("texture_epoch")) is not int:
+            continue
+        raw = data["texture_epoch"]
+        data["texture_epoch"] = labels.setdefault(raw, len(labels))
     return result
 
 
@@ -1194,16 +1234,19 @@ def compare_runs(left, right, *, allow_build_change=False):
         b["scene"])
     x = _sdvk161_repeatability_projection(x, a["scene"])
     y = _sdvk161_repeatability_projection(y, b["scene"])
+    if fixed_view_lightmap:
+        x = _fixture_texture_manager_projection(x, a["scene"])
+        y = _fixture_texture_manager_projection(y, b["scene"])
     normalization = "Validated context and live-slot identities; 1e-9 view-number canonicalization; static-scene clock labels; cumulative workload telemetry excluded; semantic state retained"
     if a["scene"] in ("sun-actor-occlusion", "portal-probes"):
         normalization += "; SDVK-010 scene-specific background material generation and texture-manager epoch labels normalized bijectively; transitions, actor/probe identities and all other epochs remain exact"
     if a["scene"] == "probe-owner-transition":
         normalization += "; SDVK-150 process-local probe owner revision and texture-manager epoch labels normalized bijectively; map/order/distinctness, actual LightProbe and other resource identities/epochs remain exact"
     if a["scene"] in ("special-surface-lifecycle", "controlled-plane-lifecycle"):
-        normalization += "; SDVK-161 actual mesh-instance labels normalized bijectively; instance birth order, resource/draw aliasing, local mesh epochs, atlas receipts and phase order remain exact"
+        normalization += "; SDVK-161 actual mesh-instance labels normalized bijectively; special-surface bound material generation labels also bijective; all descriptor index/epoch/span joins, local mesh epochs, atlas receipts and phase order remain exact"
     if fixed_view_lightmap:
         owner = "SDVK-158" if a["scene"] == "lightmap-retained-transition" else "SDVK-161"
-        normalization += "; " + owner + " fixed-presented-view schedule normalizes only frame/context simulation tic and interpolation-fraction labels; frame/phase order, camera geometry, settings, resource epochs, tile completion/dirty state and RGB remain exact"
+        normalization += "; " + owner + " fixed-presented-view schedule normalizes frame/context simulation tic, interpolation-fraction and manager-global texture epoch labels; phase, camera geometry, settings, actual lightmap/probe epochs, resource identity/aliasing, tile completion/dirty state and RGB remain exact"
     image = images.compare(left_root / "native.png", right_root / "native.png", a["reproduction"]["image_policy"])
     equal = x == y
     return {"schema": "sdvk-renderer-comparison/v1", "status": "PASS" if equal and image["passed"] else "FAIL",
