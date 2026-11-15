@@ -135,7 +135,7 @@ std::string LightmapLifecycle(LevelMesh* mesh, size_t vulkanPages, int frameTile
         .Bool("all_clean", initialDirty == 0 && geometryDirty == 0 && lightDirty == 0)
         .Bool("page_count_match", size_t(std::max(mesh->Lightmap.TextureCount, 0)) == vulkanPages)
         .Bool("sampling_page_bounds_ok", invalid == 0).Raw("page_live_tiles", pages)
-        .Str("scope", SpecialSurfaceEnabled() ? "atlas tile receipts" : "current live tile receipts and atlas page ownership; actual pixels remain image evidence");
+        .Str("scope", SdvkDiagnostics::SpecialSurfaceEnabled() ? "atlas tile receipts" : "current live tile receipts and atlas page ownership; actual pixels remain image evidence");
     if (SdvkDiagnostics::SpecialSurfaceEnabled())
         result.Raw("tile_receipts", TileCensus(mesh, vulkanPages)).Int("authored_probe_count", level.lightProbes.Size());
     return result.Json();
