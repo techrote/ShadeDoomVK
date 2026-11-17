@@ -1,0 +1,246 @@
+# Reference only — deliberately isolated from required CI and physical GPU testing.
+# Source: R-001 #203 and Draft PR #211. This is a small, runnable parallel
+# topology exemplar; not a replacement for existing repository checks.
+name: EXAMPLE | Parallel source-matched software Vulkan
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ci/reference-parallel-r001-20261115
+    paths:
+      - .github/workflows/reference_parallel_r001.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: exemplar-parallel-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cpu:
+    name: EXAMPLE | CPU / source contracts
+    runs-on: ubuntu-22.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Prove exact source and independently run CPU contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+          python3 -m unittest discover -s tools/ci -p 'test_*.py' -v
+          python3 tools/check.py --output build/exemplar-cpu
+      - name: Retain bounded CPU failure logs only
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exemplar-cpu-failures
+          path: build/exemplar-cpu/*.log
+          if-no-files-found: ignore
+          retention-days: 7
+
+  build:
+    name: EXAMPLE | One authenticated renderer build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Enforce safe hosted source/build environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test -z "$(git status --porcelain)"
+      - name: Install software renderer build dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom xz-utils
+          python3 tools/fetch_build_deps.py --platform linux --output build/deps
+      - name: Configure and build exactly once
+        shell: bash
+        run: |
+          set -euo pipefail
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_PREFIX_PATH="$PWD/build/deps/zmusic" -DPK3_QUIET_ZIPDIR=ON -DNO_GTK=ON
+          cmake --build build --config RelWithDebInfo --parallel 3
+          LD_LIBRARY_PATH="$PWD/build/deps/zmusic/lib" python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+      - name: Seal portable runtime with source and tree identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          test -x build/vkdoom && test -x build/vktool
+          test -f build/vkdoom.pk3
+          git rev-parse HEAD > build/EXEMPLAR-COMMIT.txt
+          git rev-parse 'HEAD^{tree}' > build/EXEMPLAR-TREE.txt
+          members=(build/vkdoom build/vktool build/CMakeCache.txt build/deps/zmusic/lib build/EXEMPLAR-COMMIT.txt build/EXEMPLAR-TREE.txt build/*.pk3)
+          for directory in build/fm_banks build/soundfonts; do
+            if [[ -d "$directory" ]]; then members+=("$directory"); fi
+          done
+          tar -cf build/exemplar-runtime.tar "${members[@]}"
+          gzip -1 build/exemplar-runtime.tar
+          (cd build && sha256sum exemplar-runtime.tar.gz > exemplar-runtime.tar.gz.sha256)
+          (cd build && sha256sum -c exemplar-runtime.tar.gz.sha256)
+          echo "One source-matched build shared by three independent native jobs." >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload immutable same-run runtime
+        uses: actions/upload-artifact@v4
+        with:
+          name: exemplar-shared-runtime
+          path: |
+            build/exemplar-runtime.tar.gz
+            build/exemplar-runtime.tar.gz.sha256
+          compression-level: 0
+          if-no-files-found: error
+          retention-days: 1
+
+  native:
+    name: EXAMPLE | Hosted native ${{ matrix.suite }}
+    needs: build
+    if: needs.build.result == 'success'
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        suite: [routine, actors, resources]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      SUITE: ${{ matrix.suite }}
+      LD_LIBRARY_PATH: ${{ github.workspace }}/build/deps/zmusic/lib
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Install hosted llvmpipe runtime (no physical GPU)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          sudo apt-get update
+          sudo apt-get install -y libsdl2-dev libvpx-dev libdbus-1-dev libbz2-dev libx11-dev libwebp-dev mesa-vulkan-drivers vulkan-tools xvfb xauth freedoom
+      - name: Fetch exactly this run's built runtime
+        uses: actions/download-artifact@v4
+        with:
+          name: exemplar-shared-runtime
+          path: build
+      - name: Authenticate archive, source and executable identity
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          (cd build && sha256sum -c exemplar-runtime.tar.gz.sha256)
+          tar -tzf build/exemplar-runtime.tar.gz >/dev/null
+          tar -xzf build/exemplar-runtime.tar.gz
+          test "$(cat build/EXEMPLAR-COMMIT.txt)" = "$GITHUB_SHA"
+          test "$(cat build/EXEMPLAR-TREE.txt)" = "$(git rev-parse 'HEAD^{tree}')"
+          python3 tools/check_build_identity.py --build-dir build --config RelWithDebInfo --expected-state clean
+      - name: Constrain execution to one hosted llvmpipe ICD
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t icds < <(find /usr/share/vulkan/icd.d -maxdepth 1 -type f -name 'lvp_icd*.json' | sort)
+          test "${#icds[@]}" -eq 1
+          {
+            printf 'VK_DRIVER_FILES=%s\n' "${icds[0]}"
+            printf 'VK_ICD_FILENAMES=%s\n' "${icds[0]}"
+            printf 'SDL_VIDEODRIVER=x11\n'
+          } >> "$GITHUB_ENV"
+      - name: Run independent native suite on the authenticated runtime
+        id: execute
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$SUITE" in
+            routine)
+              xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 tools/ci/routine_native.py \
+                --exe "$PWD/build/vkdoom" --iwad /usr/share/games/doom/freedoom2.wad \
+                --out build/renderer-routine --expected-commit "$GITHUB_SHA"
+              ;;
+            actors|resources)
+              python3 tools/renderer_oracle/sdvk009_publication.py fetch-content --out build/renderer-content
+              if [[ "$SUITE" == actors ]]; then
+                xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk010_acceptance \
+                  --exe "$PWD/build/vkdoom" --iwad build/renderer-content/freedoom2.wad \
+                  --iwad-license build/renderer-content/COPYING.txt \
+                  --out build/renderer-sdvk010 --expected-commit "$GITHUB_SHA"
+              else
+                xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk150_probe_owner \
+                  --exe "$PWD/build/vkdoom" --iwad build/renderer-content/freedoom2.wad \
+                  --iwad-license build/renderer-content/COPYING.txt \
+                  --out build/renderer-sdvk150 --expected-commit "$GITHUB_SHA"
+                xvfb-run -a -s '-screen 0 640x480x24 -nolisten tcp' python3 -m tools.renderer_oracle.sdvk153_probe_reset \
+                  --exe "$PWD/build/vkdoom" --iwad build/renderer-content/freedoom2.wad \
+                  --iwad-license build/renderer-content/COPYING.txt \
+                  --out build/renderer-sdvk153 --expected-commit "$GITHUB_SHA"
+              fi
+              ;;
+            *)
+              echo "Unknown suite $SUITE" >&2; exit 1 ;;
+          esac
+      - name: Keep compact success or failure receipts
+        if: always()
+        shell: bash
+        env:
+          EXECUTION_RESULT: ${{ steps.execute.outcome }}
+        run: |
+          set -euo pipefail
+          mkdir -p build/exemplar-evidence
+          printf '{"source_sha":"%s","suite":"%s","execution":"%s"}\n' "$GITHUB_SHA" "$SUITE" "$EXECUTION_RESULT" > build/exemplar-evidence/summary.json
+          for directory in build/renderer-routine build/renderer-sdvk010 build/renderer-sdvk150 build/renderer-sdvk153; do
+            if [[ -d "$directory" ]]; then
+              while IFS= read -r -d '' file; do
+                dest="build/exemplar-evidence/${file#build/}"
+                mkdir -p "$(dirname "$dest")"
+                cp "$file" "$dest"
+              done < <(find "$directory" -maxdepth 2 -type f -name '*.json' -size -1M -print0)
+            fi
+          done
+          (cd build/exemplar-evidence && find . -type f ! -name 'SHA256SUMS' -print0 | sort -z | xargs -0 -r sha256sum > SHA256SUMS)
+      - name: Upload distinct bounded suite receipts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exemplar-suite-${{ matrix.suite }}
+          path: build/exemplar-evidence/
+          if-no-files-found: error
+          compression-level: 1
+          retention-days: 3
+
+  summary:
+    name: EXAMPLE | Complete parallel result (not required)
+    needs: [cpu, build, native]
+    if: always()
+    runs-on: ubuntu-22.04
+    timeout-minutes: 5
+    steps:
+      - name: Report independent outcomes and refuse incomplete success
+        shell: bash
+        env:
+          CPU_RESULT: ${{ needs.cpu.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          NATIVE_RESULT: ${{ needs.native.result }}
+        run: |
+          set -euo pipefail
+          {
+            echo '### Standalone exemplar — NOT a required CI check'
+            echo "Source: $GITHUB_SHA"
+            echo "CPU: $CPU_RESULT"
+            echo "Shared build: $BUILD_RESULT"
+            echo "Three-way native matrix: $NATIVE_RESULT"
+            echo 'No legacy publication acceptance, physical GPU stability or performance gain is inferred.'
+          } >> "$GITHUB_STEP_SUMMARY"
+          test "$CPU_RESULT" = success
+          test "$BUILD_RESULT" = success
+          test "$NATIVE_RESULT" = success
